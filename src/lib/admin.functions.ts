@@ -11,7 +11,7 @@ export type AuditEntry = {
   entity_id: string | null;
   student_id: string | null;
   created_at: string;
-  metadata: Record<string, unknown> | null;
+  metadata: unknown;
 };
 
 export type AdminSummary = {
@@ -25,7 +25,7 @@ export type AdminSummary = {
   };
 };
 
-async function isAdmin(supabase: ReturnType<typeof requireSupabaseAuth> extends never ? never : any, userId: string) {
+async function isAdmin(supabase: any, userId: string): Promise<boolean> {
   const { data } = await supabase
     .from("user_roles")
     .select("role")
@@ -34,6 +34,7 @@ async function isAdmin(supabase: ReturnType<typeof requireSupabaseAuth> extends 
     .maybeSingle();
   return Boolean(data);
 }
+
 
 export const getAdminSummary = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

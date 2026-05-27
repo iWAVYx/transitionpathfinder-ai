@@ -32,7 +32,7 @@ function AdminPage() {
       try {
         const [s, a] = await Promise.all([fetchSummary(), fetchAudit({ data: {} })]);
         setSummary(s);
-        setEntries(a.entries);
+        setEntries(a.entries as AuditEntry[]);
       } finally {
         setLoading(false);
       }
