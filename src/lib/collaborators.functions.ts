@@ -147,16 +147,48 @@ export const acceptInvite = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export type InviteWithStudent = Collaborator & {
+  student_first_name: string | null;
+  student_last_name: string | null;
+  inviter_name: string | null;
+};
+
 export const listMyInvites = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
-    // Pending invites where user_id matches OR (best-effort) invited_email matches user's email.
-    // RLS limits to rows the caller can see (student access OR own row).
-    const { data: rows } = await supabase
+    const { userId, claims } = context;
+    const email = (claims.email as string | undefined)?.toLowerCase();
+    if (!email) return { invites: [] as InviteWithStudent[] };
+
+    // Use admin client: RLS would hide invites whose user_id isn't yet linked.
+    const { data: rows, error } = await supabaseAdmin
       .from("student_collaborators")
-      .select("*")
+      .select("*, student:students(first_name, last_name), inviter:profiles!student_collaborators_invited_by_fkey(full_name)")
       .eq("status", "pending")
+      .or(`user_id.eq.${userId},invited_email.eq.${email}`)
       .order("created_at", { ascending: false });
-    return { invites: (rows ?? []) as Collaborator[] };
+    if (error) {
+      // Fallback without the join (FK aliases may differ)
+      const { data: plain } = await supabaseAdmin
+        .from("student_collaborators")
+        .select("*, student:students(first_name, last_name)")
+        .eq("status", "pending")
+        .or(`user_id.eq.${userId},invited_email.eq.${email}`)
+        .order("created_at", { ascending: false });
+      const invites: InviteWithStudent[] = (plain ?? []).map((r: any) => ({
+        ...(r as Collaborator),
+        student_first_name: r.student?.first_name ?? null,
+        student_last_name: r.student?.last_name ?? null,
+        inviter_name: null,
+      }));
+      return { invites };
+    }
+    const invites: InviteWithStudent[] = (rows ?? []).map((r: any) => ({
+      ...(r as Collaborator),
+      student_first_name: r.student?.first_name ?? null,
+      student_last_name: r.student?.last_name ?? null,
+      inviter_name: r.inviter?.full_name ?? null,
+    }));
+    return { invites };
   });
+
