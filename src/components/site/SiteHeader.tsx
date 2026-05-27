@@ -53,6 +53,12 @@ export function SiteHeader() {
               >
                 Dashboard
               </Link>
+              <Link
+                to="/settings"
+                className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
+              >
+                Settings
+              </Link>
               <button
                 type="button"
                 onClick={() => signOut()}
@@ -61,6 +67,7 @@ export function SiteHeader() {
                 Sign out
               </button>
             </>
+
           ) : (
             <>
               <Link
