@@ -5,6 +5,11 @@ import studentImg from "@/assets/home-student.jpg";
 import familyImg from "@/assets/home-family.jpg";
 import educatorImg from "@/assets/home-educator.jpg";
 import pathwayImg from "@/assets/home-pathway.jpg";
+import pathCollege from "@/assets/path-college.jpg";
+import pathTechnical from "@/assets/path-technical.jpg";
+import pathCareer from "@/assets/path-career.jpg";
+import pathLifeskills from "@/assets/path-lifeskills.jpg";
+import pathProgress from "@/assets/path-progress.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -172,6 +177,32 @@ function HomePage() {
               align="right"
             />
           </div>
+        </div>
+      </section>
+
+      {/* PATHWAYS — image tile grid of real next-step destinations */}
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Real-life pathways
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              Many roads forward. One plan that fits.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              College, technical training, supported employment, daily life skills,
+              and the steady progress in between — TransitionForward helps every
+              student picture what's next and the small steps to get there.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-6 md:gap-5">
+          <PathwayTile className="md:col-span-3 md:row-span-2 aspect-square md:aspect-auto" image={pathCollege} label="College" caption="Two- and four-year programs, with the right supports in place." />
+          <PathwayTile className="md:col-span-3 aspect-square md:aspect-[2/1]" image={pathTechnical} label="Technical education" caption="Hands-on trades, certificates, and apprenticeships." />
+          <PathwayTile className="md:col-span-2 aspect-square" image={pathCareer} label="Career & employment" caption="Job training, internships, BRS." />
+          <PathwayTile className="md:col-span-2 aspect-square" image={pathLifeskills} label="Life skills" caption="Cooking, transit, money, daily independence." />
+          <PathwayTile className="md:col-span-2 aspect-square" image={pathProgress} label="Progress, tracked" caption="Small wins, gently celebrated." />
         </div>
       </section>
 
@@ -343,5 +374,39 @@ function AudiencePhoto({
         </span>
       </div>
     </Link>
+  );
+}
+
+function PathwayTile({
+  image,
+  label,
+  caption,
+  className = "",
+}: {
+  image: string;
+  label: string;
+  caption: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-3xl shadow-soft transition-all hover:shadow-lift ${className}`}
+    >
+      <img
+        src={image}
+        alt={label}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-5 text-background sm:p-6">
+        <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">
+          {label}
+        </h3>
+        <p className="mt-1 text-xs leading-relaxed text-background/85 sm:text-sm">
+          {caption}
+        </p>
+      </div>
+    </div>
   );
 }

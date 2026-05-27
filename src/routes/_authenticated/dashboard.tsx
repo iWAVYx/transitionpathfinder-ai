@@ -1,6 +1,14 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  Sparkles,
+  ClipboardList,
+  Target,
+  FolderOpen,
+  Compass,
+  Heart,
+} from "lucide-react";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import pathwayHero from "@/assets/pathway-hero.jpg";
 
@@ -75,7 +83,10 @@ function DashboardPage() {
               height={900}
               className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-2/3 rounded-2xl object-cover opacity-80 transition-transform duration-500 group-hover:scale-105 [mask-image:radial-gradient(circle_at_top_left,black,transparent_75%)]"
             />
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft backdrop-blur">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
             <h2 className="mt-2 max-w-md font-display text-3xl font-medium tracking-tight sm:text-4xl">
               Create a Pathway Report →
             </h2>
@@ -88,22 +99,14 @@ function DashboardPage() {
 
           <FeatureCard
             to="/ppt-prep"
-            icon={
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h6m-6 4h10M5 4h14a1 1 0 0 1 1 1v14l-3-2-3 2-3-2-3 2-3-2V5a1 1 0 0 1 1-1Z" />
-              </svg>
-            }
+            icon={<ClipboardList className="h-6 w-6" />}
             title="PPT meeting prep"
             body="Turn any Pathway Report into a calm one-page agenda, the right questions, and scripts you can borrow word-for-word."
           />
 
           <FeatureCard
             to="/goals"
-            icon={
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21V12m0 0 4 4m-4-4-4 4M12 3a5 5 0 0 1 5 5v1H7V8a5 5 0 0 1 5-5Z" />
-              </svg>
-            }
+            icon={<Target className="h-6 w-6" />}
             title="Goal tracker"
             body="Every step from your reports in one place — gently mark what's in progress and what's been met."
           />
@@ -114,26 +117,19 @@ function DashboardPage() {
             to="/reports"
             title="My Pathway Reports"
             body="Everything you've generated, in one library. Open, print, or carry into your next PPT prep."
-            icon={
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14 4v5h5M8 13h8M8 17h5" />
-              </svg>
-            }
+            icon={<FolderOpen className="h-6 w-6" />}
           />
           <FeatureCard
             to="/resources"
             title="Resource Hub"
             body="Plain-language guides to Connecticut agencies, a small glossary, and family worksheets."
-            icon={
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h13a3 3 0 0 1 3 3v11H6a3 3 0 0 1-3-3V6Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 6a3 3 0 0 1 3-3h10v14H6a3 3 0 0 0-3 3" />
-              </svg>
-            }
+            icon={<Compass className="h-6 w-6" />}
           />
           <div className="relative overflow-hidden rounded-3xl border border-dashed border-border/60 bg-gradient-warm p-7">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">A note from us</p>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background/70 text-secondary-foreground shadow-soft backdrop-blur">
+              <Heart className="h-5 w-5" />
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">A note from us</p>
             <p className="mt-2 font-display text-xl leading-snug">
               "We built this from inside a real classroom. If something feels off, it's because
               someone, somewhere, lived it."
