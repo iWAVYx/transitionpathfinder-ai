@@ -229,10 +229,3 @@ function GoogleButton() {
     </Button>
   );
 }
-
-// Loader guard to send already-signed-in users away from /login is handled
-// in the component via useAuth (since SSR has no session here).
-// Provide a redirect helper for direct visits when auth context exists later.
-export function _routeRedirectHelper() {
-  return redirect({ to: "/dashboard" });
-}
