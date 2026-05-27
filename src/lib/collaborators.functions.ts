@@ -1,6 +1,28 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+async function findUserIdByEmail(email: string): Promise<string | null> {
+  const lower = email.toLowerCase();
+  try {
+    let page = 1;
+    while (true) {
+      const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage: 200,
+      });
+      if (error) return null;
+      const hit = list.users.find((u) => (u.email ?? "").toLowerCase() === lower);
+      if (hit) return hit.id;
+      if (list.users.length < 200) return null;
+      page++;
+      if (page > 5) return null;
+    }
+  } catch {
+    return null;
+  }
+}
 
 export type Collaborator = {
   id: string;
