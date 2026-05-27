@@ -290,26 +290,29 @@ function PlatformPage() {
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-5 md:grid-cols-3">
-          <TrustCard
-            icon={Lock}
-            title="Private By Default"
-            body="Family and student data is owned by the people it belongs to. Educators only see students they are invited to."
-          />
-          <TrustCard
-            icon={ShieldCheck}
-            title="FERPA Aware"
-            body="Built with school district privacy expectations in mind. Role based access, audit trail, and an admin console."
-          />
-          <TrustCard
-            icon={Heart}
-            title="Built In Connecticut, For Connecticut"
-            body="Tuned to community colleges, technical high schools, BRS, and the way CT districts actually run PPTs."
-          />
+      {/* Trust strip — three anchor points */}
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-border/60 bg-card/70 px-4 py-4 shadow-soft backdrop-blur sm:px-6">
+          <div className="grid gap-3 divide-y divide-border/60 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-y-0">
+            <TrustCard
+              icon={Lock}
+              title="Private By Default"
+              body="Owned by the families and students it belongs to."
+            />
+            <TrustCard
+              icon={ShieldCheck}
+              title="FERPA Aware"
+              body="Role based access with a clear audit trail."
+            />
+            <TrustCard
+              icon={Heart}
+              title="Built In Connecticut"
+              body="Tuned to CT colleges, BRS, and how PPTs run here."
+            />
+          </div>
         </div>
       </section>
+
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
