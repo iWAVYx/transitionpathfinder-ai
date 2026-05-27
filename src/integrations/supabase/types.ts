@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      pathway_reports: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          intake_id: string
+          model: string
+          user_id: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          intake_id: string
+          model: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          intake_id?: string
+          model?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathway_reports_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "student_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -32,6 +67,63 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      student_intakes: {
+        Row: {
+          communication: string | null
+          created_at: string
+          current_goals: string | null
+          family_concerns: string | null
+          grade_band: string | null
+          id: string
+          interests: string | null
+          needs: string | null
+          strengths: string | null
+          student_first_name: string
+          student_voice: string | null
+          submitter_role: string
+          supports: string | null
+          transportation: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          communication?: string | null
+          created_at?: string
+          current_goals?: string | null
+          family_concerns?: string | null
+          grade_band?: string | null
+          id?: string
+          interests?: string | null
+          needs?: string | null
+          strengths?: string | null
+          student_first_name: string
+          student_voice?: string | null
+          submitter_role?: string
+          supports?: string | null
+          transportation?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          communication?: string | null
+          created_at?: string
+          current_goals?: string | null
+          family_concerns?: string | null
+          grade_band?: string | null
+          id?: string
+          interests?: string | null
+          needs?: string | null
+          strengths?: string | null
+          student_first_name?: string
+          student_voice?: string | null
+          submitter_role?: string
+          supports?: string | null
+          transportation?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

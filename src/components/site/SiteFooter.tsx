@@ -17,25 +17,24 @@ export function SiteFooter() {
             </span>
           </Link>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-            A quiet companion for families and educators walking the long road of
-            transition — from a 9th-grade schedule to a real life after graduation.
-            Built by a special-education teacher in Connecticut, grounded in the
-            research that actually moves outcomes.
+            From IEP goals to real-life pathways. One platform for the students,
+            families, and educators walking the long road of transition together.
           </p>
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground/80">
-            A pilot program, not a school district's system of record. Your child's
-            records stay yours — encrypted, scoped to your account, and never used
-            to train AI models.
+            A pilot program — not a school district's system of record. Your
+            child's information stays yours, scoped to your account, and is
+            never used to train AI models.
           </p>
         </div>
 
         <div>
           <h4 className="font-display text-base font-semibold">Explore</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/framework" className="hover:text-foreground">How we walk through it</Link></li>
-            <li><Link to="/research" className="hover:text-foreground">The research behind it</Link></li>
-            <li><Link to="/partners" className="hover:text-foreground">Real-world partners</Link></li>
-            <li><Link to="/pricing" className="hover:text-foreground">What it costs</Link></li>
+            <li><Link to="/platform" className="hover:text-foreground">The Platform</Link></li>
+            <li><Link to="/families" className="hover:text-foreground">For Families</Link></li>
+            <li><Link to="/educators" className="hover:text-foreground">For Educators</Link></li>
+            <li><Link to="/framework" className="hover:text-foreground">The Framework</Link></li>
+            <li><Link to="/research" className="hover:text-foreground">Research</Link></li>
           </ul>
         </div>
 
@@ -43,8 +42,10 @@ export function SiteFooter() {
           <h4 className="font-display text-base font-semibold">About</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to="/about" className="hover:text-foreground">Meet Caysi</Link></li>
-            <li><Link to="/waitlist" className="hover:text-foreground">Join the pilot</Link></li>
-            <li><Link to="/privacy" className="hover:text-foreground">Privacy & your records</Link></li>
+            <li><Link to="/partners" className="hover:text-foreground">Partners</Link></li>
+            <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
+            <li><Link to="/waitlist" className="hover:text-foreground">Join the waitlist</Link></li>
+            <li><Link to="/privacy" className="hover:text-foreground">Privacy</Link></li>
           </ul>
         </div>
       </div>
@@ -52,7 +53,7 @@ export function SiteFooter() {
       <div className="border-t border-border/60">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} TransitionForward. Made with care in Connecticut.</p>
-          <p className="italic">Grounded in the work of Mazzotti, Test, Allensworth, Carter, and Burke.</p>
+          <p className="italic">One platform. One plan. Forward together.</p>
         </div>
       </div>
     </footer>

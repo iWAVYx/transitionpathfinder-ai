@@ -13,12 +13,16 @@ import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FrameworkRouteImport } from './routes/framework'
+import { Route as FamiliesRouteImport } from './routes/families'
+import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const WaitlistRoute = WaitlistRouteImport.update({
@@ -41,6 +45,11 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
@@ -54,6 +63,16 @@ const LoginRoute = LoginRouteImport.update({
 const FrameworkRoute = FrameworkRouteImport.update({
   id: '/framework',
   path: '/framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamiliesRoute = FamiliesRouteImport.update({
+  id: '/families',
+  path: '/families',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducatorsRoute = EducatorsRouteImport.update({
+  id: '/educators',
+  path: '/educators',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -70,6 +89,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPathwayRoute = AuthenticatedPathwayRouteImport.update({
+  id: '/pathway',
+  path: '/pathway',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -79,88 +103,115 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/educators': typeof EducatorsRoute
+  '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
+  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/waitlist': typeof WaitlistRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/pathway': typeof AuthenticatedPathwayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/educators': typeof EducatorsRoute
+  '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
+  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/waitlist': typeof WaitlistRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/pathway': typeof AuthenticatedPathwayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
+  '/educators': typeof EducatorsRoute
+  '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
+  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/educators'
+    | '/families'
     | '/framework'
     | '/login'
     | '/partners'
+    | '/platform'
     | '/pricing'
     | '/privacy'
     | '/research'
     | '/waitlist'
     | '/dashboard'
+    | '/pathway'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/educators'
+    | '/families'
     | '/framework'
     | '/login'
     | '/partners'
+    | '/platform'
     | '/pricing'
     | '/privacy'
     | '/research'
     | '/waitlist'
     | '/dashboard'
+    | '/pathway'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/educators'
+    | '/families'
     | '/framework'
     | '/login'
     | '/partners'
+    | '/platform'
     | '/pricing'
     | '/privacy'
     | '/research'
     | '/waitlist'
     | '/_authenticated/dashboard'
+    | '/_authenticated/pathway'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
+  EducatorsRoute: typeof EducatorsRoute
+  FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
   LoginRoute: typeof LoginRoute
   PartnersRoute: typeof PartnersRoute
+  PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
@@ -197,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partners': {
       id: '/partners'
       path: '/partners'
@@ -216,6 +274,20 @@ declare module '@tanstack/react-router' {
       path: '/framework'
       fullPath: '/framework'
       preLoaderRoute: typeof FrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/families': {
+      id: '/families'
+      path: '/families'
+      fullPath: '/families'
+      preLoaderRoute: typeof FamiliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/educators': {
+      id: '/educators'
+      path: '/educators'
+      fullPath: '/educators'
+      preLoaderRoute: typeof EducatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -239,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/pathway': {
+      id: '/_authenticated/pathway'
+      path: '/pathway'
+      fullPath: '/pathway'
+      preLoaderRoute: typeof AuthenticatedPathwayRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -251,10 +330,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -265,9 +346,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
+  EducatorsRoute: EducatorsRoute,
+  FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
   LoginRoute: LoginRoute,
   PartnersRoute: PartnersRoute,
+  PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
