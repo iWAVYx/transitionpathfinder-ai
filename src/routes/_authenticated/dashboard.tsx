@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Sparkles,
@@ -8,6 +9,7 @@ import {
   FolderOpen,
   Compass,
   Heart,
+  ArrowRight,
 } from "lucide-react";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import pathwayHero from "@/assets/pathway-hero.jpg";
@@ -29,7 +31,10 @@ function DashboardPage() {
       {/* Hero band with photograph */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-14 pb-10 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-20 lg:pb-14">
+        <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+          <Breadcrumbs trail={[{ label: "Dashboard" }]} />
+        </div>
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-6 pb-10 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pb-14">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Welcome back</p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
@@ -83,12 +88,18 @@ function DashboardPage() {
               height={900}
               className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-2/3 rounded-2xl object-cover opacity-80 transition-transform duration-500 group-hover:scale-105 [mask-image:radial-gradient(circle_at_top_left,black,transparent_75%)]"
             />
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft backdrop-blur">
-              <Sparkles className="h-6 w-6" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft backdrop-blur">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <span className="inline-flex items-center rounded-full bg-background/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary shadow-soft backdrop-blur">
+                Suggested next step
+              </span>
             </div>
             <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
-            <h2 className="mt-2 max-w-md font-display text-3xl font-medium tracking-tight sm:text-4xl">
-              Create a Pathway Report →
+            <h2 className="mt-2 flex max-w-md items-center gap-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              Create a Pathway Report
+              <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" aria-hidden />
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
               Strengths, interests, current goals, your concerns — even partial is fine. Or upload

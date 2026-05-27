@@ -1,12 +1,15 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { InfoBox } from "@/components/site/InfoBox";
+import { FormProgress } from "@/components/pathway/FormProgress";
 import { ReportView } from "@/components/pathway/ReportView";
 import { IepUpload } from "@/components/pathway/IepUpload";
 import { Button } from "@/components/ui/button";
@@ -125,7 +128,10 @@ function PathwayPage() {
             className="h-full w-full object-cover opacity-90 [mask-image:linear-gradient(to_right,transparent,black_35%)]"
           />
         </div>
-        <div className="mx-auto max-w-7xl px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
+        </div>
+        <div className="mx-auto max-w-7xl px-4 pt-6 pb-10 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Pathway Builder</p>
           <h1 className="mt-3 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
             Tell us about your student.
@@ -144,6 +150,20 @@ function PathwayPage() {
         <div className="-mt-2 mb-8">
           <IepUpload onExtracted={applyExtract} />
         </div>
+
+        <FormProvider {...form}>
+        <FormProgress />
+        <InfoBox label="New to this? What's an IEP and a PPT?" className="mb-6">
+          <p>
+            An <strong>IEP</strong> (Individualized Education Program) is the legal plan that spells
+            out your student's goals, services, and supports.
+          </p>
+          <p className="mt-2">
+            A <strong>PPT</strong> (Planning &amp; Placement Team) meeting is where families and
+            school staff review that plan together. The Pathway Report below is meant to make those
+            conversations easier — in plain language, with the student's voice in the room.
+          </p>
+        </InfoBox>
 
         <form id="intake-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -225,6 +245,7 @@ function PathwayPage() {
             Generation usually takes 15–30 seconds. The AI drafts; you stay in charge.
           </p>
         </form>
+        </FormProvider>
       </section>
     </SiteShell>
   );

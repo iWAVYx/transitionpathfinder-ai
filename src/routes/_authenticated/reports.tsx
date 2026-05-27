@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { Sparkles, FolderOpen } from "lucide-react";
 import { deleteReport, listMyReports } from "@/lib/pathway.functions";
 
 type Row = {
@@ -46,8 +48,9 @@ function ReportsPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <Breadcrumbs trail={[{ label: "My Pathway Reports" }]} />
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">Your library</p>
             <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">My Pathway Reports</h1>
@@ -56,19 +59,26 @@ function ReportsPage() {
               into your next PPT meeting prep.
             </p>
           </div>
-          <Button onClick={() => router.navigate({ to: "/pathway" })}>Create a new report</Button>
+          <Button onClick={() => router.navigate({ to: "/pathway" })}>
+            <Sparkles className="mr-2 h-4 w-4" aria-hidden />
+            Create a new report
+          </Button>
         </div>
 
         <div className="mt-10">
           {rows === null && <p className="text-sm text-muted-foreground">Loading your reports…</p>}
           {rows !== null && rows.length === 0 && (
-            <div className="rounded-3xl border border-dashed border-border/60 bg-muted/30 p-10 text-center">
-              <p className="font-display text-2xl">No reports yet.</p>
+            <div className="rounded-3xl border border-dashed border-border/60 bg-gradient-hero/40 p-10 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft">
+                <FolderOpen className="h-7 w-7" aria-hidden />
+              </div>
+              <p className="mt-4 font-display text-2xl">No reports yet — that's okay.</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Create your first Pathway Report and it'll show up here.
+                Your library is quiet for now. When you create a Pathway Report, it'll live here so
+                you can open it before any PPT meeting.
               </p>
               <Button asChild className="mt-6">
-                <Link to="/pathway">Create a Pathway Report</Link>
+                <Link to="/pathway">Next: create your first report →</Link>
               </Button>
             </div>
           )}
