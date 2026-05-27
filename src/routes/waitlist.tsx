@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitWaitlist } from "@/lib/waitlist.functions";
+import waitlistHero from "@/assets/waitlist-hero.jpg";
 
 const Schema = z.object({
   full_name: z.string().trim().min(1, "Required").max(200),
@@ -73,26 +74,40 @@ function WaitlistPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-6 md:grid-cols-5">
-          <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft md:col-span-2 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Come walk with us
-            </p>
-            <h1 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground">
-              You don't have to figure this out alone.
-            </h1>
-            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-              We're inviting a small group of Connecticut families and educators
-              into the TransitionForward pilot. Built by a special-education
-              teacher, grounded in the research that actually predicts a good
-              life after high school.
-            </p>
-            <div className="mt-8 grid gap-4">
-              <FeatureTile title="For families" body="A steadier hand through every grade — translating the plan, suggesting the next gentle step, holding the bigger picture so you don't have to." />
-              <FeatureTile title="For educators" body="Compliance-ready transition planning without the binder of redundant forms — and finally, a tool families can use between PPT meetings." />
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid gap-6 md:grid-cols-5">
+            <div className="relative overflow-hidden rounded-3xl shadow-lift md:col-span-2">
+              <img
+                src={waitlistHero}
+                alt=""
+                aria-hidden
+                width={1600}
+                height={1200}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/75 to-background/50" />
+              <div className="relative p-8 md:p-10">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                  Come walk with us
+                </p>
+                <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl">
+                  You don't have to figure this out alone.
+                </h1>
+                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                  We're inviting a small group of Connecticut families and educators
+                  into the TransitionForward pilot. Built by a special-education
+                  teacher, grounded in the research that actually predicts a good
+                  life after high school.
+                </p>
+                <div className="mt-8 grid gap-4">
+                  <FeatureTile title="For families" body="A steadier hand through every grade — translating the plan, suggesting the next gentle step, holding the bigger picture so you don't have to." />
+                  <FeatureTile title="For educators" body="Compliance-ready transition planning without the binder of redundant forms — and finally, a tool families can use between PPT meetings." />
+                </div>
+              </div>
             </div>
-          </div>
+
 
 
           <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft md:col-span-3 md:p-8">
@@ -157,6 +172,7 @@ function WaitlistPage() {
                 </p>
               </form>
             )}
+            </div>
           </div>
         </div>
       </section>

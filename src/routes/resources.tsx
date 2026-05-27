@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
+import resourcesHero from "@/assets/resources-hero.jpg";
 
 export const Route = createFileRoute("/resources")({
   head: () => ({
@@ -53,75 +54,62 @@ const agencies = [
 ];
 
 const glossary = [
-  {
-    term: "PPT (Planning and Placement Team)",
-    def: "The team meeting where your child's IEP is written and reviewed. In Connecticut, this is the formal name for what other states call the IEP meeting.",
-  },
-  {
-    term: "Transition planning",
-    def: "The part of the IEP that prepares a student for life after high school — work, education, independent living. It must start by age 14 in Connecticut.",
-  },
-  {
-    term: "Postsecondary goals",
-    def: "Measurable goals for what the student will do after leaving high school, in three areas: education or training, employment, and (when needed) independent living.",
-  },
-  {
-    term: "Age of majority",
-    def: "At 18, educational rights legally transfer from parent to student — unless other arrangements are made. Worth discussing well before the senior year.",
-  },
-  {
-    term: "Summary of Performance (SOP)",
-    def: "A document the school provides when a student exits special education. It summarizes academic and functional performance and recommendations — a bridge to adult services.",
-  },
-  {
-    term: "Self-determination",
-    def: "The skill of knowing what you want and asking for it. In transition, this is what students practice when they help lead their own PPT.",
-  },
+  { term: "PPT (Planning and Placement Team)", def: "The team meeting where your child's IEP is written and reviewed. In Connecticut, this is the formal name for what other states call the IEP meeting." },
+  { term: "Transition planning", def: "The part of the IEP that prepares a student for life after high school — work, education, independent living. It must start by age 14 in Connecticut." },
+  { term: "Postsecondary goals", def: "Measurable goals for what the student will do after leaving high school, in three areas: education or training, employment, and (when needed) independent living." },
+  { term: "Age of majority", def: "At 18, educational rights legally transfer from parent to student — unless other arrangements are made. Worth discussing well before the senior year." },
+  { term: "Summary of Performance (SOP)", def: "A document the school provides when a student exits special education. It summarizes academic and functional performance and recommendations — a bridge to adult services." },
+  { term: "Self-determination", def: "The skill of knowing what you want and asking for it. In transition, this is what students practice when they help lead their own PPT." },
 ];
 
 const templates = [
-  {
-    title: "Family Voice worksheet",
-    description:
-      "A one-page reflection — hopes, worries, what's working, what isn't. Bring it to the next PPT.",
-  },
-  {
-    title: "Student-led PPT script",
-    description:
-      "A gentle script your student can use to share their strengths, goals, and questions at their own meeting.",
-  },
-  {
-    title: "First-job readiness checklist",
-    description:
-      "The small, real-life skills behind a first paycheck — interview clothes, transportation plan, time tracking, communication.",
-  },
+  { title: "Family Voice worksheet", description: "A one-page reflection — hopes, worries, what's working, what isn't. Bring it to the next PPT." },
+  { title: "Student-led PPT script", description: "A gentle script your student can use to share their strengths, goals, and questions at their own meeting." },
+  { title: "First-job readiness checklist", description: "The small, real-life skills behind a first paycheck — interview clothes, transportation plan, time tracking, communication." },
 ];
 
 function ResourcesPage() {
   return (
     <SiteShell>
-      <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">Resource Hub</p>
-        <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-6xl">
-          The map you wish someone had handed you.
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Transition planning is full of acronyms, agencies, and forms — most of them
-          introduced to families one at a time, usually under pressure. Here is a small,
-          calm starting point: who the agencies are, what the words mean, and a few
-          worksheets we'll be opening up as the platform grows.
-        </p>
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Resource Hub</p>
+            <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
+              The map you wish someone had handed you.
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Transition planning is full of acronyms, agencies, and forms — most of them
+              introduced to families one at a time, usually under pressure. Here is a small,
+              calm starting point: who the agencies are, what the words mean, and a few
+              worksheets we'll be opening up as the platform grows.
+            </p>
+          </div>
+          <div className="relative">
+            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+            <img
+              src={resourcesHero}
+              alt="A tidy desk with folders, a map of Connecticut, and a warm mug"
+              width={1600}
+              height={1100}
+              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
+            />
+          </div>
+        </div>
+      </section>
 
-        <div className="mt-14">
-          <h2 className="font-display text-2xl font-medium tracking-tight">Connecticut agencies, in plain words</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="mt-4">
+          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Connecticut agencies, in plain words</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
             {agencies.map((a) => (
               <a
                 key={a.name}
                 href={a.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:shadow-lift"
+                className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
               >
                 <h3 className="font-display text-xl font-medium tracking-tight group-hover:text-primary">
                   {a.name} →
@@ -133,48 +121,48 @@ function ResourcesPage() {
           </div>
         </div>
 
-        <div className="mt-16">
-          <h2 className="font-display text-2xl font-medium tracking-tight">A small glossary</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+        <div className="mt-20">
+          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">A small glossary</h2>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
             The words you'll hear in your next PPT — without the jargon wall.
           </p>
-          <dl className="mt-6 divide-y divide-border/60 rounded-3xl border border-border/60 bg-card shadow-soft">
+          <dl className="mt-8 divide-y divide-border/60 rounded-3xl border border-border/60 bg-card shadow-soft">
             {glossary.map((g) => (
-              <div key={g.term} className="grid gap-1 p-6 sm:grid-cols-[1fr_2fr] sm:gap-6">
-                <dt className="font-display text-base font-semibold text-foreground">{g.term}</dt>
+              <div key={g.term} className="grid gap-1 p-7 sm:grid-cols-[1fr_2fr] sm:gap-8">
+                <dt className="font-display text-lg font-semibold text-foreground">{g.term}</dt>
                 <dd className="text-sm leading-relaxed text-muted-foreground">{g.def}</dd>
               </div>
             ))}
           </dl>
         </div>
 
-        <div className="mt-16">
-          <h2 className="font-display text-2xl font-medium tracking-tight">Worksheets &amp; templates</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+        <div className="mt-20">
+          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Worksheets &amp; templates</h2>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
             Opening up as part of the pilot. Want early access? Join the waitlist below.
           </p>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
             {templates.map((t) => (
-              <div key={t.title} className="rounded-3xl border border-dashed border-border/70 bg-muted/30 p-6">
+              <div key={t.title} className="rounded-3xl border border-dashed border-border/70 bg-gradient-warm p-7">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">Coming soon</p>
-                <h3 className="mt-2 font-display text-lg font-medium tracking-tight">{t.title}</h3>
+                <h3 className="mt-3 font-display text-xl font-medium tracking-tight">{t.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.description}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-16 rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
-          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+        <div className="mt-20 overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
+          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
             Be the first to use the new worksheets.
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground/80">
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/80">
             We're rolling out tools gradually so each one is genuinely helpful, not just
             another thing in your inbox. Joining the waitlist tells us who to invite first.
           </p>
           <Link
             to="/waitlist"
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
+            className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
           >
             Join the waitlist →
           </Link>
