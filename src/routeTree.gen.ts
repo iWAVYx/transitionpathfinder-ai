@@ -31,8 +31,10 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
+import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
@@ -147,6 +149,12 @@ const AuthenticatedPathwayRoute = AuthenticatedPathwayRouteImport.update({
   path: '/pathway',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOpportunitiesRoute =
+  AuthenticatedOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -155,6 +163,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
 const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
   id: '/goals',
   path: '/goals',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -197,8 +210,10 @@ export interface FileRoutesByFullPath {
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
   '/goals': typeof AuthenticatedGoalsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -226,8 +241,10 @@ export interface FileRoutesByTo {
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
   '/goals': typeof AuthenticatedGoalsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -257,8 +274,10 @@ export interface FileRoutesById {
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/goals': typeof AuthenticatedGoalsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -288,8 +307,10 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin'
     | '/dashboard'
+    | '/documents'
     | '/goals'
     | '/onboarding'
+    | '/opportunities'
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
@@ -317,8 +338,10 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin'
     | '/dashboard'
+    | '/documents'
     | '/goals'
     | '/onboarding'
+    | '/opportunities'
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
@@ -347,8 +370,10 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/documents'
     | '/_authenticated/goals'
     | '/_authenticated/onboarding'
+    | '/_authenticated/opportunities'
     | '/_authenticated/pathway'
     | '/_authenticated/ppt-prep'
     | '/_authenticated/reports'
@@ -536,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPathwayRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/opportunities': {
+      id: '/_authenticated/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -548,6 +580,13 @@ declare module '@tanstack/react-router' {
       path: '/goals'
       fullPath: '/goals'
       preLoaderRoute: typeof AuthenticatedGoalsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -608,8 +647,10 @@ const AuthenticatedStudentsRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
@@ -620,8 +661,10 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,

@@ -49,19 +49,25 @@ export function SiteHeader() {
             <>
               <Link
                 to="/dashboard"
-                className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
+                className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
               >
                 Dashboard
               </Link>
               <Link
-                to="/admin"
-                className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
+                to="/documents"
+                className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
               >
-                Admin
+                Documents
+              </Link>
+              <Link
+                to="/opportunities"
+                className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
+              >
+                Opportunities
               </Link>
               <Link
                 to="/settings"
-                className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
+                className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground"
               >
                 Settings
               </Link>
