@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -22,12 +23,19 @@ import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
+import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
   path: '/waitlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResearchRoute = ResearchRouteImport.update({
@@ -89,9 +97,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPptPrepRoute = AuthenticatedPptPrepRouteImport.update({
+  id: '/ppt-prep',
+  path: '/ppt-prep',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedPathwayRoute = AuthenticatedPathwayRouteImport.update({
   id: '/pathway',
   path: '/pathway',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -112,9 +130,12 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/resources': typeof ResourcesRoute
   '/waitlist': typeof WaitlistRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/goals': typeof AuthenticatedGoalsRoute
   '/pathway': typeof AuthenticatedPathwayRoute
+  '/ppt-prep': typeof AuthenticatedPptPrepRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -128,9 +149,12 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/resources': typeof ResourcesRoute
   '/waitlist': typeof WaitlistRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/goals': typeof AuthenticatedGoalsRoute
   '/pathway': typeof AuthenticatedPathwayRoute
+  '/ppt-prep': typeof AuthenticatedPptPrepRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -146,9 +170,12 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/resources': typeof ResourcesRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/goals': typeof AuthenticatedGoalsRoute
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
+  '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -164,9 +191,12 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/research'
+    | '/resources'
     | '/waitlist'
     | '/dashboard'
+    | '/goals'
     | '/pathway'
+    | '/ppt-prep'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -180,9 +210,12 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/research'
+    | '/resources'
     | '/waitlist'
     | '/dashboard'
+    | '/goals'
     | '/pathway'
+    | '/ppt-prep'
   id:
     | '__root__'
     | '/'
@@ -197,9 +230,12 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/research'
+    | '/resources'
     | '/waitlist'
     | '/_authenticated/dashboard'
+    | '/_authenticated/goals'
     | '/_authenticated/pathway'
+    | '/_authenticated/ppt-prep'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +251,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
+  ResourcesRoute: typeof ResourcesRoute
   WaitlistRoute: typeof WaitlistRoute
 }
 
@@ -225,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/waitlist'
       fullPath: '/waitlist'
       preLoaderRoute: typeof WaitlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/research': {
@@ -311,11 +355,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/ppt-prep': {
+      id: '/_authenticated/ppt-prep'
+      path: '/ppt-prep'
+      fullPath: '/ppt-prep'
+      preLoaderRoute: typeof AuthenticatedPptPrepRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/pathway': {
       id: '/_authenticated/pathway'
       path: '/pathway'
       fullPath: '/pathway'
       preLoaderRoute: typeof AuthenticatedPathwayRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/goals': {
+      id: '/_authenticated/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof AuthenticatedGoalsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -330,12 +388,16 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
+  AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
+  AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -355,6 +417,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
+  ResourcesRoute: ResourcesRoute,
   WaitlistRoute: WaitlistRoute,
 }
 export const routeTree = rootRouteImport
