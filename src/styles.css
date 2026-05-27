@@ -173,7 +173,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Fluid root font-size: scales rem-based sizing with viewport width.
+     * 14px at 360px → 16px at 1280px → 18px at 1920px. */
+    font-size: clamp(14px, 0.75rem + 0.45vw, 18px);
   }
+
 
   body {
     background-color: var(--color-background);
@@ -201,8 +205,9 @@
 
 /* Accessibility: user-controlled font scaling.
  * Scales the root font-size so rem-based Tailwind sizes grow together. */
-html.a11y-font-lg { font-size: 18px; }
-html.a11y-font-xl { font-size: 20px; }
+html.a11y-font-lg { font-size: clamp(16px, 0.85rem + 0.5vw, 20px); }
+html.a11y-font-xl { font-size: clamp(18px, 0.95rem + 0.55vw, 22px); }
+
 
 /* Accessibility: high-contrast mode override.
  * Strengthens foreground/muted text and borders to exceed WCAG AA. */
