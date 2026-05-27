@@ -85,8 +85,9 @@ function GoalsPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">Goal Tracker</p>
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <Breadcrumbs trail={[{ label: "Goal Tracker" }]} />
+        <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary">Goal Tracker</p>
         <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
           Small steps, gently tracked.
         </h1>
@@ -95,16 +96,39 @@ function GoalsPage() {
           in progress or met — your notes stay on this device for now, just for you.
         </p>
 
+        <InfoBox label="How does the tracker work?" className="mt-6 max-w-2xl">
+          <p>
+            We pull the next steps from each Pathway Report you've created — life skills,
+            education and training, career pathways, and the 30-day plan — and lay them out
+            here so you can move them through <strong>Not started → In progress → Met</strong>
+            at your own pace.
+          </p>
+          <p className="mt-2">
+            Your status updates are saved on this device. They aren't shared with anyone unless
+            you choose to.
+          </p>
+        </InfoBox>
+
         {loading ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
         ) : reports.length === 0 ? (
-          <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-muted/30 p-8 text-center">
-            <p className="text-sm text-muted-foreground">No Pathway Reports yet.</p>
+          <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
+            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
+              <Target className="h-6 w-6 text-primary" aria-hidden />
+            </div>
+            <h2 className="mt-4 font-display text-2xl font-medium tracking-tight">
+              Nothing to track yet — that's okay.
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+              Create your first Pathway Report and we'll automatically pull the next steps
+              into this tracker for you.
+            </p>
             <Link
               to="/pathway"
-              className="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
             >
-              Create your first Pathway Report →
+              <Sparkles className="h-4 w-4" aria-hidden />
+              Create your first Pathway Report
             </Link>
           </div>
         ) : (
