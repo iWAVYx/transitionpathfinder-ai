@@ -53,10 +53,10 @@ function DashboardPage() {
                 Create a Pathway Report
               </Link>
               <Link
-                to="/reports"
+                to="/onboarding"
                 className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted"
               >
-                My reports
+                <Sparkles className="h-4 w-4" /> Get started — 4-step setup
               </Link>
             </div>
           </div>
