@@ -31,7 +31,10 @@ function DashboardPage() {
       {/* Hero band with photograph */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-14 pb-10 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-20 lg:pb-14">
+        <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+          <Breadcrumbs trail={[{ label: "Dashboard" }]} />
+        </div>
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-6 pb-10 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pb-14">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Welcome back</p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
