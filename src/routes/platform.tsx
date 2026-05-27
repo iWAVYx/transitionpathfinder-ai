@@ -198,13 +198,13 @@ function PlatformPage() {
             />
             <Step
               n={2}
-              title="Lovable AI Reads The Whole Picture"
-              body="We weight student voice first, honor differences gently, and stay Connecticut aware."
+              title="Our Formulas Read The Whole Picture"
+              body="Specialist-designed Pathway formulas weight student voice first, honor differences gently, and stay Connecticut aware."
             />
             <Step
               n={3}
               title="A Pathway Report You Can Bring To PPT"
-              body="Career pathways, life skills, family questions, and a gentle 30 day plan, in plain language."
+              body="Career Pathways, life skills, family questions, and a gentle 30 day plan, in plain language."
             />
           </div>
 
