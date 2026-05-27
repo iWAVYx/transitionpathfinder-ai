@@ -162,6 +162,7 @@ function PptPrepPage() {
             Generation takes 15–30 seconds. You stay in charge — edit, print, or skip anything.
           </p>
         </div>
+        )}
       </section>
     </SiteShell>
   );
