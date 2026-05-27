@@ -25,7 +25,7 @@ export const Route = createFileRoute("/educators")({
 const cards = [
   { icon: User, t: "Student Transition Snapshot", b: "Strengths, interests, goals, supports, and family input. One screen per student, always current." },
   { icon: Target, t: "Goal and Progress Alignment", b: "Goal to skill to evidence to next step. Progress reports finally match what the goal actually says." },
-  { icon: Sparkles, t: "AI Drafted, Teacher Approved", b: "Pathway recommendations, meeting summaries, and family friendly translations drafted for you to edit. Nothing leaves your hands without your review." },
+  { icon: Sparkles, t: "Expert Drafted, Teacher Approved", b: "Pathway recommendations, meeting summaries, and family friendly translations drafted by our specialist formulas for you to edit. Nothing leaves your hands without your review." },
   { icon: ClipboardList, t: "PPT Prep, Ready to Print", b: "Agenda, strengths summary, concerns, requested next steps, and a plain language meeting summary template, generated in one click." },
   { icon: MessageCircle, t: "Family Communication Log", b: "Notes, questions, and responses in one place, so context does not live in your inbox." },
   { icon: FileDown, t: "Exportable PDF Summaries", b: "Hand families something they can actually read. Hand admins something that documents the work you are already doing." },
