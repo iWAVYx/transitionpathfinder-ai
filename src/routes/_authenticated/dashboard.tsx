@@ -1,6 +1,8 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { useAuth } from "@/hooks/use-auth";
+import dashboardHero from "@/assets/dashboard-hero.jpg";
+import pathwayHero from "@/assets/pathway-hero.jpg";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -16,77 +18,152 @@ function DashboardPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">Welcome back</p>
-        <h1 className="mt-2 font-display text-5xl font-medium tracking-tight">Hi, {friendly}.</h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          This is your quiet hub. Start with a Pathway Report, prep for an upcoming PPT
-          meeting, or track the small steps you've already begun.
-        </p>
-
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          <Link
-            to="/pathway"
-            className="rounded-3xl bg-gradient-hero p-7 shadow-soft transition-all hover:shadow-lift md:col-span-2 md:row-span-2"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
-            <h2 className="mt-2 font-display text-3xl font-medium tracking-tight">Create a Pathway Report →</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Strengths, interests, current goals, your concerns — even partial is fine. We'll turn
-              it into career directions, life-skills focus, family questions, and a 30-day plan.
+      {/* Hero band with photograph */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-14 pb-10 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-20 lg:pb-14">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Welcome back</p>
+            <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
+              Hi, {friendly}.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              This is your quiet hub. Start a Pathway Report, prep for an upcoming PPT meeting, or
+              track the small steps you've already begun.
             </p>
-          </Link>
-
-          <Link
-            to="/ppt-prep"
-            className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:shadow-lift"
-          >
-            <h3 className="font-display text-xl font-medium tracking-tight">PPT meeting prep →</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Turn any Pathway Report into a calm one-page agenda, the right questions,
-              and scripts you can borrow word-for-word.
-            </p>
-          </Link>
-
-          <Link
-            to="/goals"
-            className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:shadow-lift"
-          >
-            <h3 className="font-display text-xl font-medium tracking-tight">Goal tracker →</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Every step from your reports in one place — gently mark what's in progress
-              and what's been met.
-            </p>
-          </Link>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <Link
-            to="/reports"
-            className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:shadow-lift"
-          >
-            <h3 className="font-display text-xl font-medium tracking-tight">My Pathway Reports →</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Everything you've generated, in one library. Open, print, or bring a report into your
-              next PPT meeting prep.
-            </p>
-          </Link>
-
-          <div className="rounded-3xl border border-dashed border-border/60 bg-muted/30 p-7">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Also for you</p>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Visit the{" "}
-              <Link to="/resources" className="font-semibold text-foreground hover:underline">
-                Resource Hub
-              </Link>{" "}
-              for plain-language explanations of Connecticut agencies, a small glossary, and
-              family worksheets we're opening up through the pilot.
-            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                to="/pathway"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
+              >
+                Create a Pathway Report
+              </Link>
+              <Link
+                to="/reports"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted"
+              >
+                My reports
+              </Link>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+            <img
+              src={dashboardHero}
+              alt="A student looking ahead with hope"
+              width={1600}
+              height={1024}
+              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
+            />
           </div>
         </div>
+      </section>
 
-        <p className="mt-14 text-xs italic text-muted-foreground">Building with care in Connecticut.</p>
+      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="grid gap-5 md:grid-cols-3">
+          {/* Signature feature — pathway report */}
+          <Link
+            to="/pathway"
+            className="group relative overflow-hidden rounded-3xl bg-gradient-hero p-7 shadow-soft transition-all hover:shadow-lift md:col-span-2 md:row-span-2"
+          >
+            <img
+              src={pathwayHero}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              width={1600}
+              height={900}
+              className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-2/3 rounded-2xl object-cover opacity-80 transition-transform duration-500 group-hover:scale-105 [mask-image:radial-gradient(circle_at_top_left,black,transparent_75%)]"
+            />
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
+            <h2 className="mt-2 max-w-md font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              Create a Pathway Report →
+            </h2>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+              Strengths, interests, current goals, your concerns — even partial is fine. Or upload
+              an IEP and we'll fill it in. You'll get career directions, life-skills focus, family
+              questions, and a 30-day plan.
+            </p>
+          </Link>
+
+          <FeatureCard
+            to="/ppt-prep"
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h6m-6 4h10M5 4h14a1 1 0 0 1 1 1v14l-3-2-3 2-3-2-3 2-3-2V5a1 1 0 0 1 1-1Z" />
+              </svg>
+            }
+            title="PPT meeting prep"
+            body="Turn any Pathway Report into a calm one-page agenda, the right questions, and scripts you can borrow word-for-word."
+          />
+
+          <FeatureCard
+            to="/goals"
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21V12m0 0 4 4m-4-4-4 4M12 3a5 5 0 0 1 5 5v1H7V8a5 5 0 0 1 5-5Z" />
+              </svg>
+            }
+            title="Goal tracker"
+            body="Every step from your reports in one place — gently mark what's in progress and what's been met."
+          />
+        </div>
+
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          <FeatureCard
+            to="/reports"
+            title="My Pathway Reports"
+            body="Everything you've generated, in one library. Open, print, or carry into your next PPT prep."
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 4v5h5M8 13h8M8 17h5" />
+              </svg>
+            }
+          />
+          <FeatureCard
+            to="/resources"
+            title="Resource Hub"
+            body="Plain-language guides to Connecticut agencies, a small glossary, and family worksheets."
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h13a3 3 0 0 1 3 3v11H6a3 3 0 0 1-3-3V6Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 6a3 3 0 0 1 3-3h10v14H6a3 3 0 0 0-3 3" />
+              </svg>
+            }
+          />
+          <div className="relative overflow-hidden rounded-3xl border border-dashed border-border/60 bg-gradient-warm p-7">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">A note from us</p>
+            <p className="mt-2 font-display text-xl leading-snug">
+              "We built this from inside a real classroom. If something feels off, it's because
+              someone, somewhere, lived it."
+            </p>
+            <p className="mt-4 text-xs italic text-muted-foreground">Building with care in Connecticut.</p>
+          </div>
+        </div>
       </section>
     </SiteShell>
+  );
+}
+
+function FeatureCard({
+  to, title, body, icon,
+}: {
+  to: string;
+  title: string;
+  body: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+    >
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
+        {icon}
+      </div>
+      <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{title} →</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </Link>
   );
 }
