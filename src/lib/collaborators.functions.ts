@@ -67,15 +67,8 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Try to resolve an existing user by email via profiles (best-effort; harmless if not found).
-    let invitedUserId: string | null = null;
-    const { data: profileRows } = await supabase
-      .from("profiles")
-      .select("id, full_name")
-      .limit(1);
-    // We don't store emails in profiles; leave user_id null. The invitee can be linked
-    // when they sign up and accept via the share/accept flow.
-    void profileRows;
+    // Resolve invitee by email via admin auth API (auth.users isn't exposed via PostgREST).
+    const invitedUserId = await findUserIdByEmail(data.email);
 
     const { data: row, error } = await supabase
       .from("student_collaborators")
