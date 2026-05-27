@@ -290,30 +290,6 @@ function PlatformPage() {
         </div>
       </section>
 
-      {/* Trust strip — three anchor points */}
-      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-border/60 bg-card/70 px-4 py-4 shadow-soft backdrop-blur sm:px-6">
-          <div className="grid gap-3 divide-y divide-border/60 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-y-0">
-            <TrustCard
-              icon={Lock}
-              title="Private By Default"
-              body="Owned by the families and students it belongs to."
-            />
-            <TrustCard
-              icon={ShieldCheck}
-              title="FERPA Aware"
-              body="Role based access with a clear audit trail."
-            />
-            <TrustCard
-              icon={Heart}
-              title="Built In Connecticut"
-              body="Tuned to CT colleges, BRS, and how PPTs run here."
-            />
-          </div>
-        </div>
-      </section>
-
-
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
@@ -353,6 +329,35 @@ function PlatformPage() {
           </div>
         </div>
       </section>
+
+      {/* Trust strip — three anchor points, at the bottom */}
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <TrustCard
+            icon={Lock}
+            title="Private By Default"
+            body="Owned by the families and students it belongs to."
+            graphic="vault"
+            accent="bg-peach-soft"
+          />
+          <TrustCard
+            icon={ShieldCheck}
+            title="FERPA Aware"
+            body="Role based access with a clear audit trail."
+            graphic="shield"
+            accent="bg-sky-soft"
+          />
+          <TrustCard
+            icon={Heart}
+            title="Built In Connecticut"
+            body="Tuned to CT colleges, BRS, and how PPTs run here."
+            graphic="map"
+            accent="bg-primary/10"
+          />
+        </div>
+      </section>
+
+
 
 
     </SiteShell>
