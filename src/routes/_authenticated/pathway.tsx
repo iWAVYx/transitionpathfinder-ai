@@ -128,7 +128,10 @@ function PathwayPage() {
             className="h-full w-full object-cover opacity-90 [mask-image:linear-gradient(to_right,transparent,black_35%)]"
           />
         </div>
-        <div className="mx-auto max-w-7xl px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
+        </div>
+        <div className="mx-auto max-w-7xl px-4 pt-6 pb-10 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Pathway Builder</p>
           <h1 className="mt-3 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
             Tell us about your student.
