@@ -1,6 +1,5 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -15,7 +14,7 @@ function AuthenticatedLayout() {
     if (!loading && !user) {
       navigate({
         to: "/login",
-        search: { redirect: window.location.pathname },
+        search: { redirect: typeof window !== "undefined" ? window.location.pathname : "/dashboard" },
         replace: true,
       });
     }
@@ -31,6 +30,3 @@ function AuthenticatedLayout() {
 
   return <Outlet />;
 }
-
-// Keep `redirect` import for future SSR-aware gating once auth lives in router context.
-void redirect;
