@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Copy, Printer, Users, GraduationCap, Check } from "lucide-react";
 import type { PathwayReport } from "@/lib/pathway.functions";
+import type { SupportedLanguage } from "@/lib/ai-assist.functions";
 import { Button } from "@/components/ui/button";
+import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { cn } from "@/lib/utils";
 
 type Audience = "family" | "educator";
+
 
 export function ReportView({
   name,
