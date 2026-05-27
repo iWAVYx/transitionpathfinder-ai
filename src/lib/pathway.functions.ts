@@ -127,7 +127,7 @@ export const createPathwayReport = createServerFn({ method: "POST" })
         user_id: userId,
         intake_id: intake.id,
         model,
-        content: report as unknown as Record<string, unknown>,
+        content: JSON.parse(JSON.stringify(report)),
       })
       .select("id")
       .single();
