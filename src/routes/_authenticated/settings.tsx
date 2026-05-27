@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Bell, Shield, Mail } from "lucide-react";
+import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -161,6 +162,62 @@ function SettingsPage() {
               Send password reset email
             </Button>
           </div>
+        </div>
+
+        {/* Data & consent */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Your data, your call</h2>
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Everything you store here is yours. We never sell student data, never train AI models on
+            your documents, and never share with a school or partner without your explicit consent.
+          </p>
+          <ul className="mt-4 space-y-3 text-sm">
+            <li className="flex items-start gap-3 rounded-xl border bg-background p-3">
+              <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Users className="h-3.5 w-3.5" />
+              </span>
+              <div className="flex-1">
+                <p className="font-medium">Manage who can see each student</p>
+                <p className="text-xs text-muted-foreground">
+                  Each student page lists every collaborator. Revoke anyone, anytime — they lose
+                  access immediately.
+                </p>
+              </div>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/students">Open students</Link>
+              </Button>
+            </li>
+            <li className="flex items-start gap-3 rounded-xl border bg-background p-3">
+              <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Download className="h-3.5 w-3.5" />
+              </span>
+              <div className="flex-1">
+                <p className="font-medium">Export everything</p>
+                <p className="text-xs text-muted-foreground">
+                  Want a copy of every report, goal, and document? Email{" "}
+                  <a className="underline" href="mailto:hello@transitionforward.org">
+                    hello@transitionforward.org
+                  </a>{" "}
+                  and we'll send a full export within 7 days.
+                </p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3 rounded-xl border bg-background p-3">
+              <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                <Trash2 className="h-3.5 w-3.5" />
+              </span>
+              <div className="flex-1">
+                <p className="font-medium">Delete your account & data</p>
+                <p className="text-xs text-muted-foreground">
+                  Reach out and we'll permanently delete your account and all associated data — no
+                  questions asked, within 30 days.
+                </p>
+              </div>
+            </li>
+          </ul>
         </div>
       </section>
     </SiteShell>
