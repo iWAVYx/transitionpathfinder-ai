@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
 import { Button } from "@/components/ui/button";
 import { getReport, type PathwayReport } from "@/lib/pathway.functions";
@@ -55,6 +56,14 @@ function ReportDetailPage() {
 
   return (
     <SiteShell>
+      <div className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 lg:px-8">
+        <Breadcrumbs
+          trail={[
+            { label: "Reports", to: "/reports" },
+            { label: state.name },
+          ]}
+        />
+      </div>
       <ReportView
         name={state.name}
         report={state.report}
