@@ -13,6 +13,7 @@ import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FrameworkRouteImport } from './routes/framework'
@@ -39,6 +40,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersRoute = PartnersRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
+  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
+  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
+  '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
     | '/framework'
     | '/login'
     | '/partners'
+    | '/platform'
     | '/pricing'
     | '/privacy'
     | '/research'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/framework'
     | '/login'
     | '/partners'
+    | '/platform'
     | '/pricing'
     | '/privacy'
     | '/research'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/framework'
     | '/login'
     | '/partners'
+    | '/platform'
     | '/pricing'
     | '/privacy'
     | '/research'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   FrameworkRoute: typeof FrameworkRoute
   LoginRoute: typeof LoginRoute
   PartnersRoute: typeof PartnersRoute
+  PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners': {
@@ -268,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   FrameworkRoute: FrameworkRoute,
   LoginRoute: LoginRoute,
   PartnersRoute: PartnersRoute,
+  PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
