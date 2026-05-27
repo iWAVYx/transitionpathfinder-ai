@@ -262,15 +262,29 @@ function PlatformPage() {
       </section>
 
       {/* Layered diagram */}
-      <section className="bg-muted/40 py-20">
+      <section className="relative overflow-hidden py-24">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <div
+          className="absolute inset-0 -z-10 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+          aria-hidden
+        />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               How It Fits Together
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
               Three Quiet Layers, Working As One.
             </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Organize what's true about your student. Generate a Pathway you can act on.
+              Connect it to real opportunities here in Connecticut.
+            </p>
           </div>
           <LayerDiagram />
         </div>
@@ -299,27 +313,40 @@ function PlatformPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
-          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            Ready To See Your Student On The Page?
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Create a free account and share a little about your student. You will have a real
-            Pathway Report in your inbox before the next PPT meeting.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              to="/login"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
-            >
-              Create A Pathway Report
-            </Link>
-            <Link
-              to="/waitlist"
-              className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold hover:bg-background"
-            >
-              Join The Waitlist
-            </Link>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
+          <div
+            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-peach-soft opacity-60 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-20 -left-12 h-72 w-72 rounded-full bg-sky-soft opacity-50 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Your Next Step
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              Ready To See Your Student On The Page?
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+              Create a free account and share a little about your student. You will have a real
+              Pathway Report in your inbox before the next PPT meeting.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              >
+                Create A Pathway Report <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+              <Link
+                to="/waitlist"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold hover:bg-background"
+              >
+                Join The Waitlist
+              </Link>
+            </div>
           </div>
         </div>
       </section>
