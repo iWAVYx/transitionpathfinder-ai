@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { ReportView } from "@/components/pathway/ReportView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,8 @@ const Schema = z.object({
   current_goals: z.string().trim().max(2000).optional(),
   family_concerns: z.string().trim().max(2000).optional(),
   student_voice: z.string().trim().max(2000).optional(),
+  family_voice: z.string().trim().max(2000).optional(),
+  educator_input: z.string().trim().max(2000).optional(),
 });
 type FormValues = z.infer<typeof Schema>;
 
@@ -41,6 +44,7 @@ export const Route = createFileRoute("/_authenticated/pathway")({
 
 function PathwayPage() {
   const generate = useServerFn(createPathwayReport);
+  const navigate = useNavigate();
   const [report, setReport] = useState<PathwayReport | null>(null);
   const [studentName, setStudentName] = useState("");
 
@@ -59,6 +63,8 @@ function PathwayPage() {
       current_goals: "",
       family_concerns: "",
       student_voice: "",
+      family_voice: "",
+      educator_input: "",
     },
   });
 
@@ -76,7 +82,12 @@ function PathwayPage() {
   if (report) {
     return (
       <SiteShell>
-        <ReportView name={studentName} report={report} onReset={() => setReport(null)} />
+        <ReportView
+          name={studentName}
+          report={report}
+          onReset={() => navigate({ to: "/reports" })}
+          resetLabel="See all my reports"
+        />
       </SiteShell>
     );
   }
@@ -89,9 +100,11 @@ function PathwayPage() {
           Tell us about your student.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Share what you know — even just a little. We'll turn it into a personalized Pathway
-          Report with career directions, life-skills focus, family questions for the next PPT,
-          and a 30-day plan. Nothing is shared outside your account.
+          Share what you know — even just a little. You can include the student's voice, the family's,
+          and the educator's all in one place. We'll turn it into a personalized Pathway Report.{" "}
+          <Link to="/reports" className="font-semibold text-foreground hover:underline">
+            See your saved reports →
+          </Link>
         </p>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-10 space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
@@ -126,6 +139,7 @@ function PathwayPage() {
             </Select>
           </Field>
 
+          <SectionHeading>The student</SectionHeading>
           <Field label="Strengths" hint="What is this student genuinely good at?">
             <Textarea rows={3} {...form.register("strengths")} />
           </Field>
@@ -147,11 +161,23 @@ function PathwayPage() {
           <Field label="Current IEP transition goals" hint="Paste them in if you have them — even partial is fine.">
             <Textarea rows={3} {...form.register("current_goals")} />
           </Field>
-          <Field label="Family concerns / hopes" hint="What keeps you up at night? What do you want for them after high school?">
-            <Textarea rows={3} {...form.register("family_concerns")} />
-          </Field>
-          <Field label="Student's own voice" hint="In their words, if possible: what do they want their team to know?">
+
+          <SectionHeading>Three voices</SectionHeading>
+          <p className="-mt-2 text-xs text-muted-foreground">
+            Fill in what you can. The more voices you include, the more grounded the report.
+          </p>
+
+          <Field label="Student's voice" hint="In their words, if possible: what do they want their team to know?">
             <Textarea rows={3} {...form.register("student_voice")} />
+          </Field>
+          <Field label="Family voice" hint="What does the family want the team to know? Hopes, worries, what's worked at home.">
+            <Textarea rows={3} {...form.register("family_voice")} />
+          </Field>
+          <Field label="Educator / case manager input" hint="What is the school team seeing? Progress, sticking points, what they'd recommend.">
+            <Textarea rows={3} {...form.register("educator_input")} />
+          </Field>
+          <Field label="Family concerns / hopes (optional)" hint="Anything else keeping you up at night, or any specific hope for after high school?">
+            <Textarea rows={2} {...form.register("family_concerns")} />
           </Field>
 
           <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
@@ -177,83 +203,10 @@ function Field({ label, hint, error, children }: { label: string; hint?: string;
   );
 }
 
-function ReportView({ name, report, onReset }: { name: string; report: PathwayReport; onReset: () => void }) {
+function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pathway Report</p>
-        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          A plan for {name}.
-        </h1>
-        <p className="mt-4 text-base leading-relaxed text-foreground/80">{report.summary}</p>
-      </div>
-
-      <Block title="Strengths to lead with">
-        <BulletList items={report.strengths_snapshot} />
-      </Block>
-
-      <Block title="Career pathways to explore">
-        <div className="grid gap-4">
-          {report.career_pathways.map((p) => (
-            <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5">
-              <h3 className="font-display text-xl font-medium">{p.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
-              <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-primary">Example roles</p>
-              <BulletList items={p.example_roles} />
-              <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-primary">First steps</p>
-              <BulletList items={p.first_steps} />
-            </div>
-          ))}
-        </div>
-      </Block>
-
-      <Block title="Education & training options"><BulletList items={report.education_training_options} /></Block>
-      <Block title="Life skills to focus on"><BulletList items={report.life_skills_focus} /></Block>
-      <Block title="Questions to bring to the next PPT"><BulletList items={report.family_questions_for_ppt} /></Block>
-      <Block title="Teacher next steps"><BulletList items={report.teacher_next_steps} /></Block>
-
-      <Block title="A gentle 30-day plan">
-        <ol className="space-y-3">
-          {report.thirty_day_plan.map((w) => (
-            <li key={w.week} className="rounded-2xl border border-border/60 bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Week {w.week}</p>
-              <p className="mt-1 text-sm text-foreground">{w.action}</p>
-            </li>
-          ))}
-        </ol>
-      </Block>
-
-      <div className="mt-10 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">For {name}</p>
-        <p className="mt-3 font-display text-xl italic text-foreground/90">{report.encouragement_to_student}</p>
-      </div>
-
-      <div className="mt-10 flex flex-wrap gap-3">
-        <Button onClick={onReset} variant="outline">Create another report</Button>
-        <Button onClick={() => window.print()}>Print / save as PDF</Button>
-      </div>
-    </section>
-  );
-}
-
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mt-10">
-      <h2 className="font-display text-2xl font-medium tracking-tight">{title}</h2>
-      <div className="mt-4">{children}</div>
-    </div>
-  );
-}
-
-function BulletList({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-2 space-y-2 text-sm leading-relaxed text-muted-foreground">
-      {items.map((it, i) => (
-        <li key={i} className="flex gap-2">
-          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-          <span>{it}</span>
-        </li>
-      ))}
-    </ul>
+    <h2 className="mt-4 border-t border-border/60 pt-6 font-display text-xl font-medium tracking-tight">
+      {children}
+    </h2>
   );
 }
