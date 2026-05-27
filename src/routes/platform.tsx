@@ -99,7 +99,7 @@ const features: Array<{
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
-    body: "A snapshot for each student: progress notes, family input, upcoming meetings, and AI drafted language the teacher reviews and approves.",
+    body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews and approves.",
     tags: ["Educator", "Admin"],
   },
 ];
