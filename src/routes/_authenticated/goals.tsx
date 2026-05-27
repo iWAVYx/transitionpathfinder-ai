@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Target, Sparkles } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { InfoBox } from "@/components/site/InfoBox";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { listMyReports } from "@/lib/pathway.functions";
