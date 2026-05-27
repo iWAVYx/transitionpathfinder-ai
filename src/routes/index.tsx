@@ -204,12 +204,14 @@ function HomePage() {
             label="College"
             caption="Two- and four-year programs, with the right supports in place."
             size="lg"
+            pathwayId="college"
           />
           <PathwayTile
             className="col-span-2 md:col-span-6"
             image={pathTechnical}
             label="Technical education"
             caption="Hands-on trades, certificates, and apprenticeships."
+            pathwayId="technical-education"
           />
           <PathwayTile
             className="col-span-2 md:col-span-2"
@@ -217,6 +219,7 @@ function HomePage() {
             label="Career & employment"
             caption="Job training, internships, BRS."
             compact
+            pathwayId="career"
           />
           <PathwayTile
             className="col-span-1 md:col-span-2"
@@ -224,6 +227,7 @@ function HomePage() {
             label="Life skills"
             caption="Cooking, transit, money, daily independence."
             compact
+            pathwayId="life-skills"
           />
           <PathwayTile
             className="col-span-1 md:col-span-2"
@@ -231,6 +235,7 @@ function HomePage() {
             label="Progress, tracked"
             caption="Small wins, gently celebrated."
             compact
+            pathwayId="progress"
           />
         </div>
       </section>
@@ -413,6 +418,7 @@ function PathwayTile({
   className = "",
   size = "md",
   compact = false,
+  pathwayId,
 }: {
   image: string;
   label: string;
@@ -420,14 +426,18 @@ function PathwayTile({
   className?: string;
   size?: "md" | "lg";
   compact?: boolean;
+  pathwayId: string;
 }) {
   return (
-    <div
-      className={`group relative overflow-hidden rounded-3xl shadow-soft transition-all hover:shadow-lift ${className}`}
+    <Link
+      to="/pathways/$pathwayId"
+      params={{ pathwayId }}
+      aria-label={`Open the ${label} guided pathway`}
+      className={`group relative block overflow-hidden rounded-3xl shadow-soft transition-all hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
     >
       <img
         src={image}
-        alt={label}
+        alt=""
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
@@ -457,7 +467,10 @@ function PathwayTile({
             {caption}
           </p>
         )}
+        <span className="mt-2 inline-flex items-center text-xs font-semibold uppercase tracking-[0.18em] text-background/90 opacity-0 transition-opacity group-hover:opacity-100">
+          Open guided flow →
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
