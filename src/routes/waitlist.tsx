@@ -172,6 +172,7 @@ function WaitlistPage() {
                 </p>
               </form>
             )}
+            </div>
           </div>
         </div>
       </section>
