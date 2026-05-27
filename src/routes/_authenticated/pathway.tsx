@@ -8,14 +8,17 @@ import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { ReportView } from "@/components/pathway/ReportView";
+import { IepUpload } from "@/components/pathway/IepUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select, SelectContent, SelectItem, SelectItem as _SI, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { createPathwayReport, type PathwayReport } from "@/lib/pathway.functions";
+import type { IepExtract } from "@/lib/iep-extract.functions";
+import pathwayHero from "@/assets/pathway-hero.jpg";
 
 const Schema = z.object({
   submitter_role: z.enum(["family", "student", "educator"]),
