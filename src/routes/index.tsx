@@ -197,12 +197,41 @@ function HomePage() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-6 md:gap-5">
-          <PathwayTile className="md:col-span-3 md:row-span-2 aspect-square md:aspect-auto" image={pathCollege} label="College" caption="Two- and four-year programs, with the right supports in place." />
-          <PathwayTile className="md:col-span-3 aspect-square md:aspect-[2/1]" image={pathTechnical} label="Technical education" caption="Hands-on trades, certificates, and apprenticeships." />
-          <PathwayTile className="md:col-span-2 aspect-square" image={pathCareer} label="Career & employment" caption="Job training, internships, BRS." />
-          <PathwayTile className="md:col-span-2 aspect-square" image={pathLifeskills} label="Life skills" caption="Cooking, transit, money, daily independence." />
-          <PathwayTile className="md:col-span-2 aspect-square" image={pathProgress} label="Progress, tracked" caption="Small wins, gently celebrated." />
+        <div className="grid auto-rows-[14rem] grid-cols-2 gap-4 sm:auto-rows-[16rem] md:auto-rows-[18rem] md:grid-cols-12 md:gap-5">
+          <PathwayTile
+            className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
+            image={pathCollege}
+            label="College"
+            caption="Two- and four-year programs, with the right supports in place."
+            size="lg"
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-6"
+            image={pathTechnical}
+            label="Technical education"
+            caption="Hands-on trades, certificates, and apprenticeships."
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-2"
+            image={pathCareer}
+            label="Career & employment"
+            caption="Job training, internships, BRS."
+            compact
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathLifeskills}
+            label="Life skills"
+            caption="Cooking, transit, money, daily independence."
+            compact
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathProgress}
+            label="Progress, tracked"
+            caption="Small wins, gently celebrated."
+            compact
+          />
         </div>
       </section>
 
