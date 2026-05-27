@@ -245,6 +245,7 @@ function PathwayPage() {
             Generation usually takes 15–30 seconds. The AI drafts; you stay in charge.
           </p>
         </form>
+        </FormProvider>
       </section>
     </SiteShell>
   );
