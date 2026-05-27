@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
+import { Term, GLOSSARY } from "@/components/site/Term";
 import { FormProgress } from "@/components/pathway/FormProgress";
 import { ReportView } from "@/components/pathway/ReportView";
 import { IepUpload } from "@/components/pathway/IepUpload";
