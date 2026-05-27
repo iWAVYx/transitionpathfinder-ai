@@ -76,6 +76,10 @@ function DashboardPage() {
 
       <DashboardWidgets />
 
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <InvitesInbox />
+      </section>
+
       <section className="mx-auto max-w-7xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-3">
           {/* Signature feature — pathway report */}
