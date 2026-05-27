@@ -280,7 +280,7 @@ const PATHWAYS: Record<string, Pathway> = {
 };
 
 export const Route = createFileRoute("/pathways/$pathwayId")({
-  loader: ({ params }) => {
+  loader: ({ params }): { pathway: Pathway } => {
     const pathway = PATHWAYS[params.pathwayId];
     if (!pathway) throw notFound();
     return { pathway };
