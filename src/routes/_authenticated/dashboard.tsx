@@ -139,6 +139,21 @@ function DashboardPage() {
             icon={<FolderOpen className="h-6 w-6" />}
           />
           <FeatureCard
+            to="/documents"
+            title="Documents hub"
+            body="Every IEP and evaluation across your roster, with status — needs review or summarized."
+            icon={<FolderOpen className="h-6 w-6" />}
+          />
+          <FeatureCard
+            to="/opportunities"
+            title="Opportunities"
+            body="Curated CT colleges, technical programs, employers, agencies, and mentorship."
+            icon={<Compass className="h-6 w-6" />}
+          />
+        </div>
+
+        <div className="mt-6 grid gap-5 md:grid-cols-2">
+          <FeatureCard
             to="/resources"
             title="Resource Hub"
             body="Plain-language guides to Connecticut agencies, a small glossary, and family worksheets."
