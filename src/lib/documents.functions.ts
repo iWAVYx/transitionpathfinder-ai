@@ -4,6 +4,8 @@ import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
+type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
+
 export type DocumentRow = {
   id: string;
   student_id: string;
@@ -13,7 +15,7 @@ export type DocumentRow = {
   storage_path: string;
   mime_type: string | null;
   size_bytes: number | null;
-  parsed_summary: Record<string, unknown> | null;
+  parsed_summary: Json | null;
   created_at: string;
   updated_at: string;
 };
