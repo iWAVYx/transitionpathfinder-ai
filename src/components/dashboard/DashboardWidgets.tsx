@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Sparkles,
   ArrowRight,
+  Users,
 } from "lucide-react";
 
 import { listMyReports } from "@/lib/pathway.functions";
@@ -68,15 +69,23 @@ export function DashboardWidgets() {
 
   return (
     <section className="mx-auto mt-2 max-w-7xl px-4 sm:px-6 lg:px-8">
-      {/* Stat tiles — 1 col on phones, 3 on tablet+ */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      {/* Stat tiles — 1 col on phones, 2 then 4 on larger screens */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+        <StatTile
+          to="/students"
+          icon={<Users className="h-5 w-5" />}
+          label="Students"
+          value="Hub"
+          hint="Organize plans"
+          accent="primary"
+        />
         <StatTile
           to="/reports"
           icon={<FolderOpen className="h-5 w-5" />}
           label="Pathway Reports"
           value={loading ? "—" : String(reports!.length)}
           hint={empty ? "Create your first" : "Open library"}
-          accent="primary"
+          accent="sky"
         />
         <StatTile
           to="/goals"

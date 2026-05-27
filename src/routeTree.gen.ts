@@ -23,7 +23,9 @@ import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
@@ -101,10 +103,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShareTokenRoute = ShareTokenRouteImport.update({
+  id: '/share/$token',
+  path: '/share/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   id: '/pathways/$pathwayId',
   path: '/pathways/$pathwayId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
@@ -163,7 +175,9 @@ export interface FileRoutesByFullPath {
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/students': typeof AuthenticatedStudentsRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
+  '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
 }
 export interface FileRoutesByTo {
@@ -186,7 +200,9 @@ export interface FileRoutesByTo {
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/students': typeof AuthenticatedStudentsRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
+  '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
 }
 export interface FileRoutesById {
@@ -211,7 +227,9 @@ export interface FileRoutesById {
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/_authenticated/students': typeof AuthenticatedStudentsRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
+  '/share/$token': typeof ShareTokenRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
 }
 export interface FileRouteTypes {
@@ -236,7 +254,9 @@ export interface FileRouteTypes {
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
+    | '/students'
     | '/pathways/$pathwayId'
+    | '/share/$token'
     | '/reports/$reportId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -259,7 +279,9 @@ export interface FileRouteTypes {
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
+    | '/students'
     | '/pathways/$pathwayId'
+    | '/share/$token'
     | '/reports/$reportId'
   id:
     | '__root__'
@@ -283,7 +305,9 @@ export interface FileRouteTypes {
     | '/_authenticated/pathway'
     | '/_authenticated/ppt-prep'
     | '/_authenticated/reports'
+    | '/_authenticated/students'
     | '/pathways/$pathwayId'
+    | '/share/$token'
     | '/_authenticated/reports/$reportId'
   fileRoutesById: FileRoutesById
 }
@@ -303,6 +327,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   WaitlistRoute: typeof WaitlistRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
+  ShareTokenRoute: typeof ShareTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -405,12 +430,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/share/$token': {
+      id: '/share/$token'
+      path: '/share/$token'
+      fullPath: '/share/$token'
+      preLoaderRoute: typeof ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pathways/$pathwayId': {
       id: '/pathways/$pathwayId'
       path: '/pathways/$pathwayId'
       fullPath: '/pathways/$pathwayId'
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/students': {
+      id: '/_authenticated/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof AuthenticatedStudentsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
@@ -482,6 +521,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
+  AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -491,6 +531,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
+  AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -513,6 +554,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   WaitlistRoute: WaitlistRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
+  ShareTokenRoute: ShareTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

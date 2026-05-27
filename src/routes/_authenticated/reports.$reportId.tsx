@@ -1,12 +1,19 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { Copy, Check, Link2, Trash2, Share2 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
 import { Button } from "@/components/ui/button";
 import { getReport, type PathwayReport } from "@/lib/pathway.functions";
+import {
+  createShareToken,
+  listShareTokens,
+  revokeShareToken,
+  type ShareTokenRow,
+} from "@/lib/students.functions";
 
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
   head: () => ({ meta: [{ title: "Pathway Report — TransitionForward" }] }),
@@ -16,18 +23,49 @@ export const Route = createFileRoute("/_authenticated/reports/$reportId")({
 function ReportDetailPage() {
   const { reportId } = Route.useParams();
   const fetchReport = useServerFn(getReport);
+  const listTokens = useServerFn(listShareTokens);
+  const create = useServerFn(createShareToken);
+  const revoke = useServerFn(revokeShareToken);
   const navigate = useNavigate();
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
     | { kind: "ok"; name: string; report: PathwayReport }
   >({ kind: "loading" });
+  const [tokens, setTokens] = useState<ShareTokenRow[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchReport({ data: { id: reportId } })
       .then((r) => setState({ kind: "ok", name: r.student_first_name, report: r.report }))
       .catch((e) => setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" }));
-  }, [fetchReport, reportId]);
+    listTokens({ data: { report_id: reportId } }).then((r) => setTokens(r.tokens)).catch(() => {});
+  }, [fetchReport, listTokens, reportId]);
+
+  async function generate(audience: "family" | "educator") {
+    setBusy(true);
+    try {
+      await create({ data: { report_id: reportId, audience, expires_in_days: 30 } });
+      const r = await listTokens({ data: { report_id: reportId } });
+      setTokens(r.tokens);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRevoke(id: string) {
+    await revoke({ data: { id } });
+    const r = await listTokens({ data: { report_id: reportId } });
+    setTokens(r.tokens);
+  }
+
+  async function copyShareUrl(token: string) {
+    const url = `${window.location.origin}/share/${token}`;
+    await navigator.clipboard.writeText(url);
+    setCopiedId(token);
+    setTimeout(() => setCopiedId(null), 1800);
+  }
 
   if (state.kind === "loading") {
     return (
@@ -54,6 +92,8 @@ function ReportDetailPage() {
     );
   }
 
+  const activeTokens = tokens.filter((t) => !t.revoked);
+
   return (
     <SiteShell>
       <div className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 lg:px-8">
@@ -70,6 +110,63 @@ function ReportDetailPage() {
         onReset={() => navigate({ to: "/reports" })}
         resetLabel="Back to my reports"
       />
+
+      {/* Share panel */}
+      <section className="no-print mx-auto max-w-4xl px-4 pb-14 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Secure sharing
+              </p>
+              <h2 className="mt-2 font-display text-2xl">Share this report</h2>
+              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+                Create a private link your family or your student's teacher can open without
+                signing in. Links expire after 30 days. You can revoke any link at any time.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => generate("family")} disabled={busy}>
+                <Share2 className="h-4 w-4" /> Family link
+              </Button>
+              <Button size="sm" onClick={() => generate("educator")} disabled={busy}>
+                <Share2 className="h-4 w-4" /> Educator link
+              </Button>
+            </div>
+          </div>
+
+          {activeTokens.length > 0 && (
+            <ul className="mt-6 divide-y divide-border/60 rounded-2xl border bg-background">
+              {activeTokens.map((t) => {
+                const url = typeof window !== "undefined"
+                  ? `${window.location.origin}/share/${t.token}`
+                  : `/share/${t.token}`;
+                return (
+                  <li key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted">
+                      <Link2 className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs text-muted-foreground">{url}</p>
+                      <p className="mt-0.5 text-[11px] uppercase tracking-wider text-primary">
+                        {t.audience} · {t.view_count} view{t.view_count === 1 ? "" : "s"}
+                        {t.expires_at ? ` · expires ${new Date(t.expires_at).toLocaleDateString()}` : ""}
+                      </p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => copyShareUrl(t.token)}>
+                      {copiedId === t.token ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copiedId === t.token ? "Copied" : "Copy"}
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleRevoke(t.id)}>
+                      <Trash2 className="h-4 w-4" /> Revoke
+                    </Button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </section>
     </SiteShell>
   );
 }
