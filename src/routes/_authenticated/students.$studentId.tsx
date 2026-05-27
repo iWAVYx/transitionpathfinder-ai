@@ -360,41 +360,13 @@ function StudentDetailPage() {
           </div>
         )}
 
-        {/* GOALS */}
-        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h2 className="font-display text-2xl">Goals</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Saved goals for {student?.first_name ?? "this student"}.
-              </p>
-            </div>
-            <Target className="h-5 w-5 text-muted-foreground" />
-          </div>
-          {goals.length === 0 ? (
-            <p className="mt-4 rounded-xl border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground">
-              No goals yet. Upload an IEP above and we'll suggest a starting set.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {goals.map((g) => (
-                <li key={g.id} className="rounded-xl border bg-background p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-medium">{g.title}</p>
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                      {g.status}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
-                    {g.category}
-                  </p>
-                  {g.description && (
-                    <p className="mt-2 text-sm text-muted-foreground">{g.description}</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className="mt-6">
+          <GoalsEditor
+            studentId={studentId}
+            studentFirstName={student?.first_name ?? null}
+            goals={goals}
+            onChange={reload}
+          />
         </div>
 
         <div className="mt-6">
