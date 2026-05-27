@@ -10,8 +10,8 @@ const layers = [
   {
     icon: Sparkles,
     tag: "Generate",
-    title: "Turn It Into A Real Plan",
-    body: "Lovable AI reads the full picture and drafts a personalized Pathway Report, PPT prep packet, and 30 day plan.",
+    title: "Turn It Into A Real Pathway",
+    body: "Our specialist-built formulas read the full picture and draft a personalized Pathway Report, PPT prep packet, and 30 day plan.",
   },
   {
     icon: MapPin,
