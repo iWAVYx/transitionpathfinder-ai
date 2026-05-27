@@ -376,3 +376,37 @@ function AudiencePhoto({
     </Link>
   );
 }
+
+function PathwayTile({
+  image,
+  label,
+  caption,
+  className = "",
+}: {
+  image: string;
+  label: string;
+  caption: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-3xl shadow-soft transition-all hover:shadow-lift ${className}`}
+    >
+      <img
+        src={image}
+        alt={label}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-5 text-background sm:p-6">
+        <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">
+          {label}
+        </h3>
+        <p className="mt-1 text-xs leading-relaxed text-background/85 sm:text-sm">
+          {caption}
+        </p>
+      </div>
+    </div>
+  );
+}
