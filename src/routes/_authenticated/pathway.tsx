@@ -99,7 +99,7 @@ function PathwayPage() {
   }
 
   const applyExtract = (e: IepExtract) => {
-    const fields: Array<keyof FormValues> = [
+    const fields: (keyof FormValues)[] = [
       "student_first_name", "strengths", "interests", "needs", "supports",
       "transportation", "communication", "current_goals", "family_concerns",
       "student_voice", "educator_input",
