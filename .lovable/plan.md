@@ -1,77 +1,66 @@
-# Platform Page: A Real Product Showcase
+## Audit: what's already here
 
-Right now `/platform` is a static grid of nine feature cards. It tells visitors what exists, but it doesn't *show* the product or let them feel how it works for the four people who actually use it. The redesign turns the page into a guided tour through the platform from every perspective.
+Routes already in the project:
+- **Public/marketing:** `/`, `/about`, `/platform`, `/families`, `/educators`, `/partners`, `/pricing`, `/resources`, `/research`, `/framework`, `/privacy`, `/pathways/$pathwayId`, `/waitlist`, `/login`, `/reset-password`, `/share/$token`
+- **Authenticated product:** `/dashboard`, `/onboarding`, `/students`, `/students/$studentId`, `/goals`, `/pathway`, `/ppt-prep`, `/reports`, `/reports/$reportId`, `/admin`, `/settings`
+- **Components:** `dashboard/`, `pathway/`, `platform/`, `students/`, `site/`, `a11y/`
 
-## Goals
+So most of your 20 priorities have *some* foundation: role-aware onboarding, student profiles, AI pathway reports, PPT meeting prep, admin dashboard, sharing, privacy page, accessibility tooling, and a waitlist all exist as routes.
 
-1. Prove the product is real and usable, not just a pitch deck.
-2. Let visitors see the actual UI from the Family, Student, Educator, and Admin point of view.
-3. Connect each tool to a concrete moment in the transition planning journey.
+## What's actually missing (gap-level, not feature-level)
 
-## Page Structure
+1. **No role-segmented entry from the homepage.** All five audiences land on the same `/` and one generic CTA. There's no "I am a parent / student / educator / school / partner" door.
+2. **No document hub.** `/students/$studentId` exists, but there's no central documents view with status labels (Needs Review, Summarized, Action Items Created, Shared).
+3. **No transition timeline view.** Goals exist; a milestone timeline from early HS → postsecondary does not.
+4. **No opportunities/partners marketplace.** `/partners` is marketing-facing. Families/students have nowhere to *browse* curated CT colleges, technical schools, BRS, employers, mentors.
+5. **No collaboration surface.** Notes/tasks/assignments across parent+student+educator aren't a first-class screen.
+6. **AI trust disclaimer is not consistently shown** on AI output surfaces (pathway report, PPT prep).
+7. **Trust & consent strip is thin.** Privacy page exists, but the product doesn't visibly show role-based access, consent state, or data export/delete controls.
+8. **Empty states are inconsistent** — some product pages show blank panels instead of guided "do this next" prompts.
+9. **Audience-specific CTAs missing** on home (one generic "Create A Pathway Report" instead of five).
+10. **Waitlist is single-form** — no separate paths for family / teacher demo / partner / district.
+11. **Impact/metrics section** missing from marketing.
+12. **CT SEDS companion positioning** isn't stated anywhere.
+13. **Export/print actions** (transition plan summary, meeting checklist, progress report) aren't surfaced as buttons even as stubs.
 
-```text
-1. Hero            "One Platform. Four Perspectives."
-2. Perspective     Tabbed switcher: Family | Student | Educator | Admin
-   Switcher        Each tab shows: who they are, the 3-4 tools they live in,
-                   an annotated UI preview, and a "Day in the life" mini story.
-3. Signature        AI Pathway Builder walkthrough: intake -> report -> share
-   Feature Deep     with a real sample report rendered inline (read-only).
-   Dive
-4. Tool Library    The existing 9-card grid kept, but each card now tags which
-                   perspectives use it and links into the relevant tab above.
-5. How It Fits     A three-layer diagram (Organize / Generate / Connect) with
-   Together        labeled flows between tools.
-6. Trust Strip     Privacy, FERPA awareness, Connecticut focus, founder note.
-7. Dual CTA        Create a Pathway Report  |  Join the Waitlist
-```
+## Proposed plan — phased, scoped, reviewable
 
-## Perspective Tab Contents
+I want to do this in **three reviewable phases** rather than one giant push, because (a) some of these items meaningfully change product IA and you should sign off, and (b) shipping all 20 in one turn produces shallow stubs everywhere instead of a few strong surfaces.
 
-Each of the four tabs follows the same shape so they feel like one product seen from four chairs:
+### Phase 1 — Marketing surface that earns trust (this turn, if you approve)
 
-- **Header line** - who this is for, written in their voice.
-- **"What you'll do here"** - 3-4 bullets tied to actual routes (Dashboard, Pathway, Students, Reports, PPT Prep, Goals, Settings).
-- **Annotated UI preview** - a styled mock panel showing the real interface elements (header chips, cards, progress bars, invite inbox) rendered with the same design tokens as the app. Not screenshots; small live-feel components built with existing UI primitives so they always match the app.
-- **One short scenario** - 2-3 sentences in plain language: "Maria opens her dashboard Sunday night..."
+Scoped to the homepage + a few public pages. Pure presentation; no schema changes.
 
-### Family
-Tools: Pathway Report, Family Voice, PPT Prep, Resource Match. Preview: dashboard card stack with an invite from a teacher and a Pathway Report summary.
+1. **Homepage role router** — replace the single hero CTA with a "Choose your path" band: Family · Student · Educator · School/District · Partner. Each links to the existing audience page (and where one doesn't exist, to `/waitlist?role=...`).
+2. **Audience-specific CTAs** on home, each with the language you specified ("Build My Child's Transition Plan", "Explore My Future Path", "Organize My Caseload", "Request a School Demo", "Become a TransitionForward Partner").
+3. **CT SEDS companion positioning block** — short, warm statement that we *complement*, not replace, CT SEDS.
+4. **Impact / outcomes strip** — five outcome cards (family understanding, student self-advocacy, goal tracking, collaboration, meeting prep, real opportunity connections).
+5. **Trust strip upgrade** — add "Human review of AI", "Role-based access", "Consent before sharing", "Export & delete your data" to the existing privacy/FERPA/CT card row.
+6. **Waitlist split** — extend `/waitlist` to a 5-tile chooser (Family waitlist · Teacher demo · School/district interest · Partner · Early access) that all post to the same waitlist table with a `role` discriminator (already in schema).
+7. **Global AI disclaimer component** — render on any page that shows AI-generated output (`/pathway`, `/reports/$reportId`, `/ppt-prep`, `/share/$token`), saying AI is a planning aid and does not replace IEP team / legal / professional judgment.
 
-### Student
-Tools: Student Voice Profile, Pathway Report (their copy), Goals view, Resource Match. Preview: Student Voice panel with strengths chips and a "what I want after high school" note.
+### Phase 2 — Product surfaces that make it feel real (separate turn)
 
-### Educator
-Tools: Educator Dashboard, Goals Editor, Pathway Progress tracker, Collaborators, PPT Prep. Preview: roster row with progress bars and a goals editor snippet.
+Real authenticated screens, wired to existing tables where possible.
 
-### Admin
-Tools: Admin console, Waitlist management, User roles, Usage overview. Preview: admin table strip with role chips and a waitlist count tile.
+8. **Documents hub** — `/_authenticated/documents` (and a tab on the student page) listing uploads with status chips: Needs Review · Summarized · Action Items Created · Shared. Uses the existing `documents` table + `student-documents` bucket. Empty state: "Start by adding an IEP or transition assessment."
+9. **Transition Timeline** — visual milestone strip on `/students/$studentId` (Interest inventory → Career pathway selected → IL goal → Resume → Agency connection → College/training → Internship → Postsecondary plan). Reads from `goals` + `pathway_progress`.
+10. **Collaboration panel** — notes/tasks/assignees on the student page, scoped via existing `student_collaborators` table. "Who's responsible for what" view.
+11. **Meeting Prep upgrade** — extend `/ppt-prep` with downloadable/printable checklist (questions, concerns, strengths, goals, documents to bring, last-meeting action items).
+12. **Export actions** — print/download buttons on pathway report, meeting prep, progress (stubbed to browser print + JSON export initially).
 
-## Signature Feature Deep Dive
+### Phase 3 — Discovery + admin polish (separate turn)
 
-A three-step horizontal flow:
+13. **Opportunities & Partners marketplace** — `/_authenticated/opportunities` (curated CT colleges, technical schools, BRS, employers, mentorship, transportation, disability supports, events). Filterable by interest/location/grade. Seeded with sample CT data.
+14. **Consent & data controls in `/settings`** — view who has access to each student, revoke, export all data, delete account.
+15. **Admin polish** — partner approval queue, AI recommendation review queue, contact form submissions, basic analytics tiles.
+16. **Empty-state pass** across all product pages with your exact copy ("Your AI pathway will appear here once you complete your student profile.", etc.).
+17. **Accessibility sweep** — audit existing `a11y/` tooling, ensure semantic landmarks, keyboard order, contrast, plain-language tooltips on special-ed terms.
 
-1. **Intake** - thumbnail of the intake form fields (strengths, interests, voices).
-2. **Generate** - the AI step shown as a small animated indicator with the model name and what it considers.
-3. **Report** - an inline, read-only render of a real `PathwayReport` shape (summary, strengths snapshot, one career pathway, 30-day plan) using the same components the live `ReportView` uses, with sample data.
+## What I'd like you to confirm before I start
 
-A "Try it now" button anchors to `/login` and a "See a sample report" button reveals more sections inline.
+- **Approve Phase 1 to ship in this turn?** It's scoped, low-risk, no schema changes, and immediately raises the trust+clarity ceiling of the public site.
+- Phases 2 and 3 are larger and I'd want to do each as its own turn so you can review.
+- Any of the 20 items you want **moved up, dropped, or reworded** before I begin?
 
-## Technical Notes
-
-- New file: `src/components/platform/PerspectiveTabs.tsx` - tabbed switcher built on `@/components/ui/tabs`.
-- New file: `src/components/platform/PerspectivePreview.tsx` - reusable annotated UI preview shell (frame + dots + label + slot for content).
-- New file: `src/components/platform/SampleReport.tsx` - sample `PathwayReport` data plus a trimmed renderer. Reuses styling from `src/components/pathway/ReportView.tsx` so it stays in sync with the real product.
-- New file: `src/components/platform/LayerDiagram.tsx` - three-layer SVG/CSS diagram for the "How it fits together" section.
-- Edit: `src/routes/platform.tsx` - replace current single grid with hero + tabs + deep dive + grid (kept, with perspective tags) + diagram + trust + CTA. Keep `head()` meta updated.
-- No backend changes. No new routes. No new dependencies.
-- Title Case throughout, no en dashes (matches the recent content pass).
-- All colors via semantic tokens already defined in `src/styles.css`. Existing hero image `platform-hero-v2.jpg` is reused.
-
-## Out of Scope
-
-- No new generated images this pass; the perspective previews are built from UI components, not photos.
-- No changes to the actual Family / Educator / etc. landing pages.
-- No changes to auth, RLS, or server functions.
-
-After you approve, I'll build the components and rewrite `src/routes/platform.tsx` in one pass, then verify the page renders and the tabs switch cleanly at the current 1021px viewport and on mobile.
+Once you say "go on Phase 1" (or "go on all of it, I'll review"), I'll execute.
