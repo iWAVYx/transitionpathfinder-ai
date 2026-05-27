@@ -197,18 +197,20 @@ function SuccessCard() {
       <div className="rounded-full bg-gradient-hero p-4 shadow-soft">
         <span className="block h-10 w-10 rounded-full bg-primary/20" />
       </div>
-      <h2 className="mt-6 font-display text-2xl font-semibold text-foreground">
-        You're on the list.
+      <h2 className="mt-6 font-display text-3xl font-medium text-foreground">
+        You're in. Thank you for trusting us with this.
       </h2>
-      <p className="mt-3 max-w-md text-sm text-muted-foreground">
-        Thanks for joining the TransitionForward pilot. We'll be in touch with next steps
-        as we open seats for families and educators in Connecticut.
+      <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+        We'll reach out personally as we open the next round of seats for
+        Connecticut families and educators. In the meantime, take a quiet
+        walk through the framework — it's the heart of everything we'll
+        build with you.
       </p>
       <a
         href="/framework"
-        className="mt-6 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+        className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
       >
-        Explore the framework
+        Walk through the framework
       </a>
     </div>
   );
