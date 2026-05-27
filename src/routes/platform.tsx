@@ -379,12 +379,15 @@ function TrustCard({
   body: string;
 }) {
   return (
-    <div className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft">
-      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
+    <div className="flex items-start gap-3 px-3 py-2 sm:px-5">
+      <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
       </div>
-      <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <div>
+        <h3 className="font-display text-sm font-semibold tracking-tight">{title}</h3>
+        <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{body}</p>
+      </div>
     </div>
   );
 }
+
