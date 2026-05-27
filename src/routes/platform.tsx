@@ -50,8 +50,8 @@ const features: Array<{
 }> = [
   {
     icon: Sparkles,
-    title: "AI Pathway Builder",
-    body: "Share strengths, interests, and goals. We generate a personalized Pathway Report with career directions, life skills, family questions, and a 30 day plan.",
+    title: "The Pathway Builder",
+    body: "Share strengths, interests, and goals. Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, family questions, and a 30 day plan.",
     tags: ["Family", "Student", "Educator"],
   },
   {
