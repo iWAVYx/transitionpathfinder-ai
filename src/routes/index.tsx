@@ -180,6 +180,32 @@ function HomePage() {
         </div>
       </section>
 
+      {/* PATHWAYS — image tile grid of real next-step destinations */}
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Real-life pathways
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              Many roads forward. One plan that fits.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              College, technical training, supported employment, daily life skills,
+              and the steady progress in between — TransitionForward helps every
+              student picture what's next and the small steps to get there.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-6 md:gap-5">
+          <PathwayTile className="md:col-span-3 md:row-span-2 aspect-square md:aspect-auto" image={pathCollege} label="College" caption="Two- and four-year programs, with the right supports in place." />
+          <PathwayTile className="md:col-span-3 aspect-square md:aspect-[2/1]" image={pathTechnical} label="Technical education" caption="Hands-on trades, certificates, and apprenticeships." />
+          <PathwayTile className="md:col-span-2 aspect-square" image={pathCareer} label="Career & employment" caption="Job training, internships, BRS." />
+          <PathwayTile className="md:col-span-2 aspect-square" image={pathLifeskills} label="Life skills" caption="Cooking, transit, money, daily independence." />
+          <PathwayTile className="md:col-span-2 aspect-square" image={pathProgress} label="Progress, tracked" caption="Small wins, gently celebrated." />
+        </div>
+      </section>
+
       {/* AUDIENCE — three tall image cards with text overlay */}
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
         <div className="mb-12 max-w-2xl">
