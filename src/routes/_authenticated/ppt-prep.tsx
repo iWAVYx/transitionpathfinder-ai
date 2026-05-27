@@ -86,9 +86,10 @@ function PptPrepPage() {
 
         <InfoBox label="What's a PPT meeting?" className="mt-6">
           <p>
-            A <strong>PPT</strong> (Planning &amp; Placement Team) meeting is where your
-            student's school team and family sit down together to review the IEP — goals,
-            services, accommodations, and what's coming next.
+            A <Term definition={GLOSSARY.PPT}>PPT</Term> (Planning &amp; Placement Team) meeting
+            is where your student's school team and family sit down together to review the{" "}
+            <Term definition={GLOSSARY.IEP}>IEP</Term> — goals, services,{" "}
+            <Term definition={GLOSSARY.Accommodations}>accommodations</Term>, and what's coming next.
           </p>
           <p className="mt-2">
             These meetings move fast. The prep below gives you a friendly agenda, the exact
