@@ -20,14 +20,14 @@ function DashboardPage() {
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">Welcome back</p>
         <h1 className="mt-2 font-display text-5xl font-medium tracking-tight">Hi, {friendly}.</h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          This is your quiet hub. Start with a Pathway Report — share a little about your student,
-          and we'll generate a personalized plan you can take to the next PPT meeting.
+          This is your quiet hub. Start with a Pathway Report, prep for an upcoming PPT
+          meeting, or track the small steps you've already begun.
         </p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           <Link
             to="/pathway"
-            className="rounded-3xl bg-gradient-hero p-7 shadow-soft transition-all hover:shadow-lift md:col-span-2"
+            className="rounded-3xl bg-gradient-hero p-7 shadow-soft transition-all hover:shadow-lift md:col-span-2 md:row-span-2"
           >
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
             <h2 className="mt-2 font-display text-3xl font-medium tracking-tight">Create a Pathway Report →</h2>
@@ -37,13 +37,39 @@ function DashboardPage() {
             </p>
           </Link>
 
-          <div className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft">
-            <h3 className="font-display text-xl font-medium tracking-tight">Coming next</h3>
+          <Link
+            to="/ppt-prep"
+            className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:shadow-lift"
+          >
+            <h3 className="font-display text-xl font-medium tracking-tight">PPT meeting prep →</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              IEP upload with automatic strand mapping, goal &amp; progress tracking, PPT meeting
-              prep, and your saved Pathway Reports — all coming as we roll out the pilot.
+              Turn any Pathway Report into a calm one-page agenda, the right questions,
+              and scripts you can borrow word-for-word.
             </p>
-          </div>
+          </Link>
+
+          <Link
+            to="/goals"
+            className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:shadow-lift"
+          >
+            <h3 className="font-display text-xl font-medium tracking-tight">Goal tracker →</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Every step from your reports in one place — gently mark what's in progress
+              and what's been met.
+            </p>
+          </Link>
+        </div>
+
+        <div className="mt-10 rounded-3xl border border-dashed border-border/60 bg-muted/30 p-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">Also for you</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Visit the{" "}
+            <Link to="/resources" className="font-semibold text-foreground hover:underline">
+              Resource Hub
+            </Link>{" "}
+            for plain-language explanations of Connecticut agencies, a small glossary, and
+            family worksheets we're opening up through the pilot.
+          </p>
         </div>
 
         <p className="mt-14 text-xs italic text-muted-foreground">Building with care in Connecticut.</p>
