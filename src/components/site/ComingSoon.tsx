@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import type { ReactNode } from "react";
 
@@ -42,7 +42,3 @@ export function ComingSoon({
     </SiteShell>
   );
 }
-
-export const Route = createFileRoute("/_placeholder_unused")({
-  component: () => null,
-});
