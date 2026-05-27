@@ -138,14 +138,32 @@ export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { error } = await supabase
+    const { userId, claims } = context;
+    const email = (claims.email as string | undefined)?.toLowerCase();
+
+    // Use admin client: row may have user_id=null and RLS would block the update.
+    const { data: row, error: fetchErr } = await supabaseAdmin
+      .from("student_collaborators")
+      .select("id, invited_email, user_id, status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (fetchErr || !row) throw new Error("Invite not found.");
+    if (row.status !== "pending") throw new Error("This invite is no longer pending.");
+
+    const matchesEmail = email && row.invited_email.toLowerCase() === email;
+    const matchesUser = row.user_id && row.user_id === userId;
+    if (!matchesEmail && !matchesUser) {
+      throw new Error("This invite isn't addressed to you.");
+    }
+
+    const { error } = await supabaseAdmin
       .from("student_collaborators")
       .update({ status: "accepted", user_id: userId })
       .eq("id", data.id);
     if (error) throw new Error("Could not accept invite.");
     return { ok: true };
   });
+
 
 export type InviteWithStudent = Collaborator & {
   student_first_name: string | null;
