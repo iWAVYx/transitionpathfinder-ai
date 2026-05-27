@@ -16,6 +16,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
 import { GoalsEditor } from "@/components/students/GoalsEditor";
+import { PathwayProgress } from "@/components/students/PathwayProgress";
 import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
@@ -366,6 +367,10 @@ function StudentDetailPage() {
             goals={goals}
             onChange={reload}
           />
+        </div>
+
+        <div className="mt-6">
+          <PathwayProgress studentId={studentId} />
         </div>
 
         <div className="mt-6">

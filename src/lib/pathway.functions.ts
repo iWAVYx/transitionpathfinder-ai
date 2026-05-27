@@ -148,30 +148,71 @@ export const createPathwayReport = createServerFn({ method: "POST" })
     return { reportId: saved.id, intakeId: intake.id, report };
   });
 
+export type ReportListRow = {
+  id: string;
+  created_at: string;
+  student_first_name: string;
+  grade_band: string | null;
+  summary: string | null;
+  student_id: string | null;
+  linked_student_name: string | null;
+};
+
 export const listMyReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
     const { data, error } = await supabase
       .from("pathway_reports")
-      .select("id, created_at, intake_id, student_intakes(student_first_name, grade_band)")
+      .select(
+        "id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band)",
+      )
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(100);
     if (error) {
       console.error("listMyReports failed", error);
-      return { reports: [] as Array<{ id: string; created_at: string; student_first_name: string; grade_band: string | null }> };
+      return { reports: [] as ReportListRow[] };
     }
     type Row = {
       id: string;
       created_at: string;
       intake_id: string;
+      student_id: string | null;
+      content: { summary?: string } | null;
       student_intakes: { student_first_name: string; grade_band: string | null } | null;
     };
-    const reports = ((data ?? []) as unknown as Row[]).map((r) => ({
+    const rows = (data ?? []) as unknown as Row[];
+
+    // Resolve linked student names in a single follow-up query.
+    const studentIds = Array.from(
+      new Set(rows.map((r) => r.student_id).filter((x): x is string => !!x)),
+    );
+    const studentNameMap = new Map<string, string>();
+    if (studentIds.length > 0) {
+      const { data: studs } = await supabase
+        .from("students")
+        .select("id, first_name, last_name")
+        .in("id", studentIds);
+      for (const s of studs ?? []) {
+        studentNameMap.set(
+          (s as { id: string }).id,
+          `${(s as { first_name: string }).first_name}${
+            (s as { last_name: string | null }).last_name
+              ? " " + (s as { last_name: string }).last_name
+              : ""
+          }`,
+        );
+      }
+    }
+
+    const reports: ReportListRow[] = rows.map((r) => ({
       id: r.id,
       created_at: r.created_at,
       student_first_name: r.student_intakes?.student_first_name ?? "—",
       grade_band: r.student_intakes?.grade_band ?? null,
+      summary: r.content?.summary ?? null,
+      student_id: r.student_id,
+      linked_student_name: r.student_id ? studentNameMap.get(r.student_id) ?? null : null,
     }));
     return { reports };
   });
@@ -183,7 +224,7 @@ export const getReport = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
-      .select("id, created_at, content, intake_id, student_intakes(student_first_name, grade_band)")
+      .select("id, created_at, content, intake_id, student_id, student_intakes(student_first_name, grade_band)")
       .eq("id", data.id)
       .maybeSingle();
     if (error || !row) {
@@ -195,16 +236,41 @@ export const getReport = createServerFn({ method: "POST" })
       created_at: string;
       content: unknown;
       intake_id: string;
+      student_id: string | null;
       student_intakes: { student_first_name: string; grade_band: string | null } | null;
     };
     const r = row as unknown as Row;
     return {
       id: r.id,
       created_at: r.created_at,
+      student_id: r.student_id,
       student_first_name: r.student_intakes?.student_first_name ?? "—",
       grade_band: r.student_intakes?.grade_band ?? null,
       report: r.content as PathwayReport,
     };
+  });
+
+export const linkReportToStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        report_id: z.string().uuid(),
+        student_id: z.string().uuid().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase
+      .from("pathway_reports")
+      .update({ student_id: data.student_id })
+      .eq("id", data.report_id);
+    if (error) {
+      console.error("linkReportToStudent failed", error);
+      throw new Error("Could not link this report.");
+    }
+    return { ok: true };
   });
 
 export const deleteReport = createServerFn({ method: "POST" })
