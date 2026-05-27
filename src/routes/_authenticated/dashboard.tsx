@@ -60,16 +60,29 @@ function DashboardPage() {
           </Link>
         </div>
 
-        <div className="mt-10 rounded-3xl border border-dashed border-border/60 bg-muted/30 p-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary">Also for you</p>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Visit the{" "}
-            <Link to="/resources" className="font-semibold text-foreground hover:underline">
-              Resource Hub
-            </Link>{" "}
-            for plain-language explanations of Connecticut agencies, a small glossary, and
-            family worksheets we're opening up through the pilot.
-          </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <Link
+            to="/reports"
+            className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:shadow-lift"
+          >
+            <h3 className="font-display text-xl font-medium tracking-tight">My Pathway Reports →</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Everything you've generated, in one library. Open, print, or bring a report into your
+              next PPT meeting prep.
+            </p>
+          </Link>
+
+          <div className="rounded-3xl border border-dashed border-border/60 bg-muted/30 p-7">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Also for you</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Visit the{" "}
+              <Link to="/resources" className="font-semibold text-foreground hover:underline">
+                Resource Hub
+              </Link>{" "}
+              for plain-language explanations of Connecticut agencies, a small glossary, and
+              family worksheets we're opening up through the pilot.
+            </p>
+          </div>
         </div>
 
         <p className="mt-14 text-xs italic text-muted-foreground">Building with care in Connecticut.</p>
