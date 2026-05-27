@@ -88,12 +88,18 @@ function DashboardPage() {
               height={900}
               className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-2/3 rounded-2xl object-cover opacity-80 transition-transform duration-500 group-hover:scale-105 [mask-image:radial-gradient(circle_at_top_left,black,transparent_75%)]"
             />
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft backdrop-blur">
-              <Sparkles className="h-6 w-6" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft backdrop-blur">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <span className="inline-flex items-center rounded-full bg-background/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary shadow-soft backdrop-blur">
+                Suggested next step
+              </span>
             </div>
             <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">Signature feature</p>
-            <h2 className="mt-2 max-w-md font-display text-3xl font-medium tracking-tight sm:text-4xl">
-              Create a Pathway Report →
+            <h2 className="mt-2 flex max-w-md items-center gap-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              Create a Pathway Report
+              <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" aria-hidden />
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
               Strengths, interests, current goals, your concerns — even partial is fine. Or upload
