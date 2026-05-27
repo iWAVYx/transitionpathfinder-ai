@@ -24,6 +24,8 @@ export function ReportView({
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
+  const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
+  const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
 
   // Sync ?view= in the URL so links are shareable per audience.
   useEffect(() => {
@@ -50,7 +52,7 @@ export function ReportView({
 
   const subheading =
     audience === "family"
-      ? report.summary
+      ? displayReport.summary
       : "A teacher-facing snapshot to bring to the next Planning & Placement Team meeting. Use the talking points and next steps to keep the conversation focused on the student.";
 
   const copyLink = async () => {
@@ -119,10 +121,25 @@ export function ReportView({
       </div>
 
       {audience === "family" ? (
-        <FamilyView name={name} report={report} />
+        <FamilyView name={name} report={displayReport} />
       ) : (
-        <EducatorView name={name} report={report} />
+        <EducatorView name={name} report={displayReport} />
       )}
+
+      <AiAssistPanel
+        studentName={name}
+        report={report}
+        translatedTo={translatedTo}
+        onTranslated={(next, lang) => {
+          setDisplayReport(next);
+          setTranslatedTo(lang);
+        }}
+        onReset={() => {
+          setDisplayReport(report);
+          setTranslatedTo(null);
+        }}
+      />
+
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
         {onReset && (
