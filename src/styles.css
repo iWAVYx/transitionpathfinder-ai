@@ -205,8 +205,9 @@
 
 /* Accessibility: user-controlled font scaling.
  * Scales the root font-size so rem-based Tailwind sizes grow together. */
-html.a11y-font-lg { font-size: 18px; }
-html.a11y-font-xl { font-size: 20px; }
+html.a11y-font-lg { font-size: clamp(16px, 0.85rem + 0.5vw, 20px); }
+html.a11y-font-xl { font-size: clamp(18px, 0.95rem + 0.55vw, 22px); }
+
 
 /* Accessibility: high-contrast mode override.
  * Strengthens foreground/muted text and borders to exceed WCAG AA. */
