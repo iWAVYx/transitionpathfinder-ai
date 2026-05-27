@@ -34,6 +34,7 @@ import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 
 const WaitlistRoute = WaitlistRouteImport.update({
@@ -160,6 +161,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedStudentsStudentIdRoute =
+  AuthenticatedStudentsStudentIdRouteImport.update({
+    id: '/$studentId',
+    path: '/$studentId',
+    getParentRoute: () => AuthenticatedStudentsRoute,
+  } as any)
 const AuthenticatedReportsReportIdRoute =
   AuthenticatedReportsReportIdRouteImport.update({
     id: '/$reportId',
@@ -189,10 +196,11 @@ export interface FileRoutesByFullPath {
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
-  '/students': typeof AuthenticatedStudentsRoute
+  '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -216,10 +224,11 @@ export interface FileRoutesByTo {
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
-  '/students': typeof AuthenticatedStudentsRoute
+  '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -245,10 +254,11 @@ export interface FileRoutesById {
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
-  '/_authenticated/students': typeof AuthenticatedStudentsRoute
+  '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/reports/$reportId'
+    | '/students/$studentId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/reports/$reportId'
+    | '/students/$studentId'
   id:
     | '__root__'
     | '/'
@@ -333,6 +345,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/reports/$reportId'
+    | '/_authenticated/students/$studentId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -532,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/students/$studentId': {
+      id: '/_authenticated/students/$studentId'
+      path: '/$studentId'
+      fullPath: '/students/$studentId'
+      preLoaderRoute: typeof AuthenticatedStudentsStudentIdRouteImport
+      parentRoute: typeof AuthenticatedStudentsRoute
+    }
     '/_authenticated/reports/$reportId': {
       id: '/_authenticated/reports/$reportId'
       path: '/$reportId'
@@ -553,6 +573,19 @@ const AuthenticatedReportsRouteChildren: AuthenticatedReportsRouteChildren = {
 const AuthenticatedReportsRouteWithChildren =
   AuthenticatedReportsRoute._addFileChildren(AuthenticatedReportsRouteChildren)
 
+interface AuthenticatedStudentsRouteChildren {
+  AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRoute
+}
+
+const AuthenticatedStudentsRouteChildren: AuthenticatedStudentsRouteChildren = {
+  AuthenticatedStudentsStudentIdRoute: AuthenticatedStudentsStudentIdRoute,
+}
+
+const AuthenticatedStudentsRouteWithChildren =
+  AuthenticatedStudentsRoute._addFileChildren(
+    AuthenticatedStudentsRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
@@ -561,7 +594,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
+  AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -572,7 +605,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
-  AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
+  AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
