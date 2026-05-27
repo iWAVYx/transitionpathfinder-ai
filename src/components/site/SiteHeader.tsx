@@ -4,13 +4,12 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 
-
 const nav = [
-  { to: "/framework", label: "The Framework" },
-  { to: "/research", label: "Research" },
-  { to: "/partners", label: "Partners" },
+  { to: "/platform", label: "Platform" },
+  { to: "/families", label: "For Families" },
+  { to: "/educators", label: "For Educators" },
+  { to: "/framework", label: "Framework" },
   { to: "/about", label: "About" },
-  { to: "/pricing", label: "Pricing" },
 ] as const;
 
 export function SiteHeader() {
@@ -74,12 +73,11 @@ export function SiteHeader() {
                 to="/waitlist"
                 className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
               >
-                Join the pilot
+                Join the waitlist
               </Link>
             </>
           )}
         </div>
-
 
         <button
           type="button"
@@ -142,12 +140,11 @@ export function SiteHeader() {
                     onClick={() => setOpen(false)}
                     className="flex-1 rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
                   >
-                    Join the pilot
+                    Join the waitlist
                   </Link>
                 </>
               )}
             </div>
-
           </div>
         </div>
       </div>
