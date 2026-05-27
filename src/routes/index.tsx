@@ -1,4 +1,20 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import {
+  HeartHandshake,
+  GraduationCap,
+  Users,
+  Building2,
+  Briefcase,
+  ShieldCheck,
+  Sparkles,
+  ArrowRight,
+  ClipboardCheck,
+  MessagesSquare,
+  Compass,
+  Lock,
+  UserCheck,
+  Download,
+} from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import heroImg from "@/assets/home-hero.jpg";
 import studentImg from "@/assets/home-student.jpg";
