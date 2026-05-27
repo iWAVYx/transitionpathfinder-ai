@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import {
   Heart,
   Mic,
@@ -27,7 +27,7 @@ const perspectives: Array<{
   previewLabel: string;
   bullets: string[];
   scenario: string;
-  preview: () => JSX.Element;
+  preview: () => ReactElement;
 }> = [
   {
     key: "family",
