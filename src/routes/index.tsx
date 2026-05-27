@@ -216,7 +216,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-2"
             image={pathCareer}
-            label="Career & employment"
+            label="Career & Employment"
             caption="Job training, internships, BRS."
             compact
             pathwayId="career"
@@ -224,7 +224,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathLifeskills}
-            label="Life skills"
+            label="Life Skills"
             caption="Cooking, transit, money, daily independence."
             compact
             pathwayId="life-skills"
@@ -232,7 +232,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathProgress}
-            label="Progress, tracked"
+            label="Progress Tracked"
             caption="Small wins, gently celebrated."
             compact
             pathwayId="progress"
