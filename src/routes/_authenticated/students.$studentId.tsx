@@ -15,6 +15,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
@@ -393,6 +394,10 @@ function StudentDetailPage() {
               ))}
             </ul>
           )}
+        </div>
+
+        <div className="mt-6">
+          <CollaboratorsPanel studentId={studentId} />
         </div>
       </section>
     </SiteShell>
