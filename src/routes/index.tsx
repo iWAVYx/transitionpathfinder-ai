@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "One platform. One plan. Forward together. AI-supported transition planning built for Connecticut families, students, and educators.",
+          "One platform. One plan. Forward together. Expert-built Pathway planning for Connecticut families, students, and educators.",
       },
       { property: "og:image", content: heroImg },
     ],
@@ -137,7 +137,7 @@ function HomePage() {
               A clearer way to plan what comes next.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-              AI-supported recommendations, student-centered goal tracking, and
+              Expert-built Pathway recommendations, student-centered goal tracking, and
               real-world opportunity matching — moving every team from paperwork
               to progress.
             </p>
@@ -145,9 +145,9 @@ function HomePage() {
 
           <div className="space-y-24">
             <Zigzag
-              eyebrow="Signature feature"
-              title="AI Pathway Builder"
-              body="Share your student's strengths, interests, and goals. TransitionForward generates a personalized Pathway Report — career directions, life-skills focus, family questions for the next PPT, and a 30-day plan you can actually act on."
+              eyebrow="The Signature Output"
+              title="The Pathway Report"
+              body="Share your student's strengths, interests, and goals. TransitionForward delivers a personalized Pathway Report — the career direction, life-skills focus, family questions for the next PPT, and a 30-day plan you can actually act on. Every Pathway is built from specialist-designed formulas, Connecticut transition data, and the lived experience of special educators."
               image={pathwayImg}
               alt="A winding road through golden fields at sunset"
               align="left"

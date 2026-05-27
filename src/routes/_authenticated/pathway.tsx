@@ -244,7 +244,7 @@ function PathwayPage() {
             {form.formState.isSubmitting ? "Generating your Pathway Report…" : "Generate Pathway Report"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            Generation usually takes 15–30 seconds. The AI drafts; you stay in charge.
+            Generation usually takes 15–30 seconds. Our formulas draft your Pathway; you stay in charge.
           </p>
         </form>
         </FormProvider>

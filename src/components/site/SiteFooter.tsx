@@ -23,7 +23,7 @@ export function SiteFooter() {
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground/80">
             A pilot program — not a school district's system of record. Your
             child's information stays yours, scoped to your account, and is
-            never used to train AI models.
+            never shared, sold, or used to train any outside model.
           </p>
         </div>
 

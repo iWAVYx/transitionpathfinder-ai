@@ -65,10 +65,10 @@ export function AiAssistPanel({
     <div className="no-print mt-8 rounded-2xl border bg-card p-5 shadow-soft">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <h2 className="font-display text-lg">AI assist</h2>
+        <h2 className="font-display text-lg">Pathway Assist</h2>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Translate this report for the family or get small, concrete next steps for the coming week.
+        Translate this Pathway Report for the family or get small, concrete next steps for the coming week.
       </p>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
