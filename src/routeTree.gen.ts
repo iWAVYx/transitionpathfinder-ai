@@ -22,6 +22,7 @@ import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const WaitlistRoute = WaitlistRouteImport.update({
@@ -88,6 +89,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPathwayRoute = AuthenticatedPathwayRouteImport.update({
+  id: '/pathway',
+  path: '/pathway',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/research': typeof ResearchRoute
   '/waitlist': typeof WaitlistRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/pathway': typeof AuthenticatedPathwayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/research': typeof ResearchRoute
   '/waitlist': typeof WaitlistRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/pathway': typeof AuthenticatedPathwayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/research': typeof ResearchRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/research'
     | '/waitlist'
     | '/dashboard'
+    | '/pathway'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/research'
     | '/waitlist'
     | '/dashboard'
+    | '/pathway'
   id:
     | '__root__'
     | '/'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/research'
     | '/waitlist'
     | '/_authenticated/dashboard'
+    | '/_authenticated/pathway'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -299,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/pathway': {
+      id: '/_authenticated/pathway'
+      path: '/pathway'
+      fullPath: '/pathway'
+      preLoaderRoute: typeof AuthenticatedPathwayRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -311,10 +330,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
