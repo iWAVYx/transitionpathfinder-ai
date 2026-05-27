@@ -105,6 +105,6 @@ export const getPathwayReport = createServerFn({ method: "POST" })
       created_at: row.created_at,
       student_first_name: intake?.student_first_name ?? "—",
       grade_band: intake?.grade_band ?? null,
-      content: row.content as unknown,
+      content: row.content as PathwayReport,
     };
   });
