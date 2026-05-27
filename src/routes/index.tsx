@@ -142,7 +142,78 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES — alternating zigzag, no boxes */}
+      {/* ROLE ROUTER — five doors into the platform */}
+      <section
+        id="choose-your-path"
+        aria-labelledby="role-router-heading"
+        className="border-y border-border/40 bg-background"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Start where you are
+            </p>
+            <h2
+              id="role-router-heading"
+              className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl"
+            >
+              Choose your path in.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              Transition planning looks different from every chair at the table.
+              Pick the door that fits — we'll meet you with the right tools, language,
+              and next steps.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <RoleCard
+              icon={HeartHandshake}
+              label="Family / Guardian"
+              body="Understand the plan, see what's next, and walk into PPTs prepared."
+              cta="Build My Child's Transition Plan"
+              to="/families"
+              tone="peach"
+            />
+            <RoleCard
+              icon={GraduationCap}
+              label="Student"
+              body="Tell us who you are. See careers, colleges, and life paths that fit."
+              cta="Explore My Future Path"
+              to="/waitlist"
+              search={{ role: "student" }}
+              tone="sky"
+            />
+            <RoleCard
+              icon={Users}
+              label="Teacher / Case Manager"
+              body="Organize goals, documents, and meetings for your whole caseload."
+              cta="Organize My Caseload"
+              to="/educators"
+              tone="primary"
+            />
+            <RoleCard
+              icon={Building2}
+              label="School / District"
+              body="A coordinated view across students, teams, and transition outcomes."
+              cta="Request a School Demo"
+              to="/waitlist"
+              search={{ role: "administrator" }}
+              tone="muted"
+            />
+            <RoleCard
+              icon={Briefcase}
+              label="Partner Organization"
+              body="Colleges, training programs, employers, and community supports."
+              cta="Become a Partner"
+              to="/partners"
+              tone="peach"
+            />
+          </div>
+        </div>
+      </section>
+
+
       <section className="bg-muted/40 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-16 max-w-2xl text-center">
