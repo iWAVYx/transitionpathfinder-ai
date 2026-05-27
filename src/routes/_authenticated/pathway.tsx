@@ -139,7 +139,8 @@ function PathwayPage() {
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Share what you know — even just a little. Student, family, and educator voices all in one
-            place. Or upload an existing IEP and we'll fill in what we can find.{" "}
+            place. Or upload an existing{" "}
+            <Term definition={GLOSSARY.IEP}>IEP</Term> and we'll fill in what we can find.{" "}
             <Link to="/reports" className="font-semibold text-foreground hover:underline">
               See your saved reports →
             </Link>
