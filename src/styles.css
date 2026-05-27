@@ -198,3 +198,36 @@
   .shadow-lift { box-shadow: var(--shadow-lift); }
   .font-display { font-family: var(--font-display); }
 }
+
+/* Accessibility: user-controlled font scaling.
+ * Scales the root font-size so rem-based Tailwind sizes grow together. */
+html.a11y-font-lg { font-size: 18px; }
+html.a11y-font-xl { font-size: 20px; }
+
+/* Accessibility: high-contrast mode override.
+ * Strengthens foreground/muted text and borders to exceed WCAG AA. */
+html.high-contrast {
+  --foreground: oklch(0.12 0.02 250);
+  --ink: oklch(0.12 0.02 250);
+  --card-foreground: oklch(0.12 0.02 250);
+  --popover-foreground: oklch(0.12 0.02 250);
+  --muted-foreground: oklch(0.3 0.03 245);
+  --border: oklch(0.55 0.05 240);
+  --input: oklch(0.55 0.05 240);
+  --ring: oklch(0.4 0.15 230);
+  --primary: oklch(0.4 0.16 235);
+  --primary-foreground: oklch(1 0 0);
+  --secondary-foreground: oklch(0.2 0.08 25);
+  --accent-foreground: oklch(0.2 0.08 25);
+}
+
+html.high-contrast.dark {
+  --foreground: oklch(0.99 0.005 220);
+  --muted-foreground: oklch(0.92 0.01 230);
+  --border: oklch(1 0 0 / 35%);
+  --input: oklch(1 0 0 / 35%);
+  --primary: oklch(0.88 0.12 230);
+}
+
+html.high-contrast a { text-decoration: underline; text-underline-offset: 2px; }
+html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
