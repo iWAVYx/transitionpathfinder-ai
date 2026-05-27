@@ -72,8 +72,9 @@ function PptPrepPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
+      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <Breadcrumbs trail={[{ label: "PPT Meeting Prep" }]} />
+        <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
           Walk in calm. Walk out heard.
         </h1>
@@ -83,18 +84,44 @@ function PptPrepPage() {
           borrow word-for-word.
         </p>
 
+        <InfoBox label="What's a PPT meeting?" className="mt-6">
+          <p>
+            A <strong>PPT</strong> (Planning &amp; Placement Team) meeting is where your
+            student's school team and family sit down together to review the IEP — goals,
+            services, accommodations, and what's coming next.
+          </p>
+          <p className="mt-2">
+            These meetings move fast. The prep below gives you a friendly agenda, the exact
+            questions to ask, and language you can use when things get tense.
+          </p>
+        </InfoBox>
+
+        {!loadingReports && reports.length === 0 ? (
+          <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
+            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
+              <CalendarHeart className="h-6 w-6 text-primary" aria-hidden />
+            </div>
+            <h2 className="mt-4 font-display text-2xl font-medium tracking-tight">
+              Start with a Pathway Report.
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+              We build your meeting prep from the student, family, and educator voices in a
+              Pathway Report. Create one and come back here.
+            </p>
+            <Link
+              to="/pathway"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+            >
+              <Sparkles className="h-4 w-4" aria-hidden />
+              Create a Pathway Report
+            </Link>
+          </div>
+        ) : (
         <div className="mt-10 space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
           <div>
             <Label className="mb-1.5 inline-block">Pathway Report to build from</Label>
             {loadingReports ? (
               <p className="text-sm text-muted-foreground">Loading your reports…</p>
-            ) : reports.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-border/70 bg-muted/30 p-4 text-sm text-muted-foreground">
-                You don't have a Pathway Report yet.{" "}
-                <Link to="/pathway" className="font-semibold text-primary hover:underline">
-                  Create one first →
-                </Link>
-              </p>
             ) : (
               <Select onValueChange={setReportId}>
                 <SelectTrigger><SelectValue placeholder="Choose a report…" /></SelectTrigger>
