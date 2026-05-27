@@ -14,6 +14,224 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json | null
+          student_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          student_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          id: string
+          mime_type: string | null
+          parsed_summary: Json | null
+          size_bytes: number | null
+          storage_path: string
+          student_id: string
+          title: string
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type?: string
+          id?: string
+          mime_type?: string | null
+          parsed_summary?: Json | null
+          size_bytes?: number | null
+          storage_path: string
+          student_id: string
+          title: string
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          id?: string
+          mime_type?: string | null
+          parsed_summary?: Json | null
+          size_bytes?: number | null
+          storage_path?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          measurable_criteria: string | null
+          position: number
+          status: string
+          student_id: string
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          measurable_criteria?: string | null
+          position?: number
+          status?: string
+          student_id: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          measurable_criteria?: string | null
+          position?: number
+          status?: string
+          student_id?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_prefs: {
+        Row: {
+          email_collab_invites: boolean
+          email_goal_reminders: boolean
+          email_report_ready: boolean
+          email_weekly_digest: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          email_collab_invites?: boolean
+          email_goal_reminders?: boolean
+          email_report_ready?: boolean
+          email_weekly_digest?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          email_collab_invites?: boolean
+          email_goal_reminders?: boolean
+          email_report_ready?: boolean
+          email_weekly_digest?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pathway_progress: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          note: string | null
+          pathway_id: string
+          step_index: number
+          student_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          note?: string | null
+          pathway_id: string
+          step_index: number
+          student_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          note?: string | null
+          pathway_id?: string
+          step_index?: number
+          student_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathway_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pathway_reports: {
         Row: {
           content: Json
@@ -21,6 +239,7 @@ export type Database = {
           id: string
           intake_id: string
           model: string
+          student_id: string | null
           user_id: string
         }
         Insert: {
@@ -29,6 +248,7 @@ export type Database = {
           id?: string
           intake_id: string
           model: string
+          student_id?: string | null
           user_id: string
         }
         Update: {
@@ -37,6 +257,7 @@ export type Database = {
           id?: string
           intake_id?: string
           model?: string
+          student_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -45,6 +266,13 @@ export type Database = {
             columns: ["intake_id"]
             isOneToOne: false
             referencedRelation: "student_intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pathway_reports_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -70,6 +298,97 @@ export type Database = {
         }
         Relationships: []
       }
+      share_tokens: {
+        Row: {
+          audience: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          last_viewed_at: string | null
+          report_id: string
+          revoked: boolean
+          token: string
+          view_count: number
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          report_id: string
+          revoked?: boolean
+          token: string
+          view_count?: number
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          report_id?: string
+          revoked?: boolean
+          token?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_tokens_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "pathway_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_collaborators: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string
+          invited_email: string
+          role: string
+          status: string
+          student_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by: string
+          invited_email: string
+          role?: string
+          status?: string
+          student_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string
+          invited_email?: string
+          role?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_collaborators_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_intakes: {
         Row: {
           communication: string | null
@@ -84,6 +403,7 @@ export type Database = {
           needs: string | null
           strengths: string | null
           student_first_name: string
+          student_id: string | null
           student_voice: string | null
           submitter_role: string
           supports: string | null
@@ -104,6 +424,7 @@ export type Database = {
           needs?: string | null
           strengths?: string | null
           student_first_name: string
+          student_id?: string | null
           student_voice?: string | null
           submitter_role?: string
           supports?: string | null
@@ -124,12 +445,63 @@ export type Database = {
           needs?: string | null
           strengths?: string | null
           student_first_name?: string
+          student_id?: string | null
           student_voice?: string | null
           submitter_role?: string
           supports?: string | null
           transportation?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_intakes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          first_name: string
+          grade_band: string | null
+          id: string
+          last_name: string | null
+          notes: string | null
+          owner_id: string
+          photo_url: string | null
+          school: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          first_name: string
+          grade_band?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          owner_id: string
+          photo_url?: string | null
+          school?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          first_name?: string
+          grade_band?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          owner_id?: string
+          photo_url?: string | null
+          school?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -195,6 +567,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_student: {
+        Args: { _student_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_edit_student: {
+        Args: { _student_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -202,9 +582,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      resolve_share_token: {
+        Args: { _token: string }
+        Returns: {
+          audience: string
+          content: Json
+          created_at: string
+          report_id: string
+        }[]
+      }
+      track_share_view: { Args: { _token: string }; Returns: undefined }
     }
     Enums: {
-      app_role: "parent" | "educator" | "admin"
+      app_role: "parent" | "educator" | "admin" | "case_manager"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -332,7 +722,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["parent", "educator", "admin"],
+      app_role: ["parent", "educator", "admin", "case_manager"],
     },
   },
 } as const
