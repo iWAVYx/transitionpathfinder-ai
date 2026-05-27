@@ -5,6 +5,11 @@ import studentImg from "@/assets/home-student.jpg";
 import familyImg from "@/assets/home-family.jpg";
 import educatorImg from "@/assets/home-educator.jpg";
 import pathwayImg from "@/assets/home-pathway.jpg";
+import pathCollege from "@/assets/path-college.jpg";
+import pathTechnical from "@/assets/path-technical.jpg";
+import pathCareer from "@/assets/path-career.jpg";
+import pathLifeskills from "@/assets/path-lifeskills.jpg";
+import pathProgress from "@/assets/path-progress.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
