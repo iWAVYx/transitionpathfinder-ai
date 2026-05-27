@@ -1,28 +1,15 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@300;400;500;600;700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
-/* TransitionForward — Sky & Peach palette, Outfit + Figtree typography.
- * Friendly, contemporary, slightly playful, moderately serious.
+/* TransitionForward — Sky & Peach palette, Cormorant Garamond + Karla typography.
+ * Soft, warm, parent-facing. Editorial serif headlines, calm humanist body.
  * All colors in oklch. Semantic tokens only — never hard-code hex/rgb in components.
  */
 
-@font-face {
-  font-family: "Outfit";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/outfit/v11/QGYvz_MVcBeNP4NjuGObqx1XmO1I4TC1C4G-EiAou6Y.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Figtree";
-  font-style: normal;
-  font-weight: 300 900;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/figtree/v5/_Xmz-HUzqDCFdgfMm4q9DbpvVHQg-A.woff2") format("woff2");
-}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
