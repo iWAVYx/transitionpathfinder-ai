@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { Sparkles, FolderOpen } from "lucide-react";
 import { deleteReport, listMyReports } from "@/lib/pathway.functions";
 
 type Row = {
