@@ -1,18 +1,25 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Copy, Check, Link2, Trash2, Share2 } from "lucide-react";
+import { Copy, Check, Link2, Trash2, Share2, UserCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
 import { Button } from "@/components/ui/button";
-import { getReport, type PathwayReport } from "@/lib/pathway.functions";
+import {
+  getReport,
+  linkReportToStudent,
+  type PathwayReport,
+} from "@/lib/pathway.functions";
 import {
   createShareToken,
   listShareTokens,
+  listStudents,
   revokeShareToken,
   type ShareTokenRow,
+  type Student,
 } from "@/lib/students.functions";
 
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
@@ -26,22 +33,53 @@ function ReportDetailPage() {
   const listTokens = useServerFn(listShareTokens);
   const create = useServerFn(createShareToken);
   const revoke = useServerFn(revokeShareToken);
+  const fetchStudents = useServerFn(listStudents);
+  const linkStudent = useServerFn(linkReportToStudent);
   const navigate = useNavigate();
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
-    | { kind: "ok"; name: string; report: PathwayReport }
+    | { kind: "ok"; name: string; report: PathwayReport; studentId: string | null }
   >({ kind: "loading" });
   const [tokens, setTokens] = useState<ShareTokenRow[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [busy, setBusy] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [linking, setLinking] = useState(false);
 
   useEffect(() => {
     fetchReport({ data: { id: reportId } })
-      .then((r) => setState({ kind: "ok", name: r.student_first_name, report: r.report }))
-      .catch((e) => setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" }));
-    listTokens({ data: { report_id: reportId } }).then((r) => setTokens(r.tokens)).catch(() => {});
-  }, [fetchReport, listTokens, reportId]);
+      .then((r) =>
+        setState({
+          kind: "ok",
+          name: r.student_first_name,
+          report: r.report,
+          studentId: r.student_id,
+        }),
+      )
+      .catch((e) =>
+        setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" }),
+      );
+    listTokens({ data: { report_id: reportId } })
+      .then((r) => setTokens(r.tokens))
+      .catch(() => {});
+    fetchStudents()
+      .then((r) => setStudents(r.students))
+      .catch(() => setStudents([]));
+  }, [fetchReport, listTokens, fetchStudents, reportId]);
+
+  async function handleLink(studentId: string | null) {
+    setLinking(true);
+    try {
+      await linkStudent({ data: { report_id: reportId, student_id: studentId } });
+      setState((s) => (s.kind === "ok" ? { ...s, studentId } : s));
+      toast.success(studentId ? "Linked to student." : "Link removed.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not link.");
+    } finally {
+      setLinking(false);
+    }
+  }
 
   async function generate(audience: "family" | "educator") {
     setBusy(true);
