@@ -165,7 +165,7 @@ export const listMyReports = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("pathway_reports")
       .select(
-        "id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band), students(first_name, last_name)",
+        "id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band)",
       )
       .order("created_at", { ascending: false })
       .limit(100);
@@ -180,18 +180,39 @@ export const listMyReports = createServerFn({ method: "GET" })
       student_id: string | null;
       content: { summary?: string } | null;
       student_intakes: { student_first_name: string; grade_band: string | null } | null;
-      students: { first_name: string; last_name: string | null } | null;
     };
-    const reports: ReportListRow[] = ((data ?? []) as unknown as Row[]).map((r) => ({
+    const rows = (data ?? []) as unknown as Row[];
+
+    // Resolve linked student names in a single follow-up query.
+    const studentIds = Array.from(
+      new Set(rows.map((r) => r.student_id).filter((x): x is string => !!x)),
+    );
+    const studentNameMap = new Map<string, string>();
+    if (studentIds.length > 0) {
+      const { data: studs } = await supabase
+        .from("students")
+        .select("id, first_name, last_name")
+        .in("id", studentIds);
+      for (const s of studs ?? []) {
+        studentNameMap.set(
+          (s as { id: string }).id,
+          `${(s as { first_name: string }).first_name}${
+            (s as { last_name: string | null }).last_name
+              ? " " + (s as { last_name: string }).last_name
+              : ""
+          }`,
+        );
+      }
+    }
+
+    const reports: ReportListRow[] = rows.map((r) => ({
       id: r.id,
       created_at: r.created_at,
       student_first_name: r.student_intakes?.student_first_name ?? "—",
       grade_band: r.student_intakes?.grade_band ?? null,
       summary: r.content?.summary ?? null,
       student_id: r.student_id,
-      linked_student_name: r.students
-        ? `${r.students.first_name}${r.students.last_name ? " " + r.students.last_name : ""}`
-        : null,
+      linked_student_name: r.student_id ? studentNameMap.get(r.student_id) ?? null : null,
     }));
     return { reports };
   });
