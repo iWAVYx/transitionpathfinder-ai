@@ -383,7 +383,7 @@ function PathwayFlow() {
             <Progress value={progress} className="mt-2 h-2" />
           </div>
           <ol className="space-y-1.5">
-            {pathway.steps.map((s, i) => {
+            {pathway.steps.map((s: PathwayStep, i: number) => {
               const isActive = i === activeIdx;
               const isDone = done.has(i);
               return (
@@ -443,7 +443,7 @@ function PathwayFlow() {
               Try this
             </h3>
             <ul className="mt-3 space-y-2.5">
-              {step.checklist.map((item) => (
+              {step.checklist.map((item: string) => (
                 <li key={item} className="flex items-start gap-2.5 text-sm">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <span>{item}</span>
