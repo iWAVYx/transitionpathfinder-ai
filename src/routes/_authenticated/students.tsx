@@ -155,12 +155,18 @@ function StudentsPage() {
                 className="group flex flex-col rounded-2xl border bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h2 className="font-display text-xl">{s.first_name} {s.last_name ?? ""}</h2>
+                  <Link
+                    to="/students/$studentId"
+                    params={{ studentId: s.id }}
+                    className="min-w-0 flex-1"
+                  >
+                    <h2 className="font-display text-xl hover:underline">
+                      {s.first_name} {s.last_name ?? ""}
+                    </h2>
                     <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
                       {s.grade_band ?? "Grade not set"} {s.school ? `· ${s.school}` : ""}
                     </p>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => handleDelete(s.id)}
                     aria-label={`Delete ${s.first_name}`}
@@ -171,16 +177,11 @@ function StudentsPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
-                    to="/reports"
+                    to="/students/$studentId"
+                    params={{ studentId: s.id }}
                     className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                   >
-                    <GraduationCap className="h-3.5 w-3.5" /> Reports
-                  </Link>
-                  <Link
-                    to="/goals"
-                    className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium hover:bg-muted/70"
-                  >
-                    Goals
+                    <GraduationCap className="h-3.5 w-3.5" /> Open
                   </Link>
                 </div>
               </article>
