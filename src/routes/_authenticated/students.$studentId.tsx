@@ -8,7 +8,6 @@ import {
   Trash2,
   Download,
   Sparkles,
-  Target,
   Loader2,
 } from "lucide-react";
 
