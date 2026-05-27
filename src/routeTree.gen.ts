@@ -23,6 +23,7 @@ import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
@@ -99,6 +100,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
+  id: '/pathways/$pathwayId',
+  path: '/pathways/$pathwayId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
 }
 export interface FileRoutesByTo {
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
 }
 export interface FileRoutesById {
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
 }
 export interface FileRouteTypes {
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
+    | '/pathways/$pathwayId'
     | '/reports/$reportId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
+    | '/pathways/$pathwayId'
     | '/reports/$reportId'
   id:
     | '__root__'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pathway'
     | '/_authenticated/ppt-prep'
     | '/_authenticated/reports'
+    | '/pathways/$pathwayId'
     | '/_authenticated/reports/$reportId'
   fileRoutesById: FileRoutesById
 }
@@ -278,6 +290,7 @@ export interface RootRouteChildren {
   ResearchRoute: typeof ResearchRoute
   ResourcesRoute: typeof ResourcesRoute
   WaitlistRoute: typeof WaitlistRoute
+  PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pathways/$pathwayId': {
+      id: '/pathways/$pathwayId'
+      path: '/pathways/$pathwayId'
+      fullPath: '/pathways/$pathwayId'
+      preLoaderRoute: typeof PathwaysPathwayIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
       path: '/reports'
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResearchRoute: ResearchRoute,
   ResourcesRoute: ResourcesRoute,
   WaitlistRoute: WaitlistRoute,
+  PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
