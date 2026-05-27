@@ -5,7 +5,16 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 const WaitlistSchema = z.object({
   email: z.string().trim().email().max(255),
   full_name: z.string().trim().min(1).max(200),
-  role: z.enum(["parent", "educator", "administrator", "other"]),
+  role: z.enum([
+    "family",
+    "parent",
+    "student",
+    "educator",
+    "administrator",
+    "district",
+    "partner",
+    "other",
+  ]),
   state: z.string().trim().max(100).optional().or(z.literal("")),
   student_grade_band: z
     .enum(["9-10", "11-12", "post-secondary", "not-applicable"])

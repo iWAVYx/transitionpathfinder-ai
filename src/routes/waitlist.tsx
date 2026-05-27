@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import {
+  HeartHandshake,
+  GraduationCap,
+  Users,
+  Building2,
+  Briefcase,
+  ArrowRight,
+} from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
@@ -19,12 +27,62 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitWaitlist } from "@/lib/waitlist.functions";
-import waitlistHero from "@/assets/waitlist-hero.jpg";
+
+type RoleKey = "family" | "student" | "educator" | "district" | "partner";
+
+const ROLE_OPTIONS: {
+  key: RoleKey;
+  label: string;
+  blurb: string;
+  cta: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    key: "family",
+    label: "Family / caregiver",
+    blurb:
+      "Build a clear, calm transition plan for your child — and stop chasing paperwork between meetings.",
+    cta: "Join the family waitlist",
+    icon: <HeartHandshake className="h-5 w-5" />,
+  },
+  {
+    key: "student",
+    label: "Student",
+    blurb:
+      "Explore careers, college, training, and life after high school — in your own voice.",
+    cta: "Explore my future path",
+    icon: <GraduationCap className="h-5 w-5" />,
+  },
+  {
+    key: "educator",
+    label: "Educator / case manager",
+    blurb:
+      "Organize transition planning for your caseload without doubling your documentation load.",
+    cta: "Request an educator demo",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    key: "district",
+    label: "School or district leader",
+    blurb:
+      "See how TransitionForward complements CT SEDS and improves outcomes across your buildings.",
+    cta: "Request a school demo",
+    icon: <Building2 className="h-5 w-5" />,
+  },
+  {
+    key: "partner",
+    label: "Community partner",
+    blurb:
+      "Colleges, technical programs, BRS, employers, mentorship — connect with students who fit.",
+    cta: "Become a partner",
+    icon: <Briefcase className="h-5 w-5" />,
+  },
+];
 
 const Schema = z.object({
   full_name: z.string().trim().min(1, "Required").max(200),
   email: z.string().trim().email("Enter a valid email").max(255),
-  role: z.enum(["parent", "educator", "administrator", "other"]),
+  role: z.enum(["family", "student", "educator", "district", "partner"]),
   state: z.string().trim().max(100).optional(),
   student_grade_band: z
     .enum(["9-10", "11-12", "post-secondary", "not-applicable"])
@@ -41,7 +99,7 @@ export const Route = createFileRoute("/waitlist")({
       {
         name: "description",
         content:
-          "Request early access to TransitionForward — a transition planning hub for CT families and educators.",
+          "Request early access to TransitionForward — separate paths for families, students, educators, schools, and partner organizations.",
       },
     ],
   }),
@@ -49,131 +107,210 @@ export const Route = createFileRoute("/waitlist")({
 });
 
 function WaitlistPage() {
+  const [selected, setSelected] = useState<RoleKey | null>(null);
   const [done, setDone] = useState(false);
   const submit = useServerFn(submitWaitlist);
+
+  // Pick up ?role=family|student|educator|district|partner from URL
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("role");
+    const known = ROLE_OPTIONS.find((o) => o.key === r);
+    if (known) setSelected(known.key);
+  }, []);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(Schema),
     defaultValues: {
       full_name: "",
       email: "",
-      role: "parent",
+      role: "family",
       state: "CT",
       student_grade_band: undefined,
       reason: "",
     },
   });
 
+  useEffect(() => {
+    if (selected) form.setValue("role", selected);
+  }, [selected, form]);
+
   const onSubmit = async (values: FormValues) => {
     try {
-      await submit({ data: { ...values, source: "marketing-site" } });
+      await submit({ data: { ...values, source: "waitlist-tiles" } });
       setDone(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
     }
   };
 
+  const current = ROLE_OPTIONS.find((o) => o.key === selected) ?? null;
+
   return (
     <SiteShell>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid gap-6 md:grid-cols-5">
-            <div className="relative overflow-hidden rounded-3xl shadow-lift md:col-span-2">
-              <img
-                src={waitlistHero}
-                alt=""
-                aria-hidden
-                width={1600}
-                height={1200}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/75 to-background/50" />
-              <div className="relative p-8 md:p-10">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                  Come walk with us
-                </p>
-                <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl">
-                  You don't have to figure this out alone.
-                </h1>
-                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-                  We're inviting a small group of Connecticut families and educators
-                  into the TransitionForward pilot. Built by a special-education
-                  teacher, grounded in the research that actually predicts a good
-                  life after high school.
-                </p>
-                <div className="mt-8 grid gap-4">
-                  <FeatureTile title="For families" body="A steadier hand through every grade — translating the plan, suggesting the next gentle step, holding the bigger picture so you don't have to." />
-                  <FeatureTile title="For educators" body="Compliance-ready transition planning without the binder of redundant forms — and finally, a tool families can use between PPT meetings." />
-                </div>
-              </div>
+        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <header className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Come walk with us
+            </p>
+            <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+              You don't have to figure this out alone.
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Pick the door that fits you best. We're opening separate seats for families,
+              students, educators, school leaders, and partner organizations.
+            </p>
+          </header>
+
+          {!done && !current && (
+            <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {ROLE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setSelected(opt.key)}
+                  className="group flex flex-col rounded-3xl border border-border bg-card p-6 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+                >
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
+                    {opt.icon}
+                  </span>
+                  <h2 className="mt-4 font-display text-xl font-medium">{opt.label}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{opt.blurb}</p>
+                  <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                    {opt.cta}{" "}
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </button>
+              ))}
             </div>
+          )}
 
+          {!done && current && (
+            <div className="mt-10 grid gap-6 md:grid-cols-5">
+              <aside className="rounded-3xl border bg-card p-6 shadow-soft md:col-span-2">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
+                  {current.icon}
+                </span>
+                <h2 className="mt-4 font-display text-2xl font-medium">{current.label}</h2>
+                <p className="mt-3 text-sm text-muted-foreground">{current.blurb}</p>
+                <button
+                  type="button"
+                  onClick={() => setSelected(null)}
+                  className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary underline-offset-4 hover:underline"
+                >
+                  ← Pick a different door
+                </button>
+              </aside>
 
-
-          <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft md:col-span-3 md:p-8">
-            {done ? (
-              <SuccessCard />
-            ) : (
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5 rounded-3xl border bg-card p-6 shadow-soft md:col-span-3 md:p-8"
+              >
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Full name" error={form.formState.errors.full_name?.message}>
                     <Input {...form.register("full_name")} placeholder="Your name" />
                   </Field>
                   <Field label="Email" error={form.formState.errors.email?.message}>
-                    <Input type="email" {...form.register("email")} placeholder="you@example.com" />
+                    <Input
+                      type="email"
+                      {...form.register("email")}
+                      placeholder="you@example.com"
+                    />
                   </Field>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="I am a…" error={form.formState.errors.role?.message}>
+                <Field label="State">
+                  <Input {...form.register("state")} placeholder="CT" maxLength={100} />
+                </Field>
+
+                {(current.key === "family" || current.key === "student") && (
+                  <Field label="Student grade band">
                     <Select
-                      defaultValue={form.getValues("role")}
-                      onValueChange={(v) => form.setValue("role", v as FormValues["role"])}
+                      onValueChange={(v) =>
+                        form.setValue(
+                          "student_grade_band",
+                          v as FormValues["student_grade_band"],
+                        )
+                      }
                     >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select…" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="parent">Parent / caregiver</SelectItem>
-                        <SelectItem value="educator">Educator</SelectItem>
-                        <SelectItem value="administrator">Administrator</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="9-10">9th – 10th (Launch / Explore)</SelectItem>
+                        <SelectItem value="11-12">11th – 12th (Plan / Execute)</SelectItem>
+                        <SelectItem value="post-secondary">Post-secondary (18–21)</SelectItem>
+                        <SelectItem value="not-applicable">Not applicable</SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>
-                  <Field label="State">
-                    <Input {...form.register("state")} placeholder="CT" maxLength={100} />
-                  </Field>
-                </div>
+                )}
 
-                <Field label="Student grade band (optional)">
-                  <Select
-                    onValueChange={(v) =>
-                      form.setValue("student_grade_band", v as FormValues["student_grade_band"])
+                <Field
+                  label={
+                    current.key === "partner"
+                      ? "Tell us about your organization"
+                      : current.key === "district"
+                        ? "Your school or district"
+                        : "What brought you here? (optional)"
+                  }
+                  error={form.formState.errors.reason?.message}
+                >
+                  <Textarea
+                    rows={4}
+                    maxLength={2000}
+                    {...form.register("reason")}
+                    placeholder={
+                      current.key === "partner"
+                        ? "Programs offered, regions served, who you'd like to reach."
+                        : current.key === "district"
+                          ? "District, role, and what you're hoping to evaluate."
+                          : "Anything you'd like us to know."
                     }
-                  >
-                    <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="9-10">9th – 10th (Launch / Explore)</SelectItem>
-                      <SelectItem value="11-12">11th – 12th (Plan / Execute)</SelectItem>
-                      <SelectItem value="post-secondary">Post-secondary (18–21)</SelectItem>
-                      <SelectItem value="not-applicable">Not applicable</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  />
                 </Field>
 
-                <Field label="What brought you here? (optional)" error={form.formState.errors.reason?.message}>
-                  <Textarea rows={4} maxLength={2000} {...form.register("reason")} placeholder="Anything you'd like us to know about your student or your school." />
-                </Field>
-
-                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
-                  {form.formState.isSubmitting ? "Submitting…" : "Request access"}
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="w-full"
+                >
+                  {form.formState.isSubmitting ? "Submitting…" : current.cta}
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
-                  We'll never share your information. See our <a href="/privacy" className="underline">privacy notice</a>.
+                  We'll never share your information. See our{" "}
+                  <a href="/privacy" className="underline">
+                    privacy notice
+                  </a>
+                  .
                 </p>
               </form>
-            )}
             </div>
-          </div>
+          )}
+
+          {done && (
+            <div className="mx-auto mt-12 max-w-xl rounded-3xl border bg-card p-8 text-center shadow-soft">
+              <div className="mx-auto h-14 w-14 rounded-full bg-gradient-hero p-4 shadow-soft">
+                <span className="block h-full w-full rounded-full bg-primary/20" />
+              </div>
+              <h2 className="mt-5 font-display text-3xl font-medium">
+                You're in. Thank you for trusting us with this.
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                We'll reach out personally as we open the next round of seats. In the meantime, take
+                a quiet walk through the framework — it's the heart of everything we're building.
+              </p>
+              <a
+                href="/framework"
+                className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              >
+                Walk through the framework
+              </a>
+            </div>
+          )}
         </div>
       </section>
     </SiteShell>
@@ -194,40 +331,6 @@ function Field({
       <Label className="mb-1.5 inline-block">{label}</Label>
       {children}
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
-    </div>
-  );
-}
-
-function FeatureTile({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-2xl border border-border/60 bg-card/70 p-4 backdrop-blur">
-      <p className="font-display text-sm font-semibold text-foreground">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
-    </div>
-  );
-}
-
-function SuccessCard() {
-  return (
-    <div className="flex flex-col items-center text-center">
-      <div className="rounded-full bg-gradient-hero p-4 shadow-soft">
-        <span className="block h-10 w-10 rounded-full bg-primary/20" />
-      </div>
-      <h2 className="mt-6 font-display text-3xl font-medium text-foreground">
-        You're in. Thank you for trusting us with this.
-      </h2>
-      <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-        We'll reach out personally as we open the next round of seats for
-        Connecticut families and educators. In the meantime, take a quiet
-        walk through the framework — it's the heart of everything we'll
-        build with you.
-      </p>
-      <a
-        href="/framework"
-        className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
-      >
-        Walk through the framework
-      </a>
     </div>
   );
 }
