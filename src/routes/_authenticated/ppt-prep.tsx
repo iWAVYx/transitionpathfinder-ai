@@ -2,8 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { CalendarHeart, Sparkles } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { InfoBox } from "@/components/site/InfoBox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
