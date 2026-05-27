@@ -151,6 +151,20 @@ function PathwayPage() {
           <IepUpload onExtracted={applyExtract} />
         </div>
 
+        <FormProvider {...form}>
+        <FormProgress />
+        <InfoBox label="New to this? What's an IEP and a PPT?" className="mb-6">
+          <p>
+            An <strong>IEP</strong> (Individualized Education Program) is the legal plan that spells
+            out your student's goals, services, and supports.
+          </p>
+          <p className="mt-2">
+            A <strong>PPT</strong> (Planning &amp; Placement Team) meeting is where families and
+            school staff review that plan together. The Pathway Report below is meant to make those
+            conversations easier — in plain language, with the student's voice in the room.
+          </p>
+        </InfoBox>
+
         <form id="intake-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="I am a…">
