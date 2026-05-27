@@ -77,20 +77,23 @@ function WaitlistPage() {
         <div className="grid gap-6 md:grid-cols-5">
           <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft md:col-span-2 md:p-10">
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Pilot access
+              Come walk with us
             </p>
-            <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground">
-              Join the TransitionForward pilot.
+            <h1 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground">
+              You don't have to figure this out alone.
             </h1>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Built by a CT special education teacher, grounded in IDEA transition
-              requirements and evidence-based predictors of post-school success.
+            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+              We're inviting a small group of Connecticut families and educators
+              into the TransitionForward pilot. Built by a special-education
+              teacher, grounded in the research that actually predicts a good
+              life after high school.
             </p>
             <div className="mt-8 grid gap-4">
-              <FeatureTile title="For families" body="A clear roadmap from 9th grade to exit, with next-best actions for your student." />
-              <FeatureTile title="For educators" body="Compliance-ready transition planning, without the binder of redundant forms." />
+              <FeatureTile title="For families" body="A steadier hand through every grade — translating the plan, suggesting the next gentle step, holding the bigger picture so you don't have to." />
+              <FeatureTile title="For educators" body="Compliance-ready transition planning without the binder of redundant forms — and finally, a tool families can use between PPT meetings." />
             </div>
           </div>
+
 
           <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft md:col-span-3 md:p-8">
             {done ? (
