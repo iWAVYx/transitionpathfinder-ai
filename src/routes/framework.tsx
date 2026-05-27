@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import frameworkHero from "@/assets/framework-hero.jpg";
 
 export const Route = createFileRoute("/framework")({
   head: () => ({
@@ -92,20 +93,33 @@ const principles = [
 function FrameworkPage() {
   return (
     <SiteShell>
-      <section className="border-b border-border/60 bg-gradient-hero">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            How we walk through it with you
-          </p>
-          <h1 className="mt-3 max-w-3xl font-display text-5xl font-medium tracking-tight sm:text-6xl">
-            Grade 9 to graduation, all of it one connected story.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/80">
-            Adapted from <em>Transition Forward</em>, Caysi Morgan's graduate
-            capstone at Southern Connecticut State University. Built around the
-            federal IDEA mandate, Connecticut's IEP guidance, and the research that
-            actually predicts a good life after high school.
-          </p>
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 sm:px-6 sm:py-24 md:grid-cols-[1.1fr_1fr] lg:px-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              How we walk through it with you
+            </p>
+            <h1 className="mt-3 max-w-2xl font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
+              Grade 9 to graduation, all of it one connected story.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+              Adapted from <em>Transition Forward</em>, Caysi Morgan's graduate
+              capstone at Southern Connecticut State University. Built around the
+              federal IDEA mandate, Connecticut's IEP guidance, and the research that
+              actually predicts a good life after high school.
+            </p>
+          </div>
+          <div className="relative">
+            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+            <img
+              src={frameworkHero}
+              alt="A winding path through a sunlit meadow at golden hour"
+              width={1600}
+              height={1200}
+              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
+            />
+          </div>
         </div>
       </section>
 
