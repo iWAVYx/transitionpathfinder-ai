@@ -75,7 +75,9 @@ export type Database = {
           communication: string | null
           created_at: string
           current_goals: string | null
+          educator_input: string | null
           family_concerns: string | null
+          family_voice: string | null
           grade_band: string | null
           id: string
           interests: string | null
@@ -93,7 +95,9 @@ export type Database = {
           communication?: string | null
           created_at?: string
           current_goals?: string | null
+          educator_input?: string | null
           family_concerns?: string | null
+          family_voice?: string | null
           grade_band?: string | null
           id?: string
           interests?: string | null
@@ -111,7 +115,9 @@ export type Database = {
           communication?: string | null
           created_at?: string
           current_goals?: string | null
+          educator_input?: string | null
           family_concerns?: string | null
+          family_voice?: string | null
           grade_band?: string | null
           id?: string
           interests?: string | null
