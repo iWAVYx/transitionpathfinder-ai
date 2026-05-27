@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "One platform. One plan. Forward together. AI-supported transition planning built for Connecticut families, students, and educators.",
+          "One platform. One plan. Forward together. Expert-built Pathway planning for Connecticut families, students, and educators.",
       },
       { property: "og:image", content: heroImg },
     ],
