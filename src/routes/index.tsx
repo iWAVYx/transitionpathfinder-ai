@@ -16,17 +16,17 @@ import { SiteShell } from "@/components/site/SiteShell";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TransitionForward — Confidence for the years after high school" },
+      { title: "TransitionForward — A gentler way to plan your child's future" },
       {
         name: "description",
         content:
-          "A research-backed hub for families of students with IEPs. Start transition planning in 9th grade — not 11th. Upload your IEP, get AI-guided next steps, and explore real post-school pathways.",
+          "For families of high schoolers with IEPs. Upload the plan you already have, and we'll walk with you — one grade at a time — toward the life your child wants after graduation.",
       },
-      { property: "og:title", content: "TransitionForward — Start transition planning in 9th grade" },
+      { property: "og:title", content: "TransitionForward — A gentler way to plan your child's future" },
       {
         property: "og:description",
         content:
-          "Built by a special-education teacher. AI-guided, evidence-based transition planning for families and educators.",
+          "A warm, research-backed companion for transition planning, built by a special-education teacher who saw too many families left to figure it out alone.",
       },
       { property: "og:type", content: "website" },
     ],
@@ -67,40 +67,42 @@ function Hero() {
           <div className="lg:col-span-7">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium text-foreground/80 shadow-soft backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              For families of students with IEPs
+              A quiet companion for families of students with IEPs
             </span>
-            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Plan their future,{" "}
-              <span className="bg-gradient-to-r from-primary to-secondary-foreground bg-clip-text text-transparent">
-                starting in 9th grade.
-              </span>
+            <h1 className="mt-5 font-display text-5xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+              You don't have to figure out{" "}
+              <span className="italic text-primary">
+                what comes next
+              </span>{" "}
+              alone.
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              TransitionForward turns your child's IEP into a clear, research-backed
-              roadmap — academics, self-advocacy, life skills, careers, and the people
-              who can help — long before the senior-year scramble.
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+              Your child's IEP is more than paperwork — it's the start of a life they're
+              building. TransitionForward sits next to you through every grade,
+              translating the plan, suggesting the next gentle step, and making
+              sure your hopes for them are written into the goals.
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/waitlist"
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5"
               >
-                Join the pilot
+                Walk through it with us
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 to="/framework"
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold text-foreground shadow-soft backdrop-blur hover:bg-background"
               >
-                See the framework
+                See how it works
               </Link>
             </div>
 
             <dl className="mt-10 grid max-w-lg grid-cols-3 gap-4 text-left">
-              <Stat value="9th" label="When planning should start" />
-              <Stat value="6" label="Strands across high school" />
-              <Stat value="IDEA" label="& CT IEP aligned" />
+              <Stat value="9th" label="When the journey really begins" />
+              <Stat value="6" label="Strands that shape a good life" />
+              <Stat value="IDEA" label="& Connecticut IEP aligned" />
             </dl>
           </div>
 
@@ -109,35 +111,35 @@ function Hero() {
             <div className="grid grid-cols-6 gap-3">
               <FloatCard
                 className="col-span-6 bg-card"
-                eyebrow="Snapshot"
-                title="Maya · 10th grade"
-                body="Strong reader, growing self-advocate. Next: shadow a logistics site."
+                eyebrow="Where Maya is right now"
+                title="10th grade · curious about logistics"
+                body="Strong reader, finding her voice. Next gentle step: shadow a day at a local warehouse."
                 accent="sky"
               />
               <FloatCard
                 className="col-span-3 bg-card"
-                eyebrow="Pathway match"
+                eyebrow="A pathway worth exploring"
                 title="Technical school"
-                body="High fit"
+                body="Strong match for her interests"
                 accent="peach"
               />
               <FloatCard
                 className="col-span-3 bg-card"
-                eyebrow="Next PPT"
-                title="3 questions ready"
-                body="Auto-prepped"
+                eyebrow="Before your next PPT"
+                title="3 questions ready for you"
+                body="Already drafted in plain English"
                 accent="sky"
               />
               <div className="col-span-6 rounded-2xl border border-border/60 bg-card p-4 shadow-lift">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <MessageCircle className="h-3.5 w-3.5 text-primary" /> Transition coach
+                  <MessageCircle className="h-3.5 w-3.5 text-primary" /> A quiet question, answered
                 </div>
-                <p className="mt-2 text-sm text-foreground">
+                <p className="mt-2 text-sm italic text-foreground">
                   "His IEP mentions 'community-based instruction' — what does that
                   actually look like in 10th grade, and what should I ask for?"
                 </p>
                 <p className="mt-3 rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
-                  Cites <span className="font-medium text-foreground">Handbook §5</span> ·{" "}
+                  Grounded in <span className="font-medium text-foreground">your handbook</span> ·{" "}
                   <span className="font-medium text-foreground">Carter et al. 2012</span>
                 </p>
               </div>
@@ -152,7 +154,7 @@ function Hero() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
-      <dt className="font-display text-2xl font-bold text-foreground">{value}</dt>
+      <dt className="font-display text-3xl font-semibold text-foreground">{value}</dt>
       <dd className="mt-1 text-xs text-muted-foreground">{label}</dd>
     </div>
   );
@@ -184,7 +186,7 @@ function FloatCard({
       >
         {eyebrow}
       </div>
-      <div className="font-display text-sm font-semibold text-foreground">{title}</div>
+      <div className="font-display text-base font-semibold text-foreground">{title}</div>
       <p className="mt-1 text-xs text-muted-foreground">{body}</p>
     </div>
   );
@@ -195,39 +197,39 @@ function FloatCard({
 const strands = [
   {
     icon: GraduationCap,
-    title: "Academics that count",
+    title: "Academics that lead somewhere",
     body:
-      "Attendance, credits, executive function, and reading — treated as transition issues, not separate priorities.",
+      "Reading, writing, attendance, executive function — held up to the light of what your child is building toward, not graded in isolation.",
     span: "md:col-span-2",
     tint: "bg-sky-soft",
   },
   {
     icon: Compass,
-    title: "Self-determination",
+    title: "Finding their own voice",
     body:
-      "Students learn to explain their accommodations, set goals, and speak up at their own PPTs.",
+      "Your child learns to name their strengths, explain what helps them, and lead the conversation at their own PPT — at a pace that feels safe.",
     span: "md:col-span-2",
     tint: "bg-peach-soft",
   },
   {
     icon: HeartHandshake,
-    title: "Life skills",
-    body: "Money, transportation, health, daily routines — practiced early, layered over time.",
+    title: "The skills that shape a day",
+    body: "Money, transportation, health, routines, asking for help — small skills practiced early, layered with care over the years.",
     span: "md:col-span-2",
     tint: "bg-card",
   },
   {
     icon: Lightbulb,
-    title: "Postsecondary exposure",
+    title: "A real look at what's out there",
     body:
-      "Tours, job shadows, and career events — built into 9th and 10th grade, not saved for senior year.",
+      "Campus visits, job shadows, conversations with adults already doing the work — woven in starting freshman year, not crammed into senior spring.",
     span: "md:col-span-3",
     tint: "bg-card",
   },
   {
     icon: Users,
-    title: "Family partnership",
-    body: "You stop juggling this alone between PPTs. The plan lives with you, not in a folder.",
+    title: "You, held in the loop",
+    body: "No more carrying the whole picture between meetings. The plan lives with you, not buried in a binder at school.",
     span: "md:col-span-3",
     tint: "bg-gradient-warm",
   },
@@ -235,24 +237,24 @@ const strands = [
 
 function SixStrandsBento() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
       <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
         <div className="max-w-xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            The framework
+            How we think about transition
           </p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            Six strands, woven across all four years.
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Six gentle threads, woven through four years.
           </h2>
         </div>
-        <p className="max-w-md text-sm text-muted-foreground">
-          Adapted from the <span className="font-medium text-foreground">Transition Forward</span> handbook.
-          Each strand runs from 9th grade through exit — with different
-          emphases at each stage.
+        <p className="max-w-md text-base leading-relaxed text-muted-foreground">
+          A good transition plan isn't one big leap at the end of high school. It's
+          six quiet threads, picked up early and carried steadily — so by the time
+          your child walks across the stage, the next step is already in their hands.
         </p>
       </div>
 
-      <div className="mt-10 grid auto-rows-fr grid-cols-1 gap-3 md:grid-cols-6">
+      <div className="mt-12 grid auto-rows-fr grid-cols-1 gap-3 md:grid-cols-6">
         {strands.map((s) => {
           const Icon = s.icon;
           return (
@@ -263,27 +265,28 @@ function SixStrandsBento() {
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
                 <Icon className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
+              <h3 className="mt-4 font-display text-2xl font-medium text-foreground">
                 {s.title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
             </div>
           );
         })}
-        <div className="md:col-span-6 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
+        <div className="md:col-span-6 rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="font-display text-lg font-semibold">Coordinated planning</h3>
-              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                Family, teachers, related services, and community partners share one
-                view of the plan — so nothing falls through the cracks between meetings.
+              <h3 className="font-display text-2xl font-medium">Everyone, finally on the same page</h3>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                You, your child's teachers, their related-service providers, and the
+                community partners who'll matter most after graduation — all looking at
+                one shared picture of the plan. Nothing slips between meetings.
               </p>
             </div>
             <Link
               to="/framework"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background hover:opacity-90"
             >
-              See full framework <ArrowRight className="h-4 w-4" />
+              See the full framework <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -297,40 +300,41 @@ function SixStrandsBento() {
 const bands = [
   {
     grade: "9",
-    title: "Launch & stabilize",
-    body: "Schedule, credits, supports, strengths, interests. Early-warning signals become transition conversations.",
+    title: "Settle in, look around",
+    body: "We help you take a clear-eyed look at how the year is starting — schedule, supports, what lights your child up. The early signals become honest conversations, not surprises.",
   },
   {
     grade: "10",
-    title: "Explore & build",
-    body: "Career exposure expands. Life skills get explicit instruction. Accommodations are reviewed and practiced.",
+    title: "Try things on",
+    body: "Career exposure begins in earnest. Life skills get real practice. Accommodations get reviewed and refined so your child knows what works for them — and can say so.",
   },
   {
     grade: "11",
-    title: "Plan & apply",
-    body: "Postsecondary interests narrow. Visits, work experiences, agency referrals, and applications begin.",
+    title: "Begin to choose",
+    body: "Postsecondary interests start narrowing. Visits, work experiences, agency referrals, and applications get scheduled — together — instead of falling on you alone.",
   },
   {
     grade: "12+",
-    title: "Execute & hand off",
-    body: "Finalize applications, referrals, graduation pathway. Student exits with contacts, documents, and a plan.",
+    title: "Hand off with confidence",
+    body: "Your child exits high school with real next steps, the right contacts, the documents in hand, and a support plan that doesn't disappear the day after graduation.",
   },
 ];
 
 function GradeBands() {
   return (
-    <section className="relative border-y border-border/60 bg-muted/40 py-20">
+    <section className="relative border-y border-border/60 bg-muted/40 py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Grade-banded
+            One year at a time
           </p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            A different focus for every year of high school.
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Every year of high school deserves its own focus.
           </h2>
-          <p className="mt-3 text-base text-muted-foreground">
-            Your parent dashboard shifts as your child progresses — so the next best
-            action is always grade-appropriate, not generic.
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            What's right for your child in 9th grade isn't what's right in 11th. Your
+            family dashboard quietly shifts with them — so the next best thing to do
+            is always grade-appropriate, never generic.
           </p>
         </div>
 
@@ -341,15 +345,15 @@ function GradeBands() {
               className="relative rounded-3xl border border-border/60 bg-card p-6 shadow-soft"
             >
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-hero font-display text-base font-bold text-foreground shadow-soft">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-hero font-display text-xl font-semibold text-foreground shadow-soft">
                   {b.grade}
                 </span>
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Stage {i + 1}
                 </span>
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">{b.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{b.body}</p>
+              <h3 className="mt-4 font-display text-2xl font-medium">{b.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b.body}</p>
             </li>
           ))}
         </ol>
@@ -363,54 +367,59 @@ function GradeBands() {
 const helps = [
   {
     icon: FileText,
-    title: "Upload the IEP, get plain English back",
+    title: "Upload the IEP, get it in plain words",
     body:
-      "Drop in your child's IEP or Connecticut SED form. The AI surfaces transition goals, services, and what's missing — with citations.",
+      "Drop in your child's IEP or Connecticut SED form. We read it carefully and hand you back what it actually says — transition goals, services, what's strong, what's missing — with the source pages always cited so you can check our work.",
   },
   {
     icon: Compass,
-    title: "Ranked pathways with reasoning",
+    title: "Pathways that make sense for your child",
     body:
-      "4-year college, 2-year, technical school, supported employment, competitive work, day programs — ranked for fit with the why behind each.",
+      "Four-year college, two-year, technical school, supported employment, competitive work, day programs. We rank what fits, gently explain why, and never pretend there's only one right answer.",
   },
   {
     icon: MessageCircle,
-    title: "Ask anything, anytime",
+    title: "A coach you can ask anything, any time",
     body:
-      "A coach that knows your child's IEP and the TransitionForward research base. No more saving up questions for the next PPT.",
+      "Stop saving up questions for the next PPT. Ask in the moment, in your own words. The coach knows your child's plan and the research behind every suggestion it makes.",
   },
   {
     icon: ShieldCheck,
-    title: "Private by default",
+    title: "Your child's records stay yours",
     body:
-      "IEPs are encrypted and scoped to your account only. Never used to train AI. You can delete everything, any time.",
+      "Everything you upload is encrypted, locked to your account alone, and never used to train AI. You can delete any document — or your entire account — whenever you choose.",
   },
 ];
 
 function HowItHelps() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
       <div className="max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-          For families
+          The questions you've been carrying
         </p>
-        <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          The questions you've been carrying alone — answered.
+        <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+          You shouldn't have to be the expert on everything.
         </h2>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+          Most families piece this together from PPT meetings, late-night searches,
+          and well-meaning advice from other parents. We built TransitionForward so
+          you have one place to bring all of it — and someone steady to talk it through with.
+        </p>
       </div>
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
+      <div className="mt-12 grid gap-4 md:grid-cols-2">
         {helps.map((h) => {
           const Icon = h.icon;
           return (
             <div
               key={h.title}
-              className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
             >
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-soft">
                 <Icon className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">{h.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{h.body}</p>
+              <h3 className="mt-5 font-display text-2xl font-medium">{h.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{h.body}</p>
             </div>
           );
         })}
@@ -423,44 +432,45 @@ function HowItHelps() {
 
 function ResearchTeaser() {
   return (
-    <section className="relative overflow-hidden bg-gradient-hero py-20">
+    <section className="relative overflow-hidden bg-gradient-hero py-24">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Built on evidence
+            Built on what actually works
           </p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            Grounded in the predictors that actually move post-school outcomes.
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Every suggestion comes from research families can trust.
           </h2>
-          <p className="mt-3 max-w-xl text-base text-foreground/80">
-            Student involvement, work-based learning, self-determination, family
-            engagement, interagency collaboration — the predictors from Mazzotti, Test,
-            Allensworth, Carter, Trainor, Burke, and CSDE guidance show up in every
-            recommendation the platform makes.
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/80">
+            Student-led IEPs, work-based learning, self-determination, family
+            engagement, the right partners around the table at the right time — these
+            are the things researchers like Mazzotti, Test, Allensworth, Carter, Trainor,
+            and Burke have shown make a real difference. We don't guess. We point to
+            the source every time.
           </p>
           <Link
             to="/research"
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background hover:opacity-90"
           >
-            Browse the research library <ArrowRight className="h-4 w-4" />
+            Read the research library <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {[
-            { label: "Mazzotti et al.", year: "2021", topic: "Updated predictors of post-school success" },
-            { label: "Test et al.", year: "2009", topic: "Evidence-based predictors of post-school outcomes" },
-            { label: "Allensworth", year: "2013", topic: "Ninth grade as the key transition year" },
-            { label: "Carter et al.", year: "2011 / 2012", topic: "Work-based learning & community experiences" },
+            { label: "Mazzotti et al.", year: "2021", topic: "The updated list of what predicts a good life after high school" },
+            { label: "Test et al.", year: "2009", topic: "The original evidence base for transition predictors" },
+            { label: "Allensworth", year: "2013", topic: "Why 9th grade is the single most important transition year" },
+            { label: "Carter et al.", year: "2011 / 2012", topic: "What work-based learning actually does for students" },
           ].map((p) => (
             <div
               key={p.label}
-              className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft"
+              className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft"
             >
               <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {p.year}
               </div>
-              <div className="mt-1 font-display text-sm font-semibold">{p.label}</div>
-              <p className="mt-1 text-xs text-muted-foreground">{p.topic}</p>
+              <div className="mt-1 font-display text-base font-semibold">{p.label}</div>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{p.topic}</p>
             </div>
           ))}
         </div>
@@ -473,23 +483,24 @@ function ResearchTeaser() {
 
 function ClosingCta() {
   return (
-    <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
       <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card p-8 shadow-lift sm:p-12">
         <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="font-display text-3xl font-bold tracking-tight">
-              Be one of our first pilot families.
+            <h2 className="font-display text-4xl font-medium tracking-tight">
+              Come walk through this with us.
             </h2>
-            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              We're onboarding a small group of CT families and educators this season.
-              No charge during the pilot. Your feedback shapes what we build next.
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
+              We're inviting a small group of Connecticut families and educators
+              into the pilot this season. There's no cost. Your story shapes what we
+              build next — and you get a steadier hand to hold through transition.
             </p>
           </div>
           <Link
             to="/waitlist"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift hover:-translate-y-0.5 transition-transform"
           >
-            Request access <ArrowRight className="h-4 w-4" />
+            Request your place <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

@@ -4,15 +4,15 @@ import { ComingSoon } from "@/components/site/ComingSoon";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing — TransitionForward" },
-      { name: "description", content: "Free during the pilot. Premium features arrive after we learn what families need most." },
+      { title: "What it costs — TransitionForward" },
+      { name: "description", content: "Free for our first pilot families and educators. We're letting your needs shape pricing — not the other way around." },
     ],
   }),
   component: () => (
     <ComingSoon
-      eyebrow="Pricing"
-      title="Free during the pilot."
-      body="Our first families and educators get full access at no charge in exchange for feedback. Premium tiers — deeper AI analysis, more students per parent, teacher caseload tools — go live after the pilot informs them."
+      eyebrow="What it costs"
+      title="Free for our first families."
+      body="Our pilot families and educators get full access at no charge, in exchange for honest feedback as we build. After the pilot, pricing will be quiet, fair, and shaped by what families actually told us they needed — deeper AI analysis, room for more students under one parent account, caseload tools for teachers. You'll know exactly what's free and what's premium before anything changes for you."
     />
   ),
 });
