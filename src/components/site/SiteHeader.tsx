@@ -111,21 +111,43 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="mt-2 flex gap-2 pt-2">
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="flex-1 rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
-              >
-                Sign in
-              </Link>
-              <Link
-                to="/waitlist"
-                onClick={() => setOpen(false)}
-                className="flex-1 rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
-              >
-                Join the pilot
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => { setOpen(false); signOut(); }}
+                    className="flex-1 rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
+                  >
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/waitlist"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
+                  >
+                    Join the pilot
+                  </Link>
+                </>
+              )}
             </div>
+
           </div>
         </div>
       </div>
