@@ -11,7 +11,7 @@ export type AuditEntry = {
   entity_id: string | null;
   student_id: string | null;
   created_at: string;
-  metadata: unknown;
+  metadata: string | null;
 };
 
 export type AdminSummary = {
@@ -93,5 +93,17 @@ export const listAuditLog = createServerFn({ method: "POST" })
       console.error("listAuditLog failed", error);
       return { entries: [] as AuditEntry[], is_admin: true };
     }
-    return { entries: (rows ?? []) as AuditEntry[], is_admin: true };
+    const entries: AuditEntry[] = (rows ?? []).map((r: any) => ({
+      id: r.id,
+      actor_id: r.actor_id,
+      actor_email: r.actor_email,
+      action: r.action,
+      entity_type: r.entity_type,
+      entity_id: r.entity_id,
+      student_id: r.student_id,
+      created_at: r.created_at,
+      metadata: r.metadata == null ? null : JSON.stringify(r.metadata),
+    }));
+    return { entries, is_admin: true };
+
   });

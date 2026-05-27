@@ -156,11 +156,12 @@ function AdminPage() {
                       <td className="py-3 pr-4">
                         {e.metadata ? (
                           <code className="block max-w-[28rem] truncate rounded bg-muted px-2 py-1 text-xs">
-                            {JSON.stringify(e.metadata)}
+                            {e.metadata}
                           </code>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
+
                       </td>
                     </tr>
                   ))
