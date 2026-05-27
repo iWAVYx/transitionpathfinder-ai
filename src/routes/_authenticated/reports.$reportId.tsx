@@ -149,6 +149,40 @@ function ReportDetailPage() {
         resetLabel="Back to my reports"
       />
 
+      {/* Link to student */}
+      <section className="no-print mx-auto max-w-4xl px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft">
+          <UserCircle2 className="h-5 w-5 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">Linked student</p>
+            <p className="text-xs text-muted-foreground">
+              Connect this report to a student in your roster to share goals and progress.
+            </p>
+          </div>
+          <select
+            value={state.studentId ?? ""}
+            disabled={linking || students.length === 0}
+            onChange={(e) => handleLink(e.target.value || null)}
+            className="rounded-lg border bg-background px-3 py-2 text-sm"
+          >
+            <option value="">— Not linked —</option>
+            {students.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.first_name}
+                {s.last_name ? ` ${s.last_name}` : ""}
+              </option>
+            ))}
+          </select>
+          {state.studentId && (
+            <Button asChild variant="outline" size="sm">
+              <Link to="/students/$studentId" params={{ studentId: state.studentId }}>
+                Open student
+              </Link>
+            </Button>
+          )}
+        </div>
+      </section>
+
       {/* Share panel */}
       <section className="no-print mx-auto max-w-4xl px-4 pb-14 sm:px-6 lg:px-8">
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
