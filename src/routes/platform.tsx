@@ -262,15 +262,29 @@ function PlatformPage() {
       </section>
 
       {/* Layered diagram */}
-      <section className="bg-muted/40 py-20">
+      <section className="relative overflow-hidden py-24">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <div
+          className="absolute inset-0 -z-10 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+          aria-hidden
+        />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               How It Fits Together
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
               Three Quiet Layers, Working As One.
             </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Organize what's true about your student. Generate a Pathway you can act on.
+              Connect it to real opportunities here in Connecticut.
+            </p>
           </div>
           <LayerDiagram />
         </div>
