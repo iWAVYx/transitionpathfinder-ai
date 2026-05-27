@@ -17,6 +17,7 @@ import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FrameworkRouteImport } from './routes/framework'
+import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -62,6 +63,11 @@ const FrameworkRoute = FrameworkRouteImport.update({
   path: '/framework',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FamiliesRoute = FamiliesRouteImport.update({
+  id: '/families',
+  path: '/families',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -85,6 +91,7 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
+  '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/families'
     | '/framework'
     | '/login'
     | '/partners'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/families'
     | '/framework'
     | '/login'
     | '/partners'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/families'
     | '/framework'
     | '/login'
     | '/partners'
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
+  FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
   LoginRoute: typeof LoginRoute
   PartnersRoute: typeof PartnersRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrameworkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/families': {
+      id: '/families'
+      path: '/families'
+      fullPath: '/families'
+      preLoaderRoute: typeof FamiliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
+  FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
   LoginRoute: LoginRoute,
   PartnersRoute: PartnersRoute,
