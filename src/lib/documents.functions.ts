@@ -13,7 +13,7 @@ export type DocumentRow = {
   storage_path: string;
   mime_type: string | null;
   size_bytes: number | null;
-  parsed_summary: unknown | null;
+  parsed_summary: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 };
