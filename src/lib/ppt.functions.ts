@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import type { PathwayReport } from "./pathway.functions";
 
 const PrepInputSchema = z.object({
   report_id: z.string().uuid(),
