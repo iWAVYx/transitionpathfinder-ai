@@ -209,7 +209,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-6"
             image={pathTechnical}
-            label="Technical education"
+            label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
             pathwayId="technical-education"
           />
