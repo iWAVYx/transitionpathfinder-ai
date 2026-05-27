@@ -197,12 +197,41 @@ function HomePage() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-6 md:gap-5">
-          <PathwayTile className="md:col-span-3 md:row-span-2 aspect-square md:aspect-auto" image={pathCollege} label="College" caption="Two- and four-year programs, with the right supports in place." />
-          <PathwayTile className="md:col-span-3 aspect-square md:aspect-[2/1]" image={pathTechnical} label="Technical education" caption="Hands-on trades, certificates, and apprenticeships." />
-          <PathwayTile className="md:col-span-2 aspect-square" image={pathCareer} label="Career & employment" caption="Job training, internships, BRS." />
-          <PathwayTile className="md:col-span-2 aspect-square" image={pathLifeskills} label="Life skills" caption="Cooking, transit, money, daily independence." />
-          <PathwayTile className="md:col-span-2 aspect-square" image={pathProgress} label="Progress, tracked" caption="Small wins, gently celebrated." />
+        <div className="grid auto-rows-[14rem] grid-cols-2 gap-4 sm:auto-rows-[16rem] md:auto-rows-[18rem] md:grid-cols-12 md:gap-5">
+          <PathwayTile
+            className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
+            image={pathCollege}
+            label="College"
+            caption="Two- and four-year programs, with the right supports in place."
+            size="lg"
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-6"
+            image={pathTechnical}
+            label="Technical education"
+            caption="Hands-on trades, certificates, and apprenticeships."
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-2"
+            image={pathCareer}
+            label="Career & employment"
+            caption="Job training, internships, BRS."
+            compact
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathLifeskills}
+            label="Life skills"
+            caption="Cooking, transit, money, daily independence."
+            compact
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathProgress}
+            label="Progress, tracked"
+            caption="Small wins, gently celebrated."
+            compact
+          />
         </div>
       </section>
 
@@ -382,11 +411,15 @@ function PathwayTile({
   label,
   caption,
   className = "",
+  size = "md",
+  compact = false,
 }: {
   image: string;
   label: string;
   caption: string;
   className?: string;
+  size?: "md" | "lg";
+  compact?: boolean;
 }) {
   return (
     <div
@@ -398,14 +431,32 @@ function PathwayTile({
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/25 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-5 text-background sm:p-6">
-        <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+      <div
+        className={`absolute inset-x-0 bottom-0 text-background ${
+          compact ? "p-4 sm:p-5" : size === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6"
+        }`}
+      >
+        <h3
+          className={`font-display font-medium tracking-tight ${
+            size === "lg"
+              ? "text-2xl sm:text-3xl md:text-4xl"
+              : compact
+                ? "text-base sm:text-lg"
+                : "text-xl sm:text-2xl"
+          }`}
+        >
           {label}
         </h3>
-        <p className="mt-1 text-xs leading-relaxed text-background/85 sm:text-sm">
-          {caption}
-        </p>
+        {!compact && (
+          <p
+            className={`mt-1.5 leading-relaxed text-background/85 ${
+              size === "lg" ? "text-sm sm:text-base max-w-md" : "text-xs sm:text-sm"
+            }`}
+          >
+            {caption}
+          </p>
+        )}
       </div>
     </div>
   );
