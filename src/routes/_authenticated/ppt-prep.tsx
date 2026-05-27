@@ -7,6 +7,7 @@ import { CalendarHeart, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
+import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { Term, GLOSSARY } from "@/components/site/Term";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -180,6 +181,11 @@ function AgendaView({ name, agenda, onReset }: { name: string; agenda: PptAgenda
         </h1>
         <p className="mt-4 text-base italic leading-relaxed text-foreground/80">{agenda.opening_note}</p>
       </div>
+
+      <div className="mt-6">
+        <AIDisclaimer />
+      </div>
+
 
       <Block title="Suggested agenda">
         <ol className="space-y-3">

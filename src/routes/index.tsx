@@ -1,4 +1,20 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import {
+  HeartHandshake,
+  GraduationCap,
+  Users,
+  Building2,
+  Briefcase,
+  ShieldCheck,
+  Sparkles,
+  ArrowRight,
+  ClipboardCheck,
+  MessagesSquare,
+  Compass,
+  Lock,
+  UserCheck,
+  Download,
+} from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import heroImg from "@/assets/home-hero.jpg";
 import studentImg from "@/assets/home-student.jpg";
@@ -126,7 +142,78 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES — alternating zigzag, no boxes */}
+      {/* ROLE ROUTER — five doors into the platform */}
+      <section
+        id="choose-your-path"
+        aria-labelledby="role-router-heading"
+        className="border-y border-border/40 bg-background"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Start where you are
+            </p>
+            <h2
+              id="role-router-heading"
+              className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl"
+            >
+              Choose your path in.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              Transition planning looks different from every chair at the table.
+              Pick the door that fits — we'll meet you with the right tools, language,
+              and next steps.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <RoleCard
+              icon={HeartHandshake}
+              label="Family / Guardian"
+              body="Understand the plan, see what's next, and walk into PPTs prepared."
+              cta="Build My Child's Transition Plan"
+              to="/families"
+              tone="peach"
+            />
+            <RoleCard
+              icon={GraduationCap}
+              label="Student"
+              body="Tell us who you are. See careers, colleges, and life paths that fit."
+              cta="Explore My Future Path"
+              to="/waitlist"
+              search={{ role: "student" }}
+              tone="sky"
+            />
+            <RoleCard
+              icon={Users}
+              label="Teacher / Case Manager"
+              body="Organize goals, documents, and meetings for your whole caseload."
+              cta="Organize My Caseload"
+              to="/educators"
+              tone="primary"
+            />
+            <RoleCard
+              icon={Building2}
+              label="School / District"
+              body="A coordinated view across students, teams, and transition outcomes."
+              cta="Request a School Demo"
+              to="/waitlist"
+              search={{ role: "administrator" }}
+              tone="muted"
+            />
+            <RoleCard
+              icon={Briefcase}
+              label="Partner Organization"
+              body="Colleges, training programs, employers, and community supports."
+              cta="Become a Partner"
+              to="/partners"
+              tone="peach"
+            />
+          </div>
+        </div>
+      </section>
+
+
       <section className="bg-muted/40 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-16 max-w-2xl text-center">
@@ -240,6 +327,55 @@ function HomePage() {
         </div>
       </section>
 
+      {/* CT SEDS COMPANION + IMPACT + TRUST */}
+      <section className="bg-muted/40 py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-border/60 bg-card p-8 text-center shadow-soft sm:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              A companion to CT SEDS — not a replacement
+            </p>
+            <p className="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
+              TransitionForward helps families and educators make sense of transition
+              planning, organize important information, and turn goals into clear
+              action steps.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Your official IEP and PPT determinations still live where they belong.
+              We sit alongside — translating, organizing, and connecting plans to the
+              real opportunities waiting in Connecticut.
+            </p>
+          </div>
+
+          <div className="mt-16">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                What we're trying to change
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                The outcomes we measure ourselves against.
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ImpactCard icon={MessagesSquare} title="Clearer family understanding" body="Plain-language translation of every goal, term, and meeting note." />
+              <ImpactCard icon={Sparkles} title="Stronger student self-advocacy" body="A space where students name their own strengths, interests, and hopes." />
+              <ImpactCard icon={ClipboardCheck} title="Better goal tracking" body="Goals connected to evidence, progress, and the next small step." />
+              <ImpactCard icon={Users} title="Tighter school + home collaboration" body="Shared notes, tasks, and a single source of truth between meetings." />
+              <ImpactCard icon={Compass} title="Easier meeting preparation" body="Questions, talking points, and printable checklists, ready before PPT." />
+              <ImpactCard icon={Briefcase} title="Real postsecondary connections" body="Curated CT colleges, training, BRS, employers — matched to the student." />
+            </div>
+          </div>
+
+          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <TrustItem icon={Lock} title="Secure by default" body="Private student data, encrypted in transit and at rest." />
+            <TrustItem icon={UserCheck} title="Role-based access" body="Families, students, and educators only see what's theirs to see." />
+            <TrustItem icon={ShieldCheck} title="Human-reviewed AI" body="Every AI suggestion is a planning aid — never an official determination." />
+            <TrustItem icon={Download} title="Export & delete" body="Your information, on your terms. Download or remove it any time." />
+          </div>
+        </div>
+      </section>
+
+
+
       {/* AUDIENCE — three tall image cards with text overlay */}
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
         <div className="mb-12 max-w-2xl">
@@ -317,6 +453,76 @@ function HomePage() {
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+type RoleTone = "peach" | "sky" | "primary" | "muted";
+const toneStyles: Record<RoleTone, string> = {
+  peach: "bg-peach-soft/60",
+  sky: "bg-sky-soft/60",
+  primary: "bg-primary/10",
+  muted: "bg-muted",
+};
+
+function RoleCard({
+  icon: Icon,
+  label,
+  body,
+  cta,
+  to,
+  search,
+  tone,
+}: {
+  icon: typeof HeartHandshake;
+  label: string;
+  body: string;
+  cta: string;
+  to: string;
+  search?: Record<string, string>;
+  tone: RoleTone;
+}) {
+  return (
+    <Link
+      to={to}
+      search={search as never}
+      aria-label={`${label}: ${cta}`}
+      className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toneStyles[tone]} text-foreground`}>
+        <Icon className="h-5 w-5" aria-hidden />
+      </span>
+      <h3 className="mt-5 font-display text-lg font-medium leading-snug tracking-tight">{label}</h3>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
+        {cta} <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </span>
+    </Link>
+  );
+}
+
+function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" aria-hidden />
+      </span>
+      <h3 className="mt-4 font-display text-base font-semibold tracking-tight">{title}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function TrustItem({ icon: Icon, title, body }: { icon: typeof Lock; title: string; body: string }) {
+  return (
+    <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/70 p-4">
+      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" aria-hidden />
+      </span>
+      <div>
+        <p className="font-display text-sm font-semibold tracking-tight">{title}</p>
+        <p className="mt-1 text-xs leading-snug text-muted-foreground">{body}</p>
+      </div>
+    </div>
   );
 }
 
