@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Sparkles,
@@ -8,6 +9,7 @@ import {
   FolderOpen,
   Compass,
   Heart,
+  ArrowRight,
 } from "lucide-react";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import pathwayHero from "@/assets/pathway-hero.jpg";
