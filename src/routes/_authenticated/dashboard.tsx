@@ -156,7 +156,7 @@ function FeatureCard({
 }) {
   return (
     <Link
-      to={to}
+      to={to as never}
       className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
     >
       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
