@@ -53,21 +53,22 @@ function LoginPage() {
         <div className="grid w-full max-w-5xl gap-6 md:grid-cols-5">
           <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft md:col-span-2 md:p-10">
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              TransitionForward
+              Welcome back
             </p>
-            <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground">
-              Welcome back.
+            <h1 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground">
+              Good to see you again.
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Parents and educators sign in to manage student transition plans, upload IEPs,
-              and follow the grade-band roadmap toward post-school success.
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Sign in to pick up wherever you left off — your child's plan, the
+              next gentle step, and the small things you've been meaning to ask.
             </p>
-            <ul className="mt-6 space-y-2 text-sm text-foreground/80">
-              <li>• Secure, encrypted IEP storage</li>
-              <li>• Grade-banded readiness snapshots</li>
-              <li>• AI-grounded suggestions, not guesswork</li>
+            <ul className="mt-7 space-y-2 text-sm leading-relaxed text-foreground/80">
+              <li>· Your child's records, kept private and encrypted</li>
+              <li>· A grade-by-grade picture of where they are</li>
+              <li>· Suggestions grounded in research, never guesses</li>
             </ul>
           </div>
+
 
           <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft md:col-span-3 md:p-8">
             <Tabs defaultValue="signin">
