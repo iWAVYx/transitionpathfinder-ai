@@ -17,6 +17,8 @@ const IntakeSchema = z.object({
   current_goals: z.string().trim().max(2000).optional().default(""),
   family_concerns: z.string().trim().max(2000).optional().default(""),
   student_voice: z.string().trim().max(2000).optional().default(""),
+  family_voice: z.string().trim().max(2000).optional().default(""),
+  educator_input: z.string().trim().max(2000).optional().default(""),
 });
 
 export type IntakeInput = z.infer<typeof IntakeSchema>;
@@ -50,10 +52,11 @@ const ReportSchema = z.object({
 export type PathwayReport = z.infer<typeof ReportSchema>;
 
 function buildPrompt(intake: IntakeInput) {
-  return `You are TransitionForward, a warm, trusted guide helping families, students, and educators plan life after high school for students receiving special education services in Connecticut. You speak in plain, hopeful, second-person language. You are NOT clinical. You honor student voice.
+  return `You are TransitionForward, a warm, trusted guide helping families, students, and educators plan life after high school for students receiving special education services in Connecticut. You speak in plain, hopeful, second-person language. You are NOT clinical. You honor student voice above all.
 
 A ${intake.submitter_role} submitted this intake for a student we will call ${intake.student_first_name}.
 
+STUDENT PROFILE
 Grade band: ${intake.grade_band ?? "not specified"}
 Strengths: ${intake.strengths || "(not provided)"}
 Interests: ${intake.interests || "(not provided)"}
@@ -62,10 +65,13 @@ Supports that work: ${intake.supports || "(not provided)"}
 Transportation: ${intake.transportation || "(not provided)"}
 Communication: ${intake.communication || "(not provided)"}
 Current IEP transition goals: ${intake.current_goals || "(not provided)"}
-Family concerns: ${intake.family_concerns || "(not provided)"}
-Student's own voice: ${intake.student_voice || "(not provided)"}
 
-Generate a personalized TransitionForward Pathway Report. Be specific and realistic — never generic. Tie every suggestion back to the student's interests, strengths, and stated needs. Use Connecticut-aware language where reasonable (community colleges, CT technical high schools, Bureau of Rehabilitation Services / BRS, etc.) but do not name specific programs you cannot verify. Keep the tone warm and student-centered.`;
+THREE VOICES
+Student voice (in their own words): ${intake.student_voice || "(not provided)"}
+Family voice (hopes, worries, what they want the team to know): ${intake.family_voice || intake.family_concerns || "(not provided)"}
+Educator / case manager input (what they're seeing at school): ${intake.educator_input || "(not provided)"}
+
+Generate a personalized TransitionForward Pathway Report. Be specific and realistic — never generic. Tie every suggestion back to the student's interests, strengths, and stated needs. When the three voices agree, name the shared direction. When they differ, honor the student's voice first and gently surface the difference for the next PPT meeting. Use Connecticut-aware language where reasonable (community colleges, CT technical high schools, Bureau of Rehabilitation Services / BRS, etc.) but do not name specific programs you cannot verify. Keep the tone warm and student-centered.`;
 }
 
 export const createPathwayReport = createServerFn({ method: "POST" })
@@ -93,6 +99,8 @@ export const createPathwayReport = createServerFn({ method: "POST" })
         current_goals: data.current_goals || null,
         family_concerns: data.family_concerns || null,
         student_voice: data.student_voice || null,
+        family_voice: data.family_voice || null,
+        educator_input: data.educator_input || null,
       })
       .select("id")
       .single();
@@ -148,7 +156,7 @@ export const listMyReports = createServerFn({ method: "GET" })
       .from("pathway_reports")
       .select("id, created_at, intake_id, student_intakes(student_first_name, grade_band)")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     if (error) {
       console.error("listMyReports failed", error);
       return { reports: [] as Array<{ id: string; created_at: string; student_first_name: string; grade_band: string | null }> };
@@ -166,4 +174,48 @@ export const listMyReports = createServerFn({ method: "GET" })
       grade_band: r.student_intakes?.grade_band ?? null,
     }));
     return { reports };
+  });
+
+export const getReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: row, error } = await supabase
+      .from("pathway_reports")
+      .select("id, created_at, content, intake_id, student_intakes(student_first_name, grade_band)")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error || !row) {
+      console.error("getReport failed", error);
+      throw new Error("Report not found.");
+    }
+    type Row = {
+      id: string;
+      created_at: string;
+      content: unknown;
+      intake_id: string;
+      student_intakes: { student_first_name: string; grade_band: string | null } | null;
+    };
+    const r = row as unknown as Row;
+    return {
+      id: r.id,
+      created_at: r.created_at,
+      student_first_name: r.student_intakes?.student_first_name ?? "—",
+      grade_band: r.student_intakes?.grade_band ?? null,
+      report: r.content as PathwayReport,
+    };
+  });
+
+export const deleteReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("pathway_reports").delete().eq("id", data.id);
+    if (error) {
+      console.error("deleteReport failed", error);
+      throw new Error("Could not delete this report.");
+    }
+    return { ok: true };
   });
