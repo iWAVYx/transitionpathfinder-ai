@@ -173,7 +173,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Fluid root font-size: scales rem-based sizing with viewport width.
+     * 14px at 360px → 16px at 1280px → 18px at 1920px. */
+    font-size: clamp(14px, 0.75rem + 0.45vw, 18px);
   }
+
 
   body {
     background-color: var(--color-background);
