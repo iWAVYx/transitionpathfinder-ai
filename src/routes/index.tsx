@@ -411,11 +411,15 @@ function PathwayTile({
   label,
   caption,
   className = "",
+  size = "md",
+  compact = false,
 }: {
   image: string;
   label: string;
   caption: string;
   className?: string;
+  size?: "md" | "lg";
+  compact?: boolean;
 }) {
   return (
     <div
@@ -427,14 +431,32 @@ function PathwayTile({
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/25 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-5 text-background sm:p-6">
-        <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+      <div
+        className={`absolute inset-x-0 bottom-0 text-background ${
+          compact ? "p-4 sm:p-5" : size === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6"
+        }`}
+      >
+        <h3
+          className={`font-display font-medium tracking-tight ${
+            size === "lg"
+              ? "text-2xl sm:text-3xl md:text-4xl"
+              : compact
+                ? "text-base sm:text-lg"
+                : "text-xl sm:text-2xl"
+          }`}
+        >
           {label}
         </h3>
-        <p className="mt-1 text-xs leading-relaxed text-background/85 sm:text-sm">
-          {caption}
-        </p>
+        {!compact && (
+          <p
+            className={`mt-1.5 leading-relaxed text-background/85 ${
+              size === "lg" ? "text-sm sm:text-base max-w-md" : "text-xs sm:text-sm"
+            }`}
+          >
+            {caption}
+          </p>
+        )}
       </div>
     </div>
   );
