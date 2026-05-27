@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { DashboardWidgets } from "@/components/dashboard/DashboardWidgets";
+import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Sparkles,
