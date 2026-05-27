@@ -105,7 +105,7 @@ function PathwayPage() {
       const v = (e as Record<string, string>)[k];
       if (v && v.trim()) form.setValue(k, v, { shouldDirty: true, shouldValidate: false });
     }
-    if (e.grade_band && e.grade_band !== "") {
+    if (e.grade_band) {
       form.setValue("grade_band", e.grade_band as FormValues["grade_band"]);
     }
     document.getElementById("intake-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
