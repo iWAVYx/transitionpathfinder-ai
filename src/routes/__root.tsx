@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { AccessibilityControls } from "@/components/a11y/AccessibilityControls";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -129,6 +130,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster />
+      <AccessibilityControls />
     </QueryClientProvider>
   );
 }
