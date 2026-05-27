@@ -235,18 +235,18 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 md:[&>article:last-child]:col-span-2 md:[&>article:last-child]:w-1/2 md:[&>article:last-child]:justify-self-center lg:[&>article:last-child]:col-span-1 lg:[&>article:last-child]:w-auto">
+        <div className="grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-3 md:[&>article:last-child]:col-span-2 md:[&>article:last-child]:w-1/2 md:[&>article:last-child]:justify-self-center lg:[&>article:last-child]:col-span-1 lg:[&>article:last-child]:w-auto">
           {features.map(({ icon: Icon, title, body, tags }) => (
             <article
               key={title}
-              className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
                 <Icon className="h-5 w-5" />
               </div>
               <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-              <div className="mt-4 flex flex-wrap gap-1.5">
+              <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
                 {tags.map((t) => (
                   <span
                     key={t}
