@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
 import { Button } from "@/components/ui/button";
 import { getReport, type PathwayReport } from "@/lib/pathway.functions";
