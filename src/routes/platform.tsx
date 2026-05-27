@@ -380,21 +380,117 @@ function TrustCard({
   icon: Icon,
   title,
   body,
+  graphic,
+  accent,
 }: {
   icon: typeof Lock;
   title: string;
   body: string;
+  graphic: "vault" | "shield" | "map";
+  accent: string;
 }) {
   return (
-    <div className="flex items-start gap-3 px-3 py-2 sm:px-5">
-      <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Icon className="h-4 w-4" />
+    <article className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+      <div
+        className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full ${accent} opacity-60 blur-2xl`}
+        aria-hidden
+      />
+      <div className="relative flex h-28 items-center justify-center">
+        <TrustGraphic kind={graphic} />
       </div>
-      <div>
-        <h3 className="font-display text-sm font-semibold tracking-tight">{title}</h3>
-        <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{body}</p>
+      <div className="relative mt-4 flex items-start gap-3">
+        <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Icon className="h-4 w-4" />
+        </div>
+        <div>
+          <h3 className="font-display text-base font-semibold tracking-tight">{title}</h3>
+          <p className="mt-1 text-xs leading-snug text-muted-foreground">{body}</p>
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
+
+function TrustGraphic({ kind }: { kind: "vault" | "shield" | "map" }) {
+  if (kind === "vault") {
+    // Padlock + concentric rings
+    return (
+      <svg viewBox="0 0 200 110" className="h-full w-full" aria-hidden>
+        <defs>
+          <linearGradient id="vaultG" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stopColor="hsl(var(--primary))" stopOpacity="0.85" />
+            <stop offset="1" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
+          </linearGradient>
+        </defs>
+        <circle cx="100" cy="55" r="48" fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.15" strokeDasharray="3 5" />
+        <circle cx="100" cy="55" r="34" fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.25" />
+        <path d="M85 50 v-6 a15 15 0 0 1 30 0 v6" fill="none" stroke="hsl(var(--primary))" strokeWidth="3.5" strokeLinecap="round" />
+        <rect x="78" y="50" width="44" height="32" rx="6" fill="url(#vaultG)" />
+        <circle cx="100" cy="66" r="3.5" fill="hsl(var(--primary-foreground))" />
+        <rect x="98.5" y="68" width="3" height="8" rx="1.5" fill="hsl(var(--primary-foreground))" />
+      </svg>
+    );
+  }
+  if (kind === "shield") {
+    // Shield with checkmark + audit lines
+    return (
+      <svg viewBox="0 0 200 110" className="h-full w-full" aria-hidden>
+        <defs>
+          <linearGradient id="shieldG" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="hsl(var(--primary))" stopOpacity="0.85" />
+            <stop offset="1" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
+          </linearGradient>
+        </defs>
+        <g opacity="0.35">
+          <line x1="20" y1="30" x2="60" y2="30" stroke="hsl(var(--foreground))" strokeOpacity="0.25" strokeWidth="2" strokeLinecap="round" />
+          <line x1="20" y1="42" x2="50" y2="42" stroke="hsl(var(--foreground))" strokeOpacity="0.2" strokeWidth="2" strokeLinecap="round" />
+          <line x1="140" y1="70" x2="180" y2="70" stroke="hsl(var(--foreground))" strokeOpacity="0.25" strokeWidth="2" strokeLinecap="round" />
+          <line x1="150" y1="82" x2="180" y2="82" stroke="hsl(var(--foreground))" strokeOpacity="0.2" strokeWidth="2" strokeLinecap="round" />
+        </g>
+        <path
+          d="M100 18 L130 30 V58 C130 78 116 92 100 100 C84 92 70 78 70 58 V30 Z"
+          fill="url(#shieldG)"
+          stroke="hsl(var(--primary))"
+          strokeOpacity="0.4"
+          strokeWidth="1.5"
+        />
+        <path d="M86 58 L97 69 L116 49" fill="none" stroke="hsl(var(--primary-foreground))" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  // map: stylized Connecticut with pin
+  return (
+    <svg viewBox="0 0 200 110" className="h-full w-full" aria-hidden>
+      <defs>
+        <linearGradient id="mapG" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stopColor="hsl(var(--primary))" stopOpacity="0.75" />
+          <stop offset="1" stopColor="hsl(var(--primary))" stopOpacity="0.45" />
+        </linearGradient>
+      </defs>
+      <g opacity="0.3" stroke="hsl(var(--foreground))" strokeOpacity="0.2" strokeWidth="1">
+        <line x1="0" y1="30" x2="200" y2="30" />
+        <line x1="0" y1="60" x2="200" y2="60" />
+        <line x1="0" y1="90" x2="200" y2="90" />
+        <line x1="50" y1="0" x2="50" y2="110" />
+        <line x1="100" y1="0" x2="100" y2="110" />
+        <line x1="150" y1="0" x2="150" y2="110" />
+      </g>
+      {/* Simplified Connecticut silhouette */}
+      <path
+        d="M40 38 L160 34 L162 58 L150 60 L150 78 L120 80 L118 72 L70 74 L55 78 L42 70 Z"
+        fill="url(#mapG)"
+        stroke="hsl(var(--primary))"
+        strokeOpacity="0.5"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      {/* Pin */}
+      <g transform="translate(108 44)">
+        <path d="M0 0 C8 0 14 6 14 14 C14 24 0 38 0 38 C0 38 -14 24 -14 14 C-14 6 -8 0 0 0 Z" fill="hsl(var(--primary))" />
+        <circle cx="0" cy="14" r="5" fill="hsl(var(--primary-foreground))" />
+      </g>
+    </svg>
+  );
+}
+
 
