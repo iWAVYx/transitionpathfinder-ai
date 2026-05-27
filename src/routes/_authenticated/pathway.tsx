@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { ReportView } from "@/components/pathway/ReportView";
+import { IepUpload } from "@/components/pathway/IepUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { createPathwayReport, type PathwayReport } from "@/lib/pathway.functions";
+import type { IepExtract } from "@/lib/iep-extract.functions";
+import pathwayHero from "@/assets/pathway-hero.jpg";
 
 const Schema = z.object({
   submitter_role: z.enum(["family", "student", "educator"]),
@@ -92,22 +95,57 @@ function PathwayPage() {
     );
   }
 
+  const applyExtract = (e: IepExtract) => {
+    const fields: Array<keyof FormValues> = [
+      "student_first_name", "strengths", "interests", "needs", "supports",
+      "transportation", "communication", "current_goals", "family_concerns",
+      "student_voice", "educator_input",
+    ];
+    for (const k of fields) {
+      const v = (e as Record<string, string>)[k];
+      if (v && v.trim()) form.setValue(k, v, { shouldDirty: true, shouldValidate: false });
+    }
+    if (e.grade_band) {
+      form.setValue("grade_band", e.grade_band as FormValues["grade_band"]);
+    }
+    document.getElementById("intake-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <SiteShell>
-      <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pathway Builder</p>
-        <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          Tell us about your student.
-        </h1>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Share what you know — even just a little. You can include the student's voice, the family's,
-          and the educator's all in one place. We'll turn it into a personalized Pathway Report.{" "}
-          <Link to="/reports" className="font-semibold text-foreground hover:underline">
-            See your saved reports →
-          </Link>
-        </p>
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-80" />
+        <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 md:block">
+          <img
+            src={pathwayHero}
+            alt=""
+            aria-hidden
+            width={1600}
+            height={900}
+            className="h-full w-full object-cover opacity-90 [mask-image:linear-gradient(to_right,transparent,black_35%)]"
+          />
+        </div>
+        <div className="mx-auto max-w-7xl px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Pathway Builder</p>
+          <h1 className="mt-3 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+            Tell us about your student.
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Share what you know — even just a little. Student, family, and educator voices all in one
+            place. Or upload an existing IEP and we'll fill in what we can find.{" "}
+            <Link to="/reports" className="font-semibold text-foreground hover:underline">
+              See your saved reports →
+            </Link>
+          </p>
+        </div>
+      </section>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-10 space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
+      <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="-mt-2 mb-8">
+          <IepUpload onExtracted={applyExtract} />
+        </div>
+
+        <form id="intake-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="I am a…">
               <Select
