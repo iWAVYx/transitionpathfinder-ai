@@ -105,6 +105,30 @@ export function ReportView({
   const [copied, setCopied] = useState(false);
   const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
   const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [parallaxY, setParallaxY] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const rect = headerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        // gentle parallax only while header is on/near screen
+        const offset = Math.max(-160, Math.min(160, -rect.top * 0.18));
+        setParallaxY(offset);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
