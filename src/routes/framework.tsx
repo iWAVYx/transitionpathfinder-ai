@@ -176,23 +176,29 @@ function FrameworkPage() {
           </p>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {principles.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft"
-            >
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
+          {principles.map((p, i) => (
+            <Reveal key={p.title} delay={i * 70}>
+              <div className="h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 font-display text-2xl font-medium">{p.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
               </div>
-              <h3 className="mt-5 font-display text-2xl font-medium">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* Six strands */}
-      <section className="border-y border-border/60 bg-muted/40 py-20">
+      <section className="relative border-y border-border/60 bg-muted/40 py-20">
+        <ShapeScroll
+          className="absolute right-10 top-10 -z-0 hidden h-80 w-80 text-primary/15 lg:block"
+          spin={140}
+          scale={0.7}
+          tilt={25}
+        />
+
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-4xl font-medium sm:text-5xl">
             The six threads we keep weaving.
