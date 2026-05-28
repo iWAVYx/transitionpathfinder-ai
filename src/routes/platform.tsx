@@ -256,52 +256,103 @@ function PlatformPage() {
         <PerspectiveTabs />
       </section>
 
-      {/* Signature deep dive */}
+      {/* Live demo */}
       <section className="bg-muted/40 py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              The Signature Feature
-            </p>
-            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              From Intake to a Plan in Minutes.
+            <div className="flex flex-wrap justify-center gap-2">
+              <Badge variant="secondary" className="gap-1">
+                <Sparkles className="h-3 w-3" /> Live demo
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                <ShieldCheck className="h-3 w-3" /> Fictional student · no real data
+              </Badge>
+            </div>
+            <h2 className="mt-4 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              See Exactly How It Works.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              Three short steps. A real Pathway Report at the end. Here is one we'd generate
-              for a student named Jordan.
+              Walk through a complete planning experience using{" "}
+              <strong>{DEMO_STUDENT.full_name}</strong>, a fictional {DEMO_STUDENT.grade} student at{" "}
+              {DEMO_STUDENT.school}. No account, no setup.
             </p>
           </div>
 
-          <div className="mb-10 grid gap-4 md:grid-cols-3">
-            <Step
-              n={1}
-              title="Share The Story"
-              body="A short intake captures strengths, interests, supports, and the three voices: student, family, and educator."
-            />
-            <Step
-              n={2}
-              title="Our Formulas Read The Whole Picture"
-              body="Specialist-designed Pathway formulas weight student voice first, honor differences gently, and stay Connecticut aware."
-            />
-            <Step
-              n={3}
-              title="A Pathway Report You Can Bring To PPT"
-              body="Career Pathways, life skills, family questions, and a gentle 30 day plan, in plain language."
-            />
+          {/* Student card */}
+          <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                  Meet the demo student
+                </p>
+                <h3 className="mt-2 font-display text-3xl">{toTitleCase(DEMO_STUDENT.full_name)}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {DEMO_STUDENT.pronouns} · {DEMO_STUDENT.grade} · {DEMO_STUDENT.school}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {DEMO_STUDENT.disability_category} · Graduating {DEMO_STUDENT.graduation_year}
+                </p>
+              </div>
+              <Badge variant="outline" className="gap-1">
+                Case manager: {DEMO_STUDENT.case_manager}
+              </Badge>
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm">
+                <PawPrint className="h-4 w-4 text-primary" /> Animals & shelter work
+              </div>
+              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm">
+                <Palette className="h-4 w-4 text-primary" /> Drawing & illustration
+              </div>
+              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm">
+                <Leaf className="h-4 w-4 text-primary" /> Environmental clean-ups
+              </div>
+            </div>
+            <p className="mt-6 rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm italic leading-relaxed text-foreground/80">
+              "I want to work somewhere with animals. Quiet is better. I want to learn how to ride
+              the bus by myself."
+              <span className="mt-2 block not-italic text-xs text-muted-foreground">
+                — In Maya's voice (from the intake)
+              </span>
+            </p>
           </div>
 
-          <SampleReport />
+          {/* Demo steps */}
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <DemoStep
+              step="1"
+              icon={<ClipboardIcon className="h-5 w-5" />}
+              title="Sample intake"
+              body="The guided transition-planning interview the family completed — strengths, interests, concerns, and student voice."
+              to="/demo/intake"
+            />
+            <DemoStep
+              step="2"
+              icon={<FileText className="h-5 w-5" />}
+              title="Pathway Report"
+              body="The full report families and educators receive — pathways, IEP translation, PPT prep, and a 30-day plan."
+              to="/demo/report"
+            />
+            <DemoStep
+              step="3"
+              icon={<HubIcon className="h-5 w-5" />}
+              title="Student Hub"
+              body="The ongoing workspace where Maya's family, case manager, and team track goals and documents over time."
+              to="/demo/hub"
+            />
+          </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              to="/login"
+              to="/demo"
               className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
             >
-              Try It With Your Student <ArrowRight className="ml-1 h-4 w-4" />
+              Open the full demo <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
         </div>
       </section>
+
 
       {/* Tool library */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
