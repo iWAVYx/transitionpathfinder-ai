@@ -465,43 +465,6 @@ function AboutPage() {
         </div>
       </section>
 
-      {/* Morph card closing */}
-      <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
-        <MorphCard className="bg-gradient-to-br from-sky-soft/40 via-background to-peach-soft/40">
-          <div className="grid items-center gap-12 p-10 md:grid-cols-[1.1fr_1fr] md:gap-16 md:p-14">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-                Built in Connecticut
-              </p>
-              <h3 className="mt-5 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-                {toTitleCase("A plan should sound like the student.")}
-              </h3>
-              <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-                TransitionForward was built by people who have sat on both sides of the PPT table —
-                educators who have written the goals, and families who have tried to read them.
-                Every feature was sketched first next to a real student's name.
-              </p>
-            </div>
-            <Tilt3D max={10}>
-              <TiltLayer depth={0}>
-                <img
-                  src={homePathway}
-                  alt="A quiet, sunlit pathway opening into an open landscape"
-                  className="aspect-[4/3] w-full rounded-[1.6rem] object-cover shadow-lift"
-                />
-              </TiltLayer>
-              <TiltLayer
-                depth={60}
-                className="pointer-events-none absolute -bottom-5 -right-5"
-              >
-                <div className="rounded-2xl border border-border/60 bg-background/90 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-lift backdrop-blur">
-                  Forward · Together
-                </div>
-              </TiltLayer>
-            </Tilt3D>
-          </div>
-        </MorphCard>
-      </section>
     </SiteShell>
   );
 }
