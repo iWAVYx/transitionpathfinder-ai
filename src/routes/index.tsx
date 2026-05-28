@@ -35,6 +35,12 @@ import layerGenerateImg from "@/assets/layer-generate.jpg";
 import layerConnectImg from "@/assets/layer-connect.jpg";
 import resourcesImg from "@/assets/resources-hero-v2.jpg";
 import frameworkImg from "@/assets/framework-hero.jpg";
+import stickerCollege from "@/assets/sticker-college.png";
+import stickerTechnical from "@/assets/sticker-technical.png";
+import stickerCareer from "@/assets/sticker-career.png";
+import stickerLifeskills from "@/assets/sticker-lifeskills.png";
+import stickerProgress from "@/assets/sticker-progress.png";
+import doodlePlane from "@/assets/doodle-plane.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
