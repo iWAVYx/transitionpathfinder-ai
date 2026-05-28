@@ -15,6 +15,15 @@ import {
   Sparkles,
   ShieldCheck,
   Loader2,
+  HelpCircle,
+  Lightbulb,
+  Briefcase,
+  BookOpen,
+  Home as HomeIcon,
+  Heart,
+  ClipboardList,
+  MessageCircle,
+  FileText,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -29,6 +38,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { createPathwayReport } from "@/lib/pathway.functions";
 import type { IepExtract } from "@/lib/iep-extract.functions";
@@ -40,11 +52,15 @@ const Schema = z.object({
   grade_band: z.enum(["9-10", "11-12", "post-secondary", "not-applicable"]).optional(),
   strengths: z.string().trim().max(2000).optional(),
   interests: z.string().trim().max(2000).optional(),
+  career_goals: z.string().trim().max(2000).optional(),
+  education_goals: z.string().trim().max(2000).optional(),
   needs: z.string().trim().max(2000).optional(),
+  life_skills: z.string().trim().max(2000).optional(),
   supports: z.string().trim().max(2000).optional(),
   transportation: z.string().trim().max(500).optional(),
   communication: z.string().trim().max(500).optional(),
   current_goals: z.string().trim().max(2000).optional(),
+  teacher_observations: z.string().trim().max(2000).optional(),
   family_concerns: z.string().trim().max(2000).optional(),
   student_voice: z.string().trim().max(2000).optional(),
   family_voice: z.string().trim().max(2000).optional(),
@@ -72,11 +88,13 @@ const ROLE_META: Record<Role, { title: string; subtitle: string; icon: typeof Us
 };
 
 const STEPS = [
-  { id: "role", label: "Your role" },
-  { id: "about", label: "About the student" },
-  { id: "strengths", label: "Strengths & interests" },
-  { id: "needs", label: "Needs & supports" },
-  { id: "voices", label: "Voices & review" },
+  { id: "role", label: "Your role", icon: Users },
+  { id: "about", label: "About the student", icon: User },
+  { id: "strengths", label: "Strengths & interests", icon: Lightbulb },
+  { id: "career", label: "Career & education goals", icon: Briefcase },
+  { id: "life", label: "Life skills & supports", icon: HomeIcon },
+  { id: "current", label: "Current goals & observations", icon: ClipboardList },
+  { id: "voices", label: "Voices & review", icon: MessageCircle },
 ] as const;
 
 export const Route = createFileRoute("/_authenticated/pathway")({
@@ -100,11 +118,15 @@ function PathwayPage() {
       grade_band: undefined,
       strengths: "",
       interests: "",
+      career_goals: "",
+      education_goals: "",
       needs: "",
+      life_skills: "",
       supports: "",
       transportation: "",
       communication: "",
       current_goals: "",
+      teacher_observations: "",
       family_concerns: "",
       student_voice: "",
       family_voice: "",
@@ -116,7 +138,10 @@ function PathwayPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const res = await generate({ data: values });
+      // Merge new structured sections into existing backend fields so they
+      // reach the AI without requiring a DB schema change.
+      const merged = mergeIntake(values);
+      const res = await generate({ data: merged });
       navigate({
         to: "/reports/$reportId",
         params: { reportId: res.reportId },
@@ -144,7 +169,6 @@ function PathwayPage() {
   };
 
   async function goNext() {
-    // Light validation per step
     if (stepIndex === 1) {
       const ok = await form.trigger("student_first_name");
       if (!ok) return;
@@ -157,6 +181,8 @@ function PathwayPage() {
     setStepIndex((i) => Math.max(i - 1, 0));
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  const progressPct = Math.round(((stepIndex + 1) / STEPS.length) * 100);
 
   return (
     <SiteShell>
@@ -177,7 +203,7 @@ function PathwayPage() {
         </div>
         <div className="mx-auto max-w-7xl px-4 pt-6 pb-10 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Pathway Builder · Step {stepIndex + 1} of {STEPS.length}
+            Pathway Builder · Step {stepIndex + 1} of {STEPS.length} · {progressPct}% complete
           </p>
           <h1 className="mt-3 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
             {stepHeading(stepIndex, role)}
@@ -193,6 +219,7 @@ function PathwayPage() {
 
       <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">
         <Stepper current={stepIndex} onJump={(i) => i < stepIndex && setStepIndex(i)} />
+        <ProgressBar pct={progressPct} />
 
         <FormProvider {...form}>
           <form
@@ -203,8 +230,10 @@ function PathwayPage() {
             {stepIndex === 0 && <StepRole role={role} onPick={(r) => form.setValue("submitter_role", r)} />}
             {stepIndex === 1 && <StepAbout onExtracted={applyExtract} />}
             {stepIndex === 2 && <StepStrengths />}
-            {stepIndex === 3 && <StepNeeds />}
-            {stepIndex === 4 && <StepVoices role={role} />}
+            {stepIndex === 3 && <StepCareer />}
+            {stepIndex === 4 && <StepLifeSkills />}
+            {stepIndex === 5 && <StepCurrentGoals role={role} />}
+            {stepIndex === 6 && <StepVoices role={role} />}
 
             <StepNav
               stepIndex={stepIndex}
@@ -222,23 +251,67 @@ function PathwayPage() {
   );
 }
 
+/* ---------- Merge helper ---------- */
+
+function mergeIntake(v: FormValues) {
+  const join = (label: string, val?: string) =>
+    val && val.trim() ? `${label}: ${val.trim()}` : "";
+
+  const current_goals = [
+    v.current_goals?.trim() || "",
+    join("Career goals", v.career_goals),
+    join("Education / training goals", v.education_goals),
+  ].filter(Boolean).join("\n\n");
+
+  const needs = [
+    v.needs?.trim() || "",
+    join("Life-skills needs", v.life_skills),
+  ].filter(Boolean).join("\n\n");
+
+  const educator_input = [
+    v.educator_input?.trim() || "",
+    join("Teacher observations", v.teacher_observations),
+  ].filter(Boolean).join("\n\n");
+
+  return {
+    submitter_role: v.submitter_role,
+    student_first_name: v.student_first_name,
+    grade_band: v.grade_band,
+    strengths: v.strengths,
+    interests: v.interests,
+    needs,
+    supports: v.supports,
+    transportation: v.transportation,
+    communication: v.communication,
+    current_goals,
+    family_concerns: v.family_concerns,
+    student_voice: v.student_voice,
+    family_voice: v.family_voice,
+    educator_input,
+  };
+}
+
 /* ---------- Step heads ---------- */
 
 function stepHeading(i: number, role: Role): string {
   if (i === 0) return "Who's filling this out?";
   if (i === 1) return "Tell us a little about the student.";
   if (i === 2) return "What are they good at? What do they love?";
-  if (i === 3) return "What helps — and what gets in the way?";
+  if (i === 3) return "What do they want their life to look like?";
+  if (i === 4) return "What helps day-to-day — and what's still being learned?";
+  if (i === 5) return "Where are things today?";
   return role === "student"
     ? "Your voice matters most."
     : "Bring the three voices together.";
 }
 
 function stepSubhead(i: number): string {
-  if (i === 0) return "Pick the role that fits you best — we'll tune the questions.";
-  if (i === 1) return "Just the basics. You can upload an IEP and we'll fill in what we can find.";
+  if (i === 0) return "Pick the role that fits you best — we'll tune the questions for you.";
+  if (i === 1) return "Just the basics. You can upload an IEP or evaluation and we'll fill in what we can find.";
   if (i === 2) return "Short bullets are perfect. You don't need to write essays.";
-  if (i === 3) return "Tell us what works at home and at school, and what feels hard.";
+  if (i === 3) return "Dreams count. So do small, practical next steps. Both belong here.";
+  if (i === 4) return "Things like cooking, money, transportation, friendships, self-advocacy.";
+  if (i === 5) return "Current IEP transition goals, what the team is seeing, and anything weighing on the family.";
   return "Share what you can. The more voices included, the more grounded the report.";
 }
 
@@ -250,12 +323,14 @@ function Stepper({ current, onJump }: { current: number; onJump: (i: number) => 
       {STEPS.map((s, i) => {
         const done = i < current;
         const active = i === current;
+        const Icon = s.icon;
         return (
           <li key={s.id} className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => onJump(i)}
               disabled={i >= current}
+              aria-current={active ? "step" : undefined}
               className={cn(
                 "flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors",
                 active && "border-primary bg-primary text-primary-foreground",
@@ -271,11 +346,10 @@ function Stepper({ current, onJump }: { current: number; onJump: (i: number) => 
                   !active && !done && "bg-muted",
                 )}
               >
-                {done ? <Check className="h-3 w-3" /> : i + 1}
+                {done ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
               </span>
               <span className="font-medium">{s.label}</span>
             </button>
-            {i < STEPS.length - 1 && <span className="text-muted-foreground/40">·</span>}
           </li>
         );
       })}
@@ -283,45 +357,69 @@ function Stepper({ current, onJump }: { current: number; onJump: (i: number) => 
   );
 }
 
+function ProgressBar({ pct }: { pct: number }) {
+  return (
+    <div
+      className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+      role="progressbar"
+      aria-valuenow={pct}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Intake progress"
+    >
+      <div
+        className="h-full rounded-full bg-primary transition-all duration-500"
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
+
 /* ---------- Step 1: Role picker ---------- */
 
 function StepRole({ role, onPick }: { role: Role; onPick: (r: Role) => void }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      {(Object.keys(ROLE_META) as Role[]).map((r) => {
-        const meta = ROLE_META[r];
-        const Icon = meta.icon;
-        const active = role === r;
-        return (
-          <button
-            key={r}
-            type="button"
-            onClick={() => onPick(r)}
-            className={cn(
-              "group flex h-full flex-col gap-3 rounded-2xl border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-soft",
-              active
-                ? "border-primary ring-2 ring-primary/30"
-                : "border-border/60 hover:border-primary/40",
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl",
-                  active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
-                )}
-              >
-                <Icon className="h-5 w-5" />
-              </span>
-              {active && <Check className="h-5 w-5 text-primary" />}
-            </div>
-            <div>
-              <p className="font-display text-lg leading-snug">{meta.title}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{meta.subtitle}</p>
-            </div>
-          </button>
-        );
-      })}
+    <div className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {(Object.keys(ROLE_META) as Role[]).map((r) => {
+          const meta = ROLE_META[r];
+          const Icon = meta.icon;
+          const active = role === r;
+          return (
+            <button
+              key={r}
+              type="button"
+              onClick={() => onPick(r)}
+              className={cn(
+                "group flex h-full flex-col gap-3 rounded-2xl border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-soft",
+                active
+                  ? "border-primary ring-2 ring-primary/30"
+                  : "border-border/60 hover:border-primary/40",
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-xl",
+                    active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+                {active && <Check className="h-5 w-5 text-primary" />}
+              </div>
+              <div>
+                <p className="font-display text-lg leading-snug">{meta.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{meta.subtitle}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Don't worry — you'll be able to add the other voices later. Picking your role just
+        helps us reorder the questions so the most important ones come first for you.
+      </p>
     </div>
   );
 }
@@ -335,6 +433,8 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label="Student's first name"
+          hint="We only use the first name in the report — never a last name."
+          why="A name makes the report read like a story about a real student, not a generic template."
           error={form.formState.errors.student_first_name?.message}
           required
         >
@@ -344,7 +444,11 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
             autoFocus
           />
         </Field>
-        <Field label="Grade band">
+        <Field
+          label="Grade band"
+          hint="Roughly where they are in school today."
+          why="Different ages call for different next steps. A 9th grader explores; an 18-year-old is choosing."
+        >
           <Select
             value={form.watch("grade_band") ?? ""}
             onValueChange={(v) => form.setValue("grade_band", v as FormValues["grade_band"])}
@@ -371,60 +475,237 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
         </p>
       </InfoBox>
 
-      <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          Optional · save time
+      <div className="rounded-2xl border border-border/60 bg-background p-5">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-primary" />
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Optional · upload documents
+          </p>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Have an IEP, evaluation, or transition assessment? Upload it and we'll pre-fill the
+          questions below. You can review and edit everything before generating the report.
         </p>
-        <IepUpload onExtracted={onExtracted} />
+        <div className="mt-3">
+          <IepUpload onExtracted={onExtracted} />
+        </div>
       </div>
     </div>
   );
 }
 
-/* ---------- Step 3: Strengths ---------- */
+/* ---------- Step 3: Strengths & interests ---------- */
 
 function StepStrengths() {
   const form = useFormContext<FormValues>();
   return (
     <div className="space-y-5">
-      <Field label="Strengths" hint="What is this student genuinely good at?">
-        <Textarea rows={3} {...form.register("strengths")} placeholder="e.g. patient with younger kids, great with their hands, remembers every game stat…" />
+      <Field
+        label="Strengths"
+        icon={Lightbulb}
+        hint="What is this student genuinely good at? Skills, qualities, the things people notice."
+        why="Every pathway we recommend has to tie back to a real strength. This is the most important box on this page."
+        examples={[
+          "Patient and gentle with younger kids",
+          "Great with their hands — can fix almost anything",
+          "Remembers every stat from every game",
+          "Always the first to welcome a new student",
+        ]}
+      >
+        <Textarea
+          rows={3}
+          {...form.register("strengths")}
+          placeholder="Short bullets are perfect — one per line."
+        />
       </Field>
-      <Field label="Interests" hint="What do they care about, talk about, or light up around?">
+      <Field
+        label="Interests"
+        icon={Heart}
+        hint="What do they care about, talk about, or light up around?"
+        why="Interests are the engine. We use them to suggest real-world careers, classes, and community connections."
+        examples={[
+          "Cars and engines",
+          "Cooking — especially baking",
+          "Anime and drawing",
+          "Animals, especially dogs",
+          "Music production / making beats",
+        ]}
+      >
         <Textarea rows={3} {...form.register("interests")} placeholder="e.g. cars, cooking, anime, animals, music production…" />
       </Field>
     </div>
   );
 }
 
-/* ---------- Step 4: Needs ---------- */
+/* ---------- Step 4: Career & education goals ---------- */
 
-function StepNeeds() {
+function StepCareer() {
   const form = useFormContext<FormValues>();
   return (
     <div className="space-y-5">
-      <Field label="Disability-related needs" hint="What gets in the way at school or in the world?">
-        <Textarea rows={3} {...form.register("needs")} />
+      <Field
+        label="Career goals"
+        icon={Briefcase}
+        hint="What kind of work does the student dream about — or what work feels realistic right now?"
+        why="The IEP requires a measurable post-secondary employment goal. Your words here become the starting draft."
+        examples={[
+          "Work with animals — maybe a vet tech assistant",
+          "Help kids — daycare, after-school programs",
+          "Hands-on trade — auto, HVAC, or construction",
+          "Not sure yet — wants to try a few things first",
+        ]}
+      >
+        <Textarea
+          rows={3}
+          {...form.register("career_goals")}
+          placeholder="Dreams, leanings, and 'I'd like to try…' all belong here."
+        />
       </Field>
-      <Field label="Supports that work" hint="Accommodations, routines, people, or tools that help them succeed.">
-        <Textarea rows={3} {...form.register("supports")} />
-      </Field>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Transportation">
-          <Input {...form.register("transportation")} placeholder="e.g. bus, family drives, learning to drive" />
-        </Field>
-        <Field label="Communication">
-          <Input {...form.register("communication")} placeholder="e.g. verbal, AAC, written, prefers text" />
-        </Field>
-      </div>
-      <Field label="Current IEP transition goals" hint="Paste them in if you have them — even partial is fine.">
-        <Textarea rows={3} {...form.register("current_goals")} />
+
+      <Field
+        label="Education or training goals"
+        icon={BookOpen}
+        hint="After high school — college, certificate program, technical school, on-the-job training, or something else?"
+        why="Post-secondary education is the second required IEP goal area. Even 'not college' is a valid, plannable choice."
+        examples={[
+          "Community college — culinary certificate",
+          "CT technical high school program",
+          "Job coaching + paid work experience",
+          "Two-year transition program (18–21)",
+        ]}
+      >
+        <Textarea
+          rows={3}
+          {...form.register("education_goals")}
+          placeholder="Programs, certificates, classes, or hands-on learning paths."
+        />
       </Field>
     </div>
   );
 }
 
-/* ---------- Step 5: Voices ---------- */
+/* ---------- Step 5: Life skills & supports ---------- */
+
+function StepLifeSkills() {
+  const form = useFormContext<FormValues>();
+  return (
+    <div className="space-y-5">
+      <Field
+        label="Disability-related needs"
+        hint="What gets in the way at school or in the world?"
+        why="Naming the barriers helps us suggest the right accommodations and supports — not generic ones."
+      >
+        <Textarea
+          rows={3}
+          {...form.register("needs")}
+          placeholder="e.g. needs extra time on tests, sensory overwhelm in crowds, hard time starting tasks…"
+        />
+      </Field>
+
+      <Field
+        label="Life-skills areas to grow"
+        icon={HomeIcon}
+        hint="Independent-living skills the student is working on or wants to learn."
+        why="The IEP requires an 'independent living' goal when appropriate. Real skills > vague language."
+        examples={[
+          "Cooking simple meals",
+          "Using a debit card and a budget",
+          "Riding the bus alone",
+          "Scheduling and getting to appointments",
+          "Doing laundry start to finish",
+        ]}
+      >
+        <Textarea
+          rows={3}
+          {...form.register("life_skills")}
+          placeholder="One skill per line is great."
+        />
+      </Field>
+
+      <Field
+        label="Supports that work"
+        hint="Accommodations, routines, people, or tools that help them succeed."
+        why="What's already working is gold. We'll carry it forward into the recommendations."
+      >
+        <Textarea
+          rows={3}
+          {...form.register("supports")}
+          placeholder="e.g. visual schedule, noise-cancelling headphones, weekly check-in with Ms. Lopez…"
+        />
+      </Field>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="Transportation"
+          hint="How they get around today and what they're working toward."
+          why="Transportation is one of the most common barriers to adult life. Naming it early matters."
+        >
+          <Input {...form.register("transportation")} placeholder="e.g. bus, family drives, learning to drive" />
+        </Field>
+        <Field
+          label="Communication"
+          hint="How they communicate best."
+          why="Helps every adult on the team meet the student where they are."
+        >
+          <Input {...form.register("communication")} placeholder="e.g. verbal, AAC, written, prefers text" />
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Step 6: Current goals + observations ---------- */
+
+function StepCurrentGoals({ role }: { role: Role }) {
+  const form = useFormContext<FormValues>();
+  return (
+    <div className="space-y-5">
+      <Field
+        label="Current transition goals (from the IEP)"
+        icon={ClipboardList}
+        hint="Paste them in if you have them — even partial wording is fine."
+        why="If we have the current goals, the report can rewrite them in plain English and suggest where to sharpen them."
+      >
+        <Textarea
+          rows={3}
+          {...form.register("current_goals")}
+          placeholder="It's okay to copy/paste right from the IEP."
+        />
+      </Field>
+
+      <Field
+        label={role === "educator" ? "Your observations" : "Teacher / case-manager observations"}
+        hint="What is the school team noticing — progress, sticking points, what's clicking?"
+        why="Educator observations are weighted heavily by the report. Specific examples beat ratings."
+        examples={[
+          "Doing great in cooking class — leading prep most days",
+          "Still freezes when asked to make a phone call",
+          "Loves the new peer-mentor — first friend at lunch",
+        ]}
+      >
+        <Textarea
+          rows={3}
+          {...form.register("teacher_observations")}
+          placeholder="One observation per line is perfect."
+        />
+      </Field>
+
+      <Field
+        label="Family concerns or hopes"
+        hint="What's keeping you up at night? What do you most hope for after high school?"
+        why="Concerns and hopes shape the family-action-plan section of the report."
+      >
+        <Textarea
+          rows={3}
+          {...form.register("family_concerns")}
+          placeholder="It's okay to write this like a letter."
+        />
+      </Field>
+    </div>
+  );
+}
+
+/* ---------- Step 7: Voices ---------- */
 
 function StepVoices({ role }: { role: Role }) {
   const form = useFormContext<FormValues>();
@@ -434,21 +715,24 @@ function StepVoices({ role }: { role: Role }) {
     return "family_voice" as const;
   }, [role]);
 
-  const fields: { key: keyof FormValues; label: string; hint: string }[] = [
+  const fields: { key: keyof FormValues; label: string; hint: string; why: string }[] = [
     {
       key: "student_voice",
       label: "Student's voice",
       hint: "In their words, if possible: what do they want their team to know?",
+      why: "Student voice anchors the whole report. Even one sentence in their own words changes the tone.",
     },
     {
       key: "family_voice",
       label: "Family voice",
       hint: "Hopes, worries, what's worked at home.",
+      why: "Families see things school never sees. This section makes the picture whole.",
     },
     {
       key: "educator_input",
-      label: "Educator / case manager input",
+      label: "Educator / case-manager input",
       hint: "What is the school team seeing? Progress, sticking points, what they'd recommend.",
+      why: "Closes the loop between home and school so the PPT starts with shared facts.",
     },
   ];
 
@@ -463,7 +747,7 @@ function StepVoices({ role }: { role: Role }) {
               ? "Start with your educator notes"
               : "Start with the family voice"}
         </strong>{" "}
-        — fill the others if you can.
+        — fill the others if you can. You can always come back and add more later.
       </div>
 
       {fields.map((f) => (
@@ -471,14 +755,11 @@ function StepVoices({ role }: { role: Role }) {
           key={f.key}
           label={f.label + (f.key === emphasized ? " — recommended" : "")}
           hint={f.hint}
+          why={f.why}
         >
           <Textarea rows={3} {...form.register(f.key)} />
         </Field>
       ))}
-
-      <Field label="Family concerns / hopes (optional)" hint="Anything else keeping you up at night, or any specific hope for after high school?">
-        <Textarea rows={2} {...form.register("family_concerns")} />
-      </Field>
     </div>
   );
 }
@@ -543,26 +824,72 @@ function StepNav({
 function Field({
   label,
   hint,
+  why,
+  examples,
+  icon: Icon,
   error,
   required,
   children,
 }: {
   label: string;
   hint?: string;
+  why?: string;
+  examples?: string[];
+  icon?: typeof Lightbulb;
   error?: string;
   required?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <Label className="mb-1.5 inline-block">
-        {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
-      </Label>
+      <div className="mb-1.5 flex items-center gap-2">
+        {Icon && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <Icon className="h-3.5 w-3.5" />
+          </span>
+        )}
+        <Label className="inline-block">
+          {label}
+          {required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        {why && <WhyThisMatters text={why} />}
+      </div>
       {hint && <p className="mb-1.5 text-xs text-muted-foreground">{hint}</p>}
       {children}
+      {examples && examples.length > 0 && (
+        <details className="mt-2 text-xs text-muted-foreground">
+          <summary className="cursor-pointer select-none font-medium text-foreground/70 hover:text-foreground">
+            Need examples?
+          </summary>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {examples.map((ex) => (
+              <li key={ex}>{ex}</li>
+            ))}
+          </ul>
+        </details>
+      )}
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
+  );
+}
+
+function WhyThisMatters({ text }: { text: string }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          aria-label="Why this matters"
+        >
+          <HelpCircle className="h-3 w-3" />
+          Why this matters
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="max-w-xs text-sm leading-relaxed">
+        {text}
+      </PopoverContent>
+    </Popover>
   );
 }
 
