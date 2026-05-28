@@ -52,7 +52,19 @@ function DemoReportPage() {
         </div>
       </section>
 
-      <ReportView name={DEMO_STUDENT.first_name} report={DEMO_REPORT} demo />
+      <ReportView
+        name={DEMO_STUDENT.first_name}
+        report={DEMO_REPORT}
+        demo
+        meta={{
+          reportId: "TF-DEMO-2026-0001",
+          preparedFor: `${DEMO_STUDENT.full_name} · ${DEMO_STUDENT.grade} · ${DEMO_STUDENT.school}`,
+          preparedBy: "TransitionForward (AI-supported) · Reviewed by Ms. Alvarez, Case Manager",
+          issued: "March 4, 2026",
+          version: "1.0",
+          confidentiality: "Confidential — for Maya, the Rivera family, and authorized EHHS team members",
+        }}
+      />
 
       <section className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/60 bg-gradient-hero p-6">
