@@ -288,13 +288,23 @@ function HomePage() {
         />
       </section>
 
-      {/* TEXT SCROLL FILL — mission line */}
-      <section className="mx-auto max-w-5xl px-4 py-28 sm:px-6 lg:px-8">
+      {/* TEXT SCROLL FILL — mission line, sleeker with floating decor */}
+      <section className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <CompassRose className="absolute -left-6 top-4 hidden h-24 w-24 text-primary/25 lg:block" />
+        <Starburst className="absolute -right-6 top-6 hidden h-20 w-20 text-secondary-foreground/30 lg:block" />
+        <Parallax speed={0.2} className="absolute right-10 -top-2 hidden h-12 w-16 text-primary/60 md:block">
+          <ArrowDoodle className="h-full w-full -rotate-12" />
+        </Parallax>
+        <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Squiggle className="absolute inset-x-0 bottom-6 mx-auto h-5 w-80 text-primary/30" />
         <TextScrollFill
           className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
           text="From the IEP on the kitchen table to the first job after graduation — every student deserves a plan that reads like their life, not paperwork."
         />
       </section>
+
 
 
       {/* ROLE ROUTER — five doors into the platform */}
