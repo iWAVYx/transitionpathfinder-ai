@@ -1036,13 +1036,15 @@ function Block({
   title,
   children,
   icon,
+  id,
 }: {
   title: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <section className="mt-12 page-break">
+    <section id={id} className="mt-12 page-break scroll-mt-24">
       <div className="flex items-center gap-2">
         {icon && <span className="text-primary">{icon}</span>}
         <h2 className="font-display text-3xl font-medium tracking-tight">{title}</h2>
