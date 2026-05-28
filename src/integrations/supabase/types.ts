@@ -108,6 +108,125 @@ export type Database = {
           },
         ]
       }
+      feed_events: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          ref_id: string | null
+          ref_table: string | null
+          student_id: string
+          title: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          payload?: Json
+          ref_id?: string | null
+          ref_table?: string | null
+          student_id: string
+          title: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          ref_id?: string | null
+          ref_table?: string | null
+          student_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      form_responses: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          created_at: string
+          id: string
+          respondent_id: string
+          respondent_role: string
+          status: string
+          student_id: string
+          template_slug: string
+          updated_at: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          respondent_id: string
+          respondent_role?: string
+          status?: string
+          student_id: string
+          template_slug: string
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          respondent_id?: string
+          respondent_role?: string
+          status?: string
+          student_id?: string
+          template_slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_responses_template_slug_fkey"
+            columns: ["template_slug"]
+            isOneToOne: false
+            referencedRelation: "form_templates"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      form_templates: {
+        Row: {
+          audience: string
+          category: string
+          created_at: string
+          description: string | null
+          schema: Json
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          schema: Json
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          schema?: Json
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           category: string
@@ -157,6 +276,248 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_action_items: {
+        Row: {
+          assignee_id: string | null
+          assignee_role: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          meeting_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          assignee_role?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          meeting_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          assignee_role?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          meeting_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_action_items_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_agenda_items: {
+        Row: {
+          created_at: string
+          id: string
+          meeting_id: string
+          notes: string | null
+          position: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meeting_id: string
+          notes?: string | null
+          position?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          notes?: string | null
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_agenda_items_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_questions: {
+        Row: {
+          answer: string | null
+          asker_id: string | null
+          asker_role: string
+          created_at: string
+          id: string
+          meeting_id: string
+          question: string
+        }
+        Insert: {
+          answer?: string | null
+          asker_id?: string | null
+          asker_role?: string
+          created_at?: string
+          id?: string
+          meeting_id: string
+          question: string
+        }
+        Update: {
+          answer?: string | null
+          asker_id?: string | null
+          asker_role?: string
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_questions_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          created_at: string
+          created_by: string
+          family_concerns: string | null
+          id: string
+          kind: string
+          location: string | null
+          scheduled_at: string | null
+          status: string
+          student_id: string
+          student_voice: string | null
+          summary: string | null
+          teacher_notes: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          family_concerns?: string | null
+          id?: string
+          kind?: string
+          location?: string | null
+          scheduled_at?: string | null
+          status?: string
+          student_id: string
+          student_voice?: string | null
+          summary?: string | null
+          teacher_notes?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          family_concerns?: string | null
+          id?: string
+          kind?: string
+          location?: string | null
+          scheduled_at?: string | null
+          status?: string
+          student_id?: string
+          student_voice?: string | null
+          summary?: string | null
+          teacher_notes?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      message_threads: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          id: string
+          last_message_at: string
+          status: string
+          student_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          last_message_at?: string
+          status?: string
+          student_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          last_message_at?: string
+          status?: string
+          student_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          attachments: Json
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
             referencedColumns: ["id"]
           },
         ]
@@ -282,18 +643,21 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          language: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           full_name?: string | null
           id: string
+          language?: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           full_name?: string | null
           id?: string
+          language?: string
           updated_at?: string
         }
         Relationships: []

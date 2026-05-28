@@ -1,66 +1,79 @@
-## Audit: what's already here
 
-Routes already in the project:
-- **Public/marketing:** `/`, `/about`, `/platform`, `/families`, `/educators`, `/partners`, `/pricing`, `/resources`, `/research`, `/framework`, `/privacy`, `/pathways/$pathwayId`, `/waitlist`, `/login`, `/reset-password`, `/share/$token`
-- **Authenticated product:** `/dashboard`, `/onboarding`, `/students`, `/students/$studentId`, `/goals`, `/pathway`, `/ppt-prep`, `/reports`, `/reports/$reportId`, `/admin`, `/settings`
-- **Components:** `dashboard/`, `pathway/`, `platform/`, `students/`, `site/`, `a11y/`
+# TransitionForward — ParentSquare-Inspired Expansion
 
-So most of your 20 priorities have *some* foundation: role-aware onboarding, student profiles, AI pathway reports, PPT meeting prep, admin dashboard, sharing, privacy page, accessibility tooling, and a waitlist all exist as routes.
+Positioning: *"Everything transition teams need to move every student forward."*
 
-## What's actually missing (gap-level, not feature-level)
+Delivered as one cohesive expansion, in two layers:
 
-1. **No role-segmented entry from the homepage.** All five audiences land on the same `/` and one generic CTA. There's no "I am a parent / student / educator / school / partner" door.
-2. **No document hub.** `/students/$studentId` exists, but there's no central documents view with status labels (Needs Review, Summarized, Action Items Created, Shared).
-3. **No transition timeline view.** Goals exist; a milestone timeline from early HS → postsecondary does not.
-4. **No opportunities/partners marketplace.** `/partners` is marketing-facing. Families/students have nowhere to *browse* curated CT colleges, technical schools, BRS, employers, mentors.
-5. **No collaboration surface.** Notes/tasks/assignments across parent+student+educator aren't a first-class screen.
-6. **AI trust disclaimer is not consistently shown** on AI output surfaces (pathway report, PPT prep).
-7. **Trust & consent strip is thin.** Privacy page exists, but the product doesn't visibly show role-based access, consent state, or data export/delete controls.
-8. **Empty states are inconsistent** — some product pages show blank panels instead of guided "do this next" prompts.
-9. **Audience-specific CTAs missing** on home (one generic "Create A Pathway Report" instead of five).
-10. **Waitlist is single-form** — no separate paths for family / teacher demo / partner / district.
-11. **Impact/metrics section** missing from marketing.
-12. **CT SEDS companion positioning** isn't stated anywhere.
-13. **Export/print actions** (transition plan summary, meeting checklist, progress report) aren't surfaced as buttons even as stubs.
+## Information Architecture (decided)
 
-## Proposed plan — phased, scoped, reviewable
+Top nav (auth area) becomes:
 
-I want to do this in **three reviewable phases** rather than one giant push, because (a) some of these items meaningfully change product IA and you should sign off, and (b) shipping all 20 in one turn produces shallow stubs everywhere instead of a few strong surfaces.
+```text
+Dashboard · Students · Feed · Messages · Meetings · Forms · Resources · More ▾
+                                                                       └─ Goals, Documents,
+                                                                          Opportunities, Admin
+```
 
-### Phase 1 — Marketing surface that earns trust (this turn, if you approve)
+Mobile: same items collapse into the existing dropdown. The marketing site nav stays unchanged.
 
-Scoped to the homepage + a few public pages. Pure presentation; no schema changes.
+Each student page gets sub-tabs: Overview · Goals · Feed · Messages · Meetings · Forms · Documents — so every new module is reachable both globally (across all your students) and per-student.
 
-1. **Homepage role router** — replace the single hero CTA with a "Choose your path" band: Family · Student · Educator · School/District · Partner. Each links to the existing audience page (and where one doesn't exist, to `/waitlist?role=...`).
-2. **Audience-specific CTAs** on home, each with the language you specified ("Build My Child's Transition Plan", "Explore My Future Path", "Organize My Caseload", "Request a School Demo", "Become a TransitionForward Partner").
-3. **CT SEDS companion positioning block** — short, warm statement that we *complement*, not replace, CT SEDS.
-4. **Impact / outcomes strip** — five outcome cards (family understanding, student self-advocacy, goal tracking, collaboration, meeting prep, real opportunity connections).
-5. **Trust strip upgrade** — add "Human review of AI", "Role-based access", "Consent before sharing", "Export & delete your data" to the existing privacy/FERPA/CT card row.
-6. **Waitlist split** — extend `/waitlist` to a 5-tile chooser (Family waitlist · Teacher demo · School/district interest · Partner · Early access) that all post to the same waitlist table with a `role` discriminator (already in schema).
-7. **Global AI disclaimer component** — render on any page that shows AI-generated output (`/pathway`, `/reports/$reportId`, `/ppt-prep`, `/share/$token`), saying AI is a planning aid and does not replace IEP team / legal / professional judgment.
+---
 
-### Phase 2 — Product surfaces that make it feel real (separate turn)
+## Phase 1 — Full-stack modules (real DB + RLS + server functions + UI)
 
-Real authenticated screens, wired to existing tables where possible.
+### 1. Family Transition Feed (`/feed`, `/students/:id` Feed tab)
+- New table `feed_events` (student_id, actor_id, kind, title, body, ref_table, ref_id, payload, created_at) with RLS via `can_access_student`.
+- Event kinds: `report.generated`, `goal.added`, `goal.status_changed`, `reflection.added`, `progress_note.added`, `meeting.scheduled`, `meeting.summary_exported`, `form.completed`, `resource.matched`, `document.uploaded`, `message.posted`.
+- Server-side helper `emitFeedEvent()` called from existing pathway / goals / docs / meeting / forms server fns so the feed populates automatically.
+- UI: timeline with day grouping, kind icons/colors, filter chips (All, Goals, Meetings, Reports, Reflections, Messages), and "What does this mean?" inline explainers.
 
-8. **Documents hub** — `/_authenticated/documents` (and a tab on the student page) listing uploads with status chips: Needs Review · Summarized · Action Items Created · Shared. Uses the existing `documents` table + `student-documents` bucket. Empty state: "Start by adding an IEP or transition assessment."
-9. **Transition Timeline** — visual milestone strip on `/students/$studentId` (Interest inventory → Career pathway selected → IL goal → Resume → Agency connection → College/training → Internship → Postsecondary plan). Reads from `goals` + `pathway_progress`.
-10. **Collaboration panel** — notes/tasks/assignees on the student page, scoped via existing `student_collaborators` table. "Who's responsible for what" view.
-11. **Meeting Prep upgrade** — extend `/ppt-prep` with downloadable/printable checklist (questions, concerns, strengths, goals, documents to bring, last-meeting action items).
-12. **Export actions** — print/download buttons on pathway report, meeting prep, progress (stubbed to browser print + JSON export initially).
+### 2. Communication Center (`/messages`)
+- Tables `message_threads` (student_id, category, subject, created_by) and `messages` (thread_id, author_id, body, attachments jsonb) — RLS gated by `can_access_student` / `can_edit_student`.
+- Categories: Goal updates · Meeting prep · Family questions · Student reflections · Resource questions · Follow-up actions.
+- UI: two-pane inbox (threads list + thread view), category badges, "New thread" with required category, mark-resolved, link-to-student. Posting a message also writes a `message.posted` feed event.
 
-### Phase 3 — Discovery + admin polish (separate turn)
+### 3. Meeting Center (`/meetings`, `/meetings/:id`)
+- Tables `meetings` (student_id, kind: PPT|IEP|transition|other, scheduled_at, location, status), `meeting_agenda_items`, `meeting_questions`, `meeting_action_items` (with assignee + due_date + status).
+- Pulls existing student voice, family concerns, teacher progress notes, and linked documents into one prep view.
+- Buttons: **Prepare for Meeting** (checklist wizard), **Add Family Question**, **Add Student Voice**, **Export Meeting Summary** (HTML→print/PDF using the existing ReportView print-CSS pattern).
+- Reminders surface in Feed and Notifications.
 
-13. **Opportunities & Partners marketplace** — `/_authenticated/opportunities` (curated CT colleges, technical schools, BRS, employers, mentorship, transportation, disability supports, events). Filterable by interest/location/grade. Seeded with sample CT data.
-14. **Consent & data controls in `/settings`** — view who has access to each student, revoke, export all data, delete account.
-15. **Admin polish** — partner approval queue, AI recommendation review queue, contact form submissions, basic analytics tiles.
-16. **Empty-state pass** across all product pages with your exact copy ("Your AI pathway will appear here once you complete your student profile.", etc.).
-17. **Accessibility sweep** — audit existing `a11y/` tooling, ensure semantic landmarks, keyboard order, contrast, plain-language tooltips on special-ed terms.
+### 4. Transition Forms Library (`/forms`, `/forms/:slug`)
+- `form_templates` (seed-only, slug, title, audience, schema jsonb) + `form_responses` (student_id, template_slug, respondent_id, answers jsonb, status, completed_at).
+- Seed templates: Student Interest Survey, Family Input, Teacher Input, Life Skills Checklist, Career Exploration Reflection, Postsecondary Goals Worksheet, Transportation Planning, Meeting Prep.
+- Generic JSON-schema-driven renderer (text / textarea / single-select / multi-select / scale / checklist).
+- Completed forms emit `form.completed` feed events and are surfaced to the next Pathway Report generation as additional context (passed into the existing AI report prompt).
 
-## What I'd like you to confirm before I start
+---
 
-- **Approve Phase 1 to ship in this turn?** It's scoped, low-risk, no schema changes, and immediately raises the trust+clarity ceiling of the public site.
-- Phases 2 and 3 are larger and I'd want to do each as its own turn so you can review.
-- Any of the 20 items you want **moved up, dropped, or reworded** before I begin?
+## Phase 2 — Polished UI scaffolds (mock/derived data, ready to wire later)
 
-Once you say "go on Phase 1" (or "go on all of it, I'll review"), I'll execute.
+5. **Notification Preferences** — extend existing `notification_prefs` UI with grouped sections (Channels: email/text/in-app · Cadence: instant/daily/weekly · Topics: meetings/reports/resources/messages). Toggles persist via existing server fn; SMS/in-app channels render as "Coming soon" with the preference saved.
+6. **Plain Language + Translation** — new `<Term>` + extended `<InfoBox>` glossary component used throughout new modules; language preference dropdown in Settings (EN / ES / ZH / VI / AR placeholders) stored on profile; UI strings on family-facing pages wired through a small `t()` helper so future translation drops in.
+7. **Student Hub enhancements** — `/students/:id` Overview becomes a card grid: My Goals · My Reflections · My Voice for My Meeting · My Next Step · My Progress · Careers I Want to Explore · Life Skills I'm Building. Cards pull from existing tables + new feed/forms data.
+8. **Admin/District Engagement Insights** — `/admin/insights` (admin role only) with KPI tiles + simple bar/line summaries: completed Student Voice profiles, completed Family Input forms, generated Pathway Reports, meeting prep completion, top career interests, top life-skill needs, weekly family engagement. Powered by aggregate read-only server fns over existing + new tables.
+
+---
+
+## Cross-cutting
+
+- Reuse design tokens in `src/styles.css`; new modules feel warm + trustworthy (same palette, soft shadows, generous whitespace).
+- Every new page sets its own `head()` (title + description + og).
+- All new tables created in a single migration with GRANTs, RLS, and `can_access_student` / `can_edit_student` reuse — no auth.users FKs.
+- Realtime enabled for `messages` and `feed_events` so updates appear live.
+- All title-casing utility + multi-line marketing pattern from previous turns is respected.
+
+## Technical notes
+
+- New server-fn files: `feed.functions.ts`, `messages.functions.ts`, `meetings.functions.ts`, `forms.functions.ts`, `insights.functions.ts`.
+- One Supabase migration adds: `feed_events`, `message_threads`, `messages`, `meetings`, `meeting_agenda_items`, `meeting_questions`, `meeting_action_items`, `form_templates`, `form_responses`, plus indexes and RLS policies. Realtime publication updated for `messages` and `feed_events`. Seed insert for `form_templates` done via separate insert tool call after migration.
+- Existing `pathway.functions.ts`, `goals` editor, `documents.functions.ts`, `ppt.functions.ts` gain a small `emitFeedEvent` call so existing flows feed the timeline without breaking changes.
+- Header (`SiteHeader.tsx`) gets the new top-level items + "More" dropdown that already exists for overflow.
+
+## Out of scope (call out for follow-ups)
+
+- Actual SMS sending and push notifications (only preferences captured now).
+- Real translation engine — language preference + `t()` plumbing only.
+- PDF rendering server-side — meeting summary uses the existing print-to-PDF pattern.
