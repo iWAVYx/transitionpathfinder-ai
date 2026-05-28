@@ -206,25 +206,42 @@ function StudentDetailPage() {
       </div>
 
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Student</p>
-            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">
-              {student ? `${student.first_name} ${student.last_name ?? ""}` : "Loading…"}
-            </h1>
-            {student && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                {student.grade_band ?? "Grade not set"}
-                {student.school ? ` · ${student.school}` : ""}
-              </p>
-            )}
+        <header className="overflow-hidden rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div
+                aria-hidden
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/15 font-display text-2xl font-medium text-primary ring-1 ring-primary/20"
+              >
+                {(student?.first_name?.[0] ?? "?").toUpperCase()}
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                  Student hub
+                </p>
+                <h1 className="mt-1 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                  {student ? `${student.first_name} ${student.last_name ?? ""}` : "Loading…"}
+                </h1>
+                {student && (
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    {student.grade_band ?? "Grade not set"}
+                    {student.school ? ` · ${student.school}` : ""}
+                  </p>
+                )}
+              </div>
+            </div>
+            <Link
+              to="/students"
+              className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+            >
+              ← All students
+            </Link>
           </div>
-          <Link
-            to="/students"
-            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-          >
-            ← All students
-          </Link>
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-foreground/75">
+            One place for {student?.first_name ?? "this student"}'s documents, goals, transition
+            progress, and the people supporting the plan. Everything here is private and only
+            shared with people you invite.
+          </p>
         </header>
 
         {/* DOCUMENTS */}
