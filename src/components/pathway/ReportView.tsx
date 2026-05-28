@@ -578,21 +578,24 @@ export function ReportView({
         </Block>
       )}
 
-      {/* ============ Classic career pathways (back-compat) ============ */}
-      <Block title="Career pathways to explore" icon={<Compass className="h-5 w-5" />}>
-        <div className="grid gap-4">
-          {r.career_pathways.map((p) => (
-            <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5">
-              <h3 className="font-display text-xl font-medium">{p.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <MiniCard label="Example roles" items={p.example_roles} compact />
-                <MiniCard label="First steps" items={p.first_steps} compact />
+      {/* ============ Classic career pathways (only when no modern equivalent) ============ */}
+      {(!r.recommended_pathways || r.recommended_pathways.length === 0) &&
+        (!r.career_matches || r.career_matches.length === 0) && (
+        <Block title="Career pathways to explore" icon={<Compass className="h-5 w-5" />}>
+          <div className="grid gap-4">
+            {r.career_pathways.map((p) => (
+              <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5">
+                <h3 className="font-display text-xl font-medium">{p.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <MiniCard label="Example roles" items={p.example_roles} compact />
+                  <MiniCard label="First steps" items={p.first_steps} compact />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Block>
+            ))}
+          </div>
+        </Block>
+      )}
 
       <Block id="sec-education" title="Education & training options" icon={<BookOpen className="h-5 w-5" />}>
         <BulletList items={r.education_training_options} />
