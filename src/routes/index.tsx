@@ -760,3 +760,40 @@ function PathwayTile({
     </Link>
   );
 }
+
+function FeatureShot({
+  image,
+  label,
+  caption,
+  className = "",
+  aspect = "aspect-[4/3]",
+}: {
+  image: string;
+  label: string;
+  caption: string;
+  className?: string;
+  aspect?: string;
+}) {
+  return (
+    <figure
+      className={`group relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${className}`}
+    >
+      <div className={`relative ${aspect} overflow-hidden`}>
+        <img
+          src={image}
+          alt={label}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
+        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
+          {label}
+        </span>
+      </div>
+      <figcaption className="p-5">
+        <p className="text-sm leading-relaxed text-muted-foreground">{caption}</p>
+      </figcaption>
+    </figure>
+  );
+}
+
