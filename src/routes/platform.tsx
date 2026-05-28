@@ -27,6 +27,16 @@ import {
   Marquee,
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
+import { FloatingShape } from "@/components/effects/ImmersiveEffects";
+import {
+  DotField,
+  Starburst,
+  Sparkle,
+  CompassRose,
+  Squiggle,
+  ArcStack,
+} from "@/components/effects/Decorations";
+
 
 
 import { toTitleCase } from "@/lib/title-case";
