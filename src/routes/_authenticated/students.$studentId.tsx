@@ -12,6 +12,10 @@ import {
   Target,
   Users as UsersIcon,
   Compass,
+  Activity,
+  MessageSquare,
+  Calendar,
+  ClipboardList,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -255,6 +259,35 @@ function StudentDetailPage() {
           </div>
         </header>
 
+        {/* HUB CARDS */}
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <HubCard
+            to="/feed"
+            icon={<Activity className="h-4 w-4" />}
+            title="Feed"
+            desc="Everything that's happened on this plan, newest first."
+          />
+          <HubCard
+            to="/messages"
+            icon={<MessageSquare className="h-4 w-4" />}
+            title="Messages"
+            desc="Ask a question, share a reflection, or follow up."
+          />
+          <HubCard
+            to="/meetings"
+            icon={<Calendar className="h-4 w-4" />}
+            title="Meetings"
+            desc="Prep for the next PPT or IEP — agenda, questions, actions."
+          />
+          <HubCard
+            to="/forms"
+            icon={<ClipboardList className="h-4 w-4" />}
+            title="Forms"
+            desc="Family input, interest surveys, life-skills checklists."
+          />
+        </div>
+
+
         {/* DOCUMENTS */}
         <div className="mt-10 rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -430,5 +463,30 @@ function StatTile({
         {value}
       </p>
     </div>
+  );
+}
+
+function HubCard({
+  to,
+  icon,
+  title,
+  desc,
+}: {
+  to: "/feed" | "/messages" | "/meetings" | "/forms";
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+    >
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        {icon}
+      </div>
+      <p className="mt-3 font-display text-base">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+    </Link>
   );
 }
