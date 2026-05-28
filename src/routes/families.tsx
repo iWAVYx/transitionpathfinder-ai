@@ -150,7 +150,10 @@ function FamiliesPage() {
         />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <Starburst className="absolute left-8 top-12 hidden h-20 w-20 text-primary/30 md:block" />
+        <CompassRose className="absolute right-10 top-16 hidden h-24 w-24 text-secondary-foreground/30 lg:block" />
+        <Squiggle className="absolute inset-x-0 bottom-6 mx-auto hidden h-6 w-80 text-primary/30 sm:block" />
         <Reveal>
           <TextScrollFill
             className="mx-auto max-w-4xl text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
@@ -166,6 +169,11 @@ function FamiliesPage() {
           scale={0.6}
           tilt={20}
         />
+        <ArcStack className="absolute -left-10 bottom-0 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
+        <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <FloatingShape className="absolute left-1/3 top-2 -z-0 hidden h-7 w-7 text-secondary-foreground/60 md:block" delay={0.5}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {cards.map(({ icon: Icon, t, b }, i) => (
             <Reveal key={t} delay={i * 80}>
@@ -180,6 +188,7 @@ function FamiliesPage() {
           ))}
         </div>
       </section>
+
     </SiteShell>
   );
 }
