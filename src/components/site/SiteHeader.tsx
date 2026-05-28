@@ -204,7 +204,7 @@ export function SiteHeader() {
                 Explore
               </p>
               <nav className="flex flex-col gap-0.5">
-                {nav.map((item) => (
+                {mobileMarketingLinks.map((item) => (
                   <Link
                     key={item.to}
                     to={item.to}
