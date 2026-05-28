@@ -200,26 +200,51 @@ export function ReportView({
       <ReportTOC report={r} audience={audience} />
 
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
-      <div className="print-cover hidden print:flex">
-        <div className="print-cover-inner">
-          <p className="print-cover-eyebrow">TransitionForward · Pathway Report</p>
-          <h1 className="print-cover-title">{toTitleCase(name)}</h1>
-          <p className="print-cover-sub">
-            {audience === "family"
-              ? "A personalized plan for the road ahead."
-              : "PPT Prep packet for the educator team."}
-          </p>
-          {r.student_snapshot && (
-            <p className="print-cover-meta">
-              {r.student_snapshot.grade_level} · {r.student_snapshot.graduation_timeline}
+      <div className="print-cover hidden print:block" aria-hidden>
+        <div className="print-cover-frame">
+          <header className="print-cover-brand">
+            <span className="print-cover-mark" aria-hidden />
+            <span className="print-cover-brand-text">TransitionForward</span>
+          </header>
+
+          <div className="print-cover-body">
+            <p className="print-cover-eyebrow">
+              {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}
             </p>
-          )}
-          <div className="print-cover-rule" />
-          <div className="print-cover-footer">
-            <span>Generated {today}</span>
-            {confidenceLabel && <span>· {confidenceLabel}</span>}
-            <span>· AI-supported · human-led</span>
+            <h1 className="print-cover-title">{toTitleCase(name)}</h1>
+            <p className="print-cover-sub">
+              {audience === "family"
+                ? "A personalized plan for the road ahead — built with you, reviewed by an educator."
+                : "A teacher-facing packet to ground the next Planning & Placement Team meeting."}
+            </p>
+            <div className="print-cover-rule" />
+            <dl className="print-cover-meta-grid">
+              <div>
+                <dt>Prepared For</dt>
+                <dd>{meta?.preparedFor ?? name}</dd>
+              </div>
+              <div>
+                <dt>Prepared By</dt>
+                <dd>{meta?.preparedBy ?? "TransitionForward (AI-supported, human-led)"}</dd>
+              </div>
+              <div>
+                <dt>Date Issued</dt>
+                <dd>{meta?.issued ?? today}</dd>
+              </div>
+              <div>
+                <dt>Document</dt>
+                <dd>{meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"}</dd>
+              </div>
+            </dl>
           </div>
+
+          <footer className="print-cover-footer">
+            <span>
+              {meta?.confidentiality ??
+                "Confidential — for the student, family, and authorized educators."}
+            </span>
+            {confidenceLabel && <span className="print-cover-footer-tag">{confidenceLabel}</span>}
+          </footer>
         </div>
       </div>
 
