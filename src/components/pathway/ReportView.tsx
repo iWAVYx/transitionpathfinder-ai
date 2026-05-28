@@ -875,7 +875,7 @@ export function ReportView({
 
       {/* ============ Opportunity matches ============ */}
       {r.opportunity_matches && r.opportunity_matches.length > 0 && (
-        <Block id="sec-opportunities" title="Opportunities to explore" icon={<MapIcon className="h-5 w-5" />}>
+        <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
               <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
@@ -900,7 +900,7 @@ export function ReportView({
 
       {/* ============ Progress timeline ============ */}
       {r.progress_timeline && r.progress_timeline.length > 0 && (
-        <Block id="sec-timeline" title="Progress timeline" icon={<Calendar className="h-5 w-5" />}>
+        <Block id="sec-timeline" title="Progress Timeline" icon={<Calendar className="h-5 w-5" />}>
           <ol className="relative space-y-4 border-l-2 border-border/60 pl-6">
             {r.progress_timeline.map((s, i) => (
               <li key={i} className="relative">
@@ -939,7 +939,7 @@ export function ReportView({
       )}
 
       {/* ============ 30-Day Plan (always) ============ */}
-      <Block id="sec-thirty-day" title="A gentle 30-Day Plan" icon={<Calendar className="h-5 w-5" />}>
+      <Block id="sec-thirty-day" title="A Gentle 30-Day Plan" icon={<Calendar className="h-5 w-5" />}>
         <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {r.thirty_day_plan.map((w) => (
             <li key={w.week} className="rounded-2xl border border-border/60 bg-card p-4">
@@ -954,14 +954,14 @@ export function ReportView({
 
       {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
       {audience === "educator" && !r.teacher_action_plan && (
-        <Block title="Teacher next steps" icon={<GraduationCap className="h-5 w-5" />}>
+        <Block title="Teacher Next Steps" icon={<GraduationCap className="h-5 w-5" />}>
           <BulletList items={r.teacher_next_steps} />
         </Block>
       )}
 
       {/* ============ Needs human review ============ */}
       {r.needs_human_review && r.needs_human_review.length > 0 && (
-        <Block id="sec-review" title="Worth a human second look" icon={<ShieldCheck className="h-5 w-5" />}>
+        <Block id="sec-review" title="Worth a Human Second Look" icon={<ShieldCheck className="h-5 w-5" />}>
           <div className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10">
             <p className="text-sm text-muted-foreground">
               These items are the AI's best guess based on the intake. Please review with the
