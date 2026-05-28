@@ -202,20 +202,16 @@ function PartnersPage() {
 
         {/* Marquee */}
         <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
-          <Marquee speed={40} className="py-5 font-display text-2xl italic text-foreground/70 sm:text-3xl">
-            {featuredCtPartners.map((p) => (
-              <span key={p} className="mx-8 inline-flex items-center">
+          <Marquee
+            speed={40}
+            className="py-5 font-display text-2xl italic text-foreground/70 sm:text-3xl"
+            items={featuredCtPartners.map((p) => (
+              <span key={p} className="inline-flex items-center">
                 {p}
                 <span className="ml-8 text-primary">·</span>
               </span>
             ))}
-            {featuredCtPartners.map((p) => (
-              <span key={`${p}-b`} className="mx-8 inline-flex items-center">
-                {p}
-                <span className="ml-8 text-primary">·</span>
-              </span>
-            ))}
-          </Marquee>
+          />
         </div>
       </CursorField>
 
