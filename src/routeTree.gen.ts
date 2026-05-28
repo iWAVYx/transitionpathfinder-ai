@@ -37,12 +37,19 @@ import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedMeetingsRouteImport } from './routes/_authenticated/meetings'
+import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
+import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/forms'
+import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
+import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
+import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
 
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
@@ -184,9 +191,34 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMeetingsRoute = AuthenticatedMeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedInsightsRoute = AuthenticatedInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
   id: '/goals',
   path: '/goals',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedFormsRoute = AuthenticatedFormsRouteImport.update({
+  id: '/forms',
+  path: '/forms',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
@@ -216,6 +248,17 @@ const AuthenticatedReportsReportIdRoute =
     path: '/$reportId',
     getParentRoute: () => AuthenticatedReportsRoute,
   } as any)
+const AuthenticatedMeetingsMeetingIdRoute =
+  AuthenticatedMeetingsMeetingIdRouteImport.update({
+    id: '/$meetingId',
+    path: '/$meetingId',
+    getParentRoute: () => AuthenticatedMeetingsRoute,
+  } as any)
+const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AuthenticatedFormsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -236,7 +279,12 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
+  '/feed': typeof AuthenticatedFeedRoute
+  '/forms': typeof AuthenticatedFormsRouteWithChildren
   '/goals': typeof AuthenticatedGoalsRoute
+  '/insights': typeof AuthenticatedInsightsRoute
+  '/meetings': typeof AuthenticatedMeetingsRouteWithChildren
+  '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/pathway': typeof AuthenticatedPathwayRoute
@@ -249,6 +297,8 @@ export interface FileRoutesByFullPath {
   '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
@@ -271,7 +321,12 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
+  '/feed': typeof AuthenticatedFeedRoute
+  '/forms': typeof AuthenticatedFormsRouteWithChildren
   '/goals': typeof AuthenticatedGoalsRoute
+  '/insights': typeof AuthenticatedInsightsRoute
+  '/meetings': typeof AuthenticatedMeetingsRouteWithChildren
+  '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/pathway': typeof AuthenticatedPathwayRoute
@@ -284,6 +339,8 @@ export interface FileRoutesByTo {
   '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
@@ -308,7 +365,12 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
+  '/_authenticated/feed': typeof AuthenticatedFeedRoute
+  '/_authenticated/forms': typeof AuthenticatedFormsRouteWithChildren
   '/_authenticated/goals': typeof AuthenticatedGoalsRoute
+  '/_authenticated/insights': typeof AuthenticatedInsightsRoute
+  '/_authenticated/meetings': typeof AuthenticatedMeetingsRouteWithChildren
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
@@ -321,6 +383,8 @@ export interface FileRoutesById {
   '/demo_/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
@@ -345,7 +409,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/documents'
+    | '/feed'
+    | '/forms'
     | '/goals'
+    | '/insights'
+    | '/meetings'
+    | '/messages'
     | '/onboarding'
     | '/opportunities'
     | '/pathway'
@@ -358,6 +427,8 @@ export interface FileRouteTypes {
     | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/forms/$slug'
+    | '/meetings/$meetingId'
     | '/reports/$reportId'
     | '/students/$studentId'
   fileRoutesByTo: FileRoutesByTo
@@ -380,7 +451,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/documents'
+    | '/feed'
+    | '/forms'
     | '/goals'
+    | '/insights'
+    | '/meetings'
+    | '/messages'
     | '/onboarding'
     | '/opportunities'
     | '/pathway'
@@ -393,6 +469,8 @@ export interface FileRouteTypes {
     | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/forms/$slug'
+    | '/meetings/$meetingId'
     | '/reports/$reportId'
     | '/students/$studentId'
   id:
@@ -416,7 +494,12 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/documents'
+    | '/_authenticated/feed'
+    | '/_authenticated/forms'
     | '/_authenticated/goals'
+    | '/_authenticated/insights'
+    | '/_authenticated/meetings'
+    | '/_authenticated/messages'
     | '/_authenticated/onboarding'
     | '/_authenticated/opportunities'
     | '/_authenticated/pathway'
@@ -429,6 +512,8 @@ export interface FileRouteTypes {
     | '/demo_/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/_authenticated/forms/$slug'
+    | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/students/$studentId'
   fileRoutesById: FileRoutesById
@@ -655,11 +740,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meetings': {
+      id: '/_authenticated/meetings'
+      path: '/meetings'
+      fullPath: '/meetings'
+      preLoaderRoute: typeof AuthenticatedMeetingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/insights': {
+      id: '/_authenticated/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AuthenticatedInsightsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/goals': {
       id: '/_authenticated/goals'
       path: '/goals'
       fullPath: '/goals'
       preLoaderRoute: typeof AuthenticatedGoalsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms': {
+      id: '/_authenticated/forms'
+      path: '/forms'
+      fullPath: '/forms'
+      preLoaderRoute: typeof AuthenticatedFormsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/feed': {
+      id: '/_authenticated/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AuthenticatedFeedRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/documents': {
@@ -697,8 +817,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsReportIdRouteImport
       parentRoute: typeof AuthenticatedReportsRoute
     }
+    '/_authenticated/meetings/$meetingId': {
+      id: '/_authenticated/meetings/$meetingId'
+      path: '/$meetingId'
+      fullPath: '/meetings/$meetingId'
+      preLoaderRoute: typeof AuthenticatedMeetingsMeetingIdRouteImport
+      parentRoute: typeof AuthenticatedMeetingsRoute
+    }
+    '/_authenticated/forms/$slug': {
+      id: '/_authenticated/forms/$slug'
+      path: '/$slug'
+      fullPath: '/forms/$slug'
+      preLoaderRoute: typeof AuthenticatedFormsSlugRouteImport
+      parentRoute: typeof AuthenticatedFormsRoute
+    }
   }
 }
+
+interface AuthenticatedFormsRouteChildren {
+  AuthenticatedFormsSlugRoute: typeof AuthenticatedFormsSlugRoute
+}
+
+const AuthenticatedFormsRouteChildren: AuthenticatedFormsRouteChildren = {
+  AuthenticatedFormsSlugRoute: AuthenticatedFormsSlugRoute,
+}
+
+const AuthenticatedFormsRouteWithChildren =
+  AuthenticatedFormsRoute._addFileChildren(AuthenticatedFormsRouteChildren)
+
+interface AuthenticatedMeetingsRouteChildren {
+  AuthenticatedMeetingsMeetingIdRoute: typeof AuthenticatedMeetingsMeetingIdRoute
+}
+
+const AuthenticatedMeetingsRouteChildren: AuthenticatedMeetingsRouteChildren = {
+  AuthenticatedMeetingsMeetingIdRoute: AuthenticatedMeetingsMeetingIdRoute,
+}
+
+const AuthenticatedMeetingsRouteWithChildren =
+  AuthenticatedMeetingsRoute._addFileChildren(
+    AuthenticatedMeetingsRouteChildren,
+  )
 
 interface AuthenticatedReportsRouteChildren {
   AuthenticatedReportsReportIdRoute: typeof AuthenticatedReportsReportIdRoute
@@ -728,7 +886,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
+  AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
+  AuthenticatedFormsRoute: typeof AuthenticatedFormsRouteWithChildren
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
+  AuthenticatedInsightsRoute: typeof AuthenticatedInsightsRoute
+  AuthenticatedMeetingsRoute: typeof AuthenticatedMeetingsRouteWithChildren
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
@@ -742,7 +905,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
+  AuthenticatedFeedRoute: AuthenticatedFeedRoute,
+  AuthenticatedFormsRoute: AuthenticatedFormsRouteWithChildren,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
+  AuthenticatedInsightsRoute: AuthenticatedInsightsRoute,
+  AuthenticatedMeetingsRoute: AuthenticatedMeetingsRouteWithChildren,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,

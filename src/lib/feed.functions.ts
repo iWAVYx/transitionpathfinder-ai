@@ -11,7 +11,7 @@ export type FeedEvent = {
   body: string | null;
   ref_table: string | null;
   ref_id: string | null;
-  payload: Record<string, unknown>;
+  payload: any;
   created_at: string;
 };
 
@@ -37,7 +37,7 @@ const EmitInput = z.object({
   body: z.string().max(2000).optional(),
   ref_table: z.string().max(80).optional(),
   ref_id: z.string().uuid().optional(),
-  payload: z.record(z.string(), z.unknown()).optional(),
+  payload: z.record(z.string(), z.any()).optional(),
 });
 
 export const emitFeedEvent = createServerFn({ method: "POST" })
@@ -53,7 +53,7 @@ export const emitFeedEvent = createServerFn({ method: "POST" })
       body: data.body ?? null,
       ref_table: data.ref_table ?? null,
       ref_id: data.ref_id ?? null,
-      payload: data.payload ?? {},
+      payload: (data.payload ?? {}) as any,
     });
     if (error) {
       console.error("emitFeedEvent failed", error);
@@ -85,5 +85,5 @@ export const listFeed = createServerFn({ method: "POST" })
       console.error("listFeed failed", error);
       return { events: [] as FeedEvent[] };
     }
-    return { events: (rows ?? []) as FeedEvent[] };
+    return { events: (rows ?? []) as unknown as FeedEvent[] };
   });
