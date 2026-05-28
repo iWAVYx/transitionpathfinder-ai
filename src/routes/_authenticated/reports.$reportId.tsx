@@ -326,3 +326,23 @@ function ReportDetailPage() {
     </SiteShell>
   );
 }
+
+function NextStep({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+      <div className="flex items-center gap-2 text-primary">
+        {icon}
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+      </div>
+      <p className="mt-1.5 text-xs text-muted-foreground">{body}</p>
+    </div>
+  );
+}
