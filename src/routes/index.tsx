@@ -173,7 +173,7 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 [&>:last-child:nth-child(odd)]:sm:col-span-2 [&>:last-child:nth-child(odd)]:sm:mx-auto [&>:last-child:nth-child(odd)]:sm:w-1/2 lg:[&>:last-child]:!col-span-1 lg:[&>:last-child]:!w-auto lg:[&>:last-child]:!mx-0">
             <RoleCard
               icon={HeartHandshake}
               label="Family / Guardian"
