@@ -38,6 +38,39 @@ import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { cn } from "@/lib/utils";
 
+// Title-case helper for heading-like fields. Keeps small words lowercase
+// (except first/last), preserves all-caps acronyms, and handles hyphens/slashes.
+const TC_SMALL = new Set([
+  "a","an","the","and","but","or","nor","for","yet","so",
+  "as","at","by","in","of","on","to","up","via","vs","with","from","into","over","per",
+]);
+function titleCaseWord(w: string, isEdge: boolean): string {
+  if (!w) return w;
+  if (/^[A-Z0-9]{2,}$/.test(w)) return w; // acronym
+  const lower = w.toLowerCase();
+  if (!isEdge && TC_SMALL.has(lower)) return lower;
+  // Recurse on hyphen/slash separators
+  if (/[-/]/.test(w)) {
+    return w
+      .split(/([-/])/)
+      .map((part) => (part === "-" || part === "/" ? part : titleCaseWord(part, true)))
+      .join("");
+  }
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+function toTitleCase(input?: string | null): string {
+  if (!input) return "";
+  const words = input.split(/(\s+)/);
+  const wordIdxs = words
+    .map((w, i) => (/\S/.test(w) ? i : -1))
+    .filter((i) => i >= 0);
+  const first = wordIdxs[0];
+  const last = wordIdxs[wordIdxs.length - 1];
+  return words
+    .map((w, i) => (/\S/.test(w) ? titleCaseWord(w, i === first || i === last) : w))
+    .join("");
+}
+
 type Audience = "family" | "educator";
 
 const READINESS_PCT: Record<string, number> = {
