@@ -73,12 +73,18 @@ export function ReportView({
   onReset,
   resetLabel = "Create another report",
   initialAudience,
+  onSaveToProfile,
+  saveLabel,
+  saved,
 }: {
   name: string;
   report: PathwayReport;
   onReset?: () => void;
   resetLabel?: string;
   initialAudience?: Audience;
+  onSaveToProfile?: () => void;
+  saveLabel?: string;
+  saved?: boolean;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
