@@ -666,14 +666,14 @@ function CompactPillar({
 }) {
   return (
     <li className="flex items-start gap-2.5">
-      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-white/20">
+      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
         <Icon className="h-3.5 w-3.5" aria-hidden />
       </span>
       <div className="min-w-0">
-        <p className="font-display text-[13px] font-medium leading-tight tracking-tight text-white">
+        <p className="font-display text-[13px] font-medium leading-tight tracking-tight text-foreground">
           {title}
         </p>
-        <p className="mt-0.5 text-[11px] leading-snug text-white/65">{body}</p>
+        <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{body}</p>
       </div>
     </li>
   );
