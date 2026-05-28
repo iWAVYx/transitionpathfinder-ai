@@ -533,14 +533,14 @@ function HomePage() {
 
       {/* PRIVACY & TRUST — animated graphic + pillars (page footer band) */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-[oklch(0.18_0.04_250)] via-[oklch(0.22_0.06_260)] to-[oklch(0.15_0.05_245)] text-white shadow-soft">
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-transparent text-foreground">
           <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
             <div className="relative isolate flex shrink-0 items-center justify-center self-center">
               <div className="relative h-32 w-32 sm:h-36 sm:w-36">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <span
                     key={i}
-                    className="trust-twinkle absolute h-[2px] w-[2px] rounded-full bg-white/80"
+                    className="trust-twinkle absolute h-[2px] w-[2px] rounded-full bg-primary/60"
                     style={{
                       left: `${(i * 37) % 100}%`,
                       top: `${(i * 53) % 100}%`,
@@ -548,11 +548,11 @@ function HomePage() {
                     }}
                   />
                 ))}
-                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" />
-                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" style={{ animationDelay: '1.4s' }} />
+                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/40 trust-pulse-ring" />
+                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/40 trust-pulse-ring" style={{ animationDelay: '1.4s' }} />
                 <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full trust-orbit">
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1.5" />
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="oklch(0.85 0.16 60)" strokeWidth="2" className="trust-dash" />
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="1.5" />
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="oklch(0.7 0.18 55)" strokeWidth="2" className="trust-dash" />
                 </svg>
                 <div className="absolute inset-0 trust-orbit">
                   {[Lock, UserCheck, ShieldCheck, Download].map((Ic, i) => {
@@ -562,7 +562,7 @@ function HomePage() {
                     return (
                       <span
                         key={i}
-                        className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-white/95 text-primary shadow-soft ring-1 ring-white/40 trust-orbit-rev"
+                        className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-background text-primary shadow-soft ring-1 ring-border trust-orbit-rev"
                         style={{ left: `${x}%`, top: `${y}%` }}
                       >
                         <Ic className="h-3 w-3" aria-hidden />
@@ -578,10 +578,10 @@ function HomePage() {
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white ring-1 ring-white/20 backdrop-blur">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary ring-1 ring-primary/20">
                   <ShieldCheck className="h-3 w-3" aria-hidden /> Privacy &amp; trust
                 </span>
-                <h3 className="font-display text-xl font-medium leading-tight tracking-tight sm:text-2xl">
+                <h3 className="font-display text-xl font-medium leading-tight tracking-tight text-foreground sm:text-2xl">
                   Built around student privacy from day one.
                 </h3>
               </div>
