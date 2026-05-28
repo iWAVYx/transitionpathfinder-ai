@@ -113,9 +113,9 @@ export const saveResponse = createServerFn({ method: "POST" })
     };
     let result;
     if (data.id) {
-      result = await supabase.from("form_responses").update(payload).eq("id", data.id).select("*").single();
+      result = await supabase.from("form_responses").update(payload as any).eq("id", data.id).select("*").single();
     } else {
-      result = await supabase.from("form_responses").insert(payload).select("*").single();
+      result = await supabase.from("form_responses").insert(payload as any).select("*").single();
     }
     if (result.error || !result.data) {
       console.error("saveResponse failed", result.error);
