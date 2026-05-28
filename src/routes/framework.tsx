@@ -2,6 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import frameworkHero from "@/assets/framework-hero.jpg";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
+
+
 
 export const Route = createFileRoute("/framework")({
   head: () => ({
@@ -95,8 +104,26 @@ function FrameworkPage() {
     <SiteShell>
       <section className="relative overflow-hidden border-b border-border/60">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <ShapeScroll
+          className="absolute -left-36 -top-20 -z-10 h-[40rem] w-[40rem] mix-blend-multiply"
+          spin={200}
+          scale={1}
+          tilt={45}
+          drift={130}
+          gradientFrom="hsl(150 70% 65%)"
+          gradientTo="hsl(200 85% 70%)"
+        />
+        <ShapeScroll
+          className="absolute -right-28 top-32 -z-10 hidden h-[26rem] w-[26rem] mix-blend-multiply lg:block"
+          spin={-160}
+          scale={0.8}
+          tilt={30}
+          drift={-90}
+          gradientFrom="hsl(40 95% 72%)"
+          gradientTo="hsl(15 90% 70%)"
+        />
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 sm:px-6 sm:py-24 md:grid-cols-[1.1fr_1fr] lg:px-8">
-          <div>
+          <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               How we walk through it with you
             </p>
@@ -109,19 +136,33 @@ function FrameworkPage() {
               federal IDEA mandate, Connecticut's IEP guidance, and the research that
               actually predicts a good life after high school.
             </p>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
-            <img
-              src={frameworkHero}
-              alt="A winding path through a sunlit meadow at golden hour"
-              width={1600}
-              height={1200}
-              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
-            />
-          </div>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="relative">
+              <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+              <Parallax speed={-0.15}>
+                <ParallaxImage
+                  src={frameworkHero}
+                  alt="A winding path through a sunlit meadow at golden hour"
+                  width={1600}
+                  height={1200}
+                  speed={0.4}
+                  className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
+                />
+              </Parallax>
+            </div>
+          </Reveal>
         </div>
       </section>
+
+      {/* Mission line — text fill on scroll */}
+      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <TextScrollFill
+          className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
+          text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+        />
+      </section>
+
 
       {/* Principles */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -135,23 +176,29 @@ function FrameworkPage() {
           </p>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {principles.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft"
-            >
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
+          {principles.map((p, i) => (
+            <Reveal key={p.title} delay={i * 70}>
+              <div className="h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 font-display text-2xl font-medium">{p.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
               </div>
-              <h3 className="mt-5 font-display text-2xl font-medium">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* Six strands */}
-      <section className="border-y border-border/60 bg-muted/40 py-20">
+      <section className="relative border-y border-border/60 bg-muted/40 py-20">
+        <ShapeScroll
+          className="absolute right-10 top-10 -z-0 hidden h-80 w-80 text-primary/15 lg:block"
+          spin={140}
+          scale={0.7}
+          tilt={25}
+        />
+
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-4xl font-medium sm:text-5xl">
             The six threads we keep weaving.
@@ -162,19 +209,19 @@ function FrameworkPage() {
           </p>
           <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {strands.map((s, i) => (
-              <li
-                key={s}
-                className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-soft"
-              >
-                <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-hero font-display text-sm font-semibold">
-                  {i + 1}
-                </span>
-                <span className="font-display text-lg font-medium text-foreground">
-                  {s}
-                </span>
-              </li>
+              <Reveal key={s} as="li" delay={i * 60}>
+                <div className="flex h-full items-start gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+                  <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-hero font-display text-sm font-semibold">
+                    {i + 1}
+                  </span>
+                  <span className="font-display text-lg font-medium text-foreground">
+                    {s}
+                  </span>
+                </div>
+              </Reveal>
             ))}
           </ul>
+
         </div>
       </section>
 
@@ -191,40 +238,40 @@ function FrameworkPage() {
           </p>
         </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
-          {bands.map((b) => (
-            <article
-              key={b.grade}
-              className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft"
-            >
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero font-display text-2xl font-semibold shadow-soft">
-                  {b.grade}
-                </span>
-                <h3 className="font-display text-2xl font-medium">{b.title}</h3>
-              </div>
-              <dl className="mt-5 space-y-4 text-sm">
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Where your child is
-                  </dt>
-                  <dd className="mt-1 leading-relaxed text-foreground">{b.student}</dd>
+          {bands.map((b, i) => (
+            <Reveal key={b.grade} delay={i * 100}>
+              <article className="h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero font-display text-2xl font-semibold shadow-soft">
+                    {b.grade}
+                  </span>
+                  <h3 className="font-display text-2xl font-medium">{b.title}</h3>
                 </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    What the team is doing
-                  </dt>
-                  <dd className="mt-1 leading-relaxed text-foreground">{b.team}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    What we're keeping track of
-                  </dt>
-                  <dd className="mt-1 leading-relaxed text-foreground">{b.evidence}</dd>
-                </div>
-              </dl>
-            </article>
+                <dl className="mt-5 space-y-4 text-sm">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Where your child is
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground">{b.student}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      What the team is doing
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground">{b.team}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      What we're keeping track of
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground">{b.evidence}</dd>
+                  </div>
+                </dl>
+              </article>
+            </Reveal>
           ))}
         </div>
+
 
         <div className="mt-12 rounded-3xl border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
           <h3 className="font-display text-3xl font-medium sm:text-4xl">

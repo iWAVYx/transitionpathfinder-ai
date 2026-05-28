@@ -19,6 +19,15 @@ import platformHero from "@/assets/platform-hero-v2.jpg";
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { SampleReport } from "@/components/platform/SampleReport";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  Marquee,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
+
 
 export const Route = createFileRoute("/platform")({
   head: () => ({
@@ -117,8 +126,26 @@ function PlatformPage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <ShapeScroll
+          className="absolute -left-32 -top-24 -z-10 h-[42rem] w-[42rem] mix-blend-multiply"
+          spin={220}
+          scale={1}
+          tilt={45}
+          drift={130}
+          gradientFrom="hsl(210 90% 70%)"
+          gradientTo="hsl(280 80% 70%)"
+        />
+        <ShapeScroll
+          className="absolute -right-28 top-40 -z-10 hidden h-[30rem] w-[30rem] mix-blend-multiply lg:block"
+          spin={-180}
+          scale={0.9}
+          tilt={35}
+          drift={-100}
+          gradientFrom="hsl(20 90% 72%)"
+          gradientTo="hsl(340 85% 72%)"
+        />
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
-          <div>
+          <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               The Platform
             </p>
@@ -144,18 +171,50 @@ function PlatformPage() {
                 Tour The Platform
               </a>
             </div>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
-            <img
-              src={platformHero}
-              alt="Isometric illustration of three stacked translucent layers: filing cabinets, a constellation of connections, and a sunlit neighborhood map"
-              width={1600}
-              height={1200}
-              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
-            />
-          </div>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="relative">
+              <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+              <Parallax speed={-0.15}>
+                <ParallaxImage
+                  src={platformHero}
+                  alt="Isometric illustration of three stacked translucent layers: filing cabinets, a constellation of connections, and a sunlit neighborhood map"
+                  width={1600}
+                  height={1200}
+                  speed={0.4}
+                  className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
+                />
+              </Parallax>
+            </div>
+          </Reveal>
         </div>
+      </section>
+
+      {/* Voices band */}
+      <section aria-label="Platform voices" className="border-y border-border/40 bg-muted/30 py-6">
+        <Marquee
+          speed={80}
+          items={[
+            "“Finally — one place for the whole team.”",
+            "“The student voice section changed the meeting.”",
+            "“PPT prep went from 3 hours to 20 minutes.”",
+            "“The right tool, in the right chair, every time.”",
+            "“It speaks all four languages: family, student, educator, admin.”",
+          ].map((q, i) => (
+            <span key={i} className="font-display text-xl italic text-foreground/75 sm:text-2xl">
+              {q}
+              <span className="mx-6 inline-block text-primary/40">✦</span>
+            </span>
+          ))}
+        />
+      </section>
+
+      {/* Text-fill mission */}
+      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <TextScrollFill
+          className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
+          text="Four perspectives. One pathway. Every tool tuned to the chair you're sitting in."
+        />
       </section>
 
       {/* Perspective switcher */}
@@ -166,6 +225,7 @@ function PlatformPage() {
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
             The Same Plan, Built For Who You Are.
+
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             Pick a role to see the screens, the tools, and a short day in the life.

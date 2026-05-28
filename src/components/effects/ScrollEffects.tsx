@@ -292,33 +292,64 @@ export function ShapeScroll({
   color = "currentColor",
   spin = 90,
   scale = 0.6,
+  tilt = 0,
+  drift = 0,
+  gradientFrom,
+  gradientTo,
 }: {
   className?: string;
   color?: string;
   spin?: number;
   scale?: number;
+  /** 3D tilt amplitude in degrees (rotateX/rotateY) for a dramatic perspective feel. */
+  tilt?: number;
+  /** Horizontal drift in px as the user scrolls. */
+  drift?: number;
+  /** Optional gradient fill — overrides `color` when set. */
+  gradientFrom?: string;
+  gradientTo?: string;
 }) {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
   const rot = (progress - 0.5) * spin;
   const s = 1 + (progress - 0.5) * scale;
+  const rx = (progress - 0.5) * tilt;
+  const ry = (progress - 0.5) * tilt * -1.2;
+  const tx = (progress - 0.5) * drift;
+  const gradId = `tf-shape-grad-${gradientFrom ?? ""}-${gradientTo ?? ""}`.replace(/[^a-zA-Z0-9-]/g, "");
+  const fill = gradientFrom && gradientTo ? `url(#${gradId})` : color;
   // Morph path between two organic blobs
   const d1 = "M40,-60C53,-50,66,-40,71,-27C76,-14,73,2,67,16C61,30,52,43,40,53C28,63,14,71,-2,73C-18,75,-36,72,-49,62C-62,52,-70,36,-71,20C-72,4,-66,-12,-58,-27C-50,-42,-39,-55,-25,-63C-11,-71,5,-73,21,-72C37,-71,52,-67,40,-60Z";
   const d2 = "M44,-62C56,-52,62,-36,66,-21C70,-6,72,8,68,22C64,36,54,50,40,58C26,66,8,68,-9,68C-26,68,-43,66,-55,57C-67,48,-74,32,-74,17C-74,2,-67,-13,-58,-27C-49,-41,-38,-54,-24,-61C-10,-68,6,-69,21,-68C36,-67,32,-72,44,-62Z";
   return (
-    <div ref={ref} className={cn("pointer-events-none", className)} aria-hidden="true">
+    <div
+      ref={ref}
+      className={cn("pointer-events-none", className)}
+      aria-hidden="true"
+      style={{ perspective: tilt ? "1400px" : undefined }}
+    >
       <svg
         viewBox="-100 -100 200 200"
         className="h-full w-full"
         style={{
-          transform: `rotate(${rot.toFixed(2)}deg) scale(${s.toFixed(3)})`,
+          transform: `translate3d(${tx.toFixed(2)}px,0,0) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotate(${rot.toFixed(2)}deg) scale(${s.toFixed(3)})`,
+          transformStyle: "preserve-3d",
           transition: "transform 80ms linear",
           willChange: "transform",
           color,
+          filter: tilt ? "drop-shadow(0 40px 60px rgba(0,0,0,0.22))" : undefined,
         }}
       >
+        {gradientFrom && gradientTo && (
+          <defs>
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={gradientFrom} />
+              <stop offset="100%" stopColor={gradientTo} />
+            </linearGradient>
+          </defs>
+        )}
         <path
           d={progress > 0.5 ? d2 : d1}
-          fill={color}
+          fill={fill}
           style={{ transition: "d 600ms ease" }}
         />
       </svg>
