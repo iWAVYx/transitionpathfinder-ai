@@ -242,33 +242,62 @@ export function ReportView({
         </div>
       </div>
 
-      {/* Header card */}
-      <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-10">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            {audience === "family" ? "Pathway Report" : "Educator PPT Prep"}
-          </p>
-          <span className="text-muted-foreground/40">·</span>
-          <p className="text-[11px] text-muted-foreground">{today}</p>
-          {confidenceLabel && (
-            <Badge variant="secondary" className="ml-1 gap-1">
-              <ShieldCheck className="h-3 w-3" />
-              {confidenceLabel}
-            </Badge>
-          )}
-          <Badge variant="outline" className="gap-1">
-            <Sparkles className="h-3 w-3" /> AI-supported · human-led
-          </Badge>
+      {/* ============ Document header (formal) ============ */}
+      <header className="rounded-2xl border bg-card shadow-soft overflow-hidden">
+        <div className="border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+            <span>TransitionForward · {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}</span>
+            <span className="font-mono normal-case tracking-normal text-foreground/70">
+              Doc ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"}
+            </span>
+          </div>
         </div>
-        <h1 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-5xl">
-          {heading}
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-relaxed text-foreground/75">{subheading}</p>
-      </div>
+
+        <div className="px-6 py-8 sm:px-10 sm:py-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            {audience === "family" ? "Personalized transition plan" : "Planning & Placement Team packet"}
+          </p>
+          <h1 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+            {heading}
+          </h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
+
+          <div className="mt-3 h-px w-16 bg-primary/70" />
+
+          <dl className="mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+            <MetaField label="Prepared for" value={meta?.preparedFor ?? name} />
+            <MetaField label="Prepared by" value={meta?.preparedBy ?? "TransitionForward (AI-supported, human-led)"} />
+            <MetaField label="Date issued" value={meta?.issued ?? today} />
+            <MetaField
+              label="Confidentiality"
+              value={meta?.confidentiality ?? "For the student, family, and authorized educators"}
+            />
+          </dl>
+
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            {confidenceLabel && (
+              <Badge variant="secondary" className="gap-1">
+                <ShieldCheck className="h-3 w-3" />
+                {confidenceLabel}
+              </Badge>
+            )}
+            <Badge variant="outline" className="gap-1">
+              <Sparkles className="h-3 w-3" /> AI-drafted · educator-reviewable
+            </Badge>
+            <Badge variant="outline" className="gap-1">
+              <BookOpen className="h-3 w-3" /> {audience === "family" ? "Family-friendly language" : "PPT-ready format"}
+            </Badge>
+          </div>
+        </div>
+      </header>
 
       <div className="mt-6">
         <AIDisclaimer />
       </div>
+
+      {/* ============ Inline numbered Table of Contents ============ */}
+      <DocumentContents report={r} name={name} />
+
 
       {/* ============ Executive summary ============ */}
       <section className="mt-8 page-break exec-summary">
