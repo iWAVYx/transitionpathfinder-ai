@@ -84,6 +84,16 @@ export const registerDocument = createServerFn({ method: "POST" })
     });
     if (jobErr) console.error("ai_jobs enqueue failed", jobErr);
 
+    // Audit log (best-effort)
+    await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.upload",
+      entity_type: "document",
+      entity_id: row.id,
+      student_id: data.student_id,
+      metadata: { title: data.title, doc_type: data.doc_type },
+    });
+
     return row as DocumentRow;
   });
 
