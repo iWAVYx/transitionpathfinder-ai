@@ -249,7 +249,9 @@ function HomePage() {
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
               Transition planning shouldn't feel scattered.
+              <UnderlineSwoosh className="mt-2 block h-3 w-64 text-primary/55" />
             </h2>
+
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
               Families are often left trying to understand complicated documents,
               unclear goals, and missing context — wondering what comes after
