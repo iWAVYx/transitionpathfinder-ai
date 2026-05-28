@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Copy,
   Printer,
+  Download,
+  BookmarkPlus,
   Users,
   GraduationCap,
   Check,
