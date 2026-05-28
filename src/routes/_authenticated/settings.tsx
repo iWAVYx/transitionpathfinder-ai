@@ -154,6 +154,121 @@ function SettingsPage() {
           )}
         </div>
 
+        {/* Channels (scaffold) */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Smartphone className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Channels</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Pick how we reach you. Email is on by default — text and in-app are rolling out soon.
+          </p>
+          <ul className="mt-4 divide-y divide-border">
+            <li className="flex items-start justify-between gap-4 py-4">
+              <div className="flex items-start gap-3">
+                <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Email</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Always on for important account events.</p>
+                </div>
+              </div>
+              <Switch checked disabled />
+            </li>
+            <li className="flex items-start justify-between gap-4 py-4">
+              <div className="flex items-start gap-3">
+                <MessageSquare className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Text (SMS)</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Coming soon — meeting reminders and urgent updates.</p>
+                </div>
+              </div>
+              <Switch disabled />
+            </li>
+            <li className="flex items-start justify-between gap-4 py-4">
+              <div className="flex items-start gap-3">
+                <Bell className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">In-app</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Coming soon — see updates the next time you sign in.</p>
+                </div>
+              </div>
+              <Switch disabled />
+            </li>
+          </ul>
+        </div>
+
+        {/* Cadence (scaffold) */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Cadence</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            How often should we group updates? You can change this anytime.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(["instant", "daily", "weekly"] as const).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCadence(c)}
+                className={
+                  "rounded-full border px-3.5 py-1.5 text-sm transition-colors " +
+                  (cadence === c
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground")
+                }
+              >
+                {c === "instant" ? "Instant" : c === "daily" ? "Daily digest" : "Weekly digest"}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Cadence preview — wires up to email delivery shortly.
+          </p>
+        </div>
+
+        {/* Language */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Languages className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Language</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Choose your preferred language for the interface. Plain-language rewrites and full
+            translation are rolling out — your choice is saved now so we can switch you over the
+            moment each language goes live.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              { code: "en", label: "English" },
+              { code: "es", label: "Español" },
+              { code: "zh", label: "中文" },
+              { code: "vi", label: "Tiếng Việt" },
+              { code: "ar", label: "العربية" },
+            ].map((l) => {
+              const active = (profile?.language ?? "en") === l.code;
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLanguage(l.code)}
+                  className={
+                    "rounded-full border px-3.5 py-1.5 text-sm transition-colors " +
+                    (active
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-muted-foreground hover:text-foreground")
+                  }
+                >
+                  {l.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+
+
         {/* Security */}
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex items-center gap-2">
