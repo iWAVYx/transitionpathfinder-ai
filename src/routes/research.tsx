@@ -193,9 +193,17 @@ function ResearchPage() {
 
 
 
-          <div className="mx-auto max-w-7xl px-4 pt-20 pb-20 sm:px-6 lg:px-8 lg:pt-28 lg:pb-28">
+          <div className="relative mx-auto max-w-7xl px-4 pt-20 pb-20 sm:px-6 lg:px-8 lg:pt-28 lg:pb-28">
+            {/* Decorative illustrations in hero blank space */}
+            <FloatingShape className="pointer-events-none absolute right-6 top-10 hidden text-primary/30 lg:block" duration={26}>
+              <GridBurst className="h-40 w-40" />
+            </FloatingShape>
+            <FloatingShape className="pointer-events-none absolute right-[18%] bottom-10 hidden text-peach/60 lg:block" duration={22} delay={1}>
+              <Star className="h-10 w-10" strokeWidth={1.2} />
+            </FloatingShape>
+
             <Reveal>
-              <p className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-primary backdrop-blur">
+              <p className="inline-flex items-center gap-2 border-l-2 border-primary pl-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
                 <BookOpen className="h-3.5 w-3.5" /> The research behind it
               </p>
             </Reveal>
@@ -261,13 +269,19 @@ function ResearchPage() {
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {painPoints.map(({ icon: Icon, title, body }, i) => (
             <Reveal key={title} delay={i * 60}>
-              <article className="group relative h-full overflow-hidden rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift">
-                <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-peach/15 opacity-0 blur-2xl transition-opacity group-hover:opacity-100" />
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-warm text-primary shadow-soft">
-                  <Icon className="h-5 w-5" />
+              <article className="group relative border-t-2 border-foreground/15 pt-6">
+                <GridBurst className="pointer-events-none absolute -left-6 -top-2 h-28 w-28 text-primary/15 transition-opacity group-hover:text-primary/30" />
+                <div className="relative flex items-start gap-5">
+                  <div className="relative shrink-0">
+                    <div className="absolute -inset-3 -z-10 bg-gradient-warm opacity-50 blur-xl transition-opacity group-hover:opacity-90" />
+                    <Icon className="h-12 w-12 text-primary transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110" strokeWidth={1.4} />
+                  </div>
+                  <span className="ml-auto font-display text-sm tabular-nums text-foreground/30">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                 </div>
                 <h3 className="mt-5 font-display text-2xl font-medium leading-tight tracking-tight">
                   {title}
@@ -302,134 +316,140 @@ function ResearchPage() {
             {toTitleCase("Nine practices that change outcomes.")}
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Hover any card to read why it matters — drawn from the Mazzotti, Test, and Carter
-            evidence bases and Connecticut transition guidance.
+            Drawn from the Mazzotti, Test, and Carter evidence bases and Connecticut transition
+            guidance — the practices we built TransitionForward around.
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {practices.map(({ icon: Icon, title, body }) => (
-            <HoverReveal
-              key={title}
-              height="220px"
-              className="bg-gradient-to-br from-background via-sky-soft/25 to-peach-soft/30"
-              front={
-                <div className="flex h-[220px] flex-col justify-between p-7">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background text-primary shadow-soft">
-                    <Icon className="h-5 w-5" />
+        <div className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          {practices.map(({ icon: Icon, title, body }, i) => (
+            <Reveal key={title} delay={i * 50}>
+              <article className="group relative border-t-2 border-foreground/15 pt-6">
+                <GridBurst className="pointer-events-none absolute -left-6 -top-2 h-28 w-28 text-sky/25 transition-opacity group-hover:text-sky/45" />
+                <div className="relative flex items-start gap-5">
+                  <div className="relative shrink-0">
+                    <div className="absolute -inset-3 -z-10 bg-gradient-warm opacity-50 blur-xl transition-opacity group-hover:opacity-90" />
+                    <Icon className="h-12 w-12 text-primary transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110" strokeWidth={1.4} />
                   </div>
-                  <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">
-                    {title}
-                  </h3>
+                  <span className="ml-auto font-display text-sm tabular-nums text-foreground/30">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                 </div>
-              }
-              back={
-                <div className="flex h-full flex-col justify-end">
-                  <p className="text-sm leading-relaxed text-foreground/85">{body}</p>
-                </div>
-              }
-            />
+                <h3 className="mt-5 font-display text-2xl font-medium leading-tight tracking-tight">
+                  {title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              </article>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ============ STICKY: WHY TRANSITIONFORWARD EXISTS ============ */}
-      <section className="relative bg-gradient-to-b from-background to-sky-soft/30">
+      {/* ============ WHY TRANSITIONFORWARD EXISTS ============ */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-background to-sky-soft/30">
+        <FloatingShape className="pointer-events-none absolute right-[3%] top-16 hidden text-primary/25 lg:block" duration={26}>
+          <GridBurst className="h-48 w-48" />
+        </FloatingShape>
+
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.15fr] lg:px-8 lg:py-32">
-          <div>
-            <StickyPin top="8rem">
-              <div className="rounded-3xl border border-border/60 bg-card/80 p-8 shadow-soft backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                  Why TransitionForward exists
-                </p>
-                <h2 className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
-                  {toTitleCase("Research-backed practices, turned into a tool you can use on a Tuesday.")}
-                </h2>
-                <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-                  TransitionForward turns research-backed transition practices into a practical
-                  digital experience — one platform for the planning, the people, and the progress.
-                </p>
-                <p className="mt-6 font-display text-xl italic text-foreground/80">
-                  One platform. One plan. Forward together.
-                </p>
-              </div>
-            </StickyPin>
+          <div className="lg:sticky lg:top-32 lg:self-start">
+            <p className="border-l-2 border-primary pl-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              Why TransitionForward exists
+            </p>
+            <h2 className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+              {toTitleCase("Research-backed practices, turned into a tool you can use on a Tuesday.")}
+            </h2>
+            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+              TransitionForward turns research-backed transition practices into a practical
+              digital experience — one platform for the planning, the people, and the progress.
+            </p>
+            <p className="mt-6 font-display text-xl italic text-foreground/80">
+              One platform. One plan. Forward together.
+            </p>
+            <CornerArc className="pointer-events-none mt-8 hidden h-24 w-24 text-primary/40 lg:block" />
           </div>
 
-          <div className="space-y-5">
+          <ul className="divide-y divide-foreground/15 border-y border-foreground/15">
             {evidenceMap.map((row, i) => (
-              <Reveal key={row.need} delay={i * 60}>
-                <article className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-x-1 hover:shadow-lift">
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
-                    <span className="rounded-full bg-peach/30 px-3 py-1 text-foreground/85">
-                      Research / Need
-                    </span>
-                    <ArrowRight className="h-3.5 w-3.5 text-primary transition-transform group-hover:translate-x-1" />
-                    <span className="rounded-full bg-sky/30 px-3 py-1 text-foreground/85">
-                      TransitionForward Feature
-                    </span>
-                  </div>
-                  <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-center">
-                    <p className="font-display text-xl font-medium leading-snug tracking-tight">
-                      {row.need}
+              <li key={row.need}>
+                <Reveal delay={i * 50}>
+                  <article className="group grid items-start gap-3 py-7 md:grid-cols-[1fr_auto_1fr] md:gap-6">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55">
+                        Research / Need
+                      </p>
+                      <p className="mt-2 font-display text-xl font-medium leading-snug tracking-tight">
+                        {row.need}
+                      </p>
+                    </div>
+                    <ArrowRight className="hidden h-6 w-6 self-center text-primary transition-transform group-hover:translate-x-1 md:block" strokeWidth={1.5} />
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/80">
+                        TransitionForward Feature
+                      </p>
+                      <p className="mt-2 font-display text-xl font-medium leading-snug tracking-tight text-primary">
+                        {row.feature}
+                      </p>
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground md:col-span-3">
+                      {row.body}
                     </p>
-                    <ArrowRight className="hidden h-5 w-5 text-primary md:block" />
-                    <p className="font-display text-xl font-medium leading-snug tracking-tight text-primary">
-                      {row.feature}
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{row.body}</p>
-                </article>
-              </Reveal>
+                  </article>
+                </Reveal>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      {/* ============ INTERACTIVE QUOTE BLOCK ============ */}
-      <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
-        <MorphCard className="bg-gradient-to-br from-peach-soft/40 via-background to-sky-soft/40">
-          <div className="relative p-10 sm:p-14">
-            <Quote className="absolute right-8 top-8 h-12 w-12 text-primary/30" />
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              The closing statement
-            </p>
-            <p className="mt-6 max-w-4xl font-display text-3xl font-medium leading-[1.15] tracking-tight sm:text-5xl">
-              TransitionForward is built on a simple idea: transition planning should not end with
-              a document. It should{" "}
-              <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.1 220), oklch(0.78 0.12 50))">
-                begin a pathway
-              </TextMask>
-              .
-            </p>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Magnetic>
-                <Link
-                  to="/platform"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
-                >
-                  See the platform <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Magnetic>
-              <Magnetic>
-                <Link
-                  to="/framework"
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
-                >
-                  Read the framework
-                </Link>
-              </Magnetic>
-              <Magnetic>
-                <Link
-                  to="/waitlist"
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
-                >
-                  Join the waitlist
-                </Link>
-              </Magnetic>
-            </div>
+      {/* ============ CLOSING STATEMENT — OPEN COMPOSITION ============ */}
+      <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-24 sm:px-6 lg:px-8">
+        <FloatingShape className="pointer-events-none absolute left-[2%] top-10 hidden text-sky/30 lg:block" duration={26}>
+          <GridBurst className="h-56 w-56" />
+        </FloatingShape>
+        <FloatingShape className="pointer-events-none absolute right-[4%] bottom-12 hidden text-peach/55 lg:block" duration={22} delay={1}>
+          <Star className="h-14 w-14" strokeWidth={1.1} />
+        </FloatingShape>
+
+        <div className="relative">
+          <p className="border-l-2 border-primary pl-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            The closing statement
+          </p>
+          <p className="mt-6 max-w-4xl font-display text-3xl font-medium leading-[1.15] tracking-tight sm:text-5xl">
+            TransitionForward is built on a simple idea: transition planning should not end with
+            a document. It should{" "}
+            <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.1 220), oklch(0.78 0.12 50))">
+              begin a pathway
+            </TextMask>
+            .
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Magnetic>
+              <Link
+                to="/platform"
+                className="inline-flex items-center gap-2 bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
+              >
+                See the platform <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <Link
+                to="/framework"
+                className="inline-flex items-center justify-center border border-foreground/20 bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+              >
+                Read the framework
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <Link
+                to="/waitlist"
+                className="inline-flex items-center justify-center border border-foreground/20 bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+              >
+                Join the waitlist
+              </Link>
+            </Magnetic>
           </div>
-        </MorphCard>
+        </div>
       </section>
     </SiteShell>
   );
