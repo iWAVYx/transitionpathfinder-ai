@@ -2,6 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import frameworkHero from "@/assets/framework-hero.jpg";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  StickyScrollStory,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
+
 
 export const Route = createFileRoute("/framework")({
   head: () => ({
