@@ -257,9 +257,9 @@ export function StickyPin({
 
   const style: CSSProperties = {
     top,
-    transform: `scale(${(1 - progress * 0.08).toFixed(3)})`,
-    opacity: 1 - progress * 0.25,
-    transition: "transform 100ms linear, opacity 100ms linear",
+    transform: `scale(${(1 - progress * 0.04).toFixed(3)})`,
+    opacity: 1 - progress * 0.12,
+    transition: "transform 200ms linear, opacity 200ms linear",
   };
 
   return (
