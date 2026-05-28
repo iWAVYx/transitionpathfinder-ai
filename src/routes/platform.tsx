@@ -20,7 +20,6 @@ import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { SampleReport } from "@/components/platform/SampleReport";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
 import {
-import { toTitleCase } from "@/lib/title-case";
   Parallax,
   ParallaxImage,
   Reveal,
@@ -30,6 +29,7 @@ import { toTitleCase } from "@/lib/title-case";
 } from "@/components/effects/ScrollEffects";
 
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [

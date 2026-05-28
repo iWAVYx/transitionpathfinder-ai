@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import familiesHero from "@/assets/families-hero-v2.jpg";
 import {
-import { toTitleCase } from "@/lib/title-case";
   Parallax,
   ParallaxImage,
   Reveal,
@@ -20,6 +19,7 @@ import { toTitleCase } from "@/lib/title-case";
 } from "@/components/effects/ScrollEffects";
 
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/families")({
   head: () => ({
     meta: [

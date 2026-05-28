@@ -3,7 +3,6 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import frameworkHero from "@/assets/framework-hero.jpg";
 import {
-import { toTitleCase } from "@/lib/title-case";
   Parallax,
   ParallaxImage,
   Reveal,
@@ -13,6 +12,7 @@ import { toTitleCase } from "@/lib/title-case";
 
 
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/framework")({
   head: () => ({
     meta: [

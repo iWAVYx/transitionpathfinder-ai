@@ -33,7 +33,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import resourcesHero from "@/assets/resources-hero-v2.jpg";
 import {
-import { toTitleCase } from "@/lib/title-case";
   RESOURCES,
   TOPIC_META,
   FORMAT_META,
@@ -48,6 +47,7 @@ import { toTitleCase } from "@/lib/title-case";
   type TimeNeeded,
 } from "@/lib/resource-library";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/resources")({
   head: () => ({
     meta: [

@@ -42,7 +42,6 @@ import stickerLifeskills from "@/assets/sticker-lifeskills.png";
 import stickerProgress from "@/assets/sticker-progress.png";
 import doodlePlane from "@/assets/doodle-plane.png";
 import {
-import { toTitleCase } from "@/lib/title-case";
   Parallax,
   ParallaxImage,
   Reveal,
@@ -51,6 +50,7 @@ import { toTitleCase } from "@/lib/title-case";
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
