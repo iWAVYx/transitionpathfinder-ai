@@ -41,6 +41,14 @@ import stickerCareer from "@/assets/sticker-career.png";
 import stickerLifeskills from "@/assets/sticker-lifeskills.png";
 import stickerProgress from "@/assets/sticker-progress.png";
 import doodlePlane from "@/assets/doodle-plane.png";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  Marquee,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -68,23 +76,34 @@ function HomePage() {
     <SiteShell>
       {/* HERO — full-bleed image with overlaid text */}
       <section className="relative isolate -mt-px overflow-hidden">
-        <img
+        <ParallaxImage
           src={heroImg}
           alt="A young person walking a tree-lined path at golden hour"
           width={1920}
           height={1080}
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          speed={0.45}
+          className="absolute inset-0 -z-10 h-full w-full"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
-        {/* Floating playful doodles */}
-        <img
-          src={doodlePlane}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-20 -z-10 hidden w-72 opacity-80 float-y-slow md:block lg:right-16 lg:top-24 lg:w-96"
+        {/* Slow-drift decorative shape behind headline */}
+        <ShapeScroll
+          className="absolute -left-32 top-10 -z-10 hidden h-[28rem] w-[28rem] text-primary/15 md:block"
+          spin={90}
+          scale={0.45}
         />
+
+        {/* Floating playful doodles */}
+        <Parallax speed={-0.25} className="pointer-events-none absolute right-4 top-20 -z-10 hidden md:block lg:right-16 lg:top-24">
+          <img
+            src={doodlePlane}
+            alt=""
+            aria-hidden="true"
+            className="w-72 opacity-80 float-y-slow lg:w-96"
+          />
+        </Parallax>
+
         <span aria-hidden="true" className="pointer-events-none absolute right-[28%] top-32 -z-10 hidden h-3 w-3 rounded-full bg-primary/70 sparkle-twinkle md:block" />
         <span aria-hidden="true" className="pointer-events-none absolute right-[18%] top-[260px] -z-10 hidden h-2 w-2 rounded-full bg-amber-400 sparkle-twinkle md:block" style={{ animationDelay: "0.8s" }} />
         <span aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[200px] -z-10 hidden h-2.5 w-2.5 rounded-full bg-pink-400 sparkle-twinkle md:block" style={{ animationDelay: "1.4s" }} />
@@ -145,17 +164,22 @@ function HomePage() {
       </section>
 
       {/* PROBLEM — split panel: photo + statement */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <ShapeScroll
+          className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/20 lg:block"
+          spin={140}
+          scale={0.5}
+        />
         <div className="grid items-center gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+          <Reveal className="lg:col-span-5" y={36}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
-              <img
+              <ParallaxImage
                 src={studentPhotoImg}
                 alt="A student writing in a notebook by a sunlit window"
                 width={1080}
                 height={1600}
-                loading="lazy"
-                className="h-full w-full object-cover"
+                speed={0.35}
+                className="absolute inset-0 h-full w-full"
               />
               <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-background/85 p-5 backdrop-blur">
                 <p className="font-display text-lg italic leading-snug text-foreground">
@@ -166,8 +190,8 @@ function HomePage() {
                 </p>
               </div>
             </div>
-          </div>
-          <div className="lg:col-span-7">
+          </Reveal>
+          <Reveal className="lg:col-span-7" delay={120}>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Why we built this
             </p>
@@ -186,9 +210,38 @@ function HomePage() {
               TransitionForward brings it together — gently, in plain language,
               and with the student at the center.
             </p>
-          </div>
+          </Reveal>
         </div>
       </section>
+
+      {/* MARQUEE — voices band */}
+      <section aria-label="Voices from the table" className="border-y border-border/40 bg-muted/30 py-6">
+        <Marquee
+          speed={70}
+          items={[
+            "“She finally felt heard at her PPT.”",
+            "“The Pathway Report did what six binders never could.”",
+            "“Plain-language summaries my whole family understood.”",
+            "“Goals → evidence → next step. In one place.”",
+            "“The student voice section made him cry — in a good way.”",
+            "“It writes the draft. I keep the judgement.”",
+          ].map((q, i) => (
+            <span key={i} className="font-display text-xl italic text-foreground/75 sm:text-2xl">
+              {q}
+              <span className="mx-6 inline-block text-primary/40">✦</span>
+            </span>
+          ))}
+        />
+      </section>
+
+      {/* TEXT SCROLL FILL — mission line */}
+      <section className="mx-auto max-w-5xl px-4 py-28 sm:px-6 lg:px-8">
+        <TextScrollFill
+          className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+          text="From the IEP on the kitchen table to the first job after graduation — every student deserves a plan that reads like their life, not paperwork."
+        />
+      </section>
+
 
       {/* ROLE ROUTER — five doors into the platform */}
       <section
@@ -535,13 +588,13 @@ function HomePage() {
 
       {/* CTA — full-bleed road image */}
       <section className="relative isolate overflow-hidden">
-        <img
+        <ParallaxImage
           src={roadImg}
           alt="A winding road through fields at sunset"
           width={1920}
           height={1080}
-          loading="lazy"
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          speed={0.5}
+          className="absolute inset-0 -z-10 h-full w-full"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
         <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
