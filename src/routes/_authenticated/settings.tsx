@@ -55,12 +55,17 @@ function SettingsPage() {
   const { user } = useAuth();
   const fetchPrefs = useServerFn(getNotificationPrefs);
   const savePrefs = useServerFn(updateNotificationPrefs);
+  const fetchProfile = useServerFn(getProfile);
+  const saveLanguage = useServerFn(updateProfileLanguage);
   const [prefs, setPrefs] = useState<NotificationPrefs | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
+  const [cadence, setCadence] = useState<"instant" | "daily" | "weekly">("daily");
 
   useEffect(() => {
     fetchPrefs().then(setPrefs).catch(() => toast.error("Couldn't load preferences."));
-  }, [fetchPrefs]);
+    fetchProfile().then(setProfile).catch(() => {});
+  }, [fetchPrefs, fetchProfile]);
 
   async function toggle(key: PrefKey, value: boolean) {
     if (!prefs) return;
@@ -74,6 +79,19 @@ function SettingsPage() {
       setPrefs(prefs);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function setLanguage(code: string) {
+    if (!profile) return;
+    const prev = profile;
+    setProfile({ ...profile, language: code });
+    try {
+      await saveLanguage({ data: { language: code } });
+      toast.success("Language updated.");
+    } catch {
+      toast.error("Couldn't save language.");
+      setProfile(prev);
     }
   }
 
