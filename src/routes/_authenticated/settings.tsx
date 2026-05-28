@@ -112,7 +112,7 @@ function SettingsPage() {
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex items-center gap-2">
             <Bell className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-lg">Email notifications</h2>
+            <h2 className="font-display text-lg">Email Notifications</h2>
           </div>
           {prefs === null ? (
             <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
@@ -168,7 +168,7 @@ function SettingsPage() {
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex items-center gap-2">
             <KeyRound className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-lg">Your data, your call</h2>
+            <h2 className="font-display text-lg">Your Data, Your Call</h2>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             Everything you store here is yours. We never sell student data, never train AI models on

@@ -344,7 +344,7 @@ function StudentDetailPage() {
           <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-6 shadow-soft">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="font-display text-xl">Goals we found</h3>
+                <h3 className="font-display text-xl">Goals We Found</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Review and remove any you don't want before saving. Nothing is added until you click
                   Save.

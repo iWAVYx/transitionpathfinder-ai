@@ -132,7 +132,7 @@ function AdminPage() {
       <SiteShell>
         <section className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6">
           <Shield className="mx-auto h-8 w-8 text-muted-foreground" />
-          <h1 className="mt-4 font-display text-3xl">Admins only</h1>
+          <h1 className="mt-4 font-display text-3xl">Admins Only</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             This area is reserved for TransitionForward administrators. If no admin has been
             claimed yet for this workspace, you can claim it now.
@@ -168,7 +168,7 @@ function AdminPage() {
       </div>
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Admin</p>
-        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">Operations console</h1>
+        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">Operations Console</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Workspace totals, audit trail, waitlist requests, and role management.
         </p>
@@ -197,7 +197,7 @@ function AdminPage() {
             <div className="rounded-2xl border bg-card p-6 shadow-soft">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h2 className="font-display text-2xl">Recent activity</h2>
+                  <h2 className="font-display text-2xl">Recent Activity</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Most recent 100 entries from the audit log.
                   </p>
@@ -308,7 +308,7 @@ function WaitlistPanel() {
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl">Waitlist requests</h2>
+          <h2 className="font-display text-2xl">Waitlist Requests</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             People who signed up before getting full access.
           </p>
@@ -430,7 +430,7 @@ function RolesPanel() {
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl">Roles &amp; access</h2>
+          <h2 className="font-display text-2xl">Roles &amp; Access</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Grant workspace-level roles to people who have already signed up.
           </p>
@@ -548,7 +548,7 @@ function PartnerApprovalsPanel() {
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl">Partner applications</h2>
+          <h2 className="font-display text-2xl">Partner Applications</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Organizations who applied to join the opportunities directory. Approve to follow up,
             or reject to remove from the queue.
@@ -634,7 +634,7 @@ function AiReviewPanel() {
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl">AI report review</h2>
+          <h2 className="font-display text-2xl">AI Report Review</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Spot-check the 50 most recent AI-generated pathway reports for quality and safety.
             All AI output is human-led — flag anything that needs follow-up.

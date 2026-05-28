@@ -140,7 +140,7 @@ function ReportDetailPage() {
       <SiteShell>
         <section className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">Hm.</p>
-          <h1 className="mt-2 font-display text-3xl">We couldn't open that report.</h1>
+          <h1 className="mt-2 font-display text-3xl">We Couldn't Open That Report.</h1>
           <p className="mt-3 text-sm text-muted-foreground">{state.message}</p>
           <Button asChild className="mt-6">
             <Link to="/reports">Back to my reports</Link>
@@ -279,7 +279,7 @@ function ReportDetailPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                 Secure sharing
               </p>
-              <h2 className="mt-2 font-display text-2xl">Share this report</h2>
+              <h2 className="mt-2 font-display text-2xl">Share This Report</h2>
               <p className="mt-2 max-w-xl text-sm text-muted-foreground">
                 Create a private link your family or your student's teacher can open without
                 signing in. Links expire after 30 days. You can revoke any link at any time.
