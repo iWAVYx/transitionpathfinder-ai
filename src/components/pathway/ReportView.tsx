@@ -216,15 +216,15 @@ export function ReportView({
               aria-label="Save to student profile"
             >
               {saved ? <Check className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
-              {saved ? "Saved to profile" : saveLabel ?? "Save to profile"}
+              {saved ? "Saved" : saveLabel ?? "Save to profile"}
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={copyLink} aria-label="Copy shareable link">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "Link copied" : "Copy link"}
+            {copied ? "Copied" : "Copy link"}
           </Button>
-          <Button size="sm" onClick={() => window.print()}>
-            <Download className="h-4 w-4" /> Download report
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Download className="h-4 w-4" /> Download
           </Button>
         </div>
       </div>
