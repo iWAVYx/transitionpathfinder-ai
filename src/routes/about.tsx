@@ -1,23 +1,20 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { ArrowRight, FileText, Sparkles, Users, Compass, Sun, Quote } from "lucide-react";
+import { ArrowRight, FileText, Sparkles, Users, Compass, Sun } from "lucide-react";
 import {
   CursorField,
   Magnetic,
   HoverReveal,
   TextMask,
-  StickyPin,
-  MorphCard,
   FloatingShape,
   Tilt3D,
   TiltLayer,
   HorizontalScroll,
 } from "@/components/effects/ImmersiveEffects";
-import { Parallax, Reveal, StickyScrollStory, Marquee } from "@/components/effects/ScrollEffects";
+import { Reveal, StickyScrollStory, Marquee } from "@/components/effects/ScrollEffects";
 import aboutNarrativeHero from "@/assets/about-narrative-hero.jpg";
 import aboutStudentCenter from "@/assets/about-student-center.jpg";
 import aboutHero from "@/assets/about-hero.jpg";
-import homePathway from "@/assets/home-pathway.jpg";
 import homeFamily from "@/assets/home-family.jpg";
 import homeEducator from "@/assets/home-educator.jpg";
 import homeStudent from "@/assets/home-student.jpg";
