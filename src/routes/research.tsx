@@ -218,20 +218,16 @@ function ResearchPage() {
 
         {/* Citation marquee */}
         <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
-          <Marquee speed={35} className="py-4 font-sans text-sm uppercase tracking-[0.2em] text-muted-foreground">
-            {citations.map((c) => (
-              <span key={c} className="mx-8">
+          <Marquee
+            speed={35}
+            className="py-4 font-sans text-sm uppercase tracking-[0.2em] text-muted-foreground"
+            items={citations.flatMap((c) => [
+              <span key={c} className="inline-flex items-center">
                 {c}
                 <span className="ml-8 text-primary">·</span>
-              </span>
-            ))}
-            {citations.map((c) => (
-              <span key={`${c}-b`} className="mx-8">
-                {c}
-                <span className="ml-8 text-primary">·</span>
-              </span>
-            ))}
-          </Marquee>
+              </span>,
+            ])}
+          />
         </div>
       </CursorField>
 
