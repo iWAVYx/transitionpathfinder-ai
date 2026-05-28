@@ -290,6 +290,47 @@ export function ReportView({
 
           <dl className="mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetaField label="Prepared for" value={meta?.preparedFor ?? name} />
+      {/* ============ Document header (formal) ============ */}
+      <header
+        ref={headerRef}
+        className="report-header relative overflow-hidden rounded-2xl border bg-card shadow-soft"
+      >
+        {/* Parallax glow layers (decorative) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-0"
+          style={{ transform: `translate3d(0, ${parallaxY * 0.5}px, 0)` }}
+        >
+          <div className="absolute -top-32 -right-24 h-[22rem] w-[22rem] rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute -bottom-40 -left-20 h-[20rem] w-[20rem] rounded-full bg-sky-soft/40 blur-3xl" />
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+        />
+
+        <div className="relative border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+            <span>TransitionForward · {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}</span>
+            <span className="font-mono normal-case tracking-normal text-foreground/70">
+              Doc ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"}
+            </span>
+          </div>
+        </div>
+
+        <div className="relative px-6 py-10 sm:px-10 sm:py-12">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            {audience === "family" ? "Personalized transition plan" : "Planning & Placement Team packet"}
+          </p>
+          <h1 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+            {heading}
+          </h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
+
+          <div className="mt-5 h-px w-16 bg-primary/70" />
+
+          <dl className="mt-8 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+            <MetaField label="Prepared for" value={meta?.preparedFor ?? name} />
             <MetaField label="Prepared by" value={meta?.preparedBy ?? "TransitionForward (AI-supported, human-led)"} />
             <MetaField label="Date issued" value={meta?.issued ?? today} />
             <MetaField
@@ -298,7 +339,7 @@ export function ReportView({
             />
           </dl>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2">
+          <div className="mt-8 flex flex-wrap items-center gap-2">
             {confidenceLabel && (
               <Badge variant="secondary" className="gap-1">
                 <ShieldCheck className="h-3 w-3" />
@@ -315,7 +356,7 @@ export function ReportView({
         </div>
       </header>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <AIDisclaimer />
       </div>
 
@@ -324,19 +365,23 @@ export function ReportView({
 
 
       {/* ============ Executive summary ============ */}
-      <section className="mt-8 page-break exec-summary">
-        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-          <div className="flex items-center gap-2">
+      <section className="mt-10 page-break exec-summary">
+        <div className="relative overflow-hidden rounded-3xl border bg-card p-6 shadow-soft sm:p-10">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
+          />
+          <div className="relative flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h2 className="font-display text-2xl font-medium tracking-tight">
               Executive summary
             </h2>
           </div>
-          <p className="mt-3 text-base leading-relaxed text-foreground/85">
+          <p className="relative mt-3 text-base leading-relaxed text-foreground/85">
             {r.summary}
           </p>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-border/60 bg-background p-5">
+          <div className="relative mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-border/60 bg-background p-5 transition-shadow hover:shadow-soft">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                 Top strengths
               </p>
