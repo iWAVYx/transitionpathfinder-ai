@@ -588,13 +588,13 @@ function HomePage() {
 
       {/* CTA — full-bleed road image */}
       <section className="relative isolate overflow-hidden">
-        <img
+        <ParallaxImage
           src={roadImg}
           alt="A winding road through fields at sunset"
           width={1920}
           height={1080}
-          loading="lazy"
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          speed={0.5}
+          className="absolute inset-0 -z-10 h-full w-full"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
         <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
