@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users } from "lucide-react";
+import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users, Languages, Smartphone, MessageSquare, Clock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -15,6 +15,7 @@ import {
   updateNotificationPrefs,
   type NotificationPrefs,
 } from "@/lib/prefs.functions";
+import { getProfile, updateProfileLanguage, type Profile } from "@/lib/profile.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — TransitionForward" }] }),
