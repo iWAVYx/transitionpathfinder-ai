@@ -220,8 +220,81 @@ function HomePage() {
         </div>
       </section>
 
+      {/* PRODUCT GLIMPSE — visual tour of real platform elements */}
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            A look inside
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            See the elements you'll actually use.
+          </h2>
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+            Every screen is built for the family at the kitchen table, the student at
+            their desk, and the teacher between meetings — calm, plain-language, and
+            ready to act on.
+          </p>
+        </div>
+
+        {/* Hero feature — Pathway Report */}
+        <div className="mb-6 grid items-stretch gap-5 md:grid-cols-5">
+          <FeatureShot
+            className="md:col-span-3"
+            image={pathwayImg}
+            label="The Pathway Report"
+            caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
+            aspect="aspect-[16/10]"
+          />
+          <FeatureShot
+            className="md:col-span-2"
+            image={dashboardImg}
+            label="Your dashboard"
+            caption="A calm hub for what's next — reports, goals, and meeting prep."
+            aspect="aspect-[16/10]"
+          />
+        </div>
+
+        {/* Symmetric trio — the three core layers */}
+        <div className="grid gap-5 md:grid-cols-3">
+          <FeatureShot
+            image={layerOrganizeImg}
+            label="Organize"
+            caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
+          />
+          <FeatureShot
+            image={layerGenerateImg}
+            label="Generate"
+            caption="Specialist-built formulas turn the full picture into a personalized Pathway."
+          />
+          <FeatureShot
+            image={layerConnectImg}
+            label="Connect"
+            caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
+          />
+        </div>
+
+        {/* Secondary trio — supporting elements */}
+        <div className="mt-5 grid gap-5 md:grid-cols-3">
+          <FeatureShot
+            image={iepUploadImg}
+            label="IEP upload & summary"
+            caption="Drop in the document — we read it and surface what matters in plain language."
+          />
+          <FeatureShot
+            image={resourcesImg}
+            label="Resource library"
+            caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
+          />
+          <FeatureShot
+            image={frameworkImg}
+            label="PPT meeting prep"
+            caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
+          />
+        </div>
+      </section>
 
       <section className="bg-muted/40 py-24">
+
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-16 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
