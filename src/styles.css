@@ -236,3 +236,24 @@ html.high-contrast.dark {
 
 html.high-contrast a { text-decoration: underline; text-underline-offset: 2px; }
 html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+
+/* Trust section animations */
+@keyframes trust-orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes trust-orbit-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes trust-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes trust-pulse-ring { 0% { transform: scale(0.85); opacity: 0.55; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes trust-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+@keyframes trust-dash { to { stroke-dashoffset: -240; } }
+@keyframes trust-twinkle { 0%,100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+.trust-orbit { animation: trust-orbit 22s linear infinite; transform-origin: center; }
+.trust-orbit-rev { animation: trust-orbit-rev 32s linear infinite; transform-origin: center; }
+.trust-float { animation: trust-float 5s ease-in-out infinite; }
+.trust-pulse-ring { animation: trust-pulse-ring 2.8s ease-out infinite; }
+.trust-scan { animation: trust-scan 4s linear infinite; }
+.trust-dash { stroke-dasharray: 6 10; animation: trust-dash 8s linear infinite; }
+.trust-twinkle { animation: trust-twinkle 3s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-orbit,.trust-orbit-rev,.trust-float,.trust-pulse-ring,.trust-scan,.trust-dash,.trust-twinkle { animation: none !important; }
+}
