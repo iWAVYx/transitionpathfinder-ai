@@ -1062,6 +1062,38 @@ export function ReportView({
         /* Screen-only: hide the print cover */
         .print-cover { display: none; }
 
+        /* Symmetric grids: when last item is odd, center it across full row */
+        @media (min-width: 640px) {
+          .grid-sym-2 > *:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+            max-width: calc(50% - 0.5rem);
+            margin-inline: auto;
+          }
+        }
+        @media (min-width: 1024px) {
+          .grid-sym-3 > *:last-child:nth-child(3n - 1) {
+            grid-column: span 2 / -1;
+          }
+          .grid-sym-3 > *:last-child:nth-child(3n - 2) {
+            grid-column: 1 / -1;
+            max-width: calc(33.333% - 0.667rem);
+            margin-inline: auto;
+          }
+        }
+
+        /* Gentle card lift on hover (screen only, respects reduced motion) */
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+          .report-root .lift-card {
+            transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+          }
+          .report-root .lift-card:hover {
+            transform: translateY(-2px);
+            border-color: hsl(var(--border));
+          }
+        }
+
+
+
 
         @media print {
           @page {
