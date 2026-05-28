@@ -238,40 +238,40 @@ function FrameworkPage() {
           </p>
         </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
-          {bands.map((b) => (
-            <article
-              key={b.grade}
-              className="rounded-3xl border border-border/60 bg-card p-7 shadow-soft"
-            >
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero font-display text-2xl font-semibold shadow-soft">
-                  {b.grade}
-                </span>
-                <h3 className="font-display text-2xl font-medium">{b.title}</h3>
-              </div>
-              <dl className="mt-5 space-y-4 text-sm">
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Where your child is
-                  </dt>
-                  <dd className="mt-1 leading-relaxed text-foreground">{b.student}</dd>
+          {bands.map((b, i) => (
+            <Reveal key={b.grade} delay={i * 100}>
+              <article className="h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero font-display text-2xl font-semibold shadow-soft">
+                    {b.grade}
+                  </span>
+                  <h3 className="font-display text-2xl font-medium">{b.title}</h3>
                 </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    What the team is doing
-                  </dt>
-                  <dd className="mt-1 leading-relaxed text-foreground">{b.team}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    What we're keeping track of
-                  </dt>
-                  <dd className="mt-1 leading-relaxed text-foreground">{b.evidence}</dd>
-                </div>
-              </dl>
-            </article>
+                <dl className="mt-5 space-y-4 text-sm">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Where your child is
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground">{b.student}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      What the team is doing
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground">{b.team}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      What we're keeping track of
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground">{b.evidence}</dd>
+                  </div>
+                </dl>
+              </article>
+            </Reveal>
           ))}
         </div>
+
 
         <div className="mt-12 rounded-3xl border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
           <h3 className="font-display text-3xl font-medium sm:text-4xl">
