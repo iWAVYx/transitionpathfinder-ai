@@ -519,7 +519,16 @@ function HomePage() {
       </section>
 
       {/* PATHWAYS — image tile grid of real next-step destinations */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
+          <BookDoodle className="h-full w-full" />
+        </Parallax>
+        <Confetti className="absolute right-2 top-4 hidden h-24 w-32 md:block" />
+        <Starburst className="absolute right-8 bottom-8 hidden h-16 w-16 text-secondary-foreground/35 lg:block" />
+        <FloatingShape className="absolute left-1/3 top-2 hidden h-7 w-7 text-primary/60 md:block" delay={0.5}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
         <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
