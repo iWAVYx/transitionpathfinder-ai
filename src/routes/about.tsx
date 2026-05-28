@@ -111,81 +111,68 @@ function AboutPage() {
 
   return (
     <SiteShell>
-      {/* ====== SCENE 1 — HERO ====== */}
-      <CursorField className="relative">
-        <section className="relative isolate overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+      {/* ====== HERO — EDITORIAL TYPOGRAPHY ====== */}
+      <CursorField className="relative isolate overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <FloatingShape className="absolute -left-10 top-24 hidden md:block" duration={22}>
+          <div className="h-56 w-56 rounded-full bg-peach/25 blur-3xl" />
+        </FloatingShape>
+        <FloatingShape className="absolute -right-10 bottom-10 hidden md:block" duration={26} delay={2}>
+          <div className="h-72 w-72 rounded-full bg-sky/25 blur-3xl" />
+        </FloatingShape>
 
-          <div className="mx-auto max-w-7xl px-4 pt-24 pb-20 sm:px-6 lg:px-8 lg:pt-32 lg:pb-28">
+        <section className="relative mx-auto max-w-6xl px-4 pt-28 pb-24 text-center sm:px-6 lg:px-8 lg:pt-40 lg:pb-32">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+              Our story
+            </p>
+          </Reveal>
+
+          <h1 className="mx-auto mt-10 max-w-[18ch] font-display text-[clamp(2.75rem,9vw,8rem)] font-medium leading-[0.92] tracking-tight">
             <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-                Scene I — The Problem
-              </p>
+              <span className="block text-foreground/40">Paperwork</span>
             </Reveal>
+            <Reveal delay={120}>
+              <span className="block italic text-muted-foreground/70">becomes</span>
+            </Reveal>
+            <Reveal delay={240}>
+              <TextMask
+                className="block font-display"
+                gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.82 0.1 25), oklch(0.78 0.1 220), oklch(0.78 0.12 50))"
+              >
+                a pathway.
+              </TextMask>
+            </Reveal>
+          </h1>
 
-            <h1 className="mt-8 font-display text-[clamp(2.5rem,7vw,6.5rem)] font-medium leading-[0.98] tracking-tight">
-              <Reveal>
-                <span className="block">Too many students are handed</span>
-              </Reveal>
-              <Reveal delay={120}>
-                <span className="block">
-                  plans that do not feel like{" "}
-                  <TextMask
-                    className="font-display italic"
-                    gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.82 0.1 25), oklch(0.78 0.1 220), oklch(0.78 0.12 50))"
-                  >
-                    pathways
-                  </TextMask>
-                  .
-                </span>
-              </Reveal>
-            </h1>
+          <Reveal delay={360}>
+            <p className="mx-auto mt-12 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Transition planning should be the moment a young person begins picturing who they
+              are becoming — not a stack of forms no one fully owns. TransitionForward is the
+              quiet rewrite of that experience.
+            </p>
+          </Reveal>
 
-            <div className="mt-16 grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
-              <Reveal delay={200}>
-                <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Transition planning should be one of the most meaningful parts of school — the
-                  moment a young person begins picturing who they are becoming. Instead it arrives
-                  as a stack of forms, technical language, and systems no one fully owns.
-                </p>
-                <p className="mt-6 max-w-xl font-display text-2xl italic leading-snug text-foreground/80 sm:text-3xl">
-                  Paperwork is not a pathway.
-                </p>
-              </Reveal>
-
-              <Reveal delay={300}>
-                <Tilt3D max={9} className="relative">
-                  <div className="absolute -inset-6 -z-10 rounded-[2.4rem] bg-gradient-warm opacity-60 blur-2xl" />
-                  <TiltLayer depth={0}>
-                    <img
-                      src={aboutNarrativeHero}
-                      alt="Scattered IEP paperwork transforming into a luminous golden pathway leading to the horizon"
-                      width={1600}
-                      height={1200}
-                      className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
-                    />
-                  </TiltLayer>
-                  <TiltLayer
-                    depth={55}
-                    className="pointer-events-none absolute -left-6 -top-6 hidden sm:block"
-                  >
-                    <div className="rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-lift backdrop-blur">
-                      The Paperwork
-                    </div>
-                  </TiltLayer>
-                  <TiltLayer
-                    depth={75}
-                    className="pointer-events-none absolute -bottom-6 -right-6 hidden sm:block"
-                  >
-                    <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-foreground shadow-lift backdrop-blur">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" />
-                      Becomes a Pathway
-                    </div>
-                  </TiltLayer>
-                </Tilt3D>
-              </Reveal>
+          <Reveal delay={460}>
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+              <Magnetic>
+                <Link
+                  to="/platform"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
+                >
+                  See the platform <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link
+                  to="/research"
+                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/85 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                >
+                  The research
+                </Link>
+              </Magnetic>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         {/* Marquee */}
