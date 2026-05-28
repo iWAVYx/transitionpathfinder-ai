@@ -681,19 +681,19 @@ function TrustPillar({
   body: string;
 }) {
   return (
-    <li className="group relative flex flex-col gap-3 border-b border-border/50 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0 lg:[&:nth-child(3)]:border-r lg:[&:nth-child(odd)]:border-r">
+    <li className="group relative flex flex-col gap-3 border-b border-white/10 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0">
       <div className="flex items-center justify-between">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft transition-transform group-hover:-translate-y-0.5">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-transform group-hover:-translate-y-0.5">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
-        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
           {num}
         </span>
       </div>
-      <p className="font-display text-lg font-medium leading-tight tracking-tight">
+      <p className="font-display text-lg font-medium leading-tight tracking-tight text-white">
         {title}
       </p>
-      <p className="text-xs leading-relaxed text-muted-foreground">{body}</p>
+      <p className="text-xs leading-relaxed text-white/65">{body}</p>
     </li>
   );
 }
