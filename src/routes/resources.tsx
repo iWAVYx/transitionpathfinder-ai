@@ -397,17 +397,71 @@ function ResourcesPage() {
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
                   <span>{r.source_name ?? r.location_scope}</span>
-                  {r.url && (
-                    <a
-                      href={r.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleToggleSaveDb(r.id)}
+                      aria-label={savedIds.has(r.id) ? "Unsave" : "Save"}
+                      className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-primary"
                     >
-                      Open <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
+                      {savedIds.has(r.id) ? (
+                        <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
+                      ) : (
+                        <Bookmark className="h-3.5 w-3.5" />
+                      )}
+                      {savedIds.has(r.id) ? "Saved" : "Save"}
+                    </button>
+                    {r.url && (
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+                      >
+                        Open <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
+              </article>
+            ))}
+          </div>
+          {savedDb.length > 0 && (
+            <div className="mt-8 rounded-2xl border border-border/60 bg-muted/40 p-5">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-base font-medium">
+                  <BookmarkCheck className="mr-2 inline h-4 w-4 text-primary" />
+                  My library ({savedDb.length})
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  Synced across your devices
+                </span>
+              </div>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {savedDb.slice(0, 8).map((s) => (
+                  <li
+                    key={s.id}
+                    className="flex items-start justify-between gap-2 rounded-lg border border-border/40 bg-background px-3 py-2 text-xs"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{s.resource?.title ?? "Resource"}</p>
+                      {s.resource?.source_name && (
+                        <p className="truncate text-muted-foreground">{s.resource.source_name}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleToggleSaveDb(s.resource_id)}
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label="Remove"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
               </article>
             ))}
           </div>
