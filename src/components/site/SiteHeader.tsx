@@ -10,14 +10,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const nav = [
-  { to: "/platform", label: "Platform" },
-  { to: "/families", label: "For Families" },
-  { to: "/educators", label: "For Educators" },
-  { to: "/demo", label: "See Demo" },
-  { to: "/resources", label: "Resources" },
+type NavLink = { to: string; label: string; desc?: string };
+type NavGroup = { label: string; items: NavLink[] };
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Product",
+    items: [
+      { to: "/platform", label: "The Platform", desc: "How TransitionForward fits together." },
+      { to: "/framework", label: "The Framework", desc: "Grade 9 to graduation, one connected story." },
+      { to: "/demo", label: "See Demo", desc: "A guided walkthrough of a real pathway." },
+    ],
+  },
+  {
+    label: "Audiences",
+    items: [
+      { to: "/families", label: "For Families", desc: "Plain-language transition planning." },
+      { to: "/educators", label: "For Educators", desc: "Tools for transition teams." },
+      { to: "/partners", label: "Partners", desc: "Districts, agencies, and community orgs." },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { to: "/resources", label: "Resource Hub", desc: "Connecticut-aware tools and links." },
+      { to: "/research", label: "Research", desc: "The evidence behind every suggestion." },
+    ],
+  },
+];
+
+const navSingles: NavLink[] = [
+  { to: "/pricing", label: "Pricing" },
   { to: "/about", label: "About" },
-] as const;
+];
 
 const userExtras = [
   { to: "/feed", label: "Feed" },
@@ -28,6 +53,12 @@ const userExtras = [
   { to: "/opportunities", label: "Opportunities" },
   { to: "/settings", label: "Settings" },
 ] as const;
+
+const mobileMarketingLinks: NavLink[] = [
+  ...navGroups.flatMap((g) => g.items),
+  ...navSingles,
+  { to: "/privacy", label: "Privacy" },
+];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -53,7 +84,29 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
-          {nav.map((item) => (
+          {navGroups.map((group) => (
+            <DropdownMenu key={group.label}>
+              <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:px-3">
+                {group.label} <ChevronDown className="h-3.5 w-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-64 p-2">
+                {group.items.map((item) => (
+                  <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
+                    <Link
+                      to={item.to}
+                      className="flex flex-col items-start gap-0.5 rounded-lg px-3 py-2"
+                    >
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
+                      {item.desc && (
+                        <span className="text-xs text-muted-foreground">{item.desc}</span>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
+          {navSingles.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -151,7 +204,7 @@ export function SiteHeader() {
                 Explore
               </p>
               <nav className="flex flex-col gap-0.5">
-                {nav.map((item) => (
+                {mobileMarketingLinks.map((item) => (
                   <Link
                     key={item.to}
                     to={item.to}
