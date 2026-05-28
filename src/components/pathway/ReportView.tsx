@@ -898,20 +898,79 @@ export function ReportView({
       </div>
 
       <style>{`
+        /* Screen-only: hide the print cover */
+        .print-cover { display: none; }
+
         @media print {
-          @page { margin: 0.5in; }
+          @page {
+            margin: 0.6in 0.55in 0.75in 0.55in;
+            @bottom-left { content: "TransitionForward · ${name}"; font-size: 9pt; color: #666; }
+            @bottom-right { content: "Page " counter(page) " of " counter(pages); font-size: 9pt; color: #666; }
+          }
+          @page :first {
+            margin: 0;
+            @bottom-left { content: ""; }
+            @bottom-right { content: ""; }
+          }
+
+          html, body { background: #fff !important; }
           .no-print { display: none !important; }
           .report-root { padding: 0 !important; max-width: 100% !important; }
+
+          /* Cover page */
+          .print-cover {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 9.5in;
+            padding: 1in 0.75in;
+            page-break-after: always;
+            break-after: page;
+            background: linear-gradient(135deg, #f6f8fb 0%, #eef2f9 100%);
+          }
+          .print-cover-inner { width: 100%; max-width: 6in; }
+          .print-cover-eyebrow {
+            font-size: 10pt; letter-spacing: 0.18em; text-transform: uppercase;
+            color: #4a5568; font-weight: 600; margin: 0 0 0.6in 0;
+          }
+          .print-cover-title {
+            font-size: 48pt; line-height: 1.05; margin: 0; color: #111;
+            font-weight: 500; letter-spacing: -0.01em;
+          }
+          .print-cover-sub {
+            margin-top: 16pt; font-size: 14pt; color: #333; line-height: 1.4;
+          }
+          .print-cover-meta { margin-top: 8pt; font-size: 11pt; color: #555; }
+          .print-cover-rule {
+            margin-top: 0.7in; height: 2px; width: 1.2in;
+            background: #2563eb; border-radius: 2px;
+          }
+          .print-cover-footer {
+            margin-top: 0.4in; font-size: 9.5pt; color: #555;
+            display: flex; gap: 0.4em; flex-wrap: wrap;
+          }
+
+          /* Body content */
           .report-root .shadow-soft,
           .report-root .shadow-lift { box-shadow: none !important; }
           .report-root .rounded-3xl,
-          .report-root .rounded-2xl { border-radius: 8px !important; }
+          .report-root .rounded-2xl { border-radius: 6px !important; }
           .report-root .bg-gradient-hero { background: #f6f8fb !important; }
           .report-root section,
-          .report-root .page-break { break-inside: avoid; }
+          .report-root .page-break { break-inside: avoid; page-break-inside: avoid; }
+          .report-root .exec-summary { page-break-after: always; break-after: page; }
           .report-root h1, .report-root h2, .report-root h3, .report-root h4 { color: #111 !important; }
+          .report-root h2 { break-after: avoid; page-break-after: avoid; }
           .report-root .text-muted-foreground { color: #444 !important; }
           .report-root a { color: inherit; text-decoration: none; }
+
+          /* Tighter print typography */
+          .report-root { font-size: 10.5pt; line-height: 1.45; }
+          .report-root h1 { font-size: 22pt; }
+          .report-root h2 { font-size: 16pt; margin-top: 0.25in; }
+          .report-root h3 { font-size: 13pt; }
+          .report-root h4 { font-size: 11pt; }
         }
       `}</style>
     </section>
