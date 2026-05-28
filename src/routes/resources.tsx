@@ -1,8 +1,51 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { BookOpen, Headphones, Film, FileText, ExternalLink, Search, Library } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  BookOpen,
+  Headphones,
+  Film,
+  FileText,
+  ExternalLink,
+  Search,
+  Library,
+  Bookmark,
+  BookmarkCheck,
+  Share2,
+  Plus,
+  Sparkles,
+  ClipboardList,
+  Wrench,
+  ListChecks,
+  MapPin,
+  Clock,
+  Users,
+  Tag,
+  Folder,
+  Compass,
+  GraduationCap,
+  Briefcase,
+  Home,
+  Heart,
+  Hammer,
+  Building2,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import resourcesHero from "@/assets/resources-hero-v2.jpg";
+import {
+  RESOURCES,
+  TOPIC_META,
+  FORMAT_META,
+  AUDIENCE_META,
+  type Resource,
+  type ResourceAudience,
+  type ResourceFormat,
+  type ResourceTopic,
+  type ResourceGrade,
+  type ReadingLevel,
+  type LocationScope,
+  type TimeNeeded,
+} from "@/lib/resource-library";
 
 export const Route = createFileRoute("/resources")({
   head: () => ({
@@ -11,195 +54,201 @@ export const Route = createFileRoute("/resources")({
       {
         name: "description",
         content:
-          "A growing online library for Connecticut families and educators navigating transition planning. Videos, podcasts, guides, agency directories, and downloadable templates in one calm place.",
+          "A curated knowledge hub for transition planning, IEP support, self-advocacy, career exploration, postsecondary planning, independent living, and Connecticut-specific resources.",
       },
       { property: "og:title", content: "The Resource Library | TransitionForward" },
       {
         property: "og:description",
         content:
-          "Videos, podcasts, agency directories, and downloadable templates for the transition years, curated by us and written for you.",
+          "Videos, podcasts, books, online tools, assessments, agency directories, and downloadable templates for the transition years.",
       },
     ],
   }),
   component: ResourcesPage,
 });
 
-type MediaItem = {
-  id: string;
-  type: "video" | "podcast" | "guide" | "agency";
-  title: string;
-  source: string;
-  summary: string;
-  duration?: string;
-  youtubeId?: string;
-  audioUrl?: string;
-  link?: string;
-  tags: string[];
+// ───────────────────────── Saved state (localStorage)
+
+const SAVE_KEY = "tf.savedResources.v1";
+const COLLECTIONS = [
+  "For my next meeting",
+  "Career exploration",
+  "College planning",
+  "Independent living",
+  "Family questions",
+  "Teacher tools",
+  "Student favorites",
+  "Action steps",
+] as const;
+type Collection = (typeof COLLECTIONS)[number];
+
+type SavedMap = Record<string, Collection[]>;
+
+function useSaved() {
+  const [saved, setSaved] = useState<SavedMap>({});
+  useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem(SAVE_KEY) : null;
+      if (raw) setSaved(JSON.parse(raw));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") localStorage.setItem(SAVE_KEY, JSON.stringify(saved));
+    } catch {}
+  }, [saved]);
+  const toggle = (id: string, collection: Collection = "Student favorites") =>
+    setSaved((prev) => {
+      const next = { ...prev };
+      if (next[id]?.includes(collection)) {
+        next[id] = next[id].filter((c) => c !== collection);
+        if (next[id].length === 0) delete next[id];
+      } else {
+        next[id] = Array.from(new Set([...(next[id] || []), collection]));
+      }
+      return next;
+    });
+  const remove = (id: string) =>
+    setSaved((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  return { saved, toggle, remove };
+}
+
+// ───────────────────────── Filter state
+
+type Filters = {
+  format: ResourceFormat | "all";
+  audience: ResourceAudience | "all";
+  topic: ResourceTopic | "all";
+  grade: ResourceGrade | "all";
+  reading: ReadingLevel | "all";
+  location: LocationScope | "all";
+  time: TimeNeeded | "all";
 };
 
-const library: MediaItem[] = [
-  {
-    id: "v1",
-    type: "video",
-    title: "What Is Transition Planning, Really?",
-    source: "PACER National Parent Center",
-    summary: "A short, calm explainer for families hearing the words 'transition plan' for the first time.",
-    duration: "6 min watch",
-    youtubeId: "kCS8RJ4ZdaA",
-    tags: ["families", "starting point"],
-  },
-  {
-    id: "v2",
-    type: "video",
-    title: "Inside a Student Led PPT Meeting",
-    source: "CPIR Center",
-    summary: "Watch a real student lead her own planning meeting. The shift is quiet and total.",
-    duration: "9 min watch",
-    youtubeId: "3W6Ed4dxLDA",
-    tags: ["students", "self determination"],
-  },
-  {
-    id: "v3",
-    type: "video",
-    title: "Connecticut BRS Explained for Families",
-    source: "CT Bureau of Rehabilitation Services",
-    summary: "How the Bureau of Rehabilitation Services partners with students starting at age 16.",
-    duration: "8 min watch",
-    youtubeId: "rdwz7QiG0lk",
-    tags: ["agency", "Connecticut"],
-  },
-  {
-    id: "v4",
-    type: "video",
-    title: "Writing Postsecondary Goals That Actually Mean Something",
-    source: "IRIS Center, Vanderbilt",
-    summary: "For educators. What separates a measurable postsecondary goal from a wish.",
-    duration: "12 min watch",
-    youtubeId: "1aA1WGON49E",
-    tags: ["educators", "goals"],
-  },
-  {
-    id: "p1",
-    type: "podcast",
-    title: "The Transition Years Podcast: Episode 01",
-    source: "TransitionForward Studio",
-    summary: "Caysi sits down with a parent and an educator to talk about the meeting nobody prepares you for.",
-    duration: "28 min listen",
-    audioUrl: "https://cdn.simplecast.com/audio/sample.mp3",
-    tags: ["families", "educators"],
-  },
-  {
-    id: "p2",
-    type: "podcast",
-    title: "Age of Majority, in Plain English",
-    source: "TransitionForward Studio",
-    summary: "What changes the day your student turns 18, and what you can decide together long before.",
-    duration: "19 min listen",
-    audioUrl: "https://cdn.simplecast.com/audio/sample.mp3",
-    tags: ["families", "legal"],
-  },
-  {
-    id: "g1",
-    type: "guide",
-    title: "The Connecticut Transition Roadmap",
-    source: "CT State Department of Education",
-    summary: "The official guide to transition services in Connecticut, grade by grade.",
-    link: "https://portal.ct.gov/sde/special-education/bureau-of-special-education/transition",
-    tags: ["Connecticut", "starting point"],
-  },
-  {
-    id: "g2",
-    type: "guide",
-    title: "Your Rights at 18: A Family Conversation Guide",
-    source: "CPAC",
-    summary: "A printable conversation framework for the year before your student turns 18.",
-    link: "https://cpacinc.org/",
-    tags: ["families", "legal"],
-  },
-  {
-    id: "a1",
-    type: "agency",
-    title: "Bureau of Rehabilitation Services (BRS)",
-    source: "State of Connecticut",
-    summary: "Vocational rehabilitation for eligible students. Job coaching, training dollars, on the job supports. Door opens at 16.",
-    link: "https://portal.ct.gov/aging-and-disability/content-pages/bureaus/bureau-of-rehabilitation-services",
-    tags: ["agency", "Connecticut", "employment"],
-  },
-  {
-    id: "a2",
-    type: "agency",
-    title: "Department of Developmental Services (DDS)",
-    source: "State of Connecticut",
-    summary: "Adult services for individuals with intellectual disability and autism. Apply early; eligibility can take a year or more.",
-    link: "https://portal.ct.gov/dds",
-    tags: ["agency", "Connecticut", "adult services"],
-  },
-  {
-    id: "a3",
-    type: "agency",
-    title: "CT Parent Advocacy Center (CPAC)",
-    source: "Connecticut nonprofit",
-    summary: "Free, family led support for navigating special education. Trained parents on the phone before your next meeting.",
-    link: "https://cpacinc.org/",
-    tags: ["agency", "families", "support"],
-  },
-  {
-    id: "a4",
-    type: "agency",
-    title: "SERC, the State Education Resource Center",
-    source: "Connecticut training arm",
-    summary: "Workshops, family nights, and educator institutes on transition throughout the year.",
-    link: "https://ctserc.org/",
-    tags: ["agency", "educators", "training"],
-  },
-];
+const EMPTY_FILTERS: Filters = {
+  format: "all",
+  audience: "all",
+  topic: "all",
+  grade: "all",
+  reading: "all",
+  location: "all",
+  time: "all",
+};
 
-const filters = [
-  { id: "all", label: "All", icon: Library },
-  { id: "video", label: "Videos", icon: Film },
-  { id: "podcast", label: "Podcasts", icon: Headphones },
-  { id: "guide", label: "Guides", icon: BookOpen },
-  { id: "agency", label: "Agencies", icon: FileText },
-] as const;
+// ───────────────────────── Topic icons
+
+const TOPIC_ICON: Record<ResourceTopic, typeof Compass> = {
+  "transition-planning": Compass,
+  "iep-ppt": ClipboardList,
+  "self-advocacy": Heart,
+  career: Briefcase,
+  employment: Hammer,
+  postsecondary: GraduationCap,
+  "independent-living": Home,
+  "family-support": Users,
+  "teacher-tools": Wrench,
+  "ct-resources": MapPin,
+};
+
+// ───────────────────────── Page
 
 function ResourcesPage() {
-  const [filter, setFilter] = useState<(typeof filters)[number]["id"]>("all");
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
+  const { saved, toggle, remove } = useSaved();
+
+  const setF = <K extends keyof Filters>(k: K, v: Filters[K]) =>
+    setFilters((p) => ({ ...p, [k]: v }));
+  const clearFilters = () => {
+    setFilters(EMPTY_FILTERS);
+    setQuery("");
+  };
+
+  const activeFilterCount =
+    Object.values(filters).filter((v) => v !== "all").length + (query ? 1 : 0);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return library.filter((item) => {
-      if (filter !== "all" && item.type !== filter) return false;
+    return RESOURCES.filter((r) => {
+      if (filters.format !== "all" && r.format !== filters.format) return false;
+      if (filters.audience !== "all" && !r.audiences.includes(filters.audience)) return false;
+      if (filters.topic !== "all" && !r.topics.includes(filters.topic)) return false;
+      if (filters.grade !== "all" && !(r.grades || []).includes(filters.grade)) return false;
+      if (filters.reading !== "all" && r.readingLevel !== filters.reading) return false;
+      if (filters.location !== "all" && r.location !== filters.location) return false;
+      if (filters.time !== "all" && r.time !== filters.time) return false;
       if (!q) return true;
-      return (
-        item.title.toLowerCase().includes(q) ||
-        item.summary.toLowerCase().includes(q) ||
-        item.source.toLowerCase().includes(q) ||
-        item.tags.some((t) => t.toLowerCase().includes(q))
-      );
+      const hay = [
+        r.title,
+        r.description,
+        r.source,
+        r.author || "",
+        r.whyItHelps || "",
+        ...r.topics.map((t) => TOPIC_META[t].label),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
     });
-  }, [filter, query]);
+  }, [query, filters]);
 
-  const videos = visible.filter((i) => i.type === "video");
-  const podcasts = visible.filter((i) => i.type === "podcast");
-  const guides = visible.filter((i) => i.type === "guide");
-  const agencies = visible.filter((i) => i.type === "agency");
+  const savedResources = useMemo(
+    () => RESOURCES.filter((r) => saved[r.id]),
+    [saved],
+  );
+
+  const featured = RESOURCES.filter((r) => r.featured);
 
   return (
     <SiteShell>
+      {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">The Resource Library</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              The Resource Library
+            </p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
-              An Online Library for the Transition Years.
+              A Curated Knowledge Hub for the Transition Years.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Pull up a chair. Inside you will find short videos, conversational podcasts,
-              plain language guides, and a directory of the Connecticut agencies you will
-              actually need. Curated by us, written for you, no acronyms left unexplained.
+              Videos, podcasts, books, assessments, online tools, downloadable
+              worksheets, and Connecticut-specific agency contacts — organized
+              by audience, topic, and how much time you have. Save what matters,
+              build collections, and connect resources straight to a student's
+              pathway plan.
             </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <button
+                onClick={() => setTab("browse")}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              >
+                <Library className="h-4 w-4" /> Browse the library
+              </button>
+              <button
+                onClick={() => setTab("recommended")}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
+              >
+                <Sparkles className="h-4 w-4" /> Personalized picks
+              </button>
+              <button
+                onClick={() => setTab("saved")}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
+              >
+                <Bookmark className="h-4 w-4" /> My saved
+                {savedResources.length > 0 && (
+                  <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] text-primary-foreground">
+                    {savedResources.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
           <div className="relative">
             <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
@@ -214,183 +263,705 @@ function ResourcesPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="sticky top-2 z-10 mb-10 rounded-3xl border border-border/60 bg-background/85 p-4 shadow-soft backdrop-blur sm:p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search the library: BRS, age 18, podcasts, goals..."
-                className="w-full rounded-full border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {filters.map(({ id, label, icon: Icon }) => {
-                const active = filter === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setFilter(id)}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
-                      active
-                        ? "bg-primary text-primary-foreground shadow-soft"
-                        : "border border-border bg-background text-foreground/80 hover:bg-muted"
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" /> {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      {/* CATEGORY GRID */}
+      <section className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
+        <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+          Ten core categories
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Tap a category to filter the library. Each one is curated for the
+          questions families, students, and educators actually ask.
+        </p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {(Object.keys(TOPIC_META) as ResourceTopic[]).map((t) => {
+            const Icon = TOPIC_ICON[t];
+            const count = RESOURCES.filter((r) => r.topics.includes(t)).length;
+            const active = filters.topic === t;
+            return (
+              <button
+                key={t}
+                onClick={() => {
+                  setF("topic", active ? "all" : t);
+                  setTab("browse");
+                }}
+                className={`group rounded-2xl border p-4 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${
+                  active
+                    ? "border-primary bg-primary/5"
+                    : "border-border/60 bg-card"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    {count} items
+                  </span>
+                </div>
+                <h3 className="mt-3 font-display text-base font-medium leading-snug">
+                  {TOPIC_META[t].label}
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                  {TOPIC_META[t].description}
+                </p>
+              </button>
+            );
+          })}
         </div>
+      </section>
 
-        {videos.length > 0 && (
-          <div className="mb-16">
-            <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Watch</h2>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{videos.length} Videos</p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2">
-              {videos.map((v) => (
-                <article key={v.id} className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
-                  <div className="aspect-video w-full bg-black">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${v.youtubeId}`}
-                      title={v.title}
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="h-full w-full"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{v.source} · {v.duration}</p>
-                    <h3 className="mt-2 font-display text-xl font-medium tracking-tight">{v.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{v.summary}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* TAB BAR */}
+      <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border">
+          {(
+            [
+              { id: "browse", label: "Browse all", icon: Library },
+              { id: "recommended", label: "Recommended for you", icon: Sparkles },
+              { id: "saved", label: `Saved (${savedResources.length})`, icon: Bookmark },
+            ] as const
+          ).map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+                tab === id
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon className="h-4 w-4" /> {label}
+            </button>
+          ))}
+        </div>
+      </section>
 
-        {podcasts.length > 0 && (
-          <div className="mb-16">
-            <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Listen</h2>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{podcasts.length} Episodes</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              {podcasts.map((p) => (
-                <article key={p.id} className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
-                      <Headphones className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{p.source} · {p.duration}</p>
-                      <h3 className="mt-1 font-display text-lg font-medium tracking-tight">{p.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.summary}</p>
-                    </div>
-                  </div>
-                  <audio controls preload="none" className="mt-5 w-full">
-                    <source src={p.audioUrl} type="audio/mpeg" />
-                    Your browser does not support embedded audio.
-                  </audio>
-                </article>
-              ))}
-            </div>
-          </div>
-        )}
+      {tab === "browse" && (
+        <BrowseTab
+          query={query}
+          setQuery={setQuery}
+          filters={filters}
+          setF={setF}
+          clearFilters={clearFilters}
+          activeFilterCount={activeFilterCount}
+          visible={visible}
+          featured={featured}
+          saved={saved}
+          toggleSave={toggle}
+        />
+      )}
 
-        {guides.length > 0 && (
-          <div className="mb-16">
-            <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Read</h2>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{guides.length} Guides</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              {guides.map((g) => (
-                <a
-                  key={g.id}
-                  href={g.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-start gap-4 rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-                >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-warm text-foreground/80">
-                    <BookOpen className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{g.source}</p>
-                    <h3 className="mt-1 font-display text-lg font-medium tracking-tight group-hover:text-primary">
-                      {g.title} <ExternalLink className="ml-1 inline h-4 w-4" />
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{g.summary}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+      {tab === "recommended" && (
+        <RecommendedTab saved={saved} toggleSave={toggle} />
+      )}
 
-        {agencies.length > 0 && (
-          <div className="mb-16">
-            <div className="mb-6 flex items-baseline justify-between">
-              <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">Connecticut Agencies</h2>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{agencies.length} Listed</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              {agencies.map((a) => (
-                <a
-                  key={a.id}
-                  href={a.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{a.source}</p>
-                  <h3 className="mt-1 font-display text-xl font-medium tracking-tight group-hover:text-primary">
-                    {a.title} <ExternalLink className="ml-1 inline h-4 w-4" />
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a.summary}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {a.tags.map((t) => (
-                      <span key={t} className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-foreground/70">{t}</span>
-                    ))}
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+      {tab === "saved" && (
+        <SavedTab saved={saved} resources={savedResources} remove={remove} toggleSave={toggle} />
+      )}
 
-        {visible.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-border/70 bg-gradient-warm p-12 text-center">
-            <p className="font-display text-xl">No matches yet.</p>
-            <p className="mt-2 text-sm text-muted-foreground">Try a different word, or clear the filter to browse the whole shelf.</p>
-          </div>
-        )}
-
+      {/* CTA */}
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <div className="mt-8 overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            Be the First to Use the New Worksheets.
+            Connect resources to a real plan.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/80">
-            We are rolling out tools gradually so each one is genuinely helpful, not just
-            another thing in your inbox. Joining the waitlist tells us who to invite first.
+            Start a student profile and the library can recommend videos,
+            worksheets, and agencies that match their goals, grade, and
+            interests — and add them straight to a pathway plan.
           </p>
-          <Link
-            to="/waitlist"
-            className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
-          >
-            Join the Waitlist
-          </Link>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link
+              to="/waitlist"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+            >
+              Join the waitlist
+            </Link>
+            <Link
+              to="/pathways/$pathwayId"
+              params={{ pathwayId: "intake" }}
+              className="inline-flex items-center justify-center rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold hover:bg-muted"
+            >
+              Build a pathway report
+            </Link>
+          </div>
         </div>
       </section>
     </SiteShell>
   );
 }
+
+// ───────────────────────── Browse Tab
+
+function BrowseTab(props: {
+  query: string;
+  setQuery: (s: string) => void;
+  filters: Filters;
+  setF: <K extends keyof Filters>(k: K, v: Filters[K]) => void;
+  clearFilters: () => void;
+  activeFilterCount: number;
+  visible: Resource[];
+  featured: Resource[];
+  saved: SavedMap;
+  toggleSave: (id: string, collection?: Collection) => void;
+}) {
+  const { query, setQuery, filters, setF, clearFilters, activeFilterCount, visible, featured, saved, toggleSave } = props;
+
+  // Group visible by format for sectioned display when no topic filter selected
+  const grouped = useMemo(() => {
+    const buckets: Partial<Record<ResourceFormat, Resource[]>> = {};
+    for (const r of visible) {
+      (buckets[r.format] = buckets[r.format] || []).push(r);
+    }
+    return buckets;
+  }, [visible]);
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      {/* Search + filter bar */}
+      <div className="sticky top-2 z-10 mt-6 rounded-3xl border border-border/60 bg-background/90 p-4 shadow-soft backdrop-blur sm:p-5">
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search videos, podcasts, books, worksheets, agencies…"
+              className="w-full rounded-full border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <FilterSelect
+              icon={Tag}
+              label="Format"
+              value={filters.format}
+              onChange={(v) => setF("format", v as Filters["format"])}
+              options={[
+                ["all", "All formats"],
+                ...Object.entries(FORMAT_META).map(([k, v]) => [k, v.label] as [string, string]),
+              ]}
+            />
+            <FilterSelect
+              icon={Users}
+              label="Audience"
+              value={filters.audience}
+              onChange={(v) => setF("audience", v as Filters["audience"])}
+              options={[
+                ["all", "All audiences"],
+                ...Object.entries(AUDIENCE_META) as [string, string][],
+              ]}
+            />
+            <FilterSelect
+              icon={Folder}
+              label="Topic"
+              value={filters.topic}
+              onChange={(v) => setF("topic", v as Filters["topic"])}
+              options={[
+                ["all", "All topics"],
+                ...Object.entries(TOPIC_META).map(([k, v]) => [k, v.label] as [string, string]),
+              ]}
+            />
+            <FilterSelect
+              icon={GraduationCap}
+              label="Grade / age"
+              value={filters.grade}
+              onChange={(v) => setF("grade", v as Filters["grade"])}
+              options={[
+                ["all", "Any grade"],
+                ["middle", "Middle school"],
+                ["9", "9th grade"],
+                ["10", "10th grade"],
+                ["11", "11th grade"],
+                ["12", "12th grade"],
+                ["18-22", "Ages 18–22"],
+              ]}
+            />
+            <FilterSelect
+              icon={BookOpen}
+              label="Reading level"
+              value={filters.reading}
+              onChange={(v) => setF("reading", v as Filters["reading"])}
+              options={[
+                ["all", "Any reading level"],
+                ["student", "Student-friendly"],
+                ["family", "Family-friendly"],
+                ["professional", "Professional"],
+              ]}
+            />
+            <FilterSelect
+              icon={MapPin}
+              label="Location"
+              value={filters.location}
+              onChange={(v) => setF("location", v as Filters["location"])}
+              options={[
+                ["all", "Anywhere"],
+                ["national", "National"],
+                ["connecticut", "Connecticut-specific"],
+                ["local", "Local / regional"],
+              ]}
+            />
+            <FilterSelect
+              icon={Clock}
+              label="Time needed"
+              value={filters.time}
+              onChange={(v) => setF("time", v as Filters["time"])}
+              options={[
+                ["all", "Any length"],
+                ["quick", "Quick read / watch"],
+                ["deep", "Deep dive"],
+                ["workshop", "Workshop length"],
+                ["printable", "Printable"],
+              ]}
+            />
+            <button
+              onClick={clearFilters}
+              disabled={activeFilterCount === 0}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground/80 transition hover:bg-muted disabled:opacity-40"
+            >
+              <X className="h-3.5 w-3.5" /> Clear ({activeFilterCount})
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured strip (only when no filters) */}
+      {activeFilterCount === 0 && (
+        <div className="mt-10">
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+              Featured this week
+            </h2>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Editors' picks
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {featured.map((r) => (
+              <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Grouped results */}
+      <div className="mt-12 space-y-14">
+        {(Object.keys(grouped) as ResourceFormat[]).map((fmt) => (
+          <div key={fmt}>
+            <div className="mb-5 flex items-baseline justify-between">
+              <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                {FORMAT_META[fmt].label}s
+              </h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                {grouped[fmt]?.length} resources
+              </p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {grouped[fmt]!.map((r) => (
+                <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {visible.length === 0 && (
+          <EmptyState
+            title="No resources match those filters."
+            body="Try clearing a filter or searching for a single word — like BRS, college, or budgeting."
+            cta={{ label: "Clear filters", onClick: clearFilters }}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────── Recommended Tab
+
+function RecommendedTab({
+  saved,
+  toggleSave,
+}: {
+  saved: SavedMap;
+  toggleSave: (id: string, c?: Collection) => void;
+}) {
+  // Lightweight demo recommendations — in production this reads from
+  // student profile, pathway report goals, and readiness scorecard.
+  const demoGoals = "employment goal, independent living, self-advocacy at IEP";
+
+  const recs = useMemo(() => {
+    const text = demoGoals.toLowerCase();
+    const topics: ResourceTopic[] = [];
+    if (/(job|work|employ|career)/.test(text)) topics.push("employment", "career");
+    if (/(independent|living|cook|budget|transport)/.test(text)) topics.push("independent-living");
+    if (/(advocate|self|voice|iep)/.test(text)) topics.push("self-advocacy", "iep-ppt");
+    if (/(college|university|postsecondary)/.test(text)) topics.push("postsecondary");
+    return RESOURCES.filter((r) => r.topics.some((t) => topics.includes(t))).slice(0, 9);
+  }, []);
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <div className="mt-8 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
+        <div className="flex items-start gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="font-display text-2xl font-medium tracking-tight">
+              Personalized for the active student profile
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Recommendations update as you add goals, interests, uploaded
+              documents, family concerns, and readiness scores to a student's
+              profile. Connect a profile to power this section.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full bg-background px-3 py-1 font-medium">Detected: employment goal</span>
+              <span className="rounded-full bg-background px-3 py-1 font-medium">Detected: independent living</span>
+              <span className="rounded-full bg-background px-3 py-1 font-medium">Detected: self-advocacy at IEP</span>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                to="/students"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                Open student profiles
+              </Link>
+              <Link
+                to="/pathways/$pathwayId"
+                params={{ pathwayId: "intake" }}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-muted"
+              >
+                Start a pathway report
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {recs.length === 0 ? (
+        <EmptyState
+          title="Complete a student profile to unlock recommendations."
+          body="Once a student has goals, interests, and a grade level, the library can suggest videos, agencies, and worksheets that match."
+        />
+      ) : (
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {recs.map((r) => (
+            <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ───────────────────────── Saved Tab
+
+function SavedTab({
+  saved,
+  resources,
+  remove,
+  toggleSave,
+}: {
+  saved: SavedMap;
+  resources: Resource[];
+  remove: (id: string) => void;
+  toggleSave: (id: string, c?: Collection) => void;
+}) {
+  // Group by collection
+  const byCollection = useMemo(() => {
+    const map: Record<string, Resource[]> = {};
+    for (const r of resources) {
+      for (const c of saved[r.id] || []) {
+        (map[c] = map[c] || []).push(r);
+      }
+    }
+    return map;
+  }, [resources, saved]);
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="font-display text-3xl font-medium tracking-tight">
+            Your saved resources
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Organize what you save into collections — one for next month's
+            meeting, one for college planning, one to share with your case
+            manager.
+          </p>
+        </div>
+      </div>
+
+      {resources.length === 0 ? (
+        <EmptyState
+          title="No saved resources yet."
+          body="Tap the bookmark on any resource to save it. Build collections to take to your next meeting or share with your team."
+        />
+      ) : (
+        <div className="mt-8 space-y-10">
+          {COLLECTIONS.filter((c) => byCollection[c]?.length).map((c) => (
+            <div key={c}>
+              <h3 className="mb-4 font-display text-xl font-medium tracking-tight">
+                <Folder className="mr-2 inline h-4 w-4 text-primary" />
+                {c}{" "}
+                <span className="text-sm text-muted-foreground">
+                  · {byCollection[c].length}
+                </span>
+              </h3>
+              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {byCollection[c].map((r) => (
+                  <ResourceCard
+                    key={r.id}
+                    resource={r}
+                    saved={true}
+                    onSave={() => remove(r.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ───────────────────────── Resource Card
+
+function ResourceCard({
+  resource: r,
+  saved,
+  onSave,
+  compact = false,
+}: {
+  resource: Resource;
+  saved: boolean;
+  onSave: () => void;
+  compact?: boolean;
+}) {
+  const fmt = FORMAT_META[r.format];
+
+  const onShare = async () => {
+    if (typeof window === "undefined") return;
+    const url = r.link || window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: r.title, text: r.description, url });
+      } else {
+        await navigator.clipboard.writeText(`${r.title} — ${url}`);
+        alert("Link copied to clipboard");
+      }
+    } catch {}
+  };
+
+  return (
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+      {r.format === "video" && r.youtubeId && !compact && (
+        <div className="aspect-video w-full bg-black">
+          <iframe
+            src={`https://www.youtube.com/embed/${r.youtubeId}`}
+            title={r.title}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone="primary">{fmt.label}</Badge>
+          {r.location === "connecticut" && <Badge tone="warm">Connecticut</Badge>}
+          {r.audiences.slice(0, 2).map((a) => (
+            <Badge key={a} tone="muted">
+              {AUDIENCE_META[a]}
+            </Badge>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          {r.source}
+          {r.author ? ` · ${r.author}` : ""}
+        </p>
+        <h3 className="mt-1 font-display text-lg font-medium leading-snug tracking-tight">
+          {r.title}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+          {r.description}
+        </p>
+        {r.whyItHelps && (
+          <p className="mt-2 rounded-xl bg-muted/60 px-3 py-2 text-xs leading-relaxed text-foreground/80">
+            <span className="font-semibold">Why it helps:</span> {r.whyItHelps}
+          </p>
+        )}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {r.topics.slice(0, 3).map((t) => (
+            <span
+              key={t}
+              className="rounded-full bg-secondary/60 px-2.5 py-0.5 text-[10px] font-medium text-foreground/70"
+            >
+              {TOPIC_META[t].label}
+            </span>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-3 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Clock className="h-3 w-3" /> {r.estimatedTime}
+          </span>
+          {r.grades && r.grades.length > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <GraduationCap className="h-3 w-3" /> {r.grades.join(", ")}
+            </span>
+          )}
+        </div>
+
+        {/* Podcast inline audio */}
+        {r.format === "podcast" && r.audioUrl && (
+          <div className="mt-4 rounded-2xl border border-border/60 bg-muted/40 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              {r.podcastTitle} · {r.episodeTitle}
+            </p>
+            <audio controls preload="none" className="mt-2 w-full">
+              <source src={r.audioUrl} type="audio/mpeg" />
+              Your browser does not support embedded audio.
+            </audio>
+          </div>
+        )}
+
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+          {r.link ? (
+            <a
+              href={r.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+            >
+              {fmt.verb} <ExternalLink className="h-3 w-3" />
+            </a>
+          ) : (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+            >
+              {fmt.verb}
+            </button>
+          )}
+          <button
+            onClick={onSave}
+            aria-label={saved ? "Remove from saved" : "Save"}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-semibold transition ${
+              saved
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-background hover:bg-muted"
+            }`}
+          >
+            {saved ? <BookmarkCheck className="h-3.5 w-3.5" /> : <Bookmark className="h-3.5 w-3.5" />}
+            {saved ? "Saved" : "Save"}
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+            title="Add to a student's pathway"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add to pathway
+          </button>
+          <button
+            type="button"
+            onClick={onShare}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Share
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+// ───────────────────────── Small UI bits
+
+function Badge({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone: "primary" | "warm" | "muted";
+}) {
+  const cls =
+    tone === "primary"
+      ? "bg-primary/10 text-primary"
+      : tone === "warm"
+        ? "bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-amber-200"
+        : "bg-muted text-foreground/70";
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
+      {children}
+    </span>
+  );
+}
+
+function FilterSelect({
+  icon: Icon,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  icon: typeof Tag;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: Array<[string, string]>;
+}) {
+  return (
+    <label className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs">
+      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+      <span className="sr-only">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-transparent text-xs font-medium outline-none"
+      >
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function EmptyState({
+  title,
+  body,
+  cta,
+}: {
+  title: string;
+  body: string;
+  cta?: { label: string; onClick: () => void };
+}) {
+  return (
+    <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-warm p-10 text-center sm:p-14">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-background shadow-soft">
+        <ListChecks className="h-5 w-5 text-primary" />
+      </div>
+      <p className="mt-4 font-display text-xl">{title}</p>
+      <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{body}</p>
+      {cta && (
+        <button
+          onClick={cta.onClick}
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground"
+        >
+          {cta.label}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Avoid TS unused-import complaints if any icons were imported but trimmed
+void Building2;
+void FileText;
+void Film;
+void Headphones;
+void BookOpen;
