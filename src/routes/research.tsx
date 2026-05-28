@@ -32,7 +32,6 @@ import {
   TextMask,
   StickyPin,
   MorphCard,
-  FloatingShape,
 } from "@/components/effects/ImmersiveEffects";
 import { toTitleCase } from "@/lib/title-case";
 
