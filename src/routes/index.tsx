@@ -447,45 +447,83 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-16 overflow-hidden rounded-3xl border border-border/60 bg-gradient-warm shadow-soft">
+          <div className="mt-16 overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-[oklch(0.18_0.04_250)] via-[oklch(0.22_0.06_260)] to-[oklch(0.15_0.05_245)] text-white shadow-soft">
             <div className="grid gap-0 lg:grid-cols-12">
-              <div className="border-b border-border/60 p-8 lg:col-span-4 lg:border-b-0 lg:border-r lg:p-10">
-                <span className="inline-flex items-center gap-2 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
-                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Privacy & trust
+              {/* Animated graphic */}
+              <div className="relative isolate overflow-hidden border-b border-white/10 p-8 lg:col-span-5 lg:border-b-0 lg:border-r lg:p-10">
+                {/* twinkling dots background */}
+                <div className="pointer-events-none absolute inset-0 opacity-70">
+                  {Array.from({ length: 24 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className="trust-twinkle absolute h-[3px] w-[3px] rounded-full bg-white/70"
+                      style={{
+                        left: `${(i * 37) % 100}%`,
+                        top: `${(i * 53) % 100}%`,
+                        animationDelay: `${(i % 7) * 0.3}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+                {/* scan sweep */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/30 to-transparent blur-2xl trust-scan" />
+
+                <span className="relative inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft backdrop-blur ring-1 ring-white/20">
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Privacy &amp; trust
                 </span>
-                <h3 className="mt-4 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+                <h3 className="relative mt-4 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
                   Built around student privacy from day one.
                 </h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                <p className="relative mt-4 max-w-sm text-sm leading-relaxed text-white/70">
                   Four commitments we make to every family, student, and educator
                   who trusts us with their plan.
                 </p>
+
+                {/* Orbiting shield graphic */}
+                <div className="relative mx-auto mt-8 aspect-square w-full max-w-xs">
+                  {/* pulse rings */}
+                  <span className="absolute inset-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" style={{ animationDelay: '0s' }} />
+                  <span className="absolute inset-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" style={{ animationDelay: '1.4s' }} />
+
+                  {/* orbit ring with dashed SVG */}
+                  <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full trust-orbit">
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1" />
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="oklch(0.85 0.16 60)" strokeWidth="2" className="trust-dash" />
+                  </svg>
+                  <svg viewBox="0 0 200 200" className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] trust-orbit-rev">
+                    <circle cx="100" cy="100" r="70" fill="none" stroke="white" strokeOpacity="0.12" strokeWidth="1" strokeDasharray="3 8" />
+                  </svg>
+
+                  {/* orbiting icon chips */}
+                  <div className="absolute inset-0 trust-orbit">
+                    {[Lock, UserCheck, ShieldCheck, Download].map((Ic, i) => {
+                      const angle = (i / 4) * 2 * Math.PI;
+                      const x = 50 + 40 * Math.cos(angle);
+                      const y = 50 + 40 * Math.sin(angle);
+                      return (
+                        <span
+                          key={i}
+                          className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl bg-white/95 text-primary shadow-soft ring-1 ring-white/40 trust-orbit-rev"
+                          style={{ left: `${x}%`, top: `${y}%` }}
+                        >
+                          <Ic className="h-4 w-4" aria-hidden />
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* center core */}
+                  <div className="absolute inset-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-3xl bg-gradient-to-br from-primary to-[oklch(0.7_0.18_45)] text-primary-foreground shadow-[0_10px_40px_-10px_oklch(0.75_0.18_55/0.7)] trust-float">
+                    <ShieldCheck className="h-9 w-9" aria-hidden />
+                  </div>
+                </div>
               </div>
-              <ul className="grid grid-cols-1 bg-background/70 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
-                <TrustPillar
-                  num="01"
-                  icon={Lock}
-                  title="Secure by default"
-                  body="Private student data, encrypted in transit and at rest."
-                />
-                <TrustPillar
-                  num="02"
-                  icon={UserCheck}
-                  title="Role-based access"
-                  body="Families, students, and educators only see what's theirs to see."
-                />
-                <TrustPillar
-                  num="03"
-                  icon={ShieldCheck}
-                  title="Human-reviewed AI"
-                  body="Every AI suggestion is a planning aid — never an official determination."
-                />
-                <TrustPillar
-                  num="04"
-                  icon={Download}
-                  title="Export & delete"
-                  body="Your information, on your terms. Download or remove it any time."
-                />
+
+              <ul className="grid grid-cols-1 bg-white/[0.03] backdrop-blur sm:grid-cols-2 lg:col-span-7">
+                <TrustPillar num="01" icon={Lock} title="Secure by default" body="Private student data, encrypted in transit and at rest." />
+                <TrustPillar num="02" icon={UserCheck} title="Role-based access" body="Families, students, and educators only see what's theirs to see." />
+                <TrustPillar num="03" icon={ShieldCheck} title="Human-reviewed AI" body="Every AI suggestion is a planning aid — never an official determination." />
+                <TrustPillar num="04" icon={Download} title="Export & delete" body="Your information, on your terms. Download or remove it any time." />
               </ul>
             </div>
           </div>
@@ -643,19 +681,19 @@ function TrustPillar({
   body: string;
 }) {
   return (
-    <li className="group relative flex flex-col gap-3 border-b border-border/50 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0 lg:[&:nth-child(3)]:border-r lg:[&:nth-child(odd)]:border-r">
+    <li className="group relative flex flex-col gap-3 border-b border-white/10 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0">
       <div className="flex items-center justify-between">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft transition-transform group-hover:-translate-y-0.5">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-transform group-hover:-translate-y-0.5">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
-        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
           {num}
         </span>
       </div>
-      <p className="font-display text-lg font-medium leading-tight tracking-tight">
+      <p className="font-display text-lg font-medium leading-tight tracking-tight text-white">
         {title}
       </p>
-      <p className="text-xs leading-relaxed text-muted-foreground">{body}</p>
+      <p className="text-xs leading-relaxed text-white/65">{body}</p>
     </li>
   );
 }
