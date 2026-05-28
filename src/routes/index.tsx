@@ -76,13 +76,33 @@ function HomePage() {
     <SiteShell>
       {/* HERO — full-bleed image with overlaid text */}
       <section className="relative isolate -mt-px overflow-hidden">
-        <img
+        <ParallaxImage
           src={heroImg}
           alt="A young person walking a tree-lined path at golden hour"
           width={1920}
           height={1080}
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          speed={0.45}
+          className="absolute inset-0 -z-10 h-full w-full"
         />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+
+        {/* Slow-drift decorative shape behind headline */}
+        <ShapeScroll
+          className="absolute -left-32 top-10 -z-10 hidden h-[28rem] w-[28rem] text-primary/15 md:block"
+          spin={90}
+          scale={0.45}
+        />
+
+        {/* Floating playful doodles */}
+        <Parallax speed={-0.25} className="pointer-events-none absolute right-4 top-20 -z-10 hidden md:block lg:right-16 lg:top-24">
+          <img
+            src={doodlePlane}
+            alt=""
+            aria-hidden="true"
+            className="w-72 opacity-80 float-y-slow lg:w-96"
+          />
+        </Parallax>
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
