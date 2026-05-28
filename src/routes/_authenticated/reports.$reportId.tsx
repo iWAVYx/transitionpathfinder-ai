@@ -47,6 +47,8 @@ export const Route = createFileRoute("/_authenticated/reports/$reportId")({
 
 function ReportDetailPage() {
   const { reportId } = Route.useParams();
+  const search = Route.useSearch();
+  const [showWelcome, setShowWelcome] = useState(!!search.welcome);
   const fetchReport = useServerFn(getReport);
   const listTokens = useServerFn(listShareTokens);
   const create = useServerFn(createShareToken);
