@@ -9,6 +9,15 @@ import {
   Archive,
 } from "lucide-react";
 import familiesHero from "@/assets/families-hero-v2.jpg";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  Marquee,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
+
 
 export const Route = createFileRoute("/families")({
   head: () => ({
