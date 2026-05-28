@@ -270,11 +270,10 @@ function ResearchPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             What works
           </p>
-          <TextScrollFill className="mt-6 font-display text-[clamp(1.75rem,3.5vw,3rem)] font-medium leading-[1.2] tracking-tight">
-            A plan should sound like the student. Families should walk in informed, not catching up.
-            Goals should connect to people, programs, and opportunities. Progress should be visible
-            to everyone working on it.
-          </TextScrollFill>
+          <TextScrollFill
+            className="mt-6 font-display text-[clamp(1.75rem,3.5vw,3rem)] font-medium leading-[1.2] tracking-tight"
+            text="A plan should sound like the student. Families should walk in informed, not catching up. Goals should connect to people, programs, and opportunities. Progress should be visible to everyone working on it."
+          />
         </div>
       </section>
 
