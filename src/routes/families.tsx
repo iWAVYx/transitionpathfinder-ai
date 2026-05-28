@@ -45,8 +45,26 @@ function FamiliesPage() {
     <SiteShell>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <ShapeScroll
+          className="absolute -left-32 -top-20 -z-10 h-[36rem] w-[36rem] mix-blend-multiply"
+          spin={180}
+          scale={0.9}
+          tilt={40}
+          drift={120}
+          gradientFrom="hsl(20 90% 75%)"
+          gradientTo="hsl(340 85% 75%)"
+        />
+        <ShapeScroll
+          className="absolute -right-24 top-40 -z-10 hidden h-[24rem] w-[24rem] mix-blend-multiply lg:block"
+          spin={-140}
+          scale={0.7}
+          tilt={30}
+          drift={-80}
+          gradientFrom="hsl(210 90% 78%)"
+          gradientTo="hsl(280 70% 78%)"
+        />
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
-          <div>
+          <Reveal y={36}>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">For Families</p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
               You Are Not Supposed to Figure This Out Alone.
@@ -60,33 +78,75 @@ function FamiliesPage() {
               <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift">Create a Pathway Report</Link>
               <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted">Join the Waitlist</Link>
             </div>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
-            <img
-              src={familiesHero}
-              alt="Hand-cut paper collage of a parent holding a paper boat folded from an IEP page beside a child's drawing"
-              width={1600}
-              height={1200}
-              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
-            />
-          </div>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="relative">
+              <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+              <Parallax speed={-0.15}>
+                <ParallaxImage
+                  src={familiesHero}
+                  alt="Hand-cut paper collage of a parent holding a paper boat folded from an IEP page beside a child's drawing"
+                  width={1600}
+                  height={1200}
+                  speed={0.4}
+                  className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
+                />
+              </Parallax>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      {/* Voices marquee */}
+      <section aria-label="Family voices" className="border-y border-border/40 bg-muted/30 py-6">
+        <Marquee
+          speed={70}
+          items={[
+            "“I finally know what to ask at the PPT.”",
+            "“The translator turned the IEP into plain English.”",
+            "“We saw her progress for the first time, year over year.”",
+            "“The 30-day plan made the whole thing feel doable.”",
+            "“Resources matched to our town, not a generic list.”",
+          ].map((q, i) => (
+            <span key={i} className="font-display text-xl italic text-foreground/75 sm:text-2xl">
+              {q}
+              <span className="mx-6 inline-block text-primary/40">✦</span>
+            </span>
+          ))}
+        />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <Reveal>
+          <TextScrollFill
+            className="mx-auto max-w-4xl text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+            text="You don't need a degree in special education to be the expert on your own child — you just need a plan you can read."
+          />
+        </Reveal>
+      </section>
+
+      <section className="relative mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <ShapeScroll
+          className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/25 lg:block"
+          spin={160}
+          scale={0.6}
+          tilt={20}
+        />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map(({ icon: Icon, t, b }) => (
-            <article key={t} className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
-                <Icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{t}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
-            </article>
+          {cards.map(({ icon: Icon, t, b }, i) => (
+            <Reveal key={t} delay={i * 80}>
+              <article className="group h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
+              </article>
+            </Reveal>
           ))}
         </div>
       </section>
     </SiteShell>
   );
 }
+
