@@ -689,7 +689,15 @@ function HomePage() {
           className="absolute inset-0 -z-10 h-full w-full"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
-        <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
+        <FloatingShape className="pointer-events-none absolute right-10 top-10 z-0 hidden h-20 w-20 text-background/70 md:block" delay={0.4} duration={18}>
+          <PaperPlane className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="pointer-events-none absolute right-1/4 bottom-12 z-0 hidden h-8 w-8 text-background/70 md:block" delay={1.2} duration={14}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Starburst className="pointer-events-none absolute right-6 bottom-8 hidden h-24 w-24 text-background/30 lg:block" />
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-32">
+
           <div className="max-w-2xl text-background">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">
               Be part of the first cohort
