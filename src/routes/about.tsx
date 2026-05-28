@@ -120,14 +120,14 @@ function AboutPage() {
           <div className="h-72 w-72 rounded-full bg-sky/25 blur-3xl" />
         </FloatingShape>
 
-        <section className="relative mx-auto max-w-6xl px-4 pt-28 pb-24 text-center sm:px-6 lg:px-8 lg:pt-40 lg:pb-32">
+        <section className="relative mx-auto max-w-5xl px-4 pt-20 pb-16 text-center sm:px-6 lg:px-8 lg:pt-28 lg:pb-20">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
               Our story
             </p>
           </Reveal>
 
-          <h1 className="mx-auto mt-10 max-w-[18ch] font-display text-[clamp(2.75rem,9vw,8rem)] font-medium leading-[0.92] tracking-tight">
+          <h1 className="mx-auto mt-6 max-w-[18ch] font-display text-[clamp(2rem,6vw,5rem)] font-medium leading-[0.95] tracking-tight">
             <Reveal>
               <span className="block text-foreground/40">Paperwork</span>
             </Reveal>
@@ -145,7 +145,7 @@ function AboutPage() {
           </h1>
 
           <Reveal delay={360}>
-            <p className="mx-auto mt-12 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mx-auto mt-7 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               Transition planning should be the moment a young person begins picturing who they
               are becoming — not a stack of forms no one fully owns. TransitionForward is the
               quiet rewrite of that experience.
@@ -153,11 +153,11 @@ function AboutPage() {
           </Reveal>
 
           <Reveal delay={460}>
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Magnetic>
                 <Link
                   to="/platform"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
                 >
                   See the platform <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -165,7 +165,7 @@ function AboutPage() {
               <Magnetic>
                 <Link
                   to="/research"
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/85 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/85 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
                 >
                   The research
                 </Link>
@@ -178,7 +178,7 @@ function AboutPage() {
         <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
           <Marquee
             speed={45}
-            className="py-6 font-display text-2xl italic text-foreground/70 sm:text-3xl"
+            className="py-4 font-display text-lg italic text-foreground/70 sm:text-xl"
             items={[
               "paperwork is not a pathway",
               "·",
@@ -194,6 +194,7 @@ function AboutPage() {
           />
         </div>
       </CursorField>
+
 
       {/* ====== SCENES 2 + 3 — STICKY SCROLL STORY ====== */}
       <section className="relative py-20 lg:py-28">
