@@ -31,6 +31,9 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { listVerifiedResources, type DbResource } from "@/lib/resources-db.functions";
+
 import resourcesHero from "@/assets/resources-hero-v2.jpg";
 import {
   RESOURCES,
@@ -162,6 +165,16 @@ function ResourcesPage() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
+
+  const fetchDb = useServerFn(listVerifiedResources);
+  const [dbResources, setDbResources] = useState<DbResource[] | null>(null);
+  useEffect(() => {
+    fetchDb()
+      .then((r) => setDbResources(r.resources))
+      .catch(() => setDbResources([]));
+  }, [fetchDb]);
+
+
 
   const setF = <K extends keyof Filters>(k: K, v: Filters[K]) =>
     setFilters((p) => ({ ...p, [k]: v }));
@@ -311,7 +324,66 @@ function ResourcesPage() {
         </div>
       </section>
 
+      {/* VERIFIED LIBRARY (live from DB) */}
+      {dbResources && dbResources.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Verified by TransitionForward
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Newly added to the library
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Live from the TransitionForward resource database. Reviewed by our team.
+              </p>
+            </div>
+            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+              {dbResources.length} verified
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {dbResources.slice(0, 6).map((r) => (
+              <article
+                key={r.id}
+                className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
+              >
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
+                    {r.resource_type}
+                  </span>
+                  {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
+                </div>
+                <h3 className="mt-3 font-display text-base font-medium leading-snug">
+                  {r.title}
+                </h3>
+                {r.description && (
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                    {r.description}
+                  </p>
+                )}
+                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
+                  <span>{r.source_name ?? r.location_scope}</span>
+                  {r.url && (
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+                    >
+                      Open <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* TAB BAR */}
+
       <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center gap-2 border-b border-border">
           {(

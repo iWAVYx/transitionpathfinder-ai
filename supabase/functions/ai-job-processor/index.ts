@@ -111,7 +111,18 @@ async function processJob(supabase: ReturnType<typeof createClient>, job: Job) {
       ref_id: job.id,
     });
   }
+
+  await supabase.from("notifications").insert({
+    user_id: job.triggered_by_user_id,
+    notification_type: "ai_job_complete",
+    title: `AI ${job.job_type.replace(/_/g, " ")} ready`,
+    message: "Your AI-generated draft is ready to review.",
+    related_student_id: job.student_id,
+    related_record_type: "ai_jobs",
+    related_record_id: job.id,
+  });
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
