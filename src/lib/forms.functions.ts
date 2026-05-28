@@ -30,7 +30,7 @@ export type FormResponse = {
   template_slug: string;
   respondent_id: string;
   respondent_role: string;
-  answers: Record<string, unknown>;
+  answers: any;
   status: "draft" | "completed";
   completed_at: string | null;
   created_at: string;
@@ -49,7 +49,7 @@ export const listTemplates = createServerFn({ method: "GET" })
       console.error("listTemplates failed", error);
       return { templates: [] as FormTemplate[] };
     }
-    return { templates: (data ?? []) as FormTemplate[] };
+    return { templates: (data ?? []) as unknown as FormTemplate[] };
   });
 
 export const getTemplate = createServerFn({ method: "POST" })
@@ -63,7 +63,7 @@ export const getTemplate = createServerFn({ method: "POST" })
       .eq("slug", data.slug)
       .maybeSingle();
     if (error || !row) throw new Error("Form not found.");
-    return row as FormTemplate;
+    return row as unknown as FormTemplate;
   });
 
 export const listResponses = createServerFn({ method: "POST" })
@@ -113,9 +113,9 @@ export const saveResponse = createServerFn({ method: "POST" })
     };
     let result;
     if (data.id) {
-      result = await supabase.from("form_responses").update(payload).eq("id", data.id).select("*").single();
+      result = await supabase.from("form_responses").update(payload as any).eq("id", data.id).select("*").single();
     } else {
-      result = await supabase.from("form_responses").insert(payload).select("*").single();
+      result = await supabase.from("form_responses").insert(payload as any).select("*").single();
     }
     if (result.error || !result.data) {
       console.error("saveResponse failed", result.error);

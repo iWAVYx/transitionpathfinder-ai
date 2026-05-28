@@ -40,7 +40,7 @@ export type Message = {
   thread_id: string;
   author_id: string;
   body: string;
-  attachments: unknown[];
+  attachments: any;
   created_at: string;
   updated_at: string;
 };
