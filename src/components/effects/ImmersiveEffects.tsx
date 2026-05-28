@@ -36,9 +36,8 @@ export function CursorField({
   children,
   className,
   blobs = [
-    { size: 420, color: "hsl(20 90% 75% / 0.55)", invert: false, speed: 0.18 },
-    { size: 280, color: "hsl(200 85% 78% / 0.55)", invert: true, speed: 0.28 },
-    { size: 200, color: "hsl(340 80% 80% / 0.5)", invert: false, speed: 0.4 },
+    { size: 520, color: "oklch(0.88 0.08 50 / 0.35)", invert: false, speed: 0.12 },
+    { size: 360, color: "oklch(0.86 0.07 220 / 0.32)", invert: true, speed: 0.18 },
   ],
 }: {
   children: ReactNode;
@@ -72,14 +71,14 @@ export function CursorField({
     <div ref={ref} className={cn("relative overflow-hidden", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         {blobs.map((b, i) => {
-          const dx = (coord.x - 0.5) * (b.invert ? -1 : 1) * 220 * (b.speed ?? 0.25);
-          const dy = (coord.y - 0.5) * (b.invert ? -1 : 1) * 220 * (b.speed ?? 0.25);
-          const left = 10 + ((i * 37) % 70);
-          const top = 10 + ((i * 53) % 70);
+          const dx = reduced ? 0 : (coord.x - 0.5) * (b.invert ? -1 : 1) * 130 * (b.speed ?? 0.15);
+          const dy = reduced ? 0 : (coord.y - 0.5) * (b.invert ? -1 : 1) * 130 * (b.speed ?? 0.15);
+          const left = i === 0 ? 18 : 62;
+          const top = i === 0 ? 22 : 58;
           return (
             <div
               key={i}
-              className="absolute rounded-full blur-3xl mix-blend-multiply"
+              className="absolute rounded-full blur-3xl"
               style={{
                 width: b.size,
                 height: b.size,
@@ -87,7 +86,7 @@ export function CursorField({
                 top: `${top}%`,
                 background: b.color,
                 transform: `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0)`,
-                transition: "transform 600ms cubic-bezier(.22,.61,.36,1)",
+                transition: "transform 1100ms cubic-bezier(.22,.61,.36,1)",
                 willChange: "transform",
               }}
             />
