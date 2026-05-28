@@ -466,8 +466,8 @@ function HomePage() {
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           <AudiencePhoto
-            image={studentImg}
-            alt="A sample Student Hub screen showing a personalized profile for a teen learner"
+            image={studentPhotoImg}
+            alt="A high school student writing in a notebook at a sunlit desk"
             title="Students"
             body="Understand your own plan, explore careers that match who you are, and walk into your PPT meeting knowing what to say."
             cta={{ to: "/platform", label: "Explore the platform" }}
