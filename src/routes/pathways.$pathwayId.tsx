@@ -448,7 +448,7 @@ function PathwayFlow() {
         </aside>
 
         {/* Step detail */}
-        <article className="min-w-0">
+        <article ref={articleRef} className="min-w-0 scroll-mt-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             {pathway.label}
           </p>
