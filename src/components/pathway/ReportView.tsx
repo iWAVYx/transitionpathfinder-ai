@@ -1007,8 +1007,16 @@ export function ReportView({
       </div>
 
       <style>{`
+        /* Auto-numbered sections — formal document feel */
+        .report-root { counter-reset: section; }
+        .report-section { counter-increment: section; }
+        .report-section .section-number::before {
+          content: "§ " counter(section, decimal-leading-zero);
+        }
+
         /* Screen-only: hide the print cover */
         .print-cover { display: none; }
+
 
         @media print {
           @page {
