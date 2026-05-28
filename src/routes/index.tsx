@@ -638,7 +638,13 @@ function HomePage() {
 
 
       {/* AUDIENCE — three tall image cards with text overlay */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <ArcStack className="absolute -left-10 -bottom-4 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
+        <Parallax speed={0.25} className="absolute right-6 top-4 hidden h-14 w-20 text-primary/55 md:block">
+          <ArrowDoodle className="h-full w-full rotate-180" />
+        </Parallax>
+
         <div className="mb-12 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Who it helps
