@@ -392,7 +392,7 @@ function PathwayFlow() {
       </section>
 
       {/* Body */}
-      <section className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[18rem,1fr] lg:px-8">
+      <section className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[18rem_1fr] lg:px-8">
         {/* Step rail */}
         <aside aria-label="Steps" className="md:sticky md:top-6 md:self-start">
           <div className="mb-4">
