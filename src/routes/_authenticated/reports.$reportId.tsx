@@ -1,8 +1,21 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Copy, Check, Link2, Trash2, Share2, UserCircle2 } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Link2,
+  Trash2,
+  Share2,
+  UserCircle2,
+  Sparkles,
+  Printer,
+  BookmarkPlus,
+  ListChecks,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -22,13 +35,20 @@ import {
   type Student,
 } from "@/lib/students.functions";
 
+const SearchSchema = z.object({
+  welcome: z.coerce.number().optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
   head: () => ({ meta: [{ title: "Pathway Report — TransitionForward" }] }),
+  validateSearch: (s) => SearchSchema.parse(s),
   component: ReportDetailPage,
 });
 
 function ReportDetailPage() {
   const { reportId } = Route.useParams();
+  const search = Route.useSearch();
+  const [showWelcome, setShowWelcome] = useState(!!search.welcome);
   const fetchReport = useServerFn(getReport);
   const listTokens = useServerFn(listShareTokens);
   const create = useServerFn(createShareToken);
@@ -142,6 +162,63 @@ function ReportDetailPage() {
           ]}
         />
       </div>
+
+      {showWelcome && (
+        <div className="no-print mx-auto mt-6 max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-8">
+            <button
+              type="button"
+              onClick={() => setShowWelcome(false)}
+              className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+              aria-label="Dismiss"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Your report is ready
+              </p>
+            </div>
+            <h2 className="mt-2 font-display text-2xl tracking-tight sm:text-3xl">
+              {state.name}'s Pathway Report
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              Take a few minutes to read through it. When you're ready, here's what most
+              families do next.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <NextStep
+                icon={<BookmarkPlus className="h-4 w-4" />}
+                title="Save to a student"
+                body="Keep this report on a student profile so it stays organized."
+              />
+              <NextStep
+                icon={<Printer className="h-4 w-4" />}
+                title="Download as PDF"
+                body="Print or save a clean PDF to bring to the next PPT meeting."
+              />
+              <NextStep
+                icon={<Share2 className="h-4 w-4" />}
+                title="Share securely"
+                body="Send a private link to family or your educator team."
+              />
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button size="sm" onClick={() => window.print()}>
+                <Printer className="h-4 w-4" /> Download PDF
+              </Button>
+              <Button size="sm" variant="outline" asChild>
+                <a href="#share-panel"><Share2 className="h-4 w-4" /> Share</a>
+              </Button>
+              <Button size="sm" variant="ghost" asChild>
+                <Link to="/reports"><ListChecks className="h-4 w-4" /> All reports</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ReportView
         name={state.name}
         report={state.report}
@@ -191,7 +268,7 @@ function ReportDetailPage() {
       </section>
 
       {/* Share panel */}
-      <section className="no-print mx-auto max-w-4xl px-4 pb-14 sm:px-6 lg:px-8">
+      <section id="share-panel" className="no-print mx-auto max-w-4xl px-4 pb-14 sm:px-6 lg:px-8 scroll-mt-24">
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -247,5 +324,25 @@ function ReportDetailPage() {
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+function NextStep({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+      <div className="flex items-center gap-2 text-primary">
+        {icon}
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+      </div>
+      <p className="mt-1.5 text-xs text-muted-foreground">{body}</p>
+    </div>
   );
 }
