@@ -335,7 +335,7 @@ export function MorphCard({
 export function FloatingShape({
   className,
   delay = 0,
-  duration = 12,
+  duration = 18,
   children,
 }: {
   className?: string;
@@ -343,16 +343,17 @@ export function FloatingShape({
   duration?: number;
   children: ReactNode;
 }) {
+  const reduced = usePrefersReducedMotion();
   return (
     <div
       className={cn("pointer-events-none", className)}
       style={{
-        animation: `tf-float ${duration}s ease-in-out ${delay}s infinite`,
+        animation: reduced ? undefined : `tf-float ${duration}s ease-in-out ${delay}s infinite`,
       }}
       aria-hidden
     >
       {children}
-      <style>{`@keyframes tf-float { 0%,100%{ transform: translate3d(0,0,0) rotate(0deg) } 33%{ transform: translate3d(14px,-22px,0) rotate(6deg) } 66%{ transform: translate3d(-10px,12px,0) rotate(-5deg) } }`}</style>
+      <style>{`@keyframes tf-float { 0%,100%{ transform: translate3d(0,0,0) rotate(0deg) } 33%{ transform: translate3d(8px,-12px,0) rotate(2deg) } 66%{ transform: translate3d(-6px,8px,0) rotate(-2deg) } }`}</style>
     </div>
   );
 }
