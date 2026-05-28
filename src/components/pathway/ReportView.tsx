@@ -433,7 +433,7 @@ export function ReportView({
               <ReadinessBadge level={r.student_snapshot.readiness_level} />
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 grid-sym-2">
               <MiniCard label="Primary interests" items={r.student_snapshot.primary_interests} />
               <MiniCard
                 label="Learning preferences"
@@ -503,7 +503,7 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             A strengths-based snapshot. These are conversation starters, not grades.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.readiness_scorecard.map((row) => (
               <div
                 key={row.category}
@@ -592,14 +592,14 @@ export function ReportView({
       {/* ============ Career matches ============ */}
       {r.career_matches && r.career_matches.length > 0 && (
         <Block id="sec-careers" title="Career & life pathway matches" icon={<Briefcase className="h-5 w-5" />}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
             {r.career_matches.map((c) => (
               <div key={c.cluster} className="rounded-2xl border bg-card p-5">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="font-display text-xl">{c.cluster}</h4>
                   <ReadinessBadge level={c.readiness_level} compact />
                 </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <MiniCard label="Example jobs" items={c.example_jobs} compact />
                   <MiniCard label="Skills used" items={c.skills_required} compact />
                 </div>
@@ -670,7 +670,7 @@ export function ReportView({
               <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5">
                 <h3 className="font-display text-xl font-medium">{p.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <MiniCard label="Example roles" items={p.example_roles} compact />
                   <MiniCard label="First steps" items={p.first_steps} compact />
                 </div>
@@ -703,7 +703,7 @@ export function ReportView({
                   Goal language
                 </p>
                 <p className="mt-1 italic text-foreground/80">"{t.goal_text}"</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <Labeled label="What it means">{t.plain_meaning}</Labeled>
                   <Labeled label="Connected to real life">{t.connected_to_real_life}</Labeled>
                   <Labeled label={`What ${name} should know`}>{t.what_student_should_know}</Labeled>
@@ -725,7 +725,7 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             This report doesn't pretend to know everything. Here's what would sharpen it.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.data_gaps.map((g, i) => (
               <div
                 key={i}
@@ -750,7 +750,7 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             Questions for {name} to think through — alone, with family, or with a teacher.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.student_voice_prompts.map((p, i) => (
               <div key={i} className="rounded-2xl border bg-card p-5">
                 <p className="font-display text-lg">{p.prompt}</p>
@@ -828,7 +828,7 @@ export function ReportView({
       {r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP meeting prep" icon={<ListChecks className="h-5 w-5" />}>
           <div className="rounded-3xl border bg-card p-6 shadow-soft">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
               <MiniCard
                 label="Questions to ask"
                 items={r.meeting_prep_toolkit.questions_to_ask}
@@ -876,7 +876,7 @@ export function ReportView({
       {/* ============ Opportunity matches ============ */}
       {r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to explore" icon={<MapIcon className="h-5 w-5" />}>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
               <div key={i} className="rounded-2xl border bg-card p-5">
                 <div className="flex items-center justify-between gap-2">
