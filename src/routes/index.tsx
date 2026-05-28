@@ -205,12 +205,23 @@ function HomePage() {
       </section>
 
       {/* PROBLEM — split panel: photo + statement */}
-      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <ShapeScroll
           className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/20 lg:block"
           spin={140}
           scale={0.5}
         />
+        <DotField className="absolute -left-4 top-4 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <FloatingShape className="absolute right-6 top-10 z-0 hidden h-9 w-9 text-primary/60 md:block" delay={0.4}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="absolute left-1/3 -top-2 z-0 hidden h-7 w-7 text-secondary-foreground/60 md:block" duration={14} delay={1.2}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Parallax speed={0.15} className="absolute -right-8 bottom-8 -z-0 hidden h-24 w-24 text-primary/70 lg:block">
+          <PaperPlane className="h-full w-full" />
+        </Parallax>
+
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-5" y={36}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
