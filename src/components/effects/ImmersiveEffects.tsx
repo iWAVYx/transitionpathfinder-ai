@@ -36,9 +36,8 @@ export function CursorField({
   children,
   className,
   blobs = [
-    { size: 420, color: "hsl(20 90% 75% / 0.55)", invert: false, speed: 0.18 },
-    { size: 280, color: "hsl(200 85% 78% / 0.55)", invert: true, speed: 0.28 },
-    { size: 200, color: "hsl(340 80% 80% / 0.5)", invert: false, speed: 0.4 },
+    { size: 520, color: "oklch(0.88 0.08 50 / 0.35)", invert: false, speed: 0.12 },
+    { size: 360, color: "oklch(0.86 0.07 220 / 0.32)", invert: true, speed: 0.18 },
   ],
 }: {
   children: ReactNode;
@@ -72,14 +71,14 @@ export function CursorField({
     <div ref={ref} className={cn("relative overflow-hidden", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         {blobs.map((b, i) => {
-          const dx = (coord.x - 0.5) * (b.invert ? -1 : 1) * 220 * (b.speed ?? 0.25);
-          const dy = (coord.y - 0.5) * (b.invert ? -1 : 1) * 220 * (b.speed ?? 0.25);
-          const left = 10 + ((i * 37) % 70);
-          const top = 10 + ((i * 53) % 70);
+          const dx = reduced ? 0 : (coord.x - 0.5) * (b.invert ? -1 : 1) * 130 * (b.speed ?? 0.15);
+          const dy = reduced ? 0 : (coord.y - 0.5) * (b.invert ? -1 : 1) * 130 * (b.speed ?? 0.15);
+          const left = i === 0 ? 18 : 62;
+          const top = i === 0 ? 22 : 58;
           return (
             <div
               key={i}
-              className="absolute rounded-full blur-3xl mix-blend-multiply"
+              className="absolute rounded-full blur-3xl"
               style={{
                 width: b.size,
                 height: b.size,
@@ -87,7 +86,7 @@ export function CursorField({
                 top: `${top}%`,
                 background: b.color,
                 transform: `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0)`,
-                transition: "transform 600ms cubic-bezier(.22,.61,.36,1)",
+                transition: "transform 1100ms cubic-bezier(.22,.61,.36,1)",
                 willChange: "transform",
               }}
             />
@@ -104,7 +103,7 @@ export function CursorField({
  */
 export function Magnetic({
   children,
-  strength = 22,
+  strength = 12,
   className,
   as: Tag = "div",
 }: {
@@ -136,7 +135,7 @@ export function Magnetic({
       className={cn("inline-block", className)}
       style={{
         transform: `translate3d(${t.x.toFixed(2)}px, ${t.y.toFixed(2)}px, 0)`,
-        transition: "transform 350ms cubic-bezier(.22,.61,.36,1)",
+        transition: "transform 450ms cubic-bezier(.22,.61,.36,1)",
         willChange: "transform",
       }}
     >
@@ -167,11 +166,11 @@ export function HoverReveal({
       )}
       style={{ height }}
     >
-      <div className="relative z-10 transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:opacity-0">
+      <div className="relative z-10 transition-all duration-[650ms] ease-[cubic-bezier(.22,.61,.36,1)] group-hover:-translate-y-1 group-hover:opacity-0">
         {front}
       </div>
       <div
-        className="absolute inset-0 z-20 flex translate-y-4 flex-col justify-center px-7 py-7 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100"
+        className="absolute inset-0 z-20 flex translate-y-2 flex-col justify-center px-7 py-7 opacity-0 transition-all duration-[650ms] ease-[cubic-bezier(.22,.61,.36,1)] group-hover:translate-y-0 group-hover:opacity-100"
         aria-hidden
       >
         {back}
@@ -187,7 +186,7 @@ export function TextMask({
   children,
   className,
   image,
-  gradient = "linear-gradient(120deg, hsl(20 95% 60%), hsl(340 90% 65%), hsl(200 90% 60%), hsl(40 95% 60%))",
+  gradient = "linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.74 0.10 25), oklch(0.72 0.10 220), oklch(0.78 0.12 50))",
   animate = true,
 }: {
   children: ReactNode;
@@ -196,15 +195,16 @@ export function TextMask({
   gradient?: string;
   animate?: boolean;
 }) {
+  const reduced = usePrefersReducedMotion();
   const bg = image ? `url(${image}) center/cover` : gradient;
   return (
     <span
       className={cn("inline-block bg-clip-text text-transparent", className)}
       style={{
         backgroundImage: bg,
-        backgroundSize: image ? "cover" : "300% 300%",
+        backgroundSize: image ? "cover" : "220% 220%",
         WebkitBackgroundClip: "text",
-        animation: animate && !image ? "tf-text-pan 12s ease-in-out infinite" : undefined,
+        animation: animate && !image && !reduced ? "tf-text-pan 18s ease-in-out infinite" : undefined,
       }}
     >
       {children}
@@ -257,9 +257,9 @@ export function StickyPin({
 
   const style: CSSProperties = {
     top,
-    transform: `scale(${(1 - progress * 0.08).toFixed(3)})`,
-    opacity: 1 - progress * 0.25,
-    transition: "transform 100ms linear, opacity 100ms linear",
+    transform: `scale(${(1 - progress * 0.04).toFixed(3)})`,
+    opacity: 1 - progress * 0.12,
+    transition: "transform 200ms linear, opacity 200ms linear",
   };
 
   return (
@@ -308,12 +308,11 @@ export function MorphCard({
     };
   }, [reduced]);
 
-  // morph radius from squircle -> blob -> rounded
-  const r1 = 8 + p * 60;
-  const r2 = 80 - p * 70;
-  const r3 = 20 + p * 50;
-  const r4 = 60 - p * 40;
-  const rot = (p - 0.5) * 6;
+  // Subtle morph: gentle radius drift, no rotation.
+  const r1 = 24 + p * 22;
+  const r2 = 46 - p * 18;
+  const r3 = 28 + p * 18;
+  const r4 = 42 - p * 16;
 
   return (
     <div
@@ -321,8 +320,7 @@ export function MorphCard({
       className={cn("overflow-hidden border border-border/60 bg-card shadow-soft", className)}
       style={{
         borderRadius: `${r1}% ${r2}% ${r3}% ${r4}% / ${r4}% ${r1}% ${r2}% ${r3}%`,
-        transform: `rotate(${rot.toFixed(2)}deg)`,
-        transition: "border-radius 120ms linear, transform 200ms ease-out",
+        transition: "border-radius 240ms ease-out",
       }}
     >
       {children}
@@ -337,7 +335,7 @@ export function MorphCard({
 export function FloatingShape({
   className,
   delay = 0,
-  duration = 12,
+  duration = 18,
   children,
 }: {
   className?: string;
@@ -345,16 +343,17 @@ export function FloatingShape({
   duration?: number;
   children: ReactNode;
 }) {
+  const reduced = usePrefersReducedMotion();
   return (
     <div
       className={cn("pointer-events-none", className)}
       style={{
-        animation: `tf-float ${duration}s ease-in-out ${delay}s infinite`,
+        animation: reduced ? undefined : `tf-float ${duration}s ease-in-out ${delay}s infinite`,
       }}
       aria-hidden
     >
       {children}
-      <style>{`@keyframes tf-float { 0%,100%{ transform: translate3d(0,0,0) rotate(0deg) } 33%{ transform: translate3d(14px,-22px,0) rotate(6deg) } 66%{ transform: translate3d(-10px,12px,0) rotate(-5deg) } }`}</style>
+      <style>{`@keyframes tf-float { 0%,100%{ transform: translate3d(0,0,0) rotate(0deg) } 33%{ transform: translate3d(8px,-12px,0) rotate(2deg) } 66%{ transform: translate3d(-6px,8px,0) rotate(-2deg) } }`}</style>
     </div>
   );
 }

@@ -32,7 +32,6 @@ import {
   TextMask,
   StickyPin,
   MorphCard,
-  FloatingShape,
 } from "@/components/effects/ImmersiveEffects";
 import { toTitleCase } from "@/lib/title-case";
 
@@ -171,12 +170,8 @@ function ResearchPage() {
             <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
           </div>
 
-          <FloatingShape className="absolute right-[8%] top-16 -z-10" duration={18}>
-            <div className="h-48 w-48 rounded-full bg-sky/30 blur-3xl" />
-          </FloatingShape>
-          <FloatingShape className="absolute left-[6%] bottom-12 -z-10" delay={2} duration={22}>
-            <div className="h-56 w-56 rounded-full bg-peach/30 blur-3xl" />
-          </FloatingShape>
+
+
 
           <div className="mx-auto max-w-7xl px-4 pt-20 pb-20 sm:px-6 lg:px-8 lg:pt-28 lg:pb-28">
             <Reveal>
