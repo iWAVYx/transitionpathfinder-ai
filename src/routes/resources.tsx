@@ -33,6 +33,13 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { listVerifiedResources, type DbResource } from "@/lib/resources-db.functions";
+import {
+  listSavedResources,
+  saveResource,
+  unsaveResource,
+  type SavedResourceRow,
+} from "@/lib/saved-resources.functions";
+import { toast } from "sonner";
 
 import resourcesHero from "@/assets/resources-hero-v2.jpg";
 import {
@@ -167,12 +174,37 @@ function ResourcesPage() {
   const { saved, toggle, remove } = useSaved();
 
   const fetchDb = useServerFn(listVerifiedResources);
+  const fetchSaved = useServerFn(listSavedResources);
+  const doSave = useServerFn(saveResource);
+  const doUnsave = useServerFn(unsaveResource);
   const [dbResources, setDbResources] = useState<DbResource[] | null>(null);
+  const [savedDb, setSavedDb] = useState<SavedResourceRow[]>([]);
+  const savedIds = useMemo(() => new Set(savedDb.map((s) => s.resource_id)), [savedDb]);
   useEffect(() => {
     fetchDb()
       .then((r) => setDbResources(r.resources))
       .catch(() => setDbResources([]));
-  }, [fetchDb]);
+    fetchSaved()
+      .then((r) => setSavedDb(r.items))
+      .catch(() => {});
+  }, [fetchDb, fetchSaved]);
+
+  async function handleToggleSaveDb(id: string) {
+    try {
+      if (savedIds.has(id)) {
+        await doUnsave({ data: { resource_id: id } });
+        setSavedDb((p) => p.filter((s) => s.resource_id !== id));
+        toast.success("Removed from your library");
+      } else {
+        await doSave({ data: { resource_id: id } });
+        const r = await fetchSaved();
+        setSavedDb(r.items);
+        toast.success("Saved to your library");
+      }
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Could not update saved resource.");
+    }
+  }
 
 
 
