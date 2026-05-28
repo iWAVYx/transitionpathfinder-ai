@@ -22,6 +22,7 @@ import {
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/educators")({
   head: () => ({
     meta: [
@@ -147,7 +148,7 @@ function EducatorsPage() {
             What you get
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Six tools, one quieter week.
+            Six Tools, One Quieter Week.
           </h2>
         </Reveal>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -157,7 +158,7 @@ function EducatorsPage() {
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground transition-transform group-hover:rotate-6 group-hover:scale-110">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{t}</h3>
+                <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{toTitleCase(t)}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
               </article>
             </Reveal>
@@ -177,7 +178,7 @@ function EducatorsPage() {
             A week in the platform
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Scroll through your week.
+            Scroll Through Your Week.
           </h2>
         </Reveal>
         <StickyScrollStory panels={storyPanels} />
@@ -201,7 +202,7 @@ function EducatorsPage() {
         </Parallax>
         <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Ready to get your evenings back?
+            Ready to Get Your Evenings Back?
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
             Try the Pathway Builder yourself, or bring it to your team for a pilot.

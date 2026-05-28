@@ -3,6 +3,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import type { ReactNode } from "react";
 import comingSoonHero from "@/assets/comingsoon-hero.jpg";
 
+import { toTitleCase } from "@/lib/title-case";
 export function ComingSoon({
   eyebrow,
   title,
@@ -24,7 +25,7 @@ export function ComingSoon({
               {eyebrow}
             </p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
-              {title}
+              {toTitleCase(title)}
             </h1>
             <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
               {body}

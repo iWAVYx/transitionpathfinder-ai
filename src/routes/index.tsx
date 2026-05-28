@@ -50,6 +50,7 @@ import {
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -283,7 +284,7 @@ function HomePage() {
               id="role-router-heading"
               className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl"
             >
-              Choose your path in.
+              Choose Your Path In.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
               Transition planning looks different from every chair at the table.
@@ -420,7 +421,7 @@ function HomePage() {
               What's inside
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              A clearer way to plan what comes next.
+              A Clearer Way to Plan What Comes Next.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
               Expert-built Pathway recommendations, student-centered goal tracking, and
@@ -474,7 +475,7 @@ function HomePage() {
               Real-life pathways
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              Many roads forward. One plan that fits.
+              Many Roads Forward. One Plan That Fits.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
               College, technical training, supported employment, daily life skills,
@@ -556,7 +557,7 @@ function HomePage() {
                 What we're trying to change
               </p>
               <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-                The outcomes we measure ourselves against.
+                The Outcomes We Measure Ourselves Against.
               </h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -583,7 +584,7 @@ function HomePage() {
             Who it helps
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Built for everyone at the table.
+            Built for Everyone at the Table.
           </h2>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
@@ -628,7 +629,7 @@ function HomePage() {
               Be part of the first cohort
             </p>
             <h2 className="mt-4 font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Help students move forward with a plan that actually makes sense.
+              Help Students Move Forward with a Plan That Actually Makes Sense.
             </h2>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-background/85">
               We're opening a small Connecticut pilot for families and educators
@@ -704,7 +705,7 @@ function HomePage() {
                   <ShieldCheck className="h-3 w-3" aria-hidden /> Privacy &amp; trust
                 </span>
                 <h3 className="font-display text-xl font-medium leading-tight tracking-tight text-foreground sm:text-2xl">
-                  Built around student privacy from day one.
+                  Built Around Student Privacy From Day One.
                 </h3>
               </div>
               <ul className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
@@ -756,7 +757,7 @@ function RoleCard({
       <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toneStyles[tone]} text-foreground`}>
         <Icon className="h-5 w-5" aria-hidden />
       </span>
-      <h3 className="mt-5 font-display text-lg font-medium leading-snug tracking-tight">{label}</h3>
+      <h3 className="mt-5 font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(label)}</h3>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
       <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
         {cta} <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -771,7 +772,7 @@ function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title:
       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-4 w-4" aria-hidden />
       </span>
-      <h3 className="mt-4 font-display text-base font-semibold tracking-tight">{title}</h3>
+      <h3 className="mt-4 font-display text-base font-semibold tracking-tight">{toTitleCase(title)}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
@@ -872,7 +873,7 @@ function Zigzag({
           {eyebrow}
         </p>
         <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          {title}
+          {toTitleCase(title)}
         </h3>
         <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
           {body}
@@ -909,7 +910,7 @@ function AudiencePhoto({
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 p-7 text-background">
         <h3 className="font-display text-3xl font-medium tracking-tight">
-          {title}
+          {toTitleCase(title)}
         </h3>
         <p className="mt-3 text-sm leading-relaxed text-background/85">
           {body}
@@ -985,7 +986,7 @@ function PathwayTile({
                 : "text-xl sm:text-2xl"
           }`}
         >
-          {label}
+          {toTitleCase(label)}
         </h3>
         {!compact && (
           <p

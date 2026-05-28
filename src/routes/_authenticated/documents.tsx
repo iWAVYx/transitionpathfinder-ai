@@ -57,7 +57,7 @@ function DocumentsHubPage() {
             Your documents
           </p>
           <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">
-            Every IEP, evaluation, and plan — in one calm place.
+            Every Iep, Evaluation, and Plan — in One Calm Place.
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             Documents you upload on each student page show up here too, so you can quickly find

@@ -47,6 +47,7 @@ import {
   type TimeNeeded,
 } from "@/lib/resource-library";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/resources")({
   head: () => ({
     meta: [
@@ -266,7 +267,7 @@ function ResourcesPage() {
       {/* CATEGORY GRID */}
       <section className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
         <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-          Ten core categories
+          Ten Core Categories
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Tap a category to filter the library. Each one is curated for the
@@ -362,7 +363,7 @@ function ResourcesPage() {
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <div className="mt-8 overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            Connect resources to a real plan.
+            Connect Resources to a Real Plan.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/80">
             Start a student profile and the library can recommend videos,
@@ -528,7 +529,7 @@ function BrowseTab(props: {
         <div className="mt-10">
           <div className="mb-4 flex items-baseline justify-between">
             <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-              Featured this week
+              Featured This Week
             </h2>
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
               Editors' picks
@@ -548,7 +549,7 @@ function BrowseTab(props: {
           <div key={fmt}>
             <div className="mb-5 flex items-baseline justify-between">
               <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-                {FORMAT_META[fmt].label}s
+                {FORMAT_META[fmt].label}S
               </h2>
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 {grouped[fmt]?.length} resources
@@ -606,7 +607,7 @@ function RecommendedTab({
           </div>
           <div>
             <h2 className="font-display text-2xl font-medium tracking-tight">
-              Personalized for the active student profile
+              Personalized for the Active Student Profile
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
               Recommendations update as you add goals, interests, uploaded
@@ -682,7 +683,7 @@ function SavedTab({
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display text-3xl font-medium tracking-tight">
-            Your saved resources
+            Your Saved Resources
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Organize what you save into collections — one for next month's
@@ -783,7 +784,7 @@ function ResourceCard({
           {r.author ? ` · ${r.author}` : ""}
         </p>
         <h3 className="mt-1 font-display text-lg font-medium leading-snug tracking-tight">
-          {r.title}
+          {toTitleCase(r.title)}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {r.description}

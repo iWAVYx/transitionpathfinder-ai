@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_INTAKE, DEMO_STUDENT } from "@/lib/demo-data";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({
   head: () => ({
     meta: [
@@ -129,7 +130,7 @@ function DemoIntakePage() {
           </Badge>
         </div>
         <h1 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
-          Sample intake for {DEMO_STUDENT.full_name}
+          Sample Intake For {toTitleCase(DEMO_STUDENT.full_name)}
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           This is what the guided transition-planning interview looks like once a family or
@@ -140,7 +141,7 @@ function DemoIntakePage() {
           {SECTIONS.map((section, i) => (
             <div key={section.label} className="rounded-3xl border bg-card shadow-soft">
               <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
-                <h2 className="font-display text-lg">{section.label}</h2>
+                <h2 className="font-display text-lg">{toTitleCase(section.label)}</h2>
                 <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   Section {i + 1} of {SECTIONS.length}
                 </span>

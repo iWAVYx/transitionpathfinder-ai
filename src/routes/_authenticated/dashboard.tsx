@@ -16,6 +16,7 @@ import {
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import pathwayHero from "@/assets/pathway-hero.jpg";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [{ title: "Your dashboard — TransitionForward" }],
@@ -40,7 +41,7 @@ function DashboardPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Welcome back</p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
-              Hi, {friendly}.
+              Hi, {toTitleCase(friendly)}.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               This is your quiet hub. Start a Pathway Report, prep for an upcoming PPT meeting, or
@@ -192,7 +193,7 @@ function FeatureCard({
       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
         {icon}
       </div>
-      <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{title} →</h3>
+      <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{toTitleCase(title)} →</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </Link>
   );

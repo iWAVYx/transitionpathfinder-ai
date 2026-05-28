@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { PerspectivePreview } from "./PerspectivePreview";
 
+import { toTitleCase } from "@/lib/title-case";
 type Key = "family" | "student" | "educator" | "admin";
 
 const perspectives: Array<{
@@ -140,7 +141,7 @@ export function PerspectiveTabs() {
             {current.who}
           </p>
           <h3 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-            {current.tagline}
+            {toTitleCase(current.tagline)}
           </h3>
           <ul className="mt-6 space-y-3">
             {current.bullets.map((b) => (

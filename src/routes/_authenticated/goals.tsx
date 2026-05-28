@@ -12,6 +12,7 @@ import { listMyReports } from "@/lib/pathway.functions";
 import { getPathwayReport } from "@/lib/ppt.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/goals")({
   head: () => ({ meta: [{ title: "Goal Tracker — TransitionForward" }] }),
   component: GoalsPage,
@@ -89,7 +90,7 @@ function GoalsPage() {
         <Breadcrumbs trail={[{ label: "Goal Tracker" }]} />
         <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary">Goal Tracker</p>
         <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          Small steps, gently tracked.
+          Small Steps, Gently Tracked.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Every action from your Pathway Reports, in one place. Tap to mark something as
@@ -231,7 +232,7 @@ function GoalList({
         {Object.entries(groups).map(([group, list]) => (
           <div key={group}>
             <h3 className="font-display text-base font-semibold uppercase tracking-wider text-primary">
-              {group}
+              {toTitleCase(group)}
             </h3>
             <ul className="mt-3 space-y-2">
               {list.map((it) => {

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { submitWaitlist } from "@/lib/waitlist.functions";
 
+import { toTitleCase } from "@/lib/title-case";
 type RoleKey = "family" | "student" | "educator" | "district" | "partner";
 
 const ROLE_OPTIONS: {
@@ -177,7 +178,7 @@ function WaitlistPage() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
                     {opt.icon}
                   </span>
-                  <h2 className="mt-4 font-display text-xl font-medium">{opt.label}</h2>
+                  <h2 className="mt-4 font-display text-xl font-medium">{toTitleCase(opt.label)}</h2>
                   <p className="mt-2 text-sm text-muted-foreground">{opt.blurb}</p>
                   <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                     {opt.cta}{" "}
@@ -194,7 +195,7 @@ function WaitlistPage() {
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
                   {current.icon}
                 </span>
-                <h2 className="mt-4 font-display text-2xl font-medium">{current.label}</h2>
+                <h2 className="mt-4 font-display text-2xl font-medium">{toTitleCase(current.label)}</h2>
                 <p className="mt-3 text-sm text-muted-foreground">{current.blurb}</p>
                 <button
                   type="button"

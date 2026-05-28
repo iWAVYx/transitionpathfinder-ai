@@ -11,6 +11,7 @@ import pathCareer from "@/assets/path-career.jpg";
 import pathLifeskills from "@/assets/path-lifeskills.jpg";
 import pathProgress from "@/assets/path-progress.jpg";
 
+import { toTitleCase } from "@/lib/title-case";
 type PathwayStep = {
   title: string;
   description: string;
@@ -381,7 +382,7 @@ function PathwayFlow() {
               Guided flow
             </p>
             <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-5xl">
-              {pathway.label}
+              {toTitleCase(pathway.label)}
             </h1>
             <p className="mt-2 max-w-xl text-sm text-background/90 sm:text-base">
               {pathway.tagline}
@@ -453,7 +454,7 @@ function PathwayFlow() {
             {pathway.label}
           </p>
           <h2 className="mt-1 font-display text-2xl font-medium sm:text-3xl">
-            {step.title}
+            {toTitleCase(step.title)}
           </h2>
           <p className="mt-3 leading-relaxed text-muted-foreground">
             {step.description}
@@ -461,7 +462,7 @@ function PathwayFlow() {
 
           <div className="mt-6 rounded-2xl border bg-card p-5 shadow-soft">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Try this
+              Try This
             </h3>
             <ul className="mt-3 space-y-2.5">
               {step.checklist.map((item: string) => (
@@ -500,7 +501,7 @@ function PathwayFlow() {
                 <Sparkles className="mt-0.5 h-5 w-5 text-primary" />
                 <div>
                   <h3 className="font-display text-xl">
-                    Nice work — every step is complete.
+                    Nice Work — Every Step Is Complete.
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Bring these notes to your next PPT meeting, or generate a

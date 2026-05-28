@@ -13,6 +13,7 @@ import {
   type Student,
 } from "@/lib/students.functions";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — TransitionForward" }] }),
   component: StudentsPage,
@@ -161,7 +162,7 @@ function StudentsPage() {
                     className="min-w-0 flex-1"
                   >
                     <h2 className="font-display text-xl hover:underline">
-                      {s.first_name} {s.last_name ?? ""}
+                      {toTitleCase(s.first_name)} {s.last_name ?? ""}
                     </h2>
                     <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
                       {s.grade_band ?? "Grade not set"} {s.school ? `· ${s.school}` : ""}

@@ -15,6 +15,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 
+import { toTitleCase } from "@/lib/title-case";
 /* ---------------- prefers-reduced-motion ---------------- */
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -240,7 +241,7 @@ export function StickyScrollStory({
                 aria-hidden={i !== activeIdx}
               >
                 <h3 className="font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
-                  {p.title}
+                  {toTitleCase(p.title)}
                 </h3>
                 <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
                   {p.body}

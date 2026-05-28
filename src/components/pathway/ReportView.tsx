@@ -38,38 +38,7 @@ import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { cn } from "@/lib/utils";
 
-// Title-case helper for heading-like fields. Keeps small words lowercase
-// (except first/last), preserves all-caps acronyms, and handles hyphens/slashes.
-const TC_SMALL = new Set([
-  "a","an","the","and","but","or","nor","for","yet","so",
-  "as","at","by","in","of","on","to","up","via","vs","with","from","into","over","per",
-]);
-function titleCaseWord(w: string, isEdge: boolean): string {
-  if (!w) return w;
-  if (/^[A-Z0-9]{2,}$/.test(w)) return w; // acronym
-  const lower = w.toLowerCase();
-  if (!isEdge && TC_SMALL.has(lower)) return lower;
-  // Recurse on hyphen/slash separators
-  if (/[-/]/.test(w)) {
-    return w
-      .split(/([-/])/)
-      .map((part) => (part === "-" || part === "/" ? part : titleCaseWord(part, true)))
-      .join("");
-  }
-  return lower.charAt(0).toUpperCase() + lower.slice(1);
-}
-function toTitleCase(input?: string | null): string {
-  if (!input) return "";
-  const words = input.split(/(\s+)/);
-  const wordIdxs = words
-    .map((w, i) => (/\S/.test(w) ? i : -1))
-    .filter((i) => i >= 0);
-  const first = wordIdxs[0];
-  const last = wordIdxs[wordIdxs.length - 1];
-  return words
-    .map((w, i) => (/\S/.test(w) ? titleCaseWord(w, i === first || i === last) : w))
-    .join("");
-}
+import { toTitleCase } from "@/lib/title-case";
 
 type Audience = "family" | "educator";
 
@@ -234,7 +203,7 @@ export function ReportView({
       <div className="print-cover hidden print:flex">
         <div className="print-cover-inner">
           <p className="print-cover-eyebrow">TransitionForward · Pathway Report</p>
-          <h1 className="print-cover-title">{name}</h1>
+          <h1 className="print-cover-title">{toTitleCase(name)}</h1>
           <p className="print-cover-sub">
             {audience === "family"
               ? "A personalized plan for the road ahead."
@@ -332,7 +301,7 @@ export function ReportView({
             {audience === "family" ? "Personalized Transition Plan" : "Planning & Placement Team Packet"}
           </p>
           <h1 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-            {heading}
+            {toTitleCase(heading)}
           </h1>
           <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
 
@@ -458,7 +427,7 @@ export function ReportView({
           <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="font-display text-2xl">{name}</h3>
+                <h3 className="font-display text-2xl">{toTitleCase(name)}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {r.student_snapshot.grade_level} · {r.student_snapshot.graduation_timeline}
                 </p>
@@ -1259,7 +1228,7 @@ function Block({
           <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
           {icon && <span className="text-primary">{icon}</span>}
           <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
-            {title}
+            {toTitleCase(title)}
           </h2>
         </div>
         {eyebrow && (

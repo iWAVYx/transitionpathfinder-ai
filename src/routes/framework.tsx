@@ -12,6 +12,7 @@ import {
 
 
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/framework")({
   head: () => ({
     meta: [
@@ -128,7 +129,7 @@ function FrameworkPage() {
               How we walk through it with you
             </p>
             <h1 className="mt-3 max-w-2xl font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
-              Grade 9 to graduation, all of it one connected story.
+              Grade 9 to Graduation, All of It One Connected Story.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
               Adapted from <em>Transition Forward</em>, Caysi Morgan's graduate
@@ -168,7 +169,7 @@ function FrameworkPage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <h2 className="font-display text-4xl font-medium sm:text-5xl">
-            What we believe about transition.
+            What We Believe About Transition.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             Five quiet convictions, taken straight from the handbook, that shape
@@ -182,7 +183,7 @@ function FrameworkPage() {
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="mt-5 font-display text-2xl font-medium">{p.title}</h3>
+                <h3 className="mt-5 font-display text-2xl font-medium">{toTitleCase(p.title)}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
               </div>
             </Reveal>
@@ -201,7 +202,7 @@ function FrameworkPage() {
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-4xl font-medium sm:text-5xl">
-            The six threads we keep weaving.
+            The Six Threads We Keep Weaving.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
             Every thread runs the full length of high school. The grade changes
@@ -229,7 +230,7 @@ function FrameworkPage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <h2 className="font-display text-4xl font-medium sm:text-5xl">
-            What every grade really asks of your family.
+            What Every Grade Really Asks of Your Family.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             A snapshot of what your child is working on, what their team is doing
@@ -245,7 +246,7 @@ function FrameworkPage() {
                   <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero font-display text-2xl font-semibold shadow-soft">
                     {b.grade}
                   </span>
-                  <h3 className="font-display text-2xl font-medium">{b.title}</h3>
+                  <h3 className="font-display text-2xl font-medium">{toTitleCase(b.title)}</h3>
                 </div>
                 <dl className="mt-5 space-y-4 text-sm">
                   <div>

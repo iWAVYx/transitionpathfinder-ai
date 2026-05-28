@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { DEMO_STUDENT, DEMO_REPORT } from "@/lib/demo-data";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/hub")({
   head: () => ({
     meta: [
@@ -125,7 +126,7 @@ function DemoHubPage() {
                 Student Hub
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {DEMO_STUDENT.full_name}
+                {toTitleCase(DEMO_STUDENT.full_name)}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {DEMO_STUDENT.pronouns} · {DEMO_STUDENT.grade} · {DEMO_STUDENT.school}
