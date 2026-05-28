@@ -318,7 +318,7 @@ function AboutPage() {
 
       {/* ====== STICKY PIN — "From paperwork to pathways" ====== */}
       <section className="relative">
-        <StickyPin className="h-[180vh]" top="20vh">
+        <StickyPin className="h-[130vh]" top="22vh">
           <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Our north star
