@@ -30,7 +30,7 @@ export type FormResponse = {
   template_slug: string;
   respondent_id: string;
   respondent_role: string;
-  answers: Record<string, unknown>;
+  answers: any;
   status: "draft" | "completed";
   completed_at: string | null;
   created_at: string;
