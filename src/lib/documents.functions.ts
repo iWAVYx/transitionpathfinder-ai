@@ -68,8 +68,25 @@ export const registerDocument = createServerFn({ method: "POST" })
       console.error("registerDocument failed", error);
       throw new Error("Could not save document record.");
     }
+
+    // Enqueue an AI document summary job (best-effort; don't fail upload if it errors).
+    const { error: jobErr } = await supabase.from("ai_jobs").insert({
+      student_id: data.student_id,
+      triggered_by_user_id: userId,
+      job_type: "document_summary",
+      status: "queued",
+      input_source: {
+        document_id: row.id,
+        title: data.title,
+        doc_type: data.doc_type,
+        storage_path: data.storage_path,
+      },
+    });
+    if (jobErr) console.error("ai_jobs enqueue failed", jobErr);
+
     return row as DocumentRow;
   });
+
 
 export const deleteDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
