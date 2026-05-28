@@ -49,7 +49,7 @@ export const listTemplates = createServerFn({ method: "GET" })
       console.error("listTemplates failed", error);
       return { templates: [] as FormTemplate[] };
     }
-    return { templates: (data ?? []) as FormTemplate[] };
+    return { templates: (data ?? []) as unknown as FormTemplate[] };
   });
 
 export const getTemplate = createServerFn({ method: "POST" })
