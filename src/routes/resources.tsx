@@ -462,11 +462,7 @@ function ResourcesPage() {
           )}
         </section>
       )}
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+
 
       {/* TAB BAR */}
 
