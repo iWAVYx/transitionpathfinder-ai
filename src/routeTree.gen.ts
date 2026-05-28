@@ -21,11 +21,15 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as FrameworkRouteImport } from './routes/framework'
 import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as DemoReportRouteImport } from './routes/demo.report'
+import { Route as DemoIntakeRouteImport } from './routes/demo.intake'
+import { Route as DemoHubRouteImport } from './routes/demo.hub'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -100,6 +104,11 @@ const EducatorsRoute = EducatorsRouteImport.update({
   path: '/educators',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -123,6 +132,21 @@ const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   id: '/pathways/$pathwayId',
   path: '/pathways/$pathwayId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DemoReportRoute = DemoReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoIntakeRoute = DemoIntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoHubRoute = DemoHubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
+  getParentRoute: () => DemoRoute,
 } as any)
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
@@ -196,6 +220,7 @@ const AuthenticatedReportsReportIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/demo': typeof DemoRouteWithChildren
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
@@ -219,6 +244,9 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/demo/hub': typeof DemoHubRoute
+  '/demo/intake': typeof DemoIntakeRoute
+  '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -227,6 +255,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/demo': typeof DemoRouteWithChildren
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
@@ -250,6 +279,9 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/demo/hub': typeof DemoHubRoute
+  '/demo/intake': typeof DemoIntakeRoute
+  '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -260,6 +292,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
+  '/demo': typeof DemoRouteWithChildren
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
@@ -283,6 +316,9 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/demo/hub': typeof DemoHubRoute
+  '/demo/intake': typeof DemoIntakeRoute
+  '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -293,6 +329,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/demo'
     | '/educators'
     | '/families'
     | '/framework'
@@ -316,6 +353,9 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/demo/hub'
+    | '/demo/intake'
+    | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/reports/$reportId'
@@ -324,6 +364,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/demo'
     | '/educators'
     | '/families'
     | '/framework'
@@ -347,6 +388,9 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/demo/hub'
+    | '/demo/intake'
+    | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/reports/$reportId'
@@ -356,6 +400,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/demo'
     | '/educators'
     | '/families'
     | '/framework'
@@ -379,6 +424,9 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/students'
+    | '/demo/hub'
+    | '/demo/intake'
+    | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/reports/$reportId'
@@ -389,6 +437,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
+  DemoRoute: typeof DemoRouteWithChildren
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
@@ -491,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -525,6 +581,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/pathways/$pathwayId'
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/demo/report': {
+      id: '/demo/report'
+      path: '/report'
+      fullPath: '/demo/report'
+      preLoaderRoute: typeof DemoReportRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/intake': {
+      id: '/demo/intake'
+      path: '/intake'
+      fullPath: '/demo/intake'
+      preLoaderRoute: typeof DemoIntakeRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/hub': {
+      id: '/demo/hub'
+      path: '/hub'
+      fullPath: '/demo/hub'
+      preLoaderRoute: typeof DemoHubRouteImport
+      parentRoute: typeof DemoRoute
     }
     '/_authenticated/students': {
       id: '/_authenticated/students'
@@ -676,10 +753,25 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface DemoRouteChildren {
+  DemoHubRoute: typeof DemoHubRoute
+  DemoIntakeRoute: typeof DemoIntakeRoute
+  DemoReportRoute: typeof DemoReportRoute
+}
+
+const DemoRouteChildren: DemoRouteChildren = {
+  DemoHubRoute: DemoHubRoute,
+  DemoIntakeRoute: DemoIntakeRoute,
+  DemoReportRoute: DemoReportRoute,
+}
+
+const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
+  DemoRoute: DemoRouteWithChildren,
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,

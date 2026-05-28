@@ -78,6 +78,7 @@ export function ReportView({
   onSaveToProfile,
   saveLabel,
   saved,
+  demo = false,
 }: {
   name: string;
   report: PathwayReport;
@@ -87,6 +88,7 @@ export function ReportView({
   onSaveToProfile?: () => void;
   saveLabel?: string;
   saved?: boolean;
+  demo?: boolean;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
@@ -893,19 +895,21 @@ export function ReportView({
         </p>
       </div>
 
-      <AiAssistPanel
-        studentName={name}
-        report={report}
-        translatedTo={translatedTo}
-        onTranslated={(next, lang) => {
-          setDisplayReport(next);
-          setTranslatedTo(lang);
-        }}
-        onReset={() => {
-          setDisplayReport(report);
-          setTranslatedTo(null);
-        }}
-      />
+      {!demo && (
+        <AiAssistPanel
+          studentName={name}
+          report={report}
+          translatedTo={translatedTo}
+          onTranslated={(next, lang) => {
+            setDisplayReport(next);
+            setTranslatedTo(lang);
+          }}
+          onReset={() => {
+            setDisplayReport(report);
+            setTranslatedTo(null);
+          }}
+        />
+      )}
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
         {onReset && (
