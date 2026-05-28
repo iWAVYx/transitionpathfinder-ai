@@ -166,11 +166,11 @@ export function HoverReveal({
       )}
       style={{ height }}
     >
-      <div className="relative z-10 transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:opacity-0">
+      <div className="relative z-10 transition-all duration-[650ms] ease-[cubic-bezier(.22,.61,.36,1)] group-hover:-translate-y-1 group-hover:opacity-0">
         {front}
       </div>
       <div
-        className="absolute inset-0 z-20 flex translate-y-4 flex-col justify-center px-7 py-7 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100"
+        className="absolute inset-0 z-20 flex translate-y-2 flex-col justify-center px-7 py-7 opacity-0 transition-all duration-[650ms] ease-[cubic-bezier(.22,.61,.36,1)] group-hover:translate-y-0 group-hover:opacity-100"
         aria-hidden
       >
         {back}
