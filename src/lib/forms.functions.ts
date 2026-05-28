@@ -63,7 +63,7 @@ export const getTemplate = createServerFn({ method: "POST" })
       .eq("slug", data.slug)
       .maybeSingle();
     if (error || !row) throw new Error("Form not found.");
-    return row as FormTemplate;
+    return row as unknown as FormTemplate;
   });
 
 export const listResponses = createServerFn({ method: "POST" })
