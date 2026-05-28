@@ -38,6 +38,39 @@ import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { cn } from "@/lib/utils";
 
+// Title-case helper for heading-like fields. Keeps small words lowercase
+// (except first/last), preserves all-caps acronyms, and handles hyphens/slashes.
+const TC_SMALL = new Set([
+  "a","an","the","and","but","or","nor","for","yet","so",
+  "as","at","by","in","of","on","to","up","via","vs","with","from","into","over","per",
+]);
+function titleCaseWord(w: string, isEdge: boolean): string {
+  if (!w) return w;
+  if (/^[A-Z0-9]{2,}$/.test(w)) return w; // acronym
+  const lower = w.toLowerCase();
+  if (!isEdge && TC_SMALL.has(lower)) return lower;
+  // Recurse on hyphen/slash separators
+  if (/[-/]/.test(w)) {
+    return w
+      .split(/([-/])/)
+      .map((part) => (part === "-" || part === "/" ? part : titleCaseWord(part, true)))
+      .join("");
+  }
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+function toTitleCase(input?: string | null): string {
+  if (!input) return "";
+  const words = input.split(/(\s+)/);
+  const wordIdxs = words
+    .map((w, i) => (/\S/.test(w) ? i : -1))
+    .filter((i) => i >= 0);
+  const first = wordIdxs[0];
+  const last = wordIdxs[wordIdxs.length - 1];
+  return words
+    .map((w, i) => (/\S/.test(w) ? titleCaseWord(w, i === first || i === last) : w))
+    .join("");
+}
+
 type Audience = "family" | "educator";
 
 const READINESS_PCT: Record<string, number> = {
@@ -383,7 +416,7 @@ export function ReportView({
               {bestFitPathway ? (
                 <>
                   <p className="mt-2 font-display text-lg leading-snug">
-                    {bestFitPathway.title}
+                    {toTitleCase(bestFitPathway.title)}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground line-clamp-4">
                     {bestFitPathway.why_it_fits}
@@ -510,7 +543,7 @@ export function ReportView({
                 className="rounded-2xl border border-border/60 bg-card p-5 lift-card"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h4 className="font-display text-lg">{row.category}</h4>
+                  <h4 className="font-display text-lg">{toTitleCase(row.category)}</h4>
                   <ReadinessBadge level={row.level} compact />
                 </div>
                 <Progress value={READINESS_PCT[row.level] ?? 50} className="mt-3 h-2" />
@@ -556,7 +589,7 @@ export function ReportView({
                   >
                     {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
                   </Badge>
-                  <h3 className="font-display text-2xl">{p.title}</h3>
+                  <h3 className="font-display text-2xl">{toTitleCase(p.title)}</h3>
                 </div>
                 <p className="mt-3 text-sm text-foreground/80">{p.why_it_fits}</p>
 
@@ -596,7 +629,7 @@ export function ReportView({
             {r.career_matches.map((c) => (
               <div key={c.cluster} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-display text-xl">{c.cluster}</h4>
+                  <h4 className="font-display text-xl">{toTitleCase(c.cluster)}</h4>
                   <ReadinessBadge level={c.readiness_level} compact />
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
@@ -640,7 +673,7 @@ export function ReportView({
             {r.postsecondary_goals.map((g, i) => (
               <AccordionItem key={i} value={`goal-${i}`} className="px-5">
                 <AccordionTrigger className="text-left">
-                  <span className="font-display text-lg">{g.area}</span>
+                  <span className="font-display text-lg">{toTitleCase(g.area)}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="grid gap-3 pb-2 sm:grid-cols-2">
@@ -668,7 +701,7 @@ export function ReportView({
           <div className="grid gap-4">
             {r.career_pathways.map((p) => (
               <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5 lift-card">
-                <h3 className="font-display text-xl font-medium">{p.title}</h3>
+                <h3 className="font-display text-xl font-medium">{toTitleCase(p.title)}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <MiniCard label="Example Roles" items={p.example_roles} compact />
@@ -731,7 +764,7 @@ export function ReportView({
                 key={i}
                 className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
               >
-                <h4 className="font-display text-lg">{g.item}</h4>
+                <h4 className="font-display text-lg">{toTitleCase(g.item)}</h4>
                 <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
                 <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
                 <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
@@ -882,9 +915,9 @@ export function ReportView({
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
-                      {o.category}
+                      {toTitleCase(o.category)}
                     </Badge>
-                    <h4 className="font-display text-lg">{o.name}</h4>
+                    <h4 className="font-display text-lg">{toTitleCase(o.name)}</h4>
                   </div>
                   <ReadinessBadge level={o.readiness_level} compact />
                 </div>
@@ -916,7 +949,7 @@ export function ReportView({
                 />
                 <div className="rounded-2xl border bg-card p-5 lift-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h4 className="font-display text-lg">{s.stage}</h4>
+                    <h4 className="font-display text-lg">{toTitleCase(s.stage)}</h4>
                     <Badge
                       variant={s.status === "complete" ? "default" : "outline"}
                       className="uppercase tracking-wider"
