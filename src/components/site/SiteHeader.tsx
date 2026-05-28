@@ -20,6 +20,10 @@ const nav = [
 ] as const;
 
 const userExtras = [
+  { to: "/feed", label: "Feed" },
+  { to: "/messages", label: "Messages" },
+  { to: "/meetings", label: "Meetings" },
+  { to: "/forms", label: "Forms" },
   { to: "/documents", label: "Documents" },
   { to: "/opportunities", label: "Opportunities" },
   { to: "/settings", label: "Settings" },
