@@ -409,6 +409,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
             image={pathCollege}
+            sticker={stickerCollege}
             label="College"
             caption="Two- and four-year programs, with the right supports in place."
             size="lg"
@@ -417,6 +418,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-6"
             image={pathTechnical}
+            sticker={stickerTechnical}
             label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
             pathwayId="technical-education"
@@ -424,6 +426,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-2"
             image={pathCareer}
+            sticker={stickerCareer}
             label="Career & Employment"
             caption="Job training, internships, BRS."
             compact
@@ -432,6 +435,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathLifeskills}
+            sticker={stickerLifeskills}
             label="Life Skills"
             caption="Cooking, transit, money, daily independence."
             compact
@@ -440,6 +444,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathProgress}
+            sticker={stickerProgress}
             label="Progress Tracked"
             caption="Small wins, gently celebrated."
             compact
