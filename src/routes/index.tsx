@@ -35,6 +35,12 @@ import layerGenerateImg from "@/assets/layer-generate.jpg";
 import layerConnectImg from "@/assets/layer-connect.jpg";
 import resourcesImg from "@/assets/resources-hero-v2.jpg";
 import frameworkImg from "@/assets/framework-hero.jpg";
+import stickerCollege from "@/assets/sticker-college.png";
+import stickerTechnical from "@/assets/sticker-technical.png";
+import stickerCareer from "@/assets/sticker-career.png";
+import stickerLifeskills from "@/assets/sticker-lifeskills.png";
+import stickerProgress from "@/assets/sticker-progress.png";
+import doodlePlane from "@/assets/doodle-plane.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -72,13 +78,45 @@ function HomePage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
+        {/* Floating playful doodles */}
+        <img
+          src={doodlePlane}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-4 top-20 -z-10 hidden w-72 opacity-80 float-y-slow md:block lg:right-16 lg:top-24 lg:w-96"
+        />
+        <span aria-hidden="true" className="pointer-events-none absolute right-[28%] top-32 -z-10 hidden h-3 w-3 rounded-full bg-primary/70 sparkle-twinkle md:block" />
+        <span aria-hidden="true" className="pointer-events-none absolute right-[18%] top-[260px] -z-10 hidden h-2 w-2 rounded-full bg-amber-400 sparkle-twinkle md:block" style={{ animationDelay: "0.8s" }} />
+        <span aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[200px] -z-10 hidden h-2.5 w-2.5 rounded-full bg-pink-400 sparkle-twinkle md:block" style={{ animationDelay: "1.4s" }} />
+        {/* Soft blob behind headline */}
+        <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl blob-drift" />
+
         <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Transition planning, made human
             </p>
             <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-              From IEP goals to <em className="not-italic text-primary">real-life</em> pathways.
+              From IEP goals to{" "}
+              <span className="relative inline-block not-italic text-primary">
+                real-life
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 300 24"
+                  preserveAspectRatio="none"
+                  className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
+                >
+                  <path
+                    d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="text-primary/80"
+                  />
+                </svg>
+              </span>{" "}
+              pathways.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
               A warm, easy-to-use platform that helps students with disabilities,
@@ -90,13 +128,14 @@ function HomePage() {
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 to="/waitlist"
-                className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
               >
                 Join the waitlist
+                <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
                 to="/platform"
-                className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur hover:bg-background"
+                className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
               >
                 Explore the platform
               </Link>
@@ -370,6 +409,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
             image={pathCollege}
+            sticker={stickerCollege}
             label="College"
             caption="Two- and four-year programs, with the right supports in place."
             size="lg"
@@ -378,6 +418,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-6"
             image={pathTechnical}
+            sticker={stickerTechnical}
             label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
             pathwayId="technical-education"
@@ -385,6 +426,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-2"
             image={pathCareer}
+            sticker={stickerCareer}
             label="Career & Employment"
             caption="Job training, internships, BRS."
             compact
@@ -393,6 +435,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathLifeskills}
+            sticker={stickerLifeskills}
             label="Life Skills"
             caption="Cooking, transit, money, daily independence."
             compact
@@ -401,6 +444,7 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathProgress}
+            sticker={stickerProgress}
             label="Progress Tracked"
             caption="Small wins, gently celebrated."
             compact
@@ -802,6 +846,7 @@ function AudiencePhoto({
 
 function PathwayTile({
   image,
+  sticker,
   label,
   caption,
   className = "",
@@ -810,6 +855,7 @@ function PathwayTile({
   pathwayId,
 }: {
   image: string;
+  sticker?: string;
   label: string;
   caption: string;
   className?: string;
@@ -822,7 +868,7 @@ function PathwayTile({
       to="/pathways/$pathwayId"
       params={{ pathwayId }}
       aria-label={`Open the ${label} guided pathway`}
-      className={`group relative block overflow-hidden rounded-3xl shadow-soft transition-all hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
+      className={`group relative block overflow-hidden rounded-3xl shadow-soft transition-all duration-300 hover:-translate-y-1 hover:rotate-[-0.4deg] hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
     >
       <img
         src={image}
@@ -831,6 +877,22 @@ function PathwayTile({
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+      {sticker && (
+        <img
+          src={sticker}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className={`pointer-events-none absolute drop-shadow-xl wiggle-hover ${
+            compact
+              ? "right-2 top-2 h-14 w-14 -rotate-6"
+              : size === "lg"
+                ? "right-5 top-5 h-28 w-28 -rotate-6 sm:h-32 sm:w-32"
+                : "right-3 top-3 h-20 w-20 -rotate-6"
+          }`}
+          style={{ ["--rot" as string]: "-6deg" }}
+        />
+      )}
       <div
         className={`absolute inset-x-0 bottom-0 text-background ${
           compact ? "p-4 sm:p-5" : size === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6"
@@ -856,8 +918,8 @@ function PathwayTile({
             {caption}
           </p>
         )}
-        <span className="mt-2 inline-flex items-center text-xs font-semibold uppercase tracking-[0.18em] text-background/90 opacity-0 transition-opacity group-hover:opacity-100">
-          Open guided flow →
+        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.18em] text-background/90 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100">
+          Open guided flow <span className="transition-transform group-hover:translate-x-1">→</span>
         </span>
       </div>
     </Link>
