@@ -388,23 +388,7 @@ function AboutPage() {
         </div>
       </section>
 
-      {/* ====== STICKY PIN — "From paperwork to pathways" ====== */}
-      <section className="relative">
-        <StickyPin className="h-[130vh]" top="22vh">
-          <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-              Our north star
-            </p>
-            <h2 className="mt-8 font-display text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.9] tracking-tight">
-              From <TextMask>paperwork</TextMask> to{" "}
-              <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.1 220), oklch(0.78 0.12 50))">
-                pathways
-              </TextMask>
-              .
-            </h2>
-          </div>
-        </StickyPin>
-      </section>
+
 
       {/* ====== SCENE 5 — THE PROMISE ====== */}
       <section className="relative overflow-hidden bg-gradient-hero py-28 lg:py-32">
