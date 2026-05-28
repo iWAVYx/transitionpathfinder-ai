@@ -18,9 +18,11 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import heroImg from "@/assets/home-hero.jpg";
 import studentImg from "@/assets/home-student.jpg";
+import studentPhotoImg from "@/assets/home-student-photo.jpg";
 import familyImg from "@/assets/home-family.jpg";
 import educatorImg from "@/assets/home-educator.jpg";
 import pathwayImg from "@/assets/home-pathway.jpg";
+import roadImg from "@/assets/home-road.jpg";
 import pathCollege from "@/assets/path-college.jpg";
 import pathTechnical from "@/assets/path-technical.jpg";
 import pathCareer from "@/assets/path-career.jpg";
@@ -109,7 +111,7 @@ function HomePage() {
           <div className="lg:col-span-5">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
               <img
-                src={studentImg}
+                src={studentPhotoImg}
                 alt="A student writing in a notebook by a sunlit window"
                 width={1080}
                 height={1600}
@@ -316,7 +318,7 @@ function HomePage() {
               title="The Pathway Report"
               body="Share your student's strengths, interests, and goals. TransitionForward delivers a personalized Pathway Report — the career direction, life-skills focus, family questions for the next PPT, and a 30-day plan you can actually act on. Every Pathway is built from specialist-designed formulas, Connecticut transition data, and the lived experience of special educators."
               image={pathwayImg}
-              alt="A winding road through golden fields at sunset"
+              alt="A sample Pathway Report screen showing strengths, a recommended career pathway, a readiness scorecard, and a 30-day plan"
               align="left"
             />
             <Zigzag
@@ -324,7 +326,7 @@ function HomePage() {
               title="A space that's just theirs."
               body="What they're good at, what they enjoy, what kind of life they want next — in their own words. Their voice anchors every plan and every meeting."
               image={studentImg}
-              alt="A student writing thoughtfully at a sunlit desk"
+              alt="A sample Student Hub screen with the greeting Hi Jordan, About me quotes, goals checklist, and matching careers"
               align="right"
             />
             <Zigzag
@@ -506,7 +508,7 @@ function HomePage() {
         <div className="grid gap-6 md:grid-cols-3">
           <AudiencePhoto
             image={studentImg}
-            alt="A student writing in a notebook"
+            alt="A sample Student Hub screen showing a personalized profile for a teen learner"
             title="Students"
             body="Understand your own plan, explore careers that match who you are, and walk into your PPT meeting knowing what to say."
             cta={{ to: "/platform", label: "Explore the platform" }}
@@ -531,7 +533,7 @@ function HomePage() {
       {/* CTA — full-bleed road image */}
       <section className="relative isolate overflow-hidden">
         <img
-          src={pathwayImg}
+          src={roadImg}
           alt="A winding road through fields at sunset"
           width={1920}
           height={1080}
