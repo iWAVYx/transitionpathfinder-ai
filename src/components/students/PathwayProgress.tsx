@@ -130,7 +130,7 @@ export function PathwayProgress({ studentId }: { studentId: string }) {
         <div>
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-2xl">Transition roadmap</h2>
+            <h2 className="font-display text-2xl">Transition Roadmap</h2>
           </div>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
             A shared checklist for the years leading up to graduation. Mark milestones as you go and

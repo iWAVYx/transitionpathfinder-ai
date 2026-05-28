@@ -52,7 +52,7 @@ function SharedReportPage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">
             Link unavailable
           </p>
-          <h1 className="mt-2 font-display text-3xl">This share link is no longer active.</h1>
+          <h1 className="mt-2 font-display text-3xl">This Share Link Is No Longer Active.</h1>
           <p className="mt-3 text-sm text-muted-foreground">
             The owner may have revoked access or the link expired. Reach out to whoever shared it
             with you for a fresh link.

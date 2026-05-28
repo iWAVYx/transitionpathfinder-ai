@@ -305,7 +305,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
   notFoundComponent: () => (
     <SiteShell>
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <h1 className="font-display text-3xl">Pathway not found</h1>
+        <h1 className="font-display text-3xl">Pathway Not Found</h1>
         <p className="mt-3 text-muted-foreground">
           We couldn't find that pathway. Try one of the five on the home page.
         </p>

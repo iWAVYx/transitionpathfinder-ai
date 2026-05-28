@@ -46,7 +46,7 @@ export function InvitesInbox() {
     <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 shadow-soft">
       <div className="flex items-center gap-2">
         <Mailbox className="h-5 w-5 text-primary" />
-        <h2 className="font-display text-xl">Pending invites</h2>
+        <h2 className="font-display text-xl">Pending Invites</h2>
       </div>
       <ul className="mt-4 space-y-3">
         {invites.map((i) => {
