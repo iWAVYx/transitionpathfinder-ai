@@ -7,9 +7,9 @@ import {
   ParallaxImage,
   Reveal,
   ShapeScroll,
-  StickyScrollStory,
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
+
 
 
 export const Route = createFileRoute("/framework")({
