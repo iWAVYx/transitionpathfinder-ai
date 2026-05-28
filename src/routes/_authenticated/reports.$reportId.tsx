@@ -147,6 +147,13 @@ function ReportDetailPage() {
         report={state.report}
         onReset={() => navigate({ to: "/reports" })}
         resetLabel="Back to my reports"
+        saved={!!state.studentId}
+        saveLabel={students.length > 0 ? "Save to student profile" : undefined}
+        onSaveToProfile={
+          students.length > 0 && !state.studentId
+            ? () => handleLink(students[0].id)
+            : undefined
+        }
       />
 
       {/* Link to student */}
