@@ -846,6 +846,7 @@ function AudiencePhoto({
 
 function PathwayTile({
   image,
+  sticker,
   label,
   caption,
   className = "",
@@ -854,6 +855,7 @@ function PathwayTile({
   pathwayId,
 }: {
   image: string;
+  sticker?: string;
   label: string;
   caption: string;
   className?: string;
@@ -866,7 +868,7 @@ function PathwayTile({
       to="/pathways/$pathwayId"
       params={{ pathwayId }}
       aria-label={`Open the ${label} guided pathway`}
-      className={`group relative block overflow-hidden rounded-3xl shadow-soft transition-all hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
+      className={`group relative block overflow-hidden rounded-3xl shadow-soft transition-all duration-300 hover:-translate-y-1 hover:rotate-[-0.4deg] hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
     >
       <img
         src={image}
@@ -875,6 +877,22 @@ function PathwayTile({
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+      {sticker && (
+        <img
+          src={sticker}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className={`pointer-events-none absolute drop-shadow-xl wiggle-hover ${
+            compact
+              ? "right-2 top-2 h-14 w-14 -rotate-6"
+              : size === "lg"
+                ? "right-5 top-5 h-28 w-28 -rotate-6 sm:h-32 sm:w-32"
+                : "right-3 top-3 h-20 w-20 -rotate-6"
+          }`}
+          style={{ ["--rot" as string]: "-6deg" }}
+        />
+      )}
       <div
         className={`absolute inset-x-0 bottom-0 text-background ${
           compact ? "p-4 sm:p-5" : size === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6"
@@ -900,8 +918,8 @@ function PathwayTile({
             {caption}
           </p>
         )}
-        <span className="mt-2 inline-flex items-center text-xs font-semibold uppercase tracking-[0.18em] text-background/90 opacity-0 transition-opacity group-hover:opacity-100">
-          Open guided flow →
+        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.18em] text-background/90 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100">
+          Open guided flow <span className="transition-transform group-hover:translate-x-1">→</span>
         </span>
       </div>
     </Link>
