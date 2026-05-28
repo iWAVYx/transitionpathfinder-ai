@@ -12,6 +12,10 @@ import {
   Target,
   Users as UsersIcon,
   Compass,
+  Activity,
+  MessageSquare,
+  Calendar,
+  ClipboardList,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
