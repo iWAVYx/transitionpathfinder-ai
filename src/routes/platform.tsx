@@ -494,17 +494,41 @@ function PlatformPage() {
   );
 }
 
-function Step({ n, title, body }: { n: number; title: string; body: string }) {
+function DemoStep({
+  step,
+  icon,
+  title,
+  body,
+  to,
+}: {
+  step: string;
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+  to: string;
+}) {
   return (
-    <div className="relative rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-display text-lg font-semibold text-primary-foreground">
-        {n}
+    <Link
+      to={to}
+      className="group block rounded-3xl border bg-card p-6 shadow-soft transition-shadow hover:shadow-lift"
+    >
+      <div className="flex items-center justify-between">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+          {icon}
+        </span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Step {step}
+        </span>
       </div>
-      <h3 className="mt-4 font-display text-xl font-medium tracking-tight">{toTitleCase(title)}</h3>
+      <h3 className="mt-4 font-display text-xl">{toTitleCase(title)}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-    </div>
+      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+        Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </Link>
   );
 }
+
 
 
 
