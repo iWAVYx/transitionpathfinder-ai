@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
   Printer,
@@ -105,6 +105,30 @@ export function ReportView({
   const [copied, setCopied] = useState(false);
   const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
   const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [parallaxY, setParallaxY] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const rect = headerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        // gentle parallax only while header is on/near screen
+        const offset = Math.max(-160, Math.min(160, -rect.top * 0.18));
+        setParallaxY(offset);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -243,8 +267,25 @@ export function ReportView({
       </div>
 
       {/* ============ Document header (formal) ============ */}
-      <header className="rounded-2xl border bg-card shadow-soft overflow-hidden">
-        <div className="border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
+      <header
+        ref={headerRef}
+        className="report-header relative overflow-hidden rounded-2xl border bg-card shadow-soft"
+      >
+        {/* Parallax glow layers (decorative) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-0"
+          style={{ transform: `translate3d(0, ${parallaxY * 0.5}px, 0)` }}
+        >
+          <div className="absolute -top-32 -right-24 h-[22rem] w-[22rem] rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute -bottom-40 -left-20 h-[20rem] w-[20rem] rounded-full bg-sky-soft/40 blur-3xl" />
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+        />
+
+        <div className="relative border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
             <span>TransitionForward · {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}</span>
             <span className="font-mono normal-case tracking-normal text-foreground/70">
@@ -253,7 +294,7 @@ export function ReportView({
           </div>
         </div>
 
-        <div className="px-6 py-8 sm:px-10 sm:py-10">
+        <div className="relative px-6 py-10 sm:px-10 sm:py-12">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             {audience === "family" ? "Personalized transition plan" : "Planning & Placement Team packet"}
           </p>
@@ -262,9 +303,9 @@ export function ReportView({
           </h1>
           <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
 
-          <div className="mt-3 h-px w-16 bg-primary/70" />
+          <div className="mt-5 h-px w-16 bg-primary/70" />
 
-          <dl className="mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+          <dl className="mt-8 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
             <MetaField label="Prepared for" value={meta?.preparedFor ?? name} />
             <MetaField label="Prepared by" value={meta?.preparedBy ?? "TransitionForward (AI-supported, human-led)"} />
             <MetaField label="Date issued" value={meta?.issued ?? today} />
@@ -274,7 +315,7 @@ export function ReportView({
             />
           </dl>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2">
+          <div className="mt-8 flex flex-wrap items-center gap-2">
             {confidenceLabel && (
               <Badge variant="secondary" className="gap-1">
                 <ShieldCheck className="h-3 w-3" />
@@ -291,7 +332,7 @@ export function ReportView({
         </div>
       </header>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <AIDisclaimer />
       </div>
 
@@ -300,19 +341,23 @@ export function ReportView({
 
 
       {/* ============ Executive summary ============ */}
-      <section className="mt-8 page-break exec-summary">
-        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-          <div className="flex items-center gap-2">
+      <section className="mt-10 page-break exec-summary">
+        <div className="relative overflow-hidden rounded-3xl border bg-card p-6 shadow-soft sm:p-10">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
+          />
+          <div className="relative flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h2 className="font-display text-2xl font-medium tracking-tight">
               Executive summary
             </h2>
           </div>
-          <p className="mt-3 text-base leading-relaxed text-foreground/85">
+          <p className="relative mt-3 text-base leading-relaxed text-foreground/85">
             {r.summary}
           </p>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-border/60 bg-background p-5">
+          <div className="relative mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-border/60 bg-background p-5 transition-shadow hover:shadow-soft">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                 Top strengths
               </p>
@@ -388,7 +433,7 @@ export function ReportView({
               <ReadinessBadge level={r.student_snapshot.readiness_level} />
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 grid-sym-2">
               <MiniCard label="Primary interests" items={r.student_snapshot.primary_interests} />
               <MiniCard
                 label="Learning preferences"
@@ -458,11 +503,11 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             A strengths-based snapshot. These are conversation starters, not grades.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.readiness_scorecard.map((row) => (
               <div
                 key={row.category}
-                className="rounded-2xl border border-border/60 bg-card p-5"
+                className="rounded-2xl border border-border/60 bg-card p-5 lift-card"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h4 className="font-display text-lg">{row.category}</h4>
@@ -502,7 +547,7 @@ export function ReportView({
             {r.recommended_pathways.map((p) => (
               <div
                 key={p.title}
-                className="rounded-3xl border bg-card p-6 shadow-soft"
+                className="rounded-3xl border bg-card p-6 shadow-soft lift-card"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
@@ -547,14 +592,14 @@ export function ReportView({
       {/* ============ Career matches ============ */}
       {r.career_matches && r.career_matches.length > 0 && (
         <Block id="sec-careers" title="Career & life pathway matches" icon={<Briefcase className="h-5 w-5" />}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
             {r.career_matches.map((c) => (
-              <div key={c.cluster} className="rounded-2xl border bg-card p-5">
+              <div key={c.cluster} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="font-display text-xl">{c.cluster}</h4>
                   <ReadinessBadge level={c.readiness_level} compact />
                 </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <MiniCard label="Example jobs" items={c.example_jobs} compact />
                   <MiniCard label="Skills used" items={c.skills_required} compact />
                 </div>
@@ -622,10 +667,10 @@ export function ReportView({
         <Block title="Career pathways to explore" icon={<Compass className="h-5 w-5" />}>
           <div className="grid gap-4">
             {r.career_pathways.map((p) => (
-              <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5">
+              <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5 lift-card">
                 <h3 className="font-display text-xl font-medium">{p.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <MiniCard label="Example roles" items={p.example_roles} compact />
                   <MiniCard label="First steps" items={p.first_steps} compact />
                 </div>
@@ -653,12 +698,12 @@ export function ReportView({
           </p>
           <div className="space-y-3">
             {r.iep_translator.map((t, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5">
+              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                   Goal language
                 </p>
                 <p className="mt-1 italic text-foreground/80">"{t.goal_text}"</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                   <Labeled label="What it means">{t.plain_meaning}</Labeled>
                   <Labeled label="Connected to real life">{t.connected_to_real_life}</Labeled>
                   <Labeled label={`What ${name} should know`}>{t.what_student_should_know}</Labeled>
@@ -680,7 +725,7 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             This report doesn't pretend to know everything. Here's what would sharpen it.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.data_gaps.map((g, i) => (
               <div
                 key={i}
@@ -705,9 +750,9 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             Questions for {name} to think through — alone, with family, or with a teacher.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.student_voice_prompts.map((p, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5">
+              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
                 <p className="font-display text-lg">{p.prompt}</p>
                 <p className="mt-2 text-sm text-muted-foreground">{p.suggested_reflection}</p>
               </div>
@@ -782,8 +827,8 @@ export function ReportView({
       {/* ============ Meeting prep toolkit ============ */}
       {r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP meeting prep" icon={<ListChecks className="h-5 w-5" />}>
-          <div className="rounded-3xl border bg-card p-6 shadow-soft">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-3xl border bg-card p-6 shadow-soft lift-card">
+            <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
               <MiniCard
                 label="Questions to ask"
                 items={r.meeting_prep_toolkit.questions_to_ask}
@@ -831,9 +876,9 @@ export function ReportView({
       {/* ============ Opportunity matches ============ */}
       {r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to explore" icon={<MapIcon className="h-5 w-5" />}>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5">
+              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
@@ -869,7 +914,7 @@ export function ReportView({
                         : "border-border bg-background",
                   )}
                 />
-                <div className="rounded-2xl border bg-card p-5">
+                <div className="rounded-2xl border bg-card p-5 lift-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h4 className="font-display text-lg">{s.stage}</h4>
                     <Badge
@@ -1017,6 +1062,38 @@ export function ReportView({
         /* Screen-only: hide the print cover */
         .print-cover { display: none; }
 
+        /* Symmetric grids: when last item is odd, center it across full row */
+        @media (min-width: 640px) {
+          .grid-sym-2 > *:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+            max-width: calc(50% - 0.5rem);
+            margin-inline: auto;
+          }
+        }
+        @media (min-width: 1024px) {
+          .grid-sym-3 > *:last-child:nth-child(3n - 1) {
+            grid-column: span 2 / -1;
+          }
+          .grid-sym-3 > *:last-child:nth-child(3n - 2) {
+            grid-column: 1 / -1;
+            max-width: calc(33.333% - 0.667rem);
+            margin-inline: auto;
+          }
+        }
+
+        /* Gentle card lift on hover (screen only, respects reduced motion) */
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+          .report-root .lift-card {
+            transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+          }
+          .report-root .lift-card:hover {
+            transform: translateY(-2px);
+            border-color: hsl(var(--border));
+          }
+        }
+
+
+
 
         @media print {
           @page {
@@ -1143,8 +1220,8 @@ function Block({
   eyebrow?: string;
 }) {
   return (
-    <section id={id} className="report-section mt-12 page-break scroll-mt-24">
-      <div className="mb-5 border-b border-border/60 pb-4">
+    <section id={id} className="report-section mt-14 page-break scroll-mt-24">
+      <div className="mb-6 border-b border-border/60 pb-4">
         <div className="flex items-center gap-3">
           <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
           {icon && <span className="text-primary">{icon}</span>}
