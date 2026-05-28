@@ -394,36 +394,36 @@ function AboutPage() {
 
 
       {/* ====== SCENE 5 — THE PROMISE ====== */}
-      <section className="relative overflow-hidden bg-gradient-hero py-28 lg:py-32">
+      <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-24">
         <FloatingShape className="absolute left-[10%] top-10" duration={16}>
-          <Sun className="h-16 w-16 text-peach opacity-50" strokeWidth={1.2} />
+          <Sun className="h-12 w-12 text-peach opacity-50" strokeWidth={1.2} />
         </FloatingShape>
         <FloatingShape className="absolute right-[12%] bottom-12" delay={3} duration={20}>
-          <div className="h-40 w-40 rounded-full bg-sky/30 blur-2xl" />
+          <div className="h-32 w-32 rounded-full bg-sky/30 blur-2xl" />
         </FloatingShape>
 
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
             Scene V — The Promise
           </p>
           <Reveal>
-            <h2 className="mt-8 font-display text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1.02] tracking-tight">
+            <h2 className="mt-5 font-display text-[clamp(1.75rem,4.5vw,3.5rem)] font-medium leading-[1.05] tracking-tight">
               A clearer path. A stronger voice. A future that feels possible.
             </h2>
           </Reveal>
           <Reveal delay={150}>
-            <p className="mx-auto mt-10 max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+            <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-foreground/80 sm:text-base">
               TransitionForward exists to make transition planning clearer, more collaborative, and
               more meaningful — so students are not just prepared to leave high school, but prepared
               to move forward with purpose.
             </p>
           </Reveal>
 
-          <div className="mt-14 flex flex-wrap justify-center gap-3">
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Magnetic>
               <Link
                 to="/platform"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
               >
                 Explore the platform <ArrowRight className="h-4 w-4" />
               </Link>
@@ -431,7 +431,7 @@ function AboutPage() {
             <Magnetic>
               <Link
                 to="/waitlist"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
               >
                 Join the waitlist
               </Link>
@@ -439,18 +439,19 @@ function AboutPage() {
             <Magnetic>
               <Link
                 to="/demo"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
               >
                 See how it works
               </Link>
             </Magnetic>
           </div>
 
-          <p className="mx-auto mt-16 max-w-xl font-display text-xl italic text-foreground/70">
+          <p className="mx-auto mt-12 max-w-xl font-display text-base italic text-foreground/70 sm:text-lg">
             One platform. One plan. Forward together.
           </p>
         </div>
       </section>
+
 
     </SiteShell>
   );
