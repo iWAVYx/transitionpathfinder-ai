@@ -1123,75 +1123,230 @@ export function ReportView({
 
 
         @media print {
+          /* Consistent margins + running header/footer on body pages */
           @page {
-            margin: 0.6in 0.55in 0.75in 0.55in;
-            @bottom-left { content: "TransitionForward · ${name}"; font-size: 9pt; color: #666; }
-            @bottom-right { content: "Page " counter(page) " of " counter(pages); font-size: 9pt; color: #666; }
+            size: Letter;
+            margin: 0.7in 0.65in 0.85in 0.65in;
+            @top-left {
+              content: "TransitionForward";
+              font: 600 8.5pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              color: #6b7280;
+              letter-spacing: 0.12em;
+              text-transform: uppercase;
+            }
+            @top-right {
+              content: string(doc-section);
+              font: 500 8.5pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              color: #6b7280;
+            }
+            @bottom-left {
+              content: "${(name ?? "").replace(/["\\]/g, "\\$&")} · Pathway Report";
+              font: 400 8.5pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              color: #9ca3af;
+            }
+            @bottom-right {
+              content: counter(page) " / " counter(pages);
+              font: 500 8.5pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              color: #6b7280;
+            }
           }
+
+          /* Cover page: full bleed, no running headers/footers */
           @page :first {
             margin: 0;
+            @top-left { content: ""; }
+            @top-right { content: ""; }
             @bottom-left { content: ""; }
             @bottom-right { content: ""; }
           }
 
-          html, body { background: #fff !important; }
-          .no-print { display: none !important; }
-          .report-root { padding: 0 !important; max-width: 100% !important; }
+          /* Section name shows in running header (set per-section below) */
+          .report-section h2 { string-set: doc-section content(text); }
 
-          /* Cover page */
+          html, body {
+            background: #fff !important;
+            color: #111 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .no-print { display: none !important; }
+          .report-root { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
+
+          /* ---------- Cover page ---------- */
           .print-cover {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            min-height: 9.5in;
-            padding: 1in 0.75in;
+            display: block !important;
             page-break-after: always;
             break-after: page;
-            background: linear-gradient(135deg, #f6f8fb 0%, #eef2f9 100%);
+            page: cover;
           }
-          .print-cover-inner { width: 100%; max-width: 6in; }
+          .print-cover-frame {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100vh;
+            min-height: 10in;
+            padding: 0.9in 0.9in 0.8in 0.9in;
+            display: flex;
+            flex-direction: column;
+            background:
+              radial-gradient(ellipse at top right, rgba(37, 99, 235, 0.06), transparent 55%),
+              linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+            border-top: 6px solid #1e3a8a;
+            position: relative;
+          }
+          .print-cover-brand {
+            display: flex;
+            align-items: center;
+            gap: 10pt;
+          }
+          .print-cover-mark {
+            display: inline-block;
+            width: 14pt; height: 14pt;
+            border-radius: 3pt;
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+          }
+          .print-cover-brand-text {
+            font: 600 11pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0.06em;
+            color: #1e3a8a;
+          }
+          .print-cover-body {
+            margin-top: auto;
+            margin-bottom: auto;
+            padding: 0.4in 0;
+          }
           .print-cover-eyebrow {
-            font-size: 10pt; letter-spacing: 0.18em; text-transform: uppercase;
-            color: #4a5568; font-weight: 600; margin: 0 0 0.6in 0;
+            margin: 0 0 14pt 0;
+            font: 600 10pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #2563eb;
           }
           .print-cover-title {
-            font-size: 48pt; line-height: 1.05; margin: 0; color: #111;
-            font-weight: 500; letter-spacing: -0.01em;
+            margin: 0;
+            font: 500 46pt/1.05 Georgia, "Iowan Old Style", "Times New Roman", serif;
+            letter-spacing: -0.015em;
+            color: #0b1220;
           }
           .print-cover-sub {
-            margin-top: 16pt; font-size: 14pt; color: #333; line-height: 1.4;
+            margin: 18pt 0 0 0;
+            max-width: 5.2in;
+            font: 400 13pt/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #374151;
           }
-          .print-cover-meta { margin-top: 8pt; font-size: 11pt; color: #555; }
           .print-cover-rule {
-            margin-top: 0.7in; height: 2px; width: 1.2in;
-            background: #2563eb; border-radius: 2px;
+            margin-top: 28pt;
+            height: 2pt;
+            width: 60pt;
+            background: #1e3a8a;
+            border-radius: 1pt;
+          }
+          .print-cover-meta-grid {
+            margin: 24pt 0 0 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16pt 32pt;
+            max-width: 5.5in;
+          }
+          .print-cover-meta-grid dt {
+            font: 600 8pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin: 0 0 4pt 0;
+          }
+          .print-cover-meta-grid dd {
+            margin: 0;
+            font: 400 11pt/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #111827;
           }
           .print-cover-footer {
-            margin-top: 0.4in; font-size: 9.5pt; color: #555;
-            display: flex; gap: 0.4em; flex-wrap: wrap;
+            margin-top: auto;
+            padding-top: 18pt;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12pt;
+            font: 400 9pt/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #6b7280;
+          }
+          .print-cover-footer-tag {
+            font-weight: 600;
+            color: #1e3a8a;
+            letter-spacing: 0.04em;
           }
 
-          /* Body content */
+          /* ---------- Body content ---------- */
           .report-root .shadow-soft,
-          .report-root .shadow-lift { box-shadow: none !important; }
+          .report-root .shadow-lift,
+          .report-root [class*="shadow-"] { box-shadow: none !important; }
           .report-root .rounded-3xl,
-          .report-root .rounded-2xl { border-radius: 6px !important; }
-          .report-root .bg-gradient-hero { background: #f6f8fb !important; }
-          .report-root section,
-          .report-root .page-break { break-inside: avoid; page-break-inside: avoid; }
-          .report-root .exec-summary { page-break-after: always; break-after: page; }
-          .report-root h1, .report-root h2, .report-root h3, .report-root h4 { color: #111 !important; }
-          .report-root h2 { break-after: avoid; page-break-after: avoid; }
-          .report-root .text-muted-foreground { color: #444 !important; }
-          .report-root a { color: inherit; text-decoration: none; }
+          .report-root .rounded-2xl,
+          .report-root .rounded-xl { border-radius: 4px !important; }
+          .report-root .bg-gradient-hero,
+          .report-root [class*="bg-gradient-"] { background: #f8fafc !important; }
+          .report-root .blur-3xl,
+          .report-root .blur-2xl { display: none !important; }
+          /* Hide decorative parallax / glow layers */
+          .report-root [aria-hidden="true"].pointer-events-none { display: none !important; }
 
-          /* Tighter print typography */
-          .report-root { font-size: 10.5pt; line-height: 1.45; }
-          .report-root h1 { font-size: 22pt; }
-          .report-root h2 { font-size: 16pt; margin-top: 0.25in; }
-          .report-root h3 { font-size: 13pt; }
+          .report-root { font: 10.5pt/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #111 !important; }
+          .report-root h1, .report-root h2, .report-root h3, .report-root h4 {
+            color: #0b1220 !important;
+            font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+            font-weight: 500;
+          }
+          .report-root h1 { font-size: 22pt; line-height: 1.15; }
+          .report-root h2 { font-size: 16pt; line-height: 1.2; margin-top: 0; }
+          .report-root h3 { font-size: 12.5pt; line-height: 1.3; }
           .report-root h4 { font-size: 11pt; }
+          .report-root p { orphans: 3; widows: 3; }
+          .report-root .text-muted-foreground,
+          .report-root [class*="text-foreground/"] { color: #374151 !important; }
+          .report-root a { color: #1e3a8a; text-decoration: none; }
+
+          /* Section paging: each major section starts on a new page */
+          .report-root .report-header,
+          .report-root .exec-summary {
+            page-break-after: always;
+            break-after: page;
+          }
+          .report-root .report-section {
+            page-break-before: always;
+            break-before: page;
+            margin-top: 0 !important;
+          }
+          /* Keep section heading with first paragraph; never split cards/lists/quotes */
+          .report-root .report-section > div:first-child { break-after: avoid; page-break-after: avoid; }
+          .report-root h2, .report-root h3, .report-root h4 { break-after: avoid; page-break-after: avoid; }
+          .report-root figure,
+          .report-root blockquote,
+          .report-root li,
+          .report-root tr { break-inside: avoid; page-break-inside: avoid; }
+          .report-root .rounded-2xl,
+          .report-root .rounded-3xl { break-inside: avoid; page-break-inside: avoid; }
+          .report-root .page-break { break-inside: avoid; page-break-inside: avoid; }
+
+          /* Borders read better in print */
+          .report-root .border,
+          .report-root [class*="border-"] { border-color: #d1d5db !important; }
+          .report-root .bg-card,
+          .report-root .bg-background,
+          .report-root .bg-muted\\/30,
+          .report-root .bg-muted\\/40 { background: #ffffff !important; }
+          .report-root .bg-muted,
+          .report-root .bg-muted\\/60 { background: #f3f4f6 !important; }
+          .report-root .bg-primary\\/5,
+          .report-root .bg-primary\\/10,
+          .report-root .bg-primary\\/15 { background: #eff6ff !important; }
+
+          /* Badges read as outline chips */
+          .report-root [class*="badge"],
+          .report-root .inline-flex.rounded-full {
+            background: transparent !important;
+            border: 1px solid #d1d5db !important;
+            color: #111 !important;
+          }
         }
       `}</style>
     </section>
