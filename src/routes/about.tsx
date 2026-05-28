@@ -120,14 +120,14 @@ function AboutPage() {
           <div className="h-72 w-72 rounded-full bg-sky/25 blur-3xl" />
         </FloatingShape>
 
-        <section className="relative mx-auto max-w-6xl px-4 pt-28 pb-24 text-center sm:px-6 lg:px-8 lg:pt-40 lg:pb-32">
+        <section className="relative mx-auto max-w-5xl px-4 pt-20 pb-16 text-center sm:px-6 lg:px-8 lg:pt-28 lg:pb-20">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
               Our story
             </p>
           </Reveal>
 
-          <h1 className="mx-auto mt-10 max-w-[18ch] font-display text-[clamp(2.75rem,9vw,8rem)] font-medium leading-[0.92] tracking-tight">
+          <h1 className="mx-auto mt-6 max-w-[18ch] font-display text-[clamp(2rem,6vw,5rem)] font-medium leading-[0.95] tracking-tight">
             <Reveal>
               <span className="block text-foreground/40">Paperwork</span>
             </Reveal>
@@ -145,7 +145,7 @@ function AboutPage() {
           </h1>
 
           <Reveal delay={360}>
-            <p className="mx-auto mt-12 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mx-auto mt-7 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               Transition planning should be the moment a young person begins picturing who they
               are becoming — not a stack of forms no one fully owns. TransitionForward is the
               quiet rewrite of that experience.
@@ -153,11 +153,11 @@ function AboutPage() {
           </Reveal>
 
           <Reveal delay={460}>
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Magnetic>
                 <Link
                   to="/platform"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
                 >
                   See the platform <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -165,7 +165,7 @@ function AboutPage() {
               <Magnetic>
                 <Link
                   to="/research"
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/85 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/85 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
                 >
                   The research
                 </Link>
@@ -178,7 +178,7 @@ function AboutPage() {
         <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
           <Marquee
             speed={45}
-            className="py-6 font-display text-2xl italic text-foreground/70 sm:text-3xl"
+            className="py-4 font-display text-lg italic text-foreground/70 sm:text-xl"
             items={[
               "paperwork is not a pathway",
               "·",
@@ -195,10 +195,11 @@ function AboutPage() {
         </div>
       </CursorField>
 
+
       {/* ====== SCENES 2 + 3 — STICKY SCROLL STORY ====== */}
-      <section className="relative py-20 lg:py-28">
-        <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+      <section className="relative py-14 lg:py-20">
+        <div className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
             Scene II · The Realization — Scene III · The Mission
           </p>
         </div>
@@ -207,45 +208,45 @@ function AboutPage() {
 
       {/* ====== INTERLUDE — THE PATHWAYS (editorial index) ====== */}
       <section className="relative border-y border-border/40 bg-gradient-to-b from-background via-peach-soft/12 to-background">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
               Interlude — The Pathways
             </p>
-            <h2 className="mt-5 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+            <h2 className="mt-4 max-w-2xl font-display text-2xl font-medium leading-[1.1] tracking-tight sm:text-3xl lg:text-4xl">
               {toTitleCase("Four directions a plan can point toward.")}
             </h2>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
               Not categories on a form — destinations a student can name, and the people and
               programs that make each one real.
             </p>
           </Reveal>
 
-          <ul className="mt-16 divide-y divide-border/60 border-y border-border/60">
+          <ul className="mt-10 divide-y divide-border/60 border-y border-border/60">
             {pathways.map((p, i) => (
               <li key={p.label} className="group/path">
                 <Reveal>
-                  <div className="grid grid-cols-[auto_1fr] items-center gap-6 py-10 sm:grid-cols-[5rem_1fr_auto] sm:gap-10 sm:py-14">
-                    <span className="font-display text-3xl font-medium tabular-nums text-primary/80 sm:text-4xl">
+                  <div className="grid grid-cols-[auto_1fr] items-center gap-5 py-6 sm:grid-cols-[3.5rem_1fr_auto] sm:gap-8 sm:py-8">
+                    <span className="font-display text-xl font-medium tabular-nums text-primary/80 sm:text-2xl">
                       {String(i + 1).padStart(2, "0")}
                     </span>
 
                     <div className="col-span-1 sm:col-span-1">
-                      <h3 className="font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
+                      <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl lg:text-3xl">
                         {p.label}
                       </h3>
-                      <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
                         {p.copy}
                       </p>
                     </div>
 
                     <div className="col-span-2 sm:col-span-1 sm:justify-self-end">
-                      <Tilt3D max={8} className="w-full sm:w-72 lg:w-80">
+                      <Tilt3D max={8} className="w-full sm:w-52 lg:w-60">
                         <TiltLayer depth={0}>
                           <img
                             src={p.image}
                             alt={`${p.label} pathway illustration`}
-                            className="aspect-[4/3] w-full rounded-2xl object-cover shadow-soft transition-transform duration-500 group-hover/path:scale-[1.02]"
+                            className="aspect-[4/3] w-full rounded-xl object-cover shadow-soft transition-transform duration-500 group-hover/path:scale-[1.02]"
                           />
                         </TiltLayer>
                       </Tilt3D>
@@ -259,29 +260,30 @@ function AboutPage() {
       </section>
 
 
+
       {/* ====== VALUES — HOVER REVEAL CARDS ====== */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
             What we believe
           </p>
-          <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
+          <h2 className="mt-3 max-w-3xl font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
             {toTitleCase("Four convictions shape every screen.")}
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {values.map(({ icon: Icon, title, body, accent }) => (
             <HoverReveal
               key={title}
-              height="260px"
+              height="200px"
               className={`bg-gradient-to-br ${accent}`}
               front={
-                <div className="flex h-[260px] flex-col justify-between p-7">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background/85 text-primary shadow-soft">
-                    <Icon className="h-5 w-5" />
+                <div className="flex h-[200px] flex-col justify-between p-5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background/85 text-primary shadow-soft">
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">
+                  <h3 className="font-display text-lg font-medium leading-tight tracking-tight">
                     {title}
                   </h3>
                 </div>
@@ -297,35 +299,36 @@ function AboutPage() {
       </section>
 
       {/* ====== SCENE 4 — THE NETWORK ====== */}
-      <section className="relative overflow-hidden py-24 lg:py-32">
+      <section className="relative overflow-hidden py-16 lg:py-20">
         <FloatingShape className="absolute right-[10%] top-12 hidden md:block" duration={20}>
           <div className="h-32 w-32 rounded-full bg-peach/30 blur-2xl" />
         </FloatingShape>
 
-        <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-8">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-14 lg:px-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
               Scene IV — The Network
             </p>
-            <h2 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl">
+            <h2 className="mt-4 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
               No student moves{" "}
               <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.78 0.1 220), oklch(0.82 0.1 25))">
                 forward alone
               </TextMask>
               .
             </h2>
-            <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               The future is built through connection. TransitionForward helps families and schools
               connect students to the people, programs, and opportunities that move a plan into
               motion.
             </p>
-            <p className="mt-5 max-w-xl font-display text-xl italic text-foreground/80">
+            <p className="mt-4 max-w-xl font-display text-base italic text-foreground/80 sm:text-lg">
               Schools. Families. Mentors. Employers. Universities. Community partners. One platform,
               moving in step.
             </p>
           </div>
 
-          <div className="relative aspect-square w-full">
+          <div className="relative mx-auto aspect-square w-full max-w-md">
+
             <div className="absolute inset-0 rounded-full bg-gradient-warm opacity-40 blur-3xl" />
             <svg viewBox="0 0 100 100" className="relative h-full w-full">
               <defs>
@@ -391,36 +394,36 @@ function AboutPage() {
 
 
       {/* ====== SCENE 5 — THE PROMISE ====== */}
-      <section className="relative overflow-hidden bg-gradient-hero py-28 lg:py-32">
+      <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-24">
         <FloatingShape className="absolute left-[10%] top-10" duration={16}>
-          <Sun className="h-16 w-16 text-peach opacity-50" strokeWidth={1.2} />
+          <Sun className="h-12 w-12 text-peach opacity-50" strokeWidth={1.2} />
         </FloatingShape>
         <FloatingShape className="absolute right-[12%] bottom-12" delay={3} duration={20}>
-          <div className="h-40 w-40 rounded-full bg-sky/30 blur-2xl" />
+          <div className="h-32 w-32 rounded-full bg-sky/30 blur-2xl" />
         </FloatingShape>
 
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
             Scene V — The Promise
           </p>
           <Reveal>
-            <h2 className="mt-8 font-display text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1.02] tracking-tight">
+            <h2 className="mt-5 font-display text-[clamp(1.75rem,4.5vw,3.5rem)] font-medium leading-[1.05] tracking-tight">
               A clearer path. A stronger voice. A future that feels possible.
             </h2>
           </Reveal>
           <Reveal delay={150}>
-            <p className="mx-auto mt-10 max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+            <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-foreground/80 sm:text-base">
               TransitionForward exists to make transition planning clearer, more collaborative, and
               more meaningful — so students are not just prepared to leave high school, but prepared
               to move forward with purpose.
             </p>
           </Reveal>
 
-          <div className="mt-14 flex flex-wrap justify-center gap-3">
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Magnetic>
               <Link
                 to="/platform"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
               >
                 Explore the platform <ArrowRight className="h-4 w-4" />
               </Link>
@@ -428,7 +431,7 @@ function AboutPage() {
             <Magnetic>
               <Link
                 to="/waitlist"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
               >
                 Join the waitlist
               </Link>
@@ -436,18 +439,19 @@ function AboutPage() {
             <Magnetic>
               <Link
                 to="/demo"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
               >
                 See how it works
               </Link>
             </Magnetic>
           </div>
 
-          <p className="mx-auto mt-16 max-w-xl font-display text-xl italic text-foreground/70">
+          <p className="mx-auto mt-12 max-w-xl font-display text-base italic text-foreground/70 sm:text-lg">
             One platform. One plan. Forward together.
           </p>
         </div>
       </section>
+
 
     </SiteShell>
   );
