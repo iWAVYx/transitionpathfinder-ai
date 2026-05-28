@@ -267,30 +267,6 @@ export function ReportView({
       </div>
 
       {/* ============ Document header (formal) ============ */}
-      <header className="rounded-2xl border bg-card shadow-soft overflow-hidden">
-        <div className="border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            <span>TransitionForward · {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}</span>
-            <span className="font-mono normal-case tracking-normal text-foreground/70">
-              Doc ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"}
-            </span>
-          </div>
-        </div>
-
-        <div className="px-6 py-8 sm:px-10 sm:py-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            {audience === "family" ? "Personalized transition plan" : "Planning & Placement Team packet"}
-          </p>
-          <h1 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-            {heading}
-          </h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
-
-          <div className="mt-3 h-px w-16 bg-primary/70" />
-
-          <dl className="mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetaField label="Prepared for" value={meta?.preparedFor ?? name} />
-      {/* ============ Document header (formal) ============ */}
       <header
         ref={headerRef}
         className="report-header relative overflow-hidden rounded-2xl border bg-card shadow-soft"
