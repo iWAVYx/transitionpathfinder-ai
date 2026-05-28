@@ -308,12 +308,11 @@ export function MorphCard({
     };
   }, [reduced]);
 
-  // morph radius from squircle -> blob -> rounded
-  const r1 = 8 + p * 60;
-  const r2 = 80 - p * 70;
-  const r3 = 20 + p * 50;
-  const r4 = 60 - p * 40;
-  const rot = (p - 0.5) * 6;
+  // Subtle morph: gentle radius drift, no rotation.
+  const r1 = 24 + p * 22;
+  const r2 = 46 - p * 18;
+  const r3 = 28 + p * 18;
+  const r4 = 42 - p * 16;
 
   return (
     <div
@@ -321,8 +320,7 @@ export function MorphCard({
       className={cn("overflow-hidden border border-border/60 bg-card shadow-soft", className)}
       style={{
         borderRadius: `${r1}% ${r2}% ${r3}% ${r4}% / ${r4}% ${r1}% ${r2}% ${r3}%`,
-        transform: `rotate(${rot.toFixed(2)}deg)`,
-        transition: "border-radius 120ms linear, transform 200ms ease-out",
+        transition: "border-radius 240ms ease-out",
       }}
     >
       {children}
