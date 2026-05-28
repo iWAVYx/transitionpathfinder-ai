@@ -9,6 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationsBell } from "./NotificationsBell";
+
 
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
@@ -121,6 +123,8 @@ export function SiteHeader() {
         <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
           {user ? (
             <>
+              <NotificationsBell userId={user.id} />
+
               <Link
                 to="/dashboard"
                 className="whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 hover:text-foreground xl:px-3"
