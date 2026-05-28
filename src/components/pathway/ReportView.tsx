@@ -1264,13 +1264,13 @@ function DocumentContents({ report, name }: { report: PathwayReport; name: strin
   items.push({ id: "sec-life-skills", label: "Life Skills to Focus On" });
   if (report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP / Transition Plan Translator" });
   if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What We Still Need to Know" });
-  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s voice` });
+  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s Voice` });
   if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family Action Plan" });
   if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP Meeting Prep" });
-  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to explore" });
-  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress timeline" });
-  items.push({ id: "sec-thirty-day", label: "A gentle 30-Day Plan" });
-  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a human second look" });
+  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to Explore" });
+  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress Timeline" });
+  items.push({ id: "sec-thirty-day", label: "A Gentle 30-Day Plan" });
+  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
 
   return (
     <nav
