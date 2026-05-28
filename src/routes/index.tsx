@@ -629,19 +629,35 @@ function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title:
   );
 }
 
-function TrustItem({ icon: Icon, title, body }: { icon: typeof Lock; title: string; body: string }) {
+function TrustPillar({
+  num,
+  icon: Icon,
+  title,
+  body,
+}: {
+  num: string;
+  icon: typeof Lock;
+  title: string;
+  body: string;
+}) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/70 p-4">
-      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Icon className="h-4 w-4" aria-hidden />
-      </span>
-      <div>
-        <p className="font-display text-sm font-semibold tracking-tight">{title}</p>
-        <p className="mt-1 text-xs leading-snug text-muted-foreground">{body}</p>
+    <li className="group relative flex flex-col gap-3 border-b border-border/50 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0 lg:[&:nth-child(3)]:border-r lg:[&:nth-child(odd)]:border-r">
+      <div className="flex items-center justify-between">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft transition-transform group-hover:-translate-y-0.5">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {num}
+        </span>
       </div>
-    </div>
+      <p className="font-display text-lg font-medium leading-tight tracking-tight">
+        {title}
+      </p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{body}</p>
+    </li>
   );
 }
+
 
 function Zigzag({
   eyebrow,
