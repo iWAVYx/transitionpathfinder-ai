@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { ArrowRight, FileText, Sparkles, Users, Compass, Sun } from "lucide-react";
+import { ArrowRight, FileText, Sparkles, Users, Compass, Sun, Quote } from "lucide-react";
 import {
   CursorField,
   Magnetic,
@@ -9,10 +9,22 @@ import {
   StickyPin,
   MorphCard,
   FloatingShape,
+  Tilt3D,
+  TiltLayer,
+  HorizontalScroll,
 } from "@/components/effects/ImmersiveEffects";
 import { Parallax, Reveal, StickyScrollStory, Marquee } from "@/components/effects/ScrollEffects";
 import aboutNarrativeHero from "@/assets/about-narrative-hero.jpg";
 import aboutStudentCenter from "@/assets/about-student-center.jpg";
+import aboutHero from "@/assets/about-hero.jpg";
+import homePathway from "@/assets/home-pathway.jpg";
+import homeFamily from "@/assets/home-family.jpg";
+import homeEducator from "@/assets/home-educator.jpg";
+import homeStudent from "@/assets/home-student.jpg";
+import pathCollege from "@/assets/path-college.jpg";
+import pathCareer from "@/assets/path-career.jpg";
+import pathTechnical from "@/assets/path-technical.jpg";
+import pathLifeskills from "@/assets/path-lifeskills.jpg";
 import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/about")({
@@ -40,15 +52,15 @@ export const Route = createFileRoute("/about")({
 const scrollScenes = [
   {
     title: "The plan only matters if the student can see themselves in it.",
-    body: "TransitionForward was built from the belief that every student's plan should begin with who they are: their interests, strengths, needs, questions, voice, and future possibilities. The platform exists to make transition planning more human, more organized, and more connected to real life.",
+    body: "TransitionForward begins with who a student is — interests, strengths, questions, voice, and possibilities — and turns that into a plan they can recognize as their own.",
     image: aboutStudentCenter,
     alt: "A student silhouette at the center of a glowing constellation of interests, family, teachers, and opportunities",
   },
   {
-    title: "We help teams move from paperwork to purpose.",
-    body: "TransitionForward helps students, families, and educators organize transition goals, student voice, progress, resources, and communication in one easy-to-use platform. With AI-supported recommendations and real-world opportunity matching, the platform turns information into action.",
-    image: aboutNarrativeHero,
-    alt: "A glowing pathway of light forming from scattered IEP paperwork",
+    title: "From paperwork into purpose.",
+    body: "Goals, student voice, progress, resources, and communication organize themselves around the student — with AI-supported recommendations turning information into action.",
+    image: aboutHero,
+    alt: "Soft editorial illustration of a student stepping into a sunlit pathway",
   },
 ];
 
@@ -79,6 +91,13 @@ const values = [
   },
 ];
 
+const pathways = [
+  { label: "College", image: pathCollege, copy: "Two-year, four-year, and beyond — mapped to the student's plan." },
+  { label: "Career", image: pathCareer, copy: "Employment goals connected to mentors, internships, and on-the-job learning." },
+  { label: "Technical", image: pathTechnical, copy: "Trade pathways and CTE programs aligned to interests and strengths." },
+  { label: "Life Skills", image: pathLifeskills, copy: "Independent living, community access, and daily routines made visible." },
+];
+
 const networkNodes = [
   { label: "Student", cx: 50, cy: 50, r: 7, primary: true },
   { label: "Family", cx: 18, cy: 28 },
@@ -95,27 +114,29 @@ function AboutPage() {
 
   return (
     <SiteShell>
-      {/* ====== SCENE 1 — HERO / THE PROBLEM ====== */}
+      {/* ====== SCENE 1 — HERO ====== */}
       <CursorField className="relative">
         <section className="relative isolate overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
 
-
-          <div className="mx-auto max-w-7xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 lg:pt-28 lg:pb-24">
+          <div className="mx-auto max-w-7xl px-4 pt-24 pb-20 sm:px-6 lg:px-8 lg:pt-32 lg:pb-28">
             <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
                 Scene I — The Problem
               </p>
             </Reveal>
 
-            <h1 className="mt-6 font-display text-[clamp(2.5rem,7vw,6.5rem)] font-medium leading-[0.98] tracking-tight">
+            <h1 className="mt-8 font-display text-[clamp(2.5rem,7vw,6.5rem)] font-medium leading-[0.98] tracking-tight">
               <Reveal>
                 <span className="block">Too many students are handed</span>
               </Reveal>
               <Reveal delay={120}>
                 <span className="block">
                   plans that do not feel like{" "}
-                  <TextMask className="font-display italic" gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.82 0.1 25), oklch(0.78 0.1 220), oklch(0.78 0.12 50))">
+                  <TextMask
+                    className="font-display italic"
+                    gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.82 0.1 25), oklch(0.78 0.1 220), oklch(0.78 0.12 50))"
+                  >
                     pathways
                   </TextMask>
                   .
@@ -123,23 +144,22 @@ function AboutPage() {
               </Reveal>
             </h1>
 
-            <div className="mt-12 grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-end">
+            <div className="mt-16 grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
               <Reveal delay={200}>
                 <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Transition planning should be one of the most meaningful parts of the school
-                  experience — a moment when a young person begins to picture who they are becoming.
-                  Instead, the process often arrives as a stack of forms, technical language, and
-                  scattered systems no one fully owns.
+                  Transition planning should be one of the most meaningful parts of school — the
+                  moment a young person begins picturing who they are becoming. Instead it arrives
+                  as a stack of forms, technical language, and systems no one fully owns.
                 </p>
-                <p className="mt-4 max-w-xl font-display text-2xl italic leading-snug text-foreground/80 sm:text-3xl">
+                <p className="mt-6 max-w-xl font-display text-2xl italic leading-snug text-foreground/80 sm:text-3xl">
                   Paperwork is not a pathway.
                 </p>
               </Reveal>
 
               <Reveal delay={300}>
-                <div className="relative">
-                  <div className="absolute -inset-4 -z-10 rounded-[2.2rem] bg-gradient-warm opacity-60 blur-2xl" />
-                  <Parallax speed={0.15}>
+                <Tilt3D max={9} className="relative">
+                  <div className="absolute -inset-6 -z-10 rounded-[2.4rem] bg-gradient-warm opacity-60 blur-2xl" />
+                  <TiltLayer depth={0}>
                     <img
                       src={aboutNarrativeHero}
                       alt="Scattered IEP paperwork transforming into a luminous golden pathway leading to the horizon"
@@ -147,18 +167,35 @@ function AboutPage() {
                       height={1200}
                       className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
                     />
-                  </Parallax>
-                </div>
+                  </TiltLayer>
+                  <TiltLayer
+                    depth={55}
+                    className="pointer-events-none absolute -left-6 -top-6 hidden sm:block"
+                  >
+                    <div className="rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-lift backdrop-blur">
+                      The Paperwork
+                    </div>
+                  </TiltLayer>
+                  <TiltLayer
+                    depth={75}
+                    className="pointer-events-none absolute -bottom-6 -right-6 hidden sm:block"
+                  >
+                    <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background/85 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-foreground shadow-lift backdrop-blur">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      Becomes a Pathway
+                    </div>
+                  </TiltLayer>
+                </Tilt3D>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* Marquee — repeated truths */}
+        {/* Marquee */}
         <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
           <Marquee
             speed={45}
-            className="py-5 font-display text-2xl italic text-foreground/70 sm:text-3xl"
+            className="py-6 font-display text-2xl italic text-foreground/70 sm:text-3xl"
             items={[
               "paperwork is not a pathway",
               "·",
@@ -176,36 +213,88 @@ function AboutPage() {
       </CursorField>
 
       {/* ====== SCENES 2 + 3 — STICKY SCROLL STORY ====== */}
-      <section className="relative py-12">
-        <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+      <section className="relative py-20 lg:py-28">
+        <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
             Scene II · The Realization — Scene III · The Mission
           </p>
         </div>
         <StickyScrollStory eyebrow="Our story, scene by scene" panels={scrollScenes} />
       </section>
 
+      {/* ====== HORIZONTAL SIDE-SCROLL — THE PATHWAYS ====== */}
+      <section className="relative overflow-hidden border-y border-border/40 bg-gradient-to-b from-background via-peach-soft/15 to-background">
+        <div className="mx-auto max-w-7xl px-4 pt-20 pb-8 sm:px-6 lg:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            Interlude — The Pathways
+          </p>
+          <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
+            {toTitleCase("Plans should lead somewhere a student can name.")}
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            Scroll sideways through the directions a TransitionForward plan can point toward — and
+            the people, programs, and progress that make each one real.
+          </p>
+        </div>
+
+        <HorizontalScroll height="280vh" trackWidth="280vw">
+          <div className="flex items-center gap-8 pl-8 pr-[10vw] sm:gap-12 sm:pl-16">
+            {pathways.map((p, i) => (
+              <Tilt3D key={p.label} max={8} className="w-[78vw] shrink-0 sm:w-[58vw] lg:w-[42vw]">
+                <article className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-lift">
+                  <TiltLayer depth={0}>
+                    <img
+                      src={p.image}
+                      alt={`${p.label} pathway illustration`}
+                      className="h-[58vh] w-full object-cover"
+                    />
+                  </TiltLayer>
+                  <TiltLayer
+                    depth={50}
+                    className="pointer-events-none absolute left-6 top-6"
+                  >
+                    <div className="rounded-full border border-border/60 bg-background/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
+                      {String(i + 1).padStart(2, "0")} · {p.label}
+                    </div>
+                  </TiltLayer>
+                  <TiltLayer
+                    depth={30}
+                    className="pointer-events-none absolute inset-x-6 bottom-6"
+                  >
+                    <div className="rounded-2xl bg-background/90 px-5 py-4 shadow-lift backdrop-blur">
+                      <h3 className="font-display text-2xl font-medium tracking-tight">
+                        {p.label}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{p.copy}</p>
+                    </div>
+                  </TiltLayer>
+                </article>
+              </Tilt3D>
+            ))}
+          </div>
+        </HorizontalScroll>
+      </section>
 
       {/* ====== VALUES — HOVER REVEAL CARDS ====== */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
             What we believe
           </p>
-          <h2 className="mt-3 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
+          <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
             {toTitleCase("Four convictions shape every screen.")}
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {values.map(({ icon: Icon, title, body, accent }) => (
             <HoverReveal
               key={title}
-              height="240px"
+              height="260px"
               className={`bg-gradient-to-br ${accent}`}
               front={
-                <div className="flex h-[240px] flex-col justify-between p-6">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft">
+                <div className="flex h-[260px] flex-col justify-between p-7">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background/85 text-primary shadow-soft">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">
@@ -223,36 +312,95 @@ function AboutPage() {
         </div>
       </section>
 
+      {/* ====== VOICES — 3D TILT PORTRAITS ====== */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-background via-sky-soft/20 to-background py-24 lg:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              Whose voices we build for
+            </p>
+            <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              {toTitleCase("Three perspectives, one plan moving forward.")}
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 grid gap-8 md:grid-cols-3">
+            {[
+              {
+                img: homeStudent,
+                tag: "Student",
+                quote: "I want a plan that sounds like me — not a checklist about me.",
+              },
+              {
+                img: homeFamily,
+                tag: "Family",
+                quote: "I want to walk into the meeting already knowing what's happening.",
+              },
+              {
+                img: homeEducator,
+                tag: "Educator",
+                quote: "I want my time spent with the student, not chasing the paperwork.",
+              },
+            ].map((v) => (
+              <Tilt3D key={v.tag} max={10} className="h-full">
+                <article className="relative h-full overflow-hidden rounded-[1.8rem] border border-border/60 bg-card shadow-soft">
+                  <TiltLayer depth={0}>
+                    <img
+                      src={v.img}
+                      alt={`${v.tag} portrait`}
+                      className="aspect-[4/5] w-full object-cover"
+                    />
+                  </TiltLayer>
+                  <TiltLayer
+                    depth={40}
+                    className="pointer-events-none absolute inset-x-5 bottom-5"
+                  >
+                    <div className="rounded-2xl bg-background/92 p-5 shadow-lift backdrop-blur">
+                      <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+                        <Quote className="h-3 w-3" />
+                        {v.tag}
+                      </div>
+                      <p className="mt-2 font-display text-lg italic leading-snug text-foreground/85">
+                        “{v.quote}”
+                      </p>
+                    </div>
+                  </TiltLayer>
+                </article>
+              </Tilt3D>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ====== SCENE 4 — THE NETWORK ====== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background via-sky-soft/20 to-background py-24">
+      <section className="relative overflow-hidden py-24 lg:py-32">
         <FloatingShape className="absolute right-[10%] top-12 hidden md:block" duration={20}>
           <div className="h-32 w-32 rounded-full bg-peach/30 blur-2xl" />
         </FloatingShape>
 
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
               Scene IV — The Network
             </p>
-            <h2 className="mt-4 font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl">
+            <h2 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl">
               No student moves{" "}
               <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.78 0.1 220), oklch(0.82 0.1 25))">
                 forward alone
               </TextMask>
               .
             </h2>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              The future is built through connection. TransitionForward is designed to help families
-              and schools connect students to the people, programs, and opportunities that can help
-              them move forward with confidence.
+            <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              The future is built through connection. TransitionForward helps families and schools
+              connect students to the people, programs, and opportunities that move a plan into
+              motion.
             </p>
-            <p className="mt-4 max-w-xl font-display text-xl italic text-foreground/80">
+            <p className="mt-5 max-w-xl font-display text-xl italic text-foreground/80">
               Schools. Families. Mentors. Employers. Universities. Community partners. One platform,
               moving in step.
             </p>
           </div>
 
-          {/* Animated network SVG */}
           <div className="relative aspect-square w-full">
             <div className="absolute inset-0 rounded-full bg-gradient-warm opacity-40 blur-3xl" />
             <svg viewBox="0 0 100 100" className="relative h-full w-full">
@@ -320,15 +468,11 @@ function AboutPage() {
       <section className="relative">
         <StickyPin className="h-[130vh]" top="22vh">
           <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
               Our north star
             </p>
-            <h2 className="mt-6 font-display text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.9] tracking-tight">
-              From{" "}
-              <TextMask>
-                paperwork
-              </TextMask>{" "}
-              to{" "}
+            <h2 className="mt-8 font-display text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.9] tracking-tight">
+              From <TextMask>paperwork</TextMask> to{" "}
               <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.1 220), oklch(0.78 0.12 50))">
                 pathways
               </TextMask>
@@ -339,7 +483,7 @@ function AboutPage() {
       </section>
 
       {/* ====== SCENE 5 — THE PROMISE ====== */}
-      <section className="relative overflow-hidden bg-gradient-hero py-24">
+      <section className="relative overflow-hidden bg-gradient-hero py-28 lg:py-32">
         <FloatingShape className="absolute left-[10%] top-10" duration={16}>
           <Sun className="h-16 w-16 text-peach opacity-50" strokeWidth={1.2} />
         </FloatingShape>
@@ -348,23 +492,23 @@ function AboutPage() {
         </FloatingShape>
 
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
             Scene V — The Promise
           </p>
           <Reveal>
-            <h2 className="mt-6 font-display text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1.02] tracking-tight">
+            <h2 className="mt-8 font-display text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1.02] tracking-tight">
               A clearer path. A stronger voice. A future that feels possible.
             </h2>
           </Reveal>
           <Reveal delay={150}>
-            <p className="mx-auto mt-8 max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+            <p className="mx-auto mt-10 max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
               TransitionForward exists to make transition planning clearer, more collaborative, and
               more meaningful — so students are not just prepared to leave high school, but prepared
               to move forward with purpose.
             </p>
           </Reveal>
 
-          <div className="mt-12 flex flex-wrap justify-center gap-3">
+          <div className="mt-14 flex flex-wrap justify-center gap-3">
             <Magnetic>
               <Link
                 to="/platform"
@@ -391,40 +535,46 @@ function AboutPage() {
             </Magnetic>
           </div>
 
-          <p className="mx-auto mt-14 max-w-xl font-display text-xl italic text-foreground/70">
+          <p className="mx-auto mt-16 max-w-xl font-display text-xl italic text-foreground/70">
             One platform. One plan. Forward together.
           </p>
         </div>
       </section>
 
       {/* Morph card closing */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
         <MorphCard className="bg-gradient-to-br from-sky-soft/40 via-background to-peach-soft/40">
-          <div className="grid items-center gap-10 p-10 md:grid-cols-[1.1fr_1fr] md:p-14">
+          <div className="grid items-center gap-12 p-10 md:grid-cols-[1.1fr_1fr] md:gap-16 md:p-14">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
                 Built in Connecticut
               </p>
-              <h3 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              <h3 className="mt-5 font-display text-3xl font-medium tracking-tight sm:text-4xl">
                 {toTitleCase("A plan should sound like the student.")}
               </h3>
-              <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              <p className="mt-6 text-base leading-relaxed text-muted-foreground">
                 TransitionForward was built by people who have sat on both sides of the PPT table —
                 educators who have written the goals, and families who have tried to read them.
-                Every feature on this platform was sketched first next to a real student's name.
+                Every feature was sketched first next to a real student's name.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              {["Purpose", "Voice", "Pathways", "Family", "Forward", "Together"].map((w, i) => (
-                <div
-                  key={w}
-                  className="rounded-2xl border border-border/60 bg-background/70 px-3 py-5 font-display text-base italic text-foreground/75 shadow-soft"
-                  style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * 2}deg)` }}
-                >
-                  {w}
+            <Tilt3D max={10}>
+              <TiltLayer depth={0}>
+                <img
+                  src={homePathway}
+                  alt="A quiet, sunlit pathway opening into an open landscape"
+                  className="aspect-[4/3] w-full rounded-[1.6rem] object-cover shadow-lift"
+                />
+              </TiltLayer>
+              <TiltLayer
+                depth={60}
+                className="pointer-events-none absolute -bottom-5 -right-5"
+              >
+                <div className="rounded-2xl border border-border/60 bg-background/90 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-lift backdrop-blur">
+                  Forward · Together
                 </div>
-              ))}
-            </div>
+              </TiltLayer>
+            </Tilt3D>
           </div>
         </MorphCard>
       </section>
