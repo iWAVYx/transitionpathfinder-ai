@@ -27,6 +27,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as DemoReportRouteImport } from './routes/demo.report'
 import { Route as DemoIntakeRouteImport } from './routes/demo.intake'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -131,6 +132,11 @@ const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   path: '/pathways/$pathwayId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoReportRoute = DemoReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => DemoRoute,
+} as any)
 const DemoIntakeRoute = DemoIntakeRouteImport.update({
   id: '/intake',
   path: '/intake',
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/demo/intake': typeof DemoIntakeRoute
+  '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/demo/intake': typeof DemoIntakeRoute
+  '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/demo/intake': typeof DemoIntakeRoute
+  '/demo/report': typeof DemoReportRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -336,6 +345,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/students'
     | '/demo/intake'
+    | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/reports/$reportId'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/students'
     | '/demo/intake'
+    | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/reports/$reportId'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/students'
     | '/demo/intake'
+    | '/demo/report'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/reports/$reportId'
@@ -557,6 +569,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pathways/$pathwayId'
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/demo/report': {
+      id: '/demo/report'
+      path: '/report'
+      fullPath: '/demo/report'
+      preLoaderRoute: typeof DemoReportRouteImport
+      parentRoute: typeof DemoRoute
     }
     '/demo/intake': {
       id: '/demo/intake'
@@ -717,10 +736,12 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface DemoRouteChildren {
   DemoIntakeRoute: typeof DemoIntakeRoute
+  DemoReportRoute: typeof DemoReportRoute
 }
 
 const DemoRouteChildren: DemoRouteChildren = {
   DemoIntakeRoute: DemoIntakeRoute,
+  DemoReportRoute: DemoReportRoute,
 }
 
 const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
