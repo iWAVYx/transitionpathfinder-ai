@@ -87,12 +87,37 @@ function HomePage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
-        {/* Slow-drift decorative shape behind headline */}
+        {/* Dramatic 3D morphing shape — primary blob */}
         <ShapeScroll
-          className="absolute -left-32 top-10 -z-10 hidden h-[28rem] w-[28rem] text-primary/15 md:block"
-          spin={90}
-          scale={0.45}
+          className="absolute -left-40 -top-24 -z-10 h-[44rem] w-[44rem] text-primary/45 mix-blend-multiply md:block"
+          spin={220}
+          scale={1.1}
+          tilt={45}
+          drift={140}
+          gradientFrom="hsl(210 90% 70%)"
+          gradientTo="hsl(280 80% 65%)"
         />
+        {/* Secondary counter-rotating shape, right side */}
+        <ShapeScroll
+          className="absolute -right-32 top-40 -z-10 hidden h-[34rem] w-[34rem] mix-blend-multiply lg:block"
+          spin={-180}
+          scale={0.9}
+          tilt={35}
+          drift={-100}
+          gradientFrom="hsl(20 90% 70%)"
+          gradientTo="hsl(340 85% 70%)"
+        />
+        {/* Smaller accent shape lower-left */}
+        <ShapeScroll
+          className="absolute left-1/3 bottom-10 -z-10 hidden h-56 w-56 lg:block"
+          spin={300}
+          scale={1.4}
+          tilt={60}
+          drift={80}
+          gradientFrom="hsl(150 70% 65%)"
+          gradientTo="hsl(190 80% 60%)"
+        />
+
 
         {/* Floating playful doodles */}
         <Parallax speed={-0.25} className="pointer-events-none absolute right-4 top-20 -z-10 hidden md:block lg:right-16 lg:top-24">
