@@ -78,6 +78,7 @@ export function ReportView({
   onSaveToProfile,
   saveLabel,
   saved,
+  demo = false,
 }: {
   name: string;
   report: PathwayReport;
@@ -87,6 +88,7 @@ export function ReportView({
   onSaveToProfile?: () => void;
   saveLabel?: string;
   saved?: boolean;
+  demo?: boolean;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
