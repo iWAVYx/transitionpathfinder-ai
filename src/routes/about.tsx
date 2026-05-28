@@ -1,10 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { ArrowRight, FileText, Sparkles, Users, Compass, Sun } from "lucide-react";
+import { ArrowRight, FileText, Sparkles, Users, Compass, Sun, Star } from "lucide-react";
 import {
   CursorField,
   Magnetic,
-  HoverReveal,
   TextMask,
   FloatingShape,
   Tilt3D,
@@ -14,14 +13,35 @@ import { Reveal, StickyScrollStory, Marquee } from "@/components/effects/ScrollE
 import aboutNarrativeHero from "@/assets/about-narrative-hero.jpg";
 import aboutStudentCenter from "@/assets/about-student-center.jpg";
 import aboutHero from "@/assets/about-hero.jpg";
-import homeFamily from "@/assets/home-family.jpg";
-import homeEducator from "@/assets/home-educator.jpg";
-import homeStudent from "@/assets/home-student.jpg";
 import pathCollege from "@/assets/path-college.jpg";
 import pathCareer from "@/assets/path-career.jpg";
 import pathTechnical from "@/assets/path-technical.jpg";
 import pathLifeskills from "@/assets/path-lifeskills.jpg";
 import { toTitleCase } from "@/lib/title-case";
+
+/* Decorative SVG illustrations — added wherever the page has empty space. */
+function GridBurst({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 200" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="0.6">
+      {Array.from({ length: 14 }).map((_, i) => {
+        const a = (i / 14) * Math.PI * 2;
+        return <line key={i} x1="100" y1="100" x2={100 + Math.cos(a) * 96} y2={100 + Math.sin(a) * 96} />;
+      })}
+      <circle cx="100" cy="100" r="38" />
+      <circle cx="100" cy="100" r="62" opacity="0.5" />
+      <circle cx="100" cy="100" r="86" opacity="0.25" />
+    </svg>
+  );
+}
+function CornerArc({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 160 160" aria-hidden className={className} fill="none">
+      <path d="M 0 160 A 160 160 0 0 1 160 0" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+      <path d="M 0 160 A 110 110 0 0 1 110 50" stroke="currentColor" strokeWidth="1" opacity="0.35" />
+      <path d="M 0 160 A 60 60 0 0 1 60 100" stroke="currentColor" strokeWidth="1" opacity="0.2" />
+    </svg>
+  );
+}
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -222,7 +242,7 @@ function AboutPage() {
             </p>
           </Reveal>
 
-          <ul className="mt-10 divide-y divide-border/60 border-y border-border/60">
+          <ul className="mt-10 divide-y divide-foreground/15 border-y border-foreground/15">
             {pathways.map((p, i) => (
               <li key={p.label} className="group/path">
                 <Reveal>
@@ -240,13 +260,14 @@ function AboutPage() {
                       </p>
                     </div>
 
-                    <div className="col-span-2 sm:col-span-1 sm:justify-self-end">
+                    <div className="relative col-span-2 sm:col-span-1 sm:justify-self-end">
+                      <CornerArc className="pointer-events-none absolute -left-4 -top-4 -z-10 h-20 w-20 text-primary/30" />
                       <Tilt3D max={8} className="w-full sm:w-52 lg:w-60">
                         <TiltLayer depth={0}>
                           <img
                             src={p.image}
                             alt={`${p.label} pathway illustration`}
-                            className="aspect-[4/3] w-full rounded-xl object-cover shadow-soft transition-transform duration-500 group-hover/path:scale-[1.02]"
+                            className="aspect-[4/3] w-full object-cover shadow-soft transition-transform duration-500 group-hover/path:scale-[1.02]"
                           />
                         </TiltLayer>
                       </Tilt3D>
@@ -261,10 +282,14 @@ function AboutPage() {
 
 
 
-      {/* ====== VALUES — HOVER REVEAL CARDS ====== */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+      {/* ====== VALUES — OPEN EDITORIAL BLOCKS ====== */}
+      <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <FloatingShape className="pointer-events-none absolute right-[3%] top-8 hidden text-sky/40 lg:block" duration={26}>
+          <GridBurst className="h-36 w-36" />
+        </FloatingShape>
+
         <Reveal>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
+          <p className="border-l-2 border-primary pl-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
             What we believe
           </p>
           <h2 className="mt-3 max-w-3xl font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
@@ -272,28 +297,26 @@ function AboutPage() {
           </h2>
         </Reveal>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {values.map(({ icon: Icon, title, body, accent }) => (
-            <HoverReveal
-              key={title}
-              height="200px"
-              className={`bg-gradient-to-br ${accent}`}
-              front={
-                <div className="flex h-[200px] flex-col justify-between p-5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background/85 text-primary shadow-soft">
-                    <Icon className="h-4 w-4" />
+        <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {values.map(({ icon: Icon, title, body }, i) => (
+            <Reveal key={title} delay={i * 70}>
+              <article className="group relative border-t-2 border-foreground/15 pt-5">
+                <GridBurst className="pointer-events-none absolute -left-5 -top-2 h-24 w-24 text-primary/15 transition-opacity group-hover:text-primary/30" />
+                <div className="relative flex items-start gap-4">
+                  <div className="relative shrink-0">
+                    <div className="absolute -inset-3 -z-10 bg-gradient-warm opacity-50 blur-xl transition-opacity group-hover:opacity-90" />
+                    <Icon className="h-10 w-10 text-primary transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110" strokeWidth={1.4} />
                   </div>
-                  <h3 className="font-display text-lg font-medium leading-tight tracking-tight">
-                    {title}
-                  </h3>
+                  <span className="ml-auto font-display text-xs tabular-nums text-foreground/30">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                 </div>
-              }
-              back={
-                <div className="flex h-full flex-col justify-end">
-                  <p className="text-sm leading-relaxed text-foreground/85">{body}</p>
-                </div>
-              }
-            />
+                <h3 className="mt-4 font-display text-lg font-medium leading-tight tracking-tight">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              </article>
+            </Reveal>
           ))}
         </div>
       </section>
