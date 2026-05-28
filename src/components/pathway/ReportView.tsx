@@ -1149,3 +1149,56 @@ function ReadinessBadge({
     </span>
   );
 }
+
+/* ---------- Floating table of contents (desktop only) ---------- */
+
+function ReportTOC({
+  report,
+  audience,
+}: {
+  report: PathwayReport;
+  audience: Audience;
+}) {
+  const items: { id: string; label: string }[] = [];
+  if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student snapshot" });
+  items.push({ id: "sec-strengths", label: "Strengths" });
+  if (report.spin_analysis) items.push({ id: "sec-spin", label: "SPIN analysis" });
+  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Readiness" });
+  if (report.recommended_pathways?.length) items.push({ id: "sec-pathways", label: "Pathways" });
+  if (report.career_matches?.length) items.push({ id: "sec-careers", label: "Career matches" });
+  if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary goals" });
+  items.push({ id: "sec-education", label: "Education & training" });
+  items.push({ id: "sec-life-skills", label: "Life skills" });
+  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: "Student voice" });
+  if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family plan" });
+  if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "PPT prep" });
+  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities" });
+  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
+  items.push({ id: "sec-thirty-day", label: "30-day plan" });
+
+  void audience;
+  return (
+    <nav
+      aria-label="Report contents"
+      className="no-print pointer-events-none fixed right-4 top-32 z-20 hidden xl:block"
+    >
+      <div className="pointer-events-auto w-56 rounded-2xl border border-border/60 bg-card/95 p-4 shadow-soft backdrop-blur">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+          In this report
+        </p>
+        <ul className="mt-3 space-y-1.5 text-sm">
+          {items.map((it) => (
+            <li key={it.id}>
+              <a
+                href={`#${it.id}`}
+                className="block rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {it.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  );
+}
