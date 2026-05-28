@@ -104,8 +104,26 @@ function FrameworkPage() {
     <SiteShell>
       <section className="relative overflow-hidden border-b border-border/60">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <ShapeScroll
+          className="absolute -left-36 -top-20 -z-10 h-[40rem] w-[40rem] mix-blend-multiply"
+          spin={200}
+          scale={1}
+          tilt={45}
+          drift={130}
+          gradientFrom="hsl(150 70% 65%)"
+          gradientTo="hsl(200 85% 70%)"
+        />
+        <ShapeScroll
+          className="absolute -right-28 top-32 -z-10 hidden h-[26rem] w-[26rem] mix-blend-multiply lg:block"
+          spin={-160}
+          scale={0.8}
+          tilt={30}
+          drift={-90}
+          gradientFrom="hsl(40 95% 72%)"
+          gradientTo="hsl(15 90% 70%)"
+        />
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 sm:px-6 sm:py-24 md:grid-cols-[1.1fr_1fr] lg:px-8">
-          <div>
+          <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               How we walk through it with you
             </p>
@@ -118,19 +136,33 @@ function FrameworkPage() {
               federal IDEA mandate, Connecticut's IEP guidance, and the research that
               actually predicts a good life after high school.
             </p>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
-            <img
-              src={frameworkHero}
-              alt="A winding path through a sunlit meadow at golden hour"
-              width={1600}
-              height={1200}
-              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
-            />
-          </div>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="relative">
+              <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
+              <Parallax speed={-0.15}>
+                <ParallaxImage
+                  src={frameworkHero}
+                  alt="A winding path through a sunlit meadow at golden hour"
+                  width={1600}
+                  height={1200}
+                  speed={0.4}
+                  className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
+                />
+              </Parallax>
+            </div>
+          </Reveal>
         </div>
       </section>
+
+      {/* Mission line — text fill on scroll */}
+      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <TextScrollFill
+          className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
+          text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+        />
+      </section>
+
 
       {/* Principles */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
