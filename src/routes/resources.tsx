@@ -166,6 +166,16 @@ function ResourcesPage() {
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
 
+  const fetchDb = useServerFn(listVerifiedResources);
+  const [dbResources, setDbResources] = useState<DbResource[] | null>(null);
+  useEffect(() => {
+    fetchDb()
+      .then((r) => setDbResources(r.resources))
+      .catch(() => setDbResources([]));
+  }, [fetchDb]);
+
+
+
   const setF = <K extends keyof Filters>(k: K, v: Filters[K]) =>
     setFilters((p) => ({ ...p, [k]: v }));
   const clearFilters = () => {
