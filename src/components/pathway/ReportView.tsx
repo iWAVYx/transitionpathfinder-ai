@@ -895,19 +895,21 @@ export function ReportView({
         </p>
       </div>
 
-      <AiAssistPanel
-        studentName={name}
-        report={report}
-        translatedTo={translatedTo}
-        onTranslated={(next, lang) => {
-          setDisplayReport(next);
-          setTranslatedTo(lang);
-        }}
-        onReset={() => {
-          setDisplayReport(report);
-          setTranslatedTo(null);
-        }}
-      />
+      {!demo && (
+        <AiAssistPanel
+          studentName={name}
+          report={report}
+          translatedTo={translatedTo}
+          onTranslated={(next, lang) => {
+            setDisplayReport(next);
+            setTranslatedTo(lang);
+          }}
+          onReset={() => {
+            setDisplayReport(report);
+            setTranslatedTo(null);
+          }}
+        />
+      )}
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
         {onReset && (
