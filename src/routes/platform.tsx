@@ -221,7 +221,13 @@ function PlatformPage() {
       </section>
 
       {/* Text-fill mission */}
-      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <CompassRose className="absolute left-2 top-6 hidden h-20 w-20 text-primary/25 lg:block" />
+        <Starburst className="absolute right-2 top-6 hidden h-16 w-16 text-secondary-foreground/30 lg:block" />
+        <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Squiggle className="absolute inset-x-0 bottom-4 mx-auto h-5 w-72 text-primary/30" />
         <TextScrollFill
           className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
           text="Four perspectives. One pathway. Every tool tuned to the chair you're sitting in."
@@ -229,8 +235,11 @@ function PlatformPage() {
       </section>
 
       {/* Perspective switcher */}
-      <section id="perspectives" className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+      <section id="perspectives" className="relative mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <ArcStack className="absolute -left-10 bottom-0 -z-10 hidden h-56 w-56 text-secondary-foreground/25 lg:block" />
         <div className="mx-auto mb-10 max-w-2xl text-center">
+
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             See It From Every Chair
           </p>
