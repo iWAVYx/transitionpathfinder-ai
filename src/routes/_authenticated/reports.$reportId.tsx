@@ -1,8 +1,21 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Copy, Check, Link2, Trash2, Share2, UserCircle2 } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Link2,
+  Trash2,
+  Share2,
+  UserCircle2,
+  Sparkles,
+  Printer,
+  BookmarkPlus,
+  ListChecks,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -22,8 +35,13 @@ import {
   type Student,
 } from "@/lib/students.functions";
 
+const SearchSchema = z.object({
+  welcome: z.coerce.number().optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
   head: () => ({ meta: [{ title: "Pathway Report — TransitionForward" }] }),
+  validateSearch: (s) => SearchSchema.parse(s),
   component: ReportDetailPage,
 });
 
