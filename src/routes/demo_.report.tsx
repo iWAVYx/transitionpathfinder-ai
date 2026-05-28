@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_REPORT, DEMO_STUDENT } from "@/lib/demo-data";
 
-export const Route = createFileRoute("/demo/report")({
+export const Route = createFileRoute("/demo_/report")({
   head: () => ({
     meta: [
       { title: "Sample Pathway Report — TransitionForward demo" },

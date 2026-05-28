@@ -69,6 +69,15 @@ const TIMELINE_STATUS_LABEL: Record<string, string> = {
   future: "Future",
 };
 
+export type ReportMeta = {
+  reportId?: string;
+  preparedFor?: string;
+  preparedBy?: string;
+  issued?: string;
+  version?: string;
+  confidentiality?: string;
+};
+
 export function ReportView({
   name,
   report,
@@ -79,6 +88,7 @@ export function ReportView({
   saveLabel,
   saved,
   demo = false,
+  meta,
 }: {
   name: string;
   report: PathwayReport;
@@ -89,6 +99,7 @@ export function ReportView({
   saveLabel?: string;
   saved?: boolean;
   demo?: boolean;
+  meta?: ReportMeta;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
