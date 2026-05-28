@@ -447,74 +447,7 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-12 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-[oklch(0.18_0.04_250)] via-[oklch(0.22_0.06_260)] to-[oklch(0.15_0.05_245)] text-white shadow-soft">
-            <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
-              {/* Compact animated graphic */}
-              <div className="relative isolate flex shrink-0 items-center justify-center self-center">
-                <div className="relative h-32 w-32 sm:h-36 sm:w-36">
-                  {/* twinkles */}
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className="trust-twinkle absolute h-[2px] w-[2px] rounded-full bg-white/80"
-                      style={{
-                        left: `${(i * 37) % 100}%`,
-                        top: `${(i * 53) % 100}%`,
-                        animationDelay: `${(i % 5) * 0.3}s`,
-                      }}
-                    />
-                  ))}
-                  {/* pulse rings */}
-                  <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" />
-                  <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" style={{ animationDelay: '1.4s' }} />
-                  {/* dashed orbit */}
-                  <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full trust-orbit">
-                    <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1.5" />
-                    <circle cx="100" cy="100" r="80" fill="none" stroke="oklch(0.85 0.16 60)" strokeWidth="2" className="trust-dash" />
-                  </svg>
-                  {/* orbiting chips */}
-                  <div className="absolute inset-0 trust-orbit">
-                    {[Lock, UserCheck, ShieldCheck, Download].map((Ic, i) => {
-                      const angle = (i / 4) * 2 * Math.PI;
-                      const x = 50 + 40 * Math.cos(angle);
-                      const y = 50 + 40 * Math.sin(angle);
-                      return (
-                        <span
-                          key={i}
-                          className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-white/95 text-primary shadow-soft ring-1 ring-white/40 trust-orbit-rev"
-                          style={{ left: `${x}%`, top: `${y}%` }}
-                        >
-                          <Ic className="h-3 w-3" aria-hidden />
-                        </span>
-                      );
-                    })}
-                  </div>
-                  {/* core */}
-                  <div className="absolute inset-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.7_0.18_45)] text-primary-foreground shadow-[0_8px_24px_-8px_oklch(0.75_0.18_55/0.7)] trust-float">
-                    <ShieldCheck className="h-5 w-5" aria-hidden />
-                  </div>
-                </div>
-              </div>
 
-              {/* Heading + pillars */}
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white ring-1 ring-white/20 backdrop-blur">
-                    <ShieldCheck className="h-3 w-3" aria-hidden /> Privacy &amp; trust
-                  </span>
-                  <h3 className="font-display text-xl font-medium leading-tight tracking-tight sm:text-2xl">
-                    Built around student privacy from day one.
-                  </h3>
-                </div>
-                <ul className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
-                  <CompactPillar icon={Lock} title="Secure by default" body="Encrypted in transit and at rest." />
-                  <CompactPillar icon={UserCheck} title="Role-based access" body="Each role sees only what's theirs." />
-                  <CompactPillar icon={ShieldCheck} title="Human-reviewed AI" body="A planning aid, never a determination." />
-                  <CompactPillar icon={Download} title="Export and delete" body="Your information, on your terms." />
-                </ul>
-              </div>
-            </div>
-          </div>
 
         </div>
       </section>
@@ -593,6 +526,71 @@ function HomePage() {
               >
                 Sign in
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PRIVACY & TRUST — animated graphic + pillars (page footer band) */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-[oklch(0.18_0.04_250)] via-[oklch(0.22_0.06_260)] to-[oklch(0.15_0.05_245)] text-white shadow-soft">
+          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
+            <div className="relative isolate flex shrink-0 items-center justify-center self-center">
+              <div className="relative h-32 w-32 sm:h-36 sm:w-36">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="trust-twinkle absolute h-[2px] w-[2px] rounded-full bg-white/80"
+                    style={{
+                      left: `${(i * 37) % 100}%`,
+                      top: `${(i * 53) % 100}%`,
+                      animationDelay: `${(i % 5) * 0.3}s`,
+                    }}
+                  />
+                ))}
+                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" />
+                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/50 trust-pulse-ring" style={{ animationDelay: '1.4s' }} />
+                <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full trust-orbit">
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1.5" />
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="oklch(0.85 0.16 60)" strokeWidth="2" className="trust-dash" />
+                </svg>
+                <div className="absolute inset-0 trust-orbit">
+                  {[Lock, UserCheck, ShieldCheck, Download].map((Ic, i) => {
+                    const angle = (i / 4) * 2 * Math.PI;
+                    const x = 50 + 40 * Math.cos(angle);
+                    const y = 50 + 40 * Math.sin(angle);
+                    return (
+                      <span
+                        key={i}
+                        className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-white/95 text-primary shadow-soft ring-1 ring-white/40 trust-orbit-rev"
+                        style={{ left: `${x}%`, top: `${y}%` }}
+                      >
+                        <Ic className="h-3 w-3" aria-hidden />
+                      </span>
+                    );
+                  })}
+                </div>
+                <div className="absolute inset-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.7_0.18_45)] text-primary-foreground shadow-[0_8px_24px_-8px_oklch(0.75_0.18_55/0.7)] trust-float">
+                  <ShieldCheck className="h-5 w-5" aria-hidden />
+                </div>
+              </div>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white ring-1 ring-white/20 backdrop-blur">
+                  <ShieldCheck className="h-3 w-3" aria-hidden /> Privacy &amp; trust
+                </span>
+                <h3 className="font-display text-xl font-medium leading-tight tracking-tight sm:text-2xl">
+                  Built around student privacy from day one.
+                </h3>
+              </div>
+              <ul className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+                <CompactPillar icon={Lock} title="Secure by default" body="Encrypted in transit and at rest." />
+                <CompactPillar icon={UserCheck} title="Role-based access" body="Each role sees only what's theirs." />
+                <CompactPillar icon={ShieldCheck} title="Human-reviewed AI" body="A planning aid, never a determination." />
+                <CompactPillar icon={Download} title="Export and delete" body="Your information, on your terms." />
+              </ul>
             </div>
           </div>
         </div>
