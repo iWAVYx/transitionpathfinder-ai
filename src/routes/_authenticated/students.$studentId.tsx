@@ -465,3 +465,28 @@ function StatTile({
     </div>
   );
 }
+
+function HubCard({
+  to,
+  icon,
+  title,
+  desc,
+}: {
+  to: "/feed" | "/messages" | "/meetings" | "/forms";
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+    >
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        {icon}
+      </div>
+      <p className="mt-3 font-display text-base">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+    </Link>
+  );
+}
