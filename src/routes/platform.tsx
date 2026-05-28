@@ -19,6 +19,15 @@ import platformHero from "@/assets/platform-hero-v2.jpg";
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { SampleReport } from "@/components/platform/SampleReport";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  Marquee,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
+
 
 export const Route = createFileRoute("/platform")({
   head: () => ({
