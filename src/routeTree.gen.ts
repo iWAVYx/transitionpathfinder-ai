@@ -46,6 +46,7 @@ import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
@@ -239,6 +240,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAdminSchoolRoute =
   AuthenticatedAdminSchoolRouteImport.update({
     id: '/admin-school',
@@ -292,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByTo {
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
+  '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
@@ -428,6 +437,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin'
     | '/admin-school'
+    | '/analytics'
     | '/dashboard'
     | '/documents'
     | '/feed'
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/admin'
     | '/admin-school'
+    | '/analytics'
     | '/dashboard'
     | '/documents'
     | '/feed'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/waitlist'
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
+    | '/_authenticated/analytics'
     | '/_authenticated/dashboard'
     | '/_authenticated/documents'
     | '/_authenticated/feed'
@@ -829,6 +841,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin-school': {
       id: '/_authenticated/admin-school'
       path: '/admin-school'
@@ -925,6 +944,7 @@ const AuthenticatedStudentsRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
@@ -946,6 +966,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
@@ -994,3 +1015,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
