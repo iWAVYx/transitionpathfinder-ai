@@ -269,7 +269,14 @@ function HomePage() {
       </section>
 
       {/* MARQUEE — voices band */}
-      <section aria-label="Voices from the table" className="border-y border-border/40 bg-muted/30 py-6">
+      <section aria-label="Voices from the table" className="relative border-y border-border/40 bg-muted/30 py-6">
+        <FloatingShape className="absolute left-6 top-1/2 -translate-y-1/2 hidden h-6 w-6 text-primary/55 md:block" delay={0.2}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="absolute right-6 top-1/2 -translate-y-1/2 hidden h-7 w-7 text-secondary-foreground/55 md:block" delay={1.1} duration={16}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
         <Marquee
           speed={70}
           items={[
