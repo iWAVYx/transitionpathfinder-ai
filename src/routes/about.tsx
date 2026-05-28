@@ -9,7 +9,6 @@ import {
   FloatingShape,
   Tilt3D,
   TiltLayer,
-  HorizontalScroll,
 } from "@/components/effects/ImmersiveEffects";
 import { Reveal, StickyScrollStory, Marquee } from "@/components/effects/ScrollEffects";
 import aboutNarrativeHero from "@/assets/about-narrative-hero.jpg";
