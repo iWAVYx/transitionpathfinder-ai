@@ -392,32 +392,27 @@ function PlatformPage() {
         </div>
       </section>
 
-      {/* Trust strip — three anchor points, at the bottom */}
-      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="grid gap-4 sm:grid-cols-3">
+      {/* Trust strip — three anchor points, footer-sized */}
+      <section className="mx-auto max-w-5xl px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="grid gap-2 sm:grid-cols-3">
           <TrustCard
             icon={Lock}
             title="Private By Default"
             body="Owned by the families and students it belongs to."
-            graphic="vault"
-            accent="bg-peach-soft"
           />
           <TrustCard
             icon={ShieldCheck}
             title="FERPA Aware"
             body="Role based access with a clear audit trail."
-            graphic="shield"
-            accent="bg-sky-soft"
           />
           <TrustCard
             icon={Heart}
             title="Built In Connecticut"
             body="Tuned to CT colleges, BRS, and how PPTs run here."
-            graphic="map"
-            accent="bg-primary/10"
           />
         </div>
       </section>
+
 
 
 
