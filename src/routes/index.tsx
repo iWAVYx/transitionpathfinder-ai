@@ -445,12 +445,49 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <TrustItem icon={Lock} title="Secure by default" body="Private student data, encrypted in transit and at rest." />
-            <TrustItem icon={UserCheck} title="Role-based access" body="Families, students, and educators only see what's theirs to see." />
-            <TrustItem icon={ShieldCheck} title="Human-reviewed AI" body="Every AI suggestion is a planning aid — never an official determination." />
-            <TrustItem icon={Download} title="Export & delete" body="Your information, on your terms. Download or remove it any time." />
+          <div className="mt-16 overflow-hidden rounded-3xl border border-border/60 bg-gradient-warm shadow-soft">
+            <div className="grid gap-0 lg:grid-cols-12">
+              <div className="border-b border-border/60 p-8 lg:col-span-4 lg:border-b-0 lg:border-r lg:p-10">
+                <span className="inline-flex items-center gap-2 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Privacy & trust
+                </span>
+                <h3 className="mt-4 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+                  Built around student privacy from day one.
+                </h3>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  Four commitments we make to every family, student, and educator
+                  who trusts us with their plan.
+                </p>
+              </div>
+              <ul className="grid grid-cols-1 bg-background/70 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
+                <TrustPillar
+                  num="01"
+                  icon={Lock}
+                  title="Secure by default"
+                  body="Private student data, encrypted in transit and at rest."
+                />
+                <TrustPillar
+                  num="02"
+                  icon={UserCheck}
+                  title="Role-based access"
+                  body="Families, students, and educators only see what's theirs to see."
+                />
+                <TrustPillar
+                  num="03"
+                  icon={ShieldCheck}
+                  title="Human-reviewed AI"
+                  body="Every AI suggestion is a planning aid — never an official determination."
+                />
+                <TrustPillar
+                  num="04"
+                  icon={Download}
+                  title="Export & delete"
+                  body="Your information, on your terms. Download or remove it any time."
+                />
+              </ul>
+            </div>
           </div>
+
         </div>
       </section>
 
@@ -592,19 +629,35 @@ function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title:
   );
 }
 
-function TrustItem({ icon: Icon, title, body }: { icon: typeof Lock; title: string; body: string }) {
+function TrustPillar({
+  num,
+  icon: Icon,
+  title,
+  body,
+}: {
+  num: string;
+  icon: typeof Lock;
+  title: string;
+  body: string;
+}) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/70 p-4">
-      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Icon className="h-4 w-4" aria-hidden />
-      </span>
-      <div>
-        <p className="font-display text-sm font-semibold tracking-tight">{title}</p>
-        <p className="mt-1 text-xs leading-snug text-muted-foreground">{body}</p>
+    <li className="group relative flex flex-col gap-3 border-b border-border/50 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0 lg:[&:nth-child(3)]:border-r lg:[&:nth-child(odd)]:border-r">
+      <div className="flex items-center justify-between">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft transition-transform group-hover:-translate-y-0.5">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {num}
+        </span>
       </div>
-    </div>
+      <p className="font-display text-lg font-medium leading-tight tracking-tight">
+        {title}
+      </p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{body}</p>
+    </li>
   );
 }
+
 
 function Zigzag({
   eyebrow,
