@@ -203,12 +203,24 @@ export function ReportView({
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {onSaveToProfile && (
+            <Button
+              variant={saved ? "outline" : "secondary"}
+              size="sm"
+              onClick={onSaveToProfile}
+              disabled={saved}
+              aria-label="Save to student profile"
+            >
+              {saved ? <Check className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
+              {saved ? "Saved to profile" : saveLabel ?? "Save to profile"}
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={copyLink} aria-label="Copy shareable link">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Link copied" : "Copy link"}
           </Button>
           <Button size="sm" onClick={() => window.print()}>
-            <Printer className="h-4 w-4" /> Print / save as PDF
+            <Download className="h-4 w-4" /> Download report
           </Button>
         </div>
       </div>
