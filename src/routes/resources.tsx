@@ -31,6 +31,9 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { listVerifiedResources, type DbResource } from "@/lib/resources-db.functions";
+
 import resourcesHero from "@/assets/resources-hero-v2.jpg";
 import {
   RESOURCES,
