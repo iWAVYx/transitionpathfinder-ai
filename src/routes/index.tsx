@@ -103,16 +103,7 @@ function HomePage() {
             className="w-72 opacity-80 float-y-slow lg:w-96"
           />
         </Parallax>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
-        {/* Floating playful doodles */}
-        <img
-          src={doodlePlane}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-20 -z-10 hidden w-72 opacity-80 float-y-slow md:block lg:right-16 lg:top-24 lg:w-96"
-        />
         <span aria-hidden="true" className="pointer-events-none absolute right-[28%] top-32 -z-10 hidden h-3 w-3 rounded-full bg-primary/70 sparkle-twinkle md:block" />
         <span aria-hidden="true" className="pointer-events-none absolute right-[18%] top-[260px] -z-10 hidden h-2 w-2 rounded-full bg-amber-400 sparkle-twinkle md:block" style={{ animationDelay: "0.8s" }} />
         <span aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[200px] -z-10 hidden h-2.5 w-2.5 rounded-full bg-pink-400 sparkle-twinkle md:block" style={{ animationDelay: "1.4s" }} />
