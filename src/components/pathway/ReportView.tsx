@@ -746,7 +746,7 @@ export function ReportView({
 
       {/* ============ Student Voice Prompts ============ */}
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
-        <Block id="sec-student-voice" title={`In ${name}'s voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
+        <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             Questions for {name} to think through — alone, with family, or with a teacher.
           </p>
