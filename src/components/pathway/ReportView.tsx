@@ -1126,22 +1126,96 @@ function Block({
   children,
   icon,
   id,
+  eyebrow,
 }: {
   title: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
   id?: string;
+  eyebrow?: string;
 }) {
   return (
-    <section id={id} className="mt-10 page-break scroll-mt-24">
-      <div className="mb-4 flex items-center gap-2 border-b border-border/60 pb-3">
-        {icon && <span className="text-primary">{icon}</span>}
-        <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.75rem]">{title}</h2>
+    <section id={id} className="report-section mt-12 page-break scroll-mt-24">
+      <div className="mb-5 border-b border-border/60 pb-4">
+        <div className="flex items-center gap-3">
+          <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
+          {icon && <span className="text-primary">{icon}</span>}
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
+            {title}
+          </h2>
+        </div>
+        {eyebrow && (
+          <p className="mt-1 pl-[1px] text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {eyebrow}
+          </p>
+        )}
       </div>
       <div>{children}</div>
     </section>
   );
 }
+
+function MetaField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm leading-snug text-foreground/85">{value}</dd>
+    </div>
+  );
+}
+
+function DocumentContents({ report, name }: { report: PathwayReport; name: string }) {
+  const items: { id: string; label: string }[] = [];
+  if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student snapshot" });
+  items.push({ id: "sec-strengths", label: "Strengths to lead with" });
+  if (report.spin_analysis) items.push({ id: "sec-spin", label: "Strengths, preferences, interests & needs" });
+  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Transition readiness scorecard" });
+  if (report.recommended_pathways?.length) items.push({ id: "sec-pathways", label: "Recommended pathways" });
+  if (report.career_matches?.length) items.push({ id: "sec-careers", label: "Career & life pathway matches" });
+  if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary goal breakdown" });
+  items.push({ id: "sec-education", label: "Education & training options" });
+  items.push({ id: "sec-life-skills", label: "Life skills to focus on" });
+  if (report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP / transition plan translator" });
+  if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What we still need to know" });
+  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s voice` });
+  if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family action plan" });
+  if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP meeting prep" });
+  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to explore" });
+  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress timeline" });
+  items.push({ id: "sec-thirty-day", label: "A gentle 30-day plan" });
+  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a human second look" });
+
+  return (
+    <nav
+      aria-label="Table of contents"
+      className="no-print mt-8 rounded-2xl border bg-card"
+    >
+      <div className="border-b border-border/60 px-6 py-3 sm:px-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Contents
+        </p>
+      </div>
+      <ol className="grid gap-x-8 gap-y-2 px-6 py-5 sm:grid-cols-2 sm:px-8">
+        {items.map((it, i) => (
+          <li key={it.id} className="flex items-baseline gap-3 text-sm">
+            <span className="font-mono text-xs text-primary/80">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <a
+              href={`#${it.id}`}
+              className="flex-1 border-b border-dotted border-border/60 pb-1 text-foreground/80 transition-colors hover:text-foreground"
+            >
+              {it.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
 
 function BulletList({ items, compact = false }: { items: string[]; compact?: boolean }) {
   return (
