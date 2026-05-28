@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BookOpen,
-  Quote,
   Users,
   MessageSquare,
   Target,
@@ -16,11 +15,11 @@ import {
   Layers,
   Briefcase,
   ScrollText,
+  Star,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import researchHero from "@/assets/research-hero.jpg";
 import {
-  Parallax,
   Reveal,
   Marquee,
   TextScrollFill,
@@ -28,12 +27,33 @@ import {
 import {
   CursorField,
   Magnetic,
-  HoverReveal,
   TextMask,
-  StickyPin,
-  MorphCard,
+  FloatingShape,
 } from "@/components/effects/ImmersiveEffects";
 import { toTitleCase } from "@/lib/title-case";
+
+function GridBurst({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 200" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="0.6">
+      {Array.from({ length: 14 }).map((_, i) => {
+        const a = (i / 14) * Math.PI * 2;
+        return <line key={i} x1="100" y1="100" x2={100 + Math.cos(a) * 96} y2={100 + Math.sin(a) * 96} />;
+      })}
+      <circle cx="100" cy="100" r="38" />
+      <circle cx="100" cy="100" r="62" opacity="0.5" />
+      <circle cx="100" cy="100" r="86" opacity="0.25" />
+    </svg>
+  );
+}
+function CornerArc({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 160 160" aria-hidden className={className} fill="none">
+      <path d="M 0 160 A 160 160 0 0 1 160 0" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+      <path d="M 0 160 A 110 110 0 0 1 110 50" stroke="currentColor" strokeWidth="1" opacity="0.35" />
+      <path d="M 0 160 A 60 60 0 0 1 60 100" stroke="currentColor" strokeWidth="1" opacity="0.2" />
+    </svg>
+  );
+}
 
 export const Route = createFileRoute("/research")({
   head: () => ({
