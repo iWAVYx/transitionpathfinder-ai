@@ -49,6 +49,21 @@ import {
   Marquee,
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
+import { FloatingShape } from "@/components/effects/ImmersiveEffects";
+import {
+  DotField,
+  Squiggle,
+  Starburst,
+  Sparkle,
+  ArrowDoodle,
+  PaperPlane,
+  BookDoodle,
+  CompassRose,
+  Confetti,
+  UnderlineSwoosh,
+  ArcStack,
+} from "@/components/effects/Decorations";
+
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/")({
@@ -190,12 +205,23 @@ function HomePage() {
       </section>
 
       {/* PROBLEM — split panel: photo + statement */}
-      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <ShapeScroll
           className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/20 lg:block"
           spin={140}
           scale={0.5}
         />
+        <DotField className="absolute -left-4 top-4 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <FloatingShape className="absolute right-6 top-10 z-0 hidden h-9 w-9 text-primary/60 md:block" delay={0.4}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="absolute left-1/3 -top-2 z-0 hidden h-7 w-7 text-secondary-foreground/60 md:block" duration={14} delay={1.2}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Parallax speed={0.15} className="absolute -right-8 bottom-8 -z-0 hidden h-24 w-24 text-primary/70 lg:block">
+          <PaperPlane className="h-full w-full" />
+        </Parallax>
+
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-5" y={36}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
@@ -223,7 +249,9 @@ function HomePage() {
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
               Transition planning shouldn't feel scattered.
+              <UnderlineSwoosh className="mt-2 block h-3 w-64 text-primary/55" />
             </h2>
+
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
               Families are often left trying to understand complicated documents,
               unclear goals, and missing context — wondering what comes after
@@ -241,7 +269,14 @@ function HomePage() {
       </section>
 
       {/* MARQUEE — voices band */}
-      <section aria-label="Voices from the table" className="border-y border-border/40 bg-muted/30 py-6">
+      <section aria-label="Voices from the table" className="relative border-y border-border/40 bg-muted/30 py-6">
+        <FloatingShape className="absolute left-6 top-1/2 -translate-y-1/2 hidden h-6 w-6 text-primary/55 md:block" delay={0.2}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="absolute right-6 top-1/2 -translate-y-1/2 hidden h-7 w-7 text-secondary-foreground/55 md:block" delay={1.1} duration={16}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
         <Marquee
           speed={70}
           items={[
@@ -260,13 +295,23 @@ function HomePage() {
         />
       </section>
 
-      {/* TEXT SCROLL FILL — mission line */}
-      <section className="mx-auto max-w-5xl px-4 py-28 sm:px-6 lg:px-8">
+      {/* TEXT SCROLL FILL — mission line, sleeker with floating decor */}
+      <section className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <CompassRose className="absolute -left-6 top-4 hidden h-24 w-24 text-primary/25 lg:block" />
+        <Starburst className="absolute -right-6 top-6 hidden h-20 w-20 text-secondary-foreground/30 lg:block" />
+        <Parallax speed={0.2} className="absolute right-10 -top-2 hidden h-12 w-16 text-primary/60 md:block">
+          <ArrowDoodle className="h-full w-full -rotate-12" />
+        </Parallax>
+        <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Squiggle className="absolute inset-x-0 bottom-6 mx-auto h-5 w-80 text-primary/30" />
         <TextScrollFill
           className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
           text="From the IEP on the kitchen table to the first job after graduation — every student deserves a plan that reads like their life, not paperwork."
         />
       </section>
+
 
 
       {/* ROLE ROUTER — five doors into the platform */}
@@ -341,7 +386,13 @@ function HomePage() {
       </section>
 
       {/* PRODUCT GLIMPSE — visual tour of real platform elements */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <DotField className="absolute left-0 top-10 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <ArcStack className="absolute -right-8 bottom-10 -z-10 hidden h-56 w-56 text-secondary-foreground/25 lg:block" />
+        <FloatingShape className="absolute right-10 top-12 z-0 hidden h-8 w-8 text-primary/55 md:block" delay={0.7}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
         <div className="mx-auto mb-12 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             A look inside
@@ -468,7 +519,16 @@ function HomePage() {
       </section>
 
       {/* PATHWAYS — image tile grid of real next-step destinations */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
+          <BookDoodle className="h-full w-full" />
+        </Parallax>
+        <Confetti className="absolute right-2 top-4 hidden h-24 w-32 md:block" />
+        <Starburst className="absolute right-8 bottom-8 hidden h-16 w-16 text-secondary-foreground/35 lg:block" />
+        <FloatingShape className="absolute left-1/3 top-2 hidden h-7 w-7 text-primary/60 md:block" delay={0.5}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
         <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -578,7 +638,13 @@ function HomePage() {
 
 
       {/* AUDIENCE — three tall image cards with text overlay */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <ArcStack className="absolute -left-10 -bottom-4 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
+        <Parallax speed={0.25} className="absolute right-6 top-4 hidden h-14 w-20 text-primary/55 md:block">
+          <ArrowDoodle className="h-full w-full rotate-180" />
+        </Parallax>
+
         <div className="mb-12 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Who it helps
@@ -623,7 +689,15 @@ function HomePage() {
           className="absolute inset-0 -z-10 h-full w-full"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
-        <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
+        <FloatingShape className="pointer-events-none absolute right-10 top-10 z-0 hidden h-20 w-20 text-background/70 md:block" delay={0.4} duration={18}>
+          <PaperPlane className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="pointer-events-none absolute right-1/4 bottom-12 z-0 hidden h-8 w-8 text-background/70 md:block" delay={1.2} duration={14}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Starburst className="pointer-events-none absolute right-6 bottom-8 hidden h-24 w-24 text-background/30 lg:block" />
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-32">
+
           <div className="max-w-2xl text-background">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">
               Be part of the first cohort
