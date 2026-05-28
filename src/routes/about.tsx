@@ -206,58 +206,59 @@ function AboutPage() {
         <StickyScrollStory eyebrow="Our story, scene by scene" panels={scrollScenes} />
       </section>
 
-      {/* ====== HORIZONTAL SIDE-SCROLL — THE PATHWAYS ====== */}
-      <section className="relative overflow-hidden border-y border-border/40 bg-gradient-to-b from-background via-peach-soft/15 to-background">
-        <div className="mx-auto max-w-7xl px-4 pt-20 pb-8 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            Interlude — The Pathways
-          </p>
-          <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
-            {toTitleCase("Plans should lead somewhere a student can name.")}
-          </h2>
-          <p className="mt-4 max-w-2xl text-muted-foreground">
-            Scroll sideways through the directions a TransitionForward plan can point toward — and
-            the people, programs, and progress that make each one real.
-          </p>
-        </div>
+      {/* ====== INTERLUDE — THE PATHWAYS (editorial index) ====== */}
+      <section className="relative border-y border-border/40 bg-gradient-to-b from-background via-peach-soft/12 to-background">
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+              Interlude — The Pathways
+            </p>
+            <h2 className="mt-5 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+              {toTitleCase("Four directions a plan can point toward.")}
+            </h2>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
+              Not categories on a form — destinations a student can name, and the people and
+              programs that make each one real.
+            </p>
+          </Reveal>
 
-        <HorizontalScroll height="280vh" trackWidth="280vw">
-          <div className="flex items-center gap-8 pl-8 pr-[10vw] sm:gap-12 sm:pl-16">
+          <ul className="mt-16 divide-y divide-border/60 border-y border-border/60">
             {pathways.map((p, i) => (
-              <Tilt3D key={p.label} max={8} className="w-[78vw] shrink-0 sm:w-[58vw] lg:w-[42vw]">
-                <article className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-lift">
-                  <TiltLayer depth={0}>
-                    <img
-                      src={p.image}
-                      alt={`${p.label} pathway illustration`}
-                      className="h-[58vh] w-full object-cover"
-                    />
-                  </TiltLayer>
-                  <TiltLayer
-                    depth={50}
-                    className="pointer-events-none absolute left-6 top-6"
-                  >
-                    <div className="rounded-full border border-border/60 bg-background/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
-                      {String(i + 1).padStart(2, "0")} · {p.label}
-                    </div>
-                  </TiltLayer>
-                  <TiltLayer
-                    depth={30}
-                    className="pointer-events-none absolute inset-x-6 bottom-6"
-                  >
-                    <div className="rounded-2xl bg-background/90 px-5 py-4 shadow-lift backdrop-blur">
-                      <h3 className="font-display text-2xl font-medium tracking-tight">
+              <li key={p.label} className="group/path">
+                <Reveal>
+                  <div className="grid grid-cols-[auto_1fr] items-center gap-6 py-10 sm:grid-cols-[5rem_1fr_auto] sm:gap-10 sm:py-14">
+                    <span className="font-display text-3xl font-medium tabular-nums text-primary/80 sm:text-4xl">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+
+                    <div className="col-span-1 sm:col-span-1">
+                      <h3 className="font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
                         {p.label}
                       </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{p.copy}</p>
+                      <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                        {p.copy}
+                      </p>
                     </div>
-                  </TiltLayer>
-                </article>
-              </Tilt3D>
+
+                    <div className="col-span-2 sm:col-span-1 sm:justify-self-end">
+                      <Tilt3D max={8} className="w-full sm:w-72 lg:w-80">
+                        <TiltLayer depth={0}>
+                          <img
+                            src={p.image}
+                            alt={`${p.label} pathway illustration`}
+                            className="aspect-[4/3] w-full rounded-2xl object-cover shadow-soft transition-transform duration-500 group-hover/path:scale-[1.02]"
+                          />
+                        </TiltLayer>
+                      </Tilt3D>
+                    </div>
+                  </div>
+                </Reveal>
+              </li>
             ))}
-          </div>
-        </HorizontalScroll>
+          </ul>
+        </div>
       </section>
+
 
       {/* ====== VALUES — HOVER REVEAL CARDS ====== */}
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
