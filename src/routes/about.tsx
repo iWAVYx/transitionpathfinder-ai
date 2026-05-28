@@ -39,14 +39,12 @@ export const Route = createFileRoute("/about")({
 
 const scrollScenes = [
   {
-    eyebrow: "Scene II — The Realization",
     title: "The plan only matters if the student can see themselves in it.",
     body: "TransitionForward was built from the belief that every student's plan should begin with who they are: their interests, strengths, needs, questions, voice, and future possibilities. The platform exists to make transition planning more human, more organized, and more connected to real life.",
     image: aboutStudentCenter,
     alt: "A student silhouette at the center of a glowing constellation of interests, family, teachers, and opportunities",
   },
   {
-    eyebrow: "Scene III — The Mission",
     title: "We help teams move from paperwork to purpose.",
     body: "TransitionForward helps students, families, and educators organize transition goals, student voice, progress, resources, and communication in one easy-to-use platform. With AI-supported recommendations and real-world opportunity matching, the platform turns information into action.",
     image: aboutNarrativeHero,
