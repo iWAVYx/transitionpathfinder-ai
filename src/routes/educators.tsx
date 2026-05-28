@@ -9,6 +9,18 @@ import {
   FileDown,
 } from "lucide-react";
 import educatorsHero from "@/assets/educators-hero-v2.jpg";
+import frameworkImg from "@/assets/framework-hero.jpg";
+import dashboardImg from "@/assets/dashboard-hero.jpg";
+import iepUploadImg from "@/assets/iep-upload.jpg";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  StickyScrollStory,
+  Marquee,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
 
 export const Route = createFileRoute("/educators")({
   head: () => ({
@@ -31,16 +43,58 @@ const cards = [
   { icon: FileDown, t: "Exportable PDF Summaries", b: "Hand families something they can actually read. Hand admins something that documents the work you are already doing." },
 ];
 
+const marqueeQuotes = [
+  "“Finally — meeting prep that doesn't eat my Sunday night.”",
+  "“The plain-language summaries land. Parents come ready.”",
+  "“Goals → evidence → next step, all in one place.”",
+  "“It writes the draft. I keep the judgement.”",
+  "“My caseload feels organized for the first time in years.”",
+  "“PPT packets in one click. I almost cried.”",
+];
+
+const storyPanels = [
+  {
+    title: "Monday morning, before homeroom.",
+    body: "Open one screen and see every student's transition snapshot — strengths, goals, last family note, and what's overdue. No more digging through six tabs to remember where Jordan left off.",
+    image: dashboardImg,
+    alt: "Educator dashboard showing a caseload snapshot",
+  },
+  {
+    title: "Wednesday, the IEP arrives.",
+    body: "Drop the PDF in. We pull out goals, services, and accommodations, then translate the transition pieces into plain language families and students can actually use.",
+    image: iepUploadImg,
+    alt: "IEP upload and plain-language summary",
+  },
+  {
+    title: "Friday, the PPT lands on the calendar.",
+    body: "One click for the agenda, talking points, strengths summary, and family follow-up letter. Edit, print, walk in ready.",
+    image: frameworkImg,
+    alt: "Generated PPT meeting prep packet",
+  },
+];
+
 function EducatorsPage() {
   return (
     <SiteShell>
+      {/* HERO with parallax image + drifting shape */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+        <ShapeScroll
+          className="absolute -left-24 top-20 -z-10 hidden h-80 w-80 text-primary/15 md:block"
+          spin={120}
+          scale={0.4}
+        />
+        <ShapeScroll
+          className="absolute -right-28 bottom-0 -z-10 hidden h-96 w-96 text-amber-300/25 md:block"
+          spin={-80}
+          scale={0.35}
+        />
+
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
-          <div>
+          <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">For Educators</p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
-              Built to Give You Your Evenings Back.
+              Built to Give You Your <span className="text-primary">Evenings</span> Back.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               TransitionForward is not another system of record. It is a quiet companion that organizes
@@ -48,35 +102,115 @@ function EducatorsPage() {
               already write, so you can review, edit, and approve instead of starting from scratch.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift">Try the Pathway Builder</Link>
-              <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted">Bring It to Your School</Link>
+              <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">Try the Pathway Builder</Link>
+              <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-muted">Bring It to Your School</Link>
             </div>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
-            <img
-              src={educatorsHero}
-              alt="Illustrated teacher desk at golden hour with a constellation of sticky notes wired to a glowing lightbulb"
-              width={1600}
-              height={1200}
-              className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
-            />
-          </div>
+          </Reveal>
+          <Reveal delay={120} y={36}>
+            <div className="relative">
+              <Parallax speed={-0.18} className="absolute -inset-3 -z-10">
+                <div className="h-full w-full rounded-[2rem] bg-gradient-warm opacity-60 blur-2xl" />
+              </Parallax>
+              <ParallaxImage
+                src={educatorsHero}
+                alt="Illustrated teacher desk at golden hour with a constellation of sticky notes wired to a glowing lightbulb"
+                width={1600}
+                height={1200}
+                speed={0.3}
+                className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
+              />
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      {/* MARQUEE — what teachers are saying */}
+      <section aria-label="Educator quotes" className="border-y border-border/40 bg-background py-6">
+        <Marquee
+          speed={60}
+          items={marqueeQuotes.map((q, i) => (
+            <span
+              key={i}
+              className="font-display text-xl italic text-foreground/80 sm:text-2xl"
+            >
+              {q}
+              <span className="mx-6 inline-block text-primary/40">✦</span>
+            </span>
+          ))}
+        />
+      </section>
+
+      {/* FEATURE CARDS with staggered reveal */}
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <Reveal className="mx-auto mb-12 max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            What you get
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Six tools, one quieter week.
+          </h2>
+        </Reveal>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map(({ icon: Icon, t, b }) => (
-            <article key={t} className="group rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
-                <Icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{t}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
-            </article>
+          {cards.map(({ icon: Icon, t, b }, i) => (
+            <Reveal key={t} delay={i * 80} y={28}>
+              <article className="group h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground transition-transform group-hover:rotate-6 group-hover:scale-110">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
+              </article>
+            </Reveal>
           ))}
         </div>
+      </section>
+
+      {/* STICKY SCROLL STORY — a week in the platform */}
+      <section className="relative border-t border-border/40 bg-muted/30 py-16">
+        <ShapeScroll
+          className="absolute right-4 top-10 hidden h-40 w-40 text-primary/10 lg:block"
+          spin={180}
+          scale={0.5}
+        />
+        <Reveal className="mx-auto mb-8 max-w-2xl px-4 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            A week in the platform
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Scroll through your week.
+          </h2>
+        </Reveal>
+        <StickyScrollStory panels={storyPanels} />
+      </section>
+
+      {/* TEXT SCROLL FILL — a mission line that lights up */}
+      <section className="mx-auto max-w-5xl px-4 py-32 sm:px-6 lg:px-8">
+        <TextScrollFill
+          className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+          text="You went into teaching to change lives — not to write the same transition goal seven times. We hold the paperwork so you can hold the room."
+        />
+      </section>
+
+      {/* CTA with parallax background shape */}
+      <section className="relative overflow-hidden border-t border-border/40 bg-gradient-hero py-24">
+        <Parallax speed={0.4} className="absolute -right-20 -top-20 -z-10">
+          <ShapeScroll className="h-[28rem] w-[28rem] text-primary/20" spin={60} scale={0.3} />
+        </Parallax>
+        <Parallax speed={-0.3} className="absolute -left-24 bottom-0 -z-10">
+          <ShapeScroll className="h-80 w-80 text-amber-300/30" spin={-100} scale={0.4} />
+        </Parallax>
+        <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Ready to get your evenings back?
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
+            Try the Pathway Builder yourself, or bring it to your team for a pilot.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">Try the Pathway Builder</Link>
+            <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background">Bring It to Your School</Link>
+          </div>
+        </Reveal>
       </section>
     </SiteShell>
   );
