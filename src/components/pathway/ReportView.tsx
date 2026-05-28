@@ -507,7 +507,7 @@ export function ReportView({
             {r.readiness_scorecard.map((row) => (
               <div
                 key={row.category}
-                className="rounded-2xl border border-border/60 bg-card p-5"
+                className="rounded-2xl border border-border/60 bg-card p-5 lift-card"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h4 className="font-display text-lg">{row.category}</h4>
@@ -547,7 +547,7 @@ export function ReportView({
             {r.recommended_pathways.map((p) => (
               <div
                 key={p.title}
-                className="rounded-3xl border bg-card p-6 shadow-soft"
+                className="rounded-3xl border bg-card p-6 shadow-soft lift-card"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
@@ -594,7 +594,7 @@ export function ReportView({
         <Block id="sec-careers" title="Career & life pathway matches" icon={<Briefcase className="h-5 w-5" />}>
           <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
             {r.career_matches.map((c) => (
-              <div key={c.cluster} className="rounded-2xl border bg-card p-5">
+              <div key={c.cluster} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="font-display text-xl">{c.cluster}</h4>
                   <ReadinessBadge level={c.readiness_level} compact />
@@ -667,7 +667,7 @@ export function ReportView({
         <Block title="Career pathways to explore" icon={<Compass className="h-5 w-5" />}>
           <div className="grid gap-4">
             {r.career_pathways.map((p) => (
-              <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5">
+              <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5 lift-card">
                 <h3 className="font-display text-xl font-medium">{p.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
@@ -698,7 +698,7 @@ export function ReportView({
           </p>
           <div className="space-y-3">
             {r.iep_translator.map((t, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5">
+              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                   Goal language
                 </p>
@@ -752,7 +752,7 @@ export function ReportView({
           </p>
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.student_voice_prompts.map((p, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5">
+              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
                 <p className="font-display text-lg">{p.prompt}</p>
                 <p className="mt-2 text-sm text-muted-foreground">{p.suggested_reflection}</p>
               </div>
@@ -827,7 +827,7 @@ export function ReportView({
       {/* ============ Meeting prep toolkit ============ */}
       {r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP meeting prep" icon={<ListChecks className="h-5 w-5" />}>
-          <div className="rounded-3xl border bg-card p-6 shadow-soft">
+          <div className="rounded-3xl border bg-card p-6 shadow-soft lift-card">
             <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
               <MiniCard
                 label="Questions to ask"
@@ -878,7 +878,7 @@ export function ReportView({
         <Block id="sec-opportunities" title="Opportunities to explore" icon={<MapIcon className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5">
+              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
@@ -914,7 +914,7 @@ export function ReportView({
                         : "border-border bg-background",
                   )}
                 />
-                <div className="rounded-2xl border bg-card p-5">
+                <div className="rounded-2xl border bg-card p-5 lift-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h4 className="font-display text-lg">{s.stage}</h4>
                     <Badge
