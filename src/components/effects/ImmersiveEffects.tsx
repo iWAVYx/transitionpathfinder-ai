@@ -357,3 +357,156 @@ export function FloatingShape({
     </div>
   );
 }
+
+/* ---------------- Tilt3D ----------------
+ * Perspective tilt on hover. Children at depth={n} translate in Z for
+ * a "transparent-video / floating layers" parallax feel.
+ */
+export function Tilt3D({
+  children,
+  className,
+  max = 10,
+  glare = true,
+}: {
+  children: ReactNode;
+  className?: string;
+  max?: number;
+  glare?: boolean;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [t, setT] = useState({ rx: 0, ry: 0, gx: 50, gy: 50, active: false });
+  const reduced = usePrefersReducedMotion();
+
+  const onMove = (e: ReactMouseEvent) => {
+    if (reduced) return;
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    setT({
+      ry: (x - 0.5) * max * 2,
+      rx: -(y - 0.5) * max * 2,
+      gx: x * 100,
+      gy: y * 100,
+      active: true,
+    });
+  };
+  const onLeave = () => setT({ rx: 0, ry: 0, gx: 50, gy: 50, active: false });
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className={cn("group/tilt relative [perspective:1200px]", className)}
+    >
+      <div
+        className="relative h-full w-full [transform-style:preserve-3d]"
+        style={{
+          transform: `rotateX(${t.rx.toFixed(2)}deg) rotateY(${t.ry.toFixed(2)}deg)`,
+          transition: t.active
+            ? "transform 120ms linear"
+            : "transform 700ms cubic-bezier(.22,.61,.36,1)",
+          willChange: "transform",
+        }}
+      >
+        {children}
+        {glare && !reduced && (
+          <div
+            className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover/tilt:opacity-100"
+            aria-hidden
+            style={{
+              background: `radial-gradient(circle at ${t.gx}% ${t.gy}%, oklch(1 0 0 / 0.35), transparent 55%)`,
+              mixBlendMode: "overlay",
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* TiltLayer — child of Tilt3D, lifts off the surface in Z. */
+export function TiltLayer({
+  depth = 24,
+  children,
+  className,
+}: {
+  depth?: number;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn("[transform-style:preserve-3d]", className)}
+      style={{ transform: `translateZ(${depth}px)` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ---------------- HorizontalScroll ----------------
+ * Pin a section while its horizontal track slides sideways with vertical scroll.
+ * Provide a fixed `trackWidth` (e.g. "260vw") and a tall outer height.
+ */
+export function HorizontalScroll({
+  children,
+  className,
+  height = "300vh",
+  trackWidth = "260vw",
+}: {
+  children: ReactNode;
+  className?: string;
+  height?: string;
+  trackWidth?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [p, setP] = useState(0);
+  const reduced = usePrefersReducedMotion();
+
+  useLayoutEffect(() => {
+    if (reduced) return;
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const compute = () => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const total = r.height - vh;
+      const next = Math.min(1, Math.max(0, -r.top / Math.max(1, total)));
+      setP(next);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(compute);
+    };
+    compute();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [reduced]);
+
+  return (
+    <div ref={ref} className={cn("relative", className)} style={{ height }}>
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <div
+          className="flex h-full items-center will-change-transform"
+          style={{
+            width: trackWidth,
+            transform: reduced
+              ? "none"
+              : `translate3d(calc(${(-p * 100).toFixed(2)}% + ${(p * 100).toFixed(2)}vw), 0, 0)`,
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
