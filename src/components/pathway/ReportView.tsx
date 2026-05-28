@@ -338,7 +338,7 @@ export function ReportView({
 
       {/* ============ Student Snapshot ============ */}
       {r.student_snapshot && (
-        <Block title="Student snapshot" icon={<Compass className="h-5 w-5" />}>
+        <Block id="sec-snapshot" title="Student snapshot" icon={<Compass className="h-5 w-5" />}>
           <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -389,7 +389,7 @@ export function ReportView({
 
       {/* ============ SPIN analysis ============ */}
       {r.spin_analysis && (
-        <Block title="Strengths, preferences, interests & needs" icon={<Sparkles className="h-5 w-5" />}>
+        <Block id="sec-spin" title="Strengths, preferences, interests & needs" icon={<Sparkles className="h-5 w-5" />}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MiniCard label="Strengths" items={r.spin_analysis.strengths} accent />
             <MiniCard label="Preferences" items={r.spin_analysis.preferences} />
@@ -410,13 +410,13 @@ export function ReportView({
       )}
 
       {/* ============ Strengths to lead with (always) ============ */}
-      <Block title="Strengths to lead with" icon={<HeartHandshake className="h-5 w-5" />}>
+      <Block id="sec-strengths" title="Strengths to lead with" icon={<HeartHandshake className="h-5 w-5" />}>
         <BulletList items={r.strengths_snapshot} />
       </Block>
 
       {/* ============ Readiness scorecard ============ */}
       {r.readiness_scorecard && r.readiness_scorecard.length > 0 && (
-        <Block title="Transition readiness scorecard" icon={<Target className="h-5 w-5" />}>
+        <Block id="sec-readiness" title="Transition readiness scorecard" icon={<Target className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             A strengths-based snapshot. These are conversation starters, not grades.
           </p>
@@ -455,7 +455,7 @@ export function ReportView({
 
       {/* ============ Recommended pathways ============ */}
       {r.recommended_pathways && r.recommended_pathways.length > 0 && (
-        <Block title="Recommended pathways" icon={<RouteIcon className="h-5 w-5" />}>
+        <Block id="sec-pathways" title="Recommended pathways" icon={<RouteIcon className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             Multiple realistic directions — not just one. Each pathway has supports, steps, and a
             timeline.
@@ -508,7 +508,7 @@ export function ReportView({
 
       {/* ============ Career matches ============ */}
       {r.career_matches && r.career_matches.length > 0 && (
-        <Block title="Career & life pathway matches" icon={<Briefcase className="h-5 w-5" />}>
+        <Block id="sec-careers" title="Career & life pathway matches" icon={<Briefcase className="h-5 w-5" />}>
           <div className="grid gap-4 sm:grid-cols-2">
             {r.career_matches.map((c) => (
               <div key={c.cluster} className="rounded-2xl border bg-card p-5">
@@ -552,7 +552,7 @@ export function ReportView({
 
       {/* ============ Postsecondary goal breakdown ============ */}
       {r.postsecondary_goals && r.postsecondary_goals.length > 0 && (
-        <Block title="Postsecondary goal breakdown" icon={<Target className="h-5 w-5" />}>
+        <Block id="sec-goals" title="Postsecondary goal breakdown" icon={<Target className="h-5 w-5" />}>
           <Accordion type="multiple" className="rounded-2xl border bg-card">
             {r.postsecondary_goals.map((g, i) => (
               <AccordionItem key={i} value={`goal-${i}`} className="px-5">
@@ -594,17 +594,17 @@ export function ReportView({
         </div>
       </Block>
 
-      <Block title="Education & training options" icon={<BookOpen className="h-5 w-5" />}>
+      <Block id="sec-education" title="Education & training options" icon={<BookOpen className="h-5 w-5" />}>
         <BulletList items={r.education_training_options} />
       </Block>
 
-      <Block title="Life skills to focus on" icon={<Lightbulb className="h-5 w-5" />}>
+      <Block id="sec-life-skills" title="Life skills to focus on" icon={<Lightbulb className="h-5 w-5" />}>
         <BulletList items={r.life_skills_focus} />
       </Block>
 
       {/* ============ IEP translator ============ */}
       {r.iep_translator && r.iep_translator.length > 0 && (
-        <Block title="IEP / transition plan translator" icon={<BookOpen className="h-5 w-5" />}>
+        <Block id="sec-iep-translator" title="IEP / transition plan translator" icon={<BookOpen className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             Plain-English translations of transition-related goal language. This is not legal
             advice and does not replace the school team — it helps families and students arrive
@@ -635,7 +635,7 @@ export function ReportView({
 
       {/* ============ Data gaps ============ */}
       {r.data_gaps && r.data_gaps.length > 0 && (
-        <Block title="What we still need to know" icon={<AlertTriangle className="h-5 w-5" />}>
+        <Block id="sec-data-gaps" title="What we still need to know" icon={<AlertTriangle className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             This report doesn't pretend to know everything. Here's what would sharpen it.
           </p>
@@ -660,7 +660,7 @@ export function ReportView({
 
       {/* ============ Student voice prompts ============ */}
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
-        <Block title={`In ${name}'s voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
+        <Block id="sec-student-voice" title={`In ${name}'s voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             Questions for {name} to think through — alone, with family, or with a teacher.
           </p>
@@ -677,7 +677,7 @@ export function ReportView({
 
       {/* ============ Family action plan ============ */}
       {r.family_action_plan && (
-        <Block title="Family action plan" icon={<HeartHandshake className="h-5 w-5" />}>
+        <Block id="sec-family-plan" title="Family action plan" icon={<HeartHandshake className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <HorizonCard label="This week" items={r.family_action_plan.this_week} />
             <HorizonCard label="This month" items={r.family_action_plan.this_month} />
@@ -740,7 +740,7 @@ export function ReportView({
 
       {/* ============ Meeting prep toolkit ============ */}
       {r.meeting_prep_toolkit && (
-        <Block title="Next PPT / IEP meeting prep" icon={<ListChecks className="h-5 w-5" />}>
+        <Block id="sec-meeting-prep" title="Next PPT / IEP meeting prep" icon={<ListChecks className="h-5 w-5" />}>
           <div className="rounded-3xl border bg-card p-6 shadow-soft">
             <div className="grid gap-4 sm:grid-cols-2">
               <MiniCard
@@ -787,7 +787,7 @@ export function ReportView({
 
       {/* ============ Opportunity matches ============ */}
       {r.opportunity_matches && r.opportunity_matches.length > 0 && (
-        <Block title="Opportunities to explore" icon={<MapIcon className="h-5 w-5" />}>
+        <Block id="sec-opportunities" title="Opportunities to explore" icon={<MapIcon className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2">
             {r.opportunity_matches.map((o, i) => (
               <div key={i} className="rounded-2xl border bg-card p-5">
@@ -812,7 +812,7 @@ export function ReportView({
 
       {/* ============ Progress timeline ============ */}
       {r.progress_timeline && r.progress_timeline.length > 0 && (
-        <Block title="Progress timeline" icon={<Calendar className="h-5 w-5" />}>
+        <Block id="sec-timeline" title="Progress timeline" icon={<Calendar className="h-5 w-5" />}>
           <ol className="relative space-y-4 border-l-2 border-border/60 pl-6">
             {r.progress_timeline.map((s, i) => (
               <li key={i} className="relative">
@@ -851,7 +851,7 @@ export function ReportView({
       )}
 
       {/* ============ 30-day plan (always) ============ */}
-      <Block title="A gentle 30-day plan" icon={<Calendar className="h-5 w-5" />}>
+      <Block id="sec-thirty-day" title="A gentle 30-day plan" icon={<Calendar className="h-5 w-5" />}>
         <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {r.thirty_day_plan.map((w) => (
             <li key={w.week} className="rounded-2xl border border-border/60 bg-card p-4">
@@ -873,7 +873,7 @@ export function ReportView({
 
       {/* ============ Needs human review ============ */}
       {r.needs_human_review && r.needs_human_review.length > 0 && (
-        <Block title="Worth a human second look" icon={<ShieldCheck className="h-5 w-5" />}>
+        <Block id="sec-review" title="Worth a human second look" icon={<ShieldCheck className="h-5 w-5" />}>
           <div className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10">
             <p className="text-sm text-muted-foreground">
               These items are the AI's best guess based on the intake. Please review with the
