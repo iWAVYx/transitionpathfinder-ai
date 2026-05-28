@@ -533,7 +533,7 @@ function HomePage() {
 
       {/* PRIVACY & TRUST — animated graphic + pillars (page footer band) */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-2xl border border-border/60 bg-transparent text-foreground">
+        <div className="overflow-hidden rounded-2xl bg-transparent text-foreground">
           <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
             <div className="relative isolate flex shrink-0 items-center justify-center self-center">
               <div className="relative h-32 w-32 sm:h-36 sm:w-36">
