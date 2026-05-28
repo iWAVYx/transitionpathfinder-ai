@@ -161,55 +161,35 @@ function AboutPage() {
 
         {/* Marquee — repeated truths */}
         <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
-          <Marquee speed={45} className="py-5 font-display text-2xl italic text-foreground/70 sm:text-3xl">
-            <span className="mx-8">paperwork is not a pathway</span>
-            <span className="mx-8 text-primary">·</span>
-            <span className="mx-8">a plan should sound like the student</span>
-            <span className="mx-8 text-primary">·</span>
-            <span className="mx-8">families deserve clarity, not confusion</span>
-            <span className="mx-8 text-primary">·</span>
-            <span className="mx-8">progress should be visible</span>
-            <span className="mx-8 text-primary">·</span>
-            <span className="mx-8">the future should feel connected</span>
-            <span className="mx-8 text-primary">·</span>
-          </Marquee>
+          <Marquee
+            speed={45}
+            className="py-5 font-display text-2xl italic text-foreground/70 sm:text-3xl"
+            items={[
+              "paperwork is not a pathway",
+              "·",
+              "a plan should sound like the student",
+              "·",
+              "families deserve clarity, not confusion",
+              "·",
+              "progress should be visible",
+              "·",
+              "the future should feel connected",
+              "·",
+            ]}
+          />
         </div>
       </CursorField>
 
       {/* ====== SCENES 2 + 3 — STICKY SCROLL STORY ====== */}
-      <section className="relative">
-        <StickyScrollStory
-          scenes={scrollScenes.map((s) => ({
-            id: s.eyebrow,
-            title: (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                  {s.eyebrow}
-                </p>
-                <h2 className="mt-3 font-display text-4xl font-medium leading-[1.04] tracking-tight sm:text-5xl">
-                  {toTitleCase(s.title)}
-                </h2>
-                <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  {s.body}
-                </p>
-              </div>
-            ),
-            visual: (
-              <div className="relative">
-                <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-warm opacity-50 blur-2xl" />
-                <img
-                  src={s.image}
-                  alt={s.alt}
-                  loading="lazy"
-                  width={1400}
-                  height={1400}
-                  className="aspect-square w-full rounded-[2rem] object-cover shadow-lift"
-                />
-              </div>
-            ),
-          }))}
-        />
+      <section className="relative py-12">
+        <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            Scene II · The Realization — Scene III · The Mission
+          </p>
+        </div>
+        <StickyScrollStory eyebrow="Our story, scene by scene" panels={scrollScenes} />
       </section>
+
 
       {/* ====== VALUES — HOVER REVEAL CARDS ====== */}
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
