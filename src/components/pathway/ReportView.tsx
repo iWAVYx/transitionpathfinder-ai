@@ -927,13 +927,57 @@ export function ReportView({
         </Block>
       )}
 
-      {/* ============ Encouragement closing ============ */}
-      <div className="mt-10 rounded-3xl border border-border/60 bg-gradient-hero p-8 shadow-soft sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">For {name}</p>
-        <p className="mt-3 font-display text-2xl italic text-foreground/90">
-          {r.encouragement_to_student}
-        </p>
-      </div>
+      {/* ============ Closing note (formal) ============ */}
+      <section className="report-section mt-10">
+        <div className="rounded-2xl border border-border/60 bg-gradient-hero p-8 sm:p-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+            A closing note for {name}
+          </p>
+          <p className="mt-3 font-display text-xl leading-relaxed text-foreground/85 sm:text-2xl">
+            {r.encouragement_to_student}
+          </p>
+        </div>
+      </section>
+
+      {/* ============ Document footer / control ============ */}
+      <footer className="mt-10 rounded-2xl border bg-card">
+        <div className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Document
+            </p>
+            <p className="mt-2 text-sm text-foreground/85">
+              TransitionForward Pathway Report
+            </p>
+            <p className="mt-1 font-mono text-xs text-muted-foreground">
+              ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              How this was prepared
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+              AI-drafted from the intake, then formatted for family and educator review.
+              Recommendations are suggestions — not clinical, legal, or placement decisions.
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Use & sharing
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+              {meta?.confidentiality ?? "Share only with the student, family, and authorized members of the school team."}
+            </p>
+          </div>
+        </div>
+        <div className="border-t border-border/60 px-6 py-3 sm:px-8">
+          <p className="text-[11px] text-muted-foreground">
+            — End of report —
+          </p>
+        </div>
+      </footer>
+
 
       {!demo && (
         <AiAssistPanel
