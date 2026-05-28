@@ -26,7 +26,7 @@ export type SchoolStudent = {
   id: string;
   first_name: string | null;
   preferred_name: string | null;
-  grade_level: string | null;
+  grade_band: string | null;
   owner_id: string;
   owner_name: string | null;
 };
@@ -139,18 +139,29 @@ export const getSchoolDashboard = createServerFn({ method: "POST" })
     const members = allMembers.filter((m) => m.status === "active");
     const pending_members = allMembers.filter((m) => m.status !== "active");
 
-    // Students owned by active members of this org
+    // Students in this org (preferred) or owned by active members (fallback)
+    const { data: orgStudents } = await supabase
+      .from("students")
+      .select("id, first_name, preferred_name, grade_band, owner_id")
+      .eq("organization_id", selectedOrgId)
+      .order("created_at", { ascending: false })
+      .limit(200);
+
     const activeMemberIds = members.map((m) => m.user_id);
-    const { data: studentsData } = activeMemberIds.length
+    const { data: ownerStudents } = activeMemberIds.length
       ? await supabase
           .from("students")
-          .select("id, first_name, preferred_name, grade_level, owner_id")
+          .select("id, first_name, preferred_name, grade_band, owner_id")
           .in("owner_id", activeMemberIds)
           .order("created_at", { ascending: false })
           .limit(200)
-      : { data: [] as { id: string; first_name: string | null; preferred_name: string | null; grade_level: string | null; owner_id: string }[] };
+      : { data: [] };
 
-    const students: SchoolStudent[] = (studentsData ?? []).map((s) => ({
+    const studentMap = new Map<string, { id: string; first_name: string | null; preferred_name: string | null; grade_band: string | null; owner_id: string }>();
+    for (const s of [...(orgStudents ?? []), ...(ownerStudents ?? [])]) {
+      if (s && "id" in s) studentMap.set(s.id, s);
+    }
+    const students: SchoolStudent[] = Array.from(studentMap.values()).map((s) => ({
       ...s,
       owner_name: profileMap.get(s.owner_id)?.full_name ?? null,
     }));
@@ -204,7 +215,7 @@ export const updateMembershipStatus = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const patch: Record<string, string> = {};
+    const patch: { status?: string; role_within_org?: string } = {};
     if (data.status) patch.status = data.status;
     if (data.role_within_org) patch.role_within_org = data.role_within_org;
     if (Object.keys(patch).length === 0) return { ok: true };
