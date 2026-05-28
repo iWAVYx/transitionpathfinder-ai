@@ -186,7 +186,7 @@ export function TextMask({
   children,
   className,
   image,
-  gradient = "linear-gradient(120deg, hsl(20 95% 60%), hsl(340 90% 65%), hsl(200 90% 60%), hsl(40 95% 60%))",
+  gradient = "linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.74 0.10 25), oklch(0.72 0.10 220), oklch(0.78 0.12 50))",
   animate = true,
 }: {
   children: ReactNode;
@@ -195,15 +195,16 @@ export function TextMask({
   gradient?: string;
   animate?: boolean;
 }) {
+  const reduced = usePrefersReducedMotion();
   const bg = image ? `url(${image}) center/cover` : gradient;
   return (
     <span
       className={cn("inline-block bg-clip-text text-transparent", className)}
       style={{
         backgroundImage: bg,
-        backgroundSize: image ? "cover" : "300% 300%",
+        backgroundSize: image ? "cover" : "220% 220%",
         WebkitBackgroundClip: "text",
-        animation: animate && !image ? "tf-text-pan 12s ease-in-out infinite" : undefined,
+        animation: animate && !image && !reduced ? "tf-text-pan 18s ease-in-out infinite" : undefined,
       }}
     >
       {children}
