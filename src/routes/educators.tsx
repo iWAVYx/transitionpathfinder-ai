@@ -13,7 +13,6 @@ import frameworkImg from "@/assets/framework-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
 import iepUploadImg from "@/assets/iep-upload.jpg";
 import {
-import { toTitleCase } from "@/lib/title-case";
   Parallax,
   ParallaxImage,
   Reveal,
@@ -23,6 +22,7 @@ import { toTitleCase } from "@/lib/title-case";
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/educators")({
   head: () => ({
     meta: [

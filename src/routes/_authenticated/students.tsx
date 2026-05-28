@@ -7,13 +7,13 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import {
-import { toTitleCase } from "@/lib/title-case";
   listStudents,
   createStudent,
   deleteStudent,
   type Student,
 } from "@/lib/students.functions";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — TransitionForward" }] }),
   component: StudentsPage,
