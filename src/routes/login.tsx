@@ -56,7 +56,7 @@ function LoginPage() {
               Welcome back
             </p>
             <h1 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground">
-              Good to see you again.
+              Good to See You Again.
             </h1>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
               Sign in to pick up wherever you left off — your child's plan, the

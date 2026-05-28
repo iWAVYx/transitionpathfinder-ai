@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+import { toTitleCase } from "@/lib/title-case";
 const sample = {
   name: "Jordan",
   meta: "Grade 11 · Lincoln High School",
@@ -93,7 +94,7 @@ export function SampleReport() {
           </Badge>
         </div>
         <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          A plan for {sample.name}.
+          A Plan For {toTitleCase(sample.name)}.
         </h3>
         <p className="mt-1.5 text-sm text-muted-foreground">{sample.meta}</p>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/80 sm:text-base">
@@ -135,7 +136,7 @@ export function SampleReport() {
         <div className="mt-4 rounded-2xl border border-border/60 bg-background p-5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="uppercase tracking-wider">Best fit</Badge>
-            <h4 className="font-display text-xl font-medium">{sample.pathway.title}</h4>
+            <h4 className="font-display text-xl font-medium">{toTitleCase(sample.pathway.title)}</h4>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">{sample.pathway.why}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -197,7 +198,7 @@ function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }
   return (
     <div className="flex items-center gap-2 border-b border-border/60 pb-2">
       <span className="text-primary">{icon}</span>
-      <h4 className="font-display text-lg font-medium tracking-tight">{title}</h4>
+      <h4 className="font-display text-lg font-medium tracking-tight">{toTitleCase(title)}</h4>
     </div>
   );
 }

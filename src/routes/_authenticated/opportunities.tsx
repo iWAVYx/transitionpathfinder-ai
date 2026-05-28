@@ -17,6 +17,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
     meta: [{ title: "Opportunities — TransitionForward" }],
@@ -196,7 +197,7 @@ function OpportunitiesPage() {
             Real options, vetted for Connecticut
           </p>
           <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">
-            Opportunities & partner programs
+            Opportunities & Partner Programs
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             A curated starting point of colleges, technical programs, employers, state agencies,
@@ -246,7 +247,7 @@ function OpportunitiesPage() {
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
                     {CATEGORIES.find((c) => c.key === o.category)?.label}
                   </p>
-                  <h3 className="mt-1 font-display text-lg font-medium">{o.name}</h3>
+                  <h3 className="mt-1 font-display text-lg font-medium">{toTitleCase(o.name)}</h3>
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" /> {o.city}
                   </p>

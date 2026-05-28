@@ -7,6 +7,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import {
+import { toTitleCase } from "@/lib/title-case";
   listStudents,
   createStudent,
   deleteStudent,
@@ -161,7 +162,7 @@ function StudentsPage() {
                     className="min-w-0 flex-1"
                   >
                     <h2 className="font-display text-xl hover:underline">
-                      {s.first_name} {s.last_name ?? ""}
+                      {toTitleCase(s.first_name)} {s.last_name ?? ""}
                     </h2>
                     <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
                       {s.grade_band ?? "Grade not set"} {s.school ? `· ${s.school}` : ""}

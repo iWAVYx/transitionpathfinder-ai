@@ -83,7 +83,7 @@ export function IepUpload({ onExtracted }: Props) {
         <div className="p-6 sm:p-7">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">Optional shortcut</p>
           <h3 className="mt-2 font-display text-2xl font-medium tracking-tight">
-            Have an IEP already? Let us read it.
+            Have an IEP Already? Let Us Read It.
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Upload a PDF or paste the text. We'll quietly fill in the sections below — you stay in

@@ -19,6 +19,7 @@ import {
 import { listMyReports } from "@/lib/pathway.functions";
 import { createPptPrep, type PptAgenda } from "@/lib/ppt.functions";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/ppt-prep")({
   head: () => ({ meta: [{ title: "PPT Meeting Prep — TransitionForward" }] }),
   component: PptPrepPage,
@@ -78,7 +79,7 @@ function PptPrepPage() {
         <Breadcrumbs trail={[{ label: "PPT Meeting Prep" }]} />
         <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          Walk in calm. Walk out heard.
+          Walk in Calm. Walk Out Heard.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           Pick a Pathway Report, tell us what you most want from this meeting, and we'll
@@ -177,7 +178,7 @@ function AgendaView({ name, agenda, onReset }: { name: string; agenda: PptAgenda
       <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          A meeting plan for {name}.
+          A Meeting Plan For {toTitleCase(name)}.
         </h1>
         <p className="mt-4 text-base italic leading-relaxed text-foreground/80">{agenda.opening_note}</p>
       </div>
@@ -237,7 +238,7 @@ function AgendaView({ name, agenda, onReset }: { name: string; agenda: PptAgenda
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-10">
-      <h2 className="font-display text-2xl font-medium tracking-tight">{title}</h2>
+      <h2 className="font-display text-2xl font-medium tracking-tight">{toTitleCase(title)}</h2>
       <div className="mt-4">{children}</div>
     </div>
   );

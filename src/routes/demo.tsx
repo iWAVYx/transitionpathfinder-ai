@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DEMO_STUDENT } from "@/lib/demo-data";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
@@ -49,7 +50,7 @@ function DemoIndex() {
           </Badge>
         </div>
         <h1 className="mt-4 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          See exactly how TransitionForward works.
+          See Exactly How Transitionforward Works.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Walk through a complete planning experience using <strong>{DEMO_STUDENT.full_name}</strong>,
@@ -64,7 +65,7 @@ function DemoIndex() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                 Meet the demo student
               </p>
-              <h2 className="mt-2 font-display text-3xl">{DEMO_STUDENT.full_name}</h2>
+              <h2 className="mt-2 font-display text-3xl">{toTitleCase(DEMO_STUDENT.full_name)}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {DEMO_STUDENT.pronouns} · {DEMO_STUDENT.grade} · {DEMO_STUDENT.school}
               </p>
@@ -162,7 +163,7 @@ function StepCard({
           Step {step}
         </span>
       </div>
-      <h3 className="mt-4 font-display text-xl">{title}</h3>
+      <h3 className="mt-4 font-display text-xl">{toTitleCase(title)}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
         Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

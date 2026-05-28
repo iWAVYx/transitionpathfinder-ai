@@ -3,6 +3,7 @@ import organizeImg from "@/assets/layer-organize.jpg";
 import generateImg from "@/assets/layer-generate.jpg";
 import connectImg from "@/assets/layer-connect.jpg";
 
+import { toTitleCase } from "@/lib/title-case";
 const layers = [
   {
     icon: Archive,
@@ -61,7 +62,7 @@ export function LayerDiagram() {
             </div>
             <div className="p-7">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">{tag}</p>
-              <h3 className="mt-1 font-display text-2xl font-medium tracking-tight">{title}</h3>
+              <h3 className="mt-1 font-display text-2xl font-medium tracking-tight">{toTitleCase(title)}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </div>
           </div>

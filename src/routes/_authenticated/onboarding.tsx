@@ -23,6 +23,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { IepExtract } from "@/lib/iep-extract.functions";
 
+import { toTitleCase } from "@/lib/title-case";
 const STORAGE_KEY = "tf:onboarding";
 
 type Goal = { id: string; text: string };
@@ -254,7 +255,7 @@ function StepHeader({
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
       <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-        {title}
+        {toTitleCase(title)}
       </h1>
       <p className="mt-3 leading-relaxed text-muted-foreground">{body}</p>
     </div>
@@ -524,7 +525,7 @@ function NextCard({
           {number}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-lg font-medium">{title}</h3>
+          <h3 className="font-display text-lg font-medium">{toTitleCase(title)}</h3>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
           <div className="mt-3">
             <Button asChild size="sm" variant="outline">

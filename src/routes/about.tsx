@@ -3,6 +3,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { GraduationCap, Rocket, BookHeart, Compass } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
 
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
@@ -89,7 +90,7 @@ function AboutPage() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{chapter}</p>
-                  <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">{title}</h2>
+                  <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">{toTitleCase(title)}</h2>
                   <p className="mt-4 text-base leading-relaxed text-muted-foreground">{body}</p>
                 </div>
               </div>
@@ -99,7 +100,7 @@ function AboutPage() {
 
         <div className="mt-16 overflow-hidden rounded-3xl bg-gradient-hero p-10 text-center shadow-soft sm:p-14">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            Walk the Next Mile With Us.
+            Walk the Next Mile with Us.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/80">
             If this story sounds like your story, you are exactly who we built this for. Join the

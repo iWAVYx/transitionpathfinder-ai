@@ -20,6 +20,7 @@ import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { SampleReport } from "@/components/platform/SampleReport";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
 import {
+import { toTitleCase } from "@/lib/title-case";
   Parallax,
   ParallaxImage,
   Reveal,
@@ -224,7 +225,7 @@ function PlatformPage() {
             See It From Every Chair
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            The Same Plan, Built For Who You Are.
+            The Same Plan, Built for Who You Are.
 
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
@@ -242,7 +243,7 @@ function PlatformPage() {
               The Signature Feature
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              From Intake To A Plan In Minutes.
+              From Intake to a Plan in Minutes.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               Three short steps. A real Pathway Report at the end. Here is one we'd generate
@@ -305,7 +306,7 @@ function PlatformPage() {
                 <Icon className="h-4 w-4" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <h3 className="font-display text-lg font-medium leading-snug tracking-tight">{title}</h3>
+                <h3 className="font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
                 <p className="text-[13px] leading-relaxed text-muted-foreground">{body}</p>
               </div>
               <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
@@ -341,7 +342,7 @@ function PlatformPage() {
               How It Fits Together
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              Three Quiet Layers, Working As One.
+              Three Quiet Layers, Working as One.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               Organize what's true about your student. Generate a Pathway you can act on.
@@ -368,7 +369,7 @@ function PlatformPage() {
               Your Next Step
             </p>
             <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-              Ready To See Your Student On The Page?
+              Ready to See Your Student on the Page?
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
               Create a free account and share a little about your student. You will have a real
@@ -427,7 +428,7 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-display text-lg font-semibold text-primary-foreground">
         {n}
       </div>
-      <h3 className="mt-4 font-display text-xl font-medium tracking-tight">{title}</h3>
+      <h3 className="mt-4 font-display text-xl font-medium tracking-tight">{toTitleCase(title)}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
