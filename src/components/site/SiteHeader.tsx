@@ -84,7 +84,29 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
-          {nav.map((item) => (
+          {navGroups.map((group) => (
+            <DropdownMenu key={group.label}>
+              <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:px-3">
+                {group.label} <ChevronDown className="h-3.5 w-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-64 p-2">
+                {group.items.map((item) => (
+                  <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
+                    <Link
+                      to={item.to}
+                      className="flex flex-col items-start gap-0.5 rounded-lg px-3 py-2"
+                    >
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
+                      {item.desc && (
+                        <span className="text-xs text-muted-foreground">{item.desc}</span>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
+          {navSingles.map((item) => (
             <Link
               key={item.to}
               to={item.to}
