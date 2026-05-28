@@ -9,6 +9,9 @@ import {
   Download,
   Sparkles,
   Loader2,
+  Target,
+  Users as UsersIcon,
+  Compass,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
