@@ -361,7 +361,7 @@ export const createPathwayReport = createServerFn({ method: "POST" })
       throw new Error("Could not save your intake. Please try again.");
     }
 
-    const model = "google/gemini-2.5-flash";
+    const model = "google/gemini-2.5-pro";
     const gateway = createLovableAiGatewayProvider(apiKey);
 
     let report: PathwayReport;
