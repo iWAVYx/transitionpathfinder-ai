@@ -505,3 +505,177 @@ function RolesPanel() {
     </div>
   );
 }
+
+function PartnerApprovalsPanel() {
+  const fetchList = useServerFn(listPartnerApplications);
+  const decide = useServerFn(decidePartnerApplication);
+  const [rows, setRows] = useState<PartnerApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function reload() {
+    setLoading(true);
+    try {
+      const { applications } = await fetchList();
+      setRows(applications);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleDecide(id: string, decision: "approve" | "reject") {
+    setBusyId(id);
+    try {
+      const r = await decide({ data: { id, decision } });
+      toast.success(
+        decision === "approve"
+          ? `Approved — follow up with ${r.email}.`
+          : `Rejected and removed.`,
+      );
+      await reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save decision.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className="rounded-2xl border bg-card p-6 shadow-soft">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="font-display text-2xl">Partner applications</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Organizations who applied to join the opportunities directory. Approve to follow up,
+            or reject to remove from the queue.
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 space-y-3">
+        {loading ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Loading…</p>
+        ) : rows.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No partner applications waiting.
+          </p>
+        ) : (
+          rows.map((r) => (
+            <article
+              key={r.id}
+              className="flex flex-col gap-3 rounded-xl border bg-background p-4 sm:flex-row sm:items-start sm:justify-between"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">{r.full_name}</p>
+                <p className="text-xs text-muted-foreground">
+                  <a className="hover:underline" href={`mailto:${r.email}`}>
+                    {r.email}
+                  </a>
+                  {r.state ? <> · {r.state}</> : null}{" "}
+                  · Applied {new Date(r.created_at).toLocaleDateString()}
+                </p>
+                {r.reason && (
+                  <p className="mt-2 max-w-2xl text-sm text-foreground/80">{r.reason}</p>
+                )}
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busyId === r.id}
+                  onClick={() => handleDecide(r.id, "reject")}
+                >
+                  <X className="h-3.5 w-3.5" /> Reject
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={busyId === r.id}
+                  onClick={() => handleDecide(r.id, "approve")}
+                >
+                  {busyId === r.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  Approve
+                </Button>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AiReviewPanel() {
+  const fetchReports = useServerFn(listRecentReports);
+  const [rows, setRows] = useState<ReportSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function reload() {
+    setLoading(true);
+    try {
+      const { reports } = await fetchReports();
+      setRows(reports);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className="rounded-2xl border bg-card p-6 shadow-soft">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="font-display text-2xl">AI report review</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Spot-check the 50 most recent AI-generated pathway reports for quality and safety.
+            All AI output is human-led — flag anything that needs follow-up.
+          </p>
+        </div>
+        <Sparkles className="h-5 w-5 text-primary" />
+      </div>
+      <ul className="mt-5 divide-y rounded-xl border">
+        {loading ? (
+          <li className="p-6 text-center text-sm text-muted-foreground">Loading…</li>
+        ) : rows.length === 0 ? (
+          <li className="p-6 text-center text-sm text-muted-foreground">
+            No reports generated yet.
+          </li>
+        ) : (
+          rows.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 p-4">
+              <div className="min-w-0 max-w-2xl">
+                <p className="text-sm font-medium">
+                  {r.student_first_name ?? "Unnamed student"}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    · {new Date(r.created_at).toLocaleString()}
+                  </span>
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {r.user_email ?? r.user_id.slice(0, 8)} · model{" "}
+                  <code className="rounded bg-muted px-1">{r.model}</code>
+                </p>
+                {r.headline && (
+                  <p className="mt-2 line-clamp-2 text-sm text-foreground/80">{r.headline}</p>
+                )}
+              </div>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/reports/$reportId" params={{ reportId: r.id }}>
+                  Open
+                </Link>
+              </Button>
+            </li>
+          ))
+        )}
+      </ul>
+    </div>
+  );
+}
