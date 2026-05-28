@@ -408,3 +408,27 @@ function StudentDetailPage() {
     </SiteShell>
   );
 }
+
+function StatTile({
+  icon,
+  label,
+  value,
+  small = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  small?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-background p-4">
+      <div className="flex items-center gap-2 text-primary">
+        {icon}
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em]">{label}</span>
+      </div>
+      <p className={small ? "mt-2 text-sm font-medium text-foreground" : "mt-1 font-display text-2xl font-medium text-foreground"}>
+        {value}
+      </p>
+    </div>
+  );
+}
