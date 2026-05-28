@@ -209,24 +209,24 @@ function StudentDetailPage() {
       </div>
 
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="overflow-hidden rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
+        <header className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="flex items-center gap-4">
               <div
                 aria-hidden
-                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/15 font-display text-2xl font-medium text-primary ring-1 ring-primary/20"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 font-display text-xl font-medium text-primary ring-1 ring-primary/20 sm:h-16 sm:w-16 sm:text-2xl"
               >
                 {(student?.first_name?.[0] ?? "?").toUpperCase()}
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                   Student hub
                 </p>
-                <h1 className="mt-1 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                <h1 className="mt-1 font-display text-2xl font-medium tracking-tight sm:text-4xl">
                   {student ? `${student.first_name} ${student.last_name ?? ""}` : "Loading…"}
                 </h1>
                 {student && (
-                  <p className="mt-1.5 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {student.grade_band ?? "Grade not set"}
                     {student.school ? ` · ${student.school}` : ""}
                   </p>
@@ -242,9 +242,17 @@ function StudentDetailPage() {
           </div>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-foreground/75">
             One place for {student?.first_name ?? "this student"}'s documents, goals, transition
-            progress, and the people supporting the plan. Everything here is private and only
-            shared with people you invite.
+            progress, and the people supporting the plan. Private by default — only people you
+            invite can see it.
           </p>
+
+          {/* Stats row */}
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatTile icon={<Target className="h-4 w-4" />} label="Active goals" value={String(goals.length)} />
+            <StatTile icon={<FileText className="h-4 w-4" />} label="Documents" value={String(docs.length)} />
+            <StatTile icon={<Compass className="h-4 w-4" />} label="Pathway" value="In progress" small />
+            <StatTile icon={<UsersIcon className="h-4 w-4" />} label="Privacy" value="Invite-only" small />
+          </div>
         </header>
 
         {/* DOCUMENTS */}
