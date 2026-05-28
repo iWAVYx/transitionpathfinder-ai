@@ -372,13 +372,13 @@ export function ReportView({
               </p>
             </div>
 
-            <div className="mt-4 rounded-2xl bg-gradient-hero p-5">
-              <Quote className="h-5 w-5 text-primary" />
-              <p className="mt-2 font-display text-lg italic text-foreground/90">
+            <figure className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-5">
+              <Quote className="h-4 w-4 text-primary" />
+              <blockquote className="mt-2 font-display text-lg italic leading-snug text-foreground/85">
                 "{r.student_snapshot.student_voice_quote}"
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">In {name}'s voice</p>
-            </div>
+              </blockquote>
+              <figcaption className="mt-2 text-xs text-muted-foreground">In {name}'s voice</figcaption>
+            </figure>
           </div>
         </Block>
       )}
