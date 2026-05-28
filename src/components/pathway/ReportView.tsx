@@ -783,10 +783,12 @@ export function ReportView({
         </Block>
       )}
 
-      {/* ============ Questions to bring (back-compat) ============ */}
-      <Block title="Questions to bring to the next PPT" icon={<ListChecks className="h-5 w-5" />}>
-        <BulletList items={r.family_questions_for_ppt} />
-      </Block>
+      {/* ============ Questions to bring (only when no toolkit) ============ */}
+      {!r.meeting_prep_toolkit && (
+        <Block title="Questions to bring to the next PPT" icon={<ListChecks className="h-5 w-5" />}>
+          <BulletList items={r.family_questions_for_ppt} />
+        </Block>
+      )}
 
       {/* ============ Opportunity matches ============ */}
       {r.opportunity_matches && r.opportunity_matches.length > 0 && (
