@@ -158,6 +158,8 @@ export function ReportView({
 
   return (
     <section className="report-root mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <ReportTOC report={r} audience={audience} />
+
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
       <div className="print-cover hidden print:flex">
         <div className="print-cover-inner">
