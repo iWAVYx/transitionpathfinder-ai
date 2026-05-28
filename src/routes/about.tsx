@@ -296,66 +296,6 @@ function AboutPage() {
         </div>
       </section>
 
-      {/* ====== VOICES — 3D TILT PORTRAITS ====== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background via-sky-soft/20 to-background py-24 lg:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-              Whose voices we build for
-            </p>
-            <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              {toTitleCase("Three perspectives, one plan moving forward.")}
-            </h2>
-          </Reveal>
-
-          <div className="mt-14 grid gap-8 md:grid-cols-3">
-            {[
-              {
-                img: homeStudent,
-                tag: "Student",
-                quote: "I want a plan that sounds like me — not a checklist about me.",
-              },
-              {
-                img: homeFamily,
-                tag: "Family",
-                quote: "I want to walk into the meeting already knowing what's happening.",
-              },
-              {
-                img: homeEducator,
-                tag: "Educator",
-                quote: "I want my time spent with the student, not chasing the paperwork.",
-              },
-            ].map((v) => (
-              <Tilt3D key={v.tag} max={10} className="h-full">
-                <article className="relative h-full overflow-hidden rounded-[1.8rem] border border-border/60 bg-card shadow-soft">
-                  <TiltLayer depth={0}>
-                    <img
-                      src={v.img}
-                      alt={`${v.tag} portrait`}
-                      className="aspect-[4/5] w-full object-cover"
-                    />
-                  </TiltLayer>
-                  <TiltLayer
-                    depth={40}
-                    className="pointer-events-none absolute inset-x-5 bottom-5"
-                  >
-                    <div className="rounded-2xl bg-background/92 p-5 shadow-lift backdrop-blur">
-                      <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                        <Quote className="h-3 w-3" />
-                        {v.tag}
-                      </div>
-                      <p className="mt-2 font-display text-lg italic leading-snug text-foreground/85">
-                        “{v.quote}”
-                      </p>
-                    </div>
-                  </TiltLayer>
-                </article>
-              </Tilt3D>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ====== SCENE 4 — THE NETWORK ====== */}
       <section className="relative overflow-hidden py-24 lg:py-32">
         <FloatingShape className="absolute right-[10%] top-12 hidden md:block" duration={20}>
