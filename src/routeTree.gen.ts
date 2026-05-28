@@ -45,6 +45,7 @@ import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
@@ -231,6 +232,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminSchoolRoute =
+  AuthenticatedAdminSchoolRouteImport.update({
+    id: '/admin-school',
+    path: '/admin-school',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -277,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRoute
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
@@ -319,6 +327,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRoute
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
@@ -363,6 +372,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/waitlist'
     | '/admin'
+    | '/admin-school'
     | '/dashboard'
     | '/documents'
     | '/feed'
@@ -449,6 +460,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/waitlist'
     | '/admin'
+    | '/admin-school'
     | '/dashboard'
     | '/documents'
     | '/feed'
@@ -492,6 +504,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/waitlist'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-school'
     | '/_authenticated/dashboard'
     | '/_authenticated/documents'
     | '/_authenticated/feed'
@@ -796,6 +809,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin-school': {
+      id: '/_authenticated/admin-school'
+      path: '/admin-school'
+      fullPath: '/admin-school'
+      preLoaderRoute: typeof AuthenticatedAdminSchoolRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -884,6 +904,7 @@ const AuthenticatedStudentsRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
@@ -903,6 +924,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
