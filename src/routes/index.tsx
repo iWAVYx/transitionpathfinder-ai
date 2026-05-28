@@ -26,6 +26,13 @@ import pathTechnical from "@/assets/path-technical.jpg";
 import pathCareer from "@/assets/path-career.jpg";
 import pathLifeskills from "@/assets/path-lifeskills.jpg";
 import pathProgress from "@/assets/path-progress.jpg";
+import dashboardImg from "@/assets/dashboard-hero.jpg";
+import iepUploadImg from "@/assets/iep-upload.jpg";
+import layerOrganizeImg from "@/assets/layer-organize.jpg";
+import layerGenerateImg from "@/assets/layer-generate.jpg";
+import layerConnectImg from "@/assets/layer-connect.jpg";
+import resourcesImg from "@/assets/resources-hero-v2.jpg";
+import frameworkImg from "@/assets/framework-hero.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
