@@ -1188,8 +1188,8 @@ function Block({
   eyebrow?: string;
 }) {
   return (
-    <section id={id} className="report-section mt-12 page-break scroll-mt-24">
-      <div className="mb-5 border-b border-border/60 pb-4">
+    <section id={id} className="report-section mt-14 page-break scroll-mt-24">
+      <div className="mb-6 border-b border-border/60 pb-4">
         <div className="flex items-center gap-3">
           <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
           {icon && <span className="text-primary">{icon}</span>}
