@@ -98,13 +98,8 @@ function AboutPage() {
       {/* ====== SCENE 1 — HERO / THE PROBLEM ====== */}
       <CursorField className="relative">
         <section className="relative isolate overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-80" />
-          <FloatingShape className="absolute -top-10 right-[8%] -z-10 hidden md:block" duration={14}>
-            <div className="h-44 w-44 rounded-full bg-peach/40 blur-2xl" />
-          </FloatingShape>
-          <FloatingShape className="absolute bottom-10 left-[6%] -z-10 hidden md:block" delay={2} duration={18}>
-            <div className="h-56 w-56 rounded-full bg-sky/40 blur-2xl" />
-          </FloatingShape>
+          <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
+
 
           <div className="mx-auto max-w-7xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 lg:pt-28 lg:pb-24">
             <Reveal>
