@@ -69,6 +69,15 @@ const TIMELINE_STATUS_LABEL: Record<string, string> = {
   future: "Future",
 };
 
+export type ReportMeta = {
+  reportId?: string;
+  preparedFor?: string;
+  preparedBy?: string;
+  issued?: string;
+  version?: string;
+  confidentiality?: string;
+};
+
 export function ReportView({
   name,
   report,
@@ -79,6 +88,7 @@ export function ReportView({
   saveLabel,
   saved,
   demo = false,
+  meta,
 }: {
   name: string;
   report: PathwayReport;
@@ -89,6 +99,7 @@ export function ReportView({
   saveLabel?: string;
   saved?: boolean;
   demo?: boolean;
+  meta?: ReportMeta;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
@@ -231,33 +242,62 @@ export function ReportView({
         </div>
       </div>
 
-      {/* Header card */}
-      <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-10">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            {audience === "family" ? "Pathway Report" : "Educator PPT Prep"}
-          </p>
-          <span className="text-muted-foreground/40">·</span>
-          <p className="text-[11px] text-muted-foreground">{today}</p>
-          {confidenceLabel && (
-            <Badge variant="secondary" className="ml-1 gap-1">
-              <ShieldCheck className="h-3 w-3" />
-              {confidenceLabel}
-            </Badge>
-          )}
-          <Badge variant="outline" className="gap-1">
-            <Sparkles className="h-3 w-3" /> AI-supported · human-led
-          </Badge>
+      {/* ============ Document header (formal) ============ */}
+      <header className="rounded-2xl border bg-card shadow-soft overflow-hidden">
+        <div className="border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+            <span>TransitionForward · {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}</span>
+            <span className="font-mono normal-case tracking-normal text-foreground/70">
+              Doc ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"}
+            </span>
+          </div>
         </div>
-        <h1 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-5xl">
-          {heading}
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-relaxed text-foreground/75">{subheading}</p>
-      </div>
+
+        <div className="px-6 py-8 sm:px-10 sm:py-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            {audience === "family" ? "Personalized transition plan" : "Planning & Placement Team packet"}
+          </p>
+          <h1 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+            {heading}
+          </h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
+
+          <div className="mt-3 h-px w-16 bg-primary/70" />
+
+          <dl className="mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+            <MetaField label="Prepared for" value={meta?.preparedFor ?? name} />
+            <MetaField label="Prepared by" value={meta?.preparedBy ?? "TransitionForward (AI-supported, human-led)"} />
+            <MetaField label="Date issued" value={meta?.issued ?? today} />
+            <MetaField
+              label="Confidentiality"
+              value={meta?.confidentiality ?? "For the student, family, and authorized educators"}
+            />
+          </dl>
+
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            {confidenceLabel && (
+              <Badge variant="secondary" className="gap-1">
+                <ShieldCheck className="h-3 w-3" />
+                {confidenceLabel}
+              </Badge>
+            )}
+            <Badge variant="outline" className="gap-1">
+              <Sparkles className="h-3 w-3" /> AI-drafted · educator-reviewable
+            </Badge>
+            <Badge variant="outline" className="gap-1">
+              <BookOpen className="h-3 w-3" /> {audience === "family" ? "Family-friendly language" : "PPT-ready format"}
+            </Badge>
+          </div>
+        </div>
+      </header>
 
       <div className="mt-6">
         <AIDisclaimer />
       </div>
+
+      {/* ============ Inline numbered Table of Contents ============ */}
+      <DocumentContents report={r} name={name} />
+
 
       {/* ============ Executive summary ============ */}
       <section className="mt-8 page-break exec-summary">
@@ -887,13 +927,57 @@ export function ReportView({
         </Block>
       )}
 
-      {/* ============ Encouragement closing ============ */}
-      <div className="mt-10 rounded-3xl border border-border/60 bg-gradient-hero p-8 shadow-soft sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">For {name}</p>
-        <p className="mt-3 font-display text-2xl italic text-foreground/90">
-          {r.encouragement_to_student}
-        </p>
-      </div>
+      {/* ============ Closing note (formal) ============ */}
+      <section className="report-section mt-10">
+        <div className="rounded-2xl border border-border/60 bg-gradient-hero p-8 sm:p-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+            A closing note for {name}
+          </p>
+          <p className="mt-3 font-display text-xl leading-relaxed text-foreground/85 sm:text-2xl">
+            {r.encouragement_to_student}
+          </p>
+        </div>
+      </section>
+
+      {/* ============ Document footer / control ============ */}
+      <footer className="mt-10 rounded-2xl border bg-card">
+        <div className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Document
+            </p>
+            <p className="mt-2 text-sm text-foreground/85">
+              TransitionForward Pathway Report
+            </p>
+            <p className="mt-1 font-mono text-xs text-muted-foreground">
+              ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              How this was prepared
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+              AI-drafted from the intake, then formatted for family and educator review.
+              Recommendations are suggestions — not clinical, legal, or placement decisions.
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Use & sharing
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+              {meta?.confidentiality ?? "Share only with the student, family, and authorized members of the school team."}
+            </p>
+          </div>
+        </div>
+        <div className="border-t border-border/60 px-6 py-3 sm:px-8">
+          <p className="text-[11px] text-muted-foreground">
+            — End of report —
+          </p>
+        </div>
+      </footer>
+
 
       {!demo && (
         <AiAssistPanel
@@ -923,8 +1007,16 @@ export function ReportView({
       </div>
 
       <style>{`
+        /* Auto-numbered sections — formal document feel */
+        .report-root { counter-reset: section; }
+        .report-section { counter-increment: section; }
+        .report-section .section-number::before {
+          content: "§ " counter(section, decimal-leading-zero);
+        }
+
         /* Screen-only: hide the print cover */
         .print-cover { display: none; }
+
 
         @media print {
           @page {
@@ -1042,22 +1134,96 @@ function Block({
   children,
   icon,
   id,
+  eyebrow,
 }: {
   title: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
   id?: string;
+  eyebrow?: string;
 }) {
   return (
-    <section id={id} className="mt-10 page-break scroll-mt-24">
-      <div className="mb-4 flex items-center gap-2 border-b border-border/60 pb-3">
-        {icon && <span className="text-primary">{icon}</span>}
-        <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.75rem]">{title}</h2>
+    <section id={id} className="report-section mt-12 page-break scroll-mt-24">
+      <div className="mb-5 border-b border-border/60 pb-4">
+        <div className="flex items-center gap-3">
+          <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
+          {icon && <span className="text-primary">{icon}</span>}
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
+            {title}
+          </h2>
+        </div>
+        {eyebrow && (
+          <p className="mt-1 pl-[1px] text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {eyebrow}
+          </p>
+        )}
       </div>
       <div>{children}</div>
     </section>
   );
 }
+
+function MetaField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm leading-snug text-foreground/85">{value}</dd>
+    </div>
+  );
+}
+
+function DocumentContents({ report, name }: { report: PathwayReport; name: string }) {
+  const items: { id: string; label: string }[] = [];
+  if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student snapshot" });
+  items.push({ id: "sec-strengths", label: "Strengths to lead with" });
+  if (report.spin_analysis) items.push({ id: "sec-spin", label: "Strengths, preferences, interests & needs" });
+  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Transition readiness scorecard" });
+  if (report.recommended_pathways?.length) items.push({ id: "sec-pathways", label: "Recommended pathways" });
+  if (report.career_matches?.length) items.push({ id: "sec-careers", label: "Career & life pathway matches" });
+  if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary goal breakdown" });
+  items.push({ id: "sec-education", label: "Education & training options" });
+  items.push({ id: "sec-life-skills", label: "Life skills to focus on" });
+  if (report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP / transition plan translator" });
+  if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What we still need to know" });
+  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s voice` });
+  if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family action plan" });
+  if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP meeting prep" });
+  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to explore" });
+  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress timeline" });
+  items.push({ id: "sec-thirty-day", label: "A gentle 30-day plan" });
+  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a human second look" });
+
+  return (
+    <nav
+      aria-label="Table of contents"
+      className="no-print mt-8 rounded-2xl border bg-card"
+    >
+      <div className="border-b border-border/60 px-6 py-3 sm:px-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Contents
+        </p>
+      </div>
+      <ol className="grid gap-x-8 gap-y-2 px-6 py-5 sm:grid-cols-2 sm:px-8">
+        {items.map((it, i) => (
+          <li key={it.id} className="flex items-baseline gap-3 text-sm">
+            <span className="font-mono text-xs text-primary/80">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <a
+              href={`#${it.id}`}
+              className="flex-1 border-b border-dotted border-border/60 pb-1 text-foreground/80 transition-colors hover:text-foreground"
+            >
+              {it.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
 
 function BulletList({ items, compact = false }: { items: string[]; compact?: boolean }) {
   return (

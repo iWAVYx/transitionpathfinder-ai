@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_INTAKE, DEMO_STUDENT } from "@/lib/demo-data";
 
-export const Route = createFileRoute("/demo/intake")({
+export const Route = createFileRoute("/demo_/intake")({
   head: () => ({
     meta: [
       { title: "Sample intake — TransitionForward demo" },

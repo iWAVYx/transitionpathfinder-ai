@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { DEMO_STUDENT, DEMO_REPORT } from "@/lib/demo-data";
 
-export const Route = createFileRoute("/demo/hub")({
+export const Route = createFileRoute("/demo_/hub")({
   head: () => ({
     meta: [
       { title: "Sample Student Hub — TransitionForward demo" },
