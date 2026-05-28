@@ -203,10 +203,16 @@
   .font-display { font-family: var(--font-display); }
 }
 
+/* Fluid base scaling: the root font-size grows and shrinks with the viewport
+ * width so every rem-based size (typography, spacing, layout) scales together. */
+html {
+  font-size: clamp(14px, 0.7rem + 0.45vw, 19px);
+}
+
 /* Accessibility: user-controlled font scaling.
  * Scales the root font-size so rem-based Tailwind sizes grow together. */
-html.a11y-font-lg { font-size: clamp(16px, 0.85rem + 0.5vw, 20px); }
-html.a11y-font-xl { font-size: clamp(18px, 0.95rem + 0.55vw, 22px); }
+html.a11y-font-lg { font-size: clamp(16px, 0.85rem + 0.55vw, 21px); }
+html.a11y-font-xl { font-size: clamp(18px, 0.95rem + 0.6vw, 23px); }
 
 
 /* Accessibility: high-contrast mode override.
