@@ -103,7 +103,7 @@ function SchoolAdminPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-          <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: "School Admin" }]} />
+          <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "School Admin" }]} />
           <div className="mt-6 rounded-2xl border border-border/60 bg-card p-8 text-center">
             <Shield className="mx-auto h-8 w-8 text-muted-foreground" />
             <h1 className="mt-3 font-display text-2xl font-medium">School admin only</h1>
@@ -123,7 +123,7 @@ function SchoolAdminPage() {
   return (
     <SiteShell>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: "School Admin" }]} />
+        <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "School Admin" }]} />
 
         <header className="mt-4 flex flex-wrap items-end justify-between gap-4">
           <div>
