@@ -262,28 +262,28 @@ function AboutPage() {
 
 
       {/* ====== VALUES — HOVER REVEAL CARDS ====== */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
             What we believe
           </p>
-          <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
+          <h2 className="mt-3 max-w-3xl font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
             {toTitleCase("Four convictions shape every screen.")}
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {values.map(({ icon: Icon, title, body, accent }) => (
             <HoverReveal
               key={title}
-              height="260px"
+              height="200px"
               className={`bg-gradient-to-br ${accent}`}
               front={
-                <div className="flex h-[260px] flex-col justify-between p-7">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background/85 text-primary shadow-soft">
-                    <Icon className="h-5 w-5" />
+                <div className="flex h-[200px] flex-col justify-between p-5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background/85 text-primary shadow-soft">
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">
+                  <h3 className="font-display text-lg font-medium leading-tight tracking-tight">
                     {title}
                   </h3>
                 </div>
@@ -299,35 +299,36 @@ function AboutPage() {
       </section>
 
       {/* ====== SCENE 4 — THE NETWORK ====== */}
-      <section className="relative overflow-hidden py-24 lg:py-32">
+      <section className="relative overflow-hidden py-16 lg:py-20">
         <FloatingShape className="absolute right-[10%] top-12 hidden md:block" duration={20}>
           <div className="h-32 w-32 rounded-full bg-peach/30 blur-2xl" />
         </FloatingShape>
 
-        <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-8">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-14 lg:px-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
               Scene IV — The Network
             </p>
-            <h2 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl">
+            <h2 className="mt-4 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
               No student moves{" "}
               <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.78 0.1 220), oklch(0.82 0.1 25))">
                 forward alone
               </TextMask>
               .
             </h2>
-            <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               The future is built through connection. TransitionForward helps families and schools
               connect students to the people, programs, and opportunities that move a plan into
               motion.
             </p>
-            <p className="mt-5 max-w-xl font-display text-xl italic text-foreground/80">
+            <p className="mt-4 max-w-xl font-display text-base italic text-foreground/80 sm:text-lg">
               Schools. Families. Mentors. Employers. Universities. Community partners. One platform,
               moving in step.
             </p>
           </div>
 
-          <div className="relative aspect-square w-full">
+          <div className="relative mx-auto aspect-square w-full max-w-md">
+
             <div className="absolute inset-0 rounded-full bg-gradient-warm opacity-40 blur-3xl" />
             <svg viewBox="0 0 100 100" className="relative h-full w-full">
               <defs>
