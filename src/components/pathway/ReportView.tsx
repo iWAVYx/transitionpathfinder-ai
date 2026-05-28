@@ -869,8 +869,8 @@ export function ReportView({
         </ol>
       </Block>
 
-      {/* ============ Teacher next steps (back-compat) ============ */}
-      {audience === "educator" && (
+      {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
+      {audience === "educator" && !r.teacher_action_plan && (
         <Block title="Teacher next steps" icon={<GraduationCap className="h-5 w-5" />}>
           <BulletList items={r.teacher_next_steps} />
         </Block>
