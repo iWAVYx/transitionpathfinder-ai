@@ -1045,12 +1045,12 @@ function Block({
   id?: string;
 }) {
   return (
-    <section id={id} className="mt-12 page-break scroll-mt-24">
-      <div className="flex items-center gap-2">
+    <section id={id} className="mt-10 page-break scroll-mt-24">
+      <div className="mb-4 flex items-center gap-2 border-b border-border/60 pb-3">
         {icon && <span className="text-primary">{icon}</span>}
-        <h2 className="font-display text-3xl font-medium tracking-tight">{title}</h2>
+        <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.75rem]">{title}</h2>
       </div>
-      <div className="mt-4">{children}</div>
+      <div>{children}</div>
     </section>
   );
 }
