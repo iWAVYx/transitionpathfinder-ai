@@ -103,7 +103,7 @@ export function CursorField({
  */
 export function Magnetic({
   children,
-  strength = 22,
+  strength = 12,
   className,
   as: Tag = "div",
 }: {
@@ -135,7 +135,7 @@ export function Magnetic({
       className={cn("inline-block", className)}
       style={{
         transform: `translate3d(${t.x.toFixed(2)}px, ${t.y.toFixed(2)}px, 0)`,
-        transition: "transform 350ms cubic-bezier(.22,.61,.36,1)",
+        transition: "transform 450ms cubic-bezier(.22,.61,.36,1)",
         willChange: "transform",
       }}
     >
