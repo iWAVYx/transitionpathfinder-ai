@@ -838,14 +838,7 @@ function ResourceCard({
             >
               {fmt.verb} <ExternalLink className="h-3 w-3" />
             </a>
-          ) : (
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
-            >
-              {fmt.verb}
-            </button>
-          )}
+          ) : null}
           <button
             onClick={onSave}
             aria-label={saved ? "Remove from saved" : "Save"}
@@ -857,13 +850,6 @@ function ResourceCard({
           >
             {saved ? <BookmarkCheck className="h-3.5 w-3.5" /> : <Bookmark className="h-3.5 w-3.5" />}
             {saved ? "Saved" : "Save"}
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
-            title="Add to a student's pathway"
-          >
-            <Plus className="h-3.5 w-3.5" /> Add to pathway
           </button>
           <button
             type="button"
