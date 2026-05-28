@@ -321,6 +321,8 @@ function PathwayFlow() {
   const { pathway } = Route.useLoaderData();
   const [activeIdx, setActiveIdx] = useState(0);
   const [done, setDone] = useState<Set<number>>(new Set());
+  const articleRef = useRef<HTMLElement>(null);
+  const isFirstRender = useRef(true);
 
   const total = pathway.steps.length;
   const completed = done.size;
@@ -328,6 +330,25 @@ function PathwayFlow() {
   const step = pathway.steps[activeIdx];
   const isLastStep = activeIdx === total - 1;
   const allDone = completed === total;
+
+  // Scroll to top when the pathway route mounts (fixes coming in mid-scroll from home).
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathway.id]);
+
+  // When the user picks a step, bring the step detail into view on small screens
+  // where the rail sits above the article. Skip the first render.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    if (isDesktop) return;
+    articleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeIdx]);
+
+  const goToStep = (i: number) => setActiveIdx(i);
 
   const markDone = () => {
     setDone((prev) => {
