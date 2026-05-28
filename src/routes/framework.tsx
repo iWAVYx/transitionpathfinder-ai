@@ -209,19 +209,19 @@ function FrameworkPage() {
           </p>
           <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {strands.map((s, i) => (
-              <li
-                key={s}
-                className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-soft"
-              >
-                <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-hero font-display text-sm font-semibold">
-                  {i + 1}
-                </span>
-                <span className="font-display text-lg font-medium text-foreground">
-                  {s}
-                </span>
-              </li>
+              <Reveal key={s} as="li" delay={i * 60}>
+                <div className="flex h-full items-start gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+                  <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-hero font-display text-sm font-semibold">
+                    {i + 1}
+                  </span>
+                  <span className="font-display text-lg font-medium text-foreground">
+                    {s}
+                  </span>
+                </div>
+              </Reveal>
             ))}
           </ul>
+
         </div>
       </section>
 
