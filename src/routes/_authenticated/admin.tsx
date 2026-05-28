@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -12,6 +12,9 @@ import {
   Trash2,
   Mail,
   Crown,
+  Check,
+  X,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,6 +46,13 @@ import {
   type WaitlistEntry,
   type RoleAssignment,
 } from "@/lib/admin-waitlist.functions";
+import {
+  listPartnerApplications,
+  decidePartnerApplication,
+  listRecentReports,
+  type PartnerApplication,
+  type ReportSummary,
+} from "@/lib/admin-review.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — TransitionForward" }] }),
@@ -175,8 +185,10 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="activity" className="mt-10">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="approvals">Partner approvals</TabsTrigger>
+            <TabsTrigger value="reports">AI review</TabsTrigger>
             <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
             <TabsTrigger value="roles">Roles</TabsTrigger>
           </TabsList>
@@ -242,6 +254,14 @@ function AdminPage() {
                 </table>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="approvals">
+            <PartnerApprovalsPanel />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <AiReviewPanel />
           </TabsContent>
 
           <TabsContent value="waitlist">
