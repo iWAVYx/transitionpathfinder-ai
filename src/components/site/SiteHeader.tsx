@@ -52,12 +52,18 @@ const navSingles: NavLink[] = [
 ];
 
 const userExtras = [
-  { to: "/feed", label: "Feed" },
-  { to: "/messages", label: "Messages" },
+  { to: "/students", label: "Students" },
+  { to: "/pathway", label: "Create Pathway Report" },
+  { to: "/reports", label: "Pathway Reports" },
+  { to: "/goals", label: "Goal Tracker" },
+  { to: "/ppt-prep", label: "PPT Meeting Prep" },
   { to: "/meetings", label: "Meetings" },
-  { to: "/forms", label: "Forms" },
   { to: "/documents", label: "Documents" },
+  { to: "/forms", label: "Forms" },
+  { to: "/messages", label: "Messages" },
+  { to: "/feed", label: "Feed" },
   { to: "/opportunities", label: "Opportunities" },
+  { to: "/insights", label: "Insights" },
   { to: "/analytics", label: "Analytics" },
   { to: "/admin-school", label: "School Admin" },
   { to: "/partners-manage", label: "Partner Workspace" },
