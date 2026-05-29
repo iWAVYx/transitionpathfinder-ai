@@ -179,15 +179,35 @@ function GoalList({
   items: { id: string; group: string; label: string }[];
 }) {
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const loadStatuses = useServerFn(listGoalStatuses);
+  const saveStatus = useServerFn(upsertGoalStatus);
 
   useEffect(() => {
+    let cancelled = false;
+    // Optimistic load from cache, then reconcile with server.
     try {
       const raw = localStorage.getItem(storageKey(reportId));
-      setStatuses(raw ? (JSON.parse(raw) as Record<string, Status>) : {});
+      if (raw) setStatuses(JSON.parse(raw) as Record<string, Status>);
     } catch {
-      setStatuses({});
+      /* ignore */
     }
-  }, [reportId]);
+    loadStatuses({ data: { reportId } })
+      .then((res) => {
+        if (cancelled) return;
+        setStatuses(res.statuses);
+        try {
+          localStorage.setItem(storageKey(reportId), JSON.stringify(res.statuses));
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {
+        /* keep cached values */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reportId, loadStatuses]);
 
   const setStatus = (id: string, next: Status) => {
     setStatuses((prev) => {
@@ -198,6 +218,9 @@ function GoalList({
         /* ignore */
       }
       return updated;
+    });
+    saveStatus({ data: { reportId, itemId: id, status: next } }).catch(() => {
+      /* swallow — local cache holds the value; surfaced on next load */
     });
   };
 
