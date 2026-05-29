@@ -96,7 +96,7 @@ function GoalsPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Every action from your Pathway Reports, in one place. Tap to mark something as
-          in progress or met — your notes stay on this device for now, just for you.
+          in progress or met — your progress syncs to your account so it follows you across devices.
         </p>
 
         <InfoBox label="How does the tracker work?" className="mt-6 max-w-2xl">
@@ -107,8 +107,8 @@ function GoalsPage() {
             at your own pace.
           </p>
           <p className="mt-2">
-            Your status updates are saved on this device. They aren't shared with anyone unless
-            you choose to.
+            Your status updates are saved to your account. Only you can see them unless you
+            choose to share.
           </p>
         </InfoBox>
 
