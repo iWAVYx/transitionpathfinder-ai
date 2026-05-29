@@ -12,7 +12,6 @@ import {
   Reveal,
   ShapeScroll,
   TextScrollFill,
-  StickyScrollStory,
   Marquee,
 } from "@/components/effects/ScrollEffects";
 import {
@@ -253,54 +252,16 @@ function FrameworkPage() {
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {principles.map((p, i) => (
             <Reveal key={p.title} delay={i * 70}>
-              <HoverReveal
-                className="h-full shadow-soft transition-shadow hover:shadow-lift"
-                height="100%"
-                front={
-                  <div className="p-7">
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                    </div>
-                    <h3 className="mt-5 font-display text-2xl font-medium">{toTitleCase(p.title)}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
-                  </div>
-                }
-                back={
-                  <div className="bg-gradient-hero h-full rounded-3xl p-7">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                      What it changes
-                    </p>
-                    <p className="mt-3 font-display text-xl leading-snug text-foreground">
-                      {p.body}
-                    </p>
-                  </div>
-                }
-              />
+              <article className="h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-shadow hover:shadow-lift">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="mt-5 font-display text-2xl font-medium">{toTitleCase(p.title)}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
+              </article>
             </Reveal>
           ))}
         </div>
-      </section>
-
-      {/* Sticky scroll story across the grade bands */}
-      <section className="border-y border-border/60 bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            The four-year arc
-          </p>
-          <h2 className="mt-3 max-w-3xl font-display text-4xl font-medium leading-tight sm:text-5xl">
-            Each grade asks something different.{" "}
-            <TextMask className="font-display">We answer all of it.</TextMask>
-          </h2>
-        </div>
-        <StickyScrollStory
-          eyebrow="Grade bands"
-          panels={bands.map((b) => ({
-            title: `Grade ${b.grade} — ${b.title}`,
-            body: `${b.student} ${b.team}`,
-            image: b.image,
-            alt: `${b.title} illustration`,
-          }))}
-        />
       </section>
 
       {/* Six strands with morphing cards */}
@@ -350,17 +311,22 @@ function FrameworkPage() {
         </div>
       </section>
 
-      {/* Grade band detail cards */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-4xl font-medium sm:text-5xl">
-            What every grade really asks of your family.
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Hover any band to see the evidence we collect so progress stays real and visible —
-            not just felt.
-          </p>
-        </div>
+      {/* Grade band detail cards — the four-year arc */}
+      <section className="border-t border-border/60 bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              The four-year arc
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
+              Each grade asks something different.{" "}
+              <TextMask className="font-display">We answer all of it.</TextMask>
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Hover any band to see the evidence we collect so progress stays real and visible —
+              not just felt.
+            </p>
+          </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
           {bands.map((b, i) => (
             <Reveal key={b.grade} delay={i * 90}>
@@ -422,6 +388,7 @@ function FrameworkPage() {
               Walk through it with us <ArrowRight className="h-4 w-4" />
             </Link>
           </Magnetic>
+        </div>
         </div>
       </section>
     </SiteShell>
