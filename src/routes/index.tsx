@@ -1,34 +1,71 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValue, useMotionTemplate } from "motion/react";
 import {
-  ArrowRight,
+  HeartHandshake,
+  GraduationCap,
+  Users,
+  Building2,
+  Briefcase,
+  ShieldCheck,
   Sparkles,
+  ArrowRight,
   ClipboardCheck,
   MessagesSquare,
   Compass,
-  Users,
-  GraduationCap,
-  Building2,
-  Briefcase,
   Lock,
-  FileText,
-  Target,
-  CalendarCheck,
-  BookOpen,
-  HeartHandshake,
-  Wand2,
-  TrendingUp,
-  Library,
-  Network,
+  UserCheck,
+  Download,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import heroImg from "@/assets/home-hero-cinematic.jpg";
-import roleFamilyImg from "@/assets/role-family-v2.jpg";
-import roleEducatorImg from "@/assets/role-educator-v2.jpg";
+import heroImg from "@/assets/home-hero.jpg";
+import studentImg from "@/assets/home-student.jpg";
 import studentPhotoImg from "@/assets/home-student-photo.jpg";
+import familyImg from "@/assets/home-family.jpg";
+import educatorImg from "@/assets/home-educator.jpg";
+import pathwayImg from "@/assets/home-pathway.jpg";
+import roadImg from "@/assets/home-road.jpg";
+import pathCollege from "@/assets/path-college.jpg";
+import pathTechnical from "@/assets/path-technical.jpg";
+import pathCareer from "@/assets/path-career.jpg";
+import pathLifeskills from "@/assets/path-lifeskills.jpg";
+import pathProgress from "@/assets/path-progress.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
+import iepUploadImg from "@/assets/iep-upload.jpg";
+import layerOrganizeImg from "@/assets/layer-organize.jpg";
+import layerGenerateImg from "@/assets/layer-generate.jpg";
+import layerConnectImg from "@/assets/layer-connect.jpg";
+import resourcesImg from "@/assets/resources-hero-v2.jpg";
+import frameworkImg from "@/assets/framework-hero.jpg";
+import stickerCollege from "@/assets/sticker-college.png";
+import stickerTechnical from "@/assets/sticker-technical.png";
+import stickerCareer from "@/assets/sticker-career.png";
+import stickerLifeskills from "@/assets/sticker-lifeskills.png";
+import stickerProgress from "@/assets/sticker-progress.png";
+import doodlePlane from "@/assets/doodle-plane.png";
+import {
+  Parallax,
+  ParallaxImage,
+  Reveal,
+  ShapeScroll,
+  Marquee,
+  TextScrollFill,
+} from "@/components/effects/ScrollEffects";
+import { FloatingShape } from "@/components/effects/ImmersiveEffects";
+import {
+  DotField,
+  Squiggle,
+  Starburst,
+  Sparkle,
+  ArrowDoodle,
+  PaperPlane,
+  BookDoodle,
+  CompassRose,
+  Confetti,
+  UnderlineSwoosh,
+  ArcStack,
+} from "@/components/effects/Decorations";
 
+
+import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -36,12 +73,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "TransitionForward helps students, families, and educators move from IEP goals to real-life pathways — organizing transition goals, student voice, resources, and progress in one cinematic, easy-to-use platform.",
+          "TransitionForward helps students with disabilities, families, and educators plan life after high school — organizing transition goals, student voice, resources, and progress in one warm, easy-to-use platform.",
       },
       { property: "og:title", content: "TransitionForward — From IEP goals to real-life pathways" },
       {
         property: "og:description",
-        content: "One platform. One plan. Forward together.",
+        content:
+          "One platform. One plan. Forward together. Expert-built Pathway planning for Connecticut families, students, and educators.",
       },
       { property: "og:image", content: heroImg },
     ],
@@ -52,794 +90,1028 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   return (
     <SiteShell>
-      <Hero />
-      <ProblemToClarity />
-      <TransformationStrip />
-      <ModulesBento />
-      <RoleSwitcher />
-      <PathwayReportReveal />
-      <PartnerNetwork />
-      <FinalCTA />
+      {/* HERO — full-bleed image with overlaid text */}
+      <section className="relative isolate -mt-px overflow-hidden">
+        <ParallaxImage
+          src={heroImg}
+          alt="A young person walking a tree-lined path at golden hour"
+          width={1920}
+          height={1080}
+          speed={0.45}
+          className="absolute inset-0 -z-10 h-full w-full"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+
+        {/* Dramatic 3D morphing shape — primary blob */}
+        <ShapeScroll
+          className="absolute -left-40 -top-24 -z-10 h-[44rem] w-[44rem] text-primary/45 mix-blend-multiply md:block"
+          spin={220}
+          scale={1.1}
+          tilt={45}
+          drift={140}
+          gradientFrom="hsl(210 90% 70%)"
+          gradientTo="hsl(280 80% 65%)"
+        />
+        {/* Secondary counter-rotating shape, right side */}
+        <ShapeScroll
+          className="absolute -right-32 top-40 -z-10 hidden h-[34rem] w-[34rem] mix-blend-multiply lg:block"
+          spin={-180}
+          scale={0.9}
+          tilt={35}
+          drift={-100}
+          gradientFrom="hsl(20 90% 70%)"
+          gradientTo="hsl(340 85% 70%)"
+        />
+        {/* Smaller accent shape lower-left */}
+        <ShapeScroll
+          className="absolute left-1/3 bottom-10 -z-10 hidden h-56 w-56 lg:block"
+          spin={300}
+          scale={1.4}
+          tilt={60}
+          drift={80}
+          gradientFrom="hsl(150 70% 65%)"
+          gradientTo="hsl(190 80% 60%)"
+        />
+
+
+        {/* Floating playful doodles */}
+        <Parallax speed={-0.25} className="pointer-events-none absolute right-4 top-20 -z-10 hidden md:block lg:right-16 lg:top-24">
+          <img
+            src={doodlePlane}
+            alt=""
+            aria-hidden="true"
+            className="w-72 opacity-80 float-y-slow lg:w-96"
+          />
+        </Parallax>
+
+        <span aria-hidden="true" className="pointer-events-none absolute right-[28%] top-32 -z-10 hidden h-3 w-3 rounded-full bg-primary/70 sparkle-twinkle md:block" />
+        <span aria-hidden="true" className="pointer-events-none absolute right-[18%] top-[260px] -z-10 hidden h-2 w-2 rounded-full bg-amber-400 sparkle-twinkle md:block" style={{ animationDelay: "0.8s" }} />
+        <span aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[200px] -z-10 hidden h-2.5 w-2.5 rounded-full bg-pink-400 sparkle-twinkle md:block" style={{ animationDelay: "1.4s" }} />
+        {/* Soft blob behind headline */}
+        <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl blob-drift" />
+
+        <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Transition planning, made human
+            </p>
+            <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+              From IEP goals to{" "}
+              <span className="relative inline-block not-italic text-primary">
+                real-life
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 300 24"
+                  preserveAspectRatio="none"
+                  className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
+                >
+                  <path
+                    d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="text-primary/80"
+                  />
+                </svg>
+              </span>{" "}
+              pathways.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
+              A warm, easy-to-use platform that helps students with disabilities,
+              families, and educators plan life after high school — together.
+            </p>
+            <p className="mt-5 font-display text-2xl italic text-foreground/75">
+              One platform. One plan. Forward together.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                to="/waitlist"
+                className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                Join the waitlist
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+              <Link
+                to="/platform"
+                className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
+              >
+                Explore the platform
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PROBLEM — split panel: photo + statement */}
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <ShapeScroll
+          className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/20 lg:block"
+          spin={140}
+          scale={0.5}
+        />
+        <DotField className="absolute -left-4 top-4 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <FloatingShape className="absolute right-6 top-10 z-0 hidden h-9 w-9 text-primary/60 md:block" delay={0.4}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="absolute left-1/3 -top-2 z-0 hidden h-7 w-7 text-secondary-foreground/60 md:block" duration={14} delay={1.2}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Parallax speed={0.15} className="absolute -right-8 bottom-8 -z-0 hidden h-24 w-24 text-primary/70 lg:block">
+          <PaperPlane className="h-full w-full" />
+        </Parallax>
+
+        <div className="grid items-center gap-12 lg:grid-cols-12">
+          <Reveal className="lg:col-span-5" y={36}>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
+              <ParallaxImage
+                src={studentPhotoImg}
+                alt="A student writing in a notebook by a sunlit window"
+                width={1080}
+                height={1600}
+                speed={0.35}
+                className="absolute inset-0 h-full w-full"
+              />
+              <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-background/85 p-5 backdrop-blur">
+                <p className="font-display text-lg italic leading-snug text-foreground">
+                  "I want to know what's next — in words I actually understand."
+                </p>
+                <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  — A student, in their own words
+                </p>
+              </div>
+            </div>
+          </Reveal>
+          <Reveal className="lg:col-span-7" delay={120}>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Why we built this
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              Transition planning shouldn't feel scattered.
+              <UnderlineSwoosh className="mt-2 block h-3 w-64 text-primary/55" />
+            </h2>
+
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+              Families are often left trying to understand complicated documents,
+              unclear goals, and missing context — wondering what comes after
+              graduation and how to actually help. Educators are balancing heavy
+              caseloads and the very real work of preparing students for life
+              beyond high school. Students sometimes hear adults talk about
+              their future without feeling part of the conversation.
+            </p>
+            <p className="mt-5 text-lg leading-relaxed text-foreground">
+              TransitionForward brings it together — gently, in plain language,
+              and with the student at the center.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* MARQUEE — voices band */}
+      <section aria-label="Voices from the table" className="relative border-y border-border/40 bg-muted/30 py-6">
+        <FloatingShape className="absolute left-6 top-1/2 -translate-y-1/2 hidden h-6 w-6 text-primary/55 md:block" delay={0.2}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="absolute right-6 top-1/2 -translate-y-1/2 hidden h-7 w-7 text-secondary-foreground/55 md:block" delay={1.1} duration={16}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
+        <Marquee
+          speed={70}
+          items={[
+            "“She finally felt heard at her PPT.”",
+            "“The Pathway Report did what six binders never could.”",
+            "“Plain-language summaries my whole family understood.”",
+            "“Goals → evidence → next step. In one place.”",
+            "“The student voice section made him cry — in a good way.”",
+            "“It writes the draft. I keep the judgement.”",
+          ].map((q, i) => (
+            <span key={i} className="font-display text-xl italic text-foreground/75 sm:text-2xl">
+              {q}
+              <span className="mx-6 inline-block text-primary/40">✦</span>
+            </span>
+          ))}
+        />
+      </section>
+
+      {/* TEXT SCROLL FILL — mission line, sleeker with floating decor */}
+      <section className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+        <CompassRose className="absolute -left-6 top-4 hidden h-24 w-24 text-primary/25 lg:block" />
+        <Starburst className="absolute -right-6 top-6 hidden h-20 w-20 text-secondary-foreground/30 lg:block" />
+        <Parallax speed={0.2} className="absolute right-10 -top-2 hidden h-12 w-16 text-primary/60 md:block">
+          <ArrowDoodle className="h-full w-full -rotate-12" />
+        </Parallax>
+        <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Squiggle className="absolute inset-x-0 bottom-6 mx-auto h-5 w-80 text-primary/30" />
+        <TextScrollFill
+          className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+          text="From the IEP on the kitchen table to the first job after graduation — every student deserves a plan that reads like their life, not paperwork."
+        />
+      </section>
+
+
+
+      {/* ROLE ROUTER — five doors into the platform */}
+      <section
+        id="choose-your-path"
+        aria-labelledby="role-router-heading"
+        className="border-y border-border/40 bg-background"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Start where you are
+            </p>
+            <h2
+              id="role-router-heading"
+              className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl"
+            >
+              Choose Your Path In.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              Transition planning looks different from every chair at the table.
+              Pick the door that fits — we'll meet you with the right tools, language,
+              and next steps.
+            </p>
+          </div>
+
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 [&>:last-child:nth-child(odd)]:sm:col-span-2 [&>:last-child:nth-child(odd)]:sm:mx-auto [&>:last-child:nth-child(odd)]:sm:max-w-[calc(50%-0.5rem)] lg:[&>:last-child]:!col-span-1 lg:[&>:last-child]:!max-w-none lg:[&>:last-child]:!mx-0">
+            <RoleCard
+              icon={HeartHandshake}
+              label="Family / Guardian"
+              body="Understand the plan, see what's next, and walk into PPTs prepared."
+              cta="Build My Child's Transition Plan"
+              to="/families"
+              tone="peach"
+            />
+            <RoleCard
+              icon={GraduationCap}
+              label="Student"
+              body="Tell us who you are. See careers, colleges, and life paths that fit."
+              cta="Explore My Future Path"
+              to="/waitlist"
+              search={{ role: "student" }}
+              tone="sky"
+            />
+            <RoleCard
+              icon={Users}
+              label="Teacher / Case Manager"
+              body="Organize goals, documents, and meetings for your whole caseload."
+              cta="Organize My Caseload"
+              to="/educators"
+              tone="primary"
+            />
+            <RoleCard
+              icon={Building2}
+              label="School / District"
+              body="A coordinated view across students, teams, and transition outcomes."
+              cta="Request a School Demo"
+              to="/waitlist"
+              search={{ role: "administrator" }}
+              tone="muted"
+            />
+            <RoleCard
+              icon={Briefcase}
+              label="Partner Organization"
+              body="Colleges, training programs, employers, and community supports."
+              cta="Become a Partner"
+              to="/partners"
+              tone="peach"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* PRODUCT GLIMPSE — visual tour of real platform elements */}
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <DotField className="absolute left-0 top-10 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <ArcStack className="absolute -right-8 bottom-10 -z-10 hidden h-56 w-56 text-secondary-foreground/25 lg:block" />
+        <FloatingShape className="absolute right-10 top-12 z-0 hidden h-8 w-8 text-primary/55 md:block" delay={0.7}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            A look inside
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            See the elements you'll actually use.
+          </h2>
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+            Every screen is built for the family at the kitchen table, the student at
+            their desk, and the teacher between meetings — calm, plain-language, and
+            ready to act on.
+          </p>
+        </div>
+
+        {/* Hero feature — Pathway Report */}
+        <div className="mb-6 grid items-stretch gap-5 md:grid-cols-5">
+          <FeatureShot
+            className="md:col-span-3"
+            image={pathwayImg}
+            label="The Pathway Report"
+            caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
+            aspect="aspect-[16/10]"
+          />
+          <FeatureShot
+            className="md:col-span-2"
+            image={dashboardImg}
+            label="Your dashboard"
+            caption="A calm hub for what's next — reports, goals, and meeting prep."
+            aspect="aspect-[16/10]"
+          />
+        </div>
+
+        {/* Symmetric trio — the three core layers */}
+        <div className="grid gap-5 md:grid-cols-3">
+          <FeatureShot
+            image={layerOrganizeImg}
+            label="Organize"
+            caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
+          />
+          <FeatureShot
+            image={layerGenerateImg}
+            label="Generate"
+            caption="Specialist-built formulas turn the full picture into a personalized Pathway."
+          />
+          <FeatureShot
+            image={layerConnectImg}
+            label="Connect"
+            caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
+          />
+        </div>
+
+        {/* Secondary trio — supporting elements */}
+        <div className="mt-5 grid gap-5 md:grid-cols-3">
+          <FeatureShot
+            image={iepUploadImg}
+            label="IEP upload & summary"
+            caption="Drop in the document — we read it and surface what matters in plain language."
+          />
+          <FeatureShot
+            image={resourcesImg}
+            label="Resource library"
+            caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
+          />
+          <FeatureShot
+            image={frameworkImg}
+            label="PPT meeting prep"
+            caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
+          />
+        </div>
+      </section>
+
+      <section className="bg-muted/40 py-24">
+
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-16 max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              What's inside
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              A Clearer Way to Plan What Comes Next.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              Expert-built Pathway recommendations, student-centered goal tracking, and
+              real-world opportunity matching — moving every team from paperwork
+              to progress.
+            </p>
+          </div>
+
+          <div className="space-y-24">
+            <Zigzag
+              eyebrow="The Signature Output"
+              title="The Pathway Report"
+              body="Share your student's strengths, interests, and goals. TransitionForward delivers a personalized Pathway Report — the career direction, life-skills focus, family questions for the next PPT, and a 30-day plan you can actually act on. Every Pathway is built from specialist-designed formulas, Connecticut transition data, and the lived experience of special educators."
+              image={pathwayImg}
+              alt="A sample Pathway Report screen showing strengths, a recommended career pathway, a readiness scorecard, and a 30-day plan"
+              align="left"
+            />
+            <Zigzag
+              eyebrow="Student voice profile"
+              title="A space that's just theirs."
+              body="What they're good at, what they enjoy, what kind of life they want next — in their own words. Their voice anchors every plan and every meeting."
+              image={studentImg}
+              alt="A sample Student Hub screen with the greeting Hi Jordan, About me quotes, goals checklist, and matching careers"
+              align="right"
+            />
+            <Zigzag
+              eyebrow="Family portal"
+              title="Plain-language translation."
+              body="Transition goals explained — what they mean, why they matter, what to ask next. Track progress, find the right resources, and walk into PPT meetings prepared."
+              image={familyImg}
+              alt="A parent and teenager looking at a laptop together"
+              align="left"
+            />
+            <Zigzag
+              eyebrow="For educators"
+              title="Less paperwork. More presence."
+              body="Goal tracking, PPT meeting prep, and a Connecticut-aware Resource & Opportunity Match — community colleges, technical schools, BRS, internships — all matched to interest, location, and grade."
+              image={educatorImg}
+              alt="A teacher working calmly at a classroom desk"
+              align="right"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* PATHWAYS — image tile grid of real next-step destinations */}
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
+          <BookDoodle className="h-full w-full" />
+        </Parallax>
+        <Confetti className="absolute right-2 top-4 hidden h-24 w-32 md:block" />
+        <Starburst className="absolute right-8 bottom-8 hidden h-16 w-16 text-secondary-foreground/35 lg:block" />
+        <FloatingShape className="absolute left-1/3 top-2 hidden h-7 w-7 text-primary/60 md:block" delay={0.5}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Real-life pathways
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              Many Roads Forward. One Plan That Fits.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              College, technical training, supported employment, daily life skills,
+              and the steady progress in between — TransitionForward helps every
+              student picture what's next and the small steps to get there.
+            </p>
+          </div>
+        </div>
+        <div className="grid auto-rows-[14rem] grid-cols-2 gap-4 sm:auto-rows-[16rem] md:auto-rows-[18rem] md:grid-cols-12 md:gap-5">
+          <PathwayTile
+            className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
+            image={pathCollege}
+            sticker={stickerCollege}
+            label="College"
+            caption="Two- and four-year programs, with the right supports in place."
+            size="lg"
+            pathwayId="college"
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-6"
+            image={pathTechnical}
+            sticker={stickerTechnical}
+            label="Technical Education"
+            caption="Hands-on trades, certificates, and apprenticeships."
+            pathwayId="technical-education"
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-2"
+            image={pathCareer}
+            sticker={stickerCareer}
+            label="Career & Employment"
+            caption="Job training, internships, BRS."
+            compact
+            pathwayId="career"
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathLifeskills}
+            sticker={stickerLifeskills}
+            label="Life Skills"
+            caption="Cooking, transit, money, daily independence."
+            compact
+            pathwayId="life-skills"
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathProgress}
+            sticker={stickerProgress}
+            label="Progress Tracked"
+            caption="Small wins, gently celebrated."
+            compact
+            pathwayId="progress"
+          />
+        </div>
+      </section>
+
+      {/* CT SEDS COMPANION + IMPACT + TRUST */}
+      <section className="bg-muted/40 py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-border/60 bg-card p-8 text-center shadow-soft sm:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              A companion to CT SEDS — not a replacement
+            </p>
+            <p className="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
+              TransitionForward helps families and educators make sense of transition
+              planning, organize important information, and turn goals into clear
+              action steps.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Your official IEP and PPT determinations still live where they belong.
+              We sit alongside — translating, organizing, and connecting plans to the
+              real opportunities waiting in Connecticut.
+            </p>
+          </div>
+
+          <div className="mt-16">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                What we're trying to change
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                The Outcomes We Measure Ourselves Against.
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ImpactCard icon={MessagesSquare} title="Clearer family understanding" body="Plain-language translation of every goal, term, and meeting note." />
+              <ImpactCard icon={Sparkles} title="Stronger student self-advocacy" body="A space where students name their own strengths, interests, and hopes." />
+              <ImpactCard icon={ClipboardCheck} title="Better goal tracking" body="Goals connected to evidence, progress, and the next small step." />
+              <ImpactCard icon={Users} title="Tighter school + home collaboration" body="Shared notes, tasks, and a single source of truth between meetings." />
+              <ImpactCard icon={Compass} title="Easier meeting preparation" body="Questions, talking points, and printable checklists, ready before PPT." />
+              <ImpactCard icon={Briefcase} title="Real postsecondary connections" body="Curated CT colleges, training, BRS, employers — matched to the student." />
+            </div>
+          </div>
+
+
+
+        </div>
+      </section>
+
+
+
+      {/* AUDIENCE — three tall image cards with text overlay */}
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
+        <ArcStack className="absolute -left-10 -bottom-4 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
+        <Parallax speed={0.25} className="absolute right-6 top-4 hidden h-14 w-20 text-primary/55 md:block">
+          <ArrowDoodle className="h-full w-full rotate-180" />
+        </Parallax>
+
+        <div className="mb-12 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            Who it helps
+          </p>
+          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+            Built for Everyone at the Table.
+          </h2>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          <AudiencePhoto
+            image={studentPhotoImg}
+            alt="A high school student writing in a notebook at a sunlit desk"
+            title="Students"
+            body="Understand your own plan, explore careers that match who you are, and walk into your PPT meeting knowing what to say."
+            cta={{ to: "/platform", label: "Explore the platform" }}
+          />
+          <AudiencePhoto
+            image={familyImg}
+            alt="A parent and teen at a kitchen table"
+            title="Families"
+            body="Finally see what's happening — in plain language. Track progress and find the resources your child actually needs."
+            cta={{ to: "/families", label: "For families" }}
+          />
+          <AudiencePhoto
+            image={educatorImg}
+            alt="A teacher working at a classroom desk"
+            title="Educators"
+            body="Less time wrestling with paperwork, more time supporting students. Goal tracking, meeting prep, and family-friendly communication."
+            cta={{ to: "/educators", label: "For educators" }}
+          />
+        </div>
+      </section>
+
+      {/* CTA — full-bleed road image */}
+      <section className="relative isolate overflow-hidden">
+        <ParallaxImage
+          src={roadImg}
+          alt="A winding road through fields at sunset"
+          width={1920}
+          height={1080}
+          speed={0.5}
+          className="absolute inset-0 -z-10 h-full w-full"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
+        <FloatingShape className="pointer-events-none absolute right-10 top-10 z-0 hidden h-20 w-20 text-background/70 md:block" delay={0.4} duration={18}>
+          <PaperPlane className="h-full w-full" />
+        </FloatingShape>
+        <FloatingShape className="pointer-events-none absolute right-1/4 bottom-12 z-0 hidden h-8 w-8 text-background/70 md:block" delay={1.2} duration={14}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
+        <Starburst className="pointer-events-none absolute right-6 bottom-8 hidden h-24 w-24 text-background/30 lg:block" />
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-32">
+
+          <div className="max-w-2xl text-background">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">
+              Be part of the first cohort
+            </p>
+            <h2 className="mt-4 font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              Help Students Move Forward with a Plan That Actually Makes Sense.
+            </h2>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-background/85">
+              We're opening a small Connecticut pilot for families and educators
+              who want to help shape what transition planning should feel like.
+              Join the waitlist and we'll reach out personally.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                to="/waitlist"
+                className="inline-flex items-center justify-center rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-foreground shadow-lift transition-all hover:-translate-y-0.5"
+              >
+                Join the waitlist
+              </Link>
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center rounded-full border border-background/30 px-7 py-3.5 text-sm font-semibold text-background hover:bg-background/10"
+              >
+                Sign in
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PRIVACY & TRUST — animated graphic + pillars (page footer band) */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-2xl bg-transparent text-foreground">
+          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
+            <div className="relative isolate flex shrink-0 items-center justify-center self-center">
+              <div className="relative h-32 w-32 sm:h-36 sm:w-36">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="trust-twinkle absolute h-[2px] w-[2px] rounded-full bg-primary/60"
+                    style={{
+                      left: `${(i * 37) % 100}%`,
+                      top: `${(i * 53) % 100}%`,
+                      animationDelay: `${(i % 5) * 0.3}s`,
+                    }}
+                  />
+                ))}
+                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/40 trust-pulse-ring" />
+                <span className="absolute inset-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/40 trust-pulse-ring" style={{ animationDelay: '1.4s' }} />
+                <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full trust-orbit">
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="1.5" />
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="oklch(0.7 0.18 55)" strokeWidth="2" className="trust-dash" />
+                </svg>
+                <div className="absolute inset-0 trust-orbit">
+                  {[Lock, UserCheck, ShieldCheck, Download].map((Ic, i) => {
+                    const angle = (i / 4) * 2 * Math.PI;
+                    const x = 50 + 40 * Math.cos(angle);
+                    const y = 50 + 40 * Math.sin(angle);
+                    return (
+                      <span
+                        key={i}
+                        className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-background text-primary shadow-soft ring-1 ring-border trust-orbit-rev"
+                        style={{ left: `${x}%`, top: `${y}%` }}
+                      >
+                        <Ic className="h-3 w-3" aria-hidden />
+                      </span>
+                    );
+                  })}
+                </div>
+                <div className="absolute inset-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.7_0.18_45)] text-primary-foreground shadow-[0_8px_24px_-8px_oklch(0.75_0.18_55/0.7)] trust-float">
+                  <ShieldCheck className="h-5 w-5" aria-hidden />
+                </div>
+              </div>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary ring-1 ring-primary/20">
+                  <ShieldCheck className="h-3 w-3" aria-hidden /> Privacy &amp; trust
+                </span>
+                <h3 className="font-display text-xl font-medium leading-tight tracking-tight text-foreground sm:text-2xl">
+                  Built Around Student Privacy From Day One.
+                </h3>
+              </div>
+              <ul className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4">
+                <CompactPillar icon={Lock} title="Secure by default" body="Encrypted in transit and at rest." />
+                <CompactPillar icon={UserCheck} title="Role-based access" body="Each role sees only what's theirs." />
+                <CompactPillar icon={ShieldCheck} title="Human-reviewed AI" body="A planning aid, never a determination." />
+                <CompactPillar icon={Download} title="Export and delete" body="Your information, on your terms." />
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
     </SiteShell>
   );
 }
 
-/* ============================================================
- * 1. HERO — cinematic full-bleed photo + masked headline + floating cards
- * ============================================================ */
-function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 180]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+type RoleTone = "peach" | "sky" | "primary" | "muted";
+const toneStyles: Record<RoleTone, string> = {
+  peach: "bg-peach-soft/60",
+  sky: "bg-sky-soft/60",
+  primary: "bg-primary/10",
+  muted: "bg-muted",
+};
 
+function RoleCard({
+  icon: Icon,
+  label,
+  body,
+  cta,
+  to,
+  search,
+  tone,
+}: {
+  icon: typeof HeartHandshake;
+  label: string;
+  body: string;
+  cta: string;
+  to: string;
+  search?: Record<string, string>;
+  tone: RoleTone;
+}) {
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[100svh] min-h-[680px] w-full overflow-hidden">
-      <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
-        <img
-          src={heroImg}
-          alt="A student looking forward at golden hour"
-          className="h-full w-full object-cover object-[65%_center]"
-        />
-      </motion.div>
-      {/* gradient washes */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/85 to-background/10" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-transparent to-transparent" />
-
-      {/* animated grain noise */}
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] mix-blend-overlay" style={{
-        backgroundImage:
-          "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
-      }} />
-
-      <motion.div style={{ opacity }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
-        >
-          Transition planning, reimagined
-        </motion.p>
-
-        <h1 className="mt-5 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl xl:text-8xl">
-          <AnimatedWord text="From IEP goals to" delay={0.15} />
-          <br />
-          <AnimatedWord text="real-life " delay={0.35} />
-          <span className="relative inline-block">
-            <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text text-transparent">
-              pathways.
-            </span>
-            <motion.span
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.1, delay: 0.9, ease: [0.65, 0, 0.35, 1] }}
-              style={{ originX: 0 }}
-              className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-primary via-sky to-peach"
-            />
-          </span>
-        </h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="mt-7 max-w-xl text-lg text-muted-foreground sm:text-xl"
-        >
-          One platform for students, families, and educators to organize transition goals,
-          student voice, resources, and progress — built for what comes next.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.1 }}
-          className="mt-9 flex flex-wrap items-center gap-3"
-        >
-          <Link
-            to="/platform"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift transition-transform hover:scale-[1.02]"
-          >
-            <span className="relative z-10">Explore the platform</span>
-            <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            <span className="absolute inset-0 -z-0 translate-y-full bg-gradient-to-r from-primary to-peach transition-transform duration-500 group-hover:translate-y-0" />
-          </Link>
-          <Link
-            to="/demo"
-            className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/60 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur-md transition-colors hover:bg-background"
-          >
-            Generate a Pathway Report
-          </Link>
-          <Link
-            to="/waitlist"
-            className="inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
-          >
-            Join the waitlist
-          </Link>
-        </motion.div>
-
-        {/* Floating module pills — desktop */}
-        <FloatingPills />
-      </motion.div>
-
-      {/* scroll cue */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6, duration: 0.6 }}
-        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground"
-      >
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-2"
-        >
-          <span>Scroll</span>
-          <span className="h-8 w-px bg-foreground/30" />
-        </motion.div>
-      </motion.div>
-    </section>
+    <Link
+      to={to}
+      search={search as never}
+      aria-label={`${label}: ${cta}`}
+      className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toneStyles[tone]} text-foreground`}>
+        <Icon className="h-5 w-5" aria-hidden />
+      </span>
+      <h3 className="mt-5 font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(label)}</h3>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
+        {cta} <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </span>
+    </Link>
   );
 }
 
-function AnimatedWord({ text, delay = 0 }: { text: string; delay?: number }) {
+function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title: string; body: string }) {
   return (
-    <span className="inline-block overflow-hidden align-baseline">
-      <motion.span
-        initial={{ y: "100%" }}
-        animate={{ y: "0%" }}
-        transition={{ duration: 0.85, delay, ease: [0.65, 0, 0.35, 1] }}
-        className="inline-block"
-      >
-        {text}
-      </motion.span>
-    </span>
-  );
-}
-
-function FloatingPills() {
-  const pills = [
-    { icon: Sparkles, label: "Student Voice", x: "right-[2%]", y: "top-[18%]", d: 0 },
-    { icon: HeartHandshake, label: "Family Input", x: "right-[14%]", y: "top-[40%]", d: 0.4 },
-    { icon: Wand2, label: "AI Pathway Report", x: "right-[4%]", y: "top-[58%]", d: 0.8 },
-    { icon: Target, label: "Goal Tracking", x: "right-[18%]", y: "top-[72%]", d: 1.2 },
-  ];
-  return (
-    <div className="pointer-events-none absolute inset-0 hidden lg:block">
-      {pills.map((p, i) => (
-        <motion.div
-          key={p.label}
-          initial={{ opacity: 0, y: 30, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, delay: 1.2 + i * 0.12, ease: [0.34, 1.4, 0.64, 1] }}
-          className={`absolute ${p.x} ${p.y}`}
-        >
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut", delay: p.d }}
-            className="flex items-center gap-2 rounded-full border border-white/30 bg-white/55 px-4 py-2 text-sm font-medium text-foreground shadow-lift backdrop-blur-xl"
-          >
-            <p.icon className="h-4 w-4 text-primary" />
-            {p.label}
-          </motion.div>
-        </motion.div>
-      ))}
+    <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" aria-hidden />
+      </span>
+      <h3 className="mt-4 font-display text-base font-semibold tracking-tight">{toTitleCase(title)}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
 }
 
-/* ============================================================
- * 2. PROBLEM → CLARITY — scattered paper that organizes itself
- * ============================================================ */
-function ProblemToClarity() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const progress = useSpring(scrollYProgress, { stiffness: 80, damping: 20 });
-
-  const papers = [
-    { rot: -14, x: -260, y: -40, label: "IEP draft" },
-    { rot: 9, x: -120, y: 60, label: "Transition plan" },
-    { rot: -6, x: 40, y: -80, label: "PPT notes" },
-    { rot: 18, x: 180, y: 20, label: "Evaluation" },
-    { rot: -22, x: -40, y: 110, label: "Meeting agenda" },
-    { rot: 4, x: 260, y: -50, label: "Resource list" },
-  ];
-
+function CompactPillar({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: typeof Lock;
+  title: string;
+  body: string;
+}) {
   return (
-    <section ref={ref} className="relative overflow-hidden py-32 sm:py-40">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-xs font-semibold uppercase tracking-[0.28em] text-peach"
-            >
-              The problem
-            </motion.p>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              viewport={{ once: true }}
-              className="mt-4 font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl"
-            >
-              Transition planning shouldn't feel{" "}
-              <span className="italic text-muted-foreground line-through decoration-peach decoration-2">scattered</span>.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              viewport={{ once: true }}
-              className="mt-6 max-w-lg text-lg text-muted-foreground"
-            >
-              Families decode documents. Students search for their voice. Educators juggle goals,
-              meetings, and resources across too many places. We bring it together.
-            </motion.p>
-
-            <ul className="mt-8 space-y-3 text-sm">
-              {[
-                "Paperwork lives in folders, inboxes, and binders",
-                "Student voice gets lost in the planning",
-                "Families don't know what comes next after high school",
-                "Educators repeat the same work for every meeting",
-              ].map((line, i) => (
-                <motion.li
-                  key={line}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * i }}
-                  viewport={{ once: true }}
-                  className="flex items-start gap-3 text-foreground/80"
-                >
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-peach" />
-                  {line}
-                </motion.li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Animated paper scatter */}
-          <div className="relative h-[480px]">
-            <motion.div
-              style={{
-                rotate: useTransform(progress, [0, 1], [-2, 0]),
-              }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              {papers.map((p, i) => {
-                const rot = useTransform(progress, [0, 1], [p.rot, 0]);
-                const x = useTransform(progress, [0, 1], [p.x, 0]);
-                const y = useTransform(progress, [0, 1], [p.y, i * 6 - 12]);
-                const z = useTransform(progress, [0, 1], [1, papers.length - i]);
-                return (
-                  <motion.div
-                    key={p.label}
-                    style={{ rotate: rot, x, y, zIndex: z as unknown as number }}
-                    className="absolute h-56 w-44 origin-center rounded-lg border border-foreground/10 bg-card p-4 shadow-lift"
-                  >
-                    <div className="mb-2 h-2 w-12 rounded-full bg-primary/40" />
-                    <div className="space-y-1.5">
-                      {Array.from({ length: 8 }).map((_, k) => (
-                        <div
-                          key={k}
-                          className="h-1.5 rounded-full bg-foreground/10"
-                          style={{ width: `${60 + ((i * 7 + k * 11) % 35)}%` }}
-                        />
-                      ))}
-                    </div>
-                    <div className="absolute bottom-3 left-4 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {p.label}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-            {/* Glow under the stack when sorted */}
-            <motion.div
-              style={{ opacity: useTransform(progress, [0.6, 1], [0, 0.6]) }}
-              className="pointer-events-none absolute inset-x-10 bottom-6 h-32 rounded-full bg-primary/30 blur-3xl"
-            />
-          </div>
-        </div>
+    <li className="flex items-start gap-2.5">
+      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+        <Icon className="h-3.5 w-3.5" aria-hidden />
+      </span>
+      <div className="min-w-0">
+        <p className="font-display text-[13px] font-medium leading-tight tracking-tight text-foreground">
+          {title}
+        </p>
+        <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{body}</p>
       </div>
-    </section>
+    </li>
   );
 }
 
-/* ============================================================
- * 3. TRANSFORMATION STRIP — horizontal Prezi journey
- * ============================================================ */
-function TransformationStrip() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]);
-
-  const steps = [
-    { icon: FileText, title: "Paperwork", desc: "IEPs, evaluations, transition forms — uploaded or simulated.", tone: "from-sky-soft to-sky/40" },
-    { icon: Sparkles, title: "Student Voice", desc: "Strengths, interests, goals — captured in the student's own words.", tone: "from-peach-soft to-peach/40" },
-    { icon: Wand2, title: "Pathway Report", desc: "AI organizes everything into a clear, family-friendly plan.", tone: "from-primary/20 to-sky/30" },
-    { icon: Library, title: "Resources", desc: "Verified programs, services, and supports matched to the plan.", tone: "from-sky-soft to-primary/20" },
-    { icon: Briefcase, title: "Opportunities", desc: "College, technical training, employment, life-skills programs.", tone: "from-peach-soft to-peach/40" },
-    { icon: Target, title: "Action Plan", desc: "A 30-day next step list everyone can actually follow.", tone: "from-primary/25 to-peach/30" },
-  ];
-
+function TrustPillar({
+  num,
+  icon: Icon,
+  title,
+  body,
+}: {
+  num: string;
+  icon: typeof Lock;
+  title: string;
+  body: string;
+}) {
   return (
-    <section ref={ref} className="relative h-[500vh] bg-gradient-to-b from-background via-sky-soft/30 to-background">
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The transformation</p>
-          <h2 className="mt-3 max-w-3xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            From confusion to a clear next step.
-          </h2>
-        </div>
-        <motion.div style={{ x }} className="flex gap-8 px-[10vw] will-change-transform">
-          {steps.map((s, i) => (
-            <div
-              key={s.title}
-              className="relative flex h-[440px] w-[78vw] shrink-0 flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-card p-10 shadow-lift sm:w-[58vw] lg:w-[44vw]"
-            >
-              <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${s.tone} opacity-70`} />
-              <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/30 blur-3xl" />
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground/60">
-                  Step {String(i + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
-                </span>
-                <s.icon className="h-7 w-7 text-foreground/70" />
-              </div>
-              <div>
-                <h3 className="font-display text-5xl font-medium leading-tight text-foreground sm:text-6xl">
-                  {s.title}
-                </h3>
-                <p className="mt-4 max-w-md text-lg text-foreground/80">{s.desc}</p>
-              </div>
-            </div>
-          ))}
-        </motion.div>
+    <li className="group relative flex flex-col gap-3 border-b border-white/10 p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 sm:[&:nth-child(4)]:border-b-0">
+      <div className="flex items-center justify-between">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-transform group-hover:-translate-y-0.5">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+          {num}
+        </span>
       </div>
-    </section>
+      <p className="font-display text-lg font-medium leading-tight tracking-tight text-white">
+        {title}
+      </p>
+      <p className="text-xs leading-relaxed text-white/65">{body}</p>
+    </li>
   );
 }
 
-/* ============================================================
- * 4. MODULES BENTO GRID
- * ============================================================ */
-const MODULES = [
-  { icon: Wand2, title: "AI Pathway Builder", desc: "Turns IEP goals + student voice into a personalized plan.", span: "lg:col-span-2 lg:row-span-2", tone: "primary" },
-  { icon: Sparkles, title: "Student Hub", desc: "Voice, strengths, goals — owned by the student.", span: "", tone: "peach" },
-  { icon: HeartHandshake, title: "Family Dashboard", desc: "Plain-language view of the whole plan.", span: "", tone: "sky" },
-  { icon: GraduationCap, title: "Educator Dashboard", desc: "Caseload, progress, and meeting prep in one view.", span: "lg:col-span-2", tone: "primary" },
-  { icon: FileText, title: "Pathway Report Portal", desc: "Share a clean report with the team.", span: "", tone: "peach" },
-  { icon: CalendarCheck, title: "Meeting Center", desc: "PPT prep, agendas, and follow-ups.", span: "", tone: "sky" },
-  { icon: TrendingUp, title: "Goal & Progress Tracker", desc: "Visualize movement on every goal.", span: "", tone: "primary" },
-  { icon: Library, title: "Resource & Opportunity Hub", desc: "Verified programs, matched to the plan.", span: "lg:col-span-2", tone: "peach" },
-  { icon: ClipboardCheck, title: "Transition Forms Library", desc: "Editable, sharable, district-ready.", span: "", tone: "sky" },
-  { icon: MessagesSquare, title: "Communication Center", desc: "One thread for every team member.", span: "", tone: "primary" },
-];
 
-function ModulesBento() {
+function Zigzag({
+  eyebrow,
+  title,
+  body,
+  image,
+  alt,
+  align,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  image: string;
+  alt: string;
+  align: "left" | "right";
+}) {
+  const imageFirst = align === "left";
   return (
-    <section className="relative overflow-hidden py-32 sm:py-40">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The platform</p>
-            <h2 className="mt-3 max-w-2xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Ten modules. One coherent plan.
-            </h2>
-          </div>
-          <Link to="/platform" className="group inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
-            Tour every module <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
-
-        <div className="mt-14 grid auto-rows-[180px] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {MODULES.map((m, i) => (
-            <BentoCard key={m.title} mod={m} index={i} />
-          ))}
+    <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+      <div
+        className={`lg:col-span-7 ${
+          imageFirst ? "lg:order-1" : "lg:order-2"
+        }`}
+      >
+        <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
+          <img
+            src={image}
+            alt={alt}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+          />
         </div>
       </div>
-    </section>
+      <div
+        className={`lg:col-span-5 ${
+          imageFirst ? "lg:order-2" : "lg:order-1"
+        }`}
+      >
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          {eyebrow}
+        </p>
+        <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+          {toTitleCase(title)}
+        </h3>
+        <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+          {body}
+        </p>
+      </div>
+    </div>
   );
 }
 
-function BentoCard({ mod, index }: { mod: (typeof MODULES)[number]; index: number }) {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const bg = useMotionTemplate`radial-gradient(400px circle at ${mx}px ${my}px, var(--color-primary), transparent 60%)`;
-  const toneBg =
-    mod.tone === "primary" ? "from-primary/12 to-sky-soft/30"
-    : mod.tone === "peach" ? "from-peach-soft to-peach/25"
-    : "from-sky-soft to-sky/25";
-
+function AudiencePhoto({
+  image,
+  alt,
+  title,
+  body,
+  cta,
+}: {
+  image: string;
+  alt: string;
+  title: string;
+  body: string;
+  cta: { to: string; label: string };
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, delay: (index % 5) * 0.05 }}
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        mx.set(e.clientX - r.left);
-        my.set(e.clientY - r.top);
-      }}
-      className={`group relative overflow-hidden rounded-3xl border border-foreground/10 bg-card p-6 shadow-soft transition-all hover:shadow-lift hover:-translate-y-1 ${mod.span}`}
+    <Link
+      to={cta.to}
+      className="group relative block aspect-[3/4] overflow-hidden rounded-[2rem] shadow-soft transition-all hover:shadow-lift"
     >
-      <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${toneBg} opacity-60`} />
-      <motion.div style={{ background: bg }} className="absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-15" />
-      <div className="flex h-full flex-col justify-between">
-        <mod.icon className="h-7 w-7 text-foreground/70 transition-transform group-hover:scale-110 group-hover:text-primary" />
-        <div>
-          <h3 className="font-display text-2xl font-medium leading-tight text-foreground">
-            {mod.title}
-          </h3>
-          <p className="mt-2 text-sm text-foreground/70">{mod.desc}</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ============================================================
- * 5. ROLE SWITCHER
- * ============================================================ */
-const ROLES = [
-  {
-    key: "student",
-    label: "Students",
-    icon: Sparkles,
-    img: studentPhotoImg,
-    headline: "Your voice. Your plan. Your next step.",
-    body: "Capture strengths and interests, set goals in your own words, and see your pathway take shape.",
-    bullets: ["Student voice activities", "Self-advocacy prompts", "Pathway preview"],
-  },
-  {
-    key: "family",
-    label: "Families",
-    icon: HeartHandshake,
-    img: roleFamilyImg,
-    headline: "Plain-language clarity, without the binders.",
-    body: "Understand the IEP, see what's next, share priorities, and prep for meetings — together.",
-    bullets: ["Pathway Report in family-friendly language", "Priority and concern capture", "Meeting prep guide"],
-  },
-  {
-    key: "educator",
-    label: "Educators",
-    icon: GraduationCap,
-    img: roleEducatorImg,
-    headline: "A calmer caseload. A clearer meeting.",
-    body: "Auto-prep PPTs, surface goal progress, and connect students to verified opportunities.",
-    bullets: ["Caseload dashboard", "Meeting & PPT prep", "Goal progress tracking"],
-  },
-  {
-    key: "partner",
-    label: "Partners",
-    icon: Building2,
-    img: dashboardImg,
-    headline: "Be discoverable to the students who need you.",
-    body: "Universities, technical programs, and employers reach students through the resource network.",
-    bullets: ["Verified resource listing", "Direct family reach", "Opportunity matching"],
-  },
-] as const;
-
-function RoleSwitcher() {
-  const [active, setActive] = useState<typeof ROLES[number]["key"]>("student");
-  const role = ROLES.find((r) => r.key === active)!;
-
-  return (
-    <section className="relative overflow-hidden bg-foreground py-32 text-background sm:py-40">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_0%,oklch(0.55_0.13_230/0.4),transparent_60%),radial-gradient(circle_at_85%_100%,oklch(0.82_0.07_25/0.35),transparent_60%)]" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-background/60">Every role, supported</p>
-        <h2 className="mt-3 max-w-3xl font-display text-4xl font-medium tracking-tight text-background sm:text-5xl lg:text-6xl">
-          One platform. Four points of view.
-        </h2>
-
-        <div className="mt-10 flex flex-wrap gap-2">
-          {ROLES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setActive(r.key)}
-              className={`group relative inline-flex items-center gap-2 overflow-hidden rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors ${
-                active === r.key
-                  ? "border-background bg-background text-foreground"
-                  : "border-background/25 text-background/80 hover:border-background/60 hover:text-background"
-              }`}
-            >
-              <r.icon className="h-4 w-4" />
-              {r.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-12 grid items-center gap-12 lg:grid-cols-5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={role.key + "-text"}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -24 }}
-              transition={{ duration: 0.45, ease: [0.65, 0, 0.35, 1] }}
-              className="lg:col-span-2"
-            >
-              <h3 className="font-display text-3xl font-medium leading-tight text-background sm:text-4xl lg:text-5xl">
-                {role.headline}
-              </h3>
-              <p className="mt-5 text-lg text-background/75">{role.body}</p>
-              <ul className="mt-7 space-y-3">
-                {role.bullets.map((b) => (
-                  <li key={b} className="flex items-center gap-3 text-sm text-background/85">
-                    <span className="h-1.5 w-1.5 rounded-full bg-peach" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </AnimatePresence>
-
-          <div className="relative lg:col-span-3">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={role.key + "-img"}
-                initial={{ opacity: 0, scale: 0.96, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.02, y: -20 }}
-                transition={{ duration: 0.55, ease: [0.65, 0, 0.35, 1] }}
-                className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-background/10 shadow-lift"
-              >
-                <img src={role.img} alt={role.label} className="h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-foreground/40 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-full bg-background/85 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur">
-                  <role.icon className="h-3.5 w-3.5 text-primary" />
-                  {role.label}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
- * 6. PATHWAY REPORT REVEAL — sticky mockup with sections
- * ============================================================ */
-function PathwayReportReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-
-  const sections = [
-    { title: "Student Snapshot", desc: "Who they are, in their own words." },
-    { title: "Strengths & Interests", desc: "What lights them up, what they're good at." },
-    { title: "Recommended Pathways", desc: "College, technical, career, life-skills — matched." },
-    { title: "Life-Skills Focus", desc: "The few things that move the needle most." },
-    { title: "PPT Questions", desc: "Bring the right questions to the meeting." },
-    { title: "30-Day Action Plan", desc: "What to do this month — concretely." },
-  ];
-
-  return (
-    <section ref={ref} className="relative bg-sky-soft/40" style={{ height: `${sections.length * 80}vh` }}>
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The Pathway Report</p>
-            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              The plan, written like a human would write it.
-            </h2>
-            <p className="mt-5 max-w-md text-lg text-muted-foreground">
-              Every report has the same calm structure — so families, students, and educators
-              can land on the same page in minutes.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/demo" className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background hover:scale-[1.02]">
-                Preview a sample report <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link to="/pathways/sample" className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/60 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur hover:bg-background">
-                Build a pathway
-              </Link>
-            </div>
-          </div>
-
-          {/* Mock report */}
-          <div className="relative">
-            <div className="relative mx-auto aspect-[3/4] w-full max-w-md overflow-hidden rounded-3xl border border-foreground/10 bg-card shadow-lift">
-              <div className="flex items-center justify-between border-b border-foreground/10 bg-background/80 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                <span>Pathway Report · Maya R.</span>
-                <span className="text-primary">Draft</span>
-              </div>
-              <div className="space-y-5 p-6">
-                {sections.map((s, i) => {
-                  const start = i / sections.length;
-                  const end = (i + 1) / sections.length;
-                  const opacity = useTransform(scrollYProgress, [start, start + 0.05, end - 0.05, end], [0.25, 1, 1, 0.25]);
-                  const x = useTransform(scrollYProgress, [start, start + 0.08], [20, 0]);
-                  return (
-                    <motion.div key={s.title} style={{ opacity, x }} className="border-l-2 border-primary/40 pl-4">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
-                        Section {i + 1}
-                      </div>
-                      <div className="font-display text-xl font-medium text-foreground">{s.title}</div>
-                      <div className="mt-1 text-xs text-muted-foreground">{s.desc}</div>
-                      <div className="mt-2 space-y-1">
-                        {Array.from({ length: 3 }).map((_, k) => (
-                          <div key={k} className="h-1.5 rounded-full bg-foreground/10" style={{ width: `${70 + ((i * 5 + k * 9) % 25)}%` }} />
-                        ))}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-            {/* Floating chip */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -right-4 top-10 hidden rounded-2xl border border-foreground/10 bg-card px-4 py-3 text-xs shadow-lift sm:block"
-            >
-              <div className="flex items-center gap-2 font-semibold text-foreground">
-                <Wand2 className="h-3.5 w-3.5 text-primary" /> AI-assisted
-              </div>
-              <div className="mt-1 text-muted-foreground">Human-reviewable, editable.</div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
- * 7. PARTNER NETWORK — animated node map
- * ============================================================ */
-function PartnerNetwork() {
-  const nodes = [
-    { x: 50, y: 50, label: "Student", primary: true, icon: Sparkles },
-    { x: 20, y: 20, label: "Family", icon: HeartHandshake },
-    { x: 82, y: 22, label: "Educator", icon: GraduationCap },
-    { x: 12, y: 75, label: "Universities", icon: Building2 },
-    { x: 88, y: 78, label: "Employers", icon: Briefcase },
-    { x: 50, y: 90, label: "Technical schools", icon: Compass },
-    { x: 50, y: 12, label: "Community", icon: Users },
-  ];
-  const links = nodes.slice(1).map((n) => ({ from: nodes[0], to: n }));
-
-  return (
-    <section className="relative overflow-hidden py-32 sm:py-40">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The network</p>
-          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            No student moves forward alone.
-          </h2>
-          <p className="mt-5 text-lg text-muted-foreground">
-            TransitionForward connects students, families, educators, universities, technical
-            programs, employers, and community partners — into one network of support.
-          </p>
-        </div>
-
-        <div className="relative mt-16 aspect-[16/10] w-full overflow-hidden rounded-3xl border border-foreground/10 bg-gradient-to-br from-sky-soft/60 via-background to-peach-soft/40">
-          {/* SVG links */}
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
-            {links.map((l, i) => (
-              <motion.line
-                key={i}
-                x1={l.from.x}
-                y1={l.from.y}
-                x2={l.to.x}
-                y2={l.to.y}
-                stroke="currentColor"
-                strokeWidth="0.18"
-                strokeDasharray="0.6 0.9"
-                className="text-primary/60"
-                initial={{ pathLength: 0, opacity: 0 }}
-                whileInView={{ pathLength: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.2, delay: 0.15 * i, ease: "easeInOut" }}
-              />
-            ))}
-          </svg>
-
-          {/* Nodes */}
-          {nodes.map((n, i) => (
-            <motion.div
-              key={n.label}
-              initial={{ opacity: 0, scale: 0.6 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 + i * 0.08, ease: [0.34, 1.4, 0.64, 1] }}
-              style={{ left: `${n.x}%`, top: `${n.y}%` }}
-              className="absolute -translate-x-1/2 -translate-y-1/2"
-            >
-              <motion.div
-                animate={n.primary ? { scale: [1, 1.06, 1] } : undefined}
-                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium shadow-lift backdrop-blur-md ${
-                  n.primary
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-foreground/10 bg-card/90 text-foreground"
-                }`}
-              >
-                <n.icon className="h-4 w-4" />
-                {n.label}
-              </motion.div>
-              {n.primary && (
-                <span className="trust-pulse-ring absolute inset-0 -z-10 rounded-full bg-primary/30" />
-              )}
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
- * 8. FINAL CTA
- * ============================================================ */
-function FinalCTA() {
-  return (
-    <section className="relative isolate overflow-hidden py-32 sm:py-44">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary via-sky to-peach" />
-      <motion.div
-        animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 -z-10 opacity-40 mix-blend-overlay"
-        style={{
-          backgroundImage: "radial-gradient(circle at 20% 30%, white 0%, transparent 50%), radial-gradient(circle at 80% 70%, white 0%, transparent 50%)",
-          backgroundSize: "200% 200%",
-        }}
+      <img
+        src={image}
+        alt={alt}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
-      <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="font-display text-4xl font-medium leading-[1.05] tracking-tight text-primary-foreground sm:text-5xl lg:text-7xl"
-        >
-          A clearer path. A stronger voice.
-          <br />
-          <span className="italic">A future that feels possible.</span>
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/90"
-        >
-          One platform. One plan. Forward together.
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.25 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3"
-        >
-          <Link
-            to="/demo"
-            className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift hover:scale-[1.02]"
-          >
-            Start building a pathway <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            to="/waitlist"
-            className="inline-flex items-center gap-2 rounded-full border-2 border-background/80 bg-background/10 px-7 py-3.5 text-sm font-semibold text-background backdrop-blur hover:bg-background/20"
-          >
-            Join the waitlist
-          </Link>
-        </motion.div>
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-primary-foreground/80">
-          <span className="flex items-center gap-2"><Lock className="h-3.5 w-3.5" /> Family-controlled privacy</span>
-          <span className="flex items-center gap-2"><BookOpen className="h-3.5 w-3.5" /> Built with educators</span>
-          <span className="flex items-center gap-2"><Network className="h-3.5 w-3.5" /> Verified partner network</span>
-        </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-7 text-background">
+        <h3 className="font-display text-3xl font-medium tracking-tight">
+          {toTitleCase(title)}
+        </h3>
+        <p className="mt-3 text-sm leading-relaxed text-background/85">
+          {body}
+        </p>
+        <span className="mt-5 inline-flex items-center text-sm font-semibold text-background">
+          {cta.label} <span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
+        </span>
       </div>
-    </section>
+    </Link>
   );
 }
+
+function PathwayTile({
+  image,
+  sticker,
+  label,
+  caption,
+  className = "",
+  size = "md",
+  compact = false,
+  pathwayId,
+}: {
+  image: string;
+  sticker?: string;
+  label: string;
+  caption: string;
+  className?: string;
+  size?: "md" | "lg";
+  compact?: boolean;
+  pathwayId: string;
+}) {
+  return (
+    <Link
+      to="/pathways/$pathwayId"
+      params={{ pathwayId }}
+      aria-label={`Open the ${label} guided pathway`}
+      className={`group relative block overflow-hidden rounded-3xl shadow-soft transition-all duration-300 hover:-translate-y-1 hover:rotate-[-0.4deg] hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
+    >
+      <img
+        src={image}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+      {sticker && (
+        <img
+          src={sticker}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className={`pointer-events-none absolute drop-shadow-xl wiggle-hover ${
+            compact
+              ? "right-2 top-2 h-14 w-14 -rotate-6"
+              : size === "lg"
+                ? "right-5 top-5 h-28 w-28 -rotate-6 sm:h-32 sm:w-32"
+                : "right-3 top-3 h-20 w-20 -rotate-6"
+          }`}
+          style={{ ["--rot" as string]: "-6deg" }}
+        />
+      )}
+      <div
+        className={`absolute inset-x-0 bottom-0 text-background ${
+          compact ? "p-4 sm:p-5" : size === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6"
+        }`}
+      >
+        <h3
+          className={`font-display font-medium tracking-tight ${
+            size === "lg"
+              ? "text-2xl sm:text-3xl md:text-4xl"
+              : compact
+                ? "text-base sm:text-lg"
+                : "text-xl sm:text-2xl"
+          }`}
+        >
+          {toTitleCase(label)}
+        </h3>
+        {!compact && (
+          <p
+            className={`mt-1.5 leading-relaxed text-background/85 ${
+              size === "lg" ? "text-sm sm:text-base max-w-md" : "text-xs sm:text-sm"
+            }`}
+          >
+            {caption}
+          </p>
+        )}
+        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.18em] text-background/90 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100">
+          Open guided flow <span className="transition-transform group-hover:translate-x-1">→</span>
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function FeatureShot({
+  image,
+  label,
+  caption,
+  className = "",
+  aspect = "aspect-[4/3]",
+}: {
+  image: string;
+  label: string;
+  caption: string;
+  className?: string;
+  aspect?: string;
+}) {
+  return (
+    <figure
+      className={`group relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${className}`}
+    >
+      <div className={`relative ${aspect} overflow-hidden`}>
+        <img
+          src={image}
+          alt={label}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
+        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
+          {label}
+        </span>
+      </div>
+      <figcaption className="p-5">
+        <p className="text-sm leading-relaxed text-muted-foreground">{caption}</p>
+      </figcaption>
+    </figure>
+  );
+}
+
