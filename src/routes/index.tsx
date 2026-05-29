@@ -1153,24 +1153,163 @@ function FeatureShot({
 }) {
   return (
     <figure
-      className={`group relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${className}`}
+      className={`group relative ${aspect} overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-lift ${className}`}
     >
-      <div className={`relative ${aspect} overflow-hidden`}>
-        <img
-          src={image}
-          alt={label}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
-        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
-          {label}
-        </span>
-      </div>
-      <figcaption className="p-5">
-        <p className="text-sm leading-relaxed text-muted-foreground">{caption}</p>
+      <img
+        src={image}
+        alt={label}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
+      {/* Default scrim — always present, deepens on hover */}
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/15 to-transparent transition-opacity duration-500 group-hover:opacity-95" />
+      {/* Label chip */}
+      <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur transition-transform duration-500 group-hover:-translate-y-0.5">
+        {label}
+      </span>
+      {/* Title bar — visible by default */}
+      <figcaption className="absolute inset-x-0 bottom-0 p-5 text-background">
+        <p className="font-display text-base font-medium leading-snug tracking-tight transition-transform duration-500 group-hover:-translate-y-2 sm:text-lg">
+          {toTitleCase(label)}
+        </p>
+        {/* Hover-revealed caption */}
+        <p className="mt-2 max-w-md translate-y-3 text-xs leading-relaxed text-background/85 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 sm:text-sm">
+          {caption}
+        </p>
       </figcaption>
     </figure>
   );
 }
+
+/* Hero helper — words fade in one by one */
+function MaskedWords({ text, delay = 0 }: { text: string; delay?: number }) {
+  const words = text.split(" ");
+  return (
+    <span className="inline">
+      {words.map((w, i) => (
+        <span key={i} className="inline-block overflow-hidden align-baseline pr-[0.25em]">
+          <motion.span
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{
+              duration: 0.7,
+              delay: delay + i * 0.08,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="inline-block"
+          >
+            {w}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/* Hero helper — a stacked, gently-floating mockup composition */
+function FloatingDashboardStack() {
+  return (
+    <div className="relative mx-auto h-[460px] w-full max-w-md">
+      {/* Back card — Pathway report */}
+      <motion.div
+        initial={{ opacity: 0, y: 30, rotate: -4 }}
+        animate={{ opacity: 1, y: 0, rotate: -4 }}
+        transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute left-0 top-6 w-[78%] rounded-3xl border border-border/70 bg-card p-5 shadow-lift float-y-slow"
+      >
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <Compass className="h-3 w-3" /> Pathway
+          </span>
+          <span className="text-[10px] font-medium text-muted-foreground">v1.0</span>
+        </div>
+        <p className="mt-3 font-display text-base font-medium tracking-tight">
+          Maya · 11th grade
+        </p>
+        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+          Career direction · Life skills · 30-day plan
+        </p>
+        <div className="mt-4 space-y-1.5">
+          {[80, 55, 35].map((w, i) => (
+            <div key={i} className="h-2 rounded-full bg-muted">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${w}%` }}
+                transition={{ duration: 1.2, delay: 0.9 + i * 0.15, ease: "easeOut" }}
+                className="h-full rounded-full bg-gradient-to-r from-primary to-[oklch(0.7_0.18_45)]"
+              />
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Mid card — Goal */}
+      <motion.div
+        initial={{ opacity: 0, y: 30, rotate: 3 }}
+        animate={{ opacity: 1, y: 0, rotate: 3 }}
+        transition={{ duration: 0.9, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute right-0 top-32 w-[68%] rounded-2xl border border-border/70 bg-background p-4 shadow-lift float-y-slow"
+        style={{ animationDelay: "1.2s" }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[oklch(0.95_0.05_55)] text-primary">
+            <ClipboardCheck className="h-3.5 w-3.5" />
+          </span>
+          <p className="text-xs font-semibold text-foreground">Goal · Self-advocacy</p>
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+          "I will lead 5 minutes of my next PPT meeting."
+        </p>
+        <div className="mt-3 flex items-center gap-1.5">
+          <span className="h-1.5 flex-1 rounded-full bg-primary" />
+          <span className="h-1.5 flex-1 rounded-full bg-primary" />
+          <span className="h-1.5 flex-1 rounded-full bg-primary/30" />
+          <span className="h-1.5 flex-1 rounded-full bg-muted" />
+        </div>
+      </motion.div>
+
+      {/* Front card — Match */}
+      <motion.div
+        initial={{ opacity: 0, y: 30, rotate: -2 }}
+        animate={{ opacity: 1, y: 0, rotate: -2 }}
+        transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute bottom-4 left-6 w-[72%] rounded-2xl border border-border/70 bg-background p-4 shadow-lift float-y-slow"
+        style={{ animationDelay: "0.6s" }}
+      >
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+            Local match
+          </p>
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+        </div>
+        <p className="mt-2 font-display text-sm font-medium leading-snug tracking-tight">
+          Manchester CC · Culinary certificate
+        </p>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          12 mi from home · Disability services on campus
+        </p>
+      </motion.div>
+
+      {/* Tiny floating chips */}
+      <motion.span
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1, duration: 0.5 }}
+        className="float-y-slow absolute -right-2 top-2 inline-flex items-center gap-1 rounded-full border border-border/70 bg-background px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-soft"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Auto-saved
+      </motion.span>
+      <motion.span
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
+        className="float-y-slow absolute -left-3 top-40 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold text-primary-foreground shadow-lift"
+        style={{ animationDelay: "1.5s" }}
+      >
+        <Sparkles className="h-3 w-3" /> Plain language
+      </motion.span>
+    </div>
+  );
+}
+
 
