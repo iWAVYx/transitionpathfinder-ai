@@ -37,6 +37,7 @@ import {
 
 const SearchSchema = z.object({
   welcome: z.coerce.number().optional(),
+  print: z.coerce.number().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
@@ -87,6 +88,13 @@ function ReportDetailPage() {
       .then((r) => setStudents(r.students))
       .catch(() => setStudents([]));
   }, [fetchReport, listTokens, fetchStudents, reportId]);
+
+  useEffect(() => {
+    if (state.kind === "ok" && search.print) {
+      const t = setTimeout(() => window.print(), 600);
+      return () => clearTimeout(t);
+    }
+  }, [state.kind, search.print]);
 
   async function handleLink(studentId: string | null) {
     setLinking(true);

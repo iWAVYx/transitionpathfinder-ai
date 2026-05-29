@@ -35,7 +35,7 @@ import {
   type DashboardSnapshot,
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
-import { listStudents } from "@/lib/students.functions";
+import { listStudents, createShareToken } from "@/lib/students.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -56,6 +56,31 @@ function DashboardPage() {
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
   const consent = useServerFn(recordConsent);
+  const shareReport = useServerFn(createShareToken);
+  const [sharing, setSharing] = useState(false);
+
+  const handleDownloadPdf = useCallback((reportId: string) => {
+    window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
+  }, []);
+
+  const handleCopyShare = useCallback(
+    async (reportId: string, audience: "family" | "educator") => {
+      setSharing(true);
+      try {
+        const row = await shareReport({
+          data: { report_id: reportId, audience, expires_in_days: 30 },
+        });
+        const url = `${window.location.origin}/share/${row.token}`;
+        await navigator.clipboard.writeText(url);
+        toast.success(`${audience === "family" ? "Family" : "Educator"} share link copied — expires in 30 days.`);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not create share link.");
+      } finally {
+        setSharing(false);
+      }
+    },
+    [shareReport],
+  );
 
   const [students, setStudents] = useState<StudentLite[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -328,18 +353,25 @@ function DashboardPage() {
                       <FileText className="h-4 w-4" /> Open
                     </Link>
                     <button
-                      onClick={() => window.print()}
+                      onClick={() => handleDownloadPdf(snap.latestReport!.id)}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
                     >
                       <Download className="h-4 w-4" /> Download PDF
                     </button>
-                    <Link
-                      to="/reports/$reportId"
-                      params={{ reportId: snap.latestReport.id }}
-                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
+                    <button
+                      disabled={sharing}
+                      onClick={() => handleCopyShare(snap.latestReport!.id, "family")}
+                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
                     >
-                      <Share2 className="h-4 w-4" /> Share with team
-                    </Link>
+                      <Share2 className="h-4 w-4" /> Copy family link
+                    </button>
+                    <button
+                      disabled={sharing}
+                      onClick={() => handleCopyShare(snap.latestReport!.id, "educator")}
+                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
+                    >
+                      <Share2 className="h-4 w-4" /> Copy educator link
+                    </button>
                   </>
                 )}
               </div>
