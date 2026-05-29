@@ -1,47 +1,12 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { ArrowRight, FileText, Sparkles, Users, Compass, Sun, Star } from "lucide-react";
-import {
-  CursorField,
-  Magnetic,
-  TextMask,
-  FloatingShape,
-  Tilt3D,
-  TiltLayer,
-} from "@/components/effects/ImmersiveEffects";
-import { Reveal, StickyScrollStory, Marquee } from "@/components/effects/ScrollEffects";
-import aboutNarrativeHero from "@/assets/about-narrative-hero.jpg";
-import aboutStudentCenter from "@/assets/about-student-center.jpg";
-import aboutHero from "@/assets/about-hero.jpg";
+import aboutHero from "@/assets/about-cinematic.jpg";
+import aboutStudent from "@/assets/about-student-center.jpg";
 import pathCollege from "@/assets/path-college.jpg";
 import pathCareer from "@/assets/path-career.jpg";
-import pathTechnical from "@/assets/path-technical.jpg";
-import pathLifeskills from "@/assets/path-lifeskills.jpg";
-import { toTitleCase } from "@/lib/title-case";
-
-/* Decorative SVG illustrations — added wherever the page has empty space. */
-function GridBurst({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 200 200" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="0.6">
-      {Array.from({ length: 14 }).map((_, i) => {
-        const a = (i / 14) * Math.PI * 2;
-        return <line key={i} x1="100" y1="100" x2={100 + Math.cos(a) * 96} y2={100 + Math.sin(a) * 96} />;
-      })}
-      <circle cx="100" cy="100" r="38" />
-      <circle cx="100" cy="100" r="62" opacity="0.5" />
-      <circle cx="100" cy="100" r="86" opacity="0.25" />
-    </svg>
-  );
-}
-function CornerArc({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 160 160" aria-hidden className={className} fill="none">
-      <path d="M 0 160 A 160 160 0 0 1 160 0" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-      <path d="M 0 160 A 110 110 0 0 1 110 50" stroke="currentColor" strokeWidth="1" opacity="0.35" />
-      <path d="M 0 160 A 60 60 0 0 1 60 100" stroke="currentColor" strokeWidth="1" opacity="0.2" />
-    </svg>
-  );
-}
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -50,432 +15,300 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "From paperwork to pathways. The story, mission, and values behind TransitionForward — a transition-planning platform built so students, families, and educators can move forward together.",
+          "Why TransitionForward exists — a cinematic, scroll-told story of moving students with disabilities from paperwork to pathways, together.",
       },
-      { property: "og:title", content: "From paperwork to pathways — TransitionForward" },
-      {
-        property: "og:description",
-        content:
-          "Every student deserves a plan that sounds like the student. The story of why TransitionForward exists.",
-      },
-      { property: "og:image", content: aboutNarrativeHero },
-      { property: "twitter:image", content: aboutNarrativeHero },
+      { property: "og:title", content: "Our story — TransitionForward" },
+      { property: "og:image", content: aboutHero },
     ],
   }),
   component: AboutPage,
 });
 
-const scrollScenes = [
-  {
-    title: "The plan only matters if the student can see themselves in it.",
-    body: "TransitionForward begins with who a student is — interests, strengths, questions, voice, and possibilities — and turns that into a plan they can recognize as their own.",
-    image: aboutStudentCenter,
-    alt: "A student silhouette at the center of a glowing constellation of interests, family, teachers, and opportunities",
-  },
-  {
-    title: "From paperwork into purpose.",
-    body: "Goals, student voice, progress, resources, and communication organize themselves around the student — with AI-supported recommendations turning information into action.",
-    image: aboutHero,
-    alt: "Soft editorial illustration of a student stepping into a sunlit pathway",
-  },
-];
-
-const values = [
-  {
-    icon: FileText,
-    title: "Clarity over paperwork",
-    body: "Every form, every acronym, every document — translated into plain language a family can actually use.",
-    accent: "from-peach/35 to-peach-soft/30",
-  },
-  {
-    icon: Sparkles,
-    title: "Student voice, first",
-    body: "A plan should sound like the student. We start with interests and strengths, not deficits.",
-    accent: "from-sky/35 to-sky-soft/30",
-  },
-  {
-    icon: Users,
-    title: "Families informed",
-    body: "Families deserve to walk into every meeting prepared — not catching up.",
-    accent: "from-peach-soft/40 to-sky-soft/30",
-  },
-  {
-    icon: Compass,
-    title: "Real pathways, not just forms",
-    body: "Transition planning should lead somewhere. We connect goals to people, programs, and opportunities.",
-    accent: "from-sky-soft/40 to-peach/30",
-  },
-];
-
-const pathways = [
-  { label: "College", image: pathCollege, copy: "Two-year, four-year, and beyond — mapped to the student's plan." },
-  { label: "Career", image: pathCareer, copy: "Employment goals connected to mentors, internships, and on-the-job learning." },
-  { label: "Technical", image: pathTechnical, copy: "Trade pathways and CTE programs aligned to interests and strengths." },
-  { label: "Life Skills", image: pathLifeskills, copy: "Independent living, community access, and daily routines made visible." },
-];
-
-const networkNodes = [
-  { label: "Student", cx: 50, cy: 50, r: 7, primary: true },
-  { label: "Family", cx: 18, cy: 28 },
-  { label: "Educator", cx: 82, cy: 28 },
-  { label: "University", cx: 12, cy: 68 },
-  { label: "Tech School", cx: 88, cy: 68 },
-  { label: "Employer", cx: 30, cy: 88 },
-  { label: "Community", cx: 70, cy: 88 },
-  { label: "Mentor", cx: 50, cy: 12 },
-];
-
 function AboutPage() {
-  const otherNodes = networkNodes.filter((n) => !n.primary);
-
   return (
     <SiteShell>
-      {/* ====== HERO — EDITORIAL TYPOGRAPHY ====== */}
-      <CursorField className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
-        <FloatingShape className="absolute -left-10 top-24 hidden md:block" duration={22}>
-          <div className="h-56 w-56 rounded-full bg-peach/25 blur-3xl" />
-        </FloatingShape>
-        <FloatingShape className="absolute -right-10 bottom-10 hidden md:block" duration={26} delay={2}>
-          <div className="h-72 w-72 rounded-full bg-sky/25 blur-3xl" />
-        </FloatingShape>
-
-        <section className="relative mx-auto max-w-5xl px-4 pt-20 pb-16 text-center sm:px-6 lg:px-8 lg:pt-28 lg:pb-20">
-          <Reveal>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
-              Our story
-            </p>
-          </Reveal>
-
-          <h1 className="mx-auto mt-6 max-w-[18ch] font-display text-[clamp(2rem,6vw,5rem)] font-medium leading-[0.95] tracking-tight">
-            <Reveal>
-              <span className="block text-foreground/40">Paperwork</span>
-            </Reveal>
-            <Reveal delay={120}>
-              <span className="block italic text-muted-foreground/70">becomes</span>
-            </Reveal>
-            <Reveal delay={240}>
-              <TextMask
-                className="block font-display"
-                gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.82 0.1 25), oklch(0.78 0.1 220), oklch(0.78 0.12 50))"
-              >
-                a pathway.
-              </TextMask>
-            </Reveal>
-          </h1>
-
-          <Reveal delay={360}>
-            <p className="mx-auto mt-7 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Transition planning should be the moment a young person begins picturing who they
-              are becoming — not a stack of forms no one fully owns. TransitionForward is the
-              quiet rewrite of that experience.
-            </p>
-          </Reveal>
-
-          <Reveal delay={460}>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Magnetic>
-                <Link
-                  to="/platform"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
-                >
-                  See the platform <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Magnetic>
-              <Magnetic>
-                <Link
-                  to="/research"
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-background/85 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
-                >
-                  The research
-                </Link>
-              </Magnetic>
-            </div>
-          </Reveal>
-        </section>
-
-        {/* Marquee */}
-        <div className="border-y border-border/50 bg-card/60 backdrop-blur-sm">
-          <Marquee
-            speed={45}
-            className="py-4 font-display text-lg italic text-foreground/70 sm:text-xl"
-            items={[
-              "paperwork is not a pathway",
-              "·",
-              "a plan should sound like the student",
-              "·",
-              "families deserve clarity, not confusion",
-              "·",
-              "progress should be visible",
-              "·",
-              "the future should feel connected",
-              "·",
-            ]}
-          />
-        </div>
-      </CursorField>
-
-
-      {/* ====== SCENES 2 + 3 — STICKY SCROLL STORY ====== */}
-      <section className="relative py-14 lg:py-20">
-        <div className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
-            Scene II · The Realization — Scene III · The Mission
-          </p>
-        </div>
-        <StickyScrollStory eyebrow="Our story, scene by scene" panels={scrollScenes} />
-      </section>
-
-      {/* ====== INTERLUDE — THE PATHWAYS (editorial index) ====== */}
-      <section className="relative border-y border-border/40 bg-gradient-to-b from-background via-peach-soft/12 to-background">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-          <Reveal>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
-              Interlude — The Pathways
-            </p>
-            <h2 className="mt-4 max-w-2xl font-display text-2xl font-medium leading-[1.1] tracking-tight sm:text-3xl lg:text-4xl">
-              {toTitleCase("Four directions a plan can point toward.")}
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Not categories on a form — destinations a student can name, and the people and
-              programs that make each one real.
-            </p>
-          </Reveal>
-
-          <ul className="mt-10 divide-y divide-foreground/15 border-y border-foreground/15">
-            {pathways.map((p, i) => (
-              <li key={p.label} className="group/path">
-                <Reveal>
-                  <div className="grid grid-cols-[auto_1fr] items-center gap-5 py-6 sm:grid-cols-[3.5rem_1fr_auto] sm:gap-8 sm:py-8">
-                    <span className="font-display text-xl font-medium tabular-nums text-primary/80 sm:text-2xl">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-
-                    <div className="col-span-1 sm:col-span-1">
-                      <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl lg:text-3xl">
-                        {p.label}
-                      </h3>
-                      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                        {p.copy}
-                      </p>
-                    </div>
-
-                    <div className="relative col-span-2 sm:col-span-1 sm:justify-self-end">
-                      <CornerArc className="pointer-events-none absolute -left-4 -top-4 -z-10 h-20 w-20 text-primary/30" />
-                      <Tilt3D max={8} className="w-full sm:w-52 lg:w-60">
-                        <TiltLayer depth={0}>
-                          <img
-                            src={p.image}
-                            alt={`${p.label} pathway illustration`}
-                            className="aspect-[4/3] w-full object-cover shadow-soft transition-transform duration-500 group-hover/path:scale-[1.02]"
-                          />
-                        </TiltLayer>
-                      </Tilt3D>
-                    </div>
-                  </div>
-                </Reveal>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-
-
-      {/* ====== VALUES — OPEN EDITORIAL BLOCKS ====== */}
-      <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-        <FloatingShape className="pointer-events-none absolute right-[3%] top-8 hidden text-sky/40 lg:block" duration={26}>
-          <GridBurst className="h-36 w-36" />
-        </FloatingShape>
-
-        <Reveal>
-          <p className="border-l-2 border-primary pl-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
-            What we believe
-          </p>
-          <h2 className="mt-3 max-w-3xl font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
-            {toTitleCase("Four convictions shape every screen.")}
-          </h2>
-        </Reveal>
-
-        <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {values.map(({ icon: Icon, title, body }, i) => (
-            <Reveal key={title} delay={i * 70}>
-              <article className="group relative border-t-2 border-foreground/15 pt-5">
-                <GridBurst className="pointer-events-none absolute -left-5 -top-2 h-24 w-24 text-primary/15 transition-opacity group-hover:text-primary/30" />
-                <div className="relative flex items-start gap-4">
-                  <div className="relative shrink-0">
-                    <div className="absolute -inset-3 -z-10 bg-gradient-warm opacity-50 blur-xl transition-opacity group-hover:opacity-90" />
-                    <Icon className="h-10 w-10 text-primary transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110" strokeWidth={1.4} />
-                  </div>
-                  <span className="ml-auto font-display text-xs tabular-nums text-foreground/30">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="mt-4 font-display text-lg font-medium leading-tight tracking-tight">
-                  {title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ====== SCENE 4 — THE NETWORK ====== */}
-      <section className="relative overflow-hidden py-16 lg:py-20">
-        <FloatingShape className="absolute right-[10%] top-12 hidden md:block" duration={20}>
-          <div className="h-32 w-32 rounded-full bg-peach/30 blur-2xl" />
-        </FloatingShape>
-
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-14 lg:px-8">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
-              Scene IV — The Network
-            </p>
-            <h2 className="mt-4 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
-              No student moves{" "}
-              <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.78 0.1 220), oklch(0.82 0.1 25))">
-                forward alone
-              </TextMask>
-              .
-            </h2>
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              The future is built through connection. TransitionForward helps families and schools
-              connect students to the people, programs, and opportunities that move a plan into
-              motion.
-            </p>
-            <p className="mt-4 max-w-xl font-display text-base italic text-foreground/80 sm:text-lg">
-              Schools. Families. Mentors. Employers. Universities. Community partners. One platform,
-              moving in step.
-            </p>
-          </div>
-
-          <div className="relative mx-auto aspect-square w-full max-w-md">
-
-            <div className="absolute inset-0 rounded-full bg-gradient-warm opacity-40 blur-3xl" />
-            <svg viewBox="0 0 100 100" className="relative h-full w-full">
-              <defs>
-                <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="oklch(0.78 0.12 50)" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="oklch(0.78 0.1 220)" stopOpacity="0.9" />
-                </linearGradient>
-              </defs>
-              {otherNodes.map((n, i) => (
-                <line
-                  key={i}
-                  x1="50"
-                  y1="50"
-                  x2={n.cx}
-                  y2={n.cy}
-                  stroke="url(#lineGrad)"
-                  strokeWidth="0.35"
-                  strokeLinecap="round"
-                  className="trust-dash"
-                  style={{ animationDelay: `${i * 0.4}s` }}
-                />
-              ))}
-              {networkNodes.map((n, i) => (
-                <g key={n.label}>
-                  {n.primary && (
-                    <circle
-                      cx={n.cx}
-                      cy={n.cy}
-                      r={n.r}
-                      fill="oklch(0.78 0.12 50)"
-                      opacity="0.35"
-                      className="trust-pulse-ring"
-                    />
-                  )}
-                  <circle
-                    cx={n.cx}
-                    cy={n.cy}
-                    r={n.r ?? 3.2}
-                    fill={n.primary ? "oklch(0.78 0.12 50)" : "oklch(1 0 0)"}
-                    stroke="oklch(0.78 0.1 220)"
-                    strokeWidth="0.4"
-                    className="trust-float"
-                    style={{ animationDelay: `${i * 0.3}s`, transformOrigin: `${n.cx}px ${n.cy}px` }}
-                  />
-                  <text
-                    x={n.cx}
-                    y={n.cy + (n.cy > 50 ? 9 : -6)}
-                    textAnchor="middle"
-                    fontSize="3"
-                    fill="oklch(0.22 0.04 250)"
-                    className="font-sans"
-                    style={{ fontWeight: 600 }}
-                  >
-                    {n.label}
-                  </text>
-                </g>
-              ))}
-            </svg>
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* ====== SCENE 5 — THE PROMISE ====== */}
-      <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-24">
-        <FloatingShape className="absolute left-[10%] top-10" duration={16}>
-          <Sun className="h-12 w-12 text-peach opacity-50" strokeWidth={1.2} />
-        </FloatingShape>
-        <FloatingShape className="absolute right-[12%] bottom-12" delay={3} duration={20}>
-          <div className="h-32 w-32 rounded-full bg-sky/30 blur-2xl" />
-        </FloatingShape>
-
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
-            Scene V — The Promise
-          </p>
-          <Reveal>
-            <h2 className="mt-5 font-display text-[clamp(1.75rem,4.5vw,3.5rem)] font-medium leading-[1.05] tracking-tight">
-              A clearer path. A stronger voice. A future that feels possible.
-            </h2>
-          </Reveal>
-          <Reveal delay={150}>
-            <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-foreground/80 sm:text-base">
-              TransitionForward exists to make transition planning clearer, more collaborative, and
-              more meaningful — so students are not just prepared to leave high school, but prepared
-              to move forward with purpose.
-            </p>
-          </Reveal>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <Magnetic>
-              <Link
-                to="/platform"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lift transition-shadow hover:shadow-soft"
-              >
-                Explore the platform <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Magnetic>
-            <Magnetic>
-              <Link
-                to="/waitlist"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
-              >
-                Join the waitlist
-              </Link>
-            </Magnetic>
-            <Magnetic>
-              <Link
-                to="/demo"
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background/90 px-5 py-2.5 text-sm font-semibold backdrop-blur hover:bg-background"
-              >
-                See how it works
-              </Link>
-            </Magnetic>
-          </div>
-
-          <p className="mx-auto mt-12 max-w-xl font-display text-base italic text-foreground/70 sm:text-lg">
-            One platform. One plan. Forward together.
-          </p>
-        </div>
-      </section>
-
-
+      <AboutHero />
+      <Manifesto />
+      <ChapterScroll />
+      <BeliefsMarquee />
+      <ClosingCTA />
     </SiteShell>
+  );
+}
+
+/* ------------------- HERO ------------------- */
+function AboutHero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 220]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+
+  return (
+    <section ref={ref} className="relative isolate -mt-px h-[100svh] min-h-[640px] overflow-hidden">
+      <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
+        <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
+      </motion.div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/50 to-background/20" />
+      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-20 sm:px-6 lg:px-8">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
+        >
+          Our story
+        </motion.p>
+        <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-7xl lg:text-8xl">
+          <Word text="We built this for" d={0.1} />
+          <br />
+          <Word text="the kids who never " d={0.3} />
+          <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">
+            <Word text="got the playbook." d={0.5} />
+          </span>
+        </h1>
+      </motion.div>
+    </section>
+  );
+}
+
+function Word({ text, d = 0 }: { text: string; d?: number }) {
+  return (
+    <span className="inline-block overflow-hidden align-baseline">
+      <motion.span
+        initial={{ y: "100%" }}
+        animate={{ y: "0%" }}
+        transition={{ duration: 0.9, delay: d, ease: [0.65, 0, 0.35, 1] }}
+        className="inline-block"
+      >
+        {text}
+      </motion.span>
+    </span>
+  );
+}
+
+/* ------------------- MANIFESTO ------------------- */
+function Manifesto() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  // Fill text from left to right based on scroll
+  return (
+    <section ref={ref} className="relative py-40 sm:py-56">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The promise</p>
+        <h2 className="mt-6 font-display text-3xl font-medium leading-[1.15] tracking-tight text-foreground/30 sm:text-5xl lg:text-6xl">
+          <FillReveal scrollYProgress={scrollYProgress}>
+            Transition planning shouldn't be a binder, an inbox, and a hope.
+            It should be a clear, kind, shared plan — built around the student.
+          </FillReveal>
+        </h2>
+      </div>
+    </section>
+  );
+}
+
+function FillReveal({
+  children,
+  scrollYProgress,
+}: {
+  children: string;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+}) {
+  const words = children.split(" ");
+  return (
+    <span>
+      {words.map((w, i) => {
+        const start = i / words.length;
+        const end = start + 1 / words.length;
+        const opacity = useTransform(scrollYProgress, [start * 0.8 + 0.1, end * 0.8 + 0.1], [0.2, 1]);
+        return (
+          <motion.span key={i} style={{ opacity }} className="text-foreground">
+            {w}{" "}
+          </motion.span>
+        );
+      })}
+    </span>
+  );
+}
+
+/* ------------------- CHAPTER SCROLL ------------------- */
+const CHAPTERS = [
+  {
+    n: "01",
+    eyebrow: "The beginning",
+    title: "It started in a parking lot.",
+    body: "A parent sat in her car after a PPT meeting, surrounded by paperwork she couldn't decode. Her son was 16. Nobody could answer her one question: what now?",
+    img: aboutStudent,
+    tone: "from-sky-soft to-background",
+  },
+  {
+    n: "02",
+    eyebrow: "What we heard",
+    title: "Everyone was carrying it alone.",
+    body: "Students didn't know they had a voice in the room. Families translated documents at midnight. Teachers rebuilt the same plan over and over with no shared memory.",
+    img: pathCollege,
+    tone: "from-peach-soft to-background",
+  },
+  {
+    n: "03",
+    eyebrow: "What we built",
+    title: "One plan, four points of view.",
+    body: "TransitionForward turns scattered paperwork, student voice, and family priorities into a shared Pathway Report — written in plain language and built to be edited together.",
+    img: pathCareer,
+    tone: "from-sky-soft to-peach-soft/60",
+  },
+  {
+    n: "04",
+    eyebrow: "Where we're headed",
+    title: "Every student. A real next step.",
+    body: "We're partnering with families, schools, universities, technical programs, and employers — so the path after high school is no longer a guess.",
+    img: aboutHero,
+    tone: "from-primary/15 to-peach-soft",
+  },
+];
+
+function ChapterScroll() {
+  return (
+    <div className="relative">
+      {CHAPTERS.map((c, i) => (
+        <Chapter key={c.n} chapter={c} index={i} />
+      ))}
+    </div>
+  );
+}
+
+function Chapter({ chapter, index }: { chapter: (typeof CHAPTERS)[number]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [80, -80]);
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1.15, 1]);
+  const numberOpacity = useTransform(scrollYProgress, [0.1, 0.4], [0, 1]);
+  const reversed = index % 2 === 1;
+
+  return (
+    <section ref={ref} className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-28 sm:py-40`}>
+      <motion.div
+        style={{ opacity: numberOpacity }}
+        className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 select-none font-display text-[28vw] font-medium leading-none text-foreground/[0.04] sm:text-[20vw]"
+      >
+        {chapter.n}
+      </motion.div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className={`grid items-center gap-12 lg:grid-cols-12 lg:gap-16 ${reversed ? "lg:[&>*:first-child]:order-2" : ""}`}>
+          <motion.div style={{ y }} className="lg:col-span-7">
+            <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-foreground/10 shadow-lift">
+              <motion.img
+                style={{ scale: imgScale }}
+                src={chapter.img}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute left-5 top-5 rounded-full bg-background/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground backdrop-blur">
+                Chapter {chapter.n}
+              </div>
+            </div>
+          </motion.div>
+
+          <div className="lg:col-span-5">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
+            >
+              {chapter.eyebrow}
+            </motion.p>
+            <motion.h3
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="mt-4 font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+            >
+              {chapter.title}
+            </motion.h3>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="mt-5 text-lg text-muted-foreground"
+            >
+              {chapter.body}
+            </motion.p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------- BELIEFS MARQUEE ------------------- */
+function BeliefsMarquee() {
+  const beliefs = [
+    { icon: Sparkles, text: "Student voice belongs in every meeting." },
+    { icon: HeartHandshake, text: "Families deserve plain language." },
+    { icon: Compass, text: "A goal without a next step is a wish." },
+    { icon: Users, text: "No one moves forward alone." },
+    { icon: BookOpen, text: "AI assists. Humans decide." },
+  ];
+  return (
+    <section className="relative overflow-hidden bg-foreground py-24 text-background">
+      <p className="mx-auto mb-10 max-w-7xl px-4 text-xs font-semibold uppercase tracking-[0.28em] text-background/60 sm:px-6 lg:px-8">
+        What we believe
+      </p>
+      <div className="flex overflow-hidden">
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="flex shrink-0 gap-12 pr-12"
+        >
+          {[...beliefs, ...beliefs].map((b, i) => (
+            <div key={i} className="flex shrink-0 items-center gap-4 font-display text-3xl text-background sm:text-4xl lg:text-5xl">
+              <b.icon className="h-6 w-6 text-peach" />
+              {b.text}
+              <span className="text-background/30">·</span>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------- CLOSING CTA ------------------- */
+function ClosingCTA() {
+  return (
+    <section className="relative isolate overflow-hidden py-32 sm:py-40">
+      <div className="absolute inset-0 -z-10 bg-gradient-hero" />
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+        >
+          Forward, together.
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="mt-5 text-lg text-foreground/70"
+        >
+          Help us build the platform every transition plan deserves.
+        </motion.p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Link to="/waitlist" className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift hover:scale-[1.02]">
+            Join the waitlist <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link to="/research" className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/60 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur hover:bg-background">
+            See the research
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
