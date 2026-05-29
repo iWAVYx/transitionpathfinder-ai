@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { listMyReports } from "@/lib/pathway.functions";
 import { getPathwayReport } from "@/lib/ppt.functions";
+import { listGoalStatuses, upsertGoalStatus } from "@/lib/goal-statuses.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
 import { toTitleCase } from "@/lib/title-case";
@@ -31,6 +32,7 @@ type ReportRow = { id: string; student_first_name: string; grade_band: string | 
 function storageKey(reportId: string) {
   return `tf:goal-status:${reportId}`;
 }
+
 
 function GoalsPage() {
   const list = useServerFn(listMyReports);
@@ -94,7 +96,7 @@ function GoalsPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Every action from your Pathway Reports, in one place. Tap to mark something as
-          in progress or met — your notes stay on this device for now, just for you.
+          in progress or met — your progress syncs to your account so it follows you across devices.
         </p>
 
         <InfoBox label="How does the tracker work?" className="mt-6 max-w-2xl">
@@ -105,8 +107,8 @@ function GoalsPage() {
             at your own pace.
           </p>
           <p className="mt-2">
-            Your status updates are saved on this device. They aren't shared with anyone unless
-            you choose to.
+            Your status updates are saved to your account. Only you can see them unless you
+            choose to share.
           </p>
         </InfoBox>
 
@@ -177,15 +179,35 @@ function GoalList({
   items: { id: string; group: string; label: string }[];
 }) {
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const loadStatuses = useServerFn(listGoalStatuses);
+  const saveStatus = useServerFn(upsertGoalStatus);
 
   useEffect(() => {
+    let cancelled = false;
+    // Optimistic load from cache, then reconcile with server.
     try {
       const raw = localStorage.getItem(storageKey(reportId));
-      setStatuses(raw ? (JSON.parse(raw) as Record<string, Status>) : {});
+      if (raw) setStatuses(JSON.parse(raw) as Record<string, Status>);
     } catch {
-      setStatuses({});
+      /* ignore */
     }
-  }, [reportId]);
+    loadStatuses({ data: { reportId } })
+      .then((res) => {
+        if (cancelled) return;
+        setStatuses(res.statuses);
+        try {
+          localStorage.setItem(storageKey(reportId), JSON.stringify(res.statuses));
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {
+        /* keep cached values */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reportId, loadStatuses]);
 
   const setStatus = (id: string, next: Status) => {
     setStatuses((prev) => {
@@ -196,6 +218,9 @@ function GoalList({
         /* ignore */
       }
       return updated;
+    });
+    saveStatus({ data: { reportId, itemId: id, status: next } }).catch(() => {
+      /* swallow — local cache holds the value; surfaced on next load */
     });
   };
 
