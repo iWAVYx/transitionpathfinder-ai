@@ -271,7 +271,7 @@ function FrameworkPage() {
                     <span
                       aria-hidden
                       className="font-display text-6xl font-medium leading-none text-transparent sm:text-7xl"
-                      style={{ WebkitTextStroke: "1.5px hsl(var(--primary))" }}
+                      style={{ WebkitTextStroke: "1.5px var(--primary)" }}
                     >
                       {String(i + 1).padStart(2, "0")}
                     </span>
