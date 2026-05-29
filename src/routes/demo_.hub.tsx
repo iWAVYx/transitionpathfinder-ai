@@ -1,8 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowLeft,
-  ArrowRight,
-  ShieldCheck,
   Sparkles,
   Target,
   FileText,
@@ -13,131 +10,144 @@ import {
   Clock,
   Download,
   Upload,
-  PawPrint,
-  Palette,
-  Leaf,
   Lock,
   MessageSquare,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
-import { Badge } from "@/components/ui/badge";
+import {
+  DemoStepBar,
+  DemoStepFooter,
+  validateStudentSearch,
+} from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { DEMO_STUDENT, DEMO_REPORT } from "@/lib/demo-data";
-
+import { getDemoStudent } from "@/lib/demo-data";
 import { toTitleCase } from "@/lib/title-case";
+
 export const Route = createFileRoute("/demo_/hub")({
+  validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
       { title: "Sample Student Hub — TransitionForward demo" },
       {
         name: "description",
         content:
-          "See the ongoing student workspace where families and educators track goals, documents, and progress.",
+          "The ongoing student workspace where families and educators track goals, documents, and progress.",
       },
     ],
   }),
   component: DemoHubPage,
 });
 
-const GOALS = [
-  {
-    title: "Self-advocacy with new adults",
-    area: "Self-determination",
-    progress: 45,
-    status: "in-progress" as const,
-    next: "Practice introducing accommodations to a new teacher this quarter.",
-  },
-  {
-    title: "Weekly animal-shelter volunteer shift",
-    area: "Employment",
-    progress: 20,
-    status: "in-progress" as const,
-    next: "Tour Connecticut Humane Society this Saturday with family.",
-  },
-  {
-    title: "One CTtransit round-trip independently",
-    area: "Independent travel",
-    progress: 10,
-    status: "upcoming" as const,
-    next: "Request travel training through the district at next PPT.",
-  },
-  {
-    title: "Pet First Aid certification",
-    area: "Credential",
-    progress: 0,
-    status: "upcoming" as const,
-    next: "Find a Red Cross course in Hartford County.",
-  },
-];
-
-const DOCUMENTS = [
-  { name: "Pathway Report — Spring 2026", type: "Report", date: "Mar 4, 2026", size: "412 KB" },
-  { name: "Maya — IEP 2025-2026", type: "IEP", date: "Sep 12, 2025", size: "1.1 MB" },
-  { name: "Food Pantry Volunteer Log", type: "Evidence", date: "Feb 28, 2026", size: "86 KB" },
-  { name: "Vocational interest inventory", type: "Assessment", date: "Oct 3, 2025", size: "240 KB" },
-];
-
-const COLLABORATORS = [
-  { name: "Elena Rivera", role: "Parent · Primary contact", initials: "ER", color: "bg-primary/15 text-primary" },
-  { name: "Ms. Alvarez", role: "Case manager · EHHS", initials: "MA", color: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
-  { name: "Mr. Chen", role: "Transition coordinator", initials: "MC", color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
-];
-
-const ACTIVITY = [
-  { icon: <FileText className="h-4 w-4" />, text: "Pathway Report generated and shared with case manager", when: "2 days ago" },
-  { icon: <Upload className="h-4 w-4" />, text: "Volunteer log uploaded", when: "5 days ago" },
-  { icon: <MessageSquare className="h-4 w-4" />, text: "Ms. Alvarez added a note about food-pantry placement", when: "1 week ago" },
-  { icon: <Target className="h-4 w-4" />, text: "Self-advocacy goal updated to 45% progress", when: "2 weeks ago" },
-];
-
-const UPCOMING = [
-  { title: "PPT meeting", date: "Apr 8, 2026 · 3:30 PM", body: "Bring the Pathway Report and Maya's questions." },
-  { title: "Animal shelter tour", date: "Mar 14, 2026 · 11:00 AM", body: "Family-led visit to CT Humane Society." },
-  { title: "BRS Pre-ETS intake call", date: "Mar 20, 2026 · 1:00 PM", body: "Initial conversation with Hartford regional office." },
-];
-
 function DemoHubPage() {
+  const { s } = Route.useSearch();
+  const bundle = getDemoStudent(s);
+  const { profile: student, report, nextMeetingDate } = bundle;
+
+  const goals = report.readiness_scorecard.slice(0, 4).map((g, i) => ({
+    title: g.suggested_goal ?? g.growth_activity ?? g.category,
+    area: g.category,
+    progress: [55, 40, 20, 5][i] ?? 15,
+    status:
+      g.level === "ready"
+        ? ("complete" as const)
+        : g.level === "developing"
+          ? ("in-progress" as const)
+          : ("upcoming" as const),
+    next: g.growth_activity,
+  }));
+
+  const documents = [
+    { name: `Pathway Report — Spring 2026`, type: "Report", date: bundle.issued, size: "412 KB" },
+    { name: `${student.first_name} — IEP 2025-2026`, type: "IEP", date: "Sep 12, 2025", size: "1.1 MB" },
+    { name: "Vocational interest inventory", type: "Assessment", date: "Oct 3, 2025", size: "240 KB" },
+    { name: "Volunteer / activity log", type: "Evidence", date: "Feb 28, 2026", size: "86 KB" },
+  ];
+
+  const collaborators = [
+    {
+      name: s === "jordan" ? "Marcus Bennett" : "Elena Rivera",
+      role: "Parent · Primary contact",
+      initials: s === "jordan" ? "MB" : "ER",
+      color: "bg-primary/15 text-primary",
+    },
+    {
+      name: student.case_manager,
+      role: `Case manager · ${student.school}`,
+      initials: student.case_manager
+        .split(" ")
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join(""),
+      color: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    },
+    {
+      name: s === "jordan" ? "Ms. Patel" : "Mr. Chen",
+      role: "Transition coordinator",
+      initials: s === "jordan" ? "MP" : "MC",
+      color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    },
+  ];
+
+  const activity = [
+    {
+      icon: <FileText className="h-4 w-4" />,
+      text: "Pathway Report generated and shared with case manager",
+      when: "2 days ago",
+    },
+    { icon: <Upload className="h-4 w-4" />, text: "Document uploaded", when: "5 days ago" },
+    {
+      icon: <MessageSquare className="h-4 w-4" />,
+      text: `${student.case_manager} added a note about an upcoming placement`,
+      when: "1 week ago",
+    },
+    {
+      icon: <Target className="h-4 w-4" />,
+      text: "Goal progress updated",
+      when: "2 weeks ago",
+    },
+  ];
+
+  const upcoming = [
+    {
+      title: "PPT meeting",
+      date: nextMeetingDate,
+      body: `Bring the Pathway Report and ${student.first_name}'s questions.`,
+    },
+    ...report.thirty_day_plan.slice(0, 2).map((p) => ({
+      title: `Week ${p.week}`,
+      date: "Next 30 days",
+      body: p.action,
+    })),
+  ];
+
   return (
     <SiteShell>
+      <DemoStepBar current="hub" student={s} />
+
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <Link
-          to="/demo"
-          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to demo overview
-        </Link>
-
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <Sparkles className="h-3 w-3" /> Demo · step 3 of 3
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <ShieldCheck className="h-3 w-3" /> Fictional student
-          </Badge>
-        </div>
-
         {/* Header card */}
-        <div className="mt-4 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                 Student Hub
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {toTitleCase(DEMO_STUDENT.full_name)}
+                {toTitleCase(student.full_name)}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {DEMO_STUDENT.pronouns} · {DEMO_STUDENT.grade} · {DEMO_STUDENT.school}
+                {student.pronouns} · {student.grade} · {student.school}
               </p>
+              <p className="mt-1 text-sm text-muted-foreground">{bundle.headline}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm">
                 <Upload className="h-4 w-4" /> Upload document
               </Button>
               <Button size="sm" asChild>
-                <Link to="/demo/report">
+                <Link to="/demo/report" search={{ s }}>
                   <FileText className="h-4 w-4" /> Open Pathway Report
                 </Link>
               </Button>
@@ -145,16 +155,31 @@ function DemoHubPage() {
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Active goals" value="4" hint="2 in progress" icon={<Target className="h-4 w-4" />} />
-            <StatTile label="Documents" value="12" hint="IEP up to date" icon={<FileText className="h-4 w-4" />} />
-            <StatTile label="Overall readiness" value="Developing" hint="Trending up" icon={<Sparkles className="h-4 w-4" />} />
+            <StatTile label="Active goals" value={String(goals.length)} hint="2 in progress" icon={<Target className="h-4 w-4" />} />
+            <StatTile label="Documents" value={String(documents.length)} hint="IEP up to date" icon={<FileText className="h-4 w-4" />} />
+            <StatTile
+              label="Overall readiness"
+              value={
+                report.student_snapshot?.readiness_level
+                  ? toTitleCase(report.student_snapshot.readiness_level)
+                  : "Developing"
+              }
+              hint="Trending up"
+              icon={<Sparkles className="h-4 w-4" />}
+            />
             <StatTile label="Privacy" value="Family-controlled" hint="3 collaborators" icon={<Lock className="h-4 w-4" />} />
           </div>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            <InterestChip icon={<PawPrint className="h-3.5 w-3.5" />} label="Animal care" />
-            <InterestChip icon={<Palette className="h-3.5 w-3.5" />} label="Visual art" />
-            <InterestChip icon={<Leaf className="h-3.5 w-3.5" />} label="Environmental" />
+            {(report.student_snapshot?.primary_interests ?? []).slice(0, 4).map((interest) => (
+              <span
+                key={interest}
+                className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium"
+              >
+                <Sparkles className="h-3 w-3 text-primary" />
+                {interest}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -168,7 +193,7 @@ function DemoHubPage() {
               action={<span className="text-xs text-muted-foreground">From the Pathway Report</span>}
             >
               <ul className="divide-y divide-border/60">
-                {GOALS.map((g) => (
+                {goals.map((g) => (
                   <li key={g.title} className="py-4 first:pt-0 last:pb-0">
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -197,7 +222,7 @@ function DemoHubPage() {
               }
             >
               <ul className="divide-y divide-border/60">
-                {DOCUMENTS.map((d) => (
+                {documents.map((d) => (
                   <li key={d.name} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{d.name}</p>
@@ -213,14 +238,14 @@ function DemoHubPage() {
               </ul>
             </Panel>
 
-            {/* Recommended next steps */}
+            {/* This week */}
             <Panel
               icon={<Sparkles className="h-5 w-5" />}
               title="This week"
-              action={<span className="text-xs text-muted-foreground">From {DEMO_STUDENT.first_name}'s plan</span>}
+              action={<span className="text-xs text-muted-foreground">From {student.first_name}'s plan</span>}
             >
               <ol className="space-y-3">
-                {DEMO_REPORT.family_action_plan?.this_week.map((step, i) => (
+                {(report.family_action_plan?.this_week ?? []).map((step, i) => (
                   <li key={step} className="flex gap-3 rounded-2xl border border-border/60 bg-background p-4">
                     <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                       {i + 1}
@@ -236,8 +261,8 @@ function DemoHubPage() {
           <aside className="space-y-6">
             <Panel icon={<Calendar className="h-5 w-5" />} title="Upcoming">
               <ul className="space-y-3">
-                {UPCOMING.map((u) => (
-                  <li key={u.title} className="rounded-2xl border border-border/60 bg-background p-3">
+                {upcoming.map((u) => (
+                  <li key={u.title + u.date} className="rounded-2xl border border-border/60 bg-background p-3">
                     <p className="text-sm font-medium">{u.title}</p>
                     <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-primary">
                       {u.date}
@@ -250,7 +275,7 @@ function DemoHubPage() {
 
             <Panel icon={<Users className="h-5 w-5" />} title="Care team">
               <ul className="space-y-3">
-                {COLLABORATORS.map((c) => (
+                {collaborators.map((c) => (
                   <li key={c.name} className="flex items-center gap-3">
                     <span
                       className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold ${c.color}`}
@@ -271,7 +296,7 @@ function DemoHubPage() {
 
             <Panel icon={<Clock className="h-5 w-5" />} title="Recent activity">
               <ul className="space-y-3">
-                {ACTIVITY.map((a, i) => (
+                {activity.map((a, i) => (
                   <li key={i} className="flex gap-3 text-sm">
                     <span className="mt-0.5 text-primary">{a.icon}</span>
                     <div className="min-w-0">
@@ -285,24 +310,7 @@ function DemoHubPage() {
           </aside>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/60 bg-gradient-hero p-6">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              You've seen the full flow
-            </p>
-            <p className="mt-1 font-display text-xl">Ready to do this for your student?</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/demo">Restart demo</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/waitlist">
-                Join the waitlist <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <DemoStepFooter current="hub" student={s} />
       </section>
     </SiteShell>
   );
@@ -330,15 +338,6 @@ function StatTile({
       <p className="mt-2 font-display text-xl">{value}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
-  );
-}
-
-function InterestChip({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium">
-      <span className="text-primary">{icon}</span>
-      {label}
-    </span>
   );
 }
 

@@ -1,15 +1,20 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, ShieldCheck, Sparkles, Info, FileText, Download, Eye } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { ShieldCheck, Sparkles, Info, FileText, Download, Eye } from "lucide-react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import {
+  DemoStepBar,
+  DemoStepFooter,
+  validateStudentSearch,
+} from "@/components/site/DemoStepBar";
 import { ReportView } from "@/components/pathway/ReportView";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DEMO_REPORT, DEMO_STUDENT } from "@/lib/demo-data";
+import { getDemoStudent } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo_/report")({
+  validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
       { title: "Sample Pathway Report — TransitionForward demo" },
@@ -24,6 +29,10 @@ export const Route = createFileRoute("/demo_/report")({
 });
 
 function DemoReportPage() {
+  const { s } = Route.useSearch();
+  const bundle = getDemoStudent(s);
+  const { profile: student, report, reportId, issued } = bundle;
+
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -35,12 +44,10 @@ function DemoReportPage() {
 
   return (
     <SiteShell>
+      <DemoStepBar current="report" student={s} />
+
       {/* Cinematic hero intro */}
-      <section
-        ref={heroRef}
-        className="relative isolate overflow-hidden"
-      >
-        {/* Ambient gradient orbs */}
+      <section ref={heroRef} className="relative isolate overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <motion.div
             aria-hidden
@@ -61,32 +68,19 @@ function DemoReportPage() {
           className="mx-auto max-w-5xl px-4 pb-16 pt-12 sm:px-6 lg:px-8"
         >
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Link
-              to="/demo"
-              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to demo overview
-            </Link>
-          </motion.div>
-
-          <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-5 flex flex-wrap items-center gap-2"
+            className="flex flex-wrap items-center gap-2"
           >
             <Badge variant="secondary" className="gap-1">
-              <Sparkles className="h-3 w-3" /> Demo · step 2 of 3
+              <Sparkles className="h-3 w-3" /> Step 3 · Pathway Report
             </Badge>
             <Badge variant="outline" className="gap-1">
               <ShieldCheck className="h-3 w-3" /> Fictional student
             </Badge>
             <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
-              <FileText className="h-3 w-3" /> Report TF-DEMO-2026-0001
+              <FileText className="h-3 w-3" /> Report {reportId}
             </Badge>
           </motion.div>
 
@@ -119,10 +113,9 @@ function DemoReportPage() {
           >
             This is the complete sample Pathway Report — the same format families and educators
             receive. Switch audiences with the toolbar tabs, download the print-ready PDF, or
-            scroll on to read it like Maya's family would.
+            scroll on to read it like {student.first_name}'s family would.
           </motion.p>
 
-          {/* Floating quick-action chips */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -133,7 +126,7 @@ function DemoReportPage() {
               { icon: Eye, label: "Family view" },
               { icon: Eye, label: "Educator view" },
               { icon: Download, label: "Print-ready PDF" },
-            ].map((chip, i) => (
+            ].map((chip) => (
               <motion.span
                 key={chip.label}
                 whileHover={{ y: -2 }}
@@ -159,73 +152,24 @@ function DemoReportPage() {
             </div>
           </motion.div>
         </motion.div>
-
-        {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground"
-          >
-            Scroll to read
-          </motion.div>
-        </motion.div>
       </section>
 
       <ReportView
-        name={DEMO_STUDENT.first_name}
-        report={DEMO_REPORT}
+        name={student.first_name}
+        report={report}
         demo
         meta={{
-          reportId: "TF-DEMO-2026-0001",
-          preparedFor: `${DEMO_STUDENT.full_name} · ${DEMO_STUDENT.grade} · ${DEMO_STUDENT.school}`,
-          preparedBy: "TransitionForward (AI-supported) · Reviewed by Ms. Alvarez, Case Manager",
-          issued: "March 4, 2026",
+          reportId,
+          preparedFor: `${student.full_name} · ${student.grade} · ${student.school}`,
+          preparedBy: `TransitionForward (AI-supported) · Reviewed by ${student.case_manager}, Case Manager`,
+          issued,
           version: "1.0",
-          confidentiality: "Confidential — for Maya, the Rivera family, and authorized EHHS team members",
+          confidentiality: `Confidential — for ${student.first_name}, family, and authorized ${student.school} team members`,
         }}
       />
 
-      {/* Cinematic outro */}
-      <section className="mx-auto max-w-5xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-hero p-8 shadow-lift"
-        >
-          <motion.div
-            aria-hidden
-            className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl"
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <div className="relative flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                Next
-              </p>
-              <p className="mt-2 font-display text-2xl tracking-tight sm:text-3xl">
-                See how this becomes Maya's ongoing Student Hub.
-              </p>
-              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                The report doesn't end on the page — it becomes a living workspace the whole team can build on together.
-              </p>
-            </div>
-            <Button asChild size="lg" className="group gap-2">
-              <Link to="/demo/hub">
-                Open the Student Hub
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
-        </motion.div>
+      <section className="mx-auto max-w-5xl px-4 pb-6 sm:px-6 lg:px-8">
+        <DemoStepFooter current="report" student={s} />
       </section>
     </SiteShell>
   );
