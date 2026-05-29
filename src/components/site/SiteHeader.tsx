@@ -72,26 +72,48 @@ const mobileMarketingLinks: NavLink[] = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-lg">
+    <header
+      className={
+        "sticky top-0 z-40 border-b transition-all duration-300 " +
+        (scrolled
+          ? "border-border/60 bg-background/85 shadow-soft backdrop-blur-xl"
+          : "border-transparent bg-background/60 backdrop-blur-lg")
+      }
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2 whitespace-nowrap"
+          className="group flex shrink-0 items-center gap-2 whitespace-nowrap"
           onClick={() => setOpen(false)}
         >
-          <span
+          <motion.span
             aria-hidden
+            whileHover={{ rotate: 12, scale: 1.06 }}
+            transition={{ type: "spring", stiffness: 320, damping: 18 }}
             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
           >
-            <span className="h-3 w-3 rounded-full bg-primary" />
-          </span>
+            <motion.span
+              className="h-3 w-3 rounded-full bg-primary"
+              animate={{ scale: [1, 1.18, 1] }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.span>
           <span className="font-display text-lg font-semibold tracking-tight">
             TransitionForward
           </span>
         </Link>
+
 
         <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
           {navGroups.map((group) => (
