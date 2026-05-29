@@ -181,14 +181,21 @@ function ResourcesPage() {
   const [dbResources, setDbResources] = useState<DbResource[] | null>(null);
   const [savedDb, setSavedDb] = useState<SavedResourceRow[]>([]);
   const savedIds = useMemo(() => new Set(savedDb.map((s) => s.resource_id)), [savedDb]);
+  const { user } = useAuth();
   useEffect(() => {
     fetchDb()
       .then((r) => setDbResources(r.resources))
       .catch(() => setDbResources([]));
+  }, [fetchDb]);
+  useEffect(() => {
+    if (!user) {
+      setSavedDb([]);
+      return;
+    }
     fetchSaved()
       .then((r) => setSavedDb(r.items))
       .catch(() => {});
-  }, [fetchDb, fetchSaved]);
+  }, [fetchSaved, user]);
 
   async function handleToggleSaveDb(id: string) {
     try {
