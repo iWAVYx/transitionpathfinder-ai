@@ -49,12 +49,7 @@ import {
   Marquee,
   TextScrollFill,
 } from "@/components/effects/ScrollEffects";
-import {
-  FloatingShape,
-  TextMask,
-  MorphCard,
-  Tilt3D,
-} from "@/components/effects/ImmersiveEffects";
+import { FloatingShape } from "@/components/effects/ImmersiveEffects";
 import {
   DotField,
   Squiggle,
@@ -68,9 +63,6 @@ import {
   UnderlineSwoosh,
   ArcStack,
 } from "@/components/effects/Decorations";
-import { motion, useScroll, useTransform, MotionValue } from "motion/react";
-import { useRef } from "react";
-
 
 
 import { toTitleCase } from "@/lib/title-case";
@@ -159,106 +151,58 @@ function HomePage() {
         {/* Soft blob behind headline */}
         <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl blob-drift" />
 
-        <div className="mx-auto max-w-7xl px-4 pb-32 pt-24 sm:px-6 sm:pb-36 sm:pt-28 lg:px-8 lg:pb-44 lg:pt-32">
-          <div className="grid items-center gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-xs font-semibold uppercase tracking-[0.22em] text-primary"
-              >
-                Transition planning, made human
-              </motion.p>
-              <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-                <MaskedWords text="From IEP goals to" />{" "}
-                <span className="relative inline-block not-italic">
-                  <TextMask className="font-display text-5xl font-medium sm:text-6xl lg:text-7xl">
-                    real-life
-                  </TextMask>
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 300 24"
-                    preserveAspectRatio="none"
-                    className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
-                  >
-                    <path
-                      d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      className="text-primary/80"
-                    />
-                  </svg>
-                </span>{" "}
-                <MaskedWords text="pathways." delay={0.4} />
-              </h1>
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl"
-              >
-                A warm, easy-to-use platform that helps students with disabilities,
-                families, and educators plan life after high school — together.
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="mt-5 font-display text-2xl italic text-foreground/75"
-              >
-                One platform. One plan. Forward together.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.85 }}
-                className="mt-9 flex flex-wrap gap-3"
-              >
-                <Link
-                  to="/waitlist"
-                  className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
+        <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Transition planning, made human
+            </p>
+            <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+              From IEP goals to{" "}
+              <span className="relative inline-block not-italic text-primary">
+                real-life
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 300 24"
+                  preserveAspectRatio="none"
+                  className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
                 >
-                  Join the waitlist
-                  <span className="transition-transform group-hover:translate-x-1">→</span>
-                </Link>
-                <Link
-                  to="/platform"
-                  className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
-                >
-                  Explore the platform
-                </Link>
-              </motion.div>
-            </div>
-
-            {/* Floating dashboard mockup stack */}
-            <div className="relative hidden lg:col-span-5 lg:block">
-              <FloatingDashboardStack />
+                  <path
+                    d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="text-primary/80"
+                  />
+                </svg>
+              </span>{" "}
+              pathways.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
+              A warm, easy-to-use platform that helps students with disabilities,
+              families, and educators plan life after high school — together.
+            </p>
+            <p className="mt-5 font-display text-2xl italic text-foreground/75">
+              One platform. One plan. Forward together.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                to="/waitlist"
+                className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                Join the waitlist
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+              <Link
+                to="/platform"
+                className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
+              >
+                Explore the platform
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* Hero pathway line — connects the two halves */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 1200 200"
-          preserveAspectRatio="none"
-          className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden h-32 w-full text-primary/35 lg:block"
-        >
-          <path
-            d="M0 160 C 200 80, 420 140, 620 100 S 1000 60, 1200 130"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeDasharray="6 10"
-            className="hero-path-draw"
-          />
-        </svg>
       </section>
-
 
       {/* PROBLEM — split panel: photo + statement */}
       <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -574,15 +518,19 @@ function HomePage() {
         </div>
       </section>
 
-      {/* PATHWAYS — sticky cinematic scene + quick-jump rail */}
-      <section className="relative">
+      {/* PATHWAYS — image tile grid of real next-step destinations */}
+      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
           <BookDoodle className="h-full w-full" />
         </Parallax>
         <Confetti className="absolute right-2 top-4 hidden h-24 w-32 md:block" />
+        <Starburst className="absolute right-8 bottom-8 hidden h-16 w-16 text-secondary-foreground/35 lg:block" />
+        <FloatingShape className="absolute left-1/3 top-2 hidden h-7 w-7 text-primary/60 md:block" delay={0.5}>
+          <Sparkle className="h-full w-full" />
+        </FloatingShape>
 
-        <div className="mx-auto max-w-7xl px-4 pt-20 sm:px-6 lg:px-8">
-          <div className="mb-10 max-w-2xl">
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Real-life pathways
             </p>
@@ -590,107 +538,78 @@ function HomePage() {
               Many Roads Forward. One Plan That Fits.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-              Scroll through the five pathways students explore — each one with the
-              right supports, language, and next steps to make it real.
+              College, technical training, supported employment, daily life skills,
+              and the steady progress in between — TransitionForward helps every
+              student picture what's next and the small steps to get there.
             </p>
           </div>
         </div>
-
-        <PathwaysStickyScene
-          slides={[
-            {
-              id: "college",
-              number: "01",
-              image: pathCollege,
-              sticker: stickerCollege,
-              label: "College",
-              caption: "Two- and four-year programs, with the right supports in place.",
-              detail: "Disability services, course load planning, dorm-life skills, and the family questions to ask before tour day.",
-              accent: "from-sky-400/70 to-indigo-500/70",
-            },
-            {
-              id: "technical-education",
-              number: "02",
-              image: pathTechnical,
-              sticker: stickerTechnical,
-              label: "Technical Education",
-              caption: "Hands-on trades, certificates, and apprenticeships.",
-              detail: "From CTECH to industry credentials — pairing strengths and interests to real Connecticut programs.",
-              accent: "from-amber-400/70 to-orange-500/70",
-            },
-            {
-              id: "career",
-              number: "03",
-              image: pathCareer,
-              sticker: stickerCareer,
-              label: "Career & Employment",
-              caption: "Job training, internships, BRS.",
-              detail: "Supported employment, vocational rehab, and a warm hand-off from school to first paycheck.",
-              accent: "from-emerald-400/70 to-teal-500/70",
-            },
-            {
-              id: "life-skills",
-              number: "04",
-              image: pathLifeskills,
-              sticker: stickerLifeskills,
-              label: "Life Skills",
-              caption: "Cooking, transit, money, daily independence.",
-              detail: "Practical readiness woven into the IEP — the quiet skills that make every other pathway possible.",
-              accent: "from-rose-400/70 to-pink-500/70",
-            },
-            {
-              id: "progress",
-              number: "05",
-              image: pathProgress,
-              sticker: stickerProgress,
-              label: "Progress, Tracked",
-              caption: "Small wins, gently celebrated.",
-              detail: "Goals, evidence, and the next step — visible to student, family, and team without the binder shuffle.",
-              accent: "from-violet-400/70 to-fuchsia-500/70",
-            },
-          ]}
-        />
-
-        {/* Quick-jump rail */}
-        <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            Jump into a pathway
-          </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <PathwayTile className="aspect-[4/5]" image={pathCollege} sticker={stickerCollege} label="College" caption="" compact pathwayId="college" />
-            <PathwayTile className="aspect-[4/5]" image={pathTechnical} sticker={stickerTechnical} label="Technical" caption="" compact pathwayId="technical-education" />
-            <PathwayTile className="aspect-[4/5]" image={pathCareer} sticker={stickerCareer} label="Career" caption="" compact pathwayId="career" />
-            <PathwayTile className="aspect-[4/5]" image={pathLifeskills} sticker={stickerLifeskills} label="Life Skills" caption="" compact pathwayId="life-skills" />
-            <PathwayTile className="aspect-[4/5]" image={pathProgress} sticker={stickerProgress} label="Progress" caption="" compact pathwayId="progress" />
-          </div>
+        <div className="grid auto-rows-[14rem] grid-cols-2 gap-4 sm:auto-rows-[16rem] md:auto-rows-[18rem] md:grid-cols-12 md:gap-5">
+          <PathwayTile
+            className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
+            image={pathCollege}
+            sticker={stickerCollege}
+            label="College"
+            caption="Two- and four-year programs, with the right supports in place."
+            size="lg"
+            pathwayId="college"
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-6"
+            image={pathTechnical}
+            sticker={stickerTechnical}
+            label="Technical Education"
+            caption="Hands-on trades, certificates, and apprenticeships."
+            pathwayId="technical-education"
+          />
+          <PathwayTile
+            className="col-span-2 md:col-span-2"
+            image={pathCareer}
+            sticker={stickerCareer}
+            label="Career & Employment"
+            caption="Job training, internships, BRS."
+            compact
+            pathwayId="career"
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathLifeskills}
+            sticker={stickerLifeskills}
+            label="Life Skills"
+            caption="Cooking, transit, money, daily independence."
+            compact
+            pathwayId="life-skills"
+          />
+          <PathwayTile
+            className="col-span-1 md:col-span-2"
+            image={pathProgress}
+            sticker={stickerProgress}
+            label="Progress Tracked"
+            caption="Small wins, gently celebrated."
+            compact
+            pathwayId="progress"
+          />
         </div>
       </section>
 
-
       {/* CT SEDS COMPANION + IMPACT + TRUST */}
-      <section className="bg-muted/40 py-20">
+      <section className="bg-muted/40 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto grid max-w-5xl gap-8 rounded-3xl border border-border/60 bg-card p-8 shadow-soft sm:p-10 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                A companion to CT SEDS — not a replacement
-              </p>
-              <p className="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
-                TransitionForward helps families and educators make sense of transition
-                planning, organize important information, and turn goals into clear
-                action steps.
-              </p>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                Your official IEP and PPT determinations still live where they belong.
-                We sit alongside — translating, organizing, and connecting plans to the
-                real opportunities waiting in Connecticut.
-              </p>
-            </div>
-            <div className="lg:col-span-5">
-              <ConnectedNetworkVisual />
-            </div>
+          <div className="mx-auto max-w-3xl rounded-3xl border border-border/60 bg-card p-8 text-center shadow-soft sm:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              A companion to CT SEDS — not a replacement
+            </p>
+            <p className="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
+              TransitionForward helps families and educators make sense of transition
+              planning, organize important information, and turn goals into clear
+              action steps.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Your official IEP and PPT determinations still live where they belong.
+              We sit alongside — translating, organizing, and connecting plans to the
+              real opportunities waiting in Connecticut.
+            </p>
           </div>
-
 
           <div className="mt-16">
             <div className="mx-auto mb-10 max-w-2xl text-center">
@@ -1010,18 +929,14 @@ function Zigzag({
           imageFirst ? "lg:order-1" : "lg:order-2"
         }`}
       >
-        <Tilt3D max={6}>
-          <MorphCard className="relative aspect-[16/11] overflow-hidden shadow-lift">
-            <img
-              src={image}
-              alt={alt}
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-[1.04]"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-foreground/15 via-transparent to-transparent" />
-          </MorphCard>
-        </Tilt3D>
-
+        <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
+          <img
+            src={image}
+            alt={alt}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+          />
+        </div>
       </div>
       <div
         className={`lg:col-span-5 ${
@@ -1179,448 +1094,24 @@ function FeatureShot({
 }) {
   return (
     <figure
-      className={`group relative ${aspect} overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-lift ${className}`}
+      className={`group relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${className}`}
     >
-      <img
-        src={image}
-        alt={label}
-        loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-      />
-      {/* Default scrim — always present, deepens on hover */}
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/15 to-transparent transition-opacity duration-500 group-hover:opacity-95" />
-      {/* Label chip */}
-      <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur transition-transform duration-500 group-hover:-translate-y-0.5">
-        {label}
-      </span>
-      {/* Title bar — visible by default */}
-      <figcaption className="absolute inset-x-0 bottom-0 p-5 text-background">
-        <p className="font-display text-base font-medium leading-snug tracking-tight transition-transform duration-500 group-hover:-translate-y-2 sm:text-lg">
-          {toTitleCase(label)}
-        </p>
-        {/* Hover-revealed caption */}
-        <p className="mt-2 max-w-md translate-y-3 text-xs leading-relaxed text-background/85 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 sm:text-sm">
-          {caption}
-        </p>
+      <div className={`relative ${aspect} overflow-hidden`}>
+        <img
+          src={image}
+          alt={label}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
+        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
+          {label}
+        </span>
+      </div>
+      <figcaption className="p-5">
+        <p className="text-sm leading-relaxed text-muted-foreground">{caption}</p>
       </figcaption>
     </figure>
-  );
-}
-
-/* Hero helper — words fade in one by one */
-function MaskedWords({ text, delay = 0 }: { text: string; delay?: number }) {
-  const words = text.split(" ");
-  return (
-    <span className="inline">
-      {words.map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden align-baseline pr-[0.25em]">
-          <motion.span
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: "0%", opacity: 1 }}
-            transition={{
-              duration: 0.7,
-              delay: delay + i * 0.08,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="inline-block"
-          >
-            {w}
-          </motion.span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-/* Hero helper — a stacked, gently-floating mockup composition */
-function FloatingDashboardStack() {
-  return (
-    <div className="relative mx-auto h-[460px] w-full max-w-md">
-      {/* Back card — Pathway report */}
-      <motion.div
-        initial={{ opacity: 0, y: 30, rotate: -4 }}
-        animate={{ opacity: 1, y: 0, rotate: -4 }}
-        transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute left-0 top-6 w-[78%] rounded-3xl border border-border/70 bg-card p-5 shadow-lift float-y-slow"
-      >
-        <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
-            <Compass className="h-3 w-3" /> Pathway
-          </span>
-          <span className="text-[10px] font-medium text-muted-foreground">v1.0</span>
-        </div>
-        <p className="mt-3 font-display text-base font-medium tracking-tight">
-          Maya · 11th grade
-        </p>
-        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-          Career direction · Life skills · 30-day plan
-        </p>
-        <div className="mt-4 space-y-1.5">
-          {[80, 55, 35].map((w, i) => (
-            <div key={i} className="h-2 rounded-full bg-muted">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${w}%` }}
-                transition={{ duration: 1.2, delay: 0.9 + i * 0.15, ease: "easeOut" }}
-                className="h-full rounded-full bg-gradient-to-r from-primary to-[oklch(0.7_0.18_45)]"
-              />
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Mid card — Goal */}
-      <motion.div
-        initial={{ opacity: 0, y: 30, rotate: 3 }}
-        animate={{ opacity: 1, y: 0, rotate: 3 }}
-        transition={{ duration: 0.9, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute right-0 top-32 w-[68%] rounded-2xl border border-border/70 bg-background p-4 shadow-lift float-y-slow"
-        style={{ animationDelay: "1.2s" }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[oklch(0.95_0.05_55)] text-primary">
-            <ClipboardCheck className="h-3.5 w-3.5" />
-          </span>
-          <p className="text-xs font-semibold text-foreground">Goal · Self-advocacy</p>
-        </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-          "I will lead 5 minutes of my next PPT meeting."
-        </p>
-        <div className="mt-3 flex items-center gap-1.5">
-          <span className="h-1.5 flex-1 rounded-full bg-primary" />
-          <span className="h-1.5 flex-1 rounded-full bg-primary" />
-          <span className="h-1.5 flex-1 rounded-full bg-primary/30" />
-          <span className="h-1.5 flex-1 rounded-full bg-muted" />
-        </div>
-      </motion.div>
-
-      {/* Front card — Match */}
-      <motion.div
-        initial={{ opacity: 0, y: 30, rotate: -2 }}
-        animate={{ opacity: 1, y: 0, rotate: -2 }}
-        transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute bottom-4 left-6 w-[72%] rounded-2xl border border-border/70 bg-background p-4 shadow-lift float-y-slow"
-        style={{ animationDelay: "0.6s" }}
-      >
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
-            Local match
-          </p>
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-        </div>
-        <p className="mt-2 font-display text-sm font-medium leading-snug tracking-tight">
-          Manchester CC · Culinary certificate
-        </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          12 mi from home · Disability services on campus
-        </p>
-      </motion.div>
-
-      {/* Tiny floating chips */}
-      <motion.span
-        initial={{ opacity: 0, scale: 0.6 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        className="float-y-slow absolute -right-2 top-2 inline-flex items-center gap-1 rounded-full border border-border/70 bg-background px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-soft"
-      >
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Auto-saved
-      </motion.span>
-      <motion.span
-        initial={{ opacity: 0, scale: 0.6 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1.2, duration: 0.5 }}
-        className="float-y-slow absolute -left-3 top-40 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold text-primary-foreground shadow-lift"
-        style={{ animationDelay: "1.5s" }}
-      >
-        <Sparkles className="h-3 w-3" /> Plain language
-      </motion.span>
-    </div>
-  );
-}
-
-
-function ConnectedNetworkVisual() {
-  // Center = student. Surrounding nodes = roles/services.
-  const nodes = [
-    { id: "family", label: "Family", icon: HeartHandshake, angle: -90 },
-    { id: "educator", label: "Educator", icon: GraduationCap, angle: -30 },
-    { id: "ct", label: "CT services", icon: Building2, angle: 30 },
-    { id: "partner", label: "Partners", icon: Briefcase, angle: 90 },
-    { id: "college", label: "Colleges", icon: Compass, angle: 150 },
-    { id: "voice", label: "Student voice", icon: MessagesSquare, angle: -150 },
-  ];
-  const R = 38; // % radius
-  return (
-    <div className="relative mx-auto aspect-square w-full max-w-[360px]">
-      {/* Soft halo */}
-      <div className="absolute inset-6 rounded-full bg-primary/5 blur-2xl" />
-      {/* Connecting lines */}
-      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
-        {nodes.map((n, i) => {
-          const rad = (n.angle * Math.PI) / 180;
-          const x = 50 + R * Math.cos(rad);
-          const y = 50 + R * Math.sin(rad);
-          return (
-            <motion.line
-              key={n.id}
-              x1="50"
-              y1="50"
-              x2={x}
-              y2={y}
-              stroke="oklch(0.75 0.12 50)"
-              strokeWidth="0.6"
-              strokeDasharray="2 2"
-              initial={{ pathLength: 0, opacity: 0 }}
-              whileInView={{ pathLength: 1, opacity: 0.6 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.9, delay: 0.2 + i * 0.08, ease: "easeOut" }}
-            />
-          );
-        })}
-        {/* Outer ring */}
-        <circle cx="50" cy="50" r={R} fill="none" stroke="oklch(0.85 0.05 55)" strokeWidth="0.3" strokeDasharray="0.6 1.2" />
-      </svg>
-      {/* Center node */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        whileInView={{ scale: 1, opacity: 1 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.7_0.18_45)] text-primary-foreground shadow-lift"
-      >
-        <GraduationCap className="h-6 w-6" />
-        <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em]">Student</span>
-        <span className="absolute inset-0 -z-10 rounded-full border border-primary/40 trust-pulse-ring" />
-      </motion.div>
-      {/* Orbit nodes */}
-      {nodes.map((n, i) => {
-        const rad = (n.angle * Math.PI) / 180;
-        const x = 50 + R * Math.cos(rad);
-        const y = 50 + R * Math.sin(rad);
-        const Ic = n.icon;
-        return (
-          <motion.div
-            key={n.id}
-            initial={{ opacity: 0, scale: 0.4 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5, delay: 0.5 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1"
-            style={{ left: `${x}%`, top: `${y}%` }}
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background text-primary shadow-soft">
-              <Ic className="h-4 w-4" />
-            </span>
-            <span className="rounded-full bg-background/95 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-foreground/75 shadow-soft">
-              {n.label}
-            </span>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ============================================================
-// PathwaysStickyScene — sticky cinematic scene that morphs through
-// each pathway as the user scrolls. Left column pins a stage that
-// crossfades the active pathway image+sticker; right column scrolls
-// past numbered story panels.
-// ============================================================
-type PathwaySlide = {
-  id: string;
-  number: string;
-  image: string;
-  sticker?: string;
-  label: string;
-  caption: string;
-  detail: string;
-  accent: string;
-};
-
-function PathwaysStickyScene({ slides }: { slides: PathwaySlide[] }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  return (
-    <div ref={containerRef} className="relative">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8">
-        {/* Sticky stage — hidden on small screens, where slides render inline */}
-        <div className="hidden lg:col-span-6 lg:block">
-          <div className="sticky top-24 h-[80vh] max-h-[640px]">
-            <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] border border-border/60 bg-card shadow-lift">
-              {slides.map((s, i) => (
-                <StickyStageLayer
-                  key={s.id}
-                  slide={s}
-                  index={i}
-                  total={slides.length}
-                  progress={scrollYProgress}
-                />
-              ))}
-
-              {/* Progress dots */}
-              <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full bg-background/80 px-3 py-2 backdrop-blur">
-                {slides.map((s, i) => (
-                  <ProgressDot key={s.id} index={i} total={slides.length} progress={scrollYProgress} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scrolling story panels */}
-        <div className="lg:col-span-6">
-          <div className="flex flex-col gap-6 lg:gap-[28vh]">
-            {slides.map((s, i) => (
-              <PathwayStoryPanel key={s.id} slide={s} first={i === 0} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StickyStageLayer({
-  slide,
-  index,
-  total,
-  progress,
-}: {
-  slide: PathwaySlide;
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
-}) {
-  // Build a crossfade window for this slide across [0,1] scroll progress.
-  const step = 1 / total;
-  const start = index * step;
-  const end = start + step;
-  const fadeIn = Math.max(0, start - step * 0.35);
-  const fadeOut = Math.min(1, end + step * 0.05);
-
-  const opacity = useTransform(
-    progress,
-    [fadeIn, start + step * 0.15, end - step * 0.05, fadeOut],
-    [0, 1, 1, 0],
-  );
-  const scale = useTransform(progress, [fadeIn, end], [1.08, 1.0]);
-  const y = useTransform(progress, [fadeIn, fadeOut], [40, -40]);
-
-  return (
-    <motion.div
-      style={{ opacity }}
-      className="absolute inset-0"
-      aria-hidden={index === 0 ? undefined : true}
-    >
-      <motion.img
-        src={slide.image}
-        alt={slide.label}
-        style={{ scale, y }}
-        className="absolute inset-0 h-full w-full object-cover"
-        loading="lazy"
-      />
-      <div className={`absolute inset-0 bg-gradient-to-tr ${slide.accent} mix-blend-multiply opacity-60`} />
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
-
-      {/* Sticker */}
-      {slide.sticker && (
-        <motion.img
-          src={slide.sticker}
-          alt=""
-          aria-hidden="true"
-          style={{ y: useTransform(progress, [fadeIn, fadeOut], [20, -30]) }}
-          className="absolute right-6 top-6 h-28 w-28 -rotate-6 drop-shadow-2xl sm:h-32 sm:w-32"
-        />
-      )}
-
-      {/* Number + label */}
-      <div className="absolute inset-x-0 bottom-0 p-8 text-background sm:p-10">
-        <div className="flex items-baseline gap-4">
-          <span className="font-display text-6xl font-medium leading-none text-background/90 sm:text-7xl">
-            {slide.number}
-          </span>
-          <span className="h-px flex-1 bg-background/40" />
-        </div>
-        <h3 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          {slide.label}
-        </h3>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-background/85 sm:text-base">
-          {slide.caption}
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-function ProgressDot({
-  index,
-  total,
-  progress,
-}: {
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
-}) {
-  const step = 1 / total;
-  const start = index * step;
-  const end = start + step;
-  const scale = useTransform(progress, [start - step * 0.2, start + step * 0.15, end], [1, 1.6, 1]);
-  const opacity = useTransform(progress, [start - step * 0.2, start + step * 0.15, end], [0.4, 1, 0.4]);
-  return (
-    <motion.span
-      aria-hidden="true"
-      style={{ scale, opacity }}
-      className="h-1.5 w-1.5 rounded-full bg-primary"
-    />
-  );
-}
-
-function PathwayStoryPanel({ slide, first }: { slide: PathwaySlide; first: boolean }) {
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-25% 0px -25% 0px" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`flex min-h-[60vh] flex-col justify-center ${first ? "" : ""}`}
-    >
-      {/* Mobile/tablet: inline image */}
-      <div className="relative mb-6 aspect-[4/3] overflow-hidden rounded-3xl shadow-lift lg:hidden">
-        <img src={slide.image} alt={slide.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-        <div className={`absolute inset-0 bg-gradient-to-tr ${slide.accent} mix-blend-multiply opacity-60`} />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
-        {slide.sticker && (
-          <img src={slide.sticker} alt="" aria-hidden="true" className="absolute right-4 top-4 h-20 w-20 -rotate-6 drop-shadow-xl" />
-        )}
-        <div className="absolute inset-x-0 bottom-0 p-5 text-background">
-          <span className="font-display text-4xl font-medium leading-none text-background/90">{slide.number}</span>
-          <h3 className="mt-2 font-display text-2xl font-medium tracking-tight">{slide.label}</h3>
-        </div>
-      </div>
-
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-        Pathway {slide.number}
-      </p>
-      <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-        {slide.label}
-      </h3>
-      <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-        {slide.detail}
-      </p>
-      <Link
-        to="/pathways/$pathwayId"
-        params={{ pathwayId: slide.id }}
-        className="group mt-6 inline-flex items-center gap-1.5 self-start rounded-full border border-foreground/15 bg-background px-5 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-soft"
-      >
-        Open the {slide.label} pathway
-        <span className="transition-transform group-hover:translate-x-1">→</span>
-      </Link>
-    </motion.article>
   );
 }
 
