@@ -1,62 +1,116 @@
 import { Link } from "@tanstack/react-router";
+import { motion } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
+
+const exploreLinks = [
+  { to: "/platform", label: "The Platform" },
+  { to: "/families", label: "For Families" },
+  { to: "/educators", label: "For Educators" },
+  { to: "/framework", label: "The Framework" },
+  { to: "/resources", label: "Resource Hub" },
+  { to: "/research", label: "Research" },
+] as const;
+
+const aboutLinks = [
+  { to: "/about", label: "Meet Caysi" },
+  { to: "/partners", label: "Partners" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/waitlist", label: "Join the waitlist" },
+  { to: "/privacy", label: "Privacy" },
+] as const;
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/60 bg-muted/40">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4 lg:px-8">
+    <footer className="relative isolate overflow-hidden border-t border-border/60 bg-muted/40">
+      {/* Ambient gradient */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <motion.div
+          aria-hidden
+          className="absolute -left-40 top-0 h-[420px] w-[420px] rounded-full bg-primary/10 blur-3xl"
+          animate={{ x: [0, 30, 0], y: [0, 20, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute -right-40 bottom-0 h-[380px] w-[380px] rounded-full bg-accent/10 blur-3xl"
+          animate={{ x: [0, -25, 0], y: [0, -15, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-4 lg:px-8">
         <div className="md:col-span-2">
-          <Link to="/" className="flex items-center gap-2">
-            <span
+          <Link to="/" className="group flex items-center gap-2">
+            <motion.span
               aria-hidden
-              className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
+              whileHover={{ rotate: 12, scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300, damping: 18 }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
             >
               <span className="h-3 w-3 rounded-full bg-primary" />
-            </span>
+            </motion.span>
             <span className="font-display text-xl font-semibold tracking-tight">
               TransitionForward
             </span>
           </Link>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
             From IEP goals to real-life pathways. One platform for the students,
             families, and educators walking the long road of transition together.
           </p>
-          <p className="mt-4 text-xs leading-relaxed text-muted-foreground/80">
+          <p className="mt-4 max-w-md text-xs leading-relaxed text-muted-foreground/80">
             A pilot program — not a school district's system of record. Your
             child's information stays yours, scoped to your account, and is
             never shared, sold, or used to train any outside model.
           </p>
+
+          <Link
+            to="/waitlist"
+            className="group mt-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm font-semibold text-foreground shadow-soft backdrop-blur transition-all hover:border-primary/40 hover:shadow-lift"
+          >
+            Join the waitlist
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </Link>
         </div>
 
-        <div>
-          <h4 className="font-display text-base font-semibold">Explore</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/platform" className="hover:text-foreground">The Platform</Link></li>
-            <li><Link to="/families" className="hover:text-foreground">For Families</Link></li>
-            <li><Link to="/educators" className="hover:text-foreground">For Educators</Link></li>
-            <li><Link to="/framework" className="hover:text-foreground">The Framework</Link></li>
-            <li><Link to="/resources" className="hover:text-foreground">Resource Hub</Link></li>
-            <li><Link to="/research" className="hover:text-foreground">Research</Link></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-display text-base font-semibold">About</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/about" className="hover:text-foreground">Meet Caysi</Link></li>
-            <li><Link to="/partners" className="hover:text-foreground">Partners</Link></li>
-            <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
-            <li><Link to="/waitlist" className="hover:text-foreground">Join the waitlist</Link></li>
-            <li><Link to="/privacy" className="hover:text-foreground">Privacy</Link></li>
-          </ul>
-        </div>
+        <FooterColumn title="Explore" links={exploreLinks} />
+        <FooterColumn title="About" links={aboutLinks} />
       </div>
 
-      <div className="border-t border-border/60">
+      <div className="border-t border-border/60 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} TransitionForward. Made with care in Connecticut.</p>
           <p className="italic">One platform. One plan. Forward together.</p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: readonly { to: string; label: string }[];
+}) {
+  return (
+    <div>
+      <h4 className="font-display text-base font-semibold">{title}</h4>
+      <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+        {links.map((link) => (
+          <li key={link.to}>
+            <Link
+              to={link.to}
+              className="group inline-flex items-center gap-1 transition-colors hover:text-foreground"
+            >
+              <span className="relative">
+                {link.label}
+                <span className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-foreground/60 transition-transform duration-300 group-hover:scale-x-100" />
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
