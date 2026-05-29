@@ -1,13 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { ShieldCheck, Sparkles } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import {
+  DemoStepBar,
+  DemoStepFooter,
+  validateStudentSearch,
+} from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DEMO_INTAKE, DEMO_STUDENT } from "@/lib/demo-data";
+import { getDemoStudent } from "@/lib/demo-data";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({
+  validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
       { title: "Sample intake — TransitionForward demo" },
@@ -21,116 +26,88 @@ export const Route = createFileRoute("/demo_/intake")({
   component: DemoIntakePage,
 });
 
-const SECTIONS: { label: string; fields: { label: string; value: string; helper?: string }[] }[] = [
-  {
-    label: "Who's filling this out",
-    fields: [
-      {
-        label: "Role",
-        value: roleLabel(DEMO_INTAKE.submitter_role),
-        helper: "We tailor the report's language to who is reading it.",
-      },
-      {
-        label: "Student's first name",
-        value: DEMO_INTAKE.student_first_name,
-      },
-      {
-        label: "Grade band",
-        value: gradeLabel(DEMO_INTAKE.grade_band),
-      },
-    ],
-  },
-  {
-    label: "Strengths & interests",
-    fields: [
-      {
-        label: "What is the student good at?",
-        value: DEMO_INTAKE.strengths,
-        helper: "Specific, observable strengths anchor the whole report.",
-      },
-      {
-        label: "What does the student enjoy?",
-        value: DEMO_INTAKE.interests,
-      },
-    ],
-  },
-  {
-    label: "Needs & supports",
-    fields: [
-      {
-        label: "Disability-related needs",
-        value: DEMO_INTAKE.needs,
-      },
-      {
-        label: "Supports that work",
-        value: DEMO_INTAKE.supports,
-        helper: "We use these to recommend realistic accommodations for each pathway.",
-      },
-      {
-        label: "Transportation",
-        value: DEMO_INTAKE.transportation,
-      },
-      {
-        label: "Communication",
-        value: DEMO_INTAKE.communication,
-      },
-    ],
-  },
-  {
-    label: "Current goals & concerns",
-    fields: [
-      {
-        label: "Current IEP transition goals",
-        value: DEMO_INTAKE.current_goals,
-        helper: "We translate these into plain English in the report.",
-      },
-      {
-        label: "Family concerns",
-        value: DEMO_INTAKE.family_concerns,
-      },
-    ],
-  },
-  {
-    label: "The three voices",
-    fields: [
-      {
-        label: "In the student's own words",
-        value: DEMO_INTAKE.student_voice,
-        helper: "Student voice carries the most weight in our recommendations.",
-      },
-      {
-        label: "From the family",
-        value: DEMO_INTAKE.family_voice,
-      },
-      {
-        label: "From the educator / case manager",
-        value: DEMO_INTAKE.educator_input,
-      },
-    ],
-  },
-];
-
 function DemoIntakePage() {
+  const { s } = Route.useSearch();
+  const bundle = getDemoStudent(s);
+  const { profile: student, intake } = bundle;
+
+  const sections: { label: string; fields: { label: string; value: string; helper?: string }[] }[] = [
+    {
+      label: "Who's filling this out",
+      fields: [
+        {
+          label: "Role",
+          value: roleLabel(intake.submitter_role),
+          helper: "We tailor the report's language to who is reading it.",
+        },
+        { label: "Student's first name", value: intake.student_first_name },
+        { label: "Grade band", value: gradeLabel(intake.grade_band) },
+      ],
+    },
+    {
+      label: "Strengths & interests",
+      fields: [
+        {
+          label: "What is the student good at?",
+          value: intake.strengths,
+          helper: "Specific, observable strengths anchor the whole report.",
+        },
+        { label: "What does the student enjoy?", value: intake.interests },
+      ],
+    },
+    {
+      label: "Needs & supports",
+      fields: [
+        { label: "Disability-related needs", value: intake.needs },
+        {
+          label: "Supports that work",
+          value: intake.supports,
+          helper: "We use these to recommend realistic accommodations for each pathway.",
+        },
+        { label: "Transportation", value: intake.transportation },
+        { label: "Communication", value: intake.communication },
+      ],
+    },
+    {
+      label: "Current goals & concerns",
+      fields: [
+        {
+          label: "Current IEP transition goals",
+          value: intake.current_goals,
+          helper: "We translate these into plain English in the report.",
+        },
+        { label: "Family concerns", value: intake.family_concerns },
+      ],
+    },
+    {
+      label: "The three voices",
+      fields: [
+        {
+          label: "In the student's own words",
+          value: intake.student_voice,
+          helper: "Student voice carries the most weight in our recommendations.",
+        },
+        { label: "From the family", value: intake.family_voice },
+        { label: "From the educator / case manager", value: intake.educator_input },
+      ],
+    },
+  ];
+
   return (
     <SiteShell>
-      <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <Link
-          to="/demo"
-          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to demo overview
-        </Link>
+      <DemoStepBar current="intake" student={s} />
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1">
-            <Sparkles className="h-3 w-3" /> Demo · step 1 of 3
+            <Sparkles className="h-3 w-3" /> Step 2 · Intake
           </Badge>
           <Badge variant="outline" className="gap-1">
             <ShieldCheck className="h-3 w-3" /> Fictional student
           </Badge>
         </div>
         <h1 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
-          Sample Intake For {toTitleCase(DEMO_STUDENT.full_name)}
+          Sample intake for {toTitleCase(student.full_name)}
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           This is what the guided transition-planning interview looks like once a family or
@@ -138,12 +115,12 @@ function DemoIntakePage() {
         </p>
 
         <div className="mt-8 space-y-6">
-          {SECTIONS.map((section, i) => (
+          {sections.map((section, i) => (
             <div key={section.label} className="rounded-3xl border bg-card shadow-soft">
               <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
                 <h2 className="font-display text-lg">{toTitleCase(section.label)}</h2>
                 <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Section {i + 1} of {SECTIONS.length}
+                  Section {i + 1} of {sections.length}
                 </span>
               </div>
               <dl className="divide-y divide-border/60">
@@ -169,19 +146,7 @@ function DemoIntakePage() {
           ))}
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/60 bg-gradient-hero p-6">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              Next
-            </p>
-            <p className="mt-1 font-display text-xl">See the Pathway Report this intake creates.</p>
-          </div>
-          <Button asChild>
-            <Link to="/demo/report">
-              Open the report <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
+        <DemoStepFooter current="intake" student={s} />
       </section>
     </SiteShell>
   );
