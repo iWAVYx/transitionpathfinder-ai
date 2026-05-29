@@ -572,20 +572,40 @@ export const seedDemoStudent = createServerFn({ method: "POST" })
       { student_id: studentId, uploaded_by: userId, title: "Family input form.pdf", storage_path: `${studentId}/demo/family-input.pdf`, doc_type: "family", document_category: "family_input", status: "uploaded", file_name: "family-input.pdf", mime_type: "application/pdf", size_bytes: 33112 },
     ]);
 
-    // 4. Pathway report
-    const { data: report } = await supabase
-      .from("pathway_reports")
+    // 4. Pathway report (intake_id is NOT NULL — create matching intake first)
+    const { data: intake } = await supabase
+      .from("student_intakes")
       .insert({
         user_id: userId,
-        intake_id: studentId, // placeholder (intake_id NOT NULL); could be real if intake required
+        submitter_role: "family",
+        student_first_name: "Marcus",
+        grade_band: "11-12",
+        strengths: "Hands-on, mechanical, patient, kind.",
+        interests: "Automotive, carpentry, sports, music.",
+        needs: "Reading comprehension, executive functioning, self-advocacy.",
+        family_voice: "We want a steady job and independence.",
+        student_voice: "I want to fix things and have a real job.",
         student_id: studentId,
-        model: "demo/seed",
-        content: DEMO_REPORT_CONTENT,
-        executive_summary: DEMO_REPORT_CONTENT.summary,
       })
       .select("id")
-      .maybeSingle();
-    const reportId = (report as { id?: string } | null)?.id ?? null;
+      .single();
+    const intakeId = (intake as { id: string } | null)?.id;
+    let reportId: string | null = null;
+    if (intakeId) {
+      const { data: report } = await supabase
+        .from("pathway_reports")
+        .insert({
+          user_id: userId,
+          intake_id: intakeId,
+          student_id: studentId,
+          model: "demo/seed",
+          content: DEMO_REPORT_CONTENT,
+          executive_summary: DEMO_REPORT_CONTENT.summary,
+        })
+        .select("id")
+        .maybeSingle();
+      reportId = (report as { id?: string } | null)?.id ?? null;
+    }
 
     // 5. Readiness scores
     await supabase.from("readiness_scores").insert(
