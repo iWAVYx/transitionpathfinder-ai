@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export type DbResource = {
   id: string;
@@ -17,10 +17,8 @@ export type DbResource = {
 };
 
 export const listVerifiedResources = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase } = context;
-    const { data, error } = await supabase
+  .handler(async () => {
+    const { data, error } = await supabaseAdmin
       .from("resources")
       .select(
         "id,title,description,resource_type,audience,topic,format,url,source_name,location_scope,estimated_time,grade_range",
