@@ -89,6 +89,13 @@ function ReportDetailPage() {
       .catch(() => setStudents([]));
   }, [fetchReport, listTokens, fetchStudents, reportId]);
 
+  useEffect(() => {
+    if (state.kind === "ok" && search.print) {
+      const t = setTimeout(() => window.print(), 600);
+      return () => clearTimeout(t);
+    }
+  }, [state.kind, search.print]);
+
   async function handleLink(studentId: string | null) {
     setLinking(true);
     try {
