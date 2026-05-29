@@ -16,10 +16,24 @@ export const Route = createFileRoute("/_authenticated/insights")({
 function InsightsPage() {
   const fetchInsights = useServerFn(getEngagementInsights);
   const [data, setData] = useState<EngagementInsights | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    fetchInsights().then(setData).catch(() => setData(null));
-  }, [fetchInsights]);
+    setLoadError(null);
+    let cancelled = false;
+    fetchInsights()
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setLoadError(err instanceof Error ? err.message : "Couldn't load insights.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchInsights, tick]);
 
   return (
     <SiteShell>
