@@ -22,6 +22,7 @@ import {
   TiltLayer,
 } from "@/components/effects/ImmersiveEffects";
 import { Parallax, Reveal, Marquee } from "@/components/effects/ScrollEffects";
+import { PartnerApplyForm } from "@/components/site/PartnerApplyForm";
 import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/partners")({
