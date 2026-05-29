@@ -27,7 +27,10 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
+import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
+import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
@@ -143,9 +146,24 @@ const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   path: '/pathways/$pathwayId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoResourcesRoute = DemoResourcesRouteImport.update({
+  id: '/demo_/resources',
+  path: '/demo/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoReportRoute = DemoReportRouteImport.update({
   id: '/demo_/report',
   path: '/demo/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoPlanRoute = DemoPlanRouteImport.update({
+  id: '/demo_/plan',
+  path: '/demo/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoMeetingRoute = DemoMeetingRouteImport.update({
+  id: '/demo_/meeting',
+  path: '/demo/meeting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoIntakeRoute = DemoIntakeRouteImport.update({
@@ -317,7 +335,10 @@ export interface FileRoutesByFullPath {
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
+  '/demo/meeting': typeof DemoMeetingRoute
+  '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
+  '/demo/resources': typeof DemoResourcesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -362,7 +383,10 @@ export interface FileRoutesByTo {
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
+  '/demo/meeting': typeof DemoMeetingRoute
+  '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
+  '/demo/resources': typeof DemoResourcesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -409,7 +433,10 @@ export interface FileRoutesById {
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
+  '/demo_/meeting': typeof DemoMeetingRoute
+  '/demo_/plan': typeof DemoPlanRoute
   '/demo_/report': typeof DemoReportRoute
+  '/demo_/resources': typeof DemoResourcesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -456,7 +483,10 @@ export interface FileRouteTypes {
     | '/students'
     | '/demo/hub'
     | '/demo/intake'
+    | '/demo/meeting'
+    | '/demo/plan'
     | '/demo/report'
+    | '/demo/resources'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/forms/$slug'
@@ -501,7 +531,10 @@ export interface FileRouteTypes {
     | '/students'
     | '/demo/hub'
     | '/demo/intake'
+    | '/demo/meeting'
+    | '/demo/plan'
     | '/demo/report'
+    | '/demo/resources'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/forms/$slug'
@@ -547,7 +580,10 @@ export interface FileRouteTypes {
     | '/_authenticated/students'
     | '/demo_/hub'
     | '/demo_/intake'
+    | '/demo_/meeting'
+    | '/demo_/plan'
     | '/demo_/report'
+    | '/demo_/resources'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/forms/$slug'
@@ -575,7 +611,10 @@ export interface RootRouteChildren {
   WaitlistRoute: typeof WaitlistRoute
   DemoHubRoute: typeof DemoHubRoute
   DemoIntakeRoute: typeof DemoIntakeRoute
+  DemoMeetingRoute: typeof DemoMeetingRoute
+  DemoPlanRoute: typeof DemoPlanRoute
   DemoReportRoute: typeof DemoReportRoute
+  DemoResourcesRoute: typeof DemoResourcesRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ShareTokenRoute: typeof ShareTokenRoute
 }
@@ -708,11 +747,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo_/resources': {
+      id: '/demo_/resources'
+      path: '/demo/resources'
+      fullPath: '/demo/resources'
+      preLoaderRoute: typeof DemoResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo_/report': {
       id: '/demo_/report'
       path: '/demo/report'
       fullPath: '/demo/report'
       preLoaderRoute: typeof DemoReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/plan': {
+      id: '/demo_/plan'
+      path: '/demo/plan'
+      fullPath: '/demo/plan'
+      preLoaderRoute: typeof DemoPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/meeting': {
+      id: '/demo_/meeting'
+      path: '/demo/meeting'
+      fullPath: '/demo/meeting'
+      preLoaderRoute: typeof DemoMeetingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/intake': {
@@ -1008,7 +1068,10 @@ const rootRouteChildren: RootRouteChildren = {
   WaitlistRoute: WaitlistRoute,
   DemoHubRoute: DemoHubRoute,
   DemoIntakeRoute: DemoIntakeRoute,
+  DemoMeetingRoute: DemoMeetingRoute,
+  DemoPlanRoute: DemoPlanRoute,
   DemoReportRoute: DemoReportRoute,
+  DemoResourcesRoute: DemoResourcesRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ShareTokenRoute: ShareTokenRoute,
 }
