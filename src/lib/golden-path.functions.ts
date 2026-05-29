@@ -6,6 +6,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * GOLDEN PATH — Parent dashboard data + demo student seeder
  * ============================================================ */
 
+type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
+
 export type ActionItemRow = {
   id: string;
   student_id: string;
