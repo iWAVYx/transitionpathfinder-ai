@@ -329,6 +329,7 @@ function AddInline({
   return (
     <div className="flex gap-1">
       <input
+        aria-label={placeholder}
         autoFocus
         value={v}
         onChange={(e) => setV(e.target.value)}
