@@ -312,17 +312,22 @@ function FrameworkPage() {
         </div>
       </section>
 
-      {/* Grade band detail cards */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-4xl font-medium sm:text-5xl">
-            What every grade really asks of your family.
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Hover any band to see the evidence we collect so progress stays real and visible —
-            not just felt.
-          </p>
-        </div>
+      {/* Grade band detail cards — the four-year arc */}
+      <section className="border-t border-border/60 bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              The four-year arc
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
+              Each grade asks something different.{" "}
+              <TextMask className="font-display">We answer all of it.</TextMask>
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Hover any band to see the evidence we collect so progress stays real and visible —
+              not just felt.
+            </p>
+          </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
           {bands.map((b, i) => (
             <Reveal key={b.grade} delay={i * 90}>
