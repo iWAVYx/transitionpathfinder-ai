@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 
 const exploreLinks = [
   { to: "/platform", label: "The Platform" },
+  { to: "/demo", label: "See the Demo" },
   { to: "/families", label: "For Families" },
   { to: "/educators", label: "For Educators" },
   { to: "/framework", label: "The Framework" },

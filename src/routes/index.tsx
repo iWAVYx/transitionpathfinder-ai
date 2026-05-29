@@ -194,6 +194,13 @@ function HomePage() {
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
+                to="/demo"
+                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background"
+              >
+                Try the live demo
+                <span className="text-primary transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+              <Link
                 to="/platform"
                 className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
               >
