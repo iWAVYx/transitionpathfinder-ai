@@ -39,15 +39,21 @@ function MeetingDetailPage() {
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [questions, setQuestions] = useState<MeetingQuestion[]>([]);
   const [actions, setActions] = useState<ActionItem[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement | null>(null);
 
   const reload = () =>
-    get({ data: { id: meetingId } }).then((r) => {
-      setMeeting(r.meeting);
-      setAgenda(r.agenda);
-      setQuestions(r.questions);
-      setActions(r.actions);
-    });
+    get({ data: { id: meetingId } })
+      .then((r) => {
+        setMeeting(r.meeting);
+        setAgenda(r.agenda);
+        setQuestions(r.questions);
+        setActions(r.actions);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        setLoadError(err instanceof Error ? err.message : "Couldn't load this meeting.");
+      });
 
   useEffect(() => {
     reload();
@@ -62,6 +68,23 @@ function MeetingDetailPage() {
 
   function handlePrint() {
     window.print();
+  }
+
+  if (loadError) {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+          <h1 className="font-display text-2xl">We couldn't open this meeting</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <Link
+            to="/meetings"
+            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
+          >
+            ← Back to Meetings
+          </Link>
+        </div>
+      </SiteShell>
+    );
   }
 
   if (!meeting) {
