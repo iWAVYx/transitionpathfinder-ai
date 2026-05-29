@@ -37,6 +37,7 @@ import {
 
 const SearchSchema = z.object({
   welcome: z.coerce.number().optional(),
+  print: z.coerce.number().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
