@@ -208,21 +208,71 @@ function ContactPage() {
               </div>
             </form>
           ) : (
-            <div className="mt-10 rounded-3xl border bg-card p-8 shadow-soft">
+            <div className="mt-10 rounded-3xl border bg-card p-8 shadow-soft sm:p-10">
               <div className="flex items-start gap-4">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-hero text-primary">
                   <Mail className="h-5 w-5" />
                 </span>
-                <div>
+                <div className="flex-1">
                   <h2 className="font-display text-2xl font-medium">
                     Got it. Thank you for reaching out.
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    We'll reply from a real Connecticut human within two school days. If your
-                    message is urgent, mention "urgent" in the subject of your reply and we'll
+                    A real Connecticut human will reply within two school days. If it's urgent,
+                    write "urgent" in the subject when you reply to our confirmation and we'll
                     move you to the top of the day.
                   </p>
                 </div>
+              </div>
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                <ResultStep
+                  n={1}
+                  title="Routing"
+                  body="We tag your message to the right teammate — family support, educator success, or district lead."
+                />
+                <ResultStep
+                  n={2}
+                  title="Reply"
+                  body="You'll hear back from a named person, not a queue — usually within 1 school day."
+                />
+                <ResultStep
+                  n={3}
+                  title="Next step"
+                  body="If we need to discuss a student, we'll move to a secure, FERPA-aware channel first."
+                />
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-border/60 pt-6">
+                <p className="text-sm text-muted-foreground">While you wait:</p>
+                <a
+                  href="/demo"
+                  className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+                >
+                  Walk the demo
+                </a>
+                <a
+                  href="/framework"
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
+                >
+                  The framework
+                </a>
+                <a
+                  href="/resources"
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
+                >
+                  Resource hub
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDone(false);
+                    form.reset();
+                  }}
+                  className="ml-auto text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                >
+                  Send another message →
+                </button>
               </div>
             </div>
           )}
@@ -248,6 +298,20 @@ function HelpCard({
       </span>
       <h3 className="mt-3 font-display text-lg font-medium">{title}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function ResultStep({ n, title, body }: { n: number; title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+      <div className="flex items-center gap-2">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+          {n}
+        </span>
+        <p className="font-display text-sm font-semibold text-foreground">{title}</p>
+      </div>
+      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
 }
