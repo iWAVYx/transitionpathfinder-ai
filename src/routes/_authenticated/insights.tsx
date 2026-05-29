@@ -55,7 +55,21 @@ function InsightsPage() {
           only see data for students you're already connected to.
         </InfoBox>
 
-        {!data ? (
+        {loadError ? (
+          <div className="mt-10 rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+            <p className="font-medium text-destructive">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setData(null);
+                setTick((t) => t + 1);
+              }}
+              className="mt-3 inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+            >
+              Try again
+            </button>
+          </div>
+        ) : !data ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
         ) : (
           <>
