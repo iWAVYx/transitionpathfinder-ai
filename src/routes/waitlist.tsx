@@ -292,24 +292,111 @@ function WaitlistPage() {
             </div>
           )}
 
-          {done && (
-            <div className="mx-auto mt-12 max-w-xl rounded-3xl border bg-card p-8 text-center shadow-soft">
-              <div className="mx-auto h-14 w-14 rounded-full bg-gradient-hero p-4 shadow-soft">
-                <span className="block h-full w-full rounded-full bg-primary/20" />
+          {done && current && (
+            <div className="mx-auto mt-12 max-w-2xl rounded-3xl border bg-card p-8 shadow-soft sm:p-10">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
+                  {current.icon}
+                </span>
+                <div>
+                  <h2 className="font-display text-3xl font-medium leading-tight">
+                    You're in. Thank you for trusting us with this.
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    A real person on our Connecticut team reads every submission.
+                    Here's exactly what happens next.
+                  </p>
+                </div>
               </div>
-              <h2 className="mt-5 font-display text-3xl font-medium">
-                You're in. Thank you for trusting us with this.
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-                We'll reach out personally as we open the next round of seats. In the meantime, take
-                a quiet walk through the framework — it's the heart of everything we're building.
-              </p>
-              <a
-                href="/framework"
-                className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
-              >
-                Walk through the framework
-              </a>
+
+              <ol className="mt-7 space-y-4 border-l-2 border-primary/20 pl-5">
+                <NextStep
+                  n={1}
+                  title="Within 2 school days"
+                  body="We'll send a personal email confirming we received your request and routing it to the right teammate."
+                />
+                <NextStep
+                  n={2}
+                  title="Within 1–2 weeks"
+                  body={
+                    current.key === "district" || current.key === "partner"
+                      ? "We'll schedule a 20-minute intro call to learn about your goals, caseload, and timeline."
+                      : current.key === "educator"
+                        ? "We'll invite you to a short educator walkthrough and share the case-manager onboarding pack."
+                        : "We'll invite you to the next family cohort and share your private invite link to set up the Student Hub."
+                  }
+                />
+                <NextStep
+                  n={3}
+                  title="When you're ready"
+                  body="You'll set up your first student profile with us on a live, no-pressure call — or on your own if you prefer."
+                />
+              </ol>
+
+              <div className="mt-8 rounded-2xl border border-border/60 bg-muted/40 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  While you wait
+                </p>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  These pages were built specifically for {current.label.toLowerCase()} —
+                  they'll give you the clearest sense of what TransitionForward feels like in practice.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <a
+                    href="/demo"
+                    className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+                  >
+                    Walk the 6-step demo <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+                  <a
+                    href={
+                      current.key === "family" || current.key === "student"
+                        ? "/families"
+                        : current.key === "educator"
+                          ? "/educators"
+                          : current.key === "district"
+                            ? "/platform"
+                            : "/partners"
+                    }
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
+                  >
+                    {current.key === "family" || current.key === "student"
+                      ? "For Families"
+                      : current.key === "educator"
+                        ? "For Educators"
+                        : current.key === "district"
+                          ? "The Platform"
+                          : "Partner overview"}
+                  </a>
+                  <a
+                    href="/framework"
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
+                  >
+                    The framework
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-5 text-xs text-muted-foreground">
+                <span>
+                  Didn't get a confirmation email? Check spam, or{" "}
+                  <a href="/contact" className="underline underline-offset-2">
+                    message us directly
+                  </a>
+                  .
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDone(false);
+                    setSelected(null);
+                    form.reset();
+                  }}
+                  className="font-semibold text-primary underline-offset-4 hover:underline"
+                >
+                  Submit another role →
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -333,5 +420,17 @@ function Field({
       {children}
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
+  );
+}
+
+function NextStep({ n, title, body }: { n: number; title: string; body: string }) {
+  return (
+    <li className="relative">
+      <span className="absolute -left-[30px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+        {n}
+      </span>
+      <p className="font-display text-sm font-semibold text-foreground">{title}</p>
+      <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </li>
   );
 }
