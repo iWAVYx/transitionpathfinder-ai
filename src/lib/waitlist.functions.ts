@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const WaitlistSchema = z.object({
   email: z.string().trim().email().max(255),
@@ -27,7 +27,15 @@ const WaitlistSchema = z.object({
 export const submitWaitlist = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => WaitlistSchema.parse(input))
   .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.from("waitlist").insert({
+    // Use the anon/publishable client so this public endpoint is gated by
+    // the waitlist table's INSERT RLS policy, not the service-role key.
+    const url = process.env.SUPABASE_URL!;
+    const anonKey = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const anonClient = createClient(url, anonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const { error } = await anonClient.from("waitlist").insert({
       email: data.email,
       full_name: data.full_name,
       role: data.role,
