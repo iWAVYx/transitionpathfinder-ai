@@ -60,7 +60,7 @@ export type DashboardSnapshot = {
   latestReport: {
     id: string;
     created_at: string;
-    content: Record<string, unknown> | null;
+    content: unknown;
   } | null;
   goals: Array<{ id: string; title: string; category: string; status: string }>;
   documents: Array<{
