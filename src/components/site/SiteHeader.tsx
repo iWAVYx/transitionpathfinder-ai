@@ -53,8 +53,12 @@ const userExtras = [
   { to: "/forms", label: "Forms" },
   { to: "/documents", label: "Documents" },
   { to: "/opportunities", label: "Opportunities" },
+  { to: "/analytics", label: "Analytics" },
+  { to: "/admin-school", label: "School Admin" },
+  { to: "/partners-manage", label: "Partner Workspace" },
   { to: "/settings", label: "Settings" },
 ] as const;
+
 
 const mobileMarketingLinks: NavLink[] = [
   ...navGroups.flatMap((g) => g.items),
