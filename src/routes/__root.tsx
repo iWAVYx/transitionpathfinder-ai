@@ -10,6 +10,7 @@ import {
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccessibilityControls } from "@/components/a11y/AccessibilityControls";
+import { SmoothScroll } from "@/components/effects/SmoothScroll";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -127,6 +128,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SmoothScroll />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster />
