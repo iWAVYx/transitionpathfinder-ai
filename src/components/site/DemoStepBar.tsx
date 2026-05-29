@@ -171,7 +171,7 @@ export function DemoStepFooter({ current, student }: FooterProps) {
 }
 
 /** Shared search validator for `?s=maya|jordan` */
-export function validateStudentSearch(s: Record<string, unknown>): { s: DemoStudentId } {
-  const id = s.s === "jordan" ? "jordan" : "maya";
+export function validateStudentSearch(s: { s?: unknown }): { s: DemoStudentId } {
+  const id = s?.s === "jordan" ? "jordan" : "maya";
   return { s: id };
 }

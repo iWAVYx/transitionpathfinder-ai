@@ -24,8 +24,8 @@ const SignUpSchema = SignInSchema.extend({
 });
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    redirect: (s.redirect as string) || "/dashboard",
+  validateSearch: (s: { redirect?: string }): { redirect: string } => ({
+    redirect: s.redirect || "/dashboard",
   }),
   head: () => ({
     meta: [
