@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/hooks/use-auth";
 import { listVerifiedResources, type DbResource } from "@/lib/resources-db.functions";
 import {
   listSavedResources,
