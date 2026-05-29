@@ -648,23 +648,29 @@ function HomePage() {
       </section>
 
       {/* CT SEDS COMPANION + IMPACT + TRUST */}
-      <section className="bg-muted/40 py-24">
+      <section className="bg-muted/40 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl rounded-3xl border border-border/60 bg-card p-8 text-center shadow-soft sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              A companion to CT SEDS — not a replacement
-            </p>
-            <p className="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
-              TransitionForward helps families and educators make sense of transition
-              planning, organize important information, and turn goals into clear
-              action steps.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Your official IEP and PPT determinations still live where they belong.
-              We sit alongside — translating, organizing, and connecting plans to the
-              real opportunities waiting in Connecticut.
-            </p>
+          <div className="mx-auto grid max-w-5xl gap-8 rounded-3xl border border-border/60 bg-card p-8 shadow-soft sm:p-10 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                A companion to CT SEDS — not a replacement
+              </p>
+              <p className="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
+                TransitionForward helps families and educators make sense of transition
+                planning, organize important information, and turn goals into clear
+                action steps.
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                Your official IEP and PPT determinations still live where they belong.
+                We sit alongside — translating, organizing, and connecting plans to the
+                real opportunities waiting in Connecticut.
+              </p>
+            </div>
+            <div className="lg:col-span-5">
+              <ConnectedNetworkVisual />
+            </div>
           </div>
+
 
           <div className="mt-16">
             <div className="mx-auto mb-10 max-w-2xl text-center">
