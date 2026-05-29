@@ -158,58 +158,106 @@ function HomePage() {
         {/* Soft blob behind headline */}
         <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl blob-drift" />
 
-        <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Transition planning, made human
-            </p>
-            <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-              From IEP goals to{" "}
-              <span className="relative inline-block not-italic text-primary">
-                real-life
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 300 24"
-                  preserveAspectRatio="none"
-                  className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
+        <div className="mx-auto max-w-7xl px-4 pb-32 pt-24 sm:px-6 sm:pb-36 sm:pt-28 lg:px-8 lg:pb-44 lg:pt-32">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-xs font-semibold uppercase tracking-[0.22em] text-primary"
+              >
+                Transition planning, made human
+              </motion.p>
+              <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+                <MaskedWords text="From IEP goals to" />{" "}
+                <span className="relative inline-block not-italic">
+                  <TextMask className="font-display text-5xl font-medium sm:text-6xl lg:text-7xl">
+                    real-life
+                  </TextMask>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 300 24"
+                    preserveAspectRatio="none"
+                    className="draw-underline absolute -bottom-2 left-0 h-3 w-full"
+                  >
+                    <path
+                      d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="text-primary/80"
+                    />
+                  </svg>
+                </span>{" "}
+                <MaskedWords text="pathways." delay={0.4} />
+              </h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl"
+              >
+                A warm, easy-to-use platform that helps students with disabilities,
+                families, and educators plan life after high school — together.
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                className="mt-5 font-display text-2xl italic text-foreground/75"
+              >
+                One platform. One plan. Forward together.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.85 }}
+                className="mt-9 flex flex-wrap gap-3"
+              >
+                <Link
+                  to="/waitlist"
+                  className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
                 >
-                  <path
-                    d="M5 16 C 60 4, 140 22, 200 10 S 290 14, 295 8"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    className="text-primary/80"
-                  />
-                </svg>
-              </span>{" "}
-              pathways.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
-              A warm, easy-to-use platform that helps students with disabilities,
-              families, and educators plan life after high school — together.
-            </p>
-            <p className="mt-5 font-display text-2xl italic text-foreground/75">
-              One platform. One plan. Forward together.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link
-                to="/waitlist"
-                className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
-              >
-                Join the waitlist
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </Link>
-              <Link
-                to="/platform"
-                className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
-              >
-                Explore the platform
-              </Link>
+                  Join the waitlist
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </Link>
+                <Link
+                  to="/platform"
+                  className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
+                >
+                  Explore the platform
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Floating dashboard mockup stack */}
+            <div className="relative hidden lg:col-span-5 lg:block">
+              <FloatingDashboardStack />
             </div>
           </div>
         </div>
+
+        {/* Hero pathway line — connects the two halves */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 1200 200"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden h-32 w-full text-primary/35 lg:block"
+        >
+          <path
+            d="M0 160 C 200 80, 420 140, 620 100 S 1000 60, 1200 130"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray="6 10"
+            className="hero-path-draw"
+          />
+        </svg>
       </section>
+
 
       {/* PROBLEM — split panel: photo + statement */}
       <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
