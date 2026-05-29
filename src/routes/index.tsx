@@ -574,19 +574,15 @@ function HomePage() {
         </div>
       </section>
 
-      {/* PATHWAYS — image tile grid of real next-step destinations */}
-      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      {/* PATHWAYS — sticky cinematic scene + quick-jump rail */}
+      <section className="relative">
         <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
           <BookDoodle className="h-full w-full" />
         </Parallax>
         <Confetti className="absolute right-2 top-4 hidden h-24 w-32 md:block" />
-        <Starburst className="absolute right-8 bottom-8 hidden h-16 w-16 text-secondary-foreground/35 lg:block" />
-        <FloatingShape className="absolute left-1/3 top-2 hidden h-7 w-7 text-primary/60 md:block" delay={0.5}>
-          <Sparkle className="h-full w-full" />
-        </FloatingShape>
 
-        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
+        <div className="mx-auto max-w-7xl px-4 pt-20 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Real-life pathways
             </p>
@@ -594,59 +590,82 @@ function HomePage() {
               Many Roads Forward. One Plan That Fits.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-              College, technical training, supported employment, daily life skills,
-              and the steady progress in between — TransitionForward helps every
-              student picture what's next and the small steps to get there.
+              Scroll through the five pathways students explore — each one with the
+              right supports, language, and next steps to make it real.
             </p>
           </div>
         </div>
-        <div className="grid auto-rows-[14rem] grid-cols-2 gap-4 sm:auto-rows-[16rem] md:auto-rows-[18rem] md:grid-cols-12 md:gap-5">
-          <PathwayTile
-            className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
-            image={pathCollege}
-            sticker={stickerCollege}
-            label="College"
-            caption="Two- and four-year programs, with the right supports in place."
-            size="lg"
-            pathwayId="college"
-          />
-          <PathwayTile
-            className="col-span-2 md:col-span-6"
-            image={pathTechnical}
-            sticker={stickerTechnical}
-            label="Technical Education"
-            caption="Hands-on trades, certificates, and apprenticeships."
-            pathwayId="technical-education"
-          />
-          <PathwayTile
-            className="col-span-2 md:col-span-2"
-            image={pathCareer}
-            sticker={stickerCareer}
-            label="Career & Employment"
-            caption="Job training, internships, BRS."
-            compact
-            pathwayId="career"
-          />
-          <PathwayTile
-            className="col-span-1 md:col-span-2"
-            image={pathLifeskills}
-            sticker={stickerLifeskills}
-            label="Life Skills"
-            caption="Cooking, transit, money, daily independence."
-            compact
-            pathwayId="life-skills"
-          />
-          <PathwayTile
-            className="col-span-1 md:col-span-2"
-            image={pathProgress}
-            sticker={stickerProgress}
-            label="Progress Tracked"
-            caption="Small wins, gently celebrated."
-            compact
-            pathwayId="progress"
-          />
+
+        <PathwaysStickyScene
+          slides={[
+            {
+              id: "college",
+              number: "01",
+              image: pathCollege,
+              sticker: stickerCollege,
+              label: "College",
+              caption: "Two- and four-year programs, with the right supports in place.",
+              detail: "Disability services, course load planning, dorm-life skills, and the family questions to ask before tour day.",
+              accent: "from-sky-400/70 to-indigo-500/70",
+            },
+            {
+              id: "technical-education",
+              number: "02",
+              image: pathTechnical,
+              sticker: stickerTechnical,
+              label: "Technical Education",
+              caption: "Hands-on trades, certificates, and apprenticeships.",
+              detail: "From CTECH to industry credentials — pairing strengths and interests to real Connecticut programs.",
+              accent: "from-amber-400/70 to-orange-500/70",
+            },
+            {
+              id: "career",
+              number: "03",
+              image: pathCareer,
+              sticker: stickerCareer,
+              label: "Career & Employment",
+              caption: "Job training, internships, BRS.",
+              detail: "Supported employment, vocational rehab, and a warm hand-off from school to first paycheck.",
+              accent: "from-emerald-400/70 to-teal-500/70",
+            },
+            {
+              id: "life-skills",
+              number: "04",
+              image: pathLifeskills,
+              sticker: stickerLifeskills,
+              label: "Life Skills",
+              caption: "Cooking, transit, money, daily independence.",
+              detail: "Practical readiness woven into the IEP — the quiet skills that make every other pathway possible.",
+              accent: "from-rose-400/70 to-pink-500/70",
+            },
+            {
+              id: "progress",
+              number: "05",
+              image: pathProgress,
+              sticker: stickerProgress,
+              label: "Progress, Tracked",
+              caption: "Small wins, gently celebrated.",
+              detail: "Goals, evidence, and the next step — visible to student, family, and team without the binder shuffle.",
+              accent: "from-violet-400/70 to-fuchsia-500/70",
+            },
+          ]}
+        />
+
+        {/* Quick-jump rail */}
+        <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            Jump into a pathway
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <PathwayTile className="aspect-[4/5]" image={pathCollege} sticker={stickerCollege} label="College" caption="" compact pathwayId="college" />
+            <PathwayTile className="aspect-[4/5]" image={pathTechnical} sticker={stickerTechnical} label="Technical" caption="" compact pathwayId="technical-education" />
+            <PathwayTile className="aspect-[4/5]" image={pathCareer} sticker={stickerCareer} label="Career" caption="" compact pathwayId="career" />
+            <PathwayTile className="aspect-[4/5]" image={pathLifeskills} sticker={stickerLifeskills} label="Life Skills" caption="" compact pathwayId="life-skills" />
+            <PathwayTile className="aspect-[4/5]" image={pathProgress} sticker={stickerProgress} label="Progress" caption="" compact pathwayId="progress" />
+          </div>
         </div>
       </section>
+
 
       {/* CT SEDS COMPANION + IMPACT + TRUST */}
       <section className="bg-muted/40 py-20">
