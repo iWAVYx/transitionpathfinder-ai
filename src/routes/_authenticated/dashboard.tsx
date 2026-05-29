@@ -35,7 +35,7 @@ import {
   type DashboardSnapshot,
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
-import { listStudents } from "@/lib/students.functions";
+import { listStudents, createShareToken } from "@/lib/students.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
