@@ -268,6 +268,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 @keyframes draw-underline { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
 @keyframes blob-drift { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(20px,-15px) scale(1.05); } 66% { transform: translate(-15px,10px) scale(0.97); } }
 @keyframes sparkle-twinkle { 0%,100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes hero-path-draw { from { stroke-dashoffset: 1400; opacity: 0; } 30% { opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
 
 .float-y { animation: float-y 5s ease-in-out infinite; }
 .float-y-slow { animation: float-y-slow 7s ease-in-out infinite; }
@@ -277,10 +278,13 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .draw-underline path { stroke-dasharray: 600; stroke-dashoffset: 600; animation: draw-underline 1.4s 0.4s ease-out forwards; }
 .blob-drift { animation: blob-drift 14s ease-in-out infinite; }
 .sparkle-twinkle { animation: sparkle-twinkle 2.4s ease-in-out infinite; }
+.hero-path-draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: hero-path-draw 2.6s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
 @media (prefers-reduced-motion: reduce) {
   .trust-orbit,.trust-orbit-rev,.trust-float,.trust-pulse-ring,.trust-scan,.trust-dash,.trust-twinkle,
   .float-y,.float-y-slow,.pop-in,.blob-drift,.sparkle-twinkle { animation: none !important; }
   .draw-underline path { stroke-dashoffset: 0 !important; animation: none !important; }
+  .hero-path-draw { stroke-dashoffset: 0 !important; animation: none !important; }
 }
+
 
