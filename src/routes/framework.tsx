@@ -1,28 +1,33 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Compass, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import frameworkHero from "@/assets/framework-hero.jpg";
-import pathProgress from "@/assets/path-progress.jpg";
-import pathCollege from "@/assets/path-college.jpg";
-import pathCareer from "@/assets/path-career.jpg";
-import pathLifeskills from "@/assets/path-lifeskills.jpg";
 import {
   Parallax,
   ParallaxImage,
   Reveal,
-  ShapeScroll,
   TextScrollFill,
   Marquee,
 } from "@/components/effects/ScrollEffects";
 import {
   CursorField,
   Magnetic,
-  HoverReveal,
   TextMask,
-  StickyPin,
-  MorphCard,
   FloatingShape,
 } from "@/components/effects/ImmersiveEffects";
+import {
+  Squiggle,
+  Sparkle,
+  Starburst,
+  ArrowDoodle,
+  CompassRose,
+  Confetti,
+  UnderlineSwoosh,
+  ArcStack,
+  DotField,
+  PaperPlane,
+  BookDoodle,
+} from "@/components/effects/Decorations";
 import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/framework")({
@@ -54,7 +59,6 @@ const bands = [
     team: "We help you build a transition profile, watch for early signals that need attention, and gently introduce self-advocacy without overwhelming anyone.",
     evidence:
       "Attendance and grade patterns, a living profile, your child's own reflections in their own words.",
-    image: pathProgress,
   },
   {
     grade: "10",
@@ -64,7 +68,6 @@ const bands = [
     team: "Life-skills instruction gets more deliberate. Career exposure widens. Accommodations are reviewed honestly, with your child in the room.",
     evidence:
       "Work samples that show growth, check-ins on the goals that matter, real attendance at career events.",
-    image: pathLifeskills,
   },
   {
     grade: "11",
@@ -74,7 +77,6 @@ const bands = [
     team: "Visits, work experiences, agency referrals, and the early stages of applications get coordinated — together, with you in the loop.",
     evidence:
       "A resume your child can speak to, interview practice, fresh assessment data, family planning notes you've actually read.",
-    image: pathCollege,
   },
   {
     grade: "12+",
@@ -84,34 +86,33 @@ const bands = [
     team: "Applications finalized, referrals confirmed, graduation pathway settled, transition closeout handled with care — not chaos.",
     evidence:
       "Confirmed plans in writing, a contact sheet that's actually useful, a signed handoff so nothing is left assumed.",
-    image: pathCareer,
   },
 ];
 
 const strands = [
   {
     title: "Academics that lead somewhere",
-    body: "Course choices read as transition signals, not isolated grades — every credit tied to a possible next chapter.",
+    body: "Course choices read as transition signals, not isolated grades.",
   },
   {
     title: "Finding their own voice",
-    body: "Self-determination practiced in small, real moments — naming a goal, asking for an accommodation, leading part of the PPT.",
+    body: "Self-determination practiced in small, real moments.",
   },
   {
     title: "The skills that shape a day",
-    body: "Money, transportation, time, food, health — the quiet competencies that decide whether adulthood feels possible.",
+    body: "Money, transportation, time, food, health — the quiet competencies of adulthood.",
   },
   {
     title: "A real look at what's out there",
-    body: "Local employers, community colleges, technical schools, BRS, and youth-development partners — not brochures.",
+    body: "Local employers, community colleges, BRS, youth-development partners.",
   },
   {
     title: "You, held in the loop",
-    body: "Families get plain-language updates, prep sheets before meetings, and translations after — never left guessing.",
+    body: "Plain-language updates, prep sheets before meetings, translations after.",
   },
   {
     title: "Everyone on the same page",
-    body: "Teachers, related services, agencies, and family see the same plan — no version drift, no surprise paperwork.",
+    body: "Teachers, related services, agencies, family — one plan, no version drift.",
   },
 ];
 
@@ -126,22 +127,22 @@ const principles = [
   },
   {
     title: "Keep your child at the center",
-    body: "Your child names their strengths, their needs, their goals, the supports that help. Their voice leads the plan.",
+    body: "Your child names their strengths, their needs, their goals, the supports that help.",
   },
   {
     title: "Use the real world",
-    body: "Local employers, colleges, training programs, agencies, and youth-development partners — not just slideshows.",
+    body: "Local employers, colleges, training programs, agencies, youth-development partners — not slideshows.",
   },
   {
     title: "Build something teams can keep up with",
-    body: "Routines and tools simple enough to actually use between meetings — not another binder no one opens.",
+    body: "Routines and tools simple enough to actually use between meetings.",
   },
 ];
 
 function FrameworkPage() {
   return (
     <SiteShell>
-      {/* HERO with cursor-tracked blobs + text mask headline */}
+      {/* HERO */}
       <CursorField className="relative border-b border-border/60">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
         <FloatingShape className="absolute right-[8%] top-24 -z-10 hidden h-40 w-40 lg:block">
@@ -231,7 +232,7 @@ function FrameworkPage() {
         />
       </section>
 
-      {/* Mission line — text fill on scroll */}
+      {/* Mission line */}
       <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
         <TextScrollFill
           className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
@@ -239,82 +240,132 @@ function FrameworkPage() {
         />
       </section>
 
-      {/* Principles — hover-reveal cards */}
-      <section className="relative mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-4xl font-medium sm:text-5xl">
-            What we believe about transition.
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Hover any conviction to see what it changes for your family.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {principles.map((p, i) => (
-            <Reveal key={p.title} delay={i * 70}>
-              <article className="h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-shadow hover:shadow-lift">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-soft">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="mt-5 font-display text-2xl font-medium">{toTitleCase(p.title)}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
-              </article>
-            </Reveal>
-          ))}
+      {/* PRINCIPLES — numbered manifesto, alternating sides, oversized outline numerals */}
+      <section className="relative overflow-hidden">
+        <DotField className="absolute -left-10 top-10 -z-10 h-64 w-64 text-primary/10" />
+        <Sparkle className="absolute right-[12%] top-16 -z-10 h-8 w-8 text-primary/30" />
+        <Sparkle className="absolute left-[40%] bottom-20 -z-10 h-5 w-5 text-primary/20" />
+        <ArrowDoodle className="absolute right-[6%] bottom-24 -z-10 hidden h-24 w-32 text-primary/25 lg:block" />
+
+        <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mb-12 max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              The manifesto
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
+              What we believe about transition.
+            </h2>
+            <Squiggle className="mt-4 h-3 w-40 text-primary/60" />
+          </div>
+
+          <ol className="space-y-6">
+            {principles.map((p, i) => {
+              const right = i % 2 === 1;
+              return (
+                <Reveal key={p.title} delay={i * 60}>
+                  <li
+                    className={`flex items-baseline gap-5 sm:gap-8 ${
+                      right ? "sm:ml-24 sm:flex-row-reverse sm:text-right" : ""
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className="font-display text-6xl font-medium leading-none text-transparent sm:text-7xl"
+                      style={{ WebkitTextStroke: "1.5px hsl(var(--primary))" }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div className="max-w-md">
+                      <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">
+                        {toTitleCase(p.title)}
+                      </h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {p.body}
+                      </p>
+                    </div>
+                  </li>
+                </Reveal>
+              );
+            })}
+          </ol>
         </div>
       </section>
 
-      {/* Six strands with morphing cards */}
-      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-        <ShapeScroll
-          className="absolute right-0 top-10 -z-10 hidden h-80 w-80 lg:block"
-          spin={160}
-          scale={0.7}
-          tilt={25}
-          drift={60}
-          gradientFrom="hsl(40 95% 72%)"
-          gradientTo="hsl(15 90% 70%)"
-        />
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.6fr]">
-          <StickyPin top="6rem">
+      {/* SIX STRANDS — woven asymmetric list with sparkle markers */}
+      <section className="relative overflow-hidden border-t border-border/40 bg-muted/20">
+        <CompassRose className="absolute -right-16 top-10 -z-10 h-72 w-72 text-primary/10" />
+        <Confetti className="absolute left-[4%] top-20 -z-10 h-32 w-32 opacity-60" />
+        <BookDoodle className="absolute left-[8%] bottom-16 -z-10 hidden h-24 w-28 text-primary/20 lg:block" />
+        <Starburst className="absolute right-[20%] bottom-24 -z-10 h-14 w-14 text-primary/25" />
+
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               The six threads
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              We keep weaving the same six threads,{" "}
+              Six threads we weave,{" "}
               <TextMask className="font-display">all four years long.</TextMask>
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-              Every thread runs the full length of high school. The grade changes what we focus on
-              inside each one — not which threads matter.
-            </p>
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm">
-              <Compass className="h-4 w-4 text-primary" /> Six threads, four years, one plan.
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur">
+              <Compass className="h-3.5 w-3.5 text-primary" /> Six threads, four years, one plan.
             </div>
-          </StickyPin>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            {strands.map((s, i) => (
-              <Reveal key={s.title} delay={i * 70}>
-                <MorphCard className="h-full p-7">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-hero font-display text-sm font-semibold">
-                    {i + 1}
-                  </span>
-                  <h3 className="mt-4 font-display text-xl font-medium tracking-tight">
-                    {toTitleCase(s.title)}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
-                </MorphCard>
-              </Reveal>
-            ))}
           </div>
+
+          <ul className="relative mx-auto max-w-3xl">
+            {/* central spine */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-2 bottom-2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-primary/30 to-transparent sm:block"
+            />
+            {strands.map((s, i) => {
+              const left = i % 2 === 0;
+              return (
+                <Reveal key={s.title} delay={i * 50}>
+                  <li
+                    className={`relative flex py-3 sm:py-4 ${
+                      left ? "sm:justify-start sm:pr-[52%]" : "sm:justify-end sm:pl-[52%]"
+                    }`}
+                  >
+                    {/* sparkle marker on spine */}
+                    <span
+                      aria-hidden
+                      className="absolute left-1/2 top-5 hidden h-3 w-3 -translate-x-1/2 rounded-full bg-primary/80 ring-4 ring-background sm:block"
+                    />
+                    <div
+                      className={`flex items-start gap-3 ${
+                        left ? "" : "sm:flex-row-reverse sm:text-right"
+                      }`}
+                    >
+                      <span className="mt-0.5 font-display text-2xl font-medium leading-none text-primary/70 tabular-nums">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <h3 className="font-display text-lg font-medium tracking-tight">
+                          {toTitleCase(s.title)}
+                        </h3>
+                        <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                          {s.body}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                </Reveal>
+              );
+            })}
+          </ul>
         </div>
       </section>
 
-      {/* Grade band detail cards — the four-year arc */}
-      <section className="border-t border-border/60 bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
+      {/* GRADE BANDS — horizontal four-stop timeline */}
+      <section className="relative overflow-hidden border-t border-border/60">
+        <ArcStack className="absolute -left-4 bottom-0 -z-10 h-72 w-72 text-primary/20" />
+        <PaperPlane className="absolute right-[8%] top-16 -z-10 h-14 w-14 text-primary/35" />
+        <Sparkle className="absolute left-[35%] top-24 -z-10 h-6 w-6 text-primary/30" />
+        <DotField className="absolute -right-10 bottom-10 -z-10 h-56 w-56 text-primary/10" />
+
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               The four-year arc
             </p>
@@ -322,73 +373,78 @@ function FrameworkPage() {
               Each grade asks something different.{" "}
               <TextMask className="font-display">We answer all of it.</TextMask>
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              Hover any band to see the evidence we collect so progress stays real and visible —
-              not just felt.
-            </p>
+            <UnderlineSwoosh className="mx-auto mt-4 h-3 w-56 text-primary/60" />
           </div>
-        <div className="mt-10 grid gap-4 lg:grid-cols-2">
-          {bands.map((b, i) => (
-            <Reveal key={b.grade} delay={i * 90}>
-              <HoverReveal
-                className="h-full"
-                height="100%"
-                front={
-                  <article className="p-8">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero font-display text-2xl font-semibold shadow-soft">
+
+          <div className="relative mt-16">
+            {/* horizontal spine */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent lg:block"
+            />
+            <ol className="grid gap-8 lg:grid-cols-4 lg:gap-6">
+              {bands.map((b, i) => (
+                <Reveal key={b.grade} delay={i * 80}>
+                  <li className="relative">
+                    <div className="flex flex-col items-center">
+                      <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-background font-display text-xl font-semibold text-primary shadow-soft ring-4 ring-background">
+                        <span
+                          aria-hidden
+                          className="absolute inset-0 rounded-full border border-primary/50"
+                        />
                         {b.grade}
                       </span>
-                      <h3 className="font-display text-2xl font-medium">{toTitleCase(b.title)}</h3>
+                      <p className="mt-4 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                        Stop {i + 1} of 4
+                      </p>
+                      <h3 className="mt-2 text-center font-display text-xl font-medium leading-tight">
+                        {toTitleCase(b.title)}
+                      </h3>
                     </div>
-                    <dl className="mt-5 space-y-4 text-sm">
-                      <div>
-                        <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Where your child is
-                        </dt>
-                        <dd className="mt-1 leading-relaxed text-foreground">{b.student}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          What the team is doing
-                        </dt>
-                        <dd className="mt-1 leading-relaxed text-foreground">{b.team}</dd>
-                      </div>
-                    </dl>
-                  </article>
-                }
-                back={
-                  <div className="h-full rounded-3xl bg-gradient-warm p-8">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                      Evidence we keep
-                    </p>
-                    <p className="mt-3 font-display text-2xl leading-snug text-foreground">
-                      {b.evidence}
-                    </p>
-                  </div>
-                }
-              />
-            </Reveal>
-          ))}
-        </div>
 
-        <div className="mt-14 overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
-          <h3 className="font-display text-3xl font-medium sm:text-4xl">
-            Ready to see this applied to your child's IEP?
-          </h3>
-          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-foreground/80">
-            Bring us your child's plan and we'll hand you back a grade-by-grade roadmap — every
-            suggestion tied to a real source, every next step quietly waiting for you to say yes.
-          </p>
-          <Magnetic>
-            <Link
-              to="/waitlist"
-              className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-transform hover:-translate-y-0.5"
-            >
-              Walk through it with us <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Magnetic>
-        </div>
+                    <div className="mt-5 space-y-3 text-sm">
+                      <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                          Your child
+                        </p>
+                        <p className="mt-1 leading-relaxed text-foreground">{b.student}</p>
+                      </div>
+                      <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                          The team
+                        </p>
+                        <p className="mt-1 leading-relaxed text-foreground">{b.team}</p>
+                      </div>
+                      <div className="rounded-2xl bg-gradient-warm p-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                          Evidence we keep
+                        </p>
+                        <p className="mt-1 leading-relaxed text-foreground">{b.evidence}</p>
+                      </div>
+                    </div>
+                  </li>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-20 overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
+            <h3 className="font-display text-3xl font-medium sm:text-4xl">
+              Ready to see this applied to your child's IEP?
+            </h3>
+            <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-foreground/80">
+              Bring us your child's plan and we'll hand you back a grade-by-grade roadmap — every
+              suggestion tied to a real source, every next step quietly waiting for you to say yes.
+            </p>
+            <Magnetic>
+              <Link
+                to="/waitlist"
+                className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-transform hover:-translate-y-0.5"
+              >
+                Walk through it with us <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Magnetic>
+          </div>
         </div>
       </section>
     </SiteShell>
