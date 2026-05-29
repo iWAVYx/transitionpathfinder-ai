@@ -22,6 +22,7 @@ import {
   TiltLayer,
 } from "@/components/effects/ImmersiveEffects";
 import { Parallax, Reveal, Marquee } from "@/components/effects/ScrollEffects";
+import { PartnerApplyForm } from "@/components/site/PartnerApplyForm";
 import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/partners")({
@@ -414,7 +415,7 @@ function PartnersPage() {
           <GridBurst className="h-48 w-48" />
         </FloatingShape>
 
-        <div className="grid items-center gap-12 md:grid-cols-[1.1fr_1fr]">
+        <div className="grid items-start gap-12 md:grid-cols-[1fr_1.1fr]">
           <div>
             <p className="border-l-2 border-primary pl-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
               Become a partner
@@ -424,49 +425,40 @@ function PartnersPage() {
             </h3>
             <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
               If your program serves students with IEPs — at a university, a tech school, an
-              employer, or a community organization — we'd love to add you to the directory the
-              pilot launches with.
+              employer, or a community organization — apply to the directory the pilot launches
+              with. No fee, no exclusivity, no contracts during the pilot.
             </p>
+            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                A real person reviews every application within five school days.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                We'll co-write your listing in plain language — families won't decode jargon.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                You stay in control of how students reach you.
+              </li>
+            </ul>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Magnetic>
-                <Link
-                  to="/waitlist"
-                  className="inline-flex items-center gap-2 bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
-                >
-                  Get in touch <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Magnetic>
-              <Magnetic>
-                <Link
-                  to="/about"
-                  className="inline-flex items-center justify-center border border-foreground/20 bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
-                >
-                  Read our story
-                </Link>
-              </Magnetic>
+              <Link
+                to="/about"
+                className="inline-flex items-center justify-center border border-foreground/20 bg-background/90 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+              >
+                Read our story
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center border border-foreground/20 bg-background/90 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+              >
+                Have a question first?
+              </Link>
             </div>
           </div>
 
-          {/* Editorial word collage — no rounded boxes, large typographic gestures */}
-          <Tilt3D max={6} glare={false} className="relative">
-            <TiltLayer depth={0}>
-              <div className="relative grid grid-cols-2 gap-x-6 gap-y-4 font-display text-foreground/80">
-                {[
-                  { w: "Trust", s: "text-5xl sm:text-6xl", c: "text-primary" },
-                  { w: "Vetted", s: "text-3xl sm:text-4xl italic" },
-                  { w: "Local", s: "text-4xl sm:text-5xl" },
-                  { w: "Matched", s: "text-3xl sm:text-4xl italic text-primary/80" },
-                  { w: "Plain language", s: "text-2xl sm:text-3xl col-span-2" },
-                  { w: "Connecticut", s: "text-4xl sm:text-5xl col-span-2 italic" },
-                ].map(({ w, s, c }) => (
-                  <span key={w} className={`block leading-none ${s} ${c ?? ""}`}>
-                    {w}
-                  </span>
-                ))}
-                <CornerArc className="pointer-events-none absolute -bottom-6 -right-6 -z-10 h-32 w-32 text-primary/30" />
-              </div>
-            </TiltLayer>
-          </Tilt3D>
+          <PartnerApplyForm />
         </div>
 
         <p className="mx-auto mt-16 max-w-xl text-center font-display text-xl italic text-foreground/70">
