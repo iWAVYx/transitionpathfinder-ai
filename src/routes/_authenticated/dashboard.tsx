@@ -56,6 +56,31 @@ function DashboardPage() {
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
   const consent = useServerFn(recordConsent);
+  const shareReport = useServerFn(createShareToken);
+  const [sharing, setSharing] = useState(false);
+
+  const handleDownloadPdf = useCallback((reportId: string) => {
+    window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
+  }, []);
+
+  const handleCopyShare = useCallback(
+    async (reportId: string, audience: "family" | "educator") => {
+      setSharing(true);
+      try {
+        const row = await shareReport({
+          data: { report_id: reportId, audience, expires_in_days: 30 },
+        });
+        const url = `${window.location.origin}/share/${row.token}`;
+        await navigator.clipboard.writeText(url);
+        toast.success(`${audience === "family" ? "Family" : "Educator"} share link copied — expires in 30 days.`);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not create share link.");
+      } finally {
+        setSharing(false);
+      }
+    },
+    [shareReport],
+  );
 
   const [students, setStudents] = useState<StudentLite[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
