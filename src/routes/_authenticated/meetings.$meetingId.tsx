@@ -180,6 +180,7 @@ function MeetingDetailPage() {
             </h3>
             <textarea
               rows={3}
+              aria-label="Student voice"
               value={meeting.student_voice ?? ""}
               onChange={(e) => setMeeting({ ...meeting, student_voice: e.target.value })}
               onBlur={(e) => saveField("student_voice", e.target.value)}
