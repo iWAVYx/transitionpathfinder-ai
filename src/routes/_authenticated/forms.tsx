@@ -31,9 +31,16 @@ const AUDIENCE_LABEL: Record<string, string> = {
 function FormsPage() {
   const fetchTemplates = useServerFn(listTemplates);
   const [templates, setTemplates] = useState<FormTemplate[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTemplates().then((r) => setTemplates(r.templates));
+    setLoadError(null);
+    fetchTemplates()
+      .then((r) => setTemplates(r.templates))
+      .catch((err) => {
+        setTemplates([]);
+        setLoadError(err instanceof Error ? err.message : "Couldn't load forms.");
+      });
   }, [fetchTemplates]);
 
   return (
