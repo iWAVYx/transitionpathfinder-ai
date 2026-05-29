@@ -16,10 +16,24 @@ export const Route = createFileRoute("/_authenticated/insights")({
 function InsightsPage() {
   const fetchInsights = useServerFn(getEngagementInsights);
   const [data, setData] = useState<EngagementInsights | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    fetchInsights().then(setData).catch(() => setData(null));
-  }, [fetchInsights]);
+    setLoadError(null);
+    let cancelled = false;
+    fetchInsights()
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setLoadError(err instanceof Error ? err.message : "Couldn't load insights.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchInsights, tick]);
 
   return (
     <SiteShell>
@@ -41,7 +55,21 @@ function InsightsPage() {
           only see data for students you're already connected to.
         </InfoBox>
 
-        {!data ? (
+        {loadError ? (
+          <div className="mt-10 rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+            <p className="font-medium text-destructive">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setData(null);
+                setTick((t) => t + 1);
+              }}
+              className="mt-3 inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+            >
+              Try again
+            </button>
+          </div>
+        ) : !data ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
         ) : (
           <>

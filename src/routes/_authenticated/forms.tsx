@@ -31,9 +31,16 @@ const AUDIENCE_LABEL: Record<string, string> = {
 function FormsPage() {
   const fetchTemplates = useServerFn(listTemplates);
   const [templates, setTemplates] = useState<FormTemplate[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTemplates().then((r) => setTemplates(r.templates));
+    setLoadError(null);
+    fetchTemplates()
+      .then((r) => setTemplates(r.templates))
+      .catch((err) => {
+        setTemplates([]);
+        setLoadError(err instanceof Error ? err.message : "Couldn't load forms.");
+      });
   }, [fetchTemplates]);
 
   return (
@@ -56,8 +63,16 @@ function FormsPage() {
           next Pathway Report — so each new report builds on the last instead of starting blank.
         </InfoBox>
 
-        {templates === null ? (
+        {loadError ? (
+          <div className="mt-10 rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+            {loadError}
+          </div>
+        ) : templates === null ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
+        ) : templates.length === 0 ? (
+          <p className="mt-10 text-sm text-muted-foreground">
+            No forms available yet. Check back soon.
+          </p>
         ) : (
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((t) => (

@@ -38,10 +38,15 @@ function MeetingsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [showForm, setShowForm] = useState(false);
 
-  const reload = () => fetchMeetings({ data: {} }).then((r) => setMeetings(r.meetings));
+  const reload = () =>
+    fetchMeetings({ data: {} })
+      .then((r) => setMeetings(r.meetings))
+      .catch(() => setMeetings([]));
   useEffect(() => {
     reload();
-    fetchStudents().then((r) => setStudents(r.students));
+    fetchStudents()
+      .then((r) => setStudents(r.students))
+      .catch(() => setStudents([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -156,17 +161,28 @@ function MeetingsPage() {
         <h2 className="mt-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Upcoming
         </h2>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-          {meetings === null ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : upcoming.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No upcoming meetings.</p>
-          ) : (
-            upcoming.map((m) => (
+        {meetings === null ? (
+          <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
+        ) : upcoming.length === 0 ? (
+          <div className="mt-3 rounded-2xl border border-dashed bg-muted/30 p-5 text-sm text-muted-foreground">
+            No upcoming meetings.{" "}
+            {students.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowForm(true)}
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                Schedule one
+              </button>
+            )}
+          </div>
+        ) : (
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {upcoming.map((m) => (
               <MeetingCard key={m.id} m={m} student={studentName(m.student_id)} />
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
+        )}
 
         {past.length > 0 && (
           <>

@@ -29,25 +29,53 @@ function FormDetailPage() {
   const listMine = useServerFn(listResponses);
 
   const [tpl, setTpl] = useState<FormTemplate | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [studentId, setStudentId] = useState<string>("");
   const [existing, setExisting] = useState<FormResponse | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    get({ data: { slug } }).then(setTpl).catch(() => toast.error("Form not found"));
-    fetchStudents().then((r) => {
-      setStudents(r.students);
-      if (r.students[0]) setStudentId(r.students[0].id);
-    });
+    setLoadError(null);
+    setTpl(null);
+    get({ data: { slug } })
+      .then(setTpl)
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : "Form not found";
+        setLoadError(msg);
+        toast.error(msg);
+      });
+    fetchStudents()
+      .then((r) => {
+        setStudents(r.students);
+        if (r.students[0]) setStudentId(r.students[0].id);
+      })
+      .catch(() => setStudents([]));
   }, [slug, get, fetchStudents]);
 
   useEffect(() => {
     if (!studentId) return;
-    listMine({ data: { student_id: studentId, template_slug: slug } }).then((r) =>
-      setExisting(r.responses[0] ?? null),
-    );
+    listMine({ data: { student_id: studentId, template_slug: slug } })
+      .then((r) => setExisting(r.responses[0] ?? null))
+      .catch(() => setExisting(null));
   }, [studentId, slug, listMine]);
+
+  if (loadError) {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+          <h1 className="font-display text-2xl">We couldn't load this form</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <Link
+            to="/forms"
+            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
+          >
+            ← Back to Forms
+          </Link>
+        </div>
+      </SiteShell>
+    );
+  }
 
   if (!tpl) {
     return (

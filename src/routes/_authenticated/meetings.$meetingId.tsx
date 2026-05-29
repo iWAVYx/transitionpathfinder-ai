@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -39,15 +39,21 @@ function MeetingDetailPage() {
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [questions, setQuestions] = useState<MeetingQuestion[]>([]);
   const [actions, setActions] = useState<ActionItem[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement | null>(null);
 
   const reload = () =>
-    get({ data: { id: meetingId } }).then((r) => {
-      setMeeting(r.meeting);
-      setAgenda(r.agenda);
-      setQuestions(r.questions);
-      setActions(r.actions);
-    });
+    get({ data: { id: meetingId } })
+      .then((r) => {
+        setMeeting(r.meeting);
+        setAgenda(r.agenda);
+        setQuestions(r.questions);
+        setActions(r.actions);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        setLoadError(err instanceof Error ? err.message : "Couldn't load this meeting.");
+      });
 
   useEffect(() => {
     reload();
@@ -62,6 +68,23 @@ function MeetingDetailPage() {
 
   function handlePrint() {
     window.print();
+  }
+
+  if (loadError) {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+          <h1 className="font-display text-2xl">We couldn't open this meeting</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <Link
+            to="/meetings"
+            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
+          >
+            ← Back to Meetings
+          </Link>
+        </div>
+      </SiteShell>
+    );
   }
 
   if (!meeting) {
@@ -157,6 +180,7 @@ function MeetingDetailPage() {
             </h3>
             <textarea
               rows={3}
+              aria-label="Student voice"
               value={meeting.student_voice ?? ""}
               onChange={(e) => setMeeting({ ...meeting, student_voice: e.target.value })}
               onBlur={(e) => saveField("student_voice", e.target.value)}
@@ -167,6 +191,7 @@ function MeetingDetailPage() {
             <h3 className="mt-6 font-display text-base">Family concerns</h3>
             <textarea
               rows={3}
+              aria-label="Family concerns"
               value={meeting.family_concerns ?? ""}
               onChange={(e) => setMeeting({ ...meeting, family_concerns: e.target.value })}
               onBlur={(e) => saveField("family_concerns", e.target.value)}
@@ -177,6 +202,7 @@ function MeetingDetailPage() {
             <h3 className="mt-6 font-display text-base">Teacher progress notes</h3>
             <textarea
               rows={3}
+              aria-label="Teacher progress notes"
               value={meeting.teacher_notes ?? ""}
               onChange={(e) => setMeeting({ ...meeting, teacher_notes: e.target.value })}
               onBlur={(e) => saveField("teacher_notes", e.target.value)}
@@ -244,6 +270,7 @@ function MeetingDetailPage() {
                     <div className="flex items-start justify-between gap-2">
                       <p className={cn(a.status === "done" && "line-through")}>{a.title}</p>
                       <select
+                        aria-label={`Status for ${a.title}`}
                         value={a.status}
                         onChange={async (e) => {
                           await setStatus({
@@ -302,6 +329,7 @@ function AddInline({
   return (
     <div className="flex gap-1">
       <input
+        aria-label={placeholder}
         autoFocus
         value={v}
         onChange={(e) => setV(e.target.value)}

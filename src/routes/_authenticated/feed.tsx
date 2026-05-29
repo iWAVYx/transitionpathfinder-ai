@@ -81,15 +81,24 @@ function FeedPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [studentId, setStudentId] = useState<string | "all">("all");
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchStudents().then((r) => setStudents(r.students));
+    fetchStudents()
+      .then((r) => setStudents(r.students))
+      .catch(() => setStudents([]));
   }, [fetchStudents]);
 
   useEffect(() => {
+    setLoadError(null);
     fetchFeed({
       data: { limit: 150, ...(studentId !== "all" ? { student_id: studentId } : {}) },
-    }).then((r) => setEvents(r.events));
+    })
+      .then((r) => setEvents(r.events))
+      .catch((err) => {
+        setEvents([]);
+        setLoadError(err instanceof Error ? err.message : "Couldn't load your feed.");
+      });
   }, [fetchFeed, studentId]);
 
   const filtered = useMemo(() => {
@@ -171,7 +180,11 @@ function FeedPage() {
         </div>
 
         <div className="mt-8">
-          {grouped === null ? (
+          {loadError ? (
+            <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          ) : grouped === null ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : grouped.length === 0 ? (
             <EmptyState />
