@@ -12,7 +12,6 @@ import {
   Reveal,
   ShapeScroll,
   TextScrollFill,
-  StickyScrollStory,
   Marquee,
 } from "@/components/effects/ScrollEffects";
 import {
