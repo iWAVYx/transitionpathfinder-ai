@@ -984,14 +984,18 @@ function Zigzag({
           imageFirst ? "lg:order-1" : "lg:order-2"
         }`}
       >
-        <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
-          <img
-            src={image}
-            alt={alt}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
-          />
-        </div>
+        <Tilt3D max={6}>
+          <MorphCard className="relative aspect-[16/11] overflow-hidden shadow-lift">
+            <img
+              src={image}
+              alt={alt}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-[1.04]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-foreground/15 via-transparent to-transparent" />
+          </MorphCard>
+        </Tilt3D>
+
       </div>
       <div
         className={`lg:col-span-5 ${
