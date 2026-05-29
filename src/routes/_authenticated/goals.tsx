@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { listMyReports } from "@/lib/pathway.functions";
 import { getPathwayReport } from "@/lib/ppt.functions";
+import { listGoalStatuses, upsertGoalStatus } from "@/lib/goal-statuses.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
 import { toTitleCase } from "@/lib/title-case";
