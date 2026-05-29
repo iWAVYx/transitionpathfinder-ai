@@ -33,6 +33,7 @@ function storageKey(reportId: string) {
   return `tf:goal-status:${reportId}`;
 }
 
+
 function GoalsPage() {
   const list = useServerFn(listMyReports);
   const fetchReport = useServerFn(getPathwayReport);
