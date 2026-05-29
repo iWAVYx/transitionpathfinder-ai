@@ -191,6 +191,7 @@ function MeetingDetailPage() {
             <h3 className="mt-6 font-display text-base">Family concerns</h3>
             <textarea
               rows={3}
+              aria-label="Family concerns"
               value={meeting.family_concerns ?? ""}
               onChange={(e) => setMeeting({ ...meeting, family_concerns: e.target.value })}
               onBlur={(e) => saveField("family_concerns", e.target.value)}
@@ -201,6 +202,7 @@ function MeetingDetailPage() {
             <h3 className="mt-6 font-display text-base">Teacher progress notes</h3>
             <textarea
               rows={3}
+              aria-label="Teacher progress notes"
               value={meeting.teacher_notes ?? ""}
               onChange={(e) => setMeeting({ ...meeting, teacher_notes: e.target.value })}
               onBlur={(e) => saveField("teacher_notes", e.target.value)}
