@@ -1420,3 +1420,207 @@ function ConnectedNetworkVisual() {
     </div>
   );
 }
+
+// ============================================================
+// PathwaysStickyScene — sticky cinematic scene that morphs through
+// each pathway as the user scrolls. Left column pins a stage that
+// crossfades the active pathway image+sticker; right column scrolls
+// past numbered story panels.
+// ============================================================
+type PathwaySlide = {
+  id: string;
+  number: string;
+  image: string;
+  sticker?: string;
+  label: string;
+  caption: string;
+  detail: string;
+  accent: string;
+};
+
+function PathwaysStickyScene({ slides }: { slides: PathwaySlide[] }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8">
+        {/* Sticky stage — hidden on small screens, where slides render inline */}
+        <div className="hidden lg:col-span-6 lg:block">
+          <div className="sticky top-24 h-[80vh] max-h-[640px]">
+            <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] border border-border/60 bg-card shadow-lift">
+              {slides.map((s, i) => (
+                <StickyStageLayer
+                  key={s.id}
+                  slide={s}
+                  index={i}
+                  total={slides.length}
+                  progress={scrollYProgress}
+                />
+              ))}
+
+              {/* Progress dots */}
+              <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full bg-background/80 px-3 py-2 backdrop-blur">
+                {slides.map((s, i) => (
+                  <ProgressDot key={s.id} index={i} total={slides.length} progress={scrollYProgress} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scrolling story panels */}
+        <div className="lg:col-span-6">
+          <div className="flex flex-col gap-6 lg:gap-[28vh]">
+            {slides.map((s, i) => (
+              <PathwayStoryPanel key={s.id} slide={s} first={i === 0} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StickyStageLayer({
+  slide,
+  index,
+  total,
+  progress,
+}: {
+  slide: PathwaySlide;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+}) {
+  // Build a crossfade window for this slide across [0,1] scroll progress.
+  const step = 1 / total;
+  const start = index * step;
+  const end = start + step;
+  const fadeIn = Math.max(0, start - step * 0.35);
+  const fadeOut = Math.min(1, end + step * 0.05);
+
+  const opacity = useTransform(
+    progress,
+    [fadeIn, start + step * 0.15, end - step * 0.05, fadeOut],
+    [0, 1, 1, 0],
+  );
+  const scale = useTransform(progress, [fadeIn, end], [1.08, 1.0]);
+  const y = useTransform(progress, [fadeIn, fadeOut], [40, -40]);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute inset-0"
+      aria-hidden={index === 0 ? undefined : true}
+    >
+      <motion.img
+        src={slide.image}
+        alt={slide.label}
+        style={{ scale, y }}
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="lazy"
+      />
+      <div className={`absolute inset-0 bg-gradient-to-tr ${slide.accent} mix-blend-multiply opacity-60`} />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
+
+      {/* Sticker */}
+      {slide.sticker && (
+        <motion.img
+          src={slide.sticker}
+          alt=""
+          aria-hidden="true"
+          style={{ y: useTransform(progress, [fadeIn, fadeOut], [20, -30]) }}
+          className="absolute right-6 top-6 h-28 w-28 -rotate-6 drop-shadow-2xl sm:h-32 sm:w-32"
+        />
+      )}
+
+      {/* Number + label */}
+      <div className="absolute inset-x-0 bottom-0 p-8 text-background sm:p-10">
+        <div className="flex items-baseline gap-4">
+          <span className="font-display text-6xl font-medium leading-none text-background/90 sm:text-7xl">
+            {slide.number}
+          </span>
+          <span className="h-px flex-1 bg-background/40" />
+        </div>
+        <h3 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+          {slide.label}
+        </h3>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-background/85 sm:text-base">
+          {slide.caption}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function ProgressDot({
+  index,
+  total,
+  progress,
+}: {
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+}) {
+  const step = 1 / total;
+  const start = index * step;
+  const end = start + step;
+  const scale = useTransform(progress, [start - step * 0.2, start + step * 0.15, end], [1, 1.6, 1]);
+  const opacity = useTransform(progress, [start - step * 0.2, start + step * 0.15, end], [0.4, 1, 0.4]);
+  return (
+    <motion.span
+      aria-hidden="true"
+      style={{ scale, opacity }}
+      className="h-1.5 w-1.5 rounded-full bg-primary"
+    />
+  );
+}
+
+function PathwayStoryPanel({ slide, first }: { slide: PathwaySlide; first: boolean }) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-25% 0px -25% 0px" }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className={`flex min-h-[60vh] flex-col justify-center ${first ? "" : ""}`}
+    >
+      {/* Mobile/tablet: inline image */}
+      <div className="relative mb-6 aspect-[4/3] overflow-hidden rounded-3xl shadow-lift lg:hidden">
+        <img src={slide.image} alt={slide.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+        <div className={`absolute inset-0 bg-gradient-to-tr ${slide.accent} mix-blend-multiply opacity-60`} />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
+        {slide.sticker && (
+          <img src={slide.sticker} alt="" aria-hidden="true" className="absolute right-4 top-4 h-20 w-20 -rotate-6 drop-shadow-xl" />
+        )}
+        <div className="absolute inset-x-0 bottom-0 p-5 text-background">
+          <span className="font-display text-4xl font-medium leading-none text-background/90">{slide.number}</span>
+          <h3 className="mt-2 font-display text-2xl font-medium tracking-tight">{slide.label}</h3>
+        </div>
+      </div>
+
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+        Pathway {slide.number}
+      </p>
+      <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+        {slide.label}
+      </h3>
+      <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+        {slide.detail}
+      </p>
+      <Link
+        to="/pathways/$pathwayId"
+        params={{ pathwayId: slide.id }}
+        className="group mt-6 inline-flex items-center gap-1.5 self-start rounded-full border border-foreground/15 bg-background px-5 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-soft"
+      >
+        Open the {slide.label} pathway
+        <span className="transition-transform group-hover:translate-x-1">→</span>
+      </Link>
+    </motion.article>
+  );
+}
+
