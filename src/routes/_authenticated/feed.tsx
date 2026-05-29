@@ -180,7 +180,11 @@ function FeedPage() {
         </div>
 
         <div className="mt-8">
-          {grouped === null ? (
+          {loadError ? (
+            <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          ) : grouped === null ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : grouped.length === 0 ? (
             <EmptyState />
