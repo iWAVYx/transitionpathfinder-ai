@@ -270,6 +270,7 @@ function MeetingDetailPage() {
                     <div className="flex items-start justify-between gap-2">
                       <p className={cn(a.status === "done" && "line-through")}>{a.title}</p>
                       <select
+                        aria-label={`Status for ${a.title}`}
                         value={a.status}
                         onChange={async (e) => {
                           await setStatus({
