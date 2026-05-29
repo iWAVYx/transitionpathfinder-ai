@@ -45,7 +45,7 @@ function DemoHubPage() {
   const bundle = getDemoStudent(s);
   const { profile: student, report, nextMeetingDate } = bundle;
 
-  const goals = report.readiness_scorecard.slice(0, 4).map((g, i) => ({
+  const goals = (report.readiness_scorecard ?? []).slice(0, 4).map((g, i) => ({
     title: g.suggested_goal ?? g.growth_activity ?? g.category,
     area: g.category,
     progress: [55, 40, 20, 5][i] ?? 15,
