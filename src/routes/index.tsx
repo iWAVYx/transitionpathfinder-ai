@@ -1319,3 +1319,84 @@ function FloatingDashboardStack() {
 }
 
 
+function ConnectedNetworkVisual() {
+  // Center = student. Surrounding nodes = roles/services.
+  const nodes = [
+    { id: "family", label: "Family", icon: HeartHandshake, angle: -90 },
+    { id: "educator", label: "Educator", icon: GraduationCap, angle: -30 },
+    { id: "ct", label: "CT services", icon: Building2, angle: 30 },
+    { id: "partner", label: "Partners", icon: Briefcase, angle: 90 },
+    { id: "college", label: "Colleges", icon: Compass, angle: 150 },
+    { id: "voice", label: "Student voice", icon: MessagesSquare, angle: -150 },
+  ];
+  const R = 38; // % radius
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-[360px]">
+      {/* Soft halo */}
+      <div className="absolute inset-6 rounded-full bg-primary/5 blur-2xl" />
+      {/* Connecting lines */}
+      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
+        {nodes.map((n, i) => {
+          const rad = (n.angle * Math.PI) / 180;
+          const x = 50 + R * Math.cos(rad);
+          const y = 50 + R * Math.sin(rad);
+          return (
+            <motion.line
+              key={n.id}
+              x1="50"
+              y1="50"
+              x2={x}
+              y2={y}
+              stroke="oklch(0.75 0.12 50)"
+              strokeWidth="0.6"
+              strokeDasharray="2 2"
+              initial={{ pathLength: 0, opacity: 0 }}
+              whileInView={{ pathLength: 1, opacity: 0.6 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.9, delay: 0.2 + i * 0.08, ease: "easeOut" }}
+            />
+          );
+        })}
+        {/* Outer ring */}
+        <circle cx="50" cy="50" r={R} fill="none" stroke="oklch(0.85 0.05 55)" strokeWidth="0.3" strokeDasharray="0.6 1.2" />
+      </svg>
+      {/* Center node */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.7_0.18_45)] text-primary-foreground shadow-lift"
+      >
+        <GraduationCap className="h-6 w-6" />
+        <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em]">Student</span>
+        <span className="absolute inset-0 -z-10 rounded-full border border-primary/40 trust-pulse-ring" />
+      </motion.div>
+      {/* Orbit nodes */}
+      {nodes.map((n, i) => {
+        const rad = (n.angle * Math.PI) / 180;
+        const x = 50 + R * Math.cos(rad);
+        const y = 50 + R * Math.sin(rad);
+        const Ic = n.icon;
+        return (
+          <motion.div
+            key={n.id}
+            initial={{ opacity: 0, scale: 0.4 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, delay: 0.5 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1"
+            style={{ left: `${x}%`, top: `${y}%` }}
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background text-primary shadow-soft">
+              <Ic className="h-4 w-4" />
+            </span>
+            <span className="rounded-full bg-background/95 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-foreground/75 shadow-soft">
+              {n.label}
+            </span>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
