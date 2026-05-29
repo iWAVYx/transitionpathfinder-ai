@@ -50,10 +50,11 @@ export function Starburst({ className }: DecoProps) {
     <svg className={wrap(className)} viewBox="0 0 100 100" fill="none" aria-hidden>
       {Array.from({ length: 12 }).map((_, i) => {
         const a = (i / 12) * Math.PI * 2;
-        const x1 = 50 + Math.cos(a) * 18;
-        const y1 = 50 + Math.sin(a) * 18;
-        const x2 = 50 + Math.cos(a) * 44;
-        const y2 = 50 + Math.sin(a) * 44;
+        const r4 = (n: number) => Math.round(n * 10000) / 10000;
+        const x1 = r4(50 + Math.cos(a) * 18);
+        const y1 = r4(50 + Math.sin(a) * 18);
+        const x2 = r4(50 + Math.cos(a) * 44);
+        const y2 = r4(50 + Math.sin(a) * 44);
         return (
           <line
             key={i}
