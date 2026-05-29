@@ -390,6 +390,7 @@ function FrameworkPage() {
             </Link>
           </Magnetic>
         </div>
+        </div>
       </section>
     </SiteShell>
   );
