@@ -229,7 +229,7 @@ export type Database = {
           id: string
           parent_id: string
           parent_type: string
-          student_id: string | null
+          student_id: string
           updated_at: string
         }
         Insert: {
@@ -239,7 +239,7 @@ export type Database = {
           id?: string
           parent_id: string
           parent_type: string
-          student_id?: string | null
+          student_id: string
           updated_at?: string
         }
         Update: {
@@ -249,7 +249,7 @@ export type Database = {
           id?: string
           parent_id?: string
           parent_type?: string
-          student_id?: string | null
+          student_id?: string
           updated_at?: string
         }
         Relationships: [
