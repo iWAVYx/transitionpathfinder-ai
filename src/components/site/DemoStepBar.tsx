@@ -56,21 +56,25 @@ export function DemoStepBar({ current, student }: Props) {
           <div className="flex items-center gap-2 text-xs">
             <span className="hidden text-muted-foreground sm:inline">Walking with</span>
             <div className="inline-flex overflow-hidden rounded-full border border-border/60 bg-background">
-              {(["maya", "jordan"] as DemoStudentId[]).map((sid) => (
-                <Link
-                  key={sid}
-                  to={`/demo/${current}` as never}
-                  search={{ s: sid }}
-                  className={`px-3 py-1 text-xs font-medium transition-colors ${
-                    student === sid
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground/70 hover:text-foreground"
-                  }`}
-                >
-                  {DEMO_STUDENTS[sid].profile.first_name}
-                </Link>
-              ))}
+              {(["maya", "jordan"] as DemoStudentId[]).map((sid) => {
+                const currentStep = DEMO_STEPS.find((x) => x.id === current) ?? DEMO_STEPS[0];
+                return (
+                  <Link
+                    key={sid}
+                    to={currentStep.to}
+                    search={{ s: sid }}
+                    className={`px-3 py-1 text-xs font-medium transition-colors ${
+                      student === sid
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground/70 hover:text-foreground"
+                    }`}
+                  >
+                    {DEMO_STUDENTS[sid].profile.first_name}
+                  </Link>
+                );
+              })}
             </div>
+
           </div>
         </div>
 
