@@ -38,10 +38,15 @@ function MeetingsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [showForm, setShowForm] = useState(false);
 
-  const reload = () => fetchMeetings({ data: {} }).then((r) => setMeetings(r.meetings));
+  const reload = () =>
+    fetchMeetings({ data: {} })
+      .then((r) => setMeetings(r.meetings))
+      .catch(() => setMeetings([]));
   useEffect(() => {
     reload();
-    fetchStudents().then((r) => setStudents(r.students));
+    fetchStudents()
+      .then((r) => setStudents(r.students))
+      .catch(() => setStudents([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
