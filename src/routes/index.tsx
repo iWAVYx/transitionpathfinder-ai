@@ -68,7 +68,8 @@ import {
   UnderlineSwoosh,
   ArcStack,
 } from "@/components/effects/Decorations";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform, MotionValue } from "motion/react";
+import { useRef } from "react";
 
 
 
