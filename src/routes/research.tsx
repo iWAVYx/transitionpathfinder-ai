@@ -15,7 +15,8 @@ import {
   BookOpen,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import researchHero from "@/assets/research-cinematic.jpg";
+import { photos } from "@/lib/photos";
+const researchHero = photos.research;
 
 export const Route = createFileRoute("/research")({
   head: () => ({

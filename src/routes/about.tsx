@@ -3,10 +3,11 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import aboutHero from "@/assets/about-cinematic.jpg";
-import aboutStudent from "@/assets/about-student-center.jpg";
-import pathCollege from "@/assets/path-college.jpg";
-import pathCareer from "@/assets/path-career.jpg";
+import { photos } from "@/lib/photos";
+const aboutHero = photos.about;
+const aboutStudent = photos.aboutStudent;
+const pathCollege = photos.pathCollege;
+const pathCareer = photos.pathCareer;
 
 export const Route = createFileRoute("/about")({
   head: () => ({

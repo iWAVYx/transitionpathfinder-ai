@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import frameworkHero from "@/assets/framework-hero.jpg";
-import bgTopo from "@/assets/framework-bg-topo.jpg";
-import bgSunrise from "@/assets/framework-bg-sunrise.jpg";
+import { photos } from "@/lib/photos";
+const frameworkHero = photos.framework;
+const bgTopo = photos.bgTopo;
+const bgSunrise = photos.bgSunrise;
 import {
   Parallax,
   ParallaxImage,
