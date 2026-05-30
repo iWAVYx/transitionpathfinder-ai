@@ -248,7 +248,7 @@ function FrameworkPage() {
       </CursorField>
 
       {/* Marquee of grade promises */}
-      <section aria-label="Promises" className="border-b border-border/40 bg-muted/30 py-6">
+      <section aria-label="Promises" className="border-b border-border/40 bg-background/40 py-6 backdrop-blur-sm">
         <Marquee
           speed={60}
           items={[
