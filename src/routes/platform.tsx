@@ -15,7 +15,8 @@ import {
   Heart,
   ArrowRight,
 } from "lucide-react";
-import platformHero from "@/assets/platform-hero-v2.jpg";
+import { photos } from "@/lib/photos";
+const platformHero = photos.platform;
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { Badge } from "@/components/ui/badge";
 import { DEMO_STUDENT } from "@/lib/demo-data";

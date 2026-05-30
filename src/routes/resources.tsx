@@ -42,7 +42,8 @@ import {
 } from "@/lib/saved-resources.functions";
 import { toast } from "sonner";
 
-import resourcesHero from "@/assets/resources-hero-v2.jpg";
+import { photos } from "@/lib/photos";
+const resourcesHero = photos.resources;
 import {
   RESOURCES,
   TOPIC_META,

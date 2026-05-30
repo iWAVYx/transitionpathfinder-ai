@@ -8,10 +8,11 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import educatorsHero from "@/assets/educators-hero-v2.jpg";
-import frameworkImg from "@/assets/framework-hero.jpg";
-import dashboardImg from "@/assets/dashboard-hero.jpg";
-import iepUploadImg from "@/assets/iep-upload.jpg";
+import { photos } from "@/lib/photos";
+const educatorsHero = photos.educators;
+const frameworkImg = photos.framework;
+const dashboardImg = photos.dashboard;
+const iepUploadImg = photos.iepUpload;
 import {
   Parallax,
   ParallaxImage,

@@ -5,11 +5,12 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import pathCollege from "@/assets/path-college.jpg";
-import pathTechnical from "@/assets/path-technical.jpg";
-import pathCareer from "@/assets/path-career.jpg";
-import pathLifeskills from "@/assets/path-lifeskills.jpg";
-import pathProgress from "@/assets/path-progress.jpg";
+import { photos } from "@/lib/photos";
+const pathCollege = photos.pathCollege;
+const pathTechnical = photos.pathTechnical;
+const pathCareer = photos.pathCareer;
+const pathLifeskills = photos.pathLifeskills;
+const pathProgress = photos.pathProgress;
 
 import { toTitleCase } from "@/lib/title-case";
 type PathwayStep = {

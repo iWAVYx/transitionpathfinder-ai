@@ -8,7 +8,8 @@ import {
   ClipboardCheck,
   Archive,
 } from "lucide-react";
-import familiesHero from "@/assets/families-hero-v2.jpg";
+import { photos } from "@/lib/photos";
+const familiesHero = photos.families;
 import {
   Parallax,
   ParallaxImage,
