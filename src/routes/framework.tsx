@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import frameworkHero from "@/assets/framework-hero.jpg";
+import bgTopo from "@/assets/framework-bg-topo.jpg";
+import bgSunrise from "@/assets/framework-bg-sunrise.jpg";
 import {
   Parallax,
   ParallaxImage,
@@ -233,11 +235,22 @@ function FrameworkPage() {
       </section>
 
       {/* Mission line */}
-      <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
-        <TextScrollFill
-          className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
-          text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+      <section className="relative overflow-hidden">
+        <img
+          src={bgSunrise}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1080}
+          className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
         />
+        <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
+          <TextScrollFill
+            className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+            text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+          />
+        </div>
       </section>
 
       {/* PRINCIPLES — numbered manifesto, alternating sides, oversized outline numerals */}
@@ -293,6 +306,15 @@ function FrameworkPage() {
 
       {/* SIX STRANDS — woven asymmetric list with sparkle markers */}
       <section className="relative overflow-hidden border-t border-border/40 bg-muted/20">
+        <img
+          src={bgTopo}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1280}
+          className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover opacity-25 mix-blend-multiply [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"
+        />
         <CompassRose className="absolute -right-16 top-10 -z-10 h-72 w-72 text-primary/10" />
         <Confetti className="absolute left-[4%] top-20 -z-10 h-32 w-32 opacity-60" />
         <BookDoodle className="absolute left-[8%] bottom-16 -z-10 hidden h-24 w-28 text-primary/20 lg:block" />
@@ -359,6 +381,15 @@ function FrameworkPage() {
 
       {/* GRADE BANDS — horizontal four-stop timeline */}
       <section className="relative overflow-hidden border-t border-border/60">
+        <img
+          src={bgSunrise}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1080}
+          className="pointer-events-none absolute inset-x-0 top-0 -z-20 h-2/3 w-full -scale-y-100 object-cover opacity-35 [mask-image:linear-gradient(to_bottom,black,transparent)]"
+        />
         <ArcStack className="absolute -left-4 bottom-0 -z-10 h-72 w-72 text-primary/20" />
         <PaperPlane className="absolute right-[8%] top-16 -z-10 h-14 w-14 text-primary/35" />
         <Sparkle className="absolute left-[35%] top-24 -z-10 h-6 w-6 text-primary/30" />
