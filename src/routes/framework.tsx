@@ -235,11 +235,22 @@ function FrameworkPage() {
       </section>
 
       {/* Mission line */}
-      <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
-        <TextScrollFill
-          className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
-          text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+      <section className="relative overflow-hidden">
+        <img
+          src={bgSunrise}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          width={1920}
+          height={1080}
+          className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
         />
+        <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
+          <TextScrollFill
+            className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+            text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+          />
+        </div>
       </section>
 
       {/* PRINCIPLES — numbered manifesto, alternating sides, oversized outline numerals */}
