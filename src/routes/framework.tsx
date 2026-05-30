@@ -394,15 +394,6 @@ function FrameworkPage() {
 
       {/* GRADE BANDS — horizontal four-stop timeline */}
       <section className="relative overflow-hidden border-t border-border/60">
-        <img
-          src={bgSunrise}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          width={1920}
-          height={1080}
-          className="pointer-events-none absolute inset-x-0 top-0 -z-20 h-2/3 w-full -scale-y-100 object-cover opacity-35 [mask-image:linear-gradient(to_bottom,black,transparent)]"
-        />
         <ArcStack className="absolute -left-4 bottom-0 -z-10 h-72 w-72 text-primary/20" />
         <PaperPlane className="absolute right-[8%] top-16 -z-10 h-14 w-14 text-primary/35" />
         <Sparkle className="absolute left-[35%] top-24 -z-10 h-6 w-6 text-primary/30" />
