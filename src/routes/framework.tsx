@@ -327,16 +327,7 @@ function FrameworkPage() {
       </section>
 
       {/* SIX STRANDS — woven asymmetric list with sparkle markers */}
-      <section className="relative overflow-hidden border-t border-border/40 bg-muted/20">
-        <img
-          src={bgTopo}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          width={1920}
-          height={1280}
-          className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover opacity-25 mix-blend-multiply [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"
-        />
+      <section className="relative overflow-hidden border-t border-border/40">
         <CompassRose className="absolute -right-16 top-10 -z-10 h-72 w-72 text-primary/10" />
         <Confetti className="absolute left-[4%] top-20 -z-10 h-32 w-32 opacity-60" />
         <BookDoodle className="absolute left-[8%] bottom-16 -z-10 hidden h-24 w-28 text-primary/20 lg:block" />
