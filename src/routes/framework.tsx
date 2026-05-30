@@ -144,9 +144,42 @@ const principles = [
 function FrameworkPage() {
   return (
     <SiteShell>
+      {/* AMBIENT PAGE BACKGROUND — fixed, full-bleed watercolor washes */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-50 overflow-hidden"
+      >
+        {/* warm sunrise wash, top */}
+        <img
+          src={bgSunrise}
+          alt=""
+          width={1920}
+          height={1080}
+          className="absolute inset-x-0 top-0 h-[70vh] w-full object-cover opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]"
+        />
+        {/* topographic line texture, mid-page drifting right */}
+        <img
+          src={bgTopo}
+          alt=""
+          width={1920}
+          height={1280}
+          className="absolute -right-[15%] top-[30%] h-[90vh] w-[120%] object-cover opacity-25 mix-blend-multiply [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+        />
+        {/* second sunrise glow, bottom, flipped */}
+        <img
+          src={bgSunrise}
+          alt=""
+          width={1920}
+          height={1080}
+          className="absolute inset-x-0 bottom-0 h-[60vh] w-full -scale-y-100 object-cover opacity-40 [mask-image:linear-gradient(to_bottom,transparent,black)]"
+        />
+        {/* color veil to keep contrast for text */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background/55" />
+      </div>
+
       {/* HERO */}
       <CursorField className="relative border-b border-border/60">
-        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-40" />
         <FloatingShape className="absolute right-[8%] top-24 -z-10 hidden h-40 w-40 lg:block">
           <svg viewBox="0 0 100 100" className="h-full w-full">
             <circle cx="50" cy="50" r="40" fill="hsl(20 90% 70% / 0.7)" />
