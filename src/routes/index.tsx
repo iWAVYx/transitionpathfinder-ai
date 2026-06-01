@@ -1097,8 +1097,10 @@ function AudiencePhoto({
       </div>
     </Link>
   );
+}
 
 function ResourcePreviewCard({
+
   eyebrow,
   title,
   source,
