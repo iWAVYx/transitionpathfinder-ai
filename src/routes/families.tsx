@@ -190,6 +190,29 @@ function FamiliesPage() {
         </div>
       </section>
 
+      {/* Family portal — moved from homepage */}
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-7">
+            <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
+              <img
+                src={photos.homeFamily}
+                alt="A parent and teenager looking at a laptop together"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+              />
+            </div>
+          </div>
+          <div className="lg:col-span-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Family portal</p>
+            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">Plain-Language Translation.</h3>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Transition goals explained — what they mean, why they matter, what to ask next. Track progress, find the right resources, and walk into PPT meetings prepared.
+            </p>
+          </div>
+        </div>
+      </section>
+
     </SiteShell>
   );
 }
