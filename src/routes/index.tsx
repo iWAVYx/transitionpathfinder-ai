@@ -965,52 +965,6 @@ function AudiencePhoto({
   );
 }
 
-function ResourcePreviewCard({
-
-  eyebrow,
-  title,
-  source,
-  topic,
-  icon: Icon,
-  tint,
-}: {
-  eyebrow: string;
-  title: string;
-  source: string;
-  topic: string;
-  icon: typeof Compass;
-  tint: string;
-}) {
-  return (
-    <Link
-      to="/resources"
-      className="group relative overflow-hidden rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-    >
-      <div
-        className={`absolute inset-x-0 top-0 h-20 bg-gradient-to-br ${tint} -z-0`}
-        aria-hidden
-      />
-      <div className="relative flex items-start justify-between gap-3">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-background/80 text-primary shadow-soft backdrop-blur">
-          <Icon className="h-4 w-4" />
-        </span>
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/80">
-          {eyebrow}
-        </span>
-      </div>
-      <h4 className="relative mt-6 font-display text-lg leading-snug text-foreground">
-        {title}
-      </h4>
-      <p className="relative mt-2 text-xs text-muted-foreground">{source}</p>
-      <div className="relative mt-4 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-foreground/70">
-          {topic}
-        </span>
-        <ArrowRight className="h-3.5 w-3.5 text-primary transition-transform group-hover:translate-x-0.5" />
-      </div>
-    </Link>
-  );
-}
 
 
 function PathwayTile({
