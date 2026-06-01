@@ -645,7 +645,7 @@ function HomePage() {
 
 
 
-      {/* AUDIENCE — three tall image cards with text overlay */}
+      {/* RESOURCE HUB PREVIEW — creative library teaser */}
       <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
         <ArcStack className="absolute -left-10 -bottom-4 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
@@ -653,36 +653,130 @@ function HomePage() {
           <ArrowDoodle className="h-full w-full rotate-180" />
         </Parallax>
 
-        <div className="mb-12 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            Who it helps
-          </p>
-          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Built for Everyone at the Table.
-          </h2>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          <AudiencePhoto
-            image={studentPhotoImg}
-            alt="A high school student writing in a notebook at a sunlit desk"
-            title="Students"
-            body="Understand your own plan, explore careers that match who you are, and walk into your PPT meeting knowing what to say."
-            cta={{ to: "/platform", label: "Explore the platform" }}
-          />
-          <AudiencePhoto
-            image={familyImg}
-            alt="A parent and teen at a kitchen table"
-            title="Families"
-            body="Finally see what's happening — in plain language. Track progress and find the resources your child actually needs."
-            cta={{ to: "/families", label: "For families" }}
-          />
-          <AudiencePhoto
-            image={educatorImg}
-            alt="A teacher working at a classroom desk"
-            title="Educators"
-            body="Less time wrestling with paperwork, more time supporting students. Goal tracking, meeting prep, and family-friendly communication."
-            cta={{ to: "/educators", label: "For educators" }}
-          />
+        <div className="grid items-start gap-12 lg:grid-cols-[5fr_7fr]">
+          {/* Left: intro */}
+          <div className="lg:sticky lg:top-28">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Inside the Library
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              A Hub Built for the Questions You're Actually Asking.
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
+              Hundreds of vetted articles, checklists, podcasts, and Connecticut
+              agencies — organized by topic, audience, and reading level so the
+              right resource finds you in under a minute.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                to="/resources"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:-translate-y-0.5"
+              >
+                Open the library <ArrowRight className="h-4 w-4" />
+              </Link>
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                Specialist-reviewed
+              </span>
+            </div>
+
+            {/* Format counters */}
+            <dl className="mt-10 grid grid-cols-3 gap-4 max-w-md">
+              {[
+                { n: "120+", label: "Articles & guides" },
+                { n: "40+", label: "Checklists & worksheets" },
+                { n: "25+", label: "CT agencies" },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-2xl border bg-card px-3 py-4 text-center shadow-soft"
+                >
+                  <dt className="font-display text-2xl text-primary">{s.n}</dt>
+                  <dd className="mt-1 text-[11px] leading-tight text-muted-foreground">
+                    {s.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          {/* Right: mock hub */}
+          <div className="relative">
+            <Sparkle className="absolute -top-4 -right-2 h-8 w-8 text-primary/60" />
+
+            {/* Faux search bar */}
+            <div className="flex items-center gap-3 rounded-2xl border bg-card px-4 py-3 shadow-soft">
+              <Compass className="h-4 w-4 text-primary" />
+              <span className="flex-1 text-sm text-muted-foreground">
+                Try{" "}
+                <em className="not-italic font-medium text-foreground">
+                  "preparing for my first PPT"
+                </em>
+              </span>
+              <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
+                ⌘K
+              </kbd>
+            </div>
+
+            {/* Topic chip cloud */}
+            <div className="mt-5 flex flex-wrap gap-2">
+              {[
+                { icon: Compass, label: "Transition Planning" },
+                { icon: ClipboardCheck, label: "IEP & PPT Support" },
+                { icon: UserCheck, label: "Self-Advocacy" },
+                { icon: Briefcase, label: "Career Exploration" },
+                { icon: GraduationCap, label: "Postsecondary" },
+                { icon: HeartHandshake, label: "Family Support" },
+                { icon: Building2, label: "Independent Living" },
+                { icon: Users, label: "CT Agencies" },
+              ].map(({ icon: Icon, label }) => (
+                <Link
+                  key={label}
+                  to="/resources"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 shadow-soft transition-colors hover:border-primary/50 hover:text-primary"
+                >
+                  <Icon className="h-3.5 w-3.5 text-primary" />
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Featured resource cards */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <ResourcePreviewCard
+                eyebrow="Guide · 12 min"
+                title="A Family's First Look at the Transition IEP"
+                source="TransitionForward Editorial"
+                topic="IEP & PPT Support"
+                icon={ClipboardCheck}
+                tint="from-primary/15 to-primary/5"
+              />
+              <ResourcePreviewCard
+                eyebrow="Podcast · 32 min"
+                title="Letting Your Teen Lead Their Own PPT"
+                source="The Pathway Podcast"
+                topic="Self-Advocacy"
+                icon={MessagesSquare}
+                tint="from-amber-500/15 to-amber-500/5"
+              />
+              <ResourcePreviewCard
+                eyebrow="Checklist"
+                title="30 Skills to Practice Before Graduation"
+                source="Independent Living Series"
+                topic="Independent Living"
+                icon={Building2}
+                tint="from-emerald-500/15 to-emerald-500/5"
+              />
+              <ResourcePreviewCard
+                eyebrow="CT Agency"
+                title="Bureau of Rehabilitation Services (BRS)"
+                source="State of Connecticut"
+                topic="CT Resources"
+                icon={Sparkles}
+                tint="from-sky-500/15 to-sky-500/5"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
