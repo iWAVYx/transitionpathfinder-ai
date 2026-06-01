@@ -472,59 +472,6 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="bg-muted/40 py-24">
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-16 max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              What's inside
-            </p>
-            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              A Clearer Way to Plan What Comes Next.
-            </h2>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-              Expert-built Pathway recommendations, student-centered goal tracking, and
-              real-world opportunity matching — moving every team from paperwork
-              to progress.
-            </p>
-          </div>
-
-          <div className="space-y-24">
-            <Zigzag
-              eyebrow="The Signature Output"
-              title="The Pathway Report"
-              body="Share your student's strengths, interests, and goals. TransitionForward delivers a personalized Pathway Report — the career direction, life-skills focus, family questions for the next PPT, and a 30-day plan you can actually act on. Every Pathway is built from specialist-designed formulas, Connecticut transition data, and the lived experience of special educators."
-              image={pathwayImg}
-              alt="A sample Pathway Report screen showing strengths, a recommended career pathway, a readiness scorecard, and a 30-day plan"
-              align="left"
-            />
-            <Zigzag
-              eyebrow="Student voice profile"
-              title="A space that's just theirs."
-              body="What they're good at, what they enjoy, what kind of life they want next — in their own words. Their voice anchors every plan and every meeting."
-              image={studentImg}
-              alt="A sample Student Hub screen with the greeting Hi Jordan, About me quotes, goals checklist, and matching careers"
-              align="right"
-            />
-            <Zigzag
-              eyebrow="Family portal"
-              title="Plain-language translation."
-              body="Transition goals explained — what they mean, why they matter, what to ask next. Track progress, find the right resources, and walk into PPT meetings prepared."
-              image={familyImg}
-              alt="A parent and teenager looking at a laptop together"
-              align="left"
-            />
-            <Zigzag
-              eyebrow="For educators"
-              title="Less paperwork. More presence."
-              body="Goal tracking, PPT meeting prep, and a Connecticut-aware Resource & Opportunity Match — community colleges, technical schools, BRS, internships — all matched to interest, location, and grade."
-              image={educatorImg}
-              alt="A teacher working calmly at a classroom desk"
-              align="right"
-            />
-          </div>
-        </div>
-      </section>
 
       {/* PATHWAYS — image tile grid of real next-step destinations */}
       <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
