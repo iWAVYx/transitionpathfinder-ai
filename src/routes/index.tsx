@@ -955,57 +955,6 @@ function TrustPillar({
 }
 
 
-function Zigzag({
-  eyebrow,
-  title,
-  body,
-  image,
-  alt,
-  align,
-}: {
-  eyebrow: string;
-  title: string;
-  body: string;
-  image: string;
-  alt: string;
-  align: "left" | "right";
-}) {
-  const imageFirst = align === "left";
-  return (
-    <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
-      <div
-        className={`lg:col-span-7 ${
-          imageFirst ? "lg:order-1" : "lg:order-2"
-        }`}
-      >
-        <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
-          <img
-            src={image}
-            alt={alt}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
-          />
-        </div>
-      </div>
-      <div
-        className={`lg:col-span-5 ${
-          imageFirst ? "lg:order-2" : "lg:order-1"
-        }`}
-      >
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-          {eyebrow}
-        </p>
-        <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          {toTitleCase(title)}
-        </h3>
-        <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-          {body}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function AudiencePhoto({
   image,
   alt,
