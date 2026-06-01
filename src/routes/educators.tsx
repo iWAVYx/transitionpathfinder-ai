@@ -214,6 +214,29 @@ function EducatorsPage() {
           </div>
         </Reveal>
       </section>
+
+      {/* For educators — moved from homepage */}
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">For educators</p>
+            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">Less Paperwork. More Presence.</h3>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Goal tracking, PPT meeting prep, and a Connecticut-aware Resource &amp; Opportunity Match — community colleges, technical schools, BRS, internships — all matched to interest, location, and grade.
+            </p>
+          </div>
+          <div className="lg:col-span-7">
+            <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
+              <img
+                src={photos.homeEducator}
+                alt="A teacher working calmly at a classroom desk"
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
     </SiteShell>
   );
 }
