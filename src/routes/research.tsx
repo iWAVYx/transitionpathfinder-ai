@@ -85,8 +85,8 @@ const STATS = [
 
 function StatStrip() {
   return (
-    <section className="relative border-y border-foreground/10 bg-foreground py-20 text-background">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-4 sm:px-6 lg:grid-cols-4 lg:gap-6 lg:px-8">
+    <section className="relative border-y border-foreground/10 bg-foreground py-12 text-background">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 sm:px-6 lg:grid-cols-4 lg:gap-5 lg:px-8">
         {STATS.map((s, i) => (
           <Stat key={i} {...s} delay={i * 0.1} />
         ))}
