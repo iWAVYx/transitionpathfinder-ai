@@ -72,8 +72,6 @@ const features: Array<{
   title: string;
   body: string;
   tags: Tag[];
-
-
 }> = [
   {
     icon: Sparkles,
