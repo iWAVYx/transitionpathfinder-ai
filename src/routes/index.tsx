@@ -418,64 +418,64 @@ function HomePage() {
         </div>
 
         {/* Hero feature — Pathway Report */}
-        <div className="mb-5 grid items-stretch gap-4 md:grid-cols-5">
+        <div className="mb-4 grid items-stretch gap-3 md:grid-cols-5">
           <FeatureShot
             className="md:col-span-3"
-            image={pathwayImg}
+            image={pathwayReportShot.url}
             label="The Pathway Report"
             caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
-            aspect="aspect-[16/9]"
+            aspect="aspect-[16/10]"
           />
           <FeatureShot
             className="md:col-span-2"
-            image={dashboardImg}
+            image={dashboardShot.url}
             label="Your dashboard"
             caption="A calm hub for what's next — reports, goals, and meeting prep."
-            aspect="aspect-[16/9]"
+            aspect="aspect-[16/10]"
           />
         </div>
 
         {/* Symmetric trio — the three core layers */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={layerOrganizeImg}
             label="Organize"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={layerGenerateImg}
             label="Generate"
             caption="Specialist-built formulas turn the full picture into a personalized Pathway."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={layerConnectImg}
             label="Connect"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[4/3]"
           />
         </div>
 
         {/* Secondary trio — supporting elements */}
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={iepUploadImg}
             label="IEP upload & summary"
             caption="Drop in the document — we read it and surface what matters in plain language."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={resourcesImg}
             label="Resource library"
             caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={frameworkImg}
             label="PPT meeting prep"
             caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[4/3]"
           />
         </div>
       </section>
