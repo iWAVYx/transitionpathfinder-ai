@@ -44,19 +44,15 @@ import {
 
 import { toTitleCase } from "@/lib/title-case";
 
-const u = (id: string, w = 1024) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
-
-// Curated Unsplash photos (royalty-free) matched to each toolkit card.
-const toolPathwayBuilder = u("photo-1454165804606-c3d57bc86b40"); // notebook + planning
-const toolStudentVoice = u("photo-1517842645767-c639042777db"); // student journaling
-const toolFamilyVoice = u("photo-1543269865-cbf427effbad"); // parent + teen talking
-const toolTranslator = u("photo-1455390582262-044cdead277a"); // document + handwritten notes
-const toolGoalTracker = u("photo-1606326608606-aa0b62935f2b"); // progress chart / planner
-const toolAssessmentVault = u("photo-1568667256549-094345857637"); // stacked folders / files
-const toolPptPrep = u("photo-1517048676732-d65bc937f952"); // meeting prep around table
-const toolResourceMatch = u("photo-1524661135-423995f22d0b"); // map with pins
-const toolEducatorDashboard = u("photo-1551288049-bebda4e38f71"); // laptop dashboard
+import toolPathwayBuilder from "@/assets/tool-pathway-builder.jpg";
+import toolStudentVoice from "@/assets/tool-student-voice.jpg";
+import toolFamilyVoice from "@/assets/tool-family-voice.jpg";
+import toolTranslator from "@/assets/tool-translator.jpg";
+import toolGoalTracker from "@/assets/tool-goal-tracker.jpg";
+import toolAssessmentVault from "@/assets/tool-assessment-vault.jpg";
+import toolPptPrep from "@/assets/tool-ppt-prep.jpg";
+import toolResourceMatch from "@/assets/tool-resource-match.jpg";
+import toolEducatorDashboard from "@/assets/tool-educator-dashboard.jpg";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
