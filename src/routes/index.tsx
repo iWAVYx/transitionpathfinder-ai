@@ -1450,11 +1450,12 @@ function FeatureShot({
 
 /* -------------------- HOME STAT STRIP -------------------- */
 const HOME_STATS = [
-  { value: 7300000, suffix: "+", label: "U.S. students receive special education services under IDEA each year." },
-  { value: 85, suffix: "%", label: "of jobs of the future haven't been invented yet — planning for them starts now." },
-  { value: 2, suffix: "×", label: "the unemployment rate for adults with disabilities vs. peers without." },
-  { value: 70, suffix: "%", label: "of parents say they don't fully understand what's in their child's IEP." },
+  { value: 85000, suffix: "+", label: "Connecticut students have an IEP today — each one deserves a plan for what comes next." },
+  { value: 1, suffix: " in 6", label: "CT public-school students receives special education services. Every voice belongs at the table." },
+  { value: 14, suffix: "", label: "the age CT law requires transition planning in every IEP. We make that plan readable from day one." },
+  { value: 169, suffix: "", label: "Connecticut towns. One shared Pathway framework that travels with the student, family, and team." },
 ];
+
 
 function HomeStatStrip() {
   return (
