@@ -16,15 +16,15 @@ import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "FAQs | TransitionForward" },
+      { title: "Help Center | TransitionForward" },
       {
         name: "description",
         content:
-          "Find answers to frequently asked questions about TransitionForward, transition planning, and postsecondary support for Connecticut students.",
+          "Get help and find answers to common questions about TransitionForward, transition planning, and postsecondary support for Connecticut students.",
       },
       {
         property: "og:title",
-        content: "Frequently Asked Questions | TransitionForward",
+        content: "Help Center | TransitionForward",
       },
       {
         property: "og:description",
