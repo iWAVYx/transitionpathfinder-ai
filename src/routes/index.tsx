@@ -42,6 +42,8 @@ import stickerCareer from "@/assets/sticker-career.png";
 import stickerLifeskills from "@/assets/sticker-lifeskills.png";
 import stickerProgress from "@/assets/sticker-progress.png";
 import doodlePlane from "@/assets/doodle-plane.png";
+import dashboardShot from "@/assets/dashboard-screenshot.png.asset.json";
+import pathwayReportShot from "@/assets/pathway-report-screenshot.png.asset.json";
 import {
   Parallax,
   ParallaxImage,
