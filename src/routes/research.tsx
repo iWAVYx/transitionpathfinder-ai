@@ -121,11 +121,11 @@ function Stat({ value, suffix, label, delay }: { value: number; suffix: string; 
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay }}
     >
-      <div className="font-display text-5xl font-medium leading-none text-background sm:text-6xl lg:text-7xl">
+      <div className="font-display text-4xl font-medium leading-none text-background sm:text-5xl lg:text-6xl">
         {n}
         <span className="text-peach">{suffix}</span>
       </div>
-      <p className="mt-4 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
+      <p className="mt-2 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
     </motion.div>
   );
 }
