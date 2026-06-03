@@ -507,7 +507,7 @@ function HomePage() {
             </p>
           </div>
         </div>
-        <div className="grid auto-rows-[12rem] grid-cols-2 gap-4 sm:auto-rows-[14rem] md:auto-rows-[16rem] md:grid-cols-12 md:gap-4">
+        <div className="grid auto-rows-[10rem] grid-cols-2 gap-3 sm:auto-rows-[12rem] md:auto-rows-[14rem] md:grid-cols-12 md:gap-3">
           <PathwayTile
             className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
             image={pathCollege}
