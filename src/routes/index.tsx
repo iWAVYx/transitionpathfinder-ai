@@ -1459,7 +1459,8 @@ const HOME_STATS = [
 function HomeStatStrip() {
   return (
     <section className="relative border-y border-foreground/10 bg-foreground py-12 text-background sm:py-14">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 sm:gap-8 sm:px-6 lg:grid-cols-4 lg:gap-5 lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-8 gap-y-10 px-4 sm:gap-x-10 sm:px-6 lg:grid-cols-4 lg:gap-x-12 lg:px-12">
+
         {HOME_STATS.map((s, i) => (
           <HomeStat key={i} {...s} delay={i * 0.1} />
         ))}
