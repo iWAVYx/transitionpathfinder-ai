@@ -58,8 +58,13 @@ import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
+import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
+import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
+import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
+import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
+import { Route as AuthenticatedOwnerBlogRouteImport } from './routes/_authenticated/owner.blog'
 import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenticated/owner.admins'
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
@@ -318,10 +323,32 @@ const AuthenticatedOwnerWaitlistRoute =
     path: '/owner/waitlist',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedOwnerTestimonialsRoute =
+  AuthenticatedOwnerTestimonialsRouteImport.update({
+    id: '/owner/testimonials',
+    path: '/owner/testimonials',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerSettingsRoute =
   AuthenticatedOwnerSettingsRouteImport.update({
     id: '/owner/settings',
     path: '/owner/settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOwnerMediaRoute = AuthenticatedOwnerMediaRouteImport.update({
+  id: '/owner/media',
+  path: '/owner/media',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOwnerFaqsRoute = AuthenticatedOwnerFaqsRouteImport.update({
+  id: '/owner/faqs',
+  path: '/owner/faqs',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOwnerContentRoute =
+  AuthenticatedOwnerContentRouteImport.update({
+    id: '/owner/content',
+    path: '/owner/content',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedOwnerContactsRoute =
@@ -330,6 +357,11 @@ const AuthenticatedOwnerContactsRoute =
     path: '/owner/contacts',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedOwnerBlogRoute = AuthenticatedOwnerBlogRouteImport.update({
+  id: '/owner/blog',
+  path: '/owner/blog',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedOwnerAdminsRoute =
   AuthenticatedOwnerAdminsRouteImport.update({
     id: '/owner/admins',
@@ -419,8 +451,13 @@ export interface FileRoutesByFullPath {
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
+  '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -478,8 +515,13 @@ export interface FileRoutesByTo {
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
+  '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -539,8 +581,13 @@ export interface FileRoutesById {
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/_authenticated/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/_authenticated/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
+  '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -600,8 +647,13 @@ export interface FileRouteTypes {
     | '/meetings/$meetingId'
     | '/owner/activity'
     | '/owner/admins'
+    | '/owner/blog'
     | '/owner/contacts'
+    | '/owner/content'
+    | '/owner/faqs'
+    | '/owner/media'
     | '/owner/settings'
+    | '/owner/testimonials'
     | '/owner/waitlist'
     | '/reports/$reportId'
     | '/students/$studentId'
@@ -659,8 +711,13 @@ export interface FileRouteTypes {
     | '/meetings/$meetingId'
     | '/owner/activity'
     | '/owner/admins'
+    | '/owner/blog'
     | '/owner/contacts'
+    | '/owner/content'
+    | '/owner/faqs'
+    | '/owner/media'
     | '/owner/settings'
+    | '/owner/testimonials'
     | '/owner/waitlist'
     | '/reports/$reportId'
     | '/students/$studentId'
@@ -719,8 +776,13 @@ export interface FileRouteTypes {
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
     | '/_authenticated/owner/admins'
+    | '/_authenticated/owner/blog'
     | '/_authenticated/owner/contacts'
+    | '/_authenticated/owner/content'
+    | '/_authenticated/owner/faqs'
+    | '/_authenticated/owner/media'
     | '/_authenticated/owner/settings'
+    | '/_authenticated/owner/testimonials'
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/students/$studentId'
@@ -1107,6 +1169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerWaitlistRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/testimonials': {
+      id: '/_authenticated/owner/testimonials'
+      path: '/owner/testimonials'
+      fullPath: '/owner/testimonials'
+      preLoaderRoute: typeof AuthenticatedOwnerTestimonialsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/settings': {
       id: '/_authenticated/owner/settings'
       path: '/owner/settings'
@@ -1114,11 +1183,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/media': {
+      id: '/_authenticated/owner/media'
+      path: '/owner/media'
+      fullPath: '/owner/media'
+      preLoaderRoute: typeof AuthenticatedOwnerMediaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/faqs': {
+      id: '/_authenticated/owner/faqs'
+      path: '/owner/faqs'
+      fullPath: '/owner/faqs'
+      preLoaderRoute: typeof AuthenticatedOwnerFaqsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/content': {
+      id: '/_authenticated/owner/content'
+      path: '/owner/content'
+      fullPath: '/owner/content'
+      preLoaderRoute: typeof AuthenticatedOwnerContentRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/contacts': {
       id: '/_authenticated/owner/contacts'
       path: '/owner/contacts'
       fullPath: '/owner/contacts'
       preLoaderRoute: typeof AuthenticatedOwnerContactsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/blog': {
+      id: '/_authenticated/owner/blog'
+      path: '/owner/blog'
+      fullPath: '/owner/blog'
+      preLoaderRoute: typeof AuthenticatedOwnerBlogRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/owner/admins': {
@@ -1243,8 +1340,13 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
+  AuthenticatedOwnerBlogRoute: typeof AuthenticatedOwnerBlogRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
+  AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
+  AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
+  AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
+  AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
   AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
 }
@@ -1271,8 +1373,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
+  AuthenticatedOwnerBlogRoute: AuthenticatedOwnerBlogRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
+  AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
+  AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
+  AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
+  AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
   AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
 }

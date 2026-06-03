@@ -8,7 +8,7 @@ export type PageSection = {
   id: string;
   page_key: string;
   section_key: string;
-  content: Record<string, unknown>;
+  content: any;
   is_published: boolean;
   updated_at: string | null;
 };
@@ -101,7 +101,7 @@ export const getPageSection = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) =>
     z.object({ page_key: z.string(), section_key: z.string() }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<{ content: any }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("page_sections")
@@ -142,7 +142,7 @@ export const adminUpsertPageSection = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
-    const row: Record<string, any> = {
+    const row: any = {
       page_key: data.page_key,
       section_key: data.section_key,
       content: data.content,
