@@ -320,7 +320,7 @@ function CitationsGrid() {
           </h2>
         </motion.div>
 
-        <div className="relative z-10 mt-16 grid gap-10 overflow-visible lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        <div className="relative z-10 mt-10 grid gap-8 overflow-visible lg:grid-cols-[1.05fr_1fr] lg:items-center">
           {/* LEFT — orbital constellation */}
           <div
             className="relative z-10 mx-auto aspect-square w-full min-w-0 max-w-[520px] overflow-visible"
@@ -458,7 +458,7 @@ function CitationsGrid() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 shadow-lift transition-shadow hover:shadow-xl">
+            <div className="relative min-h-[200px] overflow-hidden rounded-2xl border border-foreground/10 bg-card p-6 shadow-lift transition-shadow hover:shadow-xl">
 
               {CITATIONS.map((c, i) => (
                 <motion.div
@@ -469,7 +469,7 @@ function CitationsGrid() {
                     y: i === active ? 0 : 16,
                   }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className={`absolute inset-0 p-8 ${i === active ? "" : "pointer-events-none"}`}
+                  className={`absolute inset-0 p-6 ${i === active ? "" : "pointer-events-none"}`}
                 >
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em]">
                     <span className={c.kind === "data" ? "text-primary" : "text-peach"}>
