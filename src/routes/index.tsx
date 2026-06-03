@@ -434,40 +434,46 @@ function HomePage() {
         </div>
 
         {/* Symmetric trio — the three core layers */}
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           <FeatureShot
             image={layerOrganizeImg}
             label="Organize"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
+            aspect="aspect-[16/10]"
           />
           <FeatureShot
             image={layerGenerateImg}
             label="Generate"
             caption="Specialist-built formulas turn the full picture into a personalized Pathway."
+            aspect="aspect-[16/10]"
           />
           <FeatureShot
             image={layerConnectImg}
             label="Connect"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
+            aspect="aspect-[16/10]"
           />
         </div>
 
         {/* Secondary trio — supporting elements */}
-        <div className="mt-5 grid gap-5 md:grid-cols-3">
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
           <FeatureShot
             image={iepUploadImg}
             label="IEP upload & summary"
             caption="Drop in the document — we read it and surface what matters in plain language."
+            aspect="aspect-[16/10]"
           />
           <FeatureShot
             image={resourcesImg}
             label="Resource library"
             caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
+            aspect="aspect-[16/10]"
           />
           <FeatureShot
             image={frameworkImg}
             label="PPT meeting prep"
             caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
+            aspect="aspect-[16/10]"
           />
         </div>
       </section>
