@@ -227,8 +227,9 @@ export function StickyScrollStory({
   );
   return (
     <section ref={ref} className={cn("relative", className)}>
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-        <div className="lg:sticky lg:top-24 lg:self-start lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header (always visible) */}
+        <div className="mb-10 lg:hidden">
           {eyebrow && (
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               {eyebrow}
@@ -239,53 +240,93 @@ export function StickyScrollStory({
               {toTitleCase(title)}
             </h2>
           )}
-          <div className="relative mt-6 min-h-[14rem]">
-            {panels.map((p, i) => (
-              <div
-                key={i}
-                className="absolute inset-0 transition-opacity duration-500"
-                style={{ opacity: i === activeIdx ? 1 : 0 }}
-                aria-hidden={i !== activeIdx}
-              >
-                <h3 className="font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
+        </div>
+
+        {/* Mobile / tablet: stacked panels with image + text together */}
+        <div className="space-y-12 lg:hidden">
+          {panels.map((p, i) => (
+            <article key={i} className="space-y-5">
+              <div className="overflow-hidden rounded-[1.75rem] shadow-lift">
+                <img
+                  src={p.image}
+                  alt={p.alt}
+                  loading="lazy"
+                  className="aspect-[4/3] w-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
                   {toTitleCase(p.title)}
                 </h3>
-                <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
                   {p.body}
                 </p>
               </div>
-            ))}
-            <div className="mt-auto flex gap-1.5 pt-[12rem]">
-              {panels.map((_, i) => (
-                <span
+            </article>
+          ))}
+        </div>
+
+        {/* Desktop: sticky scroll story */}
+        <div className="hidden gap-12 lg:grid lg:grid-cols-2">
+          <div className="lg:sticky lg:top-24 lg:self-start lg:py-24">
+            {eyebrow && (
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                {eyebrow}
+              </p>
+            )}
+            {title && (
+              <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+                {toTitleCase(title)}
+              </h2>
+            )}
+            <div className="relative mt-6 min-h-[14rem]">
+              {panels.map((p, i) => (
+                <div
                   key={i}
-                  className={cn(
-                    "h-1 rounded-full transition-all duration-500",
-                    i === activeIdx ? "w-8 bg-primary" : "w-4 bg-border",
-                  )}
-                />
+                  className="absolute inset-0 transition-opacity duration-500"
+                  style={{ opacity: i === activeIdx ? 1 : 0 }}
+                  aria-hidden={i !== activeIdx}
+                >
+                  <h3 className="font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
+                    {toTitleCase(p.title)}
+                  </h3>
+                  <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                    {p.body}
+                  </p>
+                </div>
               ))}
+              <div className="mt-auto flex gap-1.5 pt-[12rem]">
+                {panels.map((_, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      "h-1 rounded-full transition-all duration-500",
+                      i === activeIdx ? "w-8 bg-primary" : "w-4 bg-border",
+                    )}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="space-y-8 py-12 lg:py-24">
-          {panels.map((p, i) => (
-            <div
-              key={i}
-              className="overflow-hidden rounded-[2rem] shadow-lift transition-transform duration-700"
-              style={{
-                transform: i === activeIdx ? "scale(1)" : "scale(0.97)",
-                opacity: i === activeIdx ? 1 : 0.55,
-              }}
-            >
-              <img
-                src={p.image}
-                alt={p.alt}
-                loading="lazy"
-                className="aspect-[4/3] w-full object-cover"
-              />
-            </div>
-          ))}
+          <div className="space-y-8 py-12 lg:py-24">
+            {panels.map((p, i) => (
+              <div
+                key={i}
+                className="overflow-hidden rounded-[2rem] shadow-lift transition-transform duration-700"
+                style={{
+                  transform: i === activeIdx ? "scale(1)" : "scale(0.97)",
+                  opacity: i === activeIdx ? 1 : 0.55,
+                }}
+              >
+                <img
+                  src={p.image}
+                  alt={p.alt}
+                  loading="lazy"
+                  className="aspect-[4/3] w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
