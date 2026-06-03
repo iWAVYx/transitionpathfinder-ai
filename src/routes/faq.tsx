@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Accordion,
@@ -44,18 +44,12 @@ function FaqPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  // Load once on mount
-  useState(() => {
+  useEffect(() => {
     fetchFaqs({ data: {} }).then((r) => {
       setFaqs(r.faqs);
       setLoaded(true);
     });
-  });
-
-  // Actually load properly with useEffect equivalent via useMemo trick or inline
-  // Since we can't use hooks inside conditionals, let's use a ref-like pattern
-  // Actually, let me just use the standard pattern but inline.
-  // I'll replace this with a proper useEffect-like pattern below
+  }, [fetchFaqs]);
 
   const categories = useMemo(
     () => Array.from(new Set(faqs.map((f) => f.category))).sort(),
@@ -81,7 +75,6 @@ function FaqPage() {
       list.push(f);
       map.set(f.category, list);
     }
-    // Sort categories deterministically
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
@@ -133,7 +126,7 @@ function FaqPage() {
                   activeCategory === cat
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+              }`}
               >
                 {cat}
               </button>
