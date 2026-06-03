@@ -258,12 +258,15 @@ function CitationsGrid() {
   const titleY = useTransform(scrollYProgress, [0, 1], [60, -60]);
   const ringRot = useTransform(scrollYProgress, [0, 1], [-25, 25]);
   const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
 
-  // auto-rotate active citation
+  // auto-rotate active citation (paused on hover)
   useEffect(() => {
+    if (paused) return;
     const id = setInterval(() => setActive((a) => (a + 1) % CITATIONS.length), 3200);
     return () => clearInterval(id);
-  }, []);
+  }, [paused]);
 
   return (
     <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-32 sm:py-40">
@@ -287,7 +290,13 @@ function CitationsGrid() {
       </motion.div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div style={{ y: titleY }}>
+        <motion.div
+          style={{ y: titleY }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-15% 0px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Sources &amp; voices</p>
           <h2 className="mt-3 max-w-2xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl">
             Built on <span className="italic text-primary">data</span> and <span className="italic text-peach">lived experience</span>.
@@ -296,23 +305,36 @@ function CitationsGrid() {
 
         <div className="mt-16 grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
           {/* LEFT — orbital constellation */}
-          <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+          <div
+            className="relative mx-auto aspect-square w-full max-w-[520px]"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => {
+              setPaused(false);
+              setHovered(null);
+            }}
+          >
             {/* center pulse */}
             <motion.div
               animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.9, 0.5] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/40 to-peach/40 blur-2xl"
             />
-            <div className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift">
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true, margin: "-20% 0px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift"
+            >
               <div className="text-center">
                 <div className="font-display text-3xl font-medium leading-none text-foreground">{CITATIONS.length}</div>
                 <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground">sources</div>
               </div>
-            </div>
+            </motion.div>
 
             {/* slow-rotating orbit */}
             <motion.div
-              animate={{ rotate: 360 }}
+              animate={{ rotate: paused ? undefined : 360 }}
               transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0"
             >
@@ -322,31 +344,51 @@ function CitationsGrid() {
                 const x = 50 + Math.cos(angle) * r;
                 const y = 50 + Math.sin(angle) * r;
                 const isActive = i === active;
+                const isHover = i === hovered;
                 return (
-                  <button
+                  <motion.button
                     key={c.source}
                     type="button"
                     onClick={() => setActive(i)}
+                    onMouseEnter={() => {
+                      setHovered(i);
+                      setActive(i);
+                    }}
+                    onFocus={() => setActive(i)}
                     style={{ left: `${x}%`, top: `${y}%` }}
-                    className="group absolute -translate-x-1/2 -translate-y-1/2"
+                    className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
                     aria-label={c.source}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-15% 0px" }}
+                    transition={{
+                      duration: 0.55,
+                      delay: 0.15 + i * 0.08,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    whileTap={{ scale: 0.92 }}
                   >
                     {/* counter-rotate so the chip stays upright */}
                     <motion.div
-                      animate={{ rotate: -360 }}
+                      animate={{ rotate: paused ? undefined : -360 }}
                       transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                     >
                       <motion.div
                         animate={{
-                          scale: isActive ? 1.15 : 1,
+                          scale: isActive ? 1.18 : isHover ? 1.1 : 1,
+                          y: isHover && !isActive ? -2 : 0,
                         }}
-                        transition={{ type: "spring", stiffness: 220, damping: 18 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 18 }}
                         className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold shadow-soft backdrop-blur transition-colors ${
                           isActive
                             ? c.kind === "data"
-                              ? "border-primary/60 bg-primary text-primary-foreground"
-                              : "border-peach/60 bg-peach text-foreground"
-                            : "border-foreground/10 bg-card text-foreground/70 hover:border-foreground/30"
+                              ? "border-primary/60 bg-primary text-primary-foreground shadow-lift"
+                              : "border-peach/60 bg-peach text-foreground shadow-lift"
+                            : isHover
+                              ? c.kind === "data"
+                                ? "border-primary/50 bg-card text-foreground"
+                                : "border-peach/50 bg-card text-foreground"
+                              : "border-foreground/10 bg-card text-foreground/70"
                         }`}
                       >
                         <span
@@ -357,29 +399,34 @@ function CitationsGrid() {
                         {String(i + 1).padStart(2, "0")}
                       </motion.div>
                     </motion.div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </motion.div>
 
             {/* SVG connector lines from center to each node */}
             <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-              {CITATIONS.map((_, i) => {
+              {CITATIONS.map((c, i) => {
                 const angle = (i / CITATIONS.length) * Math.PI * 2 - Math.PI / 2;
                 const r = 42;
                 const x = 50 + Math.cos(angle) * r;
                 const y = 50 + Math.sin(angle) * r;
+                const emphasized = i === active || i === hovered;
                 return (
-                  <line
+                  <motion.line
                     key={i}
                     x1={50}
                     y1={50}
                     x2={x}
                     y2={y}
-                    stroke="var(--foreground)"
-                    strokeOpacity={i === active ? 0.35 : 0.08}
-                    strokeWidth={0.2}
+                    stroke={c.kind === "data" ? "var(--primary)" : "var(--peach, var(--foreground))"}
+                    strokeWidth={emphasized ? 0.4 : 0.2}
                     strokeDasharray="1 1.5"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    whileInView={{ pathLength: 1, opacity: emphasized ? 0.5 : 0.12 }}
+                    viewport={{ once: true, margin: "-15% 0px" }}
+                    animate={{ opacity: emphasized ? 0.5 : 0.12 }}
+                    transition={{ duration: 0.8, delay: 0.2 + i * 0.08, ease: "easeOut" }}
                   />
                 );
               })}
@@ -387,8 +434,15 @@ function CitationsGrid() {
           </div>
 
           {/* RIGHT — active citation detail + ticker */}
-          <div className="relative">
-            <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 shadow-lift">
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-15% 0px" }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 shadow-lift transition-shadow hover:shadow-xl">
+
               {CITATIONS.map((c, i) => (
                 <motion.div
                   key={c.source}
@@ -441,7 +495,8 @@ function CitationsGrid() {
                 ))}
               </motion.div>
             </div>
-          </div>
+          </motion.div>
+
         </div>
       </div>
     </section>
