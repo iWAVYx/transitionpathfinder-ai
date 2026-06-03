@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -22,7 +23,7 @@ import { createPptPrep, type PptAgenda } from "@/lib/ppt.functions";
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/ppt-prep")({
   head: () => ({ meta: [{ title: "PPT Meeting Prep — TransitionForward" }] }),
-  component: PptPrepPage,
+  component: () => (<RoleGuard path="/ppt-prep"><PptPrepPage /></RoleGuard>),
 });
 
 type ReportSummary = { id: string; student_first_name: string; grade_band: string | null; created_at: string };

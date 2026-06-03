@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { FileText, FolderOpen, Search, Sparkles, CheckCircle2, Clock } from "lucide-react";
@@ -11,7 +12,7 @@ import { listAllDocuments, type CrossDocumentRow } from "@/lib/cross-docs.functi
 
 export const Route = createFileRoute("/_authenticated/documents")({
   head: () => ({ meta: [{ title: "Documents — TransitionForward" }] }),
-  component: DocumentsHubPage,
+  component: () => (<RoleGuard path="/documents"><DocumentsHubPage /></RoleGuard>),
 });
 
 type StatusKey = "needs-review" | "summarized" | "all";

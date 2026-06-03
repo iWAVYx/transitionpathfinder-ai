@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -11,7 +12,7 @@ import { deleteReport, listMyReports, type ReportListRow } from "@/lib/pathway.f
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "My Pathway Reports — TransitionForward" }] }),
-  component: ReportsPage,
+  component: () => (<RoleGuard path="/reports"><ReportsPage /></RoleGuard>),
 });
 
 type SortKey = "newest" | "oldest" | "name";

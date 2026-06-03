@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Users, Plus, GraduationCap, Trash2 } from "lucide-react";
@@ -18,7 +19,7 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — TransitionForward" }] }),
-  component: StudentsPage,
+  component: () => (<RoleGuard path="/students"><StudentsPage /></RoleGuard>),
 });
 
 function StudentsPage() {

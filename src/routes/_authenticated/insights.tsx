@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { BarChart3, Users, Sparkles, Calendar, FileText, MessageCircle } from "lucide-react";
@@ -10,7 +11,7 @@ import { getEngagementInsights, type EngagementInsights } from "@/lib/insights.f
 
 export const Route = createFileRoute("/_authenticated/insights")({
   head: () => ({ meta: [{ title: "Engagement Insights — TransitionForward" }] }),
-  component: InsightsPage,
+  component: () => (<RoleGuard path="/insights"><InsightsPage /></RoleGuard>),
 });
 
 function InsightsPage() {
