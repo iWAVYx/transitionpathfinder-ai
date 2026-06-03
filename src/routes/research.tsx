@@ -435,7 +435,7 @@ function CitationsGrid() {
 
           {/* RIGHT — active citation detail + ticker */}
           <motion.div
-            className="relative min-w-0"
+            className="relative z-10 min-w-0"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
