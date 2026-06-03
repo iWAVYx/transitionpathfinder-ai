@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
-import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown } from "lucide-react";
+import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
 import { getMyRoles } from "@/lib/profile.functions";
+import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
 
 type NavLink = { to: string; label: string; desc?: string };
@@ -121,7 +122,9 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const [roles, setRoles] = useState<string[]>([]);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const fetchRoles = useServerFn(getMyRoles);
+  const fetchAdminRoles = useServerFn(getMyAdminRoles);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -133,6 +136,7 @@ export function SiteHeader() {
   useEffect(() => {
     if (!user) {
       setRoles([]);
+      setIsPlatformAdmin(false);
       return;
     }
     let cancelled = false;
@@ -143,10 +147,17 @@ export function SiteHeader() {
       .catch(() => {
         if (!cancelled) setRoles([]);
       });
+    fetchAdminRoles()
+      .then((res) => {
+        if (!cancelled) setIsPlatformAdmin(Boolean(res.isPlatformAdmin));
+      })
+      .catch(() => {
+        if (!cancelled) setIsPlatformAdmin(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [user, fetchRoles]);
+  }, [user, fetchRoles, fetchAdminRoles]);
 
   const visibleUserGroups = useMemo(() => {
     const audiences = audiencesForRoles(roles);
@@ -233,6 +244,15 @@ export function SiteHeader() {
               >
                 Dashboard
               </Link>
+
+              {isPlatformAdmin && (
+                <Link
+                  to="/owner"
+                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15 xl:px-3"
+                >
+                  <Shield className="h-3.5 w-3.5" /> Admin Hub
+                </Link>
+              )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground xl:px-3">
@@ -349,6 +369,16 @@ export function SiteHeader() {
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
                     </Link>
+                    {isPlatformAdmin && (
+                      <Link
+                        to="/owner"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
+                      >
+                        <Shield className="h-4 w-4" />
+                        Admin Hub
+                      </Link>
+                    )}
                   </nav>
                   {visibleUserGroups.map((group) => (
                     <div key={group.label} className="mt-4">

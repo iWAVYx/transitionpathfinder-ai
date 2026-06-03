@@ -16,6 +16,8 @@ import {
   HelpCircle,
   MessageSquareQuote,
   Newspaper,
+  BookOpen,
+  TrendingUp,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 
@@ -28,12 +30,14 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
+  { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
   { to: "/owner/activity", label: "Activity Logs", icon: History, group: "Overview" },
   { to: "/owner/content", label: "Site Content", icon: FileText, group: "Content" },
   { to: "/owner/media", label: "Media Library", icon: ImageIcon, group: "Content" },
   { to: "/owner/blog", label: "Blog & News", icon: Newspaper, group: "Content" },
   { to: "/owner/faqs", label: "FAQs", icon: HelpCircle, group: "Content" },
   { to: "/owner/testimonials", label: "Testimonials", icon: MessageSquareQuote, group: "Content" },
+  { to: "/owner/resources", label: "Resources", icon: BookOpen, group: "Content" },
   { to: "/owner/waitlist", label: "Waitlist", icon: ClipboardList, group: "Leads" },
   { to: "/owner/contacts", label: "Contact Forms", icon: Mail, group: "Leads" },
   { to: "/owner/admins", label: "Admin Users", icon: Users, group: "Settings" },
