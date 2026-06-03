@@ -294,7 +294,7 @@ function CitationsGrid() {
           style={{ y: titleY }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-15% 0px" }}
+          viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Sources &amp; voices</p>
@@ -322,7 +322,7 @@ function CitationsGrid() {
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
-              viewport={{ once: true, margin: "-20% 0px" }}
+              viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift"
             >
@@ -360,7 +360,7 @@ function CitationsGrid() {
                     aria-label={c.source}
                     initial={{ opacity: 0, scale: 0.5 }}
                     whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, margin: "-15% 0px" }}
+                    viewport={{ once: true, amount: 0.2 }}
                     transition={{
                       duration: 0.55,
                       delay: 0.15 + i * 0.08,
@@ -424,7 +424,7 @@ function CitationsGrid() {
                     strokeDasharray="1 1.5"
                     initial={{ pathLength: 0, opacity: 0 }}
                     whileInView={{ pathLength: 1, opacity: emphasized ? 0.5 : 0.12 }}
-                    viewport={{ once: true, margin: "-15% 0px" }}
+                    viewport={{ once: true, amount: 0.2 }}
                     animate={{ opacity: emphasized ? 0.5 : 0.12 }}
                     transition={{ duration: 0.8, delay: 0.2 + i * 0.08, ease: "easeOut" }}
                   />
@@ -438,7 +438,7 @@ function CitationsGrid() {
             className="relative"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15% 0px" }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 shadow-lift transition-shadow hover:shadow-xl">
