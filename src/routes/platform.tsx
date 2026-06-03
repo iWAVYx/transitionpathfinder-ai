@@ -399,36 +399,35 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3 md:[&>article:last-child]:col-span-2 md:[&>article:last-child]:w-1/2 md:[&>article:last-child]:justify-self-center lg:[&>article:last-child]:col-span-1 lg:[&>article:last-child]:w-auto">
+        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {features.map(({ icon: Icon, title, body, tags, image, alt }) => (
             <article
               key={title}
-              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
             >
-              <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-                <img
-                  src={image}
-                  alt={alt}
-                  loading="lazy"
-                  width={1024}
-                  height={768}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card/70 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
+              <div className="flex items-center gap-3">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                  <img
+                    src={image}
+                    alt={alt}
+                    loading="lazy"
+                    width={112}
+                    height={112}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-sky text-primary-foreground shadow-soft">
                   <Icon className="h-4 w-4" />
                 </div>
               </div>
-              <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
-                <div className="flex flex-col gap-1.5">
-                  <h3 className="font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
-                  <p className="text-[13px] leading-relaxed text-muted-foreground">{body}</p>
-                </div>
-                <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
+              <div className="flex flex-1 flex-col gap-2">
+                <h3 className="font-display text-base font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
+                <p className="text-[12px] leading-relaxed text-muted-foreground">{body}</p>
+                <div className="mt-auto flex flex-wrap gap-1 pt-1">
                   {tags.map((t) => (
                     <span
                       key={t}
-                      className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${tagStyles[t]}`}
+                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tagStyles[t]}`}
                     >
                       {t}
                     </span>
