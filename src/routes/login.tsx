@@ -31,6 +31,7 @@ export const Route = createFileRoute("/login")({
     meta: [
       { title: "Sign in — TransitionForward" },
       { name: "description", content: "Sign in or create your TransitionForward parent account." },
+      { property: "og:url", content: "/login" },
     ],
     links: [{ rel: "canonical", href: "/login" }],
   }),

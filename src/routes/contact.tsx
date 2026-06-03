@@ -65,6 +65,7 @@ export const Route = createFileRoute("/contact")({
         content:
           "Real people answer every message during the pilot. Families, educators, districts, and partners all welcome.",
       },
+      { property: "og:url", content: "/contact" },
     ],
     links: [{ rel: "canonical", href: "/contact" }],
   }),

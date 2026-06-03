@@ -31,6 +31,7 @@ export const Route = createFileRoute("/educators")({
       { name: "description", content: "Less paperwork, more support. Transition goal tracking, PPT prep, and family communication built for CT special educators." },
       { property: "og:title", content: "For Educators | TransitionForward" },
       { property: "og:description", content: "Less Paperwork, More Student Support, built for CT special educators." },
+      { property: "og:url", content: "/educators" },
     ],
     links: [{ rel: "canonical", href: "/educators" }],
     scripts: [

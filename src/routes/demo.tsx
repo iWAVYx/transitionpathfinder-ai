@@ -34,6 +34,7 @@ export const Route = createFileRoute("/demo")({
         content:
           "Pick a fictional student and walk the full TransitionForward pathway — no account required.",
       },
+      { property: "og:url", content: "/demo" },
     ],
     links: [{ rel: "canonical", href: "/demo" }],
   }),

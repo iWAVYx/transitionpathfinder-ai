@@ -40,6 +40,7 @@ export const Route = createFileRoute("/partners")({
         content:
           "Real places, real people, real next steps. A trusted directory of Connecticut partners arriving with the pilot.",
       },
+      { property: "og:url", content: "/partners" },
       { property: "og:image", content: partnersHero },
       { property: "twitter:image", content: partnersHero },
     ],

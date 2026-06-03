@@ -60,6 +60,7 @@ export const Route = createFileRoute("/platform")({
         content:
           "One platform, four perspectives. See what families, students, educators, and admins actually do inside TransitionForward.",
       },
+      { property: "og:url", content: "/platform" },
     ],
     links: [{ rel: "canonical", href: "/platform" }],
   }),

@@ -28,6 +28,7 @@ export const Route = createFileRoute("/pricing")({
         content:
           "Free for pilot families and educators. District plans quoted by caseload, billed annually, with implementation and training included.",
       },
+      { property: "og:url", content: "/pricing" },
     ],
     links: [{ rel: "canonical", href: "/pricing" }],
   }),
