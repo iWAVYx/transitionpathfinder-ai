@@ -39,11 +39,14 @@ import {
 import {
   listWaitlist,
   deleteWaitlistEntry,
+  updateWaitlistEntry,
   claimAdminBootstrap,
   listUserRoles,
   grantRole,
   revokeRole,
+  WAITLIST_STATUSES,
   type WaitlistEntry,
+  type WaitlistStatus,
   type RoleAssignment,
 } from "@/lib/admin-waitlist.functions";
 import {
