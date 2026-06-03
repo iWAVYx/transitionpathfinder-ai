@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
 import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
+import { getMyRoles } from "@/lib/profile.functions";
 
 
 
