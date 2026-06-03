@@ -906,6 +906,22 @@ function RoleCard({
   );
 }
 
+type ImpactItem = {
+  icon: typeof Sparkles;
+  title: string;
+  body: string;
+  pos: { x: number; y: number };
+};
+
+const IMPACT_ITEMS: ImpactItem[] = [
+  { icon: MessagesSquare, title: "Clearer family understanding", body: "Plain-language translation of every goal, term, and meeting note.", pos: { x: -520, y: -240 } },
+  { icon: Sparkles, title: "Stronger student self-advocacy", body: "A space where students name their own strengths, interests, and hopes.", pos: { x: 480, y: -280 } },
+  { icon: ClipboardCheck, title: "Better goal tracking", body: "Goals connected to evidence, progress, and the next small step.", pos: { x: -540, y: 60 } },
+  { icon: Users, title: "Tighter school + home collaboration", body: "Shared notes, tasks, and a single source of truth between meetings.", pos: { x: 540, y: 80 } },
+  { icon: Compass, title: "Easier meeting preparation", body: "Questions, talking points, and printable checklists, ready before PPT.", pos: { x: -300, y: 340 } },
+  { icon: Briefcase, title: "Real postsecondary connections", body: "Curated CT colleges, training, BRS, employers — matched to the student.", pos: { x: 320, y: 360 } },
+];
+
 function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
@@ -914,6 +930,194 @@ function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title:
       </span>
       <h3 className="mt-4 font-display text-base font-semibold tracking-tight">{toTitleCase(title)}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function ImpactMap({ items }: { items: ImpactItem[] }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState<number>(-1);
+  const stops = items.length + 1; // overview + each card
+
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      const p = Math.min(1, Math.max(0, -rect.top / Math.max(1, total)));
+      // First 10% = overview, then split the rest evenly across cards
+      let idx = -1;
+      if (p >= 0.1) {
+        const local = (p - 0.1) / 0.9;
+        idx = Math.min(items.length - 1, Math.floor(local * items.length));
+      }
+      setActive(idx);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [items.length]);
+
+  const overviewScale = 0.6;
+  const focusScale = 1.45;
+  const target =
+    active === -1
+      ? { tx: 0, ty: 0, s: overviewScale }
+      : {
+          tx: -items[active].pos.x * focusScale,
+          ty: -items[active].pos.y * focusScale,
+          s: focusScale,
+        };
+
+  const current = active === -1 ? null : items[active];
+
+  return (
+    <div ref={sectionRef} className="relative" style={{ height: `${stops * 90}vh` }}>
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+        {/* Map backdrop grid */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, hsl(var(--border)/0.45) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)/0.45) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+            maskImage:
+              "radial-gradient(ellipse at center, black 40%, transparent 85%)",
+          }}
+        />
+
+        {/* Radial glow that follows active card */}
+        <div
+          className="pointer-events-none absolute h-[60vmin] w-[60vmin] rounded-full bg-primary/10 blur-3xl transition-all duration-700 ease-out"
+          style={{
+            transform: current
+              ? `translate(${current.pos.x * 0.4}px, ${current.pos.y * 0.4}px)`
+              : "translate(0, 0)",
+          }}
+        />
+
+        {/* Header chip + step indicator */}
+        <div className="absolute left-1/2 top-8 z-10 flex -translate-x-1/2 flex-col items-center gap-3">
+          <span className="rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-soft backdrop-blur">
+            {active === -1 ? "Six outcomes" : `Stop ${active + 1} / ${items.length}`}
+          </span>
+          <div className="flex items-center gap-1.5">
+            {items.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  i === active ? "w-8 bg-primary" : "w-2 bg-border"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* The map canvas */}
+        <div
+          className="relative h-full w-full"
+          style={{ perspective: "1400px" }}
+        >
+          <div
+            className="absolute left-1/2 top-1/2 will-change-transform transition-transform duration-[900ms]"
+            style={{
+              transform: `translate(-50%, -50%) translate(${target.tx}px, ${target.ty}px) scale(${target.s})`,
+              transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
+            {items.map((item, i) => {
+              const isActive = i === active;
+              const isOverview = active === -1;
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="absolute"
+                  style={{
+                    left: item.pos.x,
+                    top: item.pos.y,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <div
+                    className={`w-[260px] rounded-2xl border bg-card p-5 shadow-soft transition-all duration-700 ${
+                      isActive
+                        ? "border-primary/60 shadow-lift ring-2 ring-primary/30 scale-[1.04]"
+                        : isOverview
+                          ? "border-border/60 opacity-95"
+                          : "border-border/40 opacity-35 blur-[1px] scale-95"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+                        isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" aria-hidden />
+                    </span>
+                    <h3 className="mt-4 font-display text-base font-semibold tracking-tight">
+                      {toTitleCase(item.title)}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                      {item.body}
+                    </p>
+                  </div>
+                  {/* Connector pin */}
+                  <span
+                    className={`absolute left-1/2 top-full mt-1 h-2 w-2 -translate-x-1/2 rounded-full transition-colors ${
+                      isActive ? "bg-primary" : "bg-border"
+                    }`}
+                  />
+                </div>
+              );
+            })}
+
+            {/* Faint connector lines between cards (overview only feel) */}
+            <svg
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2"
+              width="1600"
+              height="1000"
+              viewBox="-800 -500 1600 1000"
+            >
+              <path
+                d={items
+                  .map((it, i) => `${i === 0 ? "M" : "L"} ${it.pos.x} ${it.pos.y}`)
+                  .join(" ")}
+                fill="none"
+                stroke="hsl(var(--primary) / 0.25)"
+                strokeWidth="1.5"
+                strokeDasharray="4 6"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Active caption bar (bottom) */}
+        <div className="absolute inset-x-0 bottom-8 z-10 flex justify-center px-4">
+          <div
+            key={active}
+            className="animate-fade-in max-w-xl rounded-2xl border border-border/60 bg-background/85 px-5 py-3 text-center shadow-soft backdrop-blur"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              {current ? "Now focusing" : "The full map"}
+            </p>
+            <p className="mt-1 font-display text-base tracking-tight">
+              {current ? toTitleCase(current.title) : "Six outcomes we measure ourselves against"}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
