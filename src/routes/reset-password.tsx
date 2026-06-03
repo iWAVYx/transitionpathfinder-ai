@@ -14,6 +14,7 @@ export const Route = createFileRoute("/reset-password")({
       { title: "Reset password — TransitionForward" },
       { name: "robots", content: "noindex" },
     ],
+    links: [{ rel: "canonical", href: "/reset-password" }],
   }),
   component: ResetPasswordPage,
 });

@@ -32,6 +32,7 @@ export const Route = createFileRoute("/login")({
       { title: "Sign in — TransitionForward" },
       { name: "description", content: "Sign in or create your TransitionForward parent account." },
     ],
+    links: [{ rel: "canonical", href: "/login" }],
   }),
   component: LoginPage,
 });

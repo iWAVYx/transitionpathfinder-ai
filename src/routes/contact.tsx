@@ -66,6 +66,7 @@ export const Route = createFileRoute("/contact")({
           "Real people answer every message during the pilot. Families, educators, districts, and partners all welcome.",
       },
     ],
+    links: [{ rel: "canonical", href: "/contact" }],
   }),
   component: ContactPage,
 });

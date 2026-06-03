@@ -28,10 +28,11 @@ export const Route = createFileRoute("/educators")({
   head: () => ({
     meta: [
       { title: "For Educators | TransitionForward" },
-      { name: "description", content: "Less Paperwork, More Student Support. Pathway-driven transition goal tracking, PPT meeting prep, expert-drafted language, and family friendly communication built for Connecticut special educators." },
+      { name: "description", content: "Less paperwork, more support. Transition goal tracking, PPT prep, and family communication built for CT special educators." },
       { property: "og:title", content: "For Educators | TransitionForward" },
       { property: "og:description", content: "Less Paperwork, More Student Support, built for CT special educators." },
     ],
+    links: [{ rel: "canonical", href: "/educators" }],
   }),
   component: EducatorsPage,
 });

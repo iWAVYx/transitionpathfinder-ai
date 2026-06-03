@@ -35,6 +35,7 @@ export const Route = createFileRoute("/demo")({
           "Pick a fictional student and walk the full TransitionForward pathway — no account required.",
       },
     ],
+    links: [{ rel: "canonical", href: "/demo" }],
   }),
   component: DemoIndex,
 });

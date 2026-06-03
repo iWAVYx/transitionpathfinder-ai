@@ -287,7 +287,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
     if (!pathway) throw notFound();
     return { pathway };
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     const p = loaderData?.pathway;
     const title = p
       ? `${p.label} pathway — TransitionForward`
@@ -301,6 +301,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
         { property: "og:description", content: description },
         ...(p ? [{ property: "og:image", content: p.image }] : []),
       ],
+      links: [{ rel: "canonical", href: `/pathways/${params.pathwayId}` }],
     };
   },
   component: PathwayFlow,
