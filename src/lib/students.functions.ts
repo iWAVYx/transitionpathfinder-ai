@@ -78,6 +78,43 @@ export const createStudent = createServerFn({ method: "POST" })
       console.error("createStudent failed", error);
       throw new Error("Could not create student.");
     }
+
+    // Auto-record the creator's relationship to this student based on their role.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("primary_role, email, organization_id")
+      .eq("id", userId)
+      .maybeSingle();
+    const role = profile?.primary_role ?? "parent";
+    const email = profile?.email ?? "";
+
+    const guardianRoles = new Set(["parent", "guardian", "student"]);
+    const teamRoles = new Set(["educator", "teacher", "case_manager", "administrator", "school_admin", "admin"]);
+
+    try {
+      if (guardianRoles.has(role)) {
+        await supabase.from("student_guardians").insert({
+          student_id: row.id,
+          guardian_user_id: userId,
+          guardian_email: email || "unknown@local",
+          relationship: role,
+          is_primary: true,
+          verified: true,
+        });
+      } else if (teamRoles.has(role)) {
+        await supabase.from("student_team_members").insert({
+          student_id: row.id,
+          member_user_id: userId,
+          member_email: email || "unknown@local",
+          role_on_team: role === "administrator" ? "school_admin" : role,
+          organization_id: profile?.organization_id ?? null,
+          status: "active",
+        });
+      }
+    } catch (relErr) {
+      console.error("createStudent: relationship row failed (non-fatal)", relErr);
+    }
+
     return row as Student;
   });
 
