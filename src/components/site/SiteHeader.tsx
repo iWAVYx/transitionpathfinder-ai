@@ -245,6 +245,15 @@ export function SiteHeader() {
                 Dashboard
               </Link>
 
+              {isPlatformAdmin && (
+                <Link
+                  to="/owner"
+                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15 xl:px-3"
+                >
+                  <Shield className="h-3.5 w-3.5" /> Admin Hub
+                </Link>
+              )}
+
               <DropdownMenu>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground xl:px-3">
                   More <ChevronDown className="h-3.5 w-3.5" />
