@@ -94,6 +94,25 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       console.error("completeOnboarding failed", error);
       throw new Error("Could not save your profile. Please try again.");
     }
+
+    // Mirror the onboarding role into user_roles so SQL has_role() checks match.
+    const roleMap: Record<string, string> = {
+      parent: "parent",
+      student: "student",
+      educator: "educator",
+      administrator: "admin",
+      partner: "partner",
+    };
+    const mappedRole = roleMap[data.primary_role];
+    if (mappedRole) {
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .upsert(
+          { user_id: userId, role: mappedRole as never },
+          { onConflict: "user_id,role" },
+        );
+      if (roleError) console.error("completeOnboarding: user_roles upsert failed", roleError);
+    }
     return { ok: true };
   });
 
