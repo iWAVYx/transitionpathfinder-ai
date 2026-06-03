@@ -211,10 +211,12 @@ export function ParallaxImage({
  */
 export function StickyScrollStory({
   eyebrow,
+  title,
   panels,
   className,
 }: {
   eyebrow?: string;
+  title?: string;
   panels: Array<{ title: string; body: string; image: string; alt: string }>;
   className?: string;
 }) {
