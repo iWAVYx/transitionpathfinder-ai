@@ -79,3 +79,68 @@ export const listStudentMembership = createServerFn({ method: "POST" })
 
     return { guardians, team };
   });
+
+export const updateGuardian = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        relationship: z.string().trim().max(80).optional(),
+        is_primary: z.boolean().optional(),
+        verified: z.boolean().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { id, ...patch } = data;
+    const { error } = await supabase.from("student_guardians").update(patch).eq("id", id);
+    if (error) {
+      console.error("updateGuardian failed", error);
+      throw new Error("Could not update guardian.");
+    }
+    return { ok: true };
+  });
+
+export const deleteGuardian = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("student_guardians").delete().eq("id", data.id);
+    if (error) throw new Error("Could not remove guardian.");
+    return { ok: true };
+  });
+
+export const updateTeamMember = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        role_on_team: z
+          .enum(["teacher", "case_manager", "educator", "school_admin", "admin", "partner", "other"])
+          .optional(),
+        status: z.enum(["active", "inactive", "pending"]).optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { id, ...patch } = data;
+    const { error } = await supabase.from("student_team_members").update(patch).eq("id", id);
+    if (error) {
+      console.error("updateTeamMember failed", error);
+      throw new Error("Could not update team member.");
+    }
+    return { ok: true };
+  });
+
+export const deleteTeamMember = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("student_team_members").delete().eq("id", data.id);
+    if (error) throw new Error("Could not remove team member.");
+    return { ok: true };
+  });
