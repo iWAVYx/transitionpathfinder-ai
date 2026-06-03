@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -25,11 +25,18 @@ import {
 } from "@/components/ui/select";
 import {
   Search,
+  X,
   MessageCircleQuestion,
   Mail,
   MessageCircle,
   LifeBuoy,
   ShieldCheck,
+  Sparkles,
+  Users,
+  School,
+  BookOpen,
+  Eye,
+  SlidersHorizontal,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
