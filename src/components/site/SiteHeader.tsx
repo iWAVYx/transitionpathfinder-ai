@@ -56,7 +56,7 @@ const navGroups: NavGroup[] = [
 const navSingles: NavLink[] = [
   { to: "/pricing", label: "Pricing" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
+  { to: "/help", label: "Help & Contact" },
 ];
 
 const userGroups: UserNavGroup[] = [
