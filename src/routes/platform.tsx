@@ -136,6 +136,78 @@ const tagStyles: Record<Tag, string> = {
   Admin: "bg-muted text-foreground/80",
 };
 
+type Feature = (typeof features)[number];
+
+function ToolCard({ icon: Icon, title, body, tags }: Feature) {
+  const ref = useRef<HTMLElement | null>(null);
+
+  const handleMove = (e: React.MouseEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rx = ((y / rect.height) - 0.5) * -6;
+    const ry = ((x / rect.width) - 0.5) * 6;
+    el.style.setProperty("--mx", `${x}px`);
+    el.style.setProperty("--my", `${y}px`);
+    el.style.setProperty("--rx", `${rx}deg`);
+    el.style.setProperty("--ry", `${ry}deg`);
+  };
+
+  const handleLeave = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.setProperty("--rx", `0deg`);
+    el.style.setProperty("--ry", `0deg`);
+  };
+
+  return (
+    <article
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      style={{
+        transform: "perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))",
+        transformStyle: "preserve-3d",
+        transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
+      }}
+      className="group relative flex aspect-square h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-soft hover:shadow-lift"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background:
+            "radial-gradient(220px circle at var(--mx,50%) var(--my,50%), hsl(var(--primary) / 0.18), transparent 60%)",
+        }}
+      />
+      <div className="relative flex items-start justify-between">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex flex-wrap justify-end gap-1">
+          {tags.map((t) => (
+            <span
+              key={t}
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tagStyles[t]}`}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="relative mt-3 flex flex-col gap-2">
+        <h3 className="font-display text-lg font-medium leading-snug tracking-tight">
+          {toTitleCase(title)}
+        </h3>
+        <p className="text-[12.5px] leading-relaxed text-muted-foreground line-clamp-5">
+          {body}
+        </p>
+      </div>
+    </article>
+  );
+}
+
 function PlatformPage() {
   return (
     <SiteShell>
