@@ -268,7 +268,7 @@ export function StickyScrollStory({
 
         {/* Desktop: sticky scroll story */}
         <div className="hidden gap-12 lg:grid lg:grid-cols-2">
-          <div className="lg:sticky lg:top-24 lg:self-start lg:py-24">
+          <div className="lg:sticky lg:top-24 lg:self-start lg:py-14">
             {eyebrow && (
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 {eyebrow}
@@ -308,7 +308,7 @@ export function StickyScrollStory({
               </div>
             </div>
           </div>
-          <div className="space-y-8 py-12 lg:py-24">
+          <div className="space-y-8 py-12 lg:py-14">
             {panels.map((p, i) => (
               <div
                 key={i}

@@ -97,7 +97,7 @@ function PrivacyPage() {
     <SiteShell>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
-        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-14">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Privacy &amp; your child's records
           </p>

@@ -48,7 +48,7 @@ function SharedReportPage() {
   if (state.kind === "missing") {
     return (
       <SiteShell>
-        <section className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-2xl px-4 py-12 text-center sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">
             Link unavailable
           </p>

@@ -19,7 +19,7 @@ export function ComingSoon({
     <SiteShell>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-28">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-14">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {eyebrow}

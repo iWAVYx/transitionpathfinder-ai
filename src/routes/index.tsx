@@ -216,7 +216,7 @@ function HomePage() {
       </section>
 
       {/* PROBLEM — split panel: photo + statement */}
-      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <ShapeScroll
           className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/20 lg:block"
           spin={140}
@@ -307,7 +307,7 @@ function HomePage() {
       </section>
 
       {/* TEXT SCROLL FILL — mission line, sleeker with floating decor */}
-      <section className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <CompassRose className="absolute -left-6 top-4 hidden h-24 w-24 text-primary/25 lg:block" />
         <Starburst className="absolute -right-6 top-6 hidden h-20 w-20 text-secondary-foreground/30 lg:block" />
         <Parallax speed={0.2} className="absolute right-10 -top-2 hidden h-12 w-16 text-primary/60 md:block">
@@ -331,7 +331,7 @@ function HomePage() {
         aria-labelledby="role-router-heading"
         className="border-y border-border/40 bg-background"
       >
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Start where you are
@@ -397,7 +397,7 @@ function HomePage() {
       </section>
 
       {/* PRODUCT GLIMPSE — visual tour of real platform elements */}
-      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <DotField className="absolute left-0 top-10 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
         <ArcStack className="absolute -right-8 bottom-10 -z-10 hidden h-56 w-56 text-secondary-foreground/25 lg:block" />
         <FloatingShape className="absolute right-10 top-12 z-0 hidden h-8 w-8 text-primary/55 md:block" delay={0.7}>
@@ -483,7 +483,7 @@ function HomePage() {
 
 
       {/* PATHWAYS — image tile grid of real next-step destinations */}
-      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
           <BookDoodle className="h-full w-full" />
         </Parallax>
@@ -557,7 +557,7 @@ function HomePage() {
       </section>
 
       {/* CT SEDS COMPANION + IMPACT + TRUST */}
-      <section className="bg-muted/40 py-24">
+      <section className="bg-muted/40 py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl rounded-3xl border border-border/60 bg-card p-8 text-center shadow-soft sm:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -575,7 +575,7 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="mt-16">
+          <div className="mt-10">
             <div className="mx-auto mb-10 max-w-2xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 What we're trying to change
@@ -610,7 +610,7 @@ function HomePage() {
 
 
       {/* RESOURCE HUB PREVIEW — creative library teaser */}
-      <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
         <ArcStack className="absolute -left-10 -bottom-4 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
         <Parallax speed={0.25} className="absolute right-6 top-4 hidden h-14 w-20 text-primary/55 md:block">
@@ -762,7 +762,7 @@ function HomePage() {
           <Sparkle className="h-full w-full" />
         </FloatingShape>
         <Starburst className="pointer-events-none absolute right-6 bottom-8 hidden h-24 w-24 text-background/30 lg:block" />
-        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-32">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
 
           <div className="max-w-2xl text-background">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">

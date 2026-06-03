@@ -146,7 +146,7 @@ function ReportDetailPage() {
   if (state.kind === "error") {
     return (
       <SiteShell>
-        <section className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-2xl px-4 py-12 text-center sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">Hm.</p>
           <h1 className="mt-2 font-display text-3xl">We Couldn't Open That Report.</h1>
           <p className="mt-3 text-sm text-muted-foreground">{state.message}</p>

@@ -143,7 +143,7 @@ function EducatorsPage() {
       </section>
 
       {/* FEATURE CARDS with staggered reveal */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <Reveal className="mx-auto mb-12 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             What you get
@@ -182,7 +182,7 @@ function EducatorsPage() {
       </section>
 
       {/* TEXT SCROLL FILL — a mission line that lights up */}
-      <section className="mx-auto max-w-5xl px-4 py-32 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <TextScrollFill
           className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
           text="You went into teaching to change lives — not to write the same transition goal seven times. We hold the paperwork so you can hold the room."
@@ -190,7 +190,7 @@ function EducatorsPage() {
       </section>
 
       {/* CTA with parallax background shape */}
-      <section className="relative overflow-hidden border-t border-border/40 bg-gradient-hero py-24">
+      <section className="relative overflow-hidden border-t border-border/40 bg-gradient-hero py-14">
         <Parallax speed={0.4} className="absolute -right-20 -top-20 -z-10">
           <ShapeScroll className="h-[28rem] w-[28rem] text-primary/20" spin={60} scale={0.3} />
         </Parallax>
@@ -212,7 +212,7 @@ function EducatorsPage() {
       </section>
 
       {/* For educators — moved from homepage */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">For educators</p>
