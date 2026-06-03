@@ -37,6 +37,7 @@ import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
 import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -213,6 +214,11 @@ const DemoHubRoute = DemoHubRouteImport.update({
   id: '/demo_/hub',
   path: '/demo/hub',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
@@ -417,7 +423,7 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -453,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
@@ -483,7 +490,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -519,6 +526,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
@@ -551,7 +559,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -587,6 +595,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
   '/demo_/meeting': typeof DemoMeetingRoute
@@ -655,6 +664,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/blog/$slug'
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
@@ -721,6 +731,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/blog/$slug'
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/students'
+    | '/blog/$slug'
     | '/demo_/hub'
     | '/demo_/intake'
     | '/demo_/meeting'
@@ -820,7 +832,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
   EducatorsRoute: typeof EducatorsRoute
@@ -1047,6 +1059,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/hub'
       preLoaderRoute: typeof DemoHubRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/_authenticated/students': {
       id: '/_authenticated/students'
@@ -1428,11 +1447,21 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
   EducatorsRoute: EducatorsRoute,
