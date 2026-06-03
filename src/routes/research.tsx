@@ -286,7 +286,7 @@ function CitationsGrid() {
   }, [paused]);
 
   return (
-    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-32 sm:py-40">
+    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-16 sm:py-20">
       {/* animated grid backdrop */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18]"
