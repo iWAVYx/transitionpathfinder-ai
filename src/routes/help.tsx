@@ -62,13 +62,13 @@ const ContactSchema = z.object({
 
 type ContactValues = z.infer<typeof ContactSchema>;
 
-const TOPIC_TO_ROLE: Record<ContactValues["topic"], "family" | "educator" | "district" | "partner" | "other"> = {
+const TOPIC_TO_INQUIRY: Record<ContactValues["topic"], string> = {
   "family-question": "family",
   "educator-question": "educator",
-  "district-demo": "district",
-  "press-research": "other",
-  accessibility: "other",
-  other: "other",
+  "district-demo": "demo",
+  "press-research": "press",
+  accessibility: "accessibility",
+  other: "general",
 };
 
 export const Route = createFileRoute("/help")({
