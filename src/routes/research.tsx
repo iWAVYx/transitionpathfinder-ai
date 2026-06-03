@@ -490,7 +490,7 @@ function CitationsGrid() {
                     animate={{ scaleX: i === active ? 1 : 0 }}
                     transition={{ duration: 3.2, ease: "linear" }}
                     style={{ transformOrigin: "left" }}
-                    className={`absolute inset-x-8 bottom-6 h-px ${c.kind === "data" ? "bg-primary" : "bg-peach"}`}
+                    className={`absolute inset-x-6 bottom-4 h-px ${c.kind === "data" ? "bg-primary" : "bg-peach"}`}
                   />
                 </motion.div>
               ))}
