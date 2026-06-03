@@ -990,7 +990,7 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
           className="pointer-events-none absolute inset-0 opacity-[0.35]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, hsl(var(--border)/0.45) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)/0.45) 1px, transparent 1px)",
+              "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
             backgroundSize: "48px 48px",
             maskImage:
               "radial-gradient(ellipse at center, black 40%, transparent 85%)",
