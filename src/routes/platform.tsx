@@ -44,7 +44,7 @@ import {
 
 import { toTitleCase } from "@/lib/title-case";
 
-import { useRef } from "react";
+import { useRef, type MouseEvent as ReactMouseEvent } from "react";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
