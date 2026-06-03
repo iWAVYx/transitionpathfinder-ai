@@ -450,21 +450,13 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {features.slice(0, 8).map((f, i) => (
+        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f, i) => (
             <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
               <ToolCard {...f} />
             </Reveal>
           ))}
         </div>
-        {features[8] && (
-          <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-4">
-            <div className="hidden lg:block" />
-            <Reveal delay={480} y={20} className="sm:col-span-2 lg:col-span-2 h-full">
-              <ToolCard {...features[8]} />
-            </Reveal>
-          </div>
-        )}
       </section>
 
       {/* Layered diagram */}
