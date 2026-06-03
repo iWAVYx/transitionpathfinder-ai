@@ -523,16 +523,16 @@ function CitationsGrid() {
 /* -------------------- CLOSING -------------------- */
 function ClosingNote() {
   return (
-    <section className="relative isolate overflow-hidden py-32 sm:py-40">
+    <section className="relative isolate overflow-hidden py-16 sm:py-20">
       <div className="absolute inset-0 -z-10 bg-gradient-hero" />
       <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-        <h2 className="font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+        <h2 className="font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           Evidence is the floor. Action is the bridge.
         </h2>
-        <p className="mt-5 text-lg text-foreground/70">
+        <p className="mt-4 text-base text-foreground/70">
           Every feature in TransitionForward maps to a finding above. As the research grows, the platform grows with it.
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link to="/platform" className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift hover:scale-[1.02]">
             See the platform <ArrowRight className="h-4 w-4" />
           </Link>
