@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Users, Plus, GraduationCap, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -43,25 +45,32 @@ function StudentsPage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const firstName = String(fd.get("first_name") || "").trim();
     try {
       await create({
         data: {
-          first_name: String(fd.get("first_name") || "").trim(),
+          first_name: firstName,
           last_name: String(fd.get("last_name") || "").trim() || undefined,
           grade_band: (String(fd.get("grade_band") || "") || undefined) as never,
           school: String(fd.get("school") || "").trim() || undefined,
         },
       });
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
       setShowForm(false);
       await reload();
+      toast.success(`${firstName} added to your dashboard.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't save.");
+      const msg = err instanceof Error ? err.message : "Student could not be added. Please check the required fields or try again.";
+      console.error("createStudent failed", err);
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   }
+
 
   async function handleDelete(id: string) {
     if (!confirm("Remove this student and all linked goals/progress? This cannot be undone.")) return;

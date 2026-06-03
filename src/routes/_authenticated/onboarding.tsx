@@ -1,66 +1,48 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
-  FileText,
+  GraduationCap,
   HeartHandshake,
-  ListChecks,
-  Sparkles,
-  Target,
-  X,
+  Loader2,
+  User,
+  Users,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { IepUpload } from "@/components/pathway/IepUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import type { IepExtract } from "@/lib/iep-extract.functions";
+import { completeOnboarding, getProfile } from "@/lib/profile.functions";
+import { createStudent, listStudents } from "@/lib/students.functions";
 
-import { toTitleCase } from "@/lib/title-case";
-const STORAGE_KEY = "tf:onboarding";
-
-type Goal = { id: string; text: string };
-
-type OnboardingState = {
-  studentFirstName: string;
-  iepCaptured: boolean;
-  iepNotes: string;
-  goals: Goal[];
-  completedAt: string | null;
-};
-
-const DEFAULT_STATE: OnboardingState = {
-  studentFirstName: "",
-  iepCaptured: false,
-  iepNotes: "",
-  goals: [],
-  completedAt: null,
-};
-
-const GOAL_SUGGESTIONS = [
-  "Visit one college or technical program this semester",
-  "Practice riding the bus alone, with a check-in call",
-  "Open a checking account and learn to read the statement",
-  "Draft a one-page resume from volunteer & classroom roles",
-  "Cook 3 'forever meals' from start to finish",
-  "Write a short self-introduction for the next PPT meeting",
-];
-
-const STEPS = [
-  { id: "welcome", label: "Welcome", icon: HeartHandshake },
-  { id: "iep", label: "Share an IEP", icon: FileText },
-  { id: "goals", label: "Set goals", icon: Target },
-  { id: "next", label: "Next steps", icon: Sparkles },
+const ROLE_OPTIONS = [
+  { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
+  { id: "student", label: "Student", note: "This is my plan", icon: User },
+  { id: "educator", label: "Teacher or Case Manager", note: "I support students at school", icon: GraduationCap },
+  { id: "administrator", label: "School / District Leader", note: "I lead a team", icon: Users },
+  { id: "partner", label: "Partner Organization", note: "I run programs students can join", icon: Users },
+  { id: "other", label: "Something else", note: "Tell us more later", icon: User },
 ] as const;
 
-type StepId = (typeof STEPS)[number]["id"];
+type RoleId = (typeof ROLE_OPTIONS)[number]["id"];
+
+const GRADE_OPTIONS = [
+  { value: "9-10", label: "9th–10th grade" },
+  { value: "11-12", label: "11th–12th grade" },
+  { value: "post-secondary", label: "Post-secondary" },
+  { value: "not-applicable", label: "Not applicable" },
+] as const;
+
+const STEPS = ["role", "you", "student"] as const;
+type StepId = (typeof STEPS)[number];
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -68,474 +50,302 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
       { title: "Get started — TransitionForward" },
       {
         name: "description",
-        content:
-          "A friendly 4-step setup: introduce your student, share an IEP, set goals, and see what to do next.",
+        content: "A quick 3-step setup: tell us your role, your name, and add your first student.",
       },
     ],
   }),
   component: OnboardingPage,
 });
 
-function loadState(): OnboardingState {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STATE;
-    return { ...DEFAULT_STATE, ...(JSON.parse(raw) as Partial<OnboardingState>) };
-  } catch {
-    return DEFAULT_STATE;
-  }
-}
-
-function saveState(state: OnboardingState) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    /* ignore */
-  }
-}
-
 function OnboardingPage() {
   const navigate = useNavigate();
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [state, setState] = useState<OnboardingState>(DEFAULT_STATE);
+  const loadProfile = useServerFn(getProfile);
+  const loadStudents = useServerFn(listStudents);
+  const saveProfile = useServerFn(completeOnboarding);
+  const addStudent = useServerFn(createStudent);
 
+  const [idx, setIdx] = useState(0);
+  const [role, setRole] = useState<RoleId | null>(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [studentFirst, setStudentFirst] = useState("");
+  const [studentLast, setStudentLast] = useState("");
+  const [studentGrade, setStudentGrade] = useState<string>("");
+  const [studentSchool, setStudentSchool] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [bootstrapped, setBootstrapped] = useState(false);
+
+  // Prefill from existing profile; bounce if onboarding already done.
   useEffect(() => {
-    setState(loadState());
-  }, []);
+    let cancelled = false;
+    (async () => {
+      try {
+        const [p, list] = await Promise.all([loadProfile(), loadStudents()]);
+        if (cancelled) return;
+        if (p.onboarding_completed && list.students.length > 0) {
+          navigate({ to: "/dashboard", replace: true });
+          return;
+        }
+        setRole((p.primary_role as RoleId | null) ?? null);
+        setFirstName(p.first_name ?? "");
+        setLastName(p.last_name ?? "");
+      } catch {
+        /* best-effort prefill */
+      } finally {
+        if (!cancelled) setBootstrapped(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadProfile, loadStudents, navigate]);
 
-  const update = (patch: Partial<OnboardingState>) =>
-    setState((prev) => {
-      const next = { ...prev, ...patch };
-      saveState(next);
-      return next;
-    });
-
-  const stepId: StepId = STEPS[activeIdx].id;
-  const progress = Math.round(((activeIdx + 1) / STEPS.length) * 100);
+  const stepId: StepId = STEPS[idx];
+  const progress = Math.round(((idx + 1) / STEPS.length) * 100);
 
   const canAdvance = useMemo(() => {
     switch (stepId) {
-      case "welcome":
-        return state.studentFirstName.trim().length > 0;
-      case "iep":
-        return true; // optional
-      case "goals":
-        return state.goals.length > 0;
-      default:
-        return true;
+      case "role":
+        return role !== null;
+      case "you":
+        return firstName.trim().length > 0;
+      case "student":
+        return studentFirst.trim().length > 0;
     }
-  }, [stepId, state.studentFirstName, state.goals.length]);
+  }, [stepId, role, firstName, studentFirst]);
 
-  const goNext = () => {
-    if (activeIdx < STEPS.length - 1) setActiveIdx(activeIdx + 1);
-  };
-  const goBack = () => {
-    if (activeIdx > 0) setActiveIdx(activeIdx - 1);
-  };
-  const skip = () => goNext();
+  const goBack = () => idx > 0 && setIdx(idx - 1);
+  const goNext = () => idx < STEPS.length - 1 && setIdx(idx + 1);
 
-  const finish = () => {
-    update({ completedAt: new Date().toISOString() });
-    toast.success("You're all set. Let's keep going.");
-    navigate({ to: "/dashboard" });
-  };
+  async function handleFinish(e: FormEvent) {
+    e.preventDefault();
+    if (!role || !firstName.trim() || !studentFirst.trim()) return;
+    setSubmitting(true);
+    try {
+      await saveProfile({
+        data: {
+          primary_role: role,
+          first_name: firstName.trim(),
+          last_name: lastName.trim() || undefined,
+        },
+      });
+      await addStudent({
+        data: {
+          first_name: studentFirst.trim(),
+          last_name: studentLast.trim() || undefined,
+          grade_band: (studentGrade || undefined) as never,
+          school: studentSchool.trim() || undefined,
+        },
+      });
+      toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
+      navigate({ to: "/dashboard", replace: true });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      console.error("onboarding finish failed", err);
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!bootstrapped) {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center text-muted-foreground">
+          <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+        </div>
+      </SiteShell>
+    );
+  }
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-3xl px-4 pt-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-3xl px-4 pt-6 sm:px-6 lg:px-8">
         <Breadcrumbs trail={[{ label: "Get started" }]} />
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
-        {/* Progress strip */}
-        <div className="mb-6">
+      <section className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
+        <div className="mb-5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>
-              Step {activeIdx + 1} of {STEPS.length} · {STEPS[activeIdx].label}
-            </span>
+            <span>Step {idx + 1} of {STEPS.length}</span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="mt-2 h-2" />
-          <ol className="mt-4 grid grid-cols-4 gap-2">
-            {STEPS.map((s, i) => {
-              const Icon = s.icon;
-              const isDone = i < activeIdx;
-              const isActive = i === activeIdx;
-              return (
-                <li key={s.id}>
-                  <button
-                    type="button"
-                    onClick={() => i <= activeIdx && setActiveIdx(i)}
-                    disabled={i > activeIdx}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs transition-colors",
-                      isActive && "border-primary bg-primary/5",
-                      isDone && "border-transparent bg-muted",
-                      !isActive && !isDone && "border-transparent text-muted-foreground",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
-                        isDone
-                          ? "bg-primary text-primary-foreground"
-                          : isActive
-                            ? "bg-primary/15 text-primary"
-                            : "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {isDone ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
-                    </span>
-                    <span className="hidden truncate sm:inline">{s.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
         </div>
 
-        {/* Step card */}
-        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-          {stepId === "welcome" && <WelcomeStep state={state} update={update} />}
-          {stepId === "iep" && <IepStep state={state} update={update} />}
-          {stepId === "goals" && <GoalsStep state={state} update={update} />}
-          {stepId === "next" && <NextStepsStep state={state} />}
+        <form
+          onSubmit={handleFinish}
+          className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8"
+        >
+          {stepId === "role" && (
+            <div className="space-y-5">
+              <Header
+                eyebrow="Welcome"
+                title="Which best describes you?"
+                body="This shapes the kinds of guidance and resources we surface."
+              />
+              <div className="grid gap-3 sm:grid-cols-2">
+                {ROLE_OPTIONS.map(({ id, label, note, icon: Icon }) => {
+                  const active = role === id;
+                  return (
+                    <button
+                      type="button"
+                      key={id}
+                      onClick={() => setRole(id)}
+                      className={cn(
+                        "flex items-start gap-3 rounded-2xl border bg-background p-4 text-left transition-colors",
+                        active
+                          ? "border-primary bg-primary/5"
+                          : "hover:border-primary/40",
+                      )}
+                    >
+                      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold">{label}</p>
+                        <p className="text-xs text-muted-foreground">{note}</p>
+                      </div>
+                      {active && <Check className="ml-auto h-4 w-4 text-primary" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {stepId === "you" && (
+            <div className="space-y-5">
+              <Header
+                eyebrow="About you"
+                title="What should we call you?"
+                body="Used on your dashboard, share links, and meeting prep handouts."
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="you-first">First name</Label>
+                  <Input
+                    id="you-first"
+                    autoFocus
+                    maxLength={80}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="e.g. Jordan"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="you-last">Last name <span className="text-muted-foreground">(optional)</span></Label>
+                  <Input
+                    id="you-last"
+                    maxLength={80}
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {stepId === "student" && (
+            <div className="space-y-5">
+              <Header
+                eyebrow="Your student"
+                title="Add your first student"
+                body="You can edit this any time, share it securely, or add more students later."
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="s-first">Student first name *</Label>
+                  <Input
+                    id="s-first"
+                    autoFocus
+                    maxLength={80}
+                    value={studentFirst}
+                    onChange={(e) => setStudentFirst(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="s-last">Student last name <span className="text-muted-foreground">(optional)</span></Label>
+                  <Input
+                    id="s-last"
+                    maxLength={80}
+                    value={studentLast}
+                    onChange={(e) => setStudentLast(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="s-grade">Grade band</Label>
+                  <select
+                    id="s-grade"
+                    value={studentGrade}
+                    onChange={(e) => setStudentGrade(e.target.value)}
+                    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                  >
+                    <option value="">—</option>
+                    {GRADE_OPTIONS.map((g) => (
+                      <option key={g.value} value={g.value}>{g.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="s-school">School <span className="text-muted-foreground">(optional)</span></Label>
+                  <Input
+                    id="s-school"
+                    maxLength={160}
+                    value={studentSchool}
+                    onChange={(e) => setStudentSchool(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
             <Button
+              type="button"
               variant="ghost"
               onClick={goBack}
-              disabled={activeIdx === 0}
-              aria-label="Previous step"
+              disabled={idx === 0 || submitting}
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
 
-            <div className="flex flex-wrap gap-2">
-              {stepId === "iep" && (
-                <Button variant="outline" onClick={skip}>
-                  Skip for now
-                </Button>
-              )}
-              {activeIdx < STEPS.length - 1 ? (
-                <Button onClick={goNext} disabled={!canAdvance}>
-                  Continue <ArrowRight className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button onClick={finish}>
-                  <Check className="h-4 w-4" /> Finish & go to dashboard
-                </Button>
-              )}
-            </div>
+            {stepId !== "student" ? (
+              <Button
+                type="button"
+                onClick={goNext}
+                disabled={!canAdvance}
+              >
+                Continue <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button type="submit" disabled={!canAdvance || submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Saving…
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" /> Finish & open dashboard
+                  </>
+                )}
+              </Button>
+            )}
           </div>
-        </div>
+        </form>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Your answers are saved on this device. You can leave and come back any time.
+          Your data is private. You control who sees the student profile.
         </p>
       </section>
     </SiteShell>
   );
 }
 
-/* ---------- Step components ---------- */
-
-function StepHeader({
-  eyebrow,
-  title,
-  body,
-}: {
-  eyebrow: string;
-  title: string;
-  body: string;
-}) {
+function Header({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
-      <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-        {toTitleCase(title)}
-      </h1>
+      <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">{title}</h1>
       <p className="mt-3 leading-relaxed text-muted-foreground">{body}</p>
     </div>
-  );
-}
-
-function WelcomeStep({
-  state,
-  update,
-}: {
-  state: OnboardingState;
-  update: (patch: Partial<OnboardingState>) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <StepHeader
-        eyebrow="Welcome"
-        title="Let's set things up together."
-        body="Four short steps. No jargon. You can skip anything that doesn't fit and edit your answers later."
-      />
-      <div className="grid gap-4 sm:grid-cols-2">
-        {[
-          { icon: FileText, label: "Share an IEP", note: "Optional — we'll read it for you" },
-          { icon: Target, label: "Set 1–3 goals", note: "Tiny is fine. We'll grow from there" },
-          { icon: ListChecks, label: "See next steps", note: "In plain language, not jargon" },
-          { icon: HeartHandshake, label: "Stay in charge", note: "Nothing is shared without you" },
-        ].map(({ icon: Icon, label, note }) => (
-          <div key={label} className="flex items-start gap-3 rounded-2xl bg-muted/60 p-4">
-            <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-            <div>
-              <p className="text-sm font-semibold">{label}</p>
-              <p className="text-xs text-muted-foreground">{note}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="student-first-name">What's the student's first name?</Label>
-        <Input
-          id="student-first-name"
-          autoFocus
-          maxLength={80}
-          value={state.studentFirstName}
-          onChange={(e) => update({ studentFirstName: e.target.value })}
-          placeholder="e.g. Alex"
-        />
-        <p className="text-xs text-muted-foreground">
-          We'll use this name throughout — first name is plenty.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function IepStep({
-  state,
-  update,
-}: {
-  state: OnboardingState;
-  update: (patch: Partial<OnboardingState>) => void;
-}) {
-  const onExtracted = (extract: IepExtract) => {
-    update({
-      iepCaptured: true,
-      iepNotes: [extract.strengths, extract.needs, extract.current_goals]
-        .filter((s) => s && s.trim().length > 0)
-        .join("\n\n"),
-      studentFirstName: state.studentFirstName || extract.student_first_name || "",
-    });
-  };
-
-  return (
-    <div className="space-y-6">
-      <StepHeader
-        eyebrow="Share an IEP"
-        title="Have a recent IEP? Drop it in."
-        body="We'll read it quietly and pull out the parts that matter — strengths, supports, current goals. You can skip this step and add it later if it's not handy."
-      />
-
-      <IepUpload onExtracted={onExtracted} />
-
-      {state.iepCaptured && (
-        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-          <div className="flex items-start gap-3">
-            <Check className="mt-0.5 h-5 w-5 text-primary" />
-            <div>
-              <p className="text-sm font-semibold">We've got the IEP in hand.</p>
-              <p className="text-xs text-muted-foreground">
-                The key pieces will be available the next time you create a Pathway Report.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function GoalsStep({
-  state,
-  update,
-}: {
-  state: OnboardingState;
-  update: (patch: Partial<OnboardingState>) => void;
-}) {
-  const [draft, setDraft] = useState("");
-  const goals = state.goals;
-
-  const addGoal = (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    if (goals.length >= 5) {
-      toast.message("Keep it short — five is plenty for now.");
-      return;
-    }
-    if (goals.some((g) => g.text.toLowerCase() === trimmed.toLowerCase())) {
-      toast.message("That one's already on the list.");
-      return;
-    }
-    update({
-      goals: [...goals, { id: crypto.randomUUID(), text: trimmed.slice(0, 200) }],
-    });
-    setDraft("");
-  };
-
-  const removeGoal = (id: string) =>
-    update({ goals: goals.filter((g) => g.id !== id) });
-
-  return (
-    <div className="space-y-6">
-      <StepHeader
-        eyebrow="Set goals"
-        title={`Pick 1–3 small goals for ${state.studentFirstName || "the student"}.`}
-        body="More than three and nothing moves. Pull them from the IEP, the family conversation, or this list of starters."
-      />
-
-      <div className="space-y-2">
-        <Label htmlFor="goal-input">Add a goal</Label>
-        <div className="flex gap-2">
-          <Input
-            id="goal-input"
-            value={draft}
-            maxLength={200}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addGoal(draft);
-              }
-            }}
-            placeholder="e.g. Visit a community college campus"
-          />
-          <Button onClick={() => addGoal(draft)} disabled={!draft.trim()}>
-            Add
-          </Button>
-        </div>
-      </div>
-
-      {goals.length > 0 && (
-        <ul className="space-y-2">
-          {goals.map((g, i) => (
-            <li
-              key={g.id}
-              className="flex items-start gap-3 rounded-2xl border bg-background p-3"
-            >
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
-                {i + 1}
-              </span>
-              <p className="flex-1 text-sm leading-relaxed">{g.text}</p>
-              <button
-                type="button"
-                onClick={() => removeGoal(g.id)}
-                aria-label={`Remove goal: ${g.text}`}
-                className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Need ideas?
-        </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {GOAL_SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => addGoal(s)}
-              className="rounded-full border bg-card px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-muted"
-            >
-              + {s}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NextStepsStep({ state }: { state: OnboardingState }) {
-  const name = state.studentFirstName || "the student";
-
-  return (
-    <div className="space-y-6">
-      <StepHeader
-        eyebrow="Next steps"
-        title={`Nice work. Here's where to go next for ${name}.`}
-        body="Three small moves you can make this week. None of them take longer than 20 minutes."
-      />
-
-      <ol className="space-y-3">
-        <NextCard
-          number={1}
-          title="Generate a full Pathway Report"
-          body="We'll turn what you've shared into a warm, plain-language plan with career, education, and life-skills suggestions."
-          to="/pathway"
-          cta="Open the report builder"
-        />
-        <NextCard
-          number={2}
-          title="Track your goals over time"
-          body={`Your ${state.goals.length || "first few"} goal${state.goals.length === 1 ? "" : "s"} will show up in the Goal Tracker so you can move them from "not started" to "met" at your pace.`}
-          to="/goals"
-          cta="Open Goal Tracker"
-        />
-        <NextCard
-          number={3}
-          title="Prep the next PPT meeting"
-          body="Bring talking points, questions, and a printable handout so the whole team is on the same page."
-          to="/ppt-prep"
-          cta="Open PPT Prep"
-        />
-      </ol>
-
-      <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
-        <p className="text-sm font-semibold">A small reminder</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Progress is rarely a straight line. Celebrate the small wins out loud — they're the
-          ones that build momentum.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function NextCard({
-  number,
-  title,
-  body,
-  to,
-  cta,
-}: {
-  number: number;
-  title: string;
-  body: string;
-  to: "/pathway" | "/goals" | "/ppt-prep";
-  cta: string;
-}) {
-  return (
-    <li className="rounded-2xl border bg-card p-5">
-      <div className="flex items-start gap-4">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-          {number}
-        </span>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-display text-lg font-medium">{toTitleCase(title)}</h3>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
-          <div className="mt-3">
-            <Button asChild size="sm" variant="outline">
-              <Link to={to}>
-                {cta} <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </li>
   );
 }

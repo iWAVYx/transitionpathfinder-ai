@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -36,6 +37,8 @@ import {
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
 import { listStudents, createShareToken } from "@/lib/students.functions";
+import { getProfile } from "@/lib/profile.functions";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -48,16 +51,20 @@ type StudentLite = { id: string; first_name: string; last_name: string | null };
 
 function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name;
   const friendly = fullName?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
 
   const fetchStudents = useServerFn(listStudents);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
+  const fetchProfile = useServerFn(getProfile);
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
+  const onboardingCheckedRef = useRef(false);
+
 
   const handleDownloadPdf = useCallback((reportId: string) => {
     window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
@@ -114,6 +121,27 @@ function DashboardPage() {
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // First-time users (no completed onboarding + no students) → /onboarding.
+  useEffect(() => {
+    if (onboardingCheckedRef.current) return;
+    if (loading) return;
+    if (students.length > 0) {
+      onboardingCheckedRef.current = true;
+      return;
+    }
+    onboardingCheckedRef.current = true;
+    fetchProfile()
+      .then((p) => {
+        if (!p.onboarding_completed) {
+          navigate({ to: "/onboarding", replace: true });
+        }
+      })
+      .catch(() => {
+        /* stay on dashboard empty-state if profile check fails */
+      });
+  }, [loading, students.length, fetchProfile, navigate]);
+
 
   async function handleSeed() {
     setSeeding(true);
