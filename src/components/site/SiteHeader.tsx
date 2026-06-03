@@ -314,20 +314,30 @@ export function SiteHeader() {
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
                     </Link>
-                    {userExtras.map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setOpen(false)}
-                        className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                        activeProps={{ className: "text-foreground bg-muted" }}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
                   </nav>
+                  {userGroups.map((group) => (
+                    <div key={group.label} className="mt-4">
+                      <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+                        {group.label}
+                      </p>
+                      <nav className="flex flex-col gap-0.5">
+                        {group.items.map((item) => (
+                          <Link
+                            key={item.to}
+                            to={item.to}
+                            onClick={() => setOpen(false)}
+                            className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                            activeProps={{ className: "text-foreground bg-muted" }}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </nav>
+                    </div>
+                  ))}
                 </>
               )}
+
             </div>
 
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">
