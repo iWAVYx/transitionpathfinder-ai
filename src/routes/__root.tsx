@@ -126,6 +126,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var key = "a11y:dark-mode";
+                  var raw = localStorage.getItem(key);
+                  var dark = raw === null ? matchMedia("(prefers-color-scheme: dark)").matches : raw === "1";
+                  if (dark) document.documentElement.classList.add("dark");
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <HeadContent />
       </head>
       <body>
