@@ -1129,12 +1129,18 @@ export const acceptAdminInvitation = createServerFn({ method: "POST" })
     }
 
     // Verify signed-in user's email matches the invited email.
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, email")
-      .eq("id", userId)
-      .maybeSingle();
-    const userEmail = (profile?.email ?? "").toLowerCase();
+    // Prefer the auth claim (always present, always current); fall back to profiles.email.
+    let userEmail = (context.claims as any)?.email
+      ? String((context.claims as any).email).toLowerCase()
+      : "";
+    if (!userEmail) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", userId)
+        .maybeSingle();
+      userEmail = (profile?.email ?? "").toLowerCase();
+    }
     if (!userEmail || userEmail !== invite.email.toLowerCase()) {
       throw new Error(
         `This invitation was sent to ${invite.email}. Sign in with that email to accept.`,
