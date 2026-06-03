@@ -353,7 +353,7 @@ function CitationsGrid() {
             <motion.div
               animate={{ rotate: paused ? undefined : 360 }}
               transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
+              className="pointer-events-none absolute inset-0 z-20"
             >
               {CITATIONS.map((c, i) => {
                 const angle = (i / CITATIONS.length) * Math.PI * 2 - Math.PI / 2;
