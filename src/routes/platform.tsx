@@ -405,7 +405,7 @@ function PlatformPage() {
               key={title}
               className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+              <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                 <img
                   src={image}
                   alt={alt}
