@@ -192,7 +192,7 @@ function FindingRow({ finding, index }: { finding: (typeof FINDINGS)[number]; in
       className="relative grid items-stretch gap-4 lg:grid-cols-[1fr_120px_1fr] lg:gap-0"
     >
       {/* Pain card */}
-      <div className="rounded-3xl border border-foreground/10 bg-peach-soft/40 p-7 lg:rounded-r-none">
+      <div className="rounded-2xl border border-foreground/10 bg-peach-soft/40 p-5 lg:rounded-r-none">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-peach">
           <span>What we heard · {String(index + 1).padStart(2, "0")}</span>
         </div>
@@ -223,7 +223,7 @@ function FindingRow({ finding, index }: { finding: (typeof FINDINGS)[number]; in
       </div>
 
       {/* Feature card */}
-      <div className="rounded-3xl border border-foreground/10 bg-sky-soft/40 p-7 lg:rounded-l-none">
+      <div className="rounded-2xl border border-foreground/10 bg-sky-soft/40 p-5 lg:rounded-l-none">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
           <span>What we built</span>
         </div>
