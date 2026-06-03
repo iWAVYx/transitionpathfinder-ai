@@ -408,7 +408,7 @@ export const ownerUpdateContact = createServerFn({ method: "POST" })
     if (Object.keys(patch).length === 0) return { ok: true };
     const { error } = await supabase
       .from("contact_submissions")
-      .update(patch)
+      .update(patch as never)
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     await logActivity(supabase, userId, "contact_updated", "contact", data.id, patch);
