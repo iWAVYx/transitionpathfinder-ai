@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Accessibility, Check, Minus, Moon, Plus, RotateCcw } from "lucide-react";
+import { Accessibility, Check, Globe, Minus, Moon, Plus, RotateCcw } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -8,7 +8,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { LOCALES, type LocaleCode } from "@/lib/i18n/config";
 
 type FontSize = "normal" | "large" | "xlarge";
 const DARK_KEY = "a11y:dark-mode";
@@ -44,6 +53,7 @@ export function AccessibilityControls() {
   const [contrast, setContrast] = useState(false);
   const [dark, setDark] = useState(false);
   const [open, setOpen] = useState(false);
+  const { locale, setLocale } = useLanguage();
 
   // Hydrate from storage on mount
   useEffect(() => {
@@ -125,11 +135,37 @@ export function AccessibilityControls() {
         side="top"
         className="w-72 space-y-4"
         aria-label="Accessibility settings"
+        data-i18n-skip
       >
         <div>
           <h2 className="text-base font-semibold text-foreground">Accessibility</h2>
           <p className="text-xs text-muted-foreground">
-            Adjust text size and contrast. Your choices are saved on this device.
+            Adjust text size, contrast, and language. Your choices are saved on this device.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="a11y-language" className="flex items-center gap-1.5 text-sm">
+            <Globe className="h-3.5 w-3.5" />
+            Language
+          </Label>
+          <Select value={locale} onValueChange={(v) => setLocale(v as LocaleCode)}>
+            <SelectTrigger id="a11y-language" className="h-10 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LOCALES.map((l) => (
+                <SelectItem key={l.code} value={l.code}>
+                  {l.nativeLabel}
+                  {l.code !== "en" ? (
+                    <span className="ml-2 text-xs text-muted-foreground">({l.label})</span>
+                  ) : null}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Non-English translations are AI-generated and may need review.
           </p>
         </div>
 
