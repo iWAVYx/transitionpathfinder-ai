@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -59,7 +60,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — TransitionForward" }] }),
-  component: AdminPage,
+  component: () => (<RoleGuard path="/admin"><AdminPage /></RoleGuard>),
 });
 
 function AdminPage() {
