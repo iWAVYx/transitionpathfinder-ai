@@ -231,7 +231,7 @@ function HelpHeroAndFaqs() {
       {/* Sticky Search & Filter Bar */}
       <div
         ref={stickyRef}
-        className={`sticky top-0 z-30 transition-all duration-300 ${
+        className={`sticky top-16 z-30 transition-all duration-300 ${
           isSticky
             ? "border-b border-border/60 bg-background/95 py-3 shadow-sm backdrop-blur-md"
             : "bg-transparent py-6"
