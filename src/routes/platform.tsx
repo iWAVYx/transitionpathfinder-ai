@@ -44,15 +44,7 @@ import {
 
 import { toTitleCase } from "@/lib/title-case";
 
-import toolPathwayBuilder from "@/assets/tool-pathway-builder.jpg";
-import toolStudentVoice from "@/assets/tool-student-voice.jpg";
-import toolFamilyVoice from "@/assets/tool-family-voice.jpg";
-import toolTranslator from "@/assets/tool-translator.jpg";
-import toolGoalTracker from "@/assets/tool-goal-tracker.jpg";
-import toolAssessmentVault from "@/assets/tool-assessment-vault.jpg";
-import toolPptPrep from "@/assets/tool-ppt-prep.jpg";
-import toolResourceMatch from "@/assets/tool-resource-match.jpg";
-import toolEducatorDashboard from "@/assets/tool-educator-dashboard.jpg";
+import { useRef, type MouseEvent as ReactMouseEvent } from "react";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
@@ -80,80 +72,60 @@ const features: Array<{
   title: string;
   body: string;
   tags: Tag[];
-  image: string;
-  alt: string;
 }> = [
   {
     icon: Sparkles,
     title: "The Pathway Builder",
     body: "Share strengths, interests, and goals. Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, family questions, and a 30 day plan.",
     tags: ["Family", "Student", "Educator"],
-    image: toolPathwayBuilder,
-    alt: "A personalized Pathway Report and 30-day plan on cream paper",
   },
   {
     icon: Mic,
     title: "Student Voice Profile",
     body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.",
     tags: ["Student", "Family"],
-    image: toolStudentVoice,
-    alt: "An open student journal with self-portrait and sticky notes",
   },
   {
     icon: Users,
     title: "Family Voice",
     body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.",
     tags: ["Family", "Educator"],
-    image: toolFamilyVoice,
-    alt: "A parent's notebook of hopes, concerns, and questions on a kitchen table",
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
     body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.",
     tags: ["Family"],
-    image: toolTranslator,
-    alt: "An IEP transition goal beside a plain-language handwritten translation",
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
     body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.",
     tags: ["Educator", "Family"],
-    image: toolGoalTracker,
-    alt: "Paper cards connected by dotted arrows showing goal to next step",
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
     body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.",
     tags: ["Educator", "Family"],
-    image: toolAssessmentVault,
-    alt: "An archival folder with assessments and work samples organized by year",
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
     body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.",
     tags: ["Family", "Educator", "Student"],
-    image: toolPptPrep,
-    alt: "A printed PPT agenda surrounded by prep cards and a fountain pen",
   },
   {
     icon: MapPin,
     title: "Resource And Opportunity Match",
     body: "Connecticut aware matches: community colleges, technical high schools, BRS, job training, and internships, tuned to interest, location, and grade.",
     tags: ["Family", "Student"],
-    image: toolResourceMatch,
-    alt: "A paper map of Connecticut with pins for colleges, technical schools, and job training",
   },
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
     body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews and approves.",
     tags: ["Educator", "Admin"],
-    image: toolEducatorDashboard,
-    alt: "A teacher's caseload dashboard as paper cards with progress bars and a calendar",
   },
 ];
 
@@ -163,6 +135,78 @@ const tagStyles: Record<Tag, string> = {
   Educator: "bg-primary/10 text-primary",
   Admin: "bg-muted text-foreground/80",
 };
+
+type Feature = (typeof features)[number];
+
+function ToolCard({ icon: Icon, title, body, tags }: Feature) {
+  const ref = useRef<HTMLElement | null>(null);
+
+  const handleMove = (e: ReactMouseEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rx = ((y / rect.height) - 0.5) * -6;
+    const ry = ((x / rect.width) - 0.5) * 6;
+    el.style.setProperty("--mx", `${x}px`);
+    el.style.setProperty("--my", `${y}px`);
+    el.style.setProperty("--rx", `${rx}deg`);
+    el.style.setProperty("--ry", `${ry}deg`);
+  };
+
+  const handleLeave = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.setProperty("--rx", `0deg`);
+    el.style.setProperty("--ry", `0deg`);
+  };
+
+  return (
+    <article
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      style={{
+        transform: "perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))",
+        transformStyle: "preserve-3d",
+        transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
+      }}
+      className="group relative flex aspect-square h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-soft hover:shadow-lift"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background:
+            "radial-gradient(220px circle at var(--mx,50%) var(--my,50%), hsl(var(--primary) / 0.18), transparent 60%)",
+        }}
+      />
+      <div className="relative flex items-start justify-between">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex flex-wrap justify-end gap-1">
+          {tags.map((t) => (
+            <span
+              key={t}
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tagStyles[t]}`}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="relative mt-3 flex flex-col gap-2">
+        <h3 className="font-display text-lg font-medium leading-snug tracking-tight">
+          {toTitleCase(title)}
+        </h3>
+        <p className="text-[12.5px] leading-relaxed text-muted-foreground line-clamp-5">
+          {body}
+        </p>
+      </div>
+    </article>
+  );
+}
 
 function PlatformPage() {
   return (
@@ -386,7 +430,14 @@ function PlatformPage() {
 
 
       {/* Tool library */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <Parallax speed={0.18} className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center">
+          <div className="h-80 w-80 rounded-full bg-gradient-sky opacity-25 blur-3xl" />
+        </Parallax>
+        <Parallax speed={-0.12} className="pointer-events-none absolute right-4 bottom-12 -z-10">
+          <div className="h-56 w-56 rounded-full bg-peach-soft opacity-50 blur-3xl" />
+        </Parallax>
+
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             The Full Toolkit
@@ -399,44 +450,21 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {features.map(({ icon: Icon, title, body, tags, image, alt }) => (
-            <article
-              key={title}
-              className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-                  <img
-                    src={image}
-                    alt={alt}
-                    loading="lazy"
-                    width={112}
-                    height={112}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-sky text-primary-foreground shadow-soft">
-                  <Icon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <h3 className="font-display text-base font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
-                <p className="text-[12px] leading-relaxed text-muted-foreground">{body}</p>
-                <div className="mt-auto flex flex-wrap gap-1 pt-1">
-                  {tags.map((t) => (
-                    <span
-                      key={t}
-                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tagStyles[t]}`}
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </article>
+        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {features.slice(0, 8).map((f, i) => (
+            <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
+              <ToolCard {...f} />
+            </Reveal>
           ))}
         </div>
+        {features[8] && (
+          <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-4">
+            <div className="hidden lg:block" />
+            <Reveal delay={480} y={20} className="sm:col-span-2 lg:col-span-2 h-full">
+              <ToolCard {...features[8]} />
+            </Reveal>
+          </div>
+        )}
       </section>
 
       {/* Layered diagram */}
