@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -25,11 +25,18 @@ import {
 } from "@/components/ui/select";
 import {
   Search,
+  X,
   MessageCircleQuestion,
   Mail,
   MessageCircle,
   LifeBuoy,
   ShieldCheck,
+  Sparkles,
+  Users,
+  School,
+  BookOpen,
+  Eye,
+  SlidersHorizontal,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
@@ -95,12 +102,51 @@ function HelpPage() {
   );
 }
 
+const CATEGORY_META: Record<string, { icon: React.ReactNode; label: string }> = {
+  "Getting Started": { icon: <Sparkles className="h-3.5 w-3.5" />, label: "Getting Started" },
+  "Families & Students": { icon: <Users className="h-3.5 w-3.5" />, label: "For Families" },
+  "Educators & Districts": { icon: <School className="h-3.5 w-3.5" />, label: "For Educators" },
+  "Accessibility": { icon: <Eye className="h-3.5 w-3.5" />, label: "Accessibility" },
+};
+
+const POPULAR_SEARCHES = [
+  "IEP",
+  "Pathway Report",
+  "CT SEDS",
+  "create account",
+  "student",
+  "privacy",
+  "training",
+  "mobile",
+];
+
+function HighlightText({ text, term }: { text: string; term: string }) {
+  if (!term.trim()) return <>{text}</>;
+  const parts = text.split(new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === term.toLowerCase() ? (
+          <mark key={i} className="rounded-sm bg-primary/15 px-0.5 font-semibold text-primary">
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
 function HelpHeroAndFaqs() {
   const fetchFaqs = useServerFn(getPublishedFaqs);
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [isSticky, setIsSticky] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchFaqs({ data: {} }).then((r) => {
@@ -108,6 +154,32 @@ function HelpHeroAndFaqs() {
       setLoaded(true);
     });
   }, [fetchFaqs]);
+
+  // Keyboard shortcut: / or Cmd+K to focus search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement).tagName)) ||
+        (e.metaKey && e.key === "k")
+      ) {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Sticky filter bar on scroll
+  useEffect(() => {
+    const onScroll = () => {
+      if (!stickyRef.current) return;
+      const rect = stickyRef.current.getBoundingClientRect();
+      setIsSticky(rect.top <= 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const categories = useMemo(
     () => Array.from(new Set(faqs.map((f) => f.category))).sort(),
@@ -117,8 +189,7 @@ function HelpHeroAndFaqs() {
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return faqs.filter((f) => {
-      const matchesCategory =
-        activeCategory === "all" || f.category === activeCategory;
+      const matchesCategory = activeCategory === "all" || f.category === activeCategory;
       if (!term) return matchesCategory;
       const inQuestion = f.question.toLowerCase().includes(term);
       const inAnswer = f.answer.toLowerCase().includes(term);
@@ -136,9 +207,12 @@ function HelpHeroAndFaqs() {
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
+  const hasFilters = search.trim() !== "" || activeCategory !== "all";
+
   return (
     <>
-      <section className="bg-gradient-to-b from-primary/5 to-background pb-16 pt-24">
+      {/* Hero */}
+      <section className="bg-gradient-to-b from-primary/5 to-background pb-8 pt-24">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <Badge variant="secondary" className="mb-4 inline-flex items-center gap-1.5">
             <MessageCircleQuestion className="h-3.5 w-3.5" />
@@ -148,49 +222,146 @@ function HelpHeroAndFaqs() {
             How can we help?
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Search the FAQs below, or scroll down to send us a message — a real
+            Search our FAQ library by keyword or topic, or scroll down to send us a message — a real
             Connecticut human replies within two school days.
           </p>
-
-          <div className="relative mx-auto mt-8 max-w-lg">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search questions…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          <div className="mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-2">
-            <button
-              onClick={() => setActiveCategory("all")}
-              className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                activeCategory === "all"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              All
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                  activeCategory === cat
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 pb-16">
+      {/* Sticky Search & Filter Bar */}
+      <div
+        ref={stickyRef}
+        className={`sticky top-0 z-30 transition-all duration-300 ${
+          isSticky
+            ? "border-b border-border/60 bg-background/95 py-3 shadow-sm backdrop-blur-md"
+            : "bg-transparent py-6"
+        }`}
+      >
+        <div className="mx-auto max-w-3xl px-4">
+          {/* Search input */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              ref={searchRef}
+              placeholder="Search questions or keywords…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-11 rounded-xl border-border/80 bg-card pl-10 pr-20 text-base shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-primary/20"
+            />
+            <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+              <kbd className="hidden rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block">
+                /
+              </kbd>
+            </div>
+          </div>
+
+          {/* Popular searches */}
+          {!hasFilters && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-muted-foreground">Popular:</span>
+              {POPULAR_SEARCHES.map((term) => (
+                <button
+                  key={term}
+                  onClick={() => setSearch(term)}
+                  className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Category filter pills */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+            <button
+              onClick={() => setActiveCategory("all")}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                activeCategory === "all"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              All topics
+            </button>
+            {categories.map((cat) => {
+              const meta = CATEGORY_META[cat] ?? { icon: <BookOpen className="h-3.5 w-3.5" />, label: cat };
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {meta.icon}
+                  {meta.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active filters & result count */}
+          {hasFilters && (
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {search && (
+                  <Badge variant="outline" className="gap-1 pr-1.5 text-xs font-normal">
+                    <Search className="h-3 w-3" />
+                    {search}
+                    <button
+                      onClick={() => setSearch("")}
+                      className="ml-1 rounded-sm p-0.5 hover:bg-muted"
+                      aria-label="Remove search"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {activeCategory !== "all" && (
+                  <Badge variant="outline" className="gap-1 pr-1.5 text-xs font-normal">
+                    {CATEGORY_META[activeCategory]?.label ?? activeCategory}
+                    <button
+                      onClick={() => setActiveCategory("all")}
+                      className="ml-1 rounded-sm p-0.5 hover:bg-muted"
+                      aria-label="Remove category filter"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setActiveCategory("all");
+                  }}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Clear all
+                </button>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {filtered.length} {filtered.length === 1 ? "question" : "questions"} found
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* FAQ Results */}
+      <section className="mx-auto max-w-3xl px-4 pb-16 pt-4">
         {!loaded ? (
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -198,37 +369,31 @@ function HelpHeroAndFaqs() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-12 text-center">
-            <MessageCircleQuestion className="mx-auto h-8 w-8 text-muted-foreground" />
-            <h3 className="mt-3 text-lg font-medium text-foreground">
-              No matching questions
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Try a different search term or jump to the contact form below.
+          <div className="rounded-2xl border border-dashed border-border p-10 text-center sm:p-14">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+              <Search className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-foreground">No matching questions</h3>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+              Try a different keyword, pick a topic above, or send us a message — we read every one.
             </p>
-            <div className="mt-4 flex justify-center gap-2">
-              {search && (
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              {categories.slice(0, 4).map((cat) => (
                 <button
-                  onClick={() => setSearch("")}
-                  className="text-sm text-primary hover:underline"
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className="rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
                 >
-                  Clear search
+                  Browse {CATEGORY_META[cat]?.label ?? cat}
                 </button>
-              )}
-              {activeCategory !== "all" && (
-                <button
-                  onClick={() => setActiveCategory("all")}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Show all categories
-                </button>
-              )}
+              ))}
             </div>
             <div className="mt-6">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
+                <MessageCircle className="mr-1.5 h-4 w-4" />
                 Send us a message
               </a>
             </div>
@@ -238,12 +403,20 @@ function HelpHeroAndFaqs() {
             {activeCategory === "all"
               ? grouped.map(([category, items]) => (
                   <div key={category}>
-                    <h2 className="mb-4 font-display text-xl font-semibold text-foreground">
-                      {category}
-                    </h2>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        {CATEGORY_META[category]?.icon ?? <BookOpen className="h-3.5 w-3.5" />}
+                      </span>
+                      <h2 className="font-display text-lg font-semibold text-foreground">
+                        {CATEGORY_META[category]?.label ?? category}
+                      </h2>
+                      <Badge variant="secondary" className="text-[10px] font-normal">
+                        {items.length}
+                      </Badge>
+                    </div>
                     <Accordion type="single" collapsible className="space-y-3">
                       {items.map((faq) => (
-                        <FaqAccordionItem key={faq.id} faq={faq} />
+                        <FaqAccordionItem key={faq.id} faq={faq} highlightTerm={search.trim()} />
                       ))}
                     </Accordion>
                   </div>
@@ -251,7 +424,7 @@ function HelpHeroAndFaqs() {
               : (
                 <Accordion type="single" collapsible className="space-y-3">
                   {filtered.map((faq) => (
-                    <FaqAccordionItem key={faq.id} faq={faq} />
+                    <FaqAccordionItem key={faq.id} faq={faq} highlightTerm={search.trim()} />
                   ))}
                 </Accordion>
               )}
@@ -262,17 +435,19 @@ function HelpHeroAndFaqs() {
   );
 }
 
-function FaqAccordionItem({ faq }: { faq: Faq }) {
+function FaqAccordionItem({ faq, highlightTerm }: { faq: Faq; highlightTerm: string }) {
   return (
     <AccordionItem
       value={faq.id}
-      className="rounded-lg border border-border bg-card px-4 transition-shadow hover:shadow-sm"
+      className="rounded-xl border border-border bg-card px-5 transition-shadow hover:shadow-sm"
     >
       <AccordionTrigger className="py-4 text-left font-medium text-foreground hover:no-underline">
-        {faq.question}
+        <HighlightText text={faq.question} term={highlightTerm} />
       </AccordionTrigger>
       <AccordionContent className="pb-4 text-muted-foreground">
-        <div className="whitespace-pre-wrap leading-relaxed">{faq.answer}</div>
+        <div className="whitespace-pre-wrap leading-relaxed">
+          <HighlightText text={faq.answer} term={highlightTerm} />
+        </div>
       </AccordionContent>
     </AccordionItem>
   );
