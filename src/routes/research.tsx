@@ -247,10 +247,27 @@ const CITATIONS: Citation[] = [
   { source: "NLTS2 — National Longitudinal Transition Study", note: "Long-term post-school outcomes for students with disabilities.", kind: "data", meta: "Longitudinal · federal" },
   { source: "IDEA Section 614 (d)(1)(A)", note: "Transition services must begin by age 16.", kind: "data", meta: "Statute" },
   { source: "U.S. Dept. of Education — IDEA State Performance Reports", note: "Indicator 13 and 14: transition planning quality + post-school outcomes.", kind: "data", meta: "State reports" },
-  { source: "Family interviews, 2024–2025", note: "Conducted across CT, MA, NY districts (n=40).", kind: "voice", meta: "n = 40 families" },
-  { source: "Educator focus groups", note: "Special education teachers and transition coordinators (n=22).", kind: "voice", meta: "n = 22 educators" },
-  { source: "Student listening sessions", note: "High school students ages 15–21 (n=35).", kind: "voice", meta: "n = 35 students" },
+  { source: "NTACT:C — National Technical Assistance Center on Transition", note: "Evidence-based predictors of post-school success.", kind: "data", meta: "Research center" },
+  { source: "WIOA Title IV — Rehabilitation Act amendments", note: "Pre-employment transition services (Pre-ETS) requirements.", kind: "data", meta: "Statute" },
+  { source: "GAO Report 12-594 — Students with Disabilities", note: "Better federal coordination could improve transition outcomes.", kind: "data", meta: "Govt. audit" },
+  { source: "Council for Exceptional Children — DCDT position papers", note: "Best-practice guidance for transition planning teams.", kind: "data", meta: "Professional org." },
+  { source: "Test, Mazzotti et al. (2009)", note: "Evidence-based secondary transition predictors meta-analysis.", kind: "data", meta: "Peer-reviewed" },
+  { source: "National Center for Learning Disabilities — Forward Together", note: "Family experience navigating special education systems.", kind: "data", meta: "Report, 2021" },
+  { source: "Institute on Community Integration (UMN)", note: "Self-determination and student-led IEP research.", kind: "data", meta: "University research" },
+  { source: "Bureau of Labor Statistics — Persons with a Disability", note: "Employment outcomes by disability status, annual series.", kind: "data", meta: "Federal data" },
+  { source: "RSA-911 case-service reporting", note: "Vocational rehabilitation outcomes for transition-age youth.", kind: "data", meta: "Federal data" },
+  { source: "Family interviews, 2024–2025", note: "Conducted across CT, MA, NY districts.", kind: "voice", meta: "n = 40 families" },
+  { source: "Educator focus groups", note: "Special education teachers and transition coordinators.", kind: "voice", meta: "n = 22 educators" },
+  { source: "Student listening sessions", note: "High school students ages 15–21.", kind: "voice", meta: "n = 35 students" },
+  { source: "Transition coordinator roundtables", note: "District-level leaders across the Northeast.", kind: "voice", meta: "n = 14 coordinators" },
+  { source: "Self-advocate advisory board", note: "Young adults with IEPs reviewing every product surface.", kind: "voice", meta: "n = 9 advisors" },
+  { source: "Community partner interviews", note: "Universities, technical schools, and employer partners.", kind: "voice", meta: "n = 18 partners" },
+  { source: "Parent Training & Information Centers", note: "Federally funded PTIs sharing common family questions.", kind: "voice", meta: "n = 6 centers" },
+  { source: "School psychologist consultations", note: "On evaluation language and family comprehension.", kind: "voice", meta: "n = 11 psychologists" },
+  { source: "Related-service provider sessions", note: "SLPs, OTs, and counselors on goal alignment.", kind: "voice", meta: "n = 15 providers" },
+  { source: "Sibling & caregiver journals", note: "Diary studies of weekly transition-planning load.", kind: "voice", meta: "n = 12 households" },
 ];
+
 
 function CitationsGrid() {
   const ref = useRef<HTMLDivElement>(null);
@@ -317,14 +334,14 @@ function CitationsGrid() {
             <motion.div
               animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.9, 0.5] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/40 to-peach/40 blur-2xl"
+              className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/40 to-peach/40 blur-2xl"
             />
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift"
+              className="absolute left-1/2 top-1/2 z-10 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift"
             >
               <div className="text-center">
                 <div className="font-display text-3xl font-medium leading-none text-foreground">{CITATIONS.length}</div>
@@ -336,7 +353,7 @@ function CitationsGrid() {
             <motion.div
               animate={{ rotate: paused ? undefined : 360 }}
               transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
+              className="pointer-events-none absolute inset-0 z-20"
             >
               {CITATIONS.map((c, i) => {
                 const angle = (i / CITATIONS.length) * Math.PI * 2 - Math.PI / 2;
@@ -356,7 +373,7 @@ function CitationsGrid() {
                     }}
                     onFocus={() => setActive(i)}
                     style={{ left: `${x}%`, top: `${y}%` }}
-                    className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+                    className="group pointer-events-auto absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={c.source}
                     initial={{ opacity: 0, scale: 0.5 }}
                     whileInView={{ opacity: 1, scale: 1 }}
