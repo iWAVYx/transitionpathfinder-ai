@@ -72,80 +72,62 @@ const features: Array<{
   title: string;
   body: string;
   tags: Tag[];
-  image: string;
-  alt: string;
+
+
 }> = [
   {
     icon: Sparkles,
     title: "The Pathway Builder",
     body: "Share strengths, interests, and goals. Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, family questions, and a 30 day plan.",
     tags: ["Family", "Student", "Educator"],
-    image: toolPathwayBuilder,
-    alt: "A personalized Pathway Report and 30-day plan on cream paper",
   },
   {
     icon: Mic,
     title: "Student Voice Profile",
     body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.",
     tags: ["Student", "Family"],
-    image: toolStudentVoice,
-    alt: "An open student journal with self-portrait and sticky notes",
   },
   {
     icon: Users,
     title: "Family Voice",
     body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.",
     tags: ["Family", "Educator"],
-    image: toolFamilyVoice,
-    alt: "A parent's notebook of hopes, concerns, and questions on a kitchen table",
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
     body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.",
     tags: ["Family"],
-    image: toolTranslator,
-    alt: "An IEP transition goal beside a plain-language handwritten translation",
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
     body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.",
     tags: ["Educator", "Family"],
-    image: toolGoalTracker,
-    alt: "Paper cards connected by dotted arrows showing goal to next step",
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
     body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.",
     tags: ["Educator", "Family"],
-    image: toolAssessmentVault,
-    alt: "An archival folder with assessments and work samples organized by year",
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
     body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.",
     tags: ["Family", "Educator", "Student"],
-    image: toolPptPrep,
-    alt: "A printed PPT agenda surrounded by prep cards and a fountain pen",
   },
   {
     icon: MapPin,
     title: "Resource And Opportunity Match",
     body: "Connecticut aware matches: community colleges, technical high schools, BRS, job training, and internships, tuned to interest, location, and grade.",
     tags: ["Family", "Student"],
-    image: toolResourceMatch,
-    alt: "A paper map of Connecticut with pins for colleges, technical schools, and job training",
   },
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
     body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews and approves.",
     tags: ["Educator", "Admin"],
-    image: toolEducatorDashboard,
-    alt: "A teacher's caseload dashboard as paper cards with progress bars and a calendar",
   },
 ];
 
