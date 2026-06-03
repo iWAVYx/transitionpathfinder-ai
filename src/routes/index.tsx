@@ -1448,3 +1448,61 @@ function FeatureShot({
   );
 }
 
+/* -------------------- HOME STAT STRIP -------------------- */
+const HOME_STATS = [
+  { value: 7300000, suffix: "+", label: "U.S. students receive special education services under IDEA each year." },
+  { value: 85, suffix: "%", label: "of jobs of the future haven't been invented yet — planning for them starts now." },
+  { value: 2, suffix: "×", label: "the unemployment rate for adults with disabilities vs. peers without." },
+  { value: 70, suffix: "%", label: "of parents say they don't fully understand what's in their child's IEP." },
+];
+
+function HomeStatStrip() {
+  return (
+    <section className="relative border-y border-foreground/10 bg-foreground py-12 text-background sm:py-14">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 sm:gap-8 sm:px-6 lg:grid-cols-4 lg:gap-5 lg:px-8">
+        {HOME_STATS.map((s, i) => (
+          <HomeStat key={i} {...s} delay={i * 0.1} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HomeStat({ value, suffix, label, delay }: { value: number; suffix: string; label: string; delay: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const start = performance.now();
+    const dur = 1600;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(value * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, value]);
+
+  const formatted = value >= 1000 ? n.toLocaleString() : String(n);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay }}
+    >
+      <div className="font-display text-4xl font-medium leading-none text-background sm:text-5xl lg:text-6xl">
+        {formatted}
+        <span className="text-primary">{suffix}</span>
+      </div>
+      <p className="mt-2 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
+    </motion.div>
+  );
+}
+
+
