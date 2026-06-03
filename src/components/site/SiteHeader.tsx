@@ -60,9 +60,10 @@ const navSingles: NavLink[] = [
   { to: "/contact", label: "Contact" },
 ];
 
-const userGroups: NavGroup[] = [
+const userGroups: UserNavGroup[] = [
   {
     label: "Students",
+    roles: ["parent", "teacher", "admin"],
     items: [
       { to: "/students", label: "Students" },
       { to: "/goals", label: "Goal Tracker" },
@@ -71,6 +72,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Planning",
+    roles: ["parent", "teacher", "admin"],
     items: [
       { to: "/pathway", label: "Create Pathway Report" },
       { to: "/reports", label: "Pathway Reports" },
@@ -80,6 +82,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Collaboration",
+    roles: ["parent", "teacher", "admin", "partner"],
     items: [
       { to: "/messages", label: "Messages" },
       { to: "/feed", label: "Feed" },
@@ -89,6 +92,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Insights",
+    roles: ["teacher", "admin"],
     items: [
       { to: "/insights", label: "Insights" },
       { to: "/analytics", label: "Analytics" },
@@ -96,6 +100,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Admin",
+    roles: ["admin", "partner"],
     items: [
       { to: "/admin-school", label: "School Admin" },
       { to: "/partners-manage", label: "Partner Workspace" },
@@ -104,7 +109,36 @@ const userGroups: NavGroup[] = [
   },
 ];
 
-const userExtras: NavLink[] = userGroups.flatMap((g) => g.items);
+function audiencesForRoles(roles: string[]): Set<RoleAudience> {
+  const out = new Set<RoleAudience>();
+  for (const r of roles) {
+    switch (r) {
+      case "parent":
+      case "guardian":
+      case "student":
+        out.add("parent");
+        break;
+      case "teacher":
+      case "educator":
+      case "case_manager":
+        out.add("teacher");
+        break;
+      case "school_admin":
+      case "administrator":
+      case "admin":
+        out.add("admin");
+        out.add("teacher");
+        break;
+      case "partner":
+        out.add("partner");
+        break;
+    }
+  }
+  // Default: treat unknown/empty as parent so the user still sees core nav.
+  if (out.size === 0) out.add("parent");
+  return out;
+}
+
 
 
 
