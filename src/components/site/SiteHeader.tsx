@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
 import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
+import { getMyRoles } from "@/lib/profile.functions";
 
 
 
@@ -20,6 +22,11 @@ import { NotificationsBell } from "./NotificationsBell";
 
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
+type RoleAudience = "parent" | "teacher" | "admin" | "partner";
+type UserNavGroup = NavGroup & { roles: RoleAudience[] };
+
+
+
 
 const navGroups: NavGroup[] = [
   {
@@ -53,9 +60,10 @@ const navSingles: NavLink[] = [
   { to: "/contact", label: "Contact" },
 ];
 
-const userGroups: NavGroup[] = [
+const userGroups: UserNavGroup[] = [
   {
     label: "Students",
+    roles: ["parent", "teacher", "admin"],
     items: [
       { to: "/students", label: "Students" },
       { to: "/goals", label: "Goal Tracker" },
@@ -64,6 +72,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Planning",
+    roles: ["parent", "teacher", "admin"],
     items: [
       { to: "/pathway", label: "Create Pathway Report" },
       { to: "/reports", label: "Pathway Reports" },
@@ -73,6 +82,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Collaboration",
+    roles: ["parent", "teacher", "admin", "partner"],
     items: [
       { to: "/messages", label: "Messages" },
       { to: "/feed", label: "Feed" },
@@ -82,6 +92,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Insights",
+    roles: ["teacher", "admin"],
     items: [
       { to: "/insights", label: "Insights" },
       { to: "/analytics", label: "Analytics" },
@@ -89,6 +100,7 @@ const userGroups: NavGroup[] = [
   },
   {
     label: "Admin",
+    roles: ["admin", "partner"],
     items: [
       { to: "/admin-school", label: "School Admin" },
       { to: "/partners-manage", label: "Partner Workspace" },
@@ -97,7 +109,36 @@ const userGroups: NavGroup[] = [
   },
 ];
 
-const userExtras: NavLink[] = userGroups.flatMap((g) => g.items);
+function audiencesForRoles(roles: string[]): Set<RoleAudience> {
+  const out = new Set<RoleAudience>();
+  for (const r of roles) {
+    switch (r) {
+      case "parent":
+      case "guardian":
+      case "student":
+        out.add("parent");
+        break;
+      case "teacher":
+      case "educator":
+      case "case_manager":
+        out.add("teacher");
+        break;
+      case "school_admin":
+      case "administrator":
+      case "admin":
+        out.add("admin");
+        out.add("teacher");
+        break;
+      case "partner":
+        out.add("partner");
+        break;
+    }
+  }
+  // Default: treat unknown/empty as parent so the user still sees core nav.
+  if (out.size === 0) out.add("parent");
+  return out;
+}
+
 
 
 
@@ -111,6 +152,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
+  const [roles, setRoles] = useState<string[]>([]);
+  const fetchRoles = useServerFn(getMyRoles);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -118,6 +161,30 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setRoles([]);
+      return;
+    }
+    let cancelled = false;
+    fetchRoles()
+      .then((res) => {
+        if (!cancelled) setRoles(res.roles);
+      })
+      .catch(() => {
+        if (!cancelled) setRoles([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, fetchRoles]);
+
+  const visibleUserGroups = useMemo(() => {
+    const audiences = audiencesForRoles(roles);
+    return userGroups.filter((g) => g.roles.some((r) => audiences.has(r)));
+  }, [roles]);
+
 
   return (
     <header
@@ -204,7 +271,7 @@ export function SiteHeader() {
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-56 p-1.5">
-                  {userGroups.map((group, idx) => (
+                  {visibleUserGroups.map((group, idx) => (
                     <div key={group.label}>
                       {idx > 0 && <DropdownMenuSeparator />}
                       <DropdownMenuLabel className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -315,7 +382,7 @@ export function SiteHeader() {
                       Dashboard
                     </Link>
                   </nav>
-                  {userGroups.map((group) => (
+                  {visibleUserGroups.map((group) => (
                     <div key={group.label} className="mt-4">
                       <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
                         {group.label}
