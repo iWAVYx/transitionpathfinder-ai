@@ -373,7 +373,7 @@ function CitationsGrid() {
                     }}
                     onFocus={() => setActive(i)}
                     style={{ left: `${x}%`, top: `${y}%` }}
-                    className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+                    className="group pointer-events-auto absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={c.source}
                     initial={{ opacity: 0, scale: 0.5 }}
                     whileInView={{ opacity: 1, scale: 1 }}
