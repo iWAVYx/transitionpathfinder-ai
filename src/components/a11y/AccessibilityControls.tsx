@@ -42,6 +42,7 @@ function applyContrast(on: boolean) {
 export function AccessibilityControls() {
   const [font, setFont] = useState<FontSize>("normal");
   const [contrast, setContrast] = useState(false);
+  const [dark, setDark] = useState(false);
   const [open, setOpen] = useState(false);
 
   // Hydrate from storage on mount
@@ -49,10 +50,17 @@ export function AccessibilityControls() {
     try {
       const savedFont = (localStorage.getItem(FONT_KEY) as FontSize | null) ?? "normal";
       const savedContrast = localStorage.getItem(CONTRAST_KEY) === "1";
+      const savedDarkRaw = localStorage.getItem(DARK_KEY);
+      const prefersDark =
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+      const savedDark = savedDarkRaw === null ? !!prefersDark : savedDarkRaw === "1";
       setFont(savedFont);
       setContrast(savedContrast);
+      setDark(savedDark);
       applyFont(savedFont);
       applyContrast(savedContrast);
+      applyDark(savedDark);
     } catch {
       /* ignore */
     }
@@ -78,9 +86,20 @@ export function AccessibilityControls() {
     }
   };
 
+  const updateDark = (next: boolean) => {
+    setDark(next);
+    applyDark(next);
+    try {
+      localStorage.setItem(DARK_KEY, next ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  };
+
   const reset = () => {
     updateFont("normal");
     updateContrast(false);
+    updateDark(false);
   };
 
   const sizes: { id: FontSize; label: string }[] = [
