@@ -41,7 +41,7 @@ export const updateWaitlistEntry = createServerFn({ method: "POST" })
       .eq("role", "admin")
       .maybeSingle();
     if (!ok) throw new Error("Admins only.");
-    const patch: Record<string, unknown> = {};
+    const patch: { status?: string; admin_notes?: string | null } = {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
     if (Object.keys(patch).length === 0) return { ok: true };
