@@ -54,7 +54,7 @@ function ResearchHero() {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[88svh] min-h-[600px] overflow-hidden">
+    <section ref={ref} className="relative isolate -mt-px h-[65svh] min-h-[480px] overflow-hidden">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
         <img src={researchHero} alt="Research papers, notebook, and a chart on a desk" className="h-full w-full object-cover" />
       </motion.div>
@@ -63,10 +63,10 @@ function ResearchHero() {
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
           Evidence first
         </motion.p>
-        <h1 className="mt-5 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+        <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
           The research behind every <span className="italic text-primary">pathway</span>.
         </h1>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-6 max-w-xl text-lg text-muted-foreground">
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 max-w-xl text-lg text-muted-foreground">
           What we learned from families, students, and educators — and how each finding shaped
           a piece of the platform.
         </motion.p>
@@ -85,8 +85,8 @@ const STATS = [
 
 function StatStrip() {
   return (
-    <section className="relative border-y border-foreground/10 bg-foreground py-20 text-background">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-4 sm:px-6 lg:grid-cols-4 lg:gap-6 lg:px-8">
+    <section className="relative border-y border-foreground/10 bg-foreground py-12 text-background">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 sm:px-6 lg:grid-cols-4 lg:gap-5 lg:px-8">
         {STATS.map((s, i) => (
           <Stat key={i} {...s} delay={i * 0.1} />
         ))}
@@ -121,11 +121,11 @@ function Stat({ value, suffix, label, delay }: { value: number; suffix: string; 
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay }}
     >
-      <div className="font-display text-5xl font-medium leading-none text-background sm:text-6xl lg:text-7xl">
+      <div className="font-display text-4xl font-medium leading-none text-background sm:text-5xl lg:text-6xl">
         {n}
         <span className="text-peach">{suffix}</span>
       </div>
-      <p className="mt-4 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
+      <p className="mt-2 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
     </motion.div>
   );
 }
@@ -156,16 +156,16 @@ const FINDINGS = [
 
 function EvidenceJourney() {
   return (
-    <section className="relative py-32 sm:py-40">
-      <div className="mx-auto mb-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative py-16 sm:py-20">
+      <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">From finding to feature</p>
-        <h2 className="mt-3 max-w-3xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+        <h2 className="mt-2 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           Every pain point maps to something we built.
         </h2>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="space-y-6">
+        <div className="space-y-3">
           {FINDINGS.map((f, i) => (
             <FindingRow key={i} finding={f} index={i} />
           ))}
@@ -192,7 +192,7 @@ function FindingRow({ finding, index }: { finding: (typeof FINDINGS)[number]; in
       className="relative grid items-stretch gap-4 lg:grid-cols-[1fr_120px_1fr] lg:gap-0"
     >
       {/* Pain card */}
-      <div className="rounded-3xl border border-foreground/10 bg-peach-soft/40 p-7 lg:rounded-r-none">
+      <div className="rounded-2xl border border-foreground/10 bg-peach-soft/40 p-5 lg:rounded-r-none">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-peach">
           <span>What we heard · {String(index + 1).padStart(2, "0")}</span>
         </div>
@@ -223,7 +223,7 @@ function FindingRow({ finding, index }: { finding: (typeof FINDINGS)[number]; in
       </div>
 
       {/* Feature card */}
-      <div className="rounded-3xl border border-foreground/10 bg-sky-soft/40 p-7 lg:rounded-l-none">
+      <div className="rounded-2xl border border-foreground/10 bg-sky-soft/40 p-5 lg:rounded-l-none">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
           <span>What we built</span>
         </div>
@@ -286,7 +286,7 @@ function CitationsGrid() {
   }, [paused]);
 
   return (
-    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-32 sm:py-40">
+    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-16 sm:py-20">
       {/* animated grid backdrop */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18]"
@@ -320,7 +320,7 @@ function CitationsGrid() {
           </h2>
         </motion.div>
 
-        <div className="relative z-10 mt-16 grid gap-10 overflow-visible lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        <div className="relative z-10 mt-10 grid gap-8 overflow-visible lg:grid-cols-[1.05fr_1fr] lg:items-center">
           {/* LEFT — orbital constellation */}
           <div
             className="relative z-10 mx-auto aspect-square w-full min-w-0 max-w-[520px] overflow-visible"
@@ -458,7 +458,7 @@ function CitationsGrid() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 shadow-lift transition-shadow hover:shadow-xl">
+            <div className="relative min-h-[200px] overflow-hidden rounded-2xl border border-foreground/10 bg-card p-6 shadow-lift transition-shadow hover:shadow-xl">
 
               {CITATIONS.map((c, i) => (
                 <motion.div
@@ -469,7 +469,7 @@ function CitationsGrid() {
                     y: i === active ? 0 : 16,
                   }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className={`absolute inset-0 p-8 ${i === active ? "" : "pointer-events-none"}`}
+                  className={`absolute inset-0 p-6 ${i === active ? "" : "pointer-events-none"}`}
                 >
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em]">
                     <span className={c.kind === "data" ? "text-primary" : "text-peach"}>
@@ -490,14 +490,14 @@ function CitationsGrid() {
                     animate={{ scaleX: i === active ? 1 : 0 }}
                     transition={{ duration: 3.2, ease: "linear" }}
                     style={{ transformOrigin: "left" }}
-                    className={`absolute inset-x-8 bottom-6 h-px ${c.kind === "data" ? "bg-primary" : "bg-peach"}`}
+                    className={`absolute inset-x-6 bottom-4 h-px ${c.kind === "data" ? "bg-primary" : "bg-peach"}`}
                   />
                 </motion.div>
               ))}
             </div>
 
             {/* marquee of all sources */}
-            <div className="relative mt-6 overflow-hidden rounded-full border border-foreground/10 bg-background/60 py-3 backdrop-blur">
+            <div className="relative mt-4 overflow-hidden rounded-full border border-foreground/10 bg-background/60 py-2.5 backdrop-blur">
               <motion.div
                 animate={{ x: ["0%", "-50%"] }}
                 transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
@@ -523,16 +523,16 @@ function CitationsGrid() {
 /* -------------------- CLOSING -------------------- */
 function ClosingNote() {
   return (
-    <section className="relative isolate overflow-hidden py-32 sm:py-40">
+    <section className="relative isolate overflow-hidden py-16 sm:py-20">
       <div className="absolute inset-0 -z-10 bg-gradient-hero" />
       <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-        <h2 className="font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+        <h2 className="font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           Evidence is the floor. Action is the bridge.
         </h2>
-        <p className="mt-5 text-lg text-foreground/70">
+        <p className="mt-4 text-base text-foreground/70">
           Every feature in TransitionForward maps to a finding above. As the research grows, the platform grows with it.
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link to="/platform" className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift hover:scale-[1.02]">
             See the platform <ArrowRight className="h-4 w-4" />
           </Link>
