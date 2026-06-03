@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardMetrics, type DashboardMetrics } from "@/lib/owner/owner.functions";
 
-export const Route = createFileRoute("/_authenticated/owner")({
+export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
   component: OwnerDashboardPage,
 });

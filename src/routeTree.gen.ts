@@ -54,8 +54,14 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
+import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
+import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
+import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
+import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenticated/owner.admins'
+import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -289,6 +295,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
+  id: '/owner/',
+  path: '/owner/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedStudentsStudentIdRoute =
   AuthenticatedStudentsStudentIdRouteImport.update({
     id: '/$studentId',
@@ -300,6 +311,36 @@ const AuthenticatedReportsReportIdRoute =
     id: '/$reportId',
     path: '/$reportId',
     getParentRoute: () => AuthenticatedReportsRoute,
+  } as any)
+const AuthenticatedOwnerWaitlistRoute =
+  AuthenticatedOwnerWaitlistRouteImport.update({
+    id: '/owner/waitlist',
+    path: '/owner/waitlist',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOwnerSettingsRoute =
+  AuthenticatedOwnerSettingsRouteImport.update({
+    id: '/owner/settings',
+    path: '/owner/settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOwnerContactsRoute =
+  AuthenticatedOwnerContactsRouteImport.update({
+    id: '/owner/contacts',
+    path: '/owner/contacts',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOwnerAdminsRoute =
+  AuthenticatedOwnerAdminsRouteImport.update({
+    id: '/owner/admins',
+    path: '/owner/admins',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOwnerActivityRoute =
+  AuthenticatedOwnerActivityRouteImport.update({
+    id: '/owner/activity',
+    path: '/owner/activity',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedMeetingsMeetingIdRoute =
   AuthenticatedMeetingsMeetingIdRouteImport.update({
@@ -376,8 +417,14 @@ export interface FileRoutesByFullPath {
   '/share/$token': typeof ShareTokenRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
+  '/owner/activity': typeof AuthenticatedOwnerActivityRoute
+  '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
+  '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/owner/': typeof AuthenticatedOwnerIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -429,8 +476,14 @@ export interface FileRoutesByTo {
   '/share/$token': typeof ShareTokenRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
+  '/owner/activity': typeof AuthenticatedOwnerActivityRoute
+  '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
+  '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/owner': typeof AuthenticatedOwnerIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -484,8 +537,14 @@ export interface FileRoutesById {
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
+  '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
+  '/_authenticated/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
+  '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -539,8 +598,14 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/forms/$slug'
     | '/meetings/$meetingId'
+    | '/owner/activity'
+    | '/owner/admins'
+    | '/owner/contacts'
+    | '/owner/settings'
+    | '/owner/waitlist'
     | '/reports/$reportId'
     | '/students/$studentId'
+    | '/owner/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -592,8 +657,14 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/forms/$slug'
     | '/meetings/$meetingId'
+    | '/owner/activity'
+    | '/owner/admins'
+    | '/owner/contacts'
+    | '/owner/settings'
+    | '/owner/waitlist'
     | '/reports/$reportId'
     | '/students/$studentId'
+    | '/owner'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -646,8 +717,14 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/_authenticated/forms/$slug'
     | '/_authenticated/meetings/$meetingId'
+    | '/_authenticated/owner/activity'
+    | '/_authenticated/owner/admins'
+    | '/_authenticated/owner/contacts'
+    | '/_authenticated/owner/settings'
+    | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/students/$studentId'
+    | '/_authenticated/owner/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1002,6 +1079,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/': {
+      id: '/_authenticated/owner/'
+      path: '/owner'
+      fullPath: '/owner/'
+      preLoaderRoute: typeof AuthenticatedOwnerIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/students/$studentId': {
       id: '/_authenticated/students/$studentId'
       path: '/$studentId'
@@ -1015,6 +1099,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/reports/$reportId'
       preLoaderRoute: typeof AuthenticatedReportsReportIdRouteImport
       parentRoute: typeof AuthenticatedReportsRoute
+    }
+    '/_authenticated/owner/waitlist': {
+      id: '/_authenticated/owner/waitlist'
+      path: '/owner/waitlist'
+      fullPath: '/owner/waitlist'
+      preLoaderRoute: typeof AuthenticatedOwnerWaitlistRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/settings': {
+      id: '/_authenticated/owner/settings'
+      path: '/owner/settings'
+      fullPath: '/owner/settings'
+      preLoaderRoute: typeof AuthenticatedOwnerSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/contacts': {
+      id: '/_authenticated/owner/contacts'
+      path: '/owner/contacts'
+      fullPath: '/owner/contacts'
+      preLoaderRoute: typeof AuthenticatedOwnerContactsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/admins': {
+      id: '/_authenticated/owner/admins'
+      path: '/owner/admins'
+      fullPath: '/owner/admins'
+      preLoaderRoute: typeof AuthenticatedOwnerAdminsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/activity': {
+      id: '/_authenticated/owner/activity'
+      path: '/owner/activity'
+      fullPath: '/owner/activity'
+      preLoaderRoute: typeof AuthenticatedOwnerActivityRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/meetings/$meetingId': {
       id: '/_authenticated/meetings/$meetingId'
@@ -1122,6 +1241,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
+  AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
+  AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
+  AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
+  AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
+  AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1144,6 +1269,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
+  AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
+  AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
+  AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
+  AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
+  AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
