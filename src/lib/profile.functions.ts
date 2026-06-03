@@ -96,3 +96,16 @@ export const completeOnboarding = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+export const getMyRoles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const [{ data: rolesData }, { data: profile }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", userId),
+      supabase.from("profiles").select("primary_role").eq("id", userId).maybeSingle(),
+    ]);
+    const roles = (rolesData ?? []).map((r) => r.role as string);
+    if (profile?.primary_role) roles.push(profile.primary_role);
+    return { roles: Array.from(new Set(roles)) };
+  });
