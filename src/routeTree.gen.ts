@@ -19,8 +19,8 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as FrameworkRouteImport } from './routes/framework'
-import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as DemoRouteImport } from './routes/demo'
@@ -124,14 +124,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FrameworkRoute = FrameworkRouteImport.update({
   id: '/framework',
   path: '/framework',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FaqRoute = FaqRouteImport.update({
-  id: '/faq',
-  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamiliesRoute = FamiliesRouteImport.update({
@@ -415,8 +415,8 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
-  '/faq': typeof FaqRoute
   '/framework': typeof FrameworkRoute
+  '/help': typeof HelpRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
@@ -480,8 +480,8 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
-  '/faq': typeof FaqRoute
   '/framework': typeof FrameworkRoute
+  '/help': typeof HelpRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
@@ -547,8 +547,8 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
-  '/faq': typeof FaqRoute
   '/framework': typeof FrameworkRoute
+  '/help': typeof HelpRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
@@ -614,8 +614,8 @@ export interface FileRouteTypes {
     | '/demo'
     | '/educators'
     | '/families'
-    | '/faq'
     | '/framework'
+    | '/help'
     | '/login'
     | '/partners'
     | '/platform'
@@ -679,8 +679,8 @@ export interface FileRouteTypes {
     | '/demo'
     | '/educators'
     | '/families'
-    | '/faq'
     | '/framework'
+    | '/help'
     | '/login'
     | '/partners'
     | '/platform'
@@ -745,8 +745,8 @@ export interface FileRouteTypes {
     | '/demo'
     | '/educators'
     | '/families'
-    | '/faq'
     | '/framework'
+    | '/help'
     | '/login'
     | '/partners'
     | '/platform'
@@ -812,8 +812,8 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRoute
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
-  FaqRoute: typeof FaqRoute
   FrameworkRoute: typeof FrameworkRoute
+  HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRoute
   PartnersRoute: typeof PartnersRoute
   PlatformRoute: typeof PlatformRoute
@@ -909,18 +909,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/framework': {
       id: '/framework'
       path: '/framework'
       fullPath: '/framework'
       preLoaderRoute: typeof FrameworkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/faq': {
-      id: '/faq'
-      path: '/faq'
-      fullPath: '/faq'
-      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/families': {
@@ -1416,8 +1416,8 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRoute,
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
-  FaqRoute: FaqRoute,
   FrameworkRoute: FrameworkRoute,
+  HelpRoute: HelpRoute,
   LoginRoute: LoginRoute,
   PartnersRoute: PartnersRoute,
   PlatformRoute: PlatformRoute,
