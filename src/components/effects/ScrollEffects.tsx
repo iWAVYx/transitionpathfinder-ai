@@ -211,10 +211,12 @@ export function ParallaxImage({
  */
 export function StickyScrollStory({
   eyebrow,
+  title,
   panels,
   className,
 }: {
   eyebrow?: string;
+  title?: string;
   panels: Array<{ title: string; body: string; image: string; alt: string }>;
   className?: string;
 }) {
@@ -232,7 +234,12 @@ export function StickyScrollStory({
               {eyebrow}
             </p>
           )}
-          <div className="relative mt-3 min-h-[14rem]">
+          {title && (
+            <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              {toTitleCase(title)}
+            </h2>
+          )}
+          <div className="relative mt-6 min-h-[14rem]">
             {panels.map((p, i) => (
               <div
                 key={i}
