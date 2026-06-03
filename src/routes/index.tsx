@@ -450,18 +450,21 @@ function HomePage() {
           <FeatureShot
             image={layerOrganizeImg}
             label="Organize"
+            alt="Organize dashboard interface showing student goals and assessments"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
             aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={layerGenerateImg}
             label="Generate"
+            alt="Generate pathway report interface with personalized recommendations"
             caption="Specialist-built formulas turn the full picture into a personalized Pathway."
             aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={layerConnectImg}
             label="Connect"
+            alt="Connect resources interface matching interests to local programs"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
             aspect="aspect-[4/3]"
           />
@@ -1417,12 +1420,14 @@ function PathwayTile({
 function FeatureShot({
   image,
   label,
+  alt,
   caption,
   className = "",
   aspect = "aspect-[16/10]",
 }: {
   image: string;
   label: string;
+  alt?: string;
   caption: string;
   className?: string;
   aspect?: string;
@@ -1434,7 +1439,7 @@ function FeatureShot({
       <div className={`relative ${aspect} overflow-hidden`}>
         <img
           src={image}
-          alt={label}
+          alt={alt || label}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
