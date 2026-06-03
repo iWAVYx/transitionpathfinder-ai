@@ -80,6 +80,60 @@ export type Database = {
           },
         ]
       }
+      admin_activity_logs: {
+        Row: {
+          action_type: string
+          admin_user_id: string
+          created_at: string
+          details: Json
+          id: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_user_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
+      admin_roles: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["admin_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_jobs: {
         Row: {
           attempts: number
@@ -305,6 +359,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          inquiry_type: string
+          internal_notes: string | null
+          last_name: string | null
+          message: string
+          organization: string | null
+          phone: string | null
+          source_page: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          inquiry_type?: string
+          internal_notes?: string | null
+          last_name?: string | null
+          message: string
+          organization?: string | null
+          phone?: string | null
+          source_page?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          inquiry_type?: string
+          internal_notes?: string | null
+          last_name?: string | null
+          message?: string
+          organization?: string | null
+          phone?: string | null
+          source_page?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       document_summaries: {
         Row: {
@@ -1799,6 +1901,36 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_public: boolean
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          setting_key: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       student_collaborators: {
         Row: {
           created_at: string
@@ -2461,13 +2593,20 @@ export type Database = {
       waitlist: {
         Row: {
           admin_notes: string | null
+          city: string | null
+          consent_to_contact: boolean
           created_at: string
           email: string
+          first_name: string | null
           full_name: string
           id: string
+          interest_area: string | null
+          last_name: string | null
+          organization: string | null
           reason: string | null
           role: string
           source: string | null
+          source_page: string | null
           state: string | null
           status: string
           student_grade_band: string | null
@@ -2475,13 +2614,20 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          city?: string | null
+          consent_to_contact?: boolean
           created_at?: string
           email: string
+          first_name?: string | null
           full_name: string
           id?: string
+          interest_area?: string | null
+          last_name?: string | null
+          organization?: string | null
           reason?: string | null
           role: string
           source?: string | null
+          source_page?: string | null
           state?: string | null
           status?: string
           student_grade_band?: string | null
@@ -2489,19 +2635,58 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          city?: string | null
+          consent_to_contact?: boolean
           created_at?: string
           email?: string
+          first_name?: string | null
           full_name?: string
           id?: string
+          interest_area?: string | null
+          last_name?: string | null
+          organization?: string | null
           reason?: string | null
           role?: string
           source?: string | null
+          source_page?: string | null
           state?: string | null
           status?: string
           student_grade_band?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      waitlist_admin_notes: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          id: string
+          note: string
+          waitlist_entry_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          note: string
+          waitlist_entry_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          note?: string
+          waitlist_entry_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_admin_notes_waitlist_entry_id_fkey"
+            columns: ["waitlist_entry_id"]
+            isOneToOne: false
+            referencedRelation: "waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -2525,6 +2710,13 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      has_admin_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["admin_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2532,6 +2724,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_hub_member: { Args: { _user_id: string }; Returns: boolean }
       is_org_admin: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -2540,6 +2733,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -2569,6 +2763,11 @@ export type Database = {
       track_share_view: { Args: { _token: string }; Returns: undefined }
     }
     Enums: {
+      admin_role:
+        | "platform_owner"
+        | "platform_admin"
+        | "content_manager"
+        | "support_admin"
       app_role:
         | "parent"
         | "educator"
@@ -2706,6 +2905,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_role: [
+        "platform_owner",
+        "platform_admin",
+        "content_manager",
+        "support_admin",
+      ],
       app_role: [
         "parent",
         "educator",
