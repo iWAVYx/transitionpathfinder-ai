@@ -179,6 +179,24 @@ export function AccessibilityControls() {
           />
         </div>
 
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="a11y-dark" className="flex items-center gap-1.5 text-sm">
+              <Moon className="h-3.5 w-3.5" />
+              Dark mode
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Switch to a darker color scheme.
+            </p>
+          </div>
+          <Switch
+            id="a11y-dark"
+            checked={dark}
+            onCheckedChange={updateDark}
+            aria-label="Toggle dark mode"
+          />
+        </div>
+
         <div className="flex items-center justify-between border-t pt-3">
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw className="h-3 w-3" />
