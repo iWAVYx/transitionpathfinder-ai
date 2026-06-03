@@ -175,7 +175,7 @@ function HelpHeroAndFaqs() {
     const onScroll = () => {
       if (!stickyRef.current) return;
       const rect = stickyRef.current.getBoundingClientRect();
-      setIsSticky(rect.top <= 0);
+      setIsSticky(rect.top <= 72);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -231,10 +231,10 @@ function HelpHeroAndFaqs() {
       {/* Sticky Search & Filter Bar */}
       <div
         ref={stickyRef}
-        className={`sticky top-16 z-30 transition-all duration-300 ${
+        className={`sticky top-[calc(env(safe-area-inset-top)+4rem)] z-30 transition-all duration-300 ${
           isSticky
-            ? "border-b border-border/60 bg-background/95 py-3 shadow-sm backdrop-blur-md"
-            : "bg-transparent py-6"
+            ? "border-b border-border/60 bg-background/95 py-2 shadow-sm backdrop-blur-md sm:py-3"
+            : "bg-transparent py-4 sm:py-6"
         }`}
       >
         <div className="mx-auto max-w-3xl px-4">
