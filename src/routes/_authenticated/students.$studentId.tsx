@@ -23,6 +23,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
 import { GoalsEditor } from "@/components/students/GoalsEditor";
+import { MembershipPanel } from "@/components/students/MembershipPanel";
 import { PathwayProgress } from "@/components/students/PathwayProgress";
 import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
@@ -432,6 +433,10 @@ function StudentDetailPage() {
 
         <div className="mt-6">
           <PathwayProgress studentId={studentId} />
+        </div>
+
+        <div className="mt-6">
+          <MembershipPanel studentId={studentId} />
         </div>
 
         <div className="mt-6">
