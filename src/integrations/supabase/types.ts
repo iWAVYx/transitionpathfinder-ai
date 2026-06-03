@@ -2349,6 +2349,7 @@ export type Database = {
       }
       waitlist: {
         Row: {
+          admin_notes: string | null
           created_at: string
           email: string
           full_name: string
@@ -2357,9 +2358,12 @@ export type Database = {
           role: string
           source: string | null
           state: string | null
+          status: string
           student_grade_band: string | null
+          updated_at: string
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           email: string
           full_name: string
@@ -2368,9 +2372,12 @@ export type Database = {
           role: string
           source?: string | null
           state?: string | null
+          status?: string
           student_grade_band?: string | null
+          updated_at?: string
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           email?: string
           full_name?: string
@@ -2379,7 +2386,9 @@ export type Database = {
           role?: string
           source?: string | null
           state?: string | null
+          status?: string
           student_grade_band?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

@@ -3,6 +3,9 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+export const WAITLIST_STATUSES = ["new", "contacted", "invited", "archived"] as const;
+export type WaitlistStatus = (typeof WAITLIST_STATUSES)[number];
+
 export type WaitlistEntry = {
   id: string;
   email: string;
@@ -12,8 +15,41 @@ export type WaitlistEntry = {
   student_grade_band: string | null;
   reason: string | null;
   source: string | null;
+  status: WaitlistStatus;
+  admin_notes: string | null;
   created_at: string;
+  updated_at: string | null;
 };
+
+export const updateWaitlistEntry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["new", "contacted", "invited", "archived"]).optional(),
+        admin_notes: z.string().trim().max(4000).nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: ok } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!ok) throw new Error("Admins only.");
+    const patch: { status?: string; admin_notes?: string | null } = {};
+    if (data.status !== undefined) patch.status = data.status;
+    if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
+    if (Object.keys(patch).length === 0) return { ok: true };
+    const { error } = await supabase.from("waitlist").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 export type RoleAssignment = {
   user_id: string;
