@@ -1095,7 +1095,8 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
                   .map((it, i) => `${i === 0 ? "M" : "L"} ${it.pos.x} ${it.pos.y}`)
                   .join(" ")}
                 fill="none"
-                stroke="hsl(var(--primary) / 0.25)"
+                stroke="var(--primary)"
+                strokeOpacity="0.25"
                 strokeWidth="1.5"
                 strokeDasharray="4 6"
               />
