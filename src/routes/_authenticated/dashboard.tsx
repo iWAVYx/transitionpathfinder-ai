@@ -51,16 +51,20 @@ type StudentLite = { id: string; first_name: string; last_name: string | null };
 
 function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name;
   const friendly = fullName?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
 
   const fetchStudents = useServerFn(listStudents);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
+  const fetchProfile = useServerFn(getProfile);
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
+  const onboardingCheckedRef = useRef(false);
+
 
   const handleDownloadPdf = useCallback((reportId: string) => {
     window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
