@@ -416,20 +416,20 @@ function HomePage() {
         </div>
 
         {/* Hero feature — Pathway Report */}
-        <div className="mb-6 grid items-stretch gap-5 md:grid-cols-5">
+        <div className="mb-5 grid items-stretch gap-4 md:grid-cols-5">
           <FeatureShot
             className="md:col-span-3"
             image={pathwayImg}
             label="The Pathway Report"
             caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[16/9]"
           />
           <FeatureShot
             className="md:col-span-2"
             image={dashboardImg}
             label="Your dashboard"
             caption="A calm hub for what's next — reports, goals, and meeting prep."
-            aspect="aspect-[16/10]"
+            aspect="aspect-[16/9]"
           />
         </div>
 
