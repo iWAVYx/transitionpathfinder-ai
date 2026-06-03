@@ -969,6 +969,19 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
     };
   }, [items.length]);
 
+  const scrollToStep = (idx: number) => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const total = el.offsetHeight - window.innerHeight;
+    // -1 = overview (pick midpoint of intro slab), otherwise center of that card's slab
+    const p =
+      idx === -1
+        ? 0.05
+        : 0.1 + ((idx + 0.5) / items.length) * 0.9;
+    const top = el.getBoundingClientRect().top + window.scrollY + p * total;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   const overviewScale = 0.6;
   const focusScale = 1.45;
   const target =
@@ -981,6 +994,12 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
         };
 
   const current = active === -1 ? null : items[active];
+
+  // Mini-map: scale full canvas (~1400x900 effective) into a 160x100 widget
+  const miniW = 160;
+  const miniH = 100;
+  const canvasW = 1400;
+  const canvasH = 900;
 
   return (
     <div ref={sectionRef} className="relative" style={{ height: `${stops * 90}vh` }}>
@@ -1007,20 +1026,59 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
           }}
         />
 
-        {/* Header chip + step indicator */}
-        <div className="absolute left-1/2 top-8 z-10 flex -translate-x-1/2 flex-col items-center gap-3">
-          <span className="rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-soft backdrop-blur">
-            {active === -1 ? "Six outcomes" : `Stop ${active + 1} / ${items.length}`}
-          </span>
+        {/* Header chip + clickable step indicator */}
+        <div className="absolute left-1/2 top-8 z-20 flex -translate-x-1/2 flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={() => scrollToStep(-1)}
+            className="rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-soft backdrop-blur transition-colors hover:border-primary/60"
+          >
+            {active === -1 ? "Six outcomes — view all" : `Stop ${active + 1} / ${items.length}`}
+          </button>
           <div className="flex items-center gap-1.5">
-            {items.map((_, i) => (
-              <span
+            {items.map((item, i) => (
+              <button
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-500 ${
-                  i === active ? "w-8 bg-primary" : "w-2 bg-border"
+                type="button"
+                onClick={() => scrollToStep(i)}
+                aria-label={`Jump to ${item.title}`}
+                className={`h-2.5 rounded-full transition-all duration-500 hover:bg-primary/70 ${
+                  i === active ? "w-10 bg-primary" : "w-2.5 bg-border"
                 }`}
               />
             ))}
+          </div>
+        </div>
+
+        {/* Mini-map nav (top-right) — clickable pins */}
+        <div className="absolute right-6 top-8 z-20 hidden rounded-2xl border border-border/60 bg-background/85 p-3 shadow-soft backdrop-blur xl:block">
+          <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Map
+          </p>
+          <div
+            className="relative rounded-md bg-muted/40"
+            style={{ width: miniW, height: miniH }}
+          >
+            {items.map((item, i) => {
+              const left = miniW / 2 + (item.pos.x / canvasW) * miniW;
+              const top = miniH / 2 + (item.pos.y / canvasH) * miniH;
+              const isActive = i === active;
+              return (
+                <button
+                  key={item.title}
+                  type="button"
+                  onClick={() => scrollToStep(i)}
+                  aria-label={`Jump to ${item.title}`}
+                  title={item.title}
+                  className={`group absolute flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 ${
+                    isActive
+                      ? "scale-150 bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_25%,transparent)]"
+                      : "bg-primary/40 hover:scale-125 hover:bg-primary"
+                  }`}
+                  style={{ left, top }}
+                />
+              );
+            })}
           </div>
         </div>
 
