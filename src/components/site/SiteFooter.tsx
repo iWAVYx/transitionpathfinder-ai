@@ -2,23 +2,26 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
-const exploreLinks = [
+const productLinks = [
   { to: "/platform", label: "The Platform" },
   { to: "/demo", label: "See the Demo" },
-  { to: "/families", label: "For Families" },
-  { to: "/educators", label: "For Educators" },
   { to: "/framework", label: "The Framework" },
   { to: "/resources", label: "Resource Hub" },
   { to: "/research", label: "Research" },
 ] as const;
 
-const aboutLinks = [
-  { to: "/about", label: "Meet Caysi" },
+const companyLinks = [
+  { to: "/about", label: "Our Story" },
   { to: "/partners", label: "Partners" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/help", label: "Help & Contact" },
   { to: "/blog", label: "Blog" },
-  { to: "/waitlist", label: "Join the waitlist" },
+  { to: "/waitlist", label: "Join the Waitlist" },
+] as const;
+
+const supportLinks = [
+  { to: "/families", label: "For Families" },
+  { to: "/educators", label: "For Educators" },
+  { to: "/help", label: "Help & Contact" },
   { to: "/privacy", label: "Privacy" },
 ] as const;
 
