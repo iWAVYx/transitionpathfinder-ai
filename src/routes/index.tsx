@@ -1417,12 +1417,14 @@ function PathwayTile({
 function FeatureShot({
   image,
   label,
+  alt,
   caption,
   className = "",
   aspect = "aspect-[16/10]",
 }: {
   image: string;
   label: string;
+  alt?: string;
   caption: string;
   className?: string;
   aspect?: string;
@@ -1434,7 +1436,7 @@ function FeatureShot({
       <div className={`relative ${aspect} overflow-hidden`}>
         <img
           src={image}
-          alt={label}
+          alt={alt || label}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
