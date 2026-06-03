@@ -11,12 +11,17 @@ import {
   Building2,
   Activity,
   Settings as SettingsIcon,
-  Plus,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getDashboardMetrics, type DashboardMetrics } from "@/lib/owner/owner.functions";
+import {
+  getDashboardMetrics,
+  getResourceCounts,
+  type DashboardMetrics,
+} from "@/lib/owner/owner.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
@@ -56,15 +61,22 @@ function MetricCard({
 
 function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
+  const fetchResourceCounts = useServerFn(getResourceCounts);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [resourceCounts, setResourceCounts] = useState<{ published: number; drafts: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMetrics()
-      .then((m) => setMetrics(m))
-      .catch(() => setMetrics(null))
+    Promise.all([
+      fetchMetrics().catch(() => null),
+      fetchResourceCounts().catch(() => null),
+    ])
+      .then(([m, r]) => {
+        setMetrics(m);
+        setResourceCounts(r);
+      })
       .finally(() => setLoading(false));
-  }, [fetchMetrics]);
+  }, [fetchMetrics, fetchResourceCounts]);
 
   return (
     <OwnerShell
@@ -115,9 +127,10 @@ function OwnerDashboardPage() {
               icon={Mail}
             />
             <MetricCard
-              label="Pending partners"
-              value={metrics.partnerInquiries}
-              icon={Building2}
+              label="Resources"
+              value={resourceCounts?.published ?? 0}
+              delta={`${resourceCounts?.drafts ?? 0} unpublished`}
+              icon={BookOpen}
             />
           </div>
 
@@ -138,6 +151,21 @@ function OwnerDashboardPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
+                <Link to="/owner/resources">
+                  <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Manage resources
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/owner/content">
+                  <FileText className="mr-1.5 h-3.5 w-3.5" /> Edit site content
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/owner/analytics">
+                  <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> View analytics
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
                 <Link to="/owner/admins">
                   <Users className="mr-1.5 h-3.5 w-3.5" /> Manage admins
                 </Link>
@@ -147,15 +175,10 @@ function OwnerDashboardPage() {
                   <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site settings
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm" disabled>
-                <span>
-                  <Plus className="mr-1.5 h-3.5 w-3.5" /> Add resource (Phase 3)
-                </span>
-              </Button>
-              <Button asChild variant="outline" size="sm" disabled>
-                <span>
-                  <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Analytics (Phase 3)
-                </span>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/owner/activity">
+                  <Building2 className="mr-1.5 h-3.5 w-3.5" /> Partners ({metrics.partnerInquiries})
+                </Link>
               </Button>
             </div>
           </section>
