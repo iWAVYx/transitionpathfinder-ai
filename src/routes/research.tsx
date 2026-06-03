@@ -497,7 +497,7 @@ function CitationsGrid() {
             </div>
 
             {/* marquee of all sources */}
-            <div className="relative mt-6 overflow-hidden rounded-full border border-foreground/10 bg-background/60 py-3 backdrop-blur">
+            <div className="relative mt-4 overflow-hidden rounded-full border border-foreground/10 bg-background/60 py-2.5 backdrop-blur">
               <motion.div
                 animate={{ x: ["0%", "-50%"] }}
                 transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
