@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { getPageSection } from "@/lib/cms/cms.functions";
 import {
   HeartHandshake,
   GraduationCap,
