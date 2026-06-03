@@ -258,12 +258,15 @@ function CitationsGrid() {
   const titleY = useTransform(scrollYProgress, [0, 1], [60, -60]);
   const ringRot = useTransform(scrollYProgress, [0, 1], [-25, 25]);
   const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
 
-  // auto-rotate active citation
+  // auto-rotate active citation (paused on hover)
   useEffect(() => {
+    if (paused) return;
     const id = setInterval(() => setActive((a) => (a + 1) % CITATIONS.length), 3200);
     return () => clearInterval(id);
-  }, []);
+  }, [paused]);
 
   return (
     <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-32 sm:py-40">
