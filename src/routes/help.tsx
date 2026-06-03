@@ -13,18 +13,18 @@ import { Search, MessageCircleQuestion } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
 
-export const Route = createFileRoute("/faq")({
+export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "FAQs | TransitionForward" },
+      { title: "Help Center | TransitionForward" },
       {
         name: "description",
         content:
-          "Find answers to frequently asked questions about TransitionForward, transition planning, and postsecondary support for Connecticut students.",
+          "Get help and find answers to common questions about TransitionForward, transition planning, and postsecondary support for Connecticut students.",
       },
       {
         property: "og:title",
-        content: "Frequently Asked Questions | TransitionForward",
+        content: "Help Center | TransitionForward",
       },
       {
         property: "og:description",
@@ -90,7 +90,7 @@ function FaqPage() {
             Help Center
           </Badge>
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Frequently Asked Questions
+            Help Center
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
             Find answers about TransitionForward, transition planning, and how
