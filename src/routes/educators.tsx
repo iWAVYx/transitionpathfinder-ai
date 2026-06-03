@@ -33,6 +33,20 @@ export const Route = createFileRoute("/educators")({
       { property: "og:description", content: "Less Paperwork, More Student Support, built for CT special educators." },
     ],
     links: [{ rel: "canonical", href: "/educators" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Transition Planning for Educators",
+          description: "Transition goal tracking, PPT meeting prep, and family communication tools built for Connecticut special educators.",
+          provider: { "@type": "Organization", name: "TransitionForward", url: "/" },
+          areaServed: "Connecticut, USA",
+          audience: { "@type": "Audience", audienceType: "Special educators and case managers" },
+        }),
+      },
+    ],
   }),
   component: EducatorsPage,
 });

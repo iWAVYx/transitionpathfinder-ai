@@ -46,6 +46,20 @@ export const Route = createFileRoute("/families")({
       { property: "og:description", content: "Plain Language Transition Planning for Connecticut Families." },
     ],
     links: [{ rel: "canonical", href: "/families" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Transition Planning for Families",
+          description: "Plain language transition planning for Connecticut families with students with disabilities. IEP guidance, progress tracking, and resource discovery.",
+          provider: { "@type": "Organization", name: "TransitionForward", url: "/" },
+          areaServed: "Connecticut, USA",
+          audience: { "@type": "Audience", audienceType: "Families of students with disabilities" },
+        }),
+      },
+    ],
   }),
   component: FamiliesPage,
 });
