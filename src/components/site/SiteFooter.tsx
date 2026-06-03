@@ -2,23 +2,26 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
-const exploreLinks = [
+const productLinks = [
   { to: "/platform", label: "The Platform" },
   { to: "/demo", label: "See the Demo" },
-  { to: "/families", label: "For Families" },
-  { to: "/educators", label: "For Educators" },
   { to: "/framework", label: "The Framework" },
   { to: "/resources", label: "Resource Hub" },
   { to: "/research", label: "Research" },
 ] as const;
 
-const aboutLinks = [
-  { to: "/about", label: "Meet Caysi" },
+const companyLinks = [
+  { to: "/about", label: "Our Story" },
   { to: "/partners", label: "Partners" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/help", label: "Help & Contact" },
   { to: "/blog", label: "Blog" },
-  { to: "/waitlist", label: "Join the waitlist" },
+  { to: "/waitlist", label: "Join the Waitlist" },
+] as const;
+
+const supportLinks = [
+  { to: "/families", label: "For Families" },
+  { to: "/educators", label: "For Educators" },
+  { to: "/help", label: "Help & Contact" },
   { to: "/privacy", label: "Privacy" },
 ] as const;
 
@@ -41,8 +44,8 @@ export function SiteFooter() {
         />
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-4 lg:px-8">
-        <div className="md:col-span-2">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:px-8">
+        <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
           <Link to="/" className="group flex items-center gap-2">
             <motion.span
               aria-hidden
@@ -75,8 +78,9 @@ export function SiteFooter() {
           </Link>
         </div>
 
-        <FooterColumn title="Explore" links={exploreLinks} />
-        <FooterColumn title="About" links={aboutLinks} />
+        <FooterColumn title="Product" links={productLinks} />
+        <FooterColumn title="Company" links={companyLinks} />
+        <FooterColumn title="Support" links={supportLinks} />
       </div>
 
       <div className="border-t border-border/60 backdrop-blur">
