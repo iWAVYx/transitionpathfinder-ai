@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Accessibility, Check, Minus, Plus, RotateCcw } from "lucide-react";
+import { Accessibility, Check, Minus, Moon, Plus, RotateCcw } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -11,6 +11,12 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 type FontSize = "normal" | "large" | "xlarge";
+const DARK_KEY = "a11y:dark-mode";
+
+function applyDark(on: boolean) {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("dark", on);
+}
 
 const FONT_KEY = "a11y:font-size";
 const CONTRAST_KEY = "a11y:high-contrast";
@@ -36,6 +42,7 @@ function applyContrast(on: boolean) {
 export function AccessibilityControls() {
   const [font, setFont] = useState<FontSize>("normal");
   const [contrast, setContrast] = useState(false);
+  const [dark, setDark] = useState(false);
   const [open, setOpen] = useState(false);
 
   // Hydrate from storage on mount
@@ -43,10 +50,17 @@ export function AccessibilityControls() {
     try {
       const savedFont = (localStorage.getItem(FONT_KEY) as FontSize | null) ?? "normal";
       const savedContrast = localStorage.getItem(CONTRAST_KEY) === "1";
+      const savedDarkRaw = localStorage.getItem(DARK_KEY);
+      const prefersDark =
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+      const savedDark = savedDarkRaw === null ? !!prefersDark : savedDarkRaw === "1";
       setFont(savedFont);
       setContrast(savedContrast);
+      setDark(savedDark);
       applyFont(savedFont);
       applyContrast(savedContrast);
+      applyDark(savedDark);
     } catch {
       /* ignore */
     }
@@ -72,9 +86,20 @@ export function AccessibilityControls() {
     }
   };
 
+  const updateDark = (next: boolean) => {
+    setDark(next);
+    applyDark(next);
+    try {
+      localStorage.setItem(DARK_KEY, next ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  };
+
   const reset = () => {
     updateFont("normal");
     updateContrast(false);
+    updateDark(false);
   };
 
   const sizes: { id: FontSize; label: string }[] = [
@@ -151,6 +176,24 @@ export function AccessibilityControls() {
             checked={contrast}
             onCheckedChange={updateContrast}
             aria-label="Toggle high contrast mode"
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="a11y-dark" className="flex items-center gap-1.5 text-sm">
+              <Moon className="h-3.5 w-3.5" />
+              Dark mode
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Switch to a darker color scheme.
+            </p>
+          </div>
+          <Switch
+            id="a11y-dark"
+            checked={dark}
+            onCheckedChange={updateDark}
+            aria-label="Toggle dark mode"
           />
         </div>
 
