@@ -67,6 +67,9 @@ import {
   UnderlineSwoosh,
   ArcStack,
 } from "@/components/effects/Decorations";
+import { motion, useInView } from "motion/react";
+
+
 
 
 import { toTitleCase } from "@/lib/title-case";
