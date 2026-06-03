@@ -156,10 +156,10 @@ const FINDINGS = [
 
 function EvidenceJourney() {
   return (
-    <section className="relative py-32 sm:py-40">
-      <div className="mx-auto mb-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative py-16 sm:py-20">
+      <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">From finding to feature</p>
-        <h2 className="mt-3 max-w-3xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+        <h2 className="mt-2 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           Every pain point maps to something we built.
         </h2>
       </div>
