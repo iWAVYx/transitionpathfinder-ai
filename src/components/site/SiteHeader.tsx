@@ -203,13 +203,24 @@ export function SiteHeader() {
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground xl:px-3">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-40">
-                  {userExtras.map((item) => (
-                    <DropdownMenuItem key={item.to} asChild>
-                      <Link to={item.to}>{item.label}</Link>
-                    </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="min-w-56 p-1.5">
+                  {userGroups.map((group, idx) => (
+                    <div key={group.label}>
+                      {idx > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {group.label}
+                      </DropdownMenuLabel>
+                      {group.items.map((item) => (
+                        <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
+                          <Link to={item.to} className="rounded-md px-2 py-1.5 text-sm">
+                            {item.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
                   ))}
                 </DropdownMenuContent>
+
               </DropdownMenu>
 
               <button
