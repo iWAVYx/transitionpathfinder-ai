@@ -40,18 +40,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setLocale = useCallback((next: LocaleCode) => {
-    setLocaleState(next);
-    try {
-      localStorage.setItem(LOCALE_STORAGE_KEY, next);
-    } catch {
-      /* ignore */
-    }
-    document.documentElement.lang = next;
-    // Translator.setLocale reloads the page so the English source DOM is
-    // restored before we translate into the new locale.
-    getTranslator(next).setLocale(next);
-  }, []);
+  const setLocale = useCallback(
+    (next: LocaleCode) => {
+      if (next === locale) return;
+      try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, next);
+      } catch {
+        /* ignore */
+      }
+      document.documentElement.lang = next;
+      // Reload so the original English DOM is restored before re-translating
+      // into the new locale. Simpler and more reliable than tracking every
+      // mutated node.
+      window.location.reload();
+    },
+    [locale],
+  );
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale }}>
