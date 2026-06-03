@@ -48,7 +48,7 @@ const navGroups: NavGroup[] = [
       { to: "/resources", label: "Resource Hub", desc: "Connecticut-aware tools and links." },
       { to: "/research", label: "Research", desc: "The evidence behind every suggestion." },
       { to: "/blog", label: "Blog", desc: "News, stories, and updates." },
-      { to: "/help", label: "Help & FAQs", desc: "Answers to common questions." },
+      { to: "/help", label: "Help & Contact", desc: "FAQs and a direct line to our team." },
     ],
   },
 ];
