@@ -328,7 +328,7 @@ export const ownerUpdateWaitlistEntry = createServerFn({ method: "POST" })
     if (data.status !== undefined) patch.status = data.status;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
     if (Object.keys(patch).length === 0) return { ok: true };
-    const { error } = await supabase.from("waitlist").update(patch).eq("id", data.id);
+    const { error } = await supabase.from("waitlist").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     await logActivity(supabase, userId, "waitlist_updated", "waitlist", data.id, patch);
     return { ok: true };
@@ -408,7 +408,7 @@ export const ownerUpdateContact = createServerFn({ method: "POST" })
     if (Object.keys(patch).length === 0) return { ok: true };
     const { error } = await supabase
       .from("contact_submissions")
-      .update(patch)
+      .update(patch as never)
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     await logActivity(supabase, userId, "contact_updated", "contact", data.id, patch);
