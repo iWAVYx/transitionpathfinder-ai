@@ -69,6 +69,7 @@ import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
 import { Route as AuthenticatedOwnerBlogRouteImport } from './routes/_authenticated/owner.blog'
+import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenticated/owner.admins'
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
@@ -387,6 +388,12 @@ const AuthenticatedOwnerBlogRoute = AuthenticatedOwnerBlogRouteImport.update({
   path: '/owner/blog',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOwnerAnalyticsRoute =
+  AuthenticatedOwnerAnalyticsRouteImport.update({
+    id: '/owner/analytics',
+    path: '/owner/analytics',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerAdminsRoute =
   AuthenticatedOwnerAdminsRouteImport.update({
     id: '/owner/admins',
@@ -479,6 +486,7 @@ export interface FileRoutesByFullPath {
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
@@ -547,6 +555,7 @@ export interface FileRoutesByTo {
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
@@ -617,6 +626,7 @@ export interface FileRoutesById {
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/_authenticated/owner/admins': typeof AuthenticatedOwnerAdminsRoute
+  '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/_authenticated/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
@@ -687,6 +697,7 @@ export interface FileRouteTypes {
     | '/meetings/$meetingId'
     | '/owner/activity'
     | '/owner/admins'
+    | '/owner/analytics'
     | '/owner/blog'
     | '/owner/contacts'
     | '/owner/content'
@@ -755,6 +766,7 @@ export interface FileRouteTypes {
     | '/meetings/$meetingId'
     | '/owner/activity'
     | '/owner/admins'
+    | '/owner/analytics'
     | '/owner/blog'
     | '/owner/contacts'
     | '/owner/content'
@@ -824,6 +836,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
     | '/_authenticated/owner/admins'
+    | '/_authenticated/owner/analytics'
     | '/_authenticated/owner/blog'
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
@@ -1297,6 +1310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerBlogRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/analytics': {
+      id: '/_authenticated/owner/analytics'
+      path: '/owner/analytics'
+      fullPath: '/owner/analytics'
+      preLoaderRoute: typeof AuthenticatedOwnerAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/admins': {
       id: '/_authenticated/owner/admins'
       path: '/owner/admins'
@@ -1419,6 +1439,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
+  AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
   AuthenticatedOwnerBlogRoute: typeof AuthenticatedOwnerBlogRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
@@ -1453,6 +1474,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
+  AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
   AuthenticatedOwnerBlogRoute: AuthenticatedOwnerBlogRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
