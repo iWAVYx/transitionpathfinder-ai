@@ -314,7 +314,7 @@ function HelpHeroAndFaqs() {
       <div className="mx-auto max-w-3xl px-4">
         {/* Popular searches */}
         {!hasFilters && (
-          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+          <div className="no-scrollbar mt-3 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
             <span className="shrink-0 text-xs font-medium text-muted-foreground">Popular:</span>
             {POPULAR_SEARCHES.map((term) => (
               <button
@@ -329,7 +329,7 @@ function HelpHeroAndFaqs() {
         )}
 
         {/* Category filter pills */}
-        <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+        <div className="no-scrollbar mt-4 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
           <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <button
               onClick={() => setActiveCategory("all")}
