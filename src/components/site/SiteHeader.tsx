@@ -15,15 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
 import { getMyRoles } from "@/lib/profile.functions";
-
-
-
-
+import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
 
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
-type RoleAudience = "parent" | "teacher" | "admin" | "partner";
 type UserNavGroup = NavGroup & { roles: RoleAudience[] };
+
 
 
 
