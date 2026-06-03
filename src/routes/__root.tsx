@@ -91,6 +91,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "TransitionForward",
+              description: "Student-centered transition planning for Connecticut families, students, and educators.",
+              url: "/",
+              areaServed: "Connecticut, USA",
+              knowsAbout: ["Special Education", "Transition Planning", "IEP", "Postsecondary Planning", "Connecticut Special Education"],
+            },
+            {
+              "@type": "WebSite",
+              name: "TransitionForward",
+              description: "Student-centered transition planning for Connecticut families, students, and educators.",
+              url: "/",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
