@@ -1459,7 +1459,8 @@ const HOME_STATS = [
 function HomeStatStrip() {
   return (
     <section className="relative border-y border-foreground/10 bg-foreground py-12 text-background sm:py-14">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 sm:gap-8 sm:px-6 lg:grid-cols-4 lg:gap-5 lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-8 gap-y-10 px-4 sm:gap-x-10 sm:px-6 lg:grid-cols-4 lg:gap-x-12 lg:px-12">
+
         {HOME_STATS.map((s, i) => (
           <HomeStat key={i} {...s} delay={i * 0.1} />
         ))}
@@ -1496,11 +1497,12 @@ function HomeStat({ value, suffix, label, delay }: { value: number; suffix: stri
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay }}
     >
-      <div className="font-display text-4xl font-medium leading-none text-background sm:text-5xl lg:text-6xl">
+      <div className="font-display text-4xl font-medium leading-none tracking-tight text-background sm:text-5xl lg:text-[2.75rem] xl:text-5xl">
         {formatted}
         <span className="text-primary">{suffix}</span>
       </div>
-      <p className="mt-2 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
+      <p className="mt-3 text-sm leading-relaxed text-background/70">{label}</p>
+
     </motion.div>
   );
 }
