@@ -8,6 +8,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
@@ -51,24 +53,52 @@ const navSingles: NavLink[] = [
   { to: "/contact", label: "Contact" },
 ];
 
-const userExtras = [
-  { to: "/students", label: "Students" },
-  { to: "/pathway", label: "Create Pathway Report" },
-  { to: "/reports", label: "Pathway Reports" },
-  { to: "/goals", label: "Goal Tracker" },
-  { to: "/ppt-prep", label: "PPT Meeting Prep" },
-  { to: "/meetings", label: "Meetings" },
-  { to: "/documents", label: "Documents" },
-  { to: "/forms", label: "Forms" },
-  { to: "/messages", label: "Messages" },
-  { to: "/feed", label: "Feed" },
-  { to: "/opportunities", label: "Opportunities" },
-  { to: "/insights", label: "Insights" },
-  { to: "/analytics", label: "Analytics" },
-  { to: "/admin-school", label: "School Admin" },
-  { to: "/partners-manage", label: "Partner Workspace" },
-  { to: "/settings", label: "Settings" },
-] as const;
+const userGroups: NavGroup[] = [
+  {
+    label: "Students",
+    items: [
+      { to: "/students", label: "Students" },
+      { to: "/goals", label: "Goal Tracker" },
+      { to: "/documents", label: "Documents" },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      { to: "/pathway", label: "Create Pathway Report" },
+      { to: "/reports", label: "Pathway Reports" },
+      { to: "/ppt-prep", label: "PPT Meeting Prep" },
+      { to: "/meetings", label: "Meetings" },
+    ],
+  },
+  {
+    label: "Collaboration",
+    items: [
+      { to: "/messages", label: "Messages" },
+      { to: "/feed", label: "Feed" },
+      { to: "/forms", label: "Forms" },
+      { to: "/opportunities", label: "Opportunities" },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { to: "/insights", label: "Insights" },
+      { to: "/analytics", label: "Analytics" },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { to: "/admin-school", label: "School Admin" },
+      { to: "/partners-manage", label: "Partner Workspace" },
+      { to: "/settings", label: "Settings" },
+    ],
+  },
+];
+
+const userExtras: NavLink[] = userGroups.flatMap((g) => g.items);
+
 
 
 const mobileMarketingLinks: NavLink[] = [
@@ -173,13 +203,24 @@ export function SiteHeader() {
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground xl:px-3">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-40">
-                  {userExtras.map((item) => (
-                    <DropdownMenuItem key={item.to} asChild>
-                      <Link to={item.to}>{item.label}</Link>
-                    </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="min-w-56 p-1.5">
+                  {userGroups.map((group, idx) => (
+                    <div key={group.label}>
+                      {idx > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {group.label}
+                      </DropdownMenuLabel>
+                      {group.items.map((item) => (
+                        <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
+                          <Link to={item.to} className="rounded-md px-2 py-1.5 text-sm">
+                            {item.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
                   ))}
                 </DropdownMenuContent>
+
               </DropdownMenu>
 
               <button
@@ -273,20 +314,30 @@ export function SiteHeader() {
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
                     </Link>
-                    {userExtras.map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setOpen(false)}
-                        className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                        activeProps={{ className: "text-foreground bg-muted" }}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
                   </nav>
+                  {userGroups.map((group) => (
+                    <div key={group.label} className="mt-4">
+                      <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+                        {group.label}
+                      </p>
+                      <nav className="flex flex-col gap-0.5">
+                        {group.items.map((item) => (
+                          <Link
+                            key={item.to}
+                            to={item.to}
+                            onClick={() => setOpen(false)}
+                            className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                            activeProps={{ className: "text-foreground bg-muted" }}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </nav>
+                    </div>
+                  ))}
                 </>
               )}
+
             </div>
 
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">
