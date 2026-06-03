@@ -174,15 +174,11 @@ function EducatorsPage() {
           spin={180}
           scale={0.5}
         />
-        <Reveal className="mx-auto mb-8 max-w-2xl px-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            A week in the platform
-          </p>
-          <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-            Scroll Through Your Week.
-          </h2>
-        </Reveal>
-        <StickyScrollStory panels={storyPanels} />
+        <StickyScrollStory
+          eyebrow="A week in the platform"
+          title="Scroll through your week."
+          panels={storyPanels}
+        />
       </section>
 
       {/* TEXT SCROLL FILL — a mission line that lights up */}
