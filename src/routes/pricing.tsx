@@ -144,7 +144,7 @@ function PricingPage() {
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
-        <div className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-12 lg:px-8 lg:py-14">
           <Badge variant="outline" className="gap-1">
             <Sparkles className="h-3 w-3" /> Transparent pricing
           </Badge>

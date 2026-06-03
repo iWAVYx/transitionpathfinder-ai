@@ -151,7 +151,7 @@ function FamiliesPage() {
         />
       </section>
 
-      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <Starburst className="absolute left-8 top-12 hidden h-20 w-20 text-primary/30 md:block" />
         <CompassRose className="absolute right-10 top-16 hidden h-24 w-24 text-secondary-foreground/30 lg:block" />
         <Squiggle className="absolute inset-x-0 bottom-6 mx-auto hidden h-6 w-80 text-primary/30 sm:block" />

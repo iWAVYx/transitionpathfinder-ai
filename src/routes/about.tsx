@@ -46,7 +46,7 @@ function AboutHero() {
   const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[100svh] min-h-[640px] overflow-hidden">
+    <section ref={ref} className="relative isolate -mt-px h-[75svh] min-h-[480px] overflow-hidden">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
         <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
       </motion.div>
@@ -94,7 +94,7 @@ function Manifesto() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   // Fill text from left to right based on scroll
   return (
-    <section ref={ref} className="relative py-40 sm:py-56">
+    <section ref={ref} className="relative py-12 sm:py-56">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The promise</p>
         <h2 className="mt-6 font-display text-3xl font-medium leading-[1.15] tracking-tight text-foreground/30 sm:text-5xl lg:text-6xl">
@@ -187,7 +187,7 @@ function Chapter({ chapter, index }: { chapter: (typeof CHAPTERS)[number]; index
   const reversed = index % 2 === 1;
 
   return (
-    <section ref={ref} className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-28 sm:py-40`}>
+    <section ref={ref} className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-14 sm:py-12`}>
       <motion.div
         style={{ opacity: numberOpacity }}
         className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 select-none font-display text-[28vw] font-medium leading-none text-foreground/[0.04] sm:text-[20vw]"
@@ -255,7 +255,7 @@ function BeliefsMarquee() {
     { icon: BookOpen, text: "AI assists. Humans decide." },
   ];
   return (
-    <section className="relative overflow-hidden bg-foreground py-24 text-background">
+    <section className="relative overflow-hidden bg-foreground py-14 text-background">
       <p className="mx-auto mb-10 max-w-7xl px-4 text-xs font-semibold uppercase tracking-[0.28em] text-background/60 sm:px-6 lg:px-8">
         What we believe
       </p>
@@ -281,7 +281,7 @@ function BeliefsMarquee() {
 /* ------------------- CLOSING CTA ------------------- */
 function ClosingCTA() {
   return (
-    <section className="relative isolate overflow-hidden py-32 sm:py-40">
+    <section className="relative isolate overflow-hidden py-16 sm:py-12">
       <div className="absolute inset-0 -z-10 bg-gradient-hero" />
       <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
         <motion.h2

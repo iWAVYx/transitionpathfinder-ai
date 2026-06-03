@@ -298,7 +298,7 @@ function PlatformPage() {
       </section>
 
       {/* Text-fill mission */}
-      <section className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <CompassRose className="absolute left-2 top-6 hidden h-20 w-20 text-primary/25 lg:block" />
         <Starburst className="absolute right-2 top-6 hidden h-16 w-16 text-secondary-foreground/30 lg:block" />
         <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>
@@ -332,7 +332,7 @@ function PlatformPage() {
       </section>
 
       {/* Live demo */}
-      <section className="bg-muted/40 py-20">
+      <section className="bg-muted/40 py-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <div className="flex flex-wrap justify-center gap-2">
@@ -430,7 +430,7 @@ function PlatformPage() {
 
 
       {/* Tool library */}
-      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <Parallax speed={0.18} className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center">
           <div className="h-80 w-80 rounded-full bg-gradient-sky opacity-25 blur-3xl" />
         </Parallax>
@@ -460,7 +460,7 @@ function PlatformPage() {
       </section>
 
       {/* Layered diagram */}
-      <section className="relative overflow-hidden py-24">
+      <section className="relative overflow-hidden py-14">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
         <div
           className="absolute inset-0 -z-10 opacity-[0.07]"

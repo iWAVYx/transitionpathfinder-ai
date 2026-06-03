@@ -297,7 +297,7 @@ function PartnersPage() {
       </CursorField>
 
       {/* ============ THE PARTNER NETWORK ============ */}
-      <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         {/* Decorative SVG in section blank space */}
         <FloatingShape
           className="pointer-events-none absolute right-[2%] top-10 hidden text-sky/40 lg:block"
@@ -349,7 +349,7 @@ function PartnersPage() {
       </section>
 
       {/* ============ PRINCIPLES — EDITORIAL LIST ============ */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background to-sky-soft/30 py-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-background to-sky-soft/30 py-14">
         <FloatingShape
           className="pointer-events-none absolute left-[3%] top-16 hidden text-peach/45 lg:block"
           duration={24}
@@ -407,7 +407,7 @@ function PartnersPage() {
       </section>
 
       {/* ============ CTA — OPEN COMPOSITION ============ */}
-      <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-14 sm:px-6 lg:px-8">
         <FloatingShape
           className="pointer-events-none absolute left-[4%] top-16 hidden text-primary/25 lg:block"
           duration={26}
@@ -461,7 +461,7 @@ function PartnersPage() {
           <PartnerApplyForm />
         </div>
 
-        <p className="mx-auto mt-16 max-w-xl text-center font-display text-xl italic text-foreground/70">
+        <p className="mx-auto mt-10 max-w-xl text-center font-display text-xl italic text-foreground/70">
           One platform. One plan. Forward together.
         </p>
       </section>

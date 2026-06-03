@@ -156,7 +156,7 @@ const FINDINGS = [
 
 function EvidenceJourney() {
   return (
-    <section className="relative py-16 sm:py-20">
+    <section className="relative py-16 sm:py-12">
       <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">From finding to feature</p>
         <h2 className="mt-2 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl lg:text-5xl">
@@ -286,7 +286,7 @@ function CitationsGrid() {
   }, [paused]);
 
   return (
-    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-16 sm:py-20">
+    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-16 sm:py-12">
       {/* animated grid backdrop */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18]"
@@ -523,7 +523,7 @@ function CitationsGrid() {
 /* -------------------- CLOSING -------------------- */
 function ClosingNote() {
   return (
-    <section className="relative isolate overflow-hidden py-16 sm:py-20">
+    <section className="relative isolate overflow-hidden py-16 sm:py-12">
       <div className="absolute inset-0 -z-10 bg-gradient-hero" />
       <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
         <h2 className="font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl lg:text-5xl">
