@@ -358,7 +358,14 @@ function PlatformPage() {
 
 
       {/* Tool library */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <Parallax speed={0.18} className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center">
+          <div className="h-80 w-80 rounded-full bg-gradient-sky opacity-25 blur-3xl" />
+        </Parallax>
+        <Parallax speed={-0.12} className="pointer-events-none absolute right-4 bottom-12 -z-10">
+          <div className="h-56 w-56 rounded-full bg-peach-soft opacity-50 blur-3xl" />
+        </Parallax>
+
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             The Full Toolkit
@@ -371,44 +378,21 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {features.map(({ icon: Icon, title, body, tags, image, alt }) => (
-            <article
-              key={title}
-              className="group flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-                  <img
-                    src={image}
-                    alt={alt}
-                    loading="lazy"
-                    width={112}
-                    height={112}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-sky text-primary-foreground shadow-soft">
-                  <Icon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <h3 className="font-display text-base font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
-                <p className="text-[12px] leading-relaxed text-muted-foreground">{body}</p>
-                <div className="mt-auto flex flex-wrap gap-1 pt-1">
-                  {tags.map((t) => (
-                    <span
-                      key={t}
-                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tagStyles[t]}`}
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </article>
+        <div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {features.slice(0, 8).map((f, i) => (
+            <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
+              <ToolCard {...f} />
+            </Reveal>
           ))}
         </div>
+        {features[8] && (
+          <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-4">
+            <div className="hidden lg:block" />
+            <Reveal delay={480} y={20} className="sm:col-span-2 lg:col-span-2 h-full">
+              <ToolCard {...features[8]} />
+            </Reveal>
+          </div>
+        )}
       </section>
 
       {/* Layered diagram */}
