@@ -1136,7 +1136,7 @@ function FeatureShot({
   label,
   caption,
   className = "",
-  aspect = "aspect-[4/3]",
+  aspect = "aspect-[16/10]",
 }: {
   image: string;
   label: string;
