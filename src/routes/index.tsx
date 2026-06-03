@@ -1051,7 +1051,7 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
         </div>
 
         {/* Mini-map nav (top-right) — clickable pins */}
-        <div className="absolute right-6 top-8 z-20 hidden rounded-2xl border border-border/60 bg-background/85 p-3 shadow-soft backdrop-blur xl:block">
+        <div className="absolute right-4 top-6 z-20 rounded-2xl border border-border/60 bg-background/85 p-3 shadow-soft backdrop-blur sm:right-6 sm:top-8">
           <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Map
           </p>
