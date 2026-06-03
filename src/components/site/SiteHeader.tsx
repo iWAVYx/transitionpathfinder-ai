@@ -53,24 +53,52 @@ const navSingles: NavLink[] = [
   { to: "/contact", label: "Contact" },
 ];
 
-const userExtras = [
-  { to: "/students", label: "Students" },
-  { to: "/pathway", label: "Create Pathway Report" },
-  { to: "/reports", label: "Pathway Reports" },
-  { to: "/goals", label: "Goal Tracker" },
-  { to: "/ppt-prep", label: "PPT Meeting Prep" },
-  { to: "/meetings", label: "Meetings" },
-  { to: "/documents", label: "Documents" },
-  { to: "/forms", label: "Forms" },
-  { to: "/messages", label: "Messages" },
-  { to: "/feed", label: "Feed" },
-  { to: "/opportunities", label: "Opportunities" },
-  { to: "/insights", label: "Insights" },
-  { to: "/analytics", label: "Analytics" },
-  { to: "/admin-school", label: "School Admin" },
-  { to: "/partners-manage", label: "Partner Workspace" },
-  { to: "/settings", label: "Settings" },
-] as const;
+const userGroups: NavGroup[] = [
+  {
+    label: "Students",
+    items: [
+      { to: "/students", label: "Students" },
+      { to: "/goals", label: "Goal Tracker" },
+      { to: "/documents", label: "Documents" },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      { to: "/pathway", label: "Create Pathway Report" },
+      { to: "/reports", label: "Pathway Reports" },
+      { to: "/ppt-prep", label: "PPT Meeting Prep" },
+      { to: "/meetings", label: "Meetings" },
+    ],
+  },
+  {
+    label: "Collaboration",
+    items: [
+      { to: "/messages", label: "Messages" },
+      { to: "/feed", label: "Feed" },
+      { to: "/forms", label: "Forms" },
+      { to: "/opportunities", label: "Opportunities" },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { to: "/insights", label: "Insights" },
+      { to: "/analytics", label: "Analytics" },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { to: "/admin-school", label: "School Admin" },
+      { to: "/partners-manage", label: "Partner Workspace" },
+      { to: "/settings", label: "Settings" },
+    ],
+  },
+];
+
+const userExtras: NavLink[] = userGroups.flatMap((g) => g.items);
+
 
 
 const mobileMarketingLinks: NavLink[] = [
