@@ -122,6 +122,27 @@ function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // First-time users (no completed onboarding + no students) → /onboarding.
+  useEffect(() => {
+    if (onboardingCheckedRef.current) return;
+    if (loading) return;
+    if (students.length > 0) {
+      onboardingCheckedRef.current = true;
+      return;
+    }
+    onboardingCheckedRef.current = true;
+    fetchProfile()
+      .then((p) => {
+        if (!p.onboarding_completed) {
+          navigate({ to: "/onboarding", replace: true });
+        }
+      })
+      .catch(() => {
+        /* stay on dashboard empty-state if profile check fails */
+      });
+  }, [loading, students.length, fetchProfile, navigate]);
+
+
   async function handleSeed() {
     setSeeding(true);
     try {
