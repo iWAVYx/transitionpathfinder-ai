@@ -141,7 +141,7 @@ type Feature = (typeof features)[number];
 function ToolCard({ icon: Icon, title, body, tags }: Feature) {
   const ref = useRef<HTMLElement | null>(null);
 
-  const handleMove = (e: React.MouseEvent<HTMLElement>) => {
+  const handleMove = (e: ReactMouseEvent<HTMLElement>) => {
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
