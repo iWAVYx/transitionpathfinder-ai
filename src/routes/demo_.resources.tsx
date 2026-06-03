@@ -36,6 +36,7 @@ export const Route = createFileRoute("/demo_/resources")({
           "Curated, student-specific resource matches with what it is, who it helps, why it matters, and how to use it.",
       },
     ],
+    links: [{ rel: "canonical", href: "/demo/resources" }],
   }),
   component: DemoResourcesPage,
 });

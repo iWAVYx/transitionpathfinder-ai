@@ -22,6 +22,7 @@ export const Route = createFileRoute("/demo_/intake")({
           "See the guided intake a family completed for a fictional 11th grade student.",
       },
     ],
+    links: [{ rel: "canonical", href: "/demo/intake" }],
   }),
   component: DemoIntakePage,
 });

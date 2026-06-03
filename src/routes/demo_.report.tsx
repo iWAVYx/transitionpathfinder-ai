@@ -24,6 +24,7 @@ export const Route = createFileRoute("/demo_/report")({
           "A complete sample Pathway Report for a fictional Connecticut high school student in transition planning.",
       },
     ],
+    links: [{ rel: "canonical", href: "/demo/report" }],
   }),
   component: DemoReportPage,
 });

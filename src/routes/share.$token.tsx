@@ -13,6 +13,7 @@ export const Route = createFileRoute("/share/$token")({
       { title: "Shared Pathway Report — TransitionForward" },
       { name: "robots", content: "noindex, nofollow" },
     ],
+    links: [{ rel: "canonical", href: "/share/$token" }],
   }),
   component: SharedReportPage,
 });
