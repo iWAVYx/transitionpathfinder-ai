@@ -969,6 +969,19 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
     };
   }, [items.length]);
 
+  const scrollToStep = (idx: number) => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const total = el.offsetHeight - window.innerHeight;
+    // -1 = overview (pick midpoint of intro slab), otherwise center of that card's slab
+    const p =
+      idx === -1
+        ? 0.05
+        : 0.1 + ((idx + 0.5) / items.length) * 0.9;
+    const top = el.getBoundingClientRect().top + window.scrollY + p * total;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
   const overviewScale = 0.6;
   const focusScale = 1.45;
   const target =
@@ -981,6 +994,12 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
         };
 
   const current = active === -1 ? null : items[active];
+
+  // Mini-map: scale full canvas (~1400x900 effective) into a 160x100 widget
+  const miniW = 160;
+  const miniH = 100;
+  const canvasW = 1400;
+  const canvasH = 900;
 
   return (
     <div ref={sectionRef} className="relative" style={{ height: `${stops * 90}vh` }}>
