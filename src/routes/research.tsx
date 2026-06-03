@@ -242,40 +242,206 @@ function FindingRow({ finding, index }: { finding: (typeof FINDINGS)[number]; in
 }
 
 /* -------------------- CITATIONS -------------------- */
-const CITATIONS = [
-  { source: "NLTS2 — National Longitudinal Transition Study", note: "Long-term post-school outcomes for students with disabilities." },
-  { source: "IDEA Section 614 (d)(1)(A)", note: "Transition services must begin by age 16." },
-  { source: "U.S. Dept. of Education — IDEA State Performance Reports", note: "Indicator 13 and 14: transition planning quality + post-school outcomes." },
-  { source: "Family interviews, 2024–2025", note: "Conducted across CT, MA, NY districts (n=40)." },
-  { source: "Educator focus groups", note: "Special education teachers and transition coordinators (n=22)." },
-  { source: "Student listening sessions", note: "High school students ages 15–21 (n=35)." },
+type Citation = { source: string; note: string; kind: "data" | "voice"; meta: string };
+const CITATIONS: Citation[] = [
+  { source: "NLTS2 — National Longitudinal Transition Study", note: "Long-term post-school outcomes for students with disabilities.", kind: "data", meta: "Longitudinal · federal" },
+  { source: "IDEA Section 614 (d)(1)(A)", note: "Transition services must begin by age 16.", kind: "data", meta: "Statute" },
+  { source: "U.S. Dept. of Education — IDEA State Performance Reports", note: "Indicator 13 and 14: transition planning quality + post-school outcomes.", kind: "data", meta: "State reports" },
+  { source: "Family interviews, 2024–2025", note: "Conducted across CT, MA, NY districts (n=40).", kind: "voice", meta: "n = 40 families" },
+  { source: "Educator focus groups", note: "Special education teachers and transition coordinators (n=22).", kind: "voice", meta: "n = 22 educators" },
+  { source: "Student listening sessions", note: "High school students ages 15–21 (n=35).", kind: "voice", meta: "n = 35 students" },
 ];
 
 function CitationsGrid() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const titleY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  const ringRot = useTransform(scrollYProgress, [0, 1], [-25, 25]);
+  const [active, setActive] = useState(0);
+
+  // auto-rotate active citation
+  useEffect(() => {
+    const id = setInterval(() => setActive((a) => (a + 1) % CITATIONS.length), 3200);
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <section className="relative bg-sky-soft/30 py-32 sm:py-40">
+    <section ref={ref} className="relative isolate overflow-hidden bg-sky-soft/30 py-32 sm:py-40">
+      {/* animated grid backdrop */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18]"
+        style={{
+          backgroundImage:
+            "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+        }}
+      />
+      <motion.div
+        aria-hidden
+        style={{ rotate: ringRot }}
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120vmin] w-[120vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15"
+      >
+        <div className="absolute inset-8 rounded-full border border-primary/10" />
+        <div className="absolute inset-20 rounded-full border border-primary/10" />
+      </motion.div>
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Sources & voices</p>
-        <h2 className="mt-3 max-w-2xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl">
-          Built on data and lived experience.
-        </h2>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CITATIONS.map((c, i) => (
+        <motion.div style={{ y: titleY }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Sources &amp; voices</p>
+          <h2 className="mt-3 max-w-2xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl">
+            Built on <span className="italic text-primary">data</span> and <span className="italic text-peach">lived experience</span>.
+          </h2>
+        </motion.div>
+
+        <div className="mt-16 grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+          {/* LEFT — orbital constellation */}
+          <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+            {/* center pulse */}
             <motion.div
-              key={c.source}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="group rounded-2xl border border-foreground/10 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-            >
-              <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
-                Source {String(i + 1).padStart(2, "0")}
+              animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.9, 0.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/40 to-peach/40 blur-2xl"
+            />
+            <div className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift">
+              <div className="text-center">
+                <div className="font-display text-3xl font-medium leading-none text-foreground">{CITATIONS.length}</div>
+                <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground">sources</div>
               </div>
-              <div className="mt-3 font-display text-xl font-medium leading-tight text-foreground">{c.source}</div>
-              <p className="mt-2 text-sm text-muted-foreground">{c.note}</p>
+            </div>
+
+            {/* slow-rotating orbit */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0"
+            >
+              {CITATIONS.map((c, i) => {
+                const angle = (i / CITATIONS.length) * Math.PI * 2 - Math.PI / 2;
+                const r = 42; // percent
+                const x = 50 + Math.cos(angle) * r;
+                const y = 50 + Math.sin(angle) * r;
+                const isActive = i === active;
+                return (
+                  <button
+                    key={c.source}
+                    type="button"
+                    onClick={() => setActive(i)}
+                    style={{ left: `${x}%`, top: `${y}%` }}
+                    className="group absolute -translate-x-1/2 -translate-y-1/2"
+                    aria-label={c.source}
+                  >
+                    {/* counter-rotate so the chip stays upright */}
+                    <motion.div
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                    >
+                      <motion.div
+                        animate={{
+                          scale: isActive ? 1.15 : 1,
+                        }}
+                        transition={{ type: "spring", stiffness: 220, damping: 18 }}
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold shadow-soft backdrop-blur transition-colors ${
+                          isActive
+                            ? c.kind === "data"
+                              ? "border-primary/60 bg-primary text-primary-foreground"
+                              : "border-peach/60 bg-peach text-foreground"
+                            : "border-foreground/10 bg-card text-foreground/70 hover:border-foreground/30"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-1.5 w-1.5 rounded-full ${
+                            c.kind === "data" ? "bg-primary" : "bg-peach"
+                          } ${isActive ? "bg-current" : ""}`}
+                        />
+                        {String(i + 1).padStart(2, "0")}
+                      </motion.div>
+                    </motion.div>
+                  </button>
+                );
+              })}
             </motion.div>
-          ))}
+
+            {/* SVG connector lines from center to each node */}
+            <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+              {CITATIONS.map((_, i) => {
+                const angle = (i / CITATIONS.length) * Math.PI * 2 - Math.PI / 2;
+                const r = 42;
+                const x = 50 + Math.cos(angle) * r;
+                const y = 50 + Math.sin(angle) * r;
+                return (
+                  <line
+                    key={i}
+                    x1={50}
+                    y1={50}
+                    x2={x}
+                    y2={y}
+                    stroke="var(--foreground)"
+                    strokeOpacity={i === active ? 0.35 : 0.08}
+                    strokeWidth={0.2}
+                    strokeDasharray="1 1.5"
+                  />
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* RIGHT — active citation detail + ticker */}
+          <div className="relative">
+            <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 shadow-lift">
+              {CITATIONS.map((c, i) => (
+                <motion.div
+                  key={c.source}
+                  initial={false}
+                  animate={{
+                    opacity: i === active ? 1 : 0,
+                    y: i === active ? 0 : 16,
+                  }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className={`absolute inset-0 p-8 ${i === active ? "" : "pointer-events-none"}`}
+                >
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em]">
+                    <span className={c.kind === "data" ? "text-primary" : "text-peach"}>
+                      {c.kind === "data" ? "Data" : "Voice"}
+                    </span>
+                    <span className="text-muted-foreground">· {c.meta}</span>
+                    <span className="ml-auto text-muted-foreground">
+                      {String(i + 1).padStart(2, "0")} / {String(CITATIONS.length).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className="mt-4 font-display text-2xl font-medium leading-tight text-foreground sm:text-3xl">
+                    {c.source}
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{c.note}</p>
+                  <motion.div
+                    key={`bar-${i}-${active}`}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: i === active ? 1 : 0 }}
+                    transition={{ duration: 3.2, ease: "linear" }}
+                    style={{ transformOrigin: "left" }}
+                    className={`absolute inset-x-8 bottom-6 h-px ${c.kind === "data" ? "bg-primary" : "bg-peach"}`}
+                  />
+                </motion.div>
+              ))}
+            </div>
+
+            {/* marquee of all sources */}
+            <div className="relative mt-6 overflow-hidden rounded-full border border-foreground/10 bg-background/60 py-3 backdrop-blur">
+              <motion.div
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+                className="flex w-max gap-8 whitespace-nowrap px-6 text-xs font-semibold uppercase tracking-[0.22em] text-foreground/60"
+              >
+                {[...CITATIONS, ...CITATIONS].map((c, i) => (
+                  <span key={i} className="flex items-center gap-2">
+                    <span className={`h-1.5 w-1.5 rounded-full ${c.kind === "data" ? "bg-primary" : "bg-peach"}`} />
+                    {c.source}
+                    <span className="text-muted-foreground/60">·</span>
+                  </span>
+                ))}
+              </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
