@@ -13,7 +13,7 @@ import { Search, MessageCircleQuestion } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
 
-export const Route = createFileRoute("/faq")({
+export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
       { title: "FAQs | TransitionForward" },
