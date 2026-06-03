@@ -44,8 +44,8 @@ export function SiteFooter() {
         />
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-4 lg:px-8">
-        <div className="md:col-span-2">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:px-8">
+        <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
           <Link to="/" className="group flex items-center gap-2">
             <motion.span
               aria-hidden
@@ -78,8 +78,9 @@ export function SiteFooter() {
           </Link>
         </div>
 
-        <FooterColumn title="Explore" links={exploreLinks} />
-        <FooterColumn title="About" links={aboutLinks} />
+        <FooterColumn title="Product" links={productLinks} />
+        <FooterColumn title="Company" links={companyLinks} />
+        <FooterColumn title="Support" links={supportLinks} />
       </div>
 
       <div className="border-t border-border/60 backdrop-blur">
