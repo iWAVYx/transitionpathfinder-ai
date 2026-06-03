@@ -80,7 +80,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "TransitionForward helps students with disabilities, families, and educators plan life after high school — organizing transition goals, student voice, resources, and progress in one warm, easy-to-use platform.",
+          "TransitionForward helps students with disabilities, families, and educators plan life after high school — all in one platform.",
       },
       { property: "og:title", content: "TransitionForward — From IEP goals to real-life pathways" },
       {
@@ -90,6 +90,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:image", content: heroImg },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
   component: HomePage,
 });

@@ -41,10 +41,11 @@ export const Route = createFileRoute("/families")({
   head: () => ({
     meta: [
       { title: "For Families | TransitionForward" },
-      { name: "description", content: "Plain Language Transition Planning for Connecticut Families. Understand the IEP, see your child's progress, ask the right questions, and find real resources." },
+      { name: "description", content: "Plain language transition planning for Connecticut families. Understand the IEP, track progress, and find real resources." },
       { property: "og:title", content: "For Families | TransitionForward" },
       { property: "og:description", content: "Plain Language Transition Planning for Connecticut Families." },
     ],
+    links: [{ rel: "canonical", href: "/families" }],
   }),
   component: FamiliesPage,
 });
