@@ -123,10 +123,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  // Generate a per-request CSP nonce during SSR so the inline dark-mode
+  // restore script can be allow-listed by a strict Content-Security-Policy
+  // (e.g. `script-src 'self' 'nonce-...'`). The shell only renders on the
+  // server, so there's no hydration mismatch. The nonce is also exposed via
+  // a <meta name="csp-nonce"> tag so other code or CSP middleware can read
+  // the same value when assembling the response header.
+  const nonce =
+    typeof globalThis.crypto?.randomUUID === "function"
+      ? globalThis.crypto.randomUUID().replace(/-/g, "")
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+
   return (
     <html lang="en">
       <head>
+        <meta name="csp-nonce" content={nonce} />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
