@@ -282,6 +282,10 @@ function HomePage() {
         </div>
       </section>
 
+      {/* STAT STRIP — animated counters on scroll */}
+      <HomeStatStrip />
+
+
       {/* MARQUEE — voices band */}
       <section aria-label="Voices from the table" className="relative border-y border-border/40 bg-muted/30 py-6">
         <FloatingShape className="absolute left-6 top-1/2 -translate-y-1/2 hidden h-6 w-6 text-primary/55 md:block" delay={0.2}>
