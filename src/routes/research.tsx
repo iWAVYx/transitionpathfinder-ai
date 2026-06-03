@@ -303,10 +303,10 @@ function CitationsGrid() {
           </h2>
         </motion.div>
 
-        <div className="mt-16 grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        <div className="relative z-10 mt-16 grid gap-10 overflow-visible lg:grid-cols-[1.05fr_1fr] lg:items-center">
           {/* LEFT — orbital constellation */}
           <div
-            className="relative mx-auto aspect-square w-full min-w-0 max-w-[520px]"
+            className="relative z-10 mx-auto aspect-square w-full min-w-0 max-w-[520px] overflow-visible"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => {
               setPaused(false);
@@ -435,7 +435,7 @@ function CitationsGrid() {
 
           {/* RIGHT — active citation detail + ticker */}
           <motion.div
-            className="relative min-w-0"
+            className="relative z-10 min-w-0"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
