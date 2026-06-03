@@ -921,3 +921,249 @@ export const getResourceCounts = createServerFn({ method: "GET" })
       drafts: drafts.count ?? 0,
     };
   });
+
+// ---------- Admin invitations ----------
+
+export type AdminInvitation = {
+  id: string;
+  email: string;
+  role: AdminRole;
+  token: string;
+  invited_by: string;
+  invited_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+  accepted_by: string | null;
+  revoked_at: string | null;
+  invited_by_name?: string | null;
+  status: "pending" | "accepted" | "revoked" | "expired";
+};
+
+function invitationStatus(row: {
+  accepted_at: string | null;
+  revoked_at: string | null;
+  expires_at: string;
+}): AdminInvitation["status"] {
+  if (row.accepted_at) return "accepted";
+  if (row.revoked_at) return "revoked";
+  if (new Date(row.expires_at).getTime() < Date.now()) return "expired";
+  return "pending";
+}
+
+export const ownerListAdminInvitations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { data, error } = await supabase
+      .from("admin_invitations")
+      .select("*")
+      .order("invited_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as any[];
+    const inviterIds = Array.from(new Set(rows.map((r) => r.invited_by).filter(Boolean)));
+    let nameById = new Map<string, string | null>();
+    if (inviterIds.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", inviterIds);
+      nameById = new Map((profs ?? []).map((p: any) => [p.id, p.full_name]));
+    }
+    const invitations: AdminInvitation[] = rows.map((r) => ({
+      ...r,
+      invited_by_name: nameById.get(r.invited_by) ?? null,
+      status: invitationStatus(r),
+    }));
+    return { invitations };
+  });
+
+export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { email: string; role: AdminRole }) =>
+    z
+      .object({
+        email: z.string().trim().toLowerCase().email().max(255),
+        role: z.enum(ADMIN_ROLES),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+
+    // If a profile already exists for that email AND already has the role, no-op.
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", data.email)
+      .maybeSingle();
+    if (existingProfile?.id) {
+      const { data: existingRole } = await supabase
+        .from("admin_roles")
+        .select("id")
+        .eq("user_id", existingProfile.id)
+        .eq("role", data.role)
+        .maybeSingle();
+      if (existingRole) {
+        throw new Error("That user already has this admin role.");
+      }
+    }
+
+    // Revoke any prior pending invitation for the same email + role.
+    await supabase
+      .from("admin_invitations")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("email", data.email)
+      .eq("role", data.role)
+      .is("accepted_at", null)
+      .is("revoked_at", null);
+
+    const { data: inserted, error } = await supabase
+      .from("admin_invitations")
+      .insert({
+        email: data.email,
+        role: data.role,
+        invited_by: userId,
+      })
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    await logActivity(supabase, userId, "admin_invited", "admin_invitation", inserted.id, {
+      email: data.email,
+      role: data.role,
+    });
+    return { invitation: { ...inserted, status: "pending" } as AdminInvitation };
+  });
+
+export const ownerRevokeAdminInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { error } = await supabase
+      .from("admin_invitations")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("id", data.id)
+      .is("accepted_at", null);
+    if (error) throw new Error(error.message);
+    await logActivity(supabase, userId, "admin_invitation_revoked", "admin_invitation", data.id);
+    return { ok: true };
+  });
+
+export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { user_id: string; role: AdminRole }) =>
+    z.object({ user_id: z.string().uuid(), role: z.enum(ADMIN_ROLES) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    if (data.user_id === userId && data.role === "platform_owner") {
+      // Prevent removing the last platform owner.
+      const { count } = await supabase
+        .from("admin_roles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "platform_owner");
+      if ((count ?? 0) <= 1) throw new Error("Cannot remove the last platform owner.");
+    }
+    const { error } = await supabase
+      .from("admin_roles")
+      .delete()
+      .eq("user_id", data.user_id)
+      .eq("role", data.role);
+    if (error) throw new Error(error.message);
+    await logActivity(supabase, userId, "admin_role_removed", "user", data.user_id, {
+      role: data.role,
+    });
+    return { ok: true };
+  });
+
+// Public-ish: invitee looks up an invitation by token (must be signed in to see details).
+export const previewAdminInvitation = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { token: string }) =>
+    z.object({ token: z.string().min(16).max(128) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("admin_invitations")
+      .select("id, email, role, invited_at, expires_at, accepted_at, revoked_at")
+      .eq("token", data.token)
+      .maybeSingle();
+    if (!row) return { invitation: null };
+    return {
+      invitation: {
+        id: row.id,
+        email: row.email,
+        role: row.role as AdminRole,
+        invited_at: row.invited_at,
+        expires_at: row.expires_at,
+        status: invitationStatus(row),
+      },
+    };
+  });
+
+export const acceptAdminInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { token: string }) =>
+    z.object({ token: z.string().min(16).max(128) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: invite } = await supabaseAdmin
+      .from("admin_invitations")
+      .select("*")
+      .eq("token", data.token)
+      .maybeSingle();
+    if (!invite) throw new Error("Invitation not found.");
+    const status = invitationStatus(invite as any);
+    if (status !== "pending") {
+      throw new Error(`This invitation is ${status}.`);
+    }
+
+    // Verify signed-in user's email matches the invited email.
+    // Prefer the auth claim (always present, always current); fall back to profiles.email.
+    let userEmail = (context.claims as any)?.email
+      ? String((context.claims as any).email).toLowerCase()
+      : "";
+    if (!userEmail) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", userId)
+        .maybeSingle();
+      userEmail = (profile?.email ?? "").toLowerCase();
+    }
+    if (!userEmail || userEmail !== invite.email.toLowerCase()) {
+      throw new Error(
+        `This invitation was sent to ${invite.email}. Sign in with that email to accept.`,
+      );
+    }
+
+    // Grant the admin role (idempotent).
+    const { error: roleErr } = await supabaseAdmin.from("admin_roles").insert({
+      user_id: userId,
+      role: invite.role,
+      granted_by: invite.invited_by,
+    });
+    if (roleErr && !String(roleErr.message).toLowerCase().includes("duplicate")) {
+      throw new Error(roleErr.message);
+    }
+
+    await supabaseAdmin
+      .from("admin_invitations")
+      .update({ accepted_at: new Date().toISOString(), accepted_by: userId })
+      .eq("id", invite.id);
+
+    await logActivity(supabase, userId, "admin_invitation_accepted", "admin_invitation", invite.id, {
+      role: invite.role,
+    });
+    return { ok: true, role: invite.role as AdminRole };
+  });

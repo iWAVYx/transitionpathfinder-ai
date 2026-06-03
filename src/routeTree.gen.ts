@@ -38,6 +38,7 @@ import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -221,6 +222,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => BlogRoute,
+} as any)
+const AdminInviteTokenRoute = AdminInviteTokenRouteImport.update({
+  id: '/admin-invite/$token',
+  path: '/admin-invite/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
@@ -473,6 +479,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
@@ -542,6 +549,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
@@ -613,6 +621,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
@@ -684,6 +693,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/hub'
     | '/demo/intake'
@@ -753,6 +763,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/students'
+    | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/hub'
     | '/demo/intake'
@@ -823,6 +834,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/students'
+    | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo_/hub'
     | '/demo_/intake'
@@ -875,6 +887,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WaitlistRoute: typeof WaitlistRoute
+  AdminInviteTokenRoute: typeof AdminInviteTokenRoute
   DemoHubRoute: typeof DemoHubRoute
   DemoIntakeRoute: typeof DemoIntakeRoute
   DemoMeetingRoute: typeof DemoMeetingRoute
@@ -1092,6 +1105,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof BlogRoute
+    }
+    '/admin-invite/$token': {
+      id: '/admin-invite/$token'
+      path: '/admin-invite/$token'
+      fullPath: '/admin-invite/$token'
+      preLoaderRoute: typeof AdminInviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/students': {
       id: '/_authenticated/students'
@@ -1522,6 +1542,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WaitlistRoute: WaitlistRoute,
+  AdminInviteTokenRoute: AdminInviteTokenRoute,
   DemoHubRoute: DemoHubRoute,
   DemoIntakeRoute: DemoIntakeRoute,
   DemoMeetingRoute: DemoMeetingRoute,
