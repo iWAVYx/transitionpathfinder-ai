@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Building2, Users, FileText, FolderOpen, GraduationCap, Mail, Shield, Loader2 } from "lucide-react";
@@ -22,7 +23,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin-school")({
   head: () => ({ meta: [{ title: "School Admin — TransitionForward" }] }),
-  component: SchoolAdminPage,
+  component: () => (<RoleGuard path="/admin-school"><SchoolAdminPage /></RoleGuard>),
 });
 
 function MetricCard({

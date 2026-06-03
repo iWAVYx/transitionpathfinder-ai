@@ -15,15 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
 import { getMyRoles } from "@/lib/profile.functions";
-
-
-
-
+import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
 
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
-type RoleAudience = "parent" | "teacher" | "admin" | "partner";
 type UserNavGroup = NavGroup & { roles: RoleAudience[] };
+
 
 
 
@@ -108,36 +105,6 @@ const userGroups: UserNavGroup[] = [
     ],
   },
 ];
-
-function audiencesForRoles(roles: string[]): Set<RoleAudience> {
-  const out = new Set<RoleAudience>();
-  for (const r of roles) {
-    switch (r) {
-      case "parent":
-      case "guardian":
-      case "student":
-        out.add("parent");
-        break;
-      case "teacher":
-      case "educator":
-      case "case_manager":
-        out.add("teacher");
-        break;
-      case "school_admin":
-      case "administrator":
-      case "admin":
-        out.add("admin");
-        out.add("teacher");
-        break;
-      case "partner":
-        out.add("partner");
-        break;
-    }
-  }
-  // Default: treat unknown/empty as parent so the user still sees core nav.
-  if (out.size === 0) out.add("parent");
-  return out;
-}
 
 
 

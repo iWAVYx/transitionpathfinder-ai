@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Calendar, Plus, ArrowRight } from "lucide-react";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/meetings")({
       },
     ],
   }),
-  component: MeetingsPage,
+  component: () => (<RoleGuard path="/meetings"><MeetingsPage /></RoleGuard>),
 });
 
 function MeetingsPage() {

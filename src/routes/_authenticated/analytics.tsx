@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { BarChart3, Loader2, FileText, FolderOpen, Calendar, Users, ListChecks, MessageSquare } from "lucide-react";
@@ -13,7 +14,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({ meta: [{ title: "Analytics — TransitionForward" }] }),
-  component: AnalyticsPage,
+  component: () => (<RoleGuard path="/analytics"><AnalyticsPage /></RoleGuard>),
 });
 
 function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: typeof Users }) {

@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
@@ -101,7 +102,7 @@ export const Route = createFileRoute("/_authenticated/pathway")({
   head: () => ({
     meta: [{ title: "Create a Pathway Report — TransitionForward" }],
   }),
-  component: PathwayPage,
+  component: () => (<RoleGuard path="/pathway"><PathwayPage /></RoleGuard>),
 });
 
 function PathwayPage() {

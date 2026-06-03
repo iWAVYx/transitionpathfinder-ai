@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Briefcase, Plus, Loader2, Trash2, Send, Archive, Building2 } from "lucide-react";
@@ -26,7 +27,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
-  component: PartnerManagePage,
+  component: () => (<RoleGuard path="/partners-manage"><PartnerManagePage /></RoleGuard>),
 });
 
 const TYPES = ["program", "internship", "mentorship", "scholarship", "service", "event"];

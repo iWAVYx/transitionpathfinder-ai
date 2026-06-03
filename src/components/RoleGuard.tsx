@@ -1,0 +1,73 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { getMyRoles } from "@/lib/profile.functions";
+import {
+  ROUTE_AUDIENCES,
+  audiencesForRoles,
+  fallbackPathFor,
+  type RoleAudience,
+} from "@/lib/role-policy";
+
+type Props = {
+  path: keyof typeof ROUTE_AUDIENCES | string;
+  /** Override the policy table for ad-hoc gating. */
+  allow?: RoleAudience[];
+  children: React.ReactNode;
+};
+
+/**
+ * Client-side role guard for workspace pages. Fetches the current user's
+ * roles, redirects to an allowed section if they don't qualify, and shows
+ * a friendly toast explaining why.
+ */
+export function RoleGuard({ path, allow, children }: Props) {
+  const navigate = useNavigate();
+  const fetchRoles = useServerFn(getMyRoles);
+  const [status, setStatus] = useState<"checking" | "allowed" | "denied">(
+    "checking",
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchRoles()
+      .then(({ roles }) => {
+        if (cancelled) return;
+        const required = allow ?? ROUTE_AUDIENCES[path];
+        if (!required) {
+          setStatus("allowed");
+          return;
+        }
+        const have = audiencesForRoles(roles);
+        const ok = required.some((r) => have.has(r));
+        if (ok) {
+          setStatus("allowed");
+        } else {
+          setStatus("denied");
+          const target = fallbackPathFor(roles);
+          toast.error("This section isn't available for your role.", {
+            description: "We've taken you to a page you can access.",
+          });
+          navigate({ to: target, replace: true });
+        }
+      })
+      .catch(() => {
+        // If we can't read roles, fail open to avoid locking users out on a
+        // transient network error — the underlying RLS still protects data.
+        if (!cancelled) setStatus("allowed");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchRoles, navigate, path, allow]);
+
+  if (status === "checking" || status === "denied") {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-sm text-muted-foreground">Checking access…</p>
+      </div>
+    );
+  }
+  return <>{children}</>;
+}

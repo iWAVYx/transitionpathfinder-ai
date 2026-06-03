@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Target, Sparkles } from "lucide-react";
@@ -16,7 +17,7 @@ import type { PathwayReport } from "@/lib/pathway.functions";
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/goals")({
   head: () => ({ meta: [{ title: "Goal Tracker — TransitionForward" }] }),
-  component: GoalsPage,
+  component: () => (<RoleGuard path="/goals"><GoalsPage /></RoleGuard>),
 });
 
 type Status = "not-started" | "in-progress" | "met";
