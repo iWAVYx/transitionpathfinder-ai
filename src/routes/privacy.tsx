@@ -28,6 +28,7 @@ export const Route = createFileRoute("/privacy")({
           "Plain-language privacy notice for families, students, educators, and districts.",
       },
     ],
+    links: [{ rel: "canonical", href: "/privacy" }],
   }),
   component: PrivacyPage,
 });

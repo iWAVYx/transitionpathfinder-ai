@@ -30,6 +30,7 @@ export const Route = createFileRoute("/research")({
       { property: "og:title", content: "The research behind TransitionForward" },
       { property: "og:image", content: researchHero },
     ],
+    links: [{ rel: "canonical", href: "/research" }],
   }),
   component: ResearchPage,
 });
