@@ -16,9 +16,8 @@ const aboutLinks = [
   { to: "/about", label: "Meet Caysi" },
   { to: "/partners", label: "Partners" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/help", label: "Help & FAQs" },
+  { to: "/help", label: "Help & Contact" },
   { to: "/blog", label: "Blog" },
-  { to: "/contact", label: "Contact & Help" },
   { to: "/waitlist", label: "Join the waitlist" },
   { to: "/privacy", label: "Privacy" },
 ] as const;
