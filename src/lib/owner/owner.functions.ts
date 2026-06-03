@@ -694,7 +694,7 @@ export const ownerSaveResource = createServerFn({ method: "POST" })
     if (id) {
       const { error } = await supabaseAdmin
         .from("resources")
-        .update(row)
+        .update(row as never)
         .eq("id", id);
       if (error) throw new Error(error.message);
       await logActivity(supabase, userId, "resource_updated", "resource", id);
@@ -703,7 +703,7 @@ export const ownerSaveResource = createServerFn({ method: "POST" })
       row.created_by_user_id = userId;
       const { data: ins, error } = await supabaseAdmin
         .from("resources")
-        .insert(row)
+        .insert(row as never)
         .select("id")
         .single();
       if (error) throw new Error(error.message);
