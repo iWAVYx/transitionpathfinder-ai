@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Accessibility, Check, Minus, Plus, RotateCcw } from "lucide-react";
+import { Accessibility, Check, Minus, Moon, Plus, RotateCcw } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -11,6 +11,12 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 type FontSize = "normal" | "large" | "xlarge";
+const DARK_KEY = "a11y:dark-mode";
+
+function applyDark(on: boolean) {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("dark", on);
+}
 
 const FONT_KEY = "a11y:font-size";
 const CONTRAST_KEY = "a11y:high-contrast";
