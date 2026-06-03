@@ -334,7 +334,7 @@ function CitationsGrid() {
             <motion.div
               animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.9, 0.5] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/40 to-peach/40 blur-2xl"
+              className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/40 to-peach/40 blur-2xl"
             />
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}
