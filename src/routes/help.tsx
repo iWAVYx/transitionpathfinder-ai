@@ -175,7 +175,7 @@ function HelpHeroAndFaqs() {
     const onScroll = () => {
       if (!stickyRef.current) return;
       const rect = stickyRef.current.getBoundingClientRect();
-      setIsSticky(rect.top <= 0);
+      setIsSticky(rect.top <= 72);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -231,10 +231,10 @@ function HelpHeroAndFaqs() {
       {/* Sticky Search & Filter Bar */}
       <div
         ref={stickyRef}
-        className={`sticky top-16 z-30 transition-all duration-300 ${
+        className={`sticky top-[calc(env(safe-area-inset-top)+4rem)] z-30 transition-all duration-300 ${
           isSticky
-            ? "border-b border-border/60 bg-background/95 py-3 shadow-sm backdrop-blur-md"
-            : "bg-transparent py-6"
+            ? "border-b border-border/60 bg-background/95 py-2 shadow-sm backdrop-blur-md sm:py-3"
+            : "bg-transparent py-4 sm:py-6"
         }`}
       >
         <div className="mx-auto max-w-3xl px-4">
@@ -264,59 +264,10 @@ function HelpHeroAndFaqs() {
             </div>
           </div>
 
-          {/* Popular searches */}
-          {!hasFilters && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-muted-foreground">Popular:</span>
-              {POPULAR_SEARCHES.map((term) => (
-                <button
-                  key={term}
-                  onClick={() => setSearch(term)}
-                  className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                >
-                  {term}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Category filter pills */}
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-            <button
-              onClick={() => setActiveCategory("all")}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                activeCategory === "all"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              All topics
-            </button>
-            {categories.map((cat) => {
-              const meta = CATEGORY_META[cat] ?? { icon: <BookOpen className="h-3.5 w-3.5" />, label: cat };
-              const isActive = activeCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {meta.icon}
-                  {meta.label}
-                </button>
-              );
-            })}
-          </div>
-
           {/* Active filters & result count */}
           {hasFilters && (
-            <div className="mt-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
                 {search && (
                   <Badge variant="outline" className="gap-1 pr-1.5 text-xs font-normal">
                     <Search className="h-3 w-3" />
@@ -357,6 +308,57 @@ function HelpHeroAndFaqs() {
               </span>
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-3xl px-4">
+        {/* Popular searches */}
+        {!hasFilters && (
+          <div className="no-scrollbar mt-3 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+            <span className="shrink-0 text-xs font-medium text-muted-foreground">Popular:</span>
+            {POPULAR_SEARCHES.map((term) => (
+              <button
+                key={term}
+                onClick={() => setSearch(term)}
+                className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Category filter pills */}
+        <div className="no-scrollbar mt-4 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+          <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <button
+              onClick={() => setActiveCategory("all")}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                activeCategory === "all"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              All topics
+            </button>
+            {categories.map((cat) => {
+              const meta = CATEGORY_META[cat] ?? { icon: <BookOpen className="h-3.5 w-3.5" />, label: cat };
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {meta.icon}
+                  {meta.label}
+                </button>
+              );
+            })}
         </div>
       </div>
 

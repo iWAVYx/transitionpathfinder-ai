@@ -202,6 +202,8 @@
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .shadow-lift { box-shadow: var(--shadow-lift); }
   .font-display { font-family: var(--font-display); }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
 }
 
 /* Fluid base scaling: the root font-size grows and shrinks with the viewport
