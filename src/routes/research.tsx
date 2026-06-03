@@ -54,7 +54,7 @@ function ResearchHero() {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[88svh] min-h-[600px] overflow-hidden">
+    <section ref={ref} className="relative isolate -mt-px h-[65svh] min-h-[480px] overflow-hidden">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
         <img src={researchHero} alt="Research papers, notebook, and a chart on a desk" className="h-full w-full object-cover" />
       </motion.div>
