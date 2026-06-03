@@ -20,6 +20,7 @@ import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FrameworkRouteImport } from './routes/framework'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as DemoRouteImport } from './routes/demo'
@@ -126,6 +127,11 @@ const LoginRoute = LoginRouteImport.update({
 const FrameworkRoute = FrameworkRouteImport.update({
   id: '/framework',
   path: '/framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamiliesRoute = FamiliesRouteImport.update({
@@ -409,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
+  '/faq': typeof FaqRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
@@ -473,6 +480,7 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
+  '/faq': typeof FaqRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
@@ -539,6 +547,7 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
+  '/faq': typeof FaqRoute
   '/framework': typeof FrameworkRoute
   '/login': typeof LoginRoute
   '/partners': typeof PartnersRoute
@@ -605,6 +614,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/educators'
     | '/families'
+    | '/faq'
     | '/framework'
     | '/login'
     | '/partners'
@@ -669,6 +679,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/educators'
     | '/families'
+    | '/faq'
     | '/framework'
     | '/login'
     | '/partners'
@@ -734,6 +745,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/educators'
     | '/families'
+    | '/faq'
     | '/framework'
     | '/login'
     | '/partners'
@@ -800,6 +812,7 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRoute
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
+  FaqRoute: typeof FaqRoute
   FrameworkRoute: typeof FrameworkRoute
   LoginRoute: typeof LoginRoute
   PartnersRoute: typeof PartnersRoute
@@ -901,6 +914,13 @@ declare module '@tanstack/react-router' {
       path: '/framework'
       fullPath: '/framework'
       preLoaderRoute: typeof FrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/families': {
@@ -1396,6 +1416,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRoute,
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
+  FaqRoute: FaqRoute,
   FrameworkRoute: FrameworkRoute,
   LoginRoute: LoginRoute,
   PartnersRoute: PartnersRoute,
@@ -1422,3 +1443,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

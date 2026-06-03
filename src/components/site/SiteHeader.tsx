@@ -47,6 +47,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/resources", label: "Resource Hub", desc: "Connecticut-aware tools and links." },
       { to: "/research", label: "Research", desc: "The evidence behind every suggestion." },
+      { to: "/faq", label: "FAQs", desc: "Answers to common questions." },
     ],
   },
 ];
