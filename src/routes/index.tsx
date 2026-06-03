@@ -1497,11 +1497,12 @@ function HomeStat({ value, suffix, label, delay }: { value: number; suffix: stri
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay }}
     >
-      <div className="font-display text-4xl font-medium leading-none text-background sm:text-5xl lg:text-6xl">
+      <div className="font-display text-4xl font-medium leading-none tracking-tight text-background sm:text-5xl lg:text-[2.75rem] xl:text-5xl">
         {formatted}
         <span className="text-primary">{suffix}</span>
       </div>
-      <p className="mt-2 max-w-xs text-sm leading-relaxed text-background/70">{label}</p>
+      <p className="mt-3 text-sm leading-relaxed text-background/70">{label}</p>
+
     </motion.div>
   );
 }
