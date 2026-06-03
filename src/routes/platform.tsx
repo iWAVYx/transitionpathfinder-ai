@@ -487,48 +487,6 @@ function PlatformPage() {
         </div>
       </section>
 
-      {/* Pathway Report + Student voice — moved from homepage */}
-      <section className="mx-auto max-w-7xl space-y-24 px-4 py-24 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-7 lg:order-1">
-            <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
-              <img
-                src={photos.homePathway}
-                alt="A sample Pathway Report screen showing strengths, a recommended career pathway, a readiness scorecard, and a 30-day plan"
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
-              />
-            </div>
-          </div>
-          <div className="lg:col-span-5 lg:order-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">The Signature Output</p>
-            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">The Pathway Report.</h3>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Share your student's strengths, interests, and goals. TransitionForward delivers a personalized Pathway Report — the career direction, life-skills focus, family questions for the next PPT, and a 30-day plan you can actually act on. Every Pathway is built from specialist-designed formulas, Connecticut transition data, and the lived experience of special educators.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-7 lg:order-2">
-            <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
-              <img
-                src={photos.homeStudent}
-                alt="A sample Student Hub screen with the greeting Hi Jordan, About me quotes, goals checklist, and matching careers"
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
-              />
-            </div>
-          </div>
-          <div className="lg:col-span-5 lg:order-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Student voice profile</p>
-            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">A Space That's Just Theirs.</h3>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              What they're good at, what they enjoy, what kind of life they want next — in their own words. Their voice anchors every plan and every meeting.
-            </p>
-          </div>
-        </div>
-      </section>
 
     </SiteShell>
   );
