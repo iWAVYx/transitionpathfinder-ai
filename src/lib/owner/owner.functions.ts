@@ -585,3 +585,339 @@ export const ownerListAdminUsers = createServerFn({ method: "GET" })
     users.sort((a, b) => (a.email ?? "").localeCompare(b.email ?? ""));
     return { users };
   });
+
+// ---------- Resources (Resource Library) ----------
+
+export const RESOURCE_TYPES = [
+  "article",
+  "video",
+  "podcast",
+  "book",
+  "checklist",
+  "assessment",
+  "worksheet",
+  "guide",
+  "online_tool",
+  "local_program",
+] as const;
+export const RESOURCE_AUDIENCES = [
+  "student",
+  "parent_guardian",
+  "teacher",
+  "school_admin",
+  "partner",
+  "all",
+] as const;
+export const RESOURCE_VERIFIED_STATUSES = ["pending", "verified", "rejected"] as const;
+export type ResourceVerifiedStatus = (typeof RESOURCE_VERIFIED_STATUSES)[number];
+
+export type ResourceRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  resource_type: string;
+  audience: string;
+  topic: string | null;
+  format: string | null;
+  grade_range: string | null;
+  age_range: string | null;
+  reading_level: string | null;
+  location_scope: string;
+  estimated_time: string | null;
+  url: string | null;
+  image_url: string | null;
+  source_name: string | null;
+  verified_status: ResourceVerifiedStatus;
+  created_by_user_id: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+async function requireAnyAdmin(supabase: any, userId: string) {
+  const { data } = await supabase
+    .from("admin_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  if (!data) throw new Error("Forbidden: Admin Hub access required.");
+}
+
+export const ownerListResources = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    await requireAnyAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("resources")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (error) {
+      console.error("ownerListResources failed", error);
+      return { resources: [] as ResourceRow[] };
+    }
+    return { resources: (data ?? []) as ResourceRow[] };
+  });
+
+const resourceInput = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().trim().min(1).max(300),
+  description: z.string().trim().max(4000).optional().nullable(),
+  resource_type: z.enum(RESOURCE_TYPES),
+  audience: z.enum(RESOURCE_AUDIENCES).default("all"),
+  topic: z.string().trim().max(200).optional().nullable(),
+  format: z.string().trim().max(100).optional().nullable(),
+  grade_range: z.string().trim().max(100).optional().nullable(),
+  age_range: z.string().trim().max(100).optional().nullable(),
+  reading_level: z.string().trim().max(100).optional().nullable(),
+  location_scope: z.string().trim().max(100).default("national"),
+  estimated_time: z.string().trim().max(100).optional().nullable(),
+  url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
+  image_url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
+  source_name: z.string().trim().max(200).optional().nullable(),
+  verified_status: z.enum(RESOURCE_VERIFIED_STATUSES).default("pending"),
+});
+
+export const ownerSaveResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => resourceInput.parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { id, ...rest } = data;
+    const row: Record<string, any> = { ...rest };
+    if (row.url === "") row.url = null;
+    if (row.image_url === "") row.image_url = null;
+    if (id) {
+      const { error } = await supabaseAdmin
+        .from("resources")
+        .update(row)
+        .eq("id", id);
+      if (error) throw new Error(error.message);
+      await logActivity(supabase, userId, "resource_updated", "resource", id);
+      return { ok: true, id };
+    } else {
+      row.created_by_user_id = userId;
+      const { data: ins, error } = await supabaseAdmin
+        .from("resources")
+        .insert(row)
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      await logActivity(supabase, userId, "resource_created", "resource", ins.id);
+      return { ok: true, id: ins.id };
+    }
+  });
+
+export const ownerDeleteResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("resources")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await logActivity(supabase, userId, "resource_deleted", "resource", data.id);
+    return { ok: true };
+  });
+
+// ---------- Analytics ----------
+
+export type AnalyticsSeriesPoint = { date: string; count: number };
+
+export type AdminAnalytics = {
+  range_days: number;
+  totals: {
+    users: number;
+    waitlist: number;
+    contacts: number;
+    resources_published: number;
+    resources_pending: number;
+    blog_published: number;
+    blog_drafts: number;
+    faqs_published: number;
+    testimonials_published: number;
+  };
+  recent: {
+    waitlist: number;
+    contacts: number;
+    users: number;
+  };
+  waitlist_by_status: Record<string, number>;
+  contacts_by_status: Record<string, number>;
+  action_counts: Array<{ action_type: string; count: number }>;
+  signup_series: AnalyticsSeriesPoint[];
+  waitlist_series: AnalyticsSeriesPoint[];
+  contact_series: AnalyticsSeriesPoint[];
+};
+
+function bucketByDay(rows: Array<{ created_at: string }>, days: number): AnalyticsSeriesPoint[] {
+  const out: AnalyticsSeriesPoint[] = [];
+  const map = new Map<string, number>();
+  for (const r of rows) {
+    const d = r.created_at.slice(0, 10);
+    map.set(d, (map.get(d) ?? 0) + 1);
+  }
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    out.push({ date: d, count: map.get(d) ?? 0 });
+  }
+  return out;
+}
+
+export const getAdminAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ days: z.number().int().min(7).max(90).default(30) }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const since = new Date(Date.now() - data.days * 24 * 60 * 60 * 1000).toISOString();
+
+    const [
+      uTotal,
+      wTotal,
+      cTotal,
+      rPub,
+      rPend,
+      blogPub,
+      blogDraft,
+      faqsPub,
+      testimonialsPub,
+      uRecent,
+      wRecent,
+      cRecent,
+      wByStatus,
+      cByStatus,
+      activity,
+      signupRows,
+      waitlistRows,
+      contactRows,
+    ] = await Promise.all([
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("waitlist").select("id", { count: "exact", head: true }),
+      supabase.from("contact_submissions").select("id", { count: "exact", head: true }),
+      supabase
+        .from("resources")
+        .select("id", { count: "exact", head: true })
+        .eq("verified_status", "verified"),
+      supabase
+        .from("resources")
+        .select("id", { count: "exact", head: true })
+        .eq("verified_status", "pending"),
+      supabase
+        .from("blog_posts")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
+      supabase
+        .from("blog_posts")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "draft"),
+      supabase
+        .from("faqs")
+        .select("id", { count: "exact", head: true })
+        .eq("is_published", true),
+      supabase
+        .from("testimonials")
+        .select("id", { count: "exact", head: true })
+        .eq("is_published", true),
+      supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", since),
+      supabase
+        .from("waitlist")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", since),
+      supabase
+        .from("contact_submissions")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", since),
+      supabase.from("waitlist").select("status"),
+      supabase.from("contact_submissions").select("status"),
+      supabase
+        .from("admin_activity_logs")
+        .select("action_type")
+        .gte("created_at", since)
+        .limit(2000),
+      supabase.from("profiles").select("created_at").gte("created_at", since).limit(5000),
+      supabase.from("waitlist").select("created_at").gte("created_at", since).limit(5000),
+      supabase
+        .from("contact_submissions")
+        .select("created_at")
+        .gte("created_at", since)
+        .limit(5000),
+    ]);
+
+    const tally = (rows: any[] | null, key: string) => {
+      const m: Record<string, number> = {};
+      for (const r of rows ?? []) m[r[key] ?? "unknown"] = (m[r[key] ?? "unknown"] ?? 0) + 1;
+      return m;
+    };
+    const actionMap = tally(activity.data as any[], "action_type");
+    const action_counts = Object.entries(actionMap)
+      .map(([action_type, count]) => ({ action_type, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 20);
+
+    const out: AdminAnalytics = {
+      range_days: data.days,
+      totals: {
+        users: uTotal.count ?? 0,
+        waitlist: wTotal.count ?? 0,
+        contacts: cTotal.count ?? 0,
+        resources_published: rPub.count ?? 0,
+        resources_pending: rPend.count ?? 0,
+        blog_published: blogPub.count ?? 0,
+        blog_drafts: blogDraft.count ?? 0,
+        faqs_published: faqsPub.count ?? 0,
+        testimonials_published: testimonialsPub.count ?? 0,
+      },
+      recent: {
+        users: uRecent.count ?? 0,
+        waitlist: wRecent.count ?? 0,
+        contacts: cRecent.count ?? 0,
+      },
+      waitlist_by_status: tally(wByStatus.data as any[], "status"),
+      contacts_by_status: tally(cByStatus.data as any[], "status"),
+      action_counts,
+      signup_series: bucketByDay((signupRows.data ?? []) as any[], data.days),
+      waitlist_series: bucketByDay((waitlistRows.data ?? []) as any[], data.days),
+      contact_series: bucketByDay((contactRows.data ?? []) as any[], data.days),
+    };
+    return out;
+  });
+
+// ---------- Dashboard resource counts addendum ----------
+
+export const getResourceCounts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const [published, drafts] = await Promise.all([
+      supabase
+        .from("resources")
+        .select("id", { count: "exact", head: true })
+        .eq("verified_status", "verified"),
+      supabase
+        .from("resources")
+        .select("id", { count: "exact", head: true })
+        .neq("verified_status", "verified"),
+    ]);
+    return {
+      published: published.count ?? 0,
+      drafts: drafts.count ?? 0,
+    };
+  });
