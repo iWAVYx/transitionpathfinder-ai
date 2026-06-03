@@ -152,6 +152,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
+  const [roles, setRoles] = useState<string[]>([]);
+  const fetchRoles = useServerFn(getMyRoles);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -159,6 +161,30 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setRoles([]);
+      return;
+    }
+    let cancelled = false;
+    fetchRoles()
+      .then((res) => {
+        if (!cancelled) setRoles(res.roles);
+      })
+      .catch(() => {
+        if (!cancelled) setRoles([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, fetchRoles]);
+
+  const visibleUserGroups = useMemo(() => {
+    const audiences = audiencesForRoles(roles);
+    return userGroups.filter((g) => g.roles.some((r) => audiences.has(r)));
+  }, [roles]);
+
 
   return (
     <header
