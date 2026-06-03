@@ -13,6 +13,7 @@ export const Route = createFileRoute("/reset-password")({
     meta: [
       { title: "Reset password — TransitionForward" },
       { name: "robots", content: "noindex" },
+      { property: "og:url", content: "/reset-password" },
     ],
     links: [{ rel: "canonical", href: "/reset-password" }],
   }),

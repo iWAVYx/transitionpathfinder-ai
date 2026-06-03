@@ -29,6 +29,7 @@ export const Route = createFileRoute("/research")({
       },
       { property: "og:title", content: "The research behind TransitionForward" },
       { property: "og:image", content: researchHero },
+      { property: "og:url", content: "/research" },
     ],
     links: [{ rel: "canonical", href: "/research" }],
   }),

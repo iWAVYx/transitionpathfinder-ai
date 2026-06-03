@@ -35,6 +35,7 @@ export const Route = createFileRoute("/demo_/resources")({
         content:
           "Curated, student-specific resource matches with what it is, who it helps, why it matters, and how to use it.",
       },
+      { property: "og:url", content: "/demo/resources" },
     ],
     links: [{ rel: "canonical", href: "/demo/resources" }],
   }),

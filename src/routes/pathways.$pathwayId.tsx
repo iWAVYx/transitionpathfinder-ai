@@ -299,6 +299,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:url", content: `/pathways/${params.pathwayId}` },
         ...(p ? [{ property: "og:image", content: p.image }] : []),
       ],
       links: [{ rel: "canonical", href: `/pathways/${params.pathwayId}` }],

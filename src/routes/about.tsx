@@ -19,6 +19,12 @@ export const Route = createFileRoute("/about")({
           "Why TransitionForward exists — a cinematic, scroll-told story of moving students with disabilities from paperwork to pathways, together.",
       },
       { property: "og:title", content: "Our story — TransitionForward" },
+      {
+        property: "og:description",
+        content:
+          "Why TransitionForward exists — a cinematic, scroll-told story of moving students with disabilities from paperwork to pathways, together.",
+      },
+      { property: "og:url", content: "/about" },
       { property: "og:image", content: aboutHero },
     ],
     links: [{ rel: "canonical", href: "/about" }],

@@ -21,6 +21,7 @@ export const Route = createFileRoute("/demo_/intake")({
         content:
           "See the guided intake a family completed for a fictional 11th grade student.",
       },
+      { property: "og:url", content: "/demo/intake" },
     ],
     links: [{ rel: "canonical", href: "/demo/intake" }],
   }),

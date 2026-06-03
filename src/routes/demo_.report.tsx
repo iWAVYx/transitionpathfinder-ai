@@ -23,6 +23,7 @@ export const Route = createFileRoute("/demo_/report")({
         content:
           "A complete sample Pathway Report for a fictional Connecticut high school student in transition planning.",
       },
+      { property: "og:url", content: "/demo/report" },
     ],
     links: [{ rel: "canonical", href: "/demo/report" }],
   }),

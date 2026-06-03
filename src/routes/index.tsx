@@ -88,6 +88,7 @@ export const Route = createFileRoute("/")({
         content:
           "One platform. One plan. Forward together. Expert-built Pathway planning for Connecticut families, students, and educators.",
       },
+      { property: "og:url", content: "/" },
       { property: "og:image", content: heroImg },
     ],
     links: [{ rel: "canonical", href: "/" }],

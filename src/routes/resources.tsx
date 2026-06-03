@@ -75,6 +75,7 @@ export const Route = createFileRoute("/resources")({
         content:
           "Videos, podcasts, books, online tools, assessments, agency directories, and downloadable templates for the transition years.",
       },
+      { property: "og:url", content: "/resources" },
     ],
     links: [{ rel: "canonical", href: "/resources" }],
   }),

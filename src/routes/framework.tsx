@@ -48,6 +48,7 @@ export const Route = createFileRoute("/framework")({
         content:
           "Grade 9 to graduation: settle in, try things on, begin to choose, hand off with confidence.",
       },
+      { property: "og:url", content: "/framework" },
     ],
     links: [{ rel: "canonical", href: "/framework" }],
   }),
