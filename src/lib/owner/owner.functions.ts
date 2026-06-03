@@ -81,7 +81,7 @@ export type ContactSubmission = {
 
 export type SiteSetting = {
   setting_key: string;
-  setting_value: unknown;
+  setting_value: any;
   is_public: boolean;
   updated_at: string | null;
 };
@@ -93,7 +93,7 @@ export type ActivityLog = {
   action_type: string;
   target_type: string | null;
   target_id: string | null;
-  details: Record<string, unknown>;
+  details: Record<string, any>;
   created_at: string;
 };
 
