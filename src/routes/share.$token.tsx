@@ -12,6 +12,7 @@ export const Route = createFileRoute("/share/$token")({
     meta: [
       { title: "Shared Pathway Report — TransitionForward" },
       { name: "robots", content: "noindex, nofollow" },
+      { property: "og:url", content: "/share/$token" },
     ],
     links: [{ rel: "canonical", href: "/share/$token" }],
   }),

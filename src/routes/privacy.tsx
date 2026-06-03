@@ -27,6 +27,7 @@ export const Route = createFileRoute("/privacy")({
         content:
           "Plain-language privacy notice for families, students, educators, and districts.",
       },
+      { property: "og:url", content: "/privacy" },
     ],
     links: [{ rel: "canonical", href: "/privacy" }],
   }),

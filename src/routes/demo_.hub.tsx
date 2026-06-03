@@ -35,6 +35,7 @@ export const Route = createFileRoute("/demo_/hub")({
         content:
           "The ongoing student workspace where families and educators track goals, documents, and progress.",
       },
+      { property: "og:url", content: "/demo/hub" },
     ],
     links: [{ rel: "canonical", href: "/demo/hub" }],
   }),

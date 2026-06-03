@@ -102,6 +102,7 @@ export const Route = createFileRoute("/waitlist")({
         content:
           "Request early access to TransitionForward — separate paths for families, students, educators, schools, and partner organizations.",
       },
+      { property: "og:url", content: "/waitlist" },
     ],
     links: [{ rel: "canonical", href: "/waitlist" }],
   }),

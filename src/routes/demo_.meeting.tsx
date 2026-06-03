@@ -33,6 +33,7 @@ export const Route = createFileRoute("/demo_/meeting")({
         content:
           "See the PPT/IEP meeting prep packet TransitionForward generates: questions, documents, student voice, agenda, and follow-ups.",
       },
+      { property: "og:url", content: "/demo/meeting" },
     ],
     links: [{ rel: "canonical", href: "/demo/meeting" }],
   }),

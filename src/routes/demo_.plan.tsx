@@ -29,6 +29,7 @@ export const Route = createFileRoute("/demo_/plan")({
         content:
           "See the 30-day action plan TransitionForward generates from the Pathway Report — one focused step per week.",
       },
+      { property: "og:url", content: "/demo/plan" },
     ],
     links: [{ rel: "canonical", href: "/demo/plan" }],
   }),
