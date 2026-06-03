@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -36,6 +37,8 @@ import {
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
 import { listStudents, createShareToken } from "@/lib/students.functions";
+import { getProfile } from "@/lib/profile.functions";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
