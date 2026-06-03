@@ -583,14 +583,22 @@ function HomePage() {
               <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
                 The Outcomes We Measure Ourselves Against.
               </h2>
+              <p className="mt-3 hidden text-sm text-muted-foreground lg:block">
+                Scroll to fly across the map — each stop zooms into the outcome
+                we're chasing.
+              </p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <ImpactCard icon={MessagesSquare} title="Clearer family understanding" body="Plain-language translation of every goal, term, and meeting note." />
-              <ImpactCard icon={Sparkles} title="Stronger student self-advocacy" body="A space where students name their own strengths, interests, and hopes." />
-              <ImpactCard icon={ClipboardCheck} title="Better goal tracking" body="Goals connected to evidence, progress, and the next small step." />
-              <ImpactCard icon={Users} title="Tighter school + home collaboration" body="Shared notes, tasks, and a single source of truth between meetings." />
-              <ImpactCard icon={Compass} title="Easier meeting preparation" body="Questions, talking points, and printable checklists, ready before PPT." />
-              <ImpactCard icon={Briefcase} title="Real postsecondary connections" body="Curated CT colleges, training, BRS, employers — matched to the student." />
+
+            {/* Mobile / tablet: simple grid */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
+              {IMPACT_ITEMS.map((it) => (
+                <ImpactCard key={it.title} icon={it.icon} title={it.title} body={it.body} />
+              ))}
+            </div>
+
+            {/* Desktop: scroll-driven zoomable map */}
+            <div className="hidden lg:block">
+              <ImpactMap items={IMPACT_ITEMS} />
             </div>
           </div>
 
