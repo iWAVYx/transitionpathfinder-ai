@@ -1,0 +1,37 @@
+# TransitionForward
+
+> A student-centered transition planning platform that helps students with disabilities move from school paperwork to real-world pathways — connecting families, educators, and agencies in one shared workspace.
+
+## Pages
+
+- [Home](/): Overview of the platform, key features, and call-to-action for families, educators, and partners.
+- [About](/about): The story behind TransitionForward — why it exists, who it serves, and the mission to transform transition planning.
+- [Platform](/platform): Detailed view of the platform from every perspective — family, student, educator, and admin.
+- [Families](/families): How families use TransitionForward to organize IEPs, track goals, and coordinate with their student's team.
+- [Educators](/educators): Tools for educators to manage transition assessments, build pathway reports, and collaborate with families.
+- [Partners](/partners): Information for community partners, vocational agencies, and colleges to connect with transitioning students.
+- [Framework](/framework): The research-backed methodology and framework that powers the platform's transition planning approach.
+- [Pricing](/pricing): Plans and pricing for individuals, schools, and districts.
+- [Resources](/resources): Guides, articles, and tools for transition planning.
+- [Research](/research): Research and evidence behind the platform's approach to transition planning.
+- [Contact](/contact): Get in touch with the TransitionForward team.
+- [Waitlist](/waitlist): Join the waitlist for early access.
+- [Privacy](/privacy): Privacy policy and data practices.
+
+## Demo
+
+- [Demo Hub](/demo/hub): Interactive demo of the student hub dashboard.
+- [Demo Intake](/demo/intake): Demo of the intake and assessment workflow.
+- [Demo Meeting](/demo/meeting): Demo of the meeting and collaboration tools.
+- [Demo Plan](/demo/plan): Demo of the transition plan builder.
+- [Demo Report](/demo/report): Demo of the pathway report generator.
+- [Demo Resources](/demo/resources): Demo of the resources library.
+
+## Dynamic Content
+
+- [Pathways](/pathways/example): Example of a student pathway — a visual, goal-based roadmap from school to career or college.
+
+## Optional
+
+- [Login](/login): Sign in to your TransitionForward account.
+- [Reset Password](/reset-password): Reset your account password.
