@@ -341,7 +341,7 @@ function CitationsGrid() {
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift"
+              className="absolute left-1/2 top-1/2 z-10 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-foreground/10 bg-background shadow-lift"
             >
               <div className="text-center">
                 <div className="font-display text-3xl font-medium leading-none text-foreground">{CITATIONS.length}</div>
