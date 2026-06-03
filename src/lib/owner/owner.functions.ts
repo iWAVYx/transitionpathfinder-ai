@@ -324,7 +324,7 @@ export const ownerUpdateWaitlistEntry = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
-    const patch: Record<string, unknown> = {};
+    const patch: Record<string, any> = {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
     if (Object.keys(patch).length === 0) return { ok: true };
@@ -402,7 +402,7 @@ export const ownerUpdateContact = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
-    const patch: Record<string, unknown> = {};
+    const patch: Record<string, any> = {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.internal_notes !== undefined) patch.internal_notes = data.internal_notes;
     if (Object.keys(patch).length === 0) return { ok: true };
@@ -483,7 +483,7 @@ export const ownerUpdateSetting = createServerFn({ method: "POST" })
     z
       .object({
         setting_key: z.string().trim().min(1).max(100),
-        setting_value: z.unknown(),
+        setting_value: z.any(),
         is_public: z.boolean().optional(),
       })
       .parse(i),
@@ -491,7 +491,7 @@ export const ownerUpdateSetting = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
-    const upsertRow: Record<string, unknown> = {
+    const upsertRow: Record<string, any> = {
       setting_key: data.setting_key,
       setting_value: data.setting_value,
       updated_by: userId,
