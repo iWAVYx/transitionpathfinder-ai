@@ -457,7 +457,7 @@ function FaqAccordionItem({ faq, highlightTerm }: { faq: Faq; highlightTerm: str
 
 function ContactSection() {
   const [done, setDone] = useState(false);
-  const submit = useServerFn(submitWaitlist);
+  const submit = useServerFn(submitContactForm);
 
   const form = useForm<ContactValues>({
     resolver: zodResolver(ContactSchema),
@@ -471,15 +471,15 @@ function ContactSection() {
 
   const onSubmit = async (values: ContactValues) => {
     try {
+      const [first, ...rest] = values.full_name.trim().split(/\s+/);
       await submit({
         data: {
-          full_name: values.full_name,
+          first_name: first || values.full_name,
+          last_name: rest.join(" ") || null,
           email: values.email,
-          role: TOPIC_TO_ROLE[values.topic],
-          state: "",
-          student_grade_band: "",
-          reason: `[${values.topic}] ${values.message}`,
-          source: "contact-form",
+          inquiry_type: TOPIC_TO_INQUIRY[values.topic],
+          message: values.message,
+          source_page: typeof window !== "undefined" ? window.location.pathname : "/help",
         },
       });
       setDone(true);
