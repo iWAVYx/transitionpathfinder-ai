@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccessibilityControls } from "@/components/a11y/AccessibilityControls";
 import { SmoothScroll } from "@/components/effects/SmoothScroll";
+import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -144,10 +145,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
             __html: `
               (function() {
                 try {
-                  var key = "a11y:dark-mode";
-                  var raw = localStorage.getItem(key);
+                  var darkKey = "a11y:dark-mode";
+                  var raw = localStorage.getItem(darkKey);
                   var dark = raw === null ? matchMedia("(prefers-color-scheme: dark)").matches : raw === "1";
                   if (dark) document.documentElement.classList.add("dark");
+                  var locKey = "i18n:locale";
+                  var loc = localStorage.getItem(locKey);
+                  if (loc && /^[a-z]{2,3}$/.test(loc)) {
+                    document.documentElement.lang = loc;
+                  }
                 } catch (e) {}
               })();
             `,
@@ -177,11 +183,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SmoothScroll />
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster />
-      <AccessibilityControls />
+      <LanguageProvider>
+        <SmoothScroll />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster />
+        <AccessibilityControls />
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }
