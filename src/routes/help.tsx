@@ -90,7 +90,7 @@ function FaqPage() {
             Help Center
           </Badge>
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Frequently Asked Questions
+            Help Center
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
             Find answers about TransitionForward, transition planning, and how
