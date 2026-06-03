@@ -63,10 +63,10 @@ function ResearchHero() {
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
           Evidence first
         </motion.p>
-        <h1 className="mt-5 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+        <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
           The research behind every <span className="italic text-primary">pathway</span>.
         </h1>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-6 max-w-xl text-lg text-muted-foreground">
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 max-w-xl text-lg text-muted-foreground">
           What we learned from families, students, and educators — and how each finding shaped
           a piece of the platform.
         </motion.p>
