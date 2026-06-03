@@ -44,15 +44,7 @@ import {
 
 import { toTitleCase } from "@/lib/title-case";
 
-import toolPathwayBuilder from "@/assets/tool-pathway-builder.jpg";
-import toolStudentVoice from "@/assets/tool-student-voice.jpg";
-import toolFamilyVoice from "@/assets/tool-family-voice.jpg";
-import toolTranslator from "@/assets/tool-translator.jpg";
-import toolGoalTracker from "@/assets/tool-goal-tracker.jpg";
-import toolAssessmentVault from "@/assets/tool-assessment-vault.jpg";
-import toolPptPrep from "@/assets/tool-ppt-prep.jpg";
-import toolResourceMatch from "@/assets/tool-resource-match.jpg";
-import toolEducatorDashboard from "@/assets/tool-educator-dashboard.jpg";
+import { useRef } from "react";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
