@@ -43,6 +43,15 @@ import {
 
 
 import { toTitleCase } from "@/lib/title-case";
+import toolPathwayBuilder from "@/assets/tool-pathway-builder.jpg";
+import toolStudentVoice from "@/assets/tool-student-voice.jpg";
+import toolFamilyVoice from "@/assets/tool-family-voice.jpg";
+import toolTranslator from "@/assets/tool-translator.jpg";
+import toolGoalTracker from "@/assets/tool-goal-tracker.jpg";
+import toolAssessmentVault from "@/assets/tool-assessment-vault.jpg";
+import toolPptPrep from "@/assets/tool-ppt-prep.jpg";
+import toolResourceMatch from "@/assets/tool-resource-match.jpg";
+import toolEducatorDashboard from "@/assets/tool-educator-dashboard.jpg";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
@@ -70,60 +79,80 @@ const features: Array<{
   title: string;
   body: string;
   tags: Tag[];
+  image: string;
+  alt: string;
 }> = [
   {
     icon: Sparkles,
     title: "The Pathway Builder",
     body: "Share strengths, interests, and goals. Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, family questions, and a 30 day plan.",
     tags: ["Family", "Student", "Educator"],
+    image: toolPathwayBuilder,
+    alt: "A personalized Pathway Report and 30-day plan on cream paper",
   },
   {
     icon: Mic,
     title: "Student Voice Profile",
     body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.",
     tags: ["Student", "Family"],
+    image: toolStudentVoice,
+    alt: "An open student journal with self-portrait and sticky notes",
   },
   {
     icon: Users,
     title: "Family Voice",
     body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.",
     tags: ["Family", "Educator"],
+    image: toolFamilyVoice,
+    alt: "A parent's notebook of hopes, concerns, and questions on a kitchen table",
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
     body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.",
     tags: ["Family"],
+    image: toolTranslator,
+    alt: "An IEP transition goal beside a plain-language handwritten translation",
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
     body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.",
     tags: ["Educator", "Family"],
+    image: toolGoalTracker,
+    alt: "Paper cards connected by dotted arrows showing goal to next step",
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
     body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.",
     tags: ["Educator", "Family"],
+    image: toolAssessmentVault,
+    alt: "An archival folder with assessments and work samples organized by year",
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
     body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.",
     tags: ["Family", "Educator", "Student"],
+    image: toolPptPrep,
+    alt: "A printed PPT agenda surrounded by prep cards and a fountain pen",
   },
   {
     icon: MapPin,
     title: "Resource And Opportunity Match",
     body: "Connecticut aware matches: community colleges, technical high schools, BRS, job training, and internships, tuned to interest, location, and grade.",
     tags: ["Family", "Student"],
+    image: toolResourceMatch,
+    alt: "A paper map of Connecticut with pins for colleges, technical schools, and job training",
   },
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
     body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews and approves.",
     tags: ["Educator", "Admin"],
+    image: toolEducatorDashboard,
+    alt: "A teacher's caseload dashboard as paper cards with progress bars and a calendar",
   },
 ];
 
@@ -370,27 +399,40 @@ function PlatformPage() {
         </div>
 
         <div className="grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3 md:[&>article:last-child]:col-span-2 md:[&>article:last-child]:w-1/2 md:[&>article:last-child]:justify-self-center lg:[&>article:last-child]:col-span-1 lg:[&>article:last-child]:w-auto">
-          {features.map(({ icon: Icon, title, body, tags }) => (
+          {features.map(({ icon: Icon, title, body, tags, image, alt }) => (
             <article
               key={title}
-              className="group flex h-full flex-col gap-3 rounded-3xl border border-border/60 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift sm:p-6"
+              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
-                <Icon className="h-4 w-4" />
+              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                <img
+                  src={image}
+                  alt={alt}
+                  loading="lazy"
+                  width={1024}
+                  height={768}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card/70 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-3 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
+                  <Icon className="h-4 w-4" />
+                </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <h3 className="font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
-                <p className="text-[13px] leading-relaxed text-muted-foreground">{body}</p>
-              </div>
-              <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
-                {tags.map((t) => (
-                  <span
-                    key={t}
-                    className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${tagStyles[t]}`}
-                  >
-                    {t}
-                  </span>
-                ))}
+              <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(title)}</h3>
+                  <p className="text-[13px] leading-relaxed text-muted-foreground">{body}</p>
+                </div>
+                <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
+                  {tags.map((t) => (
+                    <span
+                      key={t}
+                      className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${tagStyles[t]}`}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
               </div>
             </article>
           ))}
