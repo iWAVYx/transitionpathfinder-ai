@@ -234,6 +234,63 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          body_markdown: string
+          category: string | null
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          body_markdown?: string
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          body_markdown?: string
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       collaboration_notes: {
         Row: {
           content: string
@@ -632,6 +689,39 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          id: string
+          is_published: boolean
+          position: number
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          position?: number
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          position?: number
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feed_events: {
         Row: {
           actor_id: string | null
@@ -841,6 +931,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      media_assets: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_size: number | null
+          height: number | null
+          id: string
+          mime_type: string | null
+          public_url: string
+          storage_path: string
+          tags: string[]
+          title: string | null
+          updated_at: string
+          uploaded_by: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number | null
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          public_url: string
+          storage_path: string
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number | null
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          public_url?: string
+          storage_path?: string
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Relationships: []
       }
       meeting_action_items: {
         Row: {
@@ -1283,6 +1421,39 @@ export type Database = {
           updated_at?: string
           verified_status?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      page_sections: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          is_published: boolean
+          page_key: string
+          section_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          page_key: string
+          section_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          page_key?: string
+          section_key?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -2501,6 +2672,51 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          author_name: string
+          avatar_url: string | null
+          created_at: string
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          organization: string | null
+          position: number
+          quote: string
+          rating: number | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_name: string
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          organization?: string | null
+          position?: number
+          quote: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          organization?: string | null
+          position?: number
+          quote?: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

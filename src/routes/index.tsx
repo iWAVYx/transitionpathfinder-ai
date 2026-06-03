@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { getPageSection } from "@/lib/cms/cms.functions";
 import {
   HeartHandshake,
   GraduationCap,
@@ -96,7 +98,33 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+const HERO_DEFAULTS = {
+  eyebrow: "Transition planning, made human",
+  headline_lead: "From IEP goals to",
+  headline_accent: "real-life",
+  headline_tail: "pathways.",
+  subhead:
+    "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after high school — together.",
+  tagline: "One platform. One plan. Forward together.",
+  cta_primary_label: "Join the waitlist",
+  cta_secondary_label: "Try the live demo",
+};
+
 function HomePage() {
+  const fetchSection = useServerFn(getPageSection);
+  const [hero, setHero] = useState(HERO_DEFAULTS);
+  useEffect(() => {
+    let cancelled = false;
+    fetchSection({ data: { page_key: "home", section_key: "hero" } })
+      .then((r: any) => {
+        if (cancelled || !r?.content) return;
+        setHero({ ...HERO_DEFAULTS, ...r.content });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchSection]);
   return (
     <SiteShell>
       {/* HERO — full-bleed image with overlaid text */}
@@ -163,12 +191,12 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Transition planning, made human
+              {hero.eyebrow}
             </p>
             <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-              From IEP goals to{" "}
+              {hero.headline_lead}{" "}
               <span className="relative inline-block not-italic text-primary">
-                real-life
+                {hero.headline_accent}
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 300 24"
@@ -185,28 +213,27 @@ function HomePage() {
                   />
                 </svg>
               </span>{" "}
-              pathways.
+              {hero.headline_tail}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
-              A warm, easy-to-use platform that helps students with disabilities,
-              families, and educators plan life after high school — together.
+              {hero.subhead}
             </p>
             <p className="mt-5 font-display text-2xl italic text-foreground/75">
-              One platform. One plan. Forward together.
+              {hero.tagline}
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 to="/waitlist"
                 className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
               >
-                Join the waitlist
+                {hero.cta_primary_label}
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
                 to="/demo"
                 className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background"
               >
-                Try the live demo
+                {hero.cta_secondary_label}
                 <span className="text-primary transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
