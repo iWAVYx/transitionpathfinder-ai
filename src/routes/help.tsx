@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
-import { submitWaitlist } from "@/lib/waitlist.functions";
+import { submitContactForm } from "@/lib/owner/owner.functions";
 
 const ContactSchema = z.object({
   full_name: z.string().trim().min(1, "Please tell us your name").max(200),
