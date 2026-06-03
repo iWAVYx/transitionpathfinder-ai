@@ -271,7 +271,7 @@ export function SiteHeader() {
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-56 p-1.5">
-                  {userGroups.map((group, idx) => (
+                  {visibleUserGroups.map((group, idx) => (
                     <div key={group.label}>
                       {idx > 0 && <DropdownMenuSeparator />}
                       <DropdownMenuLabel className="px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -382,7 +382,7 @@ export function SiteHeader() {
                       Dashboard
                     </Link>
                   </nav>
-                  {userGroups.map((group) => (
+                  {visibleUserGroups.map((group) => (
                     <div key={group.label} className="mt-4">
                       <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
                         {group.label}
