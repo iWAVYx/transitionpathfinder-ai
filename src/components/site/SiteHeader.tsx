@@ -369,6 +369,16 @@ export function SiteHeader() {
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
                     </Link>
+                    {isPlatformAdmin && (
+                      <Link
+                        to="/owner"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
+                      >
+                        <Shield className="h-4 w-4" />
+                        Admin Hub
+                      </Link>
+                    )}
                   </nav>
                   {visibleUserGroups.map((group) => (
                     <div key={group.label} className="mt-4">
