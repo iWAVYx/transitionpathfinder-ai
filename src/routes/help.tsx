@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
-import { submitWaitlist } from "@/lib/waitlist.functions";
+import { submitContactForm } from "@/lib/owner/owner.functions";
 
 const ContactSchema = z.object({
   full_name: z.string().trim().min(1, "Please tell us your name").max(200),
@@ -62,13 +62,13 @@ const ContactSchema = z.object({
 
 type ContactValues = z.infer<typeof ContactSchema>;
 
-const TOPIC_TO_ROLE: Record<ContactValues["topic"], "family" | "educator" | "district" | "partner" | "other"> = {
+const TOPIC_TO_INQUIRY: Record<ContactValues["topic"], string> = {
   "family-question": "family",
   "educator-question": "educator",
-  "district-demo": "district",
-  "press-research": "other",
-  accessibility: "other",
-  other: "other",
+  "district-demo": "demo",
+  "press-research": "press",
+  accessibility: "accessibility",
+  other: "general",
 };
 
 export const Route = createFileRoute("/help")({
@@ -457,7 +457,7 @@ function FaqAccordionItem({ faq, highlightTerm }: { faq: Faq; highlightTerm: str
 
 function ContactSection() {
   const [done, setDone] = useState(false);
-  const submit = useServerFn(submitWaitlist);
+  const submit = useServerFn(submitContactForm);
 
   const form = useForm<ContactValues>({
     resolver: zodResolver(ContactSchema),
@@ -471,15 +471,15 @@ function ContactSection() {
 
   const onSubmit = async (values: ContactValues) => {
     try {
+      const [first, ...rest] = values.full_name.trim().split(/\s+/);
       await submit({
         data: {
-          full_name: values.full_name,
+          first_name: first || values.full_name,
+          last_name: rest.join(" ") || null,
           email: values.email,
-          role: TOPIC_TO_ROLE[values.topic],
-          state: "",
-          student_grade_band: "",
-          reason: `[${values.topic}] ${values.message}`,
-          source: "contact-form",
+          inquiry_type: TOPIC_TO_INQUIRY[values.topic],
+          message: values.message,
+          source_page: typeof window !== "undefined" ? window.location.pathname : "/help",
         },
       });
       setDone(true);

@@ -63,6 +63,7 @@ import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
+import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authenticated/owner.resources'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
@@ -353,6 +354,12 @@ const AuthenticatedOwnerSettingsRoute =
     path: '/owner/settings',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedOwnerResourcesRoute =
+  AuthenticatedOwnerResourcesRouteImport.update({
+    id: '/owner/resources',
+    path: '/owner/resources',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerMediaRoute = AuthenticatedOwnerMediaRouteImport.update({
   id: '/owner/media',
   path: '/owner/media',
@@ -477,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
+  '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
@@ -544,6 +552,7 @@ export interface FileRoutesByTo {
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
+  '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
@@ -613,6 +622,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
+  '/_authenticated/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
@@ -682,6 +692,7 @@ export interface FileRouteTypes {
     | '/owner/content'
     | '/owner/faqs'
     | '/owner/media'
+    | '/owner/resources'
     | '/owner/settings'
     | '/owner/testimonials'
     | '/owner/waitlist'
@@ -749,6 +760,7 @@ export interface FileRouteTypes {
     | '/owner/content'
     | '/owner/faqs'
     | '/owner/media'
+    | '/owner/resources'
     | '/owner/settings'
     | '/owner/testimonials'
     | '/owner/waitlist'
@@ -817,6 +829,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/content'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/media'
+    | '/_authenticated/owner/resources'
     | '/_authenticated/owner/settings'
     | '/_authenticated/owner/testimonials'
     | '/_authenticated/owner/waitlist'
@@ -1242,6 +1255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/resources': {
+      id: '/_authenticated/owner/resources'
+      path: '/owner/resources'
+      fullPath: '/owner/resources'
+      preLoaderRoute: typeof AuthenticatedOwnerResourcesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/media': {
       id: '/_authenticated/owner/media'
       path: '/owner/media'
@@ -1404,6 +1424,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
+  AuthenticatedOwnerResourcesRoute: typeof AuthenticatedOwnerResourcesRoute
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
   AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
   AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
@@ -1437,6 +1458,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
+  AuthenticatedOwnerResourcesRoute: AuthenticatedOwnerResourcesRoute,
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
   AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
   AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
