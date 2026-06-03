@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
-import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown } from "lucide-react";
+import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
 import { getMyRoles } from "@/lib/profile.functions";
+import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
 
 type NavLink = { to: string; label: string; desc?: string };
@@ -121,7 +122,9 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const [roles, setRoles] = useState<string[]>([]);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const fetchRoles = useServerFn(getMyRoles);
+  const fetchAdminRoles = useServerFn(getMyAdminRoles);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -133,6 +136,7 @@ export function SiteHeader() {
   useEffect(() => {
     if (!user) {
       setRoles([]);
+      setIsPlatformAdmin(false);
       return;
     }
     let cancelled = false;
@@ -143,10 +147,17 @@ export function SiteHeader() {
       .catch(() => {
         if (!cancelled) setRoles([]);
       });
+    fetchAdminRoles()
+      .then((res) => {
+        if (!cancelled) setIsPlatformAdmin(Boolean(res.isPlatformAdmin));
+      })
+      .catch(() => {
+        if (!cancelled) setIsPlatformAdmin(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [user, fetchRoles]);
+  }, [user, fetchRoles, fetchAdminRoles]);
 
   const visibleUserGroups = useMemo(() => {
     const audiences = audiencesForRoles(roles);
