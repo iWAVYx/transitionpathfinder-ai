@@ -291,3 +291,54 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 
 
+
+/* ------------------------------------------------------------------
+ * Mobile centering — site-wide pass.
+ * On phones (<768px), center the visual spine of every marketing page so
+ * headings, eyebrows, intro paragraphs, and CTA rows sit on the midline
+ * with equal margins. Implemented as an inherit-based default on
+ * `.site-shell-main` with explicit opt-outs for surfaces where centering
+ * looks wrong (prose articles, tables, forms, lists with bullets, and
+ * anything tagged `.mobile-no-center`).
+ * Signed-in dashboards aren't wrapped in SiteShell, so this rule does NOT
+ * affect them — they keep their existing alignment.
+ * ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .site-shell-main {
+    text-align: center;
+  }
+  /* Common CTA / button rows use flex-wrap; center the row too. */
+  .site-shell-main :where(
+    .flex.flex-wrap.gap-2,
+    .flex.flex-wrap.gap-3,
+    .flex.flex-wrap.gap-4,
+    .flex.flex-wrap.items-center.gap-2,
+    .flex.flex-wrap.items-center.gap-3,
+    .flex.flex-wrap.items-center.gap-4
+  ):not(.mobile-no-center) {
+    justify-content: center;
+  }
+
+  /* Opt-outs: revert to natural alignment where centering hurts UX. */
+  .site-shell-main :where(
+    .prose,
+    article.prose,
+    table,
+    [role="table"],
+    form,
+    fieldset,
+    ul:not(.text-center):not(.flex),
+    ol:not(.text-center):not(.flex),
+    dl,
+    pre,
+    code,
+    [data-mobile-no-center],
+    .mobile-no-center
+  ) {
+    text-align: revert;
+  }
+  .site-shell-main :where(.prose, .mobile-no-center) :where(.flex.flex-wrap) {
+    justify-content: revert;
+  }
+}
+
