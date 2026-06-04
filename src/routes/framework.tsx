@@ -593,19 +593,19 @@ function ArcPanel({
       <div className="mt-6 grid flex-1 gap-4 overflow-y-auto pb-2 sm:grid-cols-3 sm:overflow-visible">
         <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            Your child
+            Your Child
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.student}</p>
         </div>
         <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            The team
+            The Team
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.team}</p>
         </div>
         <div className="rounded-2xl bg-gradient-warm p-5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            Evidence we keep
+            Evidence We Keep
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.evidence}</p>
         </div>
