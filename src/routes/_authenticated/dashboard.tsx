@@ -38,7 +38,9 @@ import {
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
 import { listStudents, createShareToken } from "@/lib/students.functions";
-import { getProfile } from "@/lib/profile.functions";
+import { getProfile, getMyRoles } from "@/lib/profile.functions";
+import { audiencesForRoles } from "@/lib/role-policy";
+import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
