@@ -22,6 +22,7 @@ import {
   getResourceCounts,
   type DashboardMetrics,
 } from "@/lib/owner/owner.functions";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
