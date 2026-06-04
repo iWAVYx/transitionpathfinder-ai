@@ -141,7 +141,7 @@ const userGroups: UserNavGroup[] = [
   // Account — visible to every signed-in user
   {
     label: "Account",
-    roles: ["student", "family", "educator", "school_admin", "admin", "partner"],
+    roles: ["student", "family", "educator", "school_admin", "district_admin", "admin", "partner"],
     items: [
       { to: "/settings", label: "Settings" },
       { to: "/help", label: "Help & Support" },
