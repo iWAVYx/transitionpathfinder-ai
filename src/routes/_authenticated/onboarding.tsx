@@ -25,12 +25,11 @@ import { createStudent, listStudents } from "@/lib/students.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
 
 const ROLE_OPTIONS = [
-  { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
   { id: "student", label: "Student", note: "This is my plan", icon: User },
-  { id: "educator", label: "Teacher or Case Manager", note: "I support students at school", icon: GraduationCap },
-  { id: "administrator", label: "School / District Leader", note: "I lead a team", icon: Users },
+  { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
+  { id: "educator", label: "Educator or Case Manager", note: "I support students at school — teacher, special educator, transition coordinator, or case manager", icon: GraduationCap },
+  { id: "school_admin", label: "School Administrator", note: "I lead a school or district's transition program", icon: Users },
   { id: "partner", label: "Partner Organization", note: "I run programs students can join", icon: Users },
-  { id: "other", label: "Something else", note: "Tell us more later", icon: User },
 ] as const;
 
 type RoleId = (typeof ROLE_OPTIONS)[number]["id"];
@@ -101,8 +100,13 @@ function OnboardingPage() {
     };
   }, [loadProfile, loadStudents, navigate]);
 
-  const stepId: StepId = STEPS[idx];
-  const progress = Math.round(((idx + 1) / STEPS.length) * 100);
+  // School Administrator and Partner don't need a student profile in onboarding.
+  const needsStudent = role === "parent" || role === "student" || role === "educator";
+  const activeSteps: StepId[] = needsStudent ? ["role", "you", "student"] : ["role", "you"];
+  const safeIdx = Math.min(idx, activeSteps.length - 1);
+  const stepId: StepId = activeSteps[safeIdx];
+  const progress = Math.round(((safeIdx + 1) / activeSteps.length) * 100);
+  const isLastStep = safeIdx === activeSteps.length - 1;
 
   const canAdvance = useMemo(() => {
     switch (stepId) {
@@ -115,12 +119,13 @@ function OnboardingPage() {
     }
   }, [stepId, role, firstName, studentFirst]);
 
-  const goBack = () => idx > 0 && setIdx(idx - 1);
-  const goNext = () => idx < STEPS.length - 1 && setIdx(idx + 1);
+  const goBack = () => safeIdx > 0 && setIdx(safeIdx - 1);
+  const goNext = () => safeIdx < activeSteps.length - 1 && setIdx(safeIdx + 1);
 
   async function handleFinish(e: FormEvent) {
     e.preventDefault();
-    if (!role || !firstName.trim() || !studentFirst.trim()) return;
+    if (!role || !firstName.trim()) return;
+    if (needsStudent && !studentFirst.trim()) return;
     setSubmitting(true);
     try {
       await saveProfile({
@@ -130,15 +135,19 @@ function OnboardingPage() {
           last_name: lastName.trim() || undefined,
         },
       });
-      await addStudent({
-        data: {
-          first_name: studentFirst.trim(),
-          last_name: studentLast.trim() || undefined,
-          grade_band: (studentGrade || undefined) as never,
-          school: studentSchool.trim() || undefined,
-        },
-      });
-      toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
+      if (needsStudent) {
+        await addStudent({
+          data: {
+            first_name: studentFirst.trim(),
+            last_name: studentLast.trim() || undefined,
+            grade_band: (studentGrade || undefined) as never,
+            school: studentSchool.trim() || undefined,
+          },
+        });
+        toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
+      } else {
+        toast.success("You're all set. Welcome to TransitionForward.");
+      }
       navigate({ to: "/dashboard", replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
@@ -168,7 +177,7 @@ function OnboardingPage() {
       <section className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
         <div className="mb-5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Step {idx + 1} of {STEPS.length}</span>
+            <span>Step {safeIdx + 1} of {activeSteps.length}</span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="mt-2 h-2" />
@@ -303,12 +312,12 @@ function OnboardingPage() {
               type="button"
               variant="ghost"
               onClick={goBack}
-              disabled={idx === 0 || submitting}
+              disabled={safeIdx === 0 || submitting}
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
 
-            {stepId !== "student" ? (
+            {!isLastStep ? (
               <Button
                 type="button"
                 onClick={goNext}

@@ -63,6 +63,10 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
+import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
+import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authenticated/school.reports'
+import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
+import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
@@ -357,6 +361,29 @@ const AuthenticatedStudentsStudentIdRoute =
     path: '/$studentId',
     getParentRoute: () => AuthenticatedStudentsRoute,
   } as any)
+const AuthenticatedSchoolTeamRoute = AuthenticatedSchoolTeamRouteImport.update({
+  id: '/school/team',
+  path: '/school/team',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSchoolReportsRoute =
+  AuthenticatedSchoolReportsRouteImport.update({
+    id: '/school/reports',
+    path: '/school/reports',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolOverviewRoute =
+  AuthenticatedSchoolOverviewRouteImport.update({
+    id: '/school/overview',
+    path: '/school/overview',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolImplementationRoute =
+  AuthenticatedSchoolImplementationRouteImport.update({
+    id: '/school/implementation',
+    path: '/school/implementation',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReportsReportIdRoute =
   AuthenticatedReportsReportIdRouteImport.update({
     id: '/$reportId',
@@ -538,6 +565,10 @@ export interface FileRoutesByFullPath {
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
+  '/school/overview': typeof AuthenticatedSchoolOverviewRoute
+  '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
@@ -613,6 +644,10 @@ export interface FileRoutesByTo {
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
+  '/school/overview': typeof AuthenticatedSchoolOverviewRoute
+  '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
@@ -690,6 +725,10 @@ export interface FileRoutesById {
   '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
+  '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
+  '/_authenticated/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
@@ -767,6 +806,10 @@ export interface FileRouteTypes {
     | '/owner/testimonials'
     | '/owner/waitlist'
     | '/reports/$reportId'
+    | '/school/implementation'
+    | '/school/overview'
+    | '/school/reports'
+    | '/school/team'
     | '/students/$studentId'
     | '/lovable/email/suppression'
     | '/owner/'
@@ -842,6 +885,10 @@ export interface FileRouteTypes {
     | '/owner/testimonials'
     | '/owner/waitlist'
     | '/reports/$reportId'
+    | '/school/implementation'
+    | '/school/overview'
+    | '/school/reports'
+    | '/school/team'
     | '/students/$studentId'
     | '/lovable/email/suppression'
     | '/owner'
@@ -918,6 +965,10 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/testimonials'
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
+    | '/_authenticated/school/implementation'
+    | '/_authenticated/school/overview'
+    | '/_authenticated/school/reports'
+    | '/_authenticated/school/team'
     | '/_authenticated/students/$studentId'
     | '/lovable/email/suppression'
     | '/_authenticated/owner/'
@@ -1348,6 +1399,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsStudentIdRouteImport
       parentRoute: typeof AuthenticatedStudentsRoute
     }
+    '/_authenticated/school/team': {
+      id: '/_authenticated/school/team'
+      path: '/school/team'
+      fullPath: '/school/team'
+      preLoaderRoute: typeof AuthenticatedSchoolTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/reports': {
+      id: '/_authenticated/school/reports'
+      path: '/school/reports'
+      fullPath: '/school/reports'
+      preLoaderRoute: typeof AuthenticatedSchoolReportsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/overview': {
+      id: '/_authenticated/school/overview'
+      path: '/school/overview'
+      fullPath: '/school/overview'
+      preLoaderRoute: typeof AuthenticatedSchoolOverviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/implementation': {
+      id: '/_authenticated/school/implementation'
+      path: '/school/implementation'
+      fullPath: '/school/implementation'
+      preLoaderRoute: typeof AuthenticatedSchoolImplementationRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/reports/$reportId': {
       id: '/_authenticated/reports/$reportId'
       path: '/$reportId'
@@ -1571,6 +1650,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
   AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
   AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
+  AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
+  AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
+  AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
+  AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
 }
 
@@ -1606,6 +1689,11 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
   AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
   AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
+  AuthenticatedSchoolImplementationRoute:
+    AuthenticatedSchoolImplementationRoute,
+  AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
+  AuthenticatedSchoolReportsRoute: AuthenticatedSchoolReportsRoute,
+  AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
 }
 
@@ -1665,13 +1753,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

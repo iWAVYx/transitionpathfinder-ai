@@ -675,7 +675,7 @@ function StepCurrentGoals({ role }: { role: Role }) {
       </Field>
 
       <Field
-        label={role === "educator" ? "Your observations" : "Teacher / case-manager observations"}
+        label={role === "educator" ? "Your observations" : "Educator / case-manager observations"}
         hint="What is the school team noticing — progress, sticking points, what's clicking?"
         why="Educator observations are weighted heavily by the report. Specific examples beat ratings."
         examples={[
