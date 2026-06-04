@@ -40,5 +40,10 @@ function AuthenticatedLayout() {
     );
   }
 
-  return <Outlet />;
+  return (
+    <div className="signed-in-shell">
+      <Outlet />
+    </div>
+  );
+
 }
