@@ -38,7 +38,9 @@ import {
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
 import { listStudents, createShareToken } from "@/lib/students.functions";
-import { getProfile } from "@/lib/profile.functions";
+import { getProfile, getMyRoles } from "@/lib/profile.functions";
+import { audiencesForRoles } from "@/lib/role-policy";
+import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -59,13 +61,23 @@ function DashboardPage() {
   const fetchStudents = useServerFn(listStudents);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
   const fetchProfile = useServerFn(getProfile);
+  const fetchRoles = useServerFn(getMyRoles);
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
+  const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
   const onboardingCheckedRef = useRef(false);
 
+  useEffect(() => {
+    fetchRoles()
+      .then((r) => {
+        const aud = audiencesForRoles(r.roles);
+        setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
+      })
+      .catch(() => setIsStudentOnly(false));
+  }, [fetchRoles]);
 
   const handleDownloadPdf = useCallback((reportId: string) => {
     window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
@@ -201,8 +213,33 @@ function DashboardPage() {
     }
   }
 
+  /* ---------- student-only audience: first-person dashboard ---------- */
+  if (isStudentOnly === true && !loading && snap) {
+    return (
+      <StudentDashboard firstName={friendly} snap={snap} onToggleAction={toggleAction} />
+    );
+  }
+
   /* ---------- empty state: no students yet ---------- */
   if (!loading && students.length === 0) {
+    // Student-only audience: show the student waiting-for-invite empty state.
+    if (isStudentOnly === true) {
+      return (
+        <StudentDashboard
+          firstName={friendly}
+          snap={{
+            student: null,
+            latestReport: null,
+            goals: [],
+            documents: [],
+            actionItems: [],
+            upcomingMeeting: null,
+            consents: [],
+          } as unknown as DashboardSnapshot}
+          onToggleAction={() => {}}
+        />
+      );
+    }
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
