@@ -20,24 +20,30 @@ export const getProfile = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, full_name, first_name, last_name, primary_role, onboarding_completed, language")
+      .select("id, full_name, first_name, last_name, primary_role, onboarding_completed, language, onboarding_answers")
       .eq("id", userId)
       .maybeSingle();
     if (error) {
       console.error("getProfile failed", error);
       throw new Error("Could not load profile.");
     }
-    return (
-      data ?? {
-        id: userId,
-        full_name: null,
-        first_name: null,
-        last_name: null,
-        primary_role: null,
-        onboarding_completed: false,
-        language: "en",
-      }
-    ) as Profile;
+    const base: Profile = {
+      id: userId,
+      full_name: null,
+      first_name: null,
+      last_name: null,
+      primary_role: null,
+      onboarding_completed: false,
+      language: "en",
+      onboarding_answers: {},
+    };
+    if (!data) return base;
+    return {
+      ...base,
+      ...data,
+      onboarding_answers:
+        (data.onboarding_answers as Record<string, unknown> | null) ?? {},
+    } as Profile;
   });
 
 export const updateProfileLanguage = createServerFn({ method: "POST" })
