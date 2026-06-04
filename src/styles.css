@@ -387,7 +387,13 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   [data-empty-state] *,
   [data-widget-title],
   [data-filter-label],
-  [data-title-case]
+  [data-title-case],
+  [role="tooltip"],
+  [data-radix-popper-content-wrapper],
+  .text-destructive,
+  [data-slot="form-message"],
+  [data-slot="form-description"],
+  [data-sonner-toast]
 ) {
   text-transform: capitalize;
 }
