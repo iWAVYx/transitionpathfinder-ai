@@ -116,8 +116,9 @@ export function NextBestAction({
             {action.body}
           </p>
           <div className="mt-4">
-            <Link
-              to={action.ctaHref}
+            <button
+              type="button"
+              onClick={() => navigate({ to: action.ctaHref })}
               className={cn(
                 "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-soft transition hover:shadow-lift",
                 action.tone === "success"
@@ -129,7 +130,7 @@ export function NextBestAction({
             >
               {action.ctaLabel}
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>
