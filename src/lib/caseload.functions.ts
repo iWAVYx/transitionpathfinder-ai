@@ -76,18 +76,22 @@ export const getCaseload = createServerFn({ method: "GET" })
     ]);
 
     for (const a of actions ?? []) {
+      if (!a.student_id) continue;
       const row = map.get(a.student_id);
       if (row && a.status !== "complete") row.open_action_items += 1;
     }
     for (const g of goals ?? []) {
+      if (!g.student_id) continue;
       const row = map.get(g.student_id);
       if (row) row.goal_count += 1;
     }
     for (const n of notes ?? []) {
+      if (!n.student_id) continue;
       const row = map.get(n.student_id);
       if (row && !row.last_note_at) row.last_note_at = n.created_at;
     }
     for (const r of reports ?? []) {
+      if (!r.student_id) continue;
       const row = map.get(r.student_id);
       if (row && !row.latest_report_id) row.latest_report_id = r.id;
     }
