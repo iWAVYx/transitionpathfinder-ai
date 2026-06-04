@@ -1,0 +1,36 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import { Building2, School, Users, BarChart3 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const TABS = [
+  { to: "/district/overview", label: "District Overview", icon: Building2 },
+  { to: "/district/schools", label: "Schools", icon: School },
+  { to: "/district/team", label: "People & Access", icon: Users },
+  { to: "/district/reports", label: "District Reports", icon: BarChart3 },
+];
+
+export function DistrictNav() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <nav className="mt-4 -mx-4 flex gap-1 overflow-x-auto border-b border-border/60 px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+      {TABS.map(({ to, label, icon: Icon }) => {
+        const active = pathname === to;
+        return (
+          <Link
+            key={to}
+            to={to}
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-t-lg px-3 py-2 text-sm transition-colors",
+              active
+                ? "border-b-2 border-primary font-medium text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
