@@ -72,6 +72,10 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <Breadcrumbs trail={[{ label: "My plan" }]} />
 
+        <div className="mt-6">
+          <NextBestAction surface="student" />
+        </div>
+
         <div className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Your transition plan
