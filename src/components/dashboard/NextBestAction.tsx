@@ -25,6 +25,7 @@ export function NextBestAction({
   surface: Surface;
   className?: string;
 }) {
+  const navigate = useNavigate();
   const fetchAction = useServerFn(getNextBestAction);
   const [action, setAction] = useState<NBA | null>(null);
   const [loading, setLoading] = useState(true);
