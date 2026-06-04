@@ -342,7 +342,28 @@ export function SiteHeader() {
                 Explore
               </p>
               <nav className="flex flex-col gap-0.5">
-                {mobileMarketingLinks.map((item) => (
+                {navGroups.map((group) => (
+                  <details key={group.label} className="group/menu rounded-xl">
+                    <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+                      <span>{group.label}</span>
+                      <ChevronDown className="h-4 w-4 transition-transform group-open/menu:rotate-180" />
+                    </summary>
+                    <div className="ml-2 mt-0.5 flex flex-col gap-0.5 border-l border-border/60 pl-2">
+                      {group.items.map((item) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setOpen(false)}
+                          className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                          activeProps={{ className: "text-foreground bg-muted" }}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
+                ))}
+                {navSingles.map((item) => (
                   <Link
                     key={item.to}
                     to={item.to}
@@ -353,7 +374,16 @@ export function SiteHeader() {
                     {item.label}
                   </Link>
                 ))}
+                <Link
+                  to="/privacy"
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  activeProps={{ className: "text-foreground bg-muted" }}
+                >
+                  Privacy
+                </Link>
               </nav>
+
 
               {user && (
                 <>
