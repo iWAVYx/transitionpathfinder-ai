@@ -293,6 +293,13 @@ function DashboardPage() {
               </p>
             </Link>
           </div>
+
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            Just want to look around first?{" "}
+            <Link to="/demo-mode" className="font-medium text-primary hover:underline">
+              Explore Demo Mode (read-only)
+            </Link>
+          </div>
         </div>
       </SiteShell>
     );
