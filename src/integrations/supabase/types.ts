@@ -1809,6 +1809,7 @@ export type Database = {
           id: string
           language: string
           last_name: string | null
+          onboarding_answers: Json
           onboarding_completed: boolean
           organization_id: string | null
           phone: string | null
@@ -1824,6 +1825,7 @@ export type Database = {
           id: string
           language?: string
           last_name?: string | null
+          onboarding_answers?: Json
           onboarding_completed?: boolean
           organization_id?: string | null
           phone?: string | null
@@ -1839,6 +1841,7 @@ export type Database = {
           id?: string
           language?: string
           last_name?: string | null
+          onboarding_answers?: Json
           onboarding_completed?: boolean
           organization_id?: string | null
           phone?: string | null

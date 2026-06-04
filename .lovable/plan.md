@@ -41,11 +41,13 @@ Make the report feel like a real meeting-ready document.
 - Surface answers in: Student Profile page, Pathway Report ("Student Voice" section), Meeting Prep, and as inputs to the resource recommender.
 - Warm, student-friendly visual treatment using existing tokens (no new palette).
 
-## Slice 4 — Role-based onboarding depth
+## Slice 4 — Role-based onboarding depth  ✅ shipped
 
-- Extend `src/routes/_authenticated/onboarding.tsx` with role-specific question sets for: Parent/Guardian, Student, Educator/Case Manager, School Admin, District Admin, Partner. Platform Admin stays internal.
-- Persist all answers to `profiles` + role-specific JSONB column `onboarding_answers` (additive migration; no destructive changes).
-- Confirm post-onboarding redirect uses `fallbackPathFor(role)` (already wired). Make onboarding resumable on refresh.
+- Added role-specific question sets in `src/lib/onboarding-questions.ts` for parent, student, educator, school_admin, district_admin, partner.
+- Onboarding flow now has 4 steps: role → about you → role-specific questions → student (when needed).
+- New `profiles.onboarding_answers` JSONB column (additive migration) persists answers.
+- `saveOnboardingProgress` server fn persists between steps so refresh resumes where the user left off.
+- `completeOnboarding` now accepts `onboarding_answers` and supports `district_admin` (was previously rejected by the enum).
 
 ## Slice 5 — Resource recommendation engine + Meeting Prep + Action Items polish
 
