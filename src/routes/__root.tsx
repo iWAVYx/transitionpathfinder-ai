@@ -152,8 +152,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
                 try {
                   var darkKey = "a11y:dark-mode";
                   var raw = localStorage.getItem(darkKey);
-                  var dark = raw === null ? matchMedia("(prefers-color-scheme: dark)").matches : raw === "1";
-                  if (dark) document.documentElement.classList.add("dark");
+                  if (raw === "1") document.documentElement.classList.add("dark");
                   var locKey = "i18n:locale";
                   var loc = localStorage.getItem(locKey);
                   if (loc && /^[a-z]{2,3}$/.test(loc)) {
