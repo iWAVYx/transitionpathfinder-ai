@@ -28,8 +28,17 @@ function DistrictReportsPage() {
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
     >
-      {(_district, d) => (
+      {(district, d) => (
         <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button size="sm" variant="outline" onClick={() => exportCsv(district, d)}>
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => exportPdf(district, d)}>
+              <FileDown className="h-3.5 w-3.5" /> Export PDF
+            </Button>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               label="Students Across District"
