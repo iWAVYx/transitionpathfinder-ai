@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, TrendingUp, FileText, ClipboardList } from "lucide-react";
+import { BarChart3, TrendingUp, FileText, ClipboardList, Download, FileDown } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import type { DistrictDashboard, DistrictOrg } from "@/lib/district-admin.functions";
+
 
 import {
   DistrictPageShell,
@@ -23,8 +28,17 @@ function DistrictReportsPage() {
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
     >
-      {(_district, d) => (
+      {(district, d) => (
         <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button size="sm" variant="outline" onClick={() => exportCsv(district, d)}>
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => exportPdf(district, d)}>
+              <FileDown className="h-3.5 w-3.5" /> Export PDF
+            </Button>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               label="Students Across District"
@@ -167,3 +181,89 @@ function Card({
     </div>
   );
 }
+
+function slug(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "district";
+}
+
+function buildRows(district: DistrictOrg, d: DistrictDashboard) {
+  const m = d.metrics;
+  const summary = [
+    ["District", district.name],
+    ["Generated", new Date().toLocaleString()],
+    ["Connected Schools", String(m.schools_count)],
+    ["Students Across District", String(m.students_count)],
+    ["Pathway Reports", String(m.reports_count)],
+    ["Open Action Items", String(m.open_actions)],
+    ["% Students with Report", `${m.pct_with_report}%`],
+    ["% Students with Active Goals", `${m.pct_with_goals}%`],
+    ["% Students with Open Actions", `${m.pct_with_actions}%`],
+  ];
+  const schoolRows = d.schools.map((s) => {
+    const pct = s.students_count > 0 ? Math.round((s.reports_count / s.students_count) * 100) : 0;
+    return [s.name, s.students_count, s.reports_count, s.open_actions, `${pct}%`];
+  });
+  return { summary, schoolRows };
+}
+
+function exportCsv(district: DistrictOrg, d: DistrictDashboard) {
+  try {
+    const { summary, schoolRows } = buildRows(district, d);
+    const esc = (v: unknown) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines: string[] = [];
+    lines.push("District Report — Aggregate Metrics");
+    summary.forEach((r) => lines.push(r.map(esc).join(",")));
+    lines.push("");
+    lines.push(["School", "Students", "Reports", "Open Actions", "% with Report"].join(","));
+    schoolRows.forEach((r) => lines.push(r.map(esc).join(",")));
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug(district.name)}-district-report.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported.");
+  } catch {
+    toast.error("Could not export CSV.");
+  }
+}
+
+async function exportPdf(district: DistrictOrg, d: DistrictDashboard) {
+  try {
+    const { jsPDF } = await import("jspdf");
+    const autoTable = (await import("jspdf-autotable")).default;
+    const { summary, schoolRows } = buildRows(district, d);
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("District Report", 14, 18);
+    doc.setFontSize(11);
+    doc.text(district.name, 14, 26);
+    doc.setFontSize(9);
+    doc.text(`Generated ${new Date().toLocaleString()} · Aggregate metrics only`, 14, 32);
+
+    autoTable(doc, {
+      startY: 38,
+      head: [["Metric", "Value"]],
+      body: summary,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [30, 41, 59] },
+    });
+
+    autoTable(doc, {
+      head: [["School", "Students", "Reports", "Open Actions", "% with Report"]],
+      body: schoolRows,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [30, 41, 59] },
+    });
+
+    doc.save(`${slug(district.name)}-district-report.pdf`);
+    toast.success("PDF exported.");
+  } catch {
+    toast.error("Could not export PDF.");
+  }
+}
+
