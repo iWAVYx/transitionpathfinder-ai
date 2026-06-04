@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -86,6 +87,11 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
   path: '/waitlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -485,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
@@ -559,6 +566,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
@@ -635,6 +643,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
@@ -711,6 +720,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/waitlist'
     | '/admin'
     | '/admin-school'
@@ -785,6 +795,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/waitlist'
     | '/admin'
     | '/admin-school'
@@ -860,6 +871,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/waitlist'
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
@@ -936,6 +948,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   WaitlistRoute: typeof WaitlistRoute
   AdminInviteTokenRoute: typeof AdminInviteTokenRoute
   DemoHubRoute: typeof DemoHubRoute
@@ -962,6 +975,13 @@ declare module '@tanstack/react-router' {
       path: '/waitlist'
       fullPath: '/waitlist'
       preLoaderRoute: typeof WaitlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1623,6 +1643,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   WaitlistRoute: WaitlistRoute,
   AdminInviteTokenRoute: AdminInviteTokenRoute,
   DemoHubRoute: DemoHubRoute,
