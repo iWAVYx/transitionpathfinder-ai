@@ -2576,6 +2576,39 @@ export type Database = {
           },
         ]
       }
+      student_voice_responses: {
+        Row: {
+          age_band: string | null
+          created_at: string
+          created_by: string
+          id: string
+          prompt_key: string
+          response_text: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          age_band?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          prompt_key: string
+          response_text?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          age_band?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          prompt_key?: string
+          response_text?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           age: number | null
