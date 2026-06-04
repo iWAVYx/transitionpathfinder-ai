@@ -3,6 +3,7 @@ import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight } from "lu
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { Button } from "@/components/ui/button";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
