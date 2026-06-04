@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos } from "@/lib/photos";
@@ -414,57 +416,8 @@ function FrameworkPage() {
             <UnderlineSwoosh className="mx-auto mt-4 h-3 w-56 text-primary/60" />
           </div>
 
-          <div className="relative mt-10">
-            {/* horizontal spine */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent lg:block"
-            />
-            <ol className="grid gap-8 lg:grid-cols-4 lg:gap-6">
-              {bands.map((b, i) => (
-                <Reveal key={b.grade} delay={i * 80}>
-                  <li className="relative">
-                    <div className="flex flex-col items-center">
-                      <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-background font-display text-xl font-semibold text-primary shadow-soft ring-4 ring-background">
-                        <span
-                          aria-hidden
-                          className="absolute inset-0 rounded-full border border-primary/50"
-                        />
-                        {b.grade}
-                      </span>
-                      <p className="mt-4 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        Stop {i + 1} of 4
-                      </p>
-                      <h3 className="mt-2 text-center font-display text-xl font-medium leading-tight">
-                        {toTitleCase(b.title)}
-                      </h3>
-                    </div>
+          <FourYearArc bands={bands} />
 
-                    <div className="mt-5 space-y-3 text-sm">
-                      <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-                          Your child
-                        </p>
-                        <p className="mt-1 leading-relaxed text-foreground">{b.student}</p>
-                      </div>
-                      <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-                          The team
-                        </p>
-                        <p className="mt-1 leading-relaxed text-foreground">{b.team}</p>
-                      </div>
-                      <div className="rounded-2xl bg-gradient-warm p-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-                          Evidence we keep
-                        </p>
-                        <p className="mt-1 leading-relaxed text-foreground">{b.evidence}</p>
-                      </div>
-                    </div>
-                  </li>
-                </Reveal>
-              ))}
-            </ol>
-          </div>
 
           <div className="mt-12 overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
             <h3 className="font-display text-3xl font-medium sm:text-4xl">
