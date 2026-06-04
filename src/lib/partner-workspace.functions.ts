@@ -7,6 +7,11 @@ export type PartnerOrg = {
   name: string;
   type: string;
   verified_status: string;
+  website: string | null;
+  contact_email: string | null;
+  city: string | null;
+  state: string | null;
+  address: string | null;
 };
 
 export type PartnerOpportunity = {
@@ -27,9 +32,27 @@ export type PartnerOpportunity = {
 export type PartnerWorkspace = {
   is_partner: boolean;
   orgs: PartnerOrg[];
-  selected_org_id: string | null;
+  selected_org: PartnerOrg | null;
   opportunities: PartnerOpportunity[];
 };
+
+const ORG_SELECT =
+  "id, name, type, verified_status, website, contact_email, city, state, address";
+
+// DB-allowed statuses for partner_opportunities
+const OPP_STATUS = ["draft", "pending_review", "approved", "inactive"] as const;
+// DB-allowed opportunity types
+const OPP_TYPE = [
+  "college_program",
+  "technical_school",
+  "certificate_program",
+  "employer",
+  "internship",
+  "mentorship",
+  "job_shadowing",
+  "agency_support",
+  "community_resource",
+] as const;
 
 export const getPartnerWorkspace = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -46,34 +69,34 @@ export const getPartnerWorkspace = createServerFn({ method: "POST" })
       .eq("status", "active");
     const orgIds = (memberships ?? []).map((m: { organization_id: string }) => m.organization_id);
     if (orgIds.length === 0) {
-      return { is_partner: false, orgs: [], selected_org_id: null, opportunities: [] };
+      return { is_partner: false, orgs: [], selected_org: null, opportunities: [] };
     }
 
     const { data: orgsData } = await supabase
       .from("organizations")
-      .select("id, name, type, verified_status")
+      .select(ORG_SELECT)
       .in("id", orgIds)
       .in("type", ["partner", "agency"]);
     const orgs = (orgsData ?? []) as PartnerOrg[];
     if (orgs.length === 0) {
-      return { is_partner: false, orgs: [], selected_org_id: null, opportunities: [] };
+      return { is_partner: false, orgs: [], selected_org: null, opportunities: [] };
     }
 
-    const selectedOrgId =
-      data.org_id && orgs.some((o) => o.id === data.org_id) ? data.org_id : orgs[0].id;
+    const selected =
+      (data.org_id && orgs.find((o) => o.id === data.org_id)) || orgs[0];
 
     const { data: opps } = await supabase
       .from("partner_opportunities")
       .select(
         "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, contact_email, created_at",
       )
-      .eq("organization_id", selectedOrgId)
+      .eq("organization_id", selected.id)
       .order("created_at", { ascending: false });
 
     return {
       is_partner: true,
       orgs,
-      selected_org_id: selectedOrgId,
+      selected_org: selected,
       opportunities: (opps ?? []) as PartnerOpportunity[],
     };
   });
@@ -82,12 +105,22 @@ const opportunitySchema = z.object({
   organization_id: z.string().uuid(),
   title: z.string().trim().min(2).max(200),
   description: z.string().trim().max(2000).optional(),
-  opportunity_type: z.string().trim().min(2).max(60),
+  opportunity_type: z.enum(OPP_TYPE),
   location: z.string().trim().max(200).optional(),
   age_range: z.string().trim().max(60).optional(),
   eligibility: z.string().trim().max(500).optional(),
-  application_url: z.string().url().max(500).optional().or(z.literal("").transform(() => undefined)),
-  contact_email: z.string().email().max(200).optional().or(z.literal("").transform(() => undefined)),
+  application_url: z
+    .string()
+    .url()
+    .max(500)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  contact_email: z
+    .string()
+    .email()
+    .max(200)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
 });
 
 export const createOpportunity = createServerFn({ method: "POST" })
@@ -112,7 +145,7 @@ export const updateOpportunity = createServerFn({ method: "POST" })
         id: z.string().uuid(),
         title: z.string().trim().min(2).max(200).optional(),
         description: z.string().trim().max(2000).optional(),
-        status: z.enum(["draft", "submitted", "approved", "archived"]).optional(),
+        status: z.enum(OPP_STATUS).optional(),
       })
       .parse(i),
   )
@@ -132,4 +165,131 @@ export const deleteOpportunity = createServerFn({ method: "POST" })
     const { error } = await supabase.from("partner_opportunities").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// Bootstrap: create a partner organization and add the current user as
+// an active admin member. Used when a partner user has no org yet.
+export const createPartnerOrg = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        name: z.string().trim().min(2).max(200),
+        type: z.enum(["partner", "agency"]).default("partner"),
+        website: z
+          .string()
+          .url()
+          .max(500)
+          .optional()
+          .or(z.literal("").transform(() => undefined)),
+        contact_email: z
+          .string()
+          .email()
+          .max(200)
+          .optional()
+          .or(z.literal("").transform(() => undefined)),
+        city: z.string().trim().max(120).optional(),
+        state: z.string().trim().max(60).optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: org, error } = await supabase
+      .from("organizations")
+      .insert({
+        name: data.name,
+        type: data.type,
+        website: data.website ?? null,
+        contact_email: data.contact_email ?? null,
+        city: data.city ?? null,
+        state: data.state ?? null,
+        verified_status: "pending",
+      })
+      .select("id")
+      .single();
+    if (error || !org) throw new Error(error?.message ?? "Could not create organization");
+
+    const { error: mErr } = await supabase.from("organization_memberships").insert({
+      organization_id: org.id,
+      user_id: userId,
+      role_within_org: "admin",
+      status: "active",
+    });
+    if (mErr) throw new Error(mErr.message);
+    return { id: org.id as string };
+  });
+
+export const updatePartnerOrgProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        name: z.string().trim().min(2).max(200).optional(),
+        website: z
+          .string()
+          .url()
+          .max(500)
+          .optional()
+          .or(z.literal("").transform(() => undefined)),
+        contact_email: z
+          .string()
+          .email()
+          .max(200)
+          .optional()
+          .or(z.literal("").transform(() => undefined)),
+        city: z.string().trim().max(120).optional(),
+        state: z.string().trim().max(60).optional(),
+        address: z.string().trim().max(300).optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { id, ...patch } = data;
+    const { error } = await supabase.from("organizations").update(patch).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// Public-facing approved opportunities for the catalog.
+export type PublicOpportunity = PartnerOpportunity & {
+  organization_name: string;
+  organization_city: string | null;
+  organization_state: string | null;
+  organization_website: string | null;
+};
+
+export const listApprovedOpportunities = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PublicOpportunity[]> => {
+    const { supabase } = context;
+    const { data, error } = await supabase
+      .from("partner_opportunities")
+      .select(
+        "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, contact_email, created_at, organizations:organization_id (name, city, state, website)",
+      )
+      .eq("status", "approved")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((row: any) => ({
+      id: row.id,
+      organization_id: row.organization_id,
+      title: row.title,
+      description: row.description,
+      opportunity_type: row.opportunity_type,
+      status: row.status,
+      location: row.location,
+      age_range: row.age_range,
+      eligibility: row.eligibility,
+      application_url: row.application_url,
+      contact_email: row.contact_email,
+      created_at: row.created_at,
+      organization_name: row.organizations?.name ?? "Partner organization",
+      organization_city: row.organizations?.city ?? null,
+      organization_state: row.organizations?.state ?? null,
+      organization_website: row.organizations?.website ?? null,
+    }));
   });
