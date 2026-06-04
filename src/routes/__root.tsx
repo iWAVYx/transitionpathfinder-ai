@@ -143,6 +143,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Force light as the default color scheme everywhere — the app opts
+            into dark only when the user explicitly toggles it via the
+            accessibility panel (localStorage["a11y:dark-mode"] === "1"). */}
+        <meta name="color-scheme" content="light" />
         <meta name="csp-nonce" content={nonce} />
         <script
           nonce={nonce}
