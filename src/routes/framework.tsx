@@ -290,7 +290,7 @@ function FrameworkPage() {
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-12 max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              The manifesto
+              The Manifesto
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
               What we believe about transition.
