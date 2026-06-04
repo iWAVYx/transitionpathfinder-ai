@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos } from "@/lib/photos";
+import { toTitleCase } from "@/lib/title-case";
 const aboutHero = photos.about;
 const aboutStudent = photos.aboutStudent;
 const pathCollege = photos.pathCollege;
