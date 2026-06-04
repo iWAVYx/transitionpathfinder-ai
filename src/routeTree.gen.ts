@@ -41,6 +41,7 @@ import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
+import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authenticated/student-voice'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -57,6 +58,7 @@ import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/forms'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
+import { Route as AuthenticatedDemoModeRouteImport } from './routes/_authenticated/demo-mode'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCaseloadRouteImport } from './routes/_authenticated/caseload'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
@@ -256,6 +258,11 @@ const AdminInviteTokenRoute = AdminInviteTokenRouteImport.update({
   path: '/admin-invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTrustRoute = AuthenticatedTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
   path: '/students',
@@ -337,6 +344,11 @@ const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
 const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDemoModeRoute = AuthenticatedDemoModeRouteImport.update({
+  id: '/demo-mode',
+  path: '/demo-mode',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -586,6 +598,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/demo-mode': typeof AuthenticatedDemoModeRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/forms': typeof AuthenticatedFormsRouteWithChildren
@@ -602,6 +615,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/hub': typeof DemoHubRoute
@@ -674,6 +688,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/demo-mode': typeof AuthenticatedDemoModeRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/forms': typeof AuthenticatedFormsRouteWithChildren
@@ -690,6 +705,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/hub': typeof DemoHubRoute
@@ -764,6 +780,7 @@ export interface FileRoutesById {
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/caseload': typeof AuthenticatedCaseloadRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/demo-mode': typeof AuthenticatedDemoModeRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/forms': typeof AuthenticatedFormsRouteWithChildren
@@ -780,6 +797,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo_/hub': typeof DemoHubRoute
@@ -854,6 +872,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/caseload'
     | '/dashboard'
+    | '/demo-mode'
     | '/documents'
     | '/feed'
     | '/forms'
@@ -870,6 +889,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/student-voice'
     | '/students'
+    | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/hub'
@@ -942,6 +962,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/caseload'
     | '/dashboard'
+    | '/demo-mode'
     | '/documents'
     | '/feed'
     | '/forms'
@@ -958,6 +979,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/student-voice'
     | '/students'
+    | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/hub'
@@ -1031,6 +1053,7 @@ export interface FileRouteTypes {
     | '/_authenticated/analytics'
     | '/_authenticated/caseload'
     | '/_authenticated/dashboard'
+    | '/_authenticated/demo-mode'
     | '/_authenticated/documents'
     | '/_authenticated/feed'
     | '/_authenticated/forms'
@@ -1047,6 +1070,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/student-voice'
     | '/_authenticated/students'
+    | '/_authenticated/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo_/hub'
@@ -1360,6 +1384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/trust': {
+      id: '/_authenticated/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof AuthenticatedTrustRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/students': {
       id: '/_authenticated/students'
       path: '/students'
@@ -1470,6 +1501,13 @@ declare module '@tanstack/react-router' {
       path: '/documents'
       fullPath: '/documents'
       preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/demo-mode': {
+      id: '/_authenticated/demo-mode'
+      path: '/demo-mode'
+      fullPath: '/demo-mode'
+      preLoaderRoute: typeof AuthenticatedDemoModeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -1802,6 +1840,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedCaseloadRoute: typeof AuthenticatedCaseloadRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDemoModeRoute: typeof AuthenticatedDemoModeRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedFormsRoute: typeof AuthenticatedFormsRouteWithChildren
@@ -1818,6 +1857,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
@@ -1850,6 +1890,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedCaseloadRoute: AuthenticatedCaseloadRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDemoModeRoute: AuthenticatedDemoModeRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedFormsRoute: AuthenticatedFormsRouteWithChildren,
@@ -1866,6 +1907,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedTrustRoute: AuthenticatedTrustRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
