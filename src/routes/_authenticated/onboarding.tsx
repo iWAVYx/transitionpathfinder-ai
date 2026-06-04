@@ -18,12 +18,21 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { completeOnboarding, getProfile } from "@/lib/profile.functions";
+import {
+  completeOnboarding,
+  getProfile,
+  saveOnboardingProgress,
+} from "@/lib/profile.functions";
 import { createStudent, listStudents } from "@/lib/students.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
+import {
+  questionsForRole,
+  type OnboardingQuestion,
+} from "@/lib/onboarding-questions";
 
 const ROLE_OPTIONS = [
   { id: "student", label: "Student", note: "This is my plan", icon: User },
@@ -43,8 +52,12 @@ const GRADE_OPTIONS = [
   { value: "not-applicable", label: "Not applicable" },
 ] as const;
 
-const STEPS = ["role", "you", "student"] as const;
+const STEPS = ["role", "you", "questions", "student"] as const;
 type StepId = (typeof STEPS)[number];
+
+// Per-prompt answer can be a string (single/text) or string[] (multi).
+type AnswerValue = string | string[];
+type AnswerMap = Record<string, AnswerValue>;
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -52,7 +65,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
       { title: "Get started — TransitionForward" },
       {
         name: "description",
-        content: "A quick 3-step setup: tell us your role, your name, and add your first student.",
+        content: "A quick guided setup so your dashboard is tuned to how you'll actually use it.",
       },
     ],
   }),
@@ -64,12 +77,14 @@ function OnboardingPage() {
   const loadProfile = useServerFn(getProfile);
   const loadStudents = useServerFn(listStudents);
   const saveProfile = useServerFn(completeOnboarding);
+  const saveProgress = useServerFn(saveOnboardingProgress);
   const addStudent = useServerFn(createStudent);
 
   const [idx, setIdx] = useState(0);
   const [role, setRole] = useState<RoleId | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [answers, setAnswers] = useState<AnswerMap>({});
   const [studentFirst, setStudentFirst] = useState("");
   const [studentLast, setStudentLast] = useState("");
   const [studentGrade, setStudentGrade] = useState<string>("");
@@ -77,7 +92,7 @@ function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [bootstrapped, setBootstrapped] = useState(false);
 
-  // Prefill from existing profile; bounce if onboarding already done.
+  // Prefill from existing profile (resumable); bounce if onboarding already done.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -99,6 +114,8 @@ function OnboardingPage() {
         setRole((p.primary_role as RoleId | null) ?? null);
         setFirstName(p.first_name ?? "");
         setLastName(p.last_name ?? "");
+        const saved = (p.onboarding_answers ?? {}) as AnswerMap;
+        if (saved && typeof saved === "object") setAnswers(saved);
       } catch {
         /* best-effort prefill */
       } finally {
@@ -110,13 +127,32 @@ function OnboardingPage() {
     };
   }, [loadProfile, loadStudents, navigate]);
 
-  // School Administrator and Partner don't need a student profile in onboarding.
   const needsStudent = role === "parent" || role === "student" || role === "educator";
-  const activeSteps: StepId[] = needsStudent ? ["role", "you", "student"] : ["role", "you"];
+  const roleQuestions = useMemo(() => questionsForRole(role), [role]);
+  const hasQuestions = !!roleQuestions && roleQuestions.questions.length > 0;
+
+  const activeSteps: StepId[] = useMemo(() => {
+    const steps: StepId[] = ["role", "you"];
+    if (hasQuestions) steps.push("questions");
+    if (needsStudent) steps.push("student");
+    return steps;
+  }, [hasQuestions, needsStudent]);
+
   const safeIdx = Math.min(idx, activeSteps.length - 1);
   const stepId: StepId = activeSteps[safeIdx];
   const progress = Math.round(((safeIdx + 1) / activeSteps.length) * 100);
   const isLastStep = safeIdx === activeSteps.length - 1;
+
+  // Required keys per role: every `single` question must be answered.
+  const requiredAnswered = useMemo(() => {
+    if (!roleQuestions) return true;
+    return roleQuestions.questions
+      .filter((q) => q.type === "single")
+      .every((q) => {
+        const v = answers[q.key];
+        return typeof v === "string" && v.length > 0;
+      });
+  }, [roleQuestions, answers]);
 
   const canAdvance = useMemo(() => {
     switch (stepId) {
@@ -124,13 +160,48 @@ function OnboardingPage() {
         return role !== null;
       case "you":
         return firstName.trim().length > 0;
+      case "questions":
+        return requiredAnswered;
       case "student":
         return studentFirst.trim().length > 0;
     }
-  }, [stepId, role, firstName, studentFirst]);
+  }, [stepId, role, firstName, requiredAnswered, studentFirst]);
+
+  // Persist progress on step change so refresh resumes where you left off.
+  async function persistProgress(nextRole: RoleId | null = role) {
+    try {
+      await saveProgress({
+        data: {
+          ...(nextRole ? { primary_role: nextRole } : {}),
+          ...(firstName.trim() ? { first_name: firstName.trim() } : {}),
+          ...(lastName.trim() ? { last_name: lastName.trim() } : {}),
+          onboarding_answers: answers as Record<string, unknown>,
+        },
+      });
+    } catch {
+      /* progress save is best-effort; don't block UX */
+    }
+  }
 
   const goBack = () => safeIdx > 0 && setIdx(safeIdx - 1);
-  const goNext = () => safeIdx < activeSteps.length - 1 && setIdx(safeIdx + 1);
+  const goNext = async () => {
+    await persistProgress();
+    if (safeIdx < activeSteps.length - 1) setIdx(safeIdx + 1);
+  };
+
+  function setAnswer(key: string, value: AnswerValue) {
+    setAnswers((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function toggleMulti(key: string, value: string) {
+    setAnswers((prev) => {
+      const current = Array.isArray(prev[key]) ? (prev[key] as string[]) : [];
+      const next = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      return { ...prev, [key]: next };
+    });
+  }
 
   async function handleFinish(e: FormEvent) {
     e.preventDefault();
@@ -143,6 +214,7 @@ function OnboardingPage() {
           primary_role: role,
           first_name: firstName.trim(),
           last_name: lastName.trim() || undefined,
+          onboarding_answers: answers as Record<string, unknown>,
         },
       });
       if (needsStudent) {
@@ -158,7 +230,6 @@ function OnboardingPage() {
       } else {
         toast.success("You're all set. Welcome to TransitionForward.");
       }
-      // Send each role to the workspace that's actually theirs.
       const aud = audiencesForRoles(
         role === "educator" ? ["educator", "case_manager"] : [role],
       );
@@ -217,7 +288,11 @@ function OnboardingPage() {
                     <button
                       type="button"
                       key={id}
-                      onClick={() => setRole(id)}
+                      onClick={() => {
+                        setRole(id);
+                        // Reset answers when role changes since the question set is different.
+                        if (role !== id) setAnswers({});
+                      }}
                       className={cn(
                         "flex items-start gap-3 rounded-2xl border bg-background p-4 text-left transition-colors",
                         active
@@ -266,6 +341,28 @@ function OnboardingPage() {
                     onChange={(e) => setLastName(e.target.value)}
                   />
                 </div>
+              </div>
+            </div>
+          )}
+
+          {stepId === "questions" && roleQuestions && (
+            <div className="space-y-6">
+              <Header
+                eyebrow="A few quick questions"
+                title={roleQuestions.title}
+                body={roleQuestions.body}
+              />
+              <div className="space-y-6">
+                {roleQuestions.questions.map((q) => (
+                  <QuestionField
+                    key={q.key}
+                    question={q}
+                    value={answers[q.key]}
+                    onSetSingle={(v) => setAnswer(q.key, v)}
+                    onToggleMulti={(v) => toggleMulti(q.key, v)}
+                    onSetText={(v) => setAnswer(q.key, v)}
+                  />
+                ))}
               </div>
             </div>
           )}
@@ -371,6 +468,86 @@ function Header({ eyebrow, title, body }: { eyebrow: string; title: string; body
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
       <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">{title}</h1>
       <p className="mt-3 leading-relaxed text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function QuestionField({
+  question,
+  value,
+  onSetSingle,
+  onToggleMulti,
+  onSetText,
+}: {
+  question: OnboardingQuestion;
+  value: AnswerValue | undefined;
+  onSetSingle: (v: string) => void;
+  onToggleMulti: (v: string) => void;
+  onSetText: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-sm font-semibold">{question.label}</p>
+        {question.help && (
+          <p className="mt-1 text-xs text-muted-foreground">{question.help}</p>
+        )}
+      </div>
+
+      {question.type === "single" && question.options && (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {question.options.map((opt) => {
+            const active = value === opt.value;
+            return (
+              <button
+                type="button"
+                key={opt.value}
+                onClick={() => onSetSingle(opt.value)}
+                className={cn(
+                  "flex items-center justify-between gap-2 rounded-xl border bg-background px-3 py-2 text-left text-sm transition-colors",
+                  active ? "border-primary bg-primary/5" : "hover:border-primary/40",
+                )}
+              >
+                <span>{opt.label}</span>
+                {active && <Check className="h-4 w-4 text-primary" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {question.type === "multi" && question.options && (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {question.options.map((opt) => {
+            const list = Array.isArray(value) ? value : [];
+            const active = list.includes(opt.value);
+            return (
+              <button
+                type="button"
+                key={opt.value}
+                onClick={() => onToggleMulti(opt.value)}
+                className={cn(
+                  "flex items-center justify-between gap-2 rounded-xl border bg-background px-3 py-2 text-left text-sm transition-colors",
+                  active ? "border-primary bg-primary/5" : "hover:border-primary/40",
+                )}
+              >
+                <span>{opt.label}</span>
+                {active && <Check className="h-4 w-4 text-primary" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {question.type === "text" && (
+        <Textarea
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onSetText(e.target.value)}
+          placeholder={question.placeholder}
+          maxLength={question.maxLength ?? 500}
+          rows={3}
+        />
+      )}
     </div>
   );
 }
