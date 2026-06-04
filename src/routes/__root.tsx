@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccessibilityControls } from "@/components/a11y/AccessibilityControls";
 import { SmoothScroll } from "@/components/effects/SmoothScroll";
+import { ScrollToTop } from "@/components/site/ScrollToTop";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -185,6 +186,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <SmoothScroll />
+        <ScrollToTop />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster />

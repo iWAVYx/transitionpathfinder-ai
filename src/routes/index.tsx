@@ -522,7 +522,7 @@ function HomePage() {
 
 
       {/* PATHWAYS — image tile grid of real next-step destinations */}
-      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section id="pathways" className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 scroll-mt-20">
         <Parallax speed={0.2} className="absolute -left-4 top-6 hidden h-20 w-28 text-primary/55 md:block">
           <BookDoodle className="h-full w-full" />
         </Parallax>

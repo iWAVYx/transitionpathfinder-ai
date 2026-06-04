@@ -22,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { completeOnboarding, getProfile } from "@/lib/profile.functions";
 import { createStudent, listStudents } from "@/lib/students.functions";
+import { SchoolPicker } from "@/components/forms/SchoolPicker";
 
 const ROLE_OPTIONS = [
   { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
@@ -285,13 +286,12 @@ function OnboardingPage() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="s-school">School <span className="text-muted-foreground">(optional)</span></Label>
-                  <Input
+                  <SchoolPicker
                     id="s-school"
-                    maxLength={160}
                     value={studentSchool}
-                    onChange={(e) => setStudentSchool(e.target.value)}
+                    onChange={setStudentSchool}
                   />
                 </div>
               </div>
