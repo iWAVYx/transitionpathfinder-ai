@@ -119,6 +119,17 @@ const userGroups: UserNavGroup[] = [
       { to: "/school/implementation", label: "Implementation" },
     ],
   },
+  // School District Administrator — district-level oversight across schools
+  {
+    label: "District Administration",
+    roles: ["district_admin", "admin"],
+    items: [
+      { to: "/district/overview", label: "District Overview" },
+      { to: "/district/schools", label: "Schools" },
+      { to: "/district/team", label: "People & Access" },
+      { to: "/district/reports", label: "District Reports" },
+    ],
+  },
   // Partner Organization workspace
   {
     label: "Partner Workspace",
