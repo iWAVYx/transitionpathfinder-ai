@@ -42,6 +42,7 @@ import { Route as DemoHubRouteImport } from './routes/demo_.hub'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
+import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authenticated/student-voice'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
@@ -260,6 +261,12 @@ const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedStudentVoiceRoute =
+  AuthenticatedStudentVoiceRouteImport.update({
+    id: '/student-voice',
+    path: '/student-voice',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -593,6 +600,7 @@ export interface FileRoutesByFullPath {
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
+  '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -680,6 +688,7 @@ export interface FileRoutesByTo {
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
+  '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -769,6 +778,7 @@ export interface FileRoutesById {
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -858,6 +868,7 @@ export interface FileRouteTypes {
     | '/ppt-prep'
     | '/reports'
     | '/settings'
+    | '/student-voice'
     | '/students'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -945,6 +956,7 @@ export interface FileRouteTypes {
     | '/ppt-prep'
     | '/reports'
     | '/settings'
+    | '/student-voice'
     | '/students'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -1033,6 +1045,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ppt-prep'
     | '/_authenticated/reports'
     | '/_authenticated/settings'
+    | '/_authenticated/student-voice'
     | '/_authenticated/students'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -1352,6 +1365,13 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/students'
       preLoaderRoute: typeof AuthenticatedStudentsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/student-voice': {
+      id: '/_authenticated/student-voice'
+      path: '/student-voice'
+      fullPath: '/student-voice'
+      preLoaderRoute: typeof AuthenticatedStudentVoiceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings': {
@@ -1796,6 +1816,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
@@ -1843,6 +1864,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,

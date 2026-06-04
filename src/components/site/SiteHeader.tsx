@@ -86,6 +86,7 @@ const userGroups: UserNavGroup[] = [
     items: [
       { to: "/pathway", label: "Create Pathway Report" },
       { to: "/reports", label: "Pathway Reports" },
+      { to: "/student-voice", label: "Student Voice" },
       { to: "/ppt-prep", label: "PPT / IEP Meeting Prep" },
       { to: "/meetings", label: "Meetings" },
     ],
