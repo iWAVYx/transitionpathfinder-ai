@@ -78,15 +78,24 @@ function AdminUsersPage() {
     if (!email.trim()) return;
     setSubmitting(true);
     try {
-      const { invitation } = await createInvite({
+      const result = await createInvite({
         data: { email: email.trim(), role },
       });
+      const { invitation, email: emailResult } = result;
       const url = inviteUrl(invitation.token);
       try {
         await navigator.clipboard.writeText(url);
-        toast.success("Invitation created — link copied to clipboard.");
       } catch {
-        toast.success("Invitation created.");
+        /* clipboard unavailable */
+      }
+      if (emailResult?.status === "sent") {
+        toast.success(`Invitation emailed to ${invitation.email} — link also copied.`);
+      } else if (emailResult?.status === "failed") {
+        toast.warning(
+          `Invitation created and link copied, but email failed to send${emailResult.error ? `: ${emailResult.error}` : "."}`,
+        );
+      } else {
+        toast.success("Invitation created — link copied to clipboard.");
       }
       setEmail("");
       await refresh();
