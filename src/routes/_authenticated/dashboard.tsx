@@ -25,6 +25,7 @@ import {
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { WelcomeBanner } from "@/components/site/WelcomeBanner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { toTitleCase } from "@/lib/title-case";
@@ -268,13 +269,14 @@ function DashboardPage() {
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <Breadcrumbs trail={[{ label: "Dashboard" }]} />
 
+        <div className="mt-4">
+          <WelcomeBanner firstName={friendly} />
+        </div>
+
         {/* Header band */}
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Welcome back</p>
-            <h1 className="mt-2 font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
-              Hi, {toTitleCase(friendly)}.
-            </h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Your students</p>
           </div>
           {students.length > 1 && (
             <select
