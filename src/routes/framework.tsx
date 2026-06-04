@@ -525,6 +525,7 @@ function ArcDot({
   const mid = (start + end) / 2;
   const active = useTransform(scrollYProgress, [mid - 0.02, mid + 0.02], [0, 1]);
   const scale = useTransform(active, [0, 1], [1, 1.15]);
+  const dimRing = useTransform(active, [0, 1], [1, 0]);
   return (
     <li className="relative flex flex-col items-center">
       <motion.span
@@ -538,7 +539,7 @@ function ArcDot({
         />
         <motion.span
           aria-hidden
-          style={{ opacity: useTransform(active, [0, 1], [1, 0]) }}
+          style={{ opacity: dimRing }}
           className="absolute inset-0 rounded-full border border-primary/40"
         />
         {grade}
