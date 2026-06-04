@@ -294,25 +294,20 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 
 /* ------------------------------------------------------------------
  * Mobile centering — site-wide pass.
- * On phones (<768px), center the visual spine of the site so headings,
- * tag-lines, and primary CTA rows sit on the midline with equal margins.
- * Scoped to .site-shell-main (marketing pages via SiteShell) AND the
- * signed-in app shell, but kept off of tables, lists, blog body prose,
- * and anything explicitly opted out with `.mobile-no-center`.
+ * On phones (<768px), center the visual spine of every marketing page so
+ * headings, eyebrows, intro paragraphs, and CTA rows sit on the midline
+ * with equal margins. Implemented as an inherit-based default on
+ * `.site-shell-main` with explicit opt-outs for surfaces where centering
+ * looks wrong (prose articles, tables, forms, lists with bullets, and
+ * anything tagged `.mobile-no-center`).
+ * Signed-in dashboards aren't wrapped in SiteShell, so this rule does NOT
+ * affect them — they keep their existing alignment.
  * ------------------------------------------------------------------ */
 @media (max-width: 767px) {
-  .site-shell-main :where(h1, h2, h3, h4, .text-balance, .lead, .eyebrow):not(.mobile-no-center) {
+  .site-shell-main {
     text-align: center;
   }
-  /* Section intro paragraphs: only the first/lead paragraph of a section
-     or a wrapper marked .section-intro. Avoids centering prose-body and
-     blog-post text. */
-  .site-shell-main :where(section, header) > p:not(.mobile-no-center),
-  .site-shell-main :where(section, header) > div > p.lead:not(.mobile-no-center),
-  .site-shell-main .section-intro p:not(.mobile-no-center) {
-    text-align: center;
-  }
-  /* CTA / button rows — common flex-wrap pattern used across the site. */
+  /* Common CTA / button rows use flex-wrap; center the row too. */
   .site-shell-main :where(
     .flex.flex-wrap.gap-2,
     .flex.flex-wrap.gap-3,
@@ -323,15 +318,27 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   ):not(.mobile-no-center) {
     justify-content: center;
   }
-  /* Never center inside long-form prose (blog body, reports) or tabular UI. */
-  .site-shell-main .prose :where(h1, h2, h3, h4, p),
-  .site-shell-main table :where(th, td),
-  .site-shell-main [role="table"] :where(th, td),
-  .site-shell-main .no-mobile-center,
-  .site-shell-main .no-mobile-center :where(h1, h2, h3, h4, p) {
+
+  /* Opt-outs: revert to natural alignment where centering hurts UX. */
+  .site-shell-main :where(
+    .prose,
+    article.prose,
+    table,
+    [role="table"],
+    form,
+    fieldset,
+    ul:not(.text-center):not(.flex),
+    ol:not(.text-center):not(.flex),
+    dl,
+    pre,
+    code,
+    [data-mobile-no-center],
+    .mobile-no-center
+  ) {
     text-align: revert;
   }
-  .site-shell-main .prose :where(.flex.flex-wrap) {
+  .site-shell-main :where(.prose, .mobile-no-center) :where(.flex.flex-wrap) {
     justify-content: revert;
   }
 }
+
