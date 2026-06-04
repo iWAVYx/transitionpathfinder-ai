@@ -341,3 +341,33 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   }
 }
 
+
+/* Title-case headings, labels, buttons, nav and tabs inside signed-in views.
+   Uses CSS capitalize: capitalizes the first letter of each word without
+   touching the rest, so existing UPPERCASE eyebrows stay uppercase and
+   acronyms (IEP, PPT) are preserved. Excludes content authored by users
+   (prose, inputs) and data fields like emails/code. */
+.signed-in-shell :where(
+  h1, h2, h3, h4, h5, h6,
+  button,
+  [role="tab"],
+  [role="menuitem"],
+  nav a,
+  .nav-link,
+  label,
+  th,
+  [data-title-case]
+) {
+  text-transform: capitalize;
+}
+
+.signed-in-shell :where(
+  .prose, .prose *,
+  input, textarea, select, option,
+  code, pre, kbd, samp,
+  [data-no-title-case], [data-no-title-case] *,
+  [type="email"], [type="url"], [type="password"],
+  a[href^="mailto:"], a[href^="http"]:not(.nav-link)
+) {
+  text-transform: none;
+}
