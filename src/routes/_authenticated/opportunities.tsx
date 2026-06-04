@@ -306,6 +306,83 @@ function OpportunitiesPage() {
           </p>
         )}
 
+        <section className="mt-12 border-t border-border/60 pt-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> From our partner network
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight">
+                Live opportunities from verified partners
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Submitted by partner organizations and reviewed by the TransitionForward team.
+              </p>
+            </div>
+          </div>
+
+          {loadingPartners ? (
+            <p className="mt-6 text-sm text-muted-foreground">Loading partner programs…</p>
+          ) : filteredPartners.length === 0 ? (
+            <p className="mt-6 rounded-2xl border bg-muted/40 p-6 text-center text-sm text-muted-foreground">
+              No approved partner opportunities yet
+              {q ? " for that search" : ""}. Check back soon — our team adds new listings weekly.
+            </p>
+          ) : (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {filteredPartners.map((o) => (
+                <article
+                  key={o.id}
+                  className="flex flex-col rounded-2xl border bg-card p-5 shadow-soft transition-all hover:shadow-lift"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                    {o.opportunity_type.replace(/_/g, " ")}
+                  </p>
+                  <h3 className="mt-1 font-display text-lg font-medium">
+                    {toTitleCase(o.title)}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {o.organization_name}
+                    {(o.location || o.organization_city) && (
+                      <>
+                        {" · "}
+                        <MapPin className="inline h-3 w-3" />{" "}
+                        {o.location ||
+                          [o.organization_city, o.organization_state]
+                            .filter(Boolean)
+                            .join(", ")}
+                      </>
+                    )}
+                  </p>
+                  {o.description && (
+                    <p className="mt-3 text-sm text-muted-foreground line-clamp-4">
+                      {o.description}
+                    </p>
+                  )}
+                  {o.eligibility && (
+                    <p className="mt-2 text-xs italic text-foreground/70">
+                      Eligibility: {o.eligibility}
+                    </p>
+                  )}
+                  {(o.application_url || o.organization_website) && (
+                    <div className="mt-4 flex justify-end">
+                      <Button asChild size="sm" variant="outline">
+                        <a
+                          href={(o.application_url || o.organization_website)!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Learn more <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </Button>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
         <p className="mt-10 rounded-2xl border bg-muted/40 p-4 text-xs text-muted-foreground">
           Listings are informational and not endorsements. Always confirm eligibility, cost, and fit
           directly with each organization before enrolling.
