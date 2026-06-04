@@ -255,19 +255,10 @@ function PartnersPage() {
             </div>
 
             <div className="relative">
-              <div className="absolute -inset-4 -z-10 bg-gradient-warm opacity-60 blur-2xl" />
-              {/* Decorative arc behind image */}
               <CornerArc className="pointer-events-none absolute -left-6 -top-6 -z-10 h-40 w-40 text-primary/40" />
               <Parallax speed={0.18}>
-                <img
-                  src={partnersHero}
-                  alt="A constellation of families, educators, mentors, and employers connected by glowing pathways"
-                  width={1600}
-                  height={1200}
-                  className="aspect-[4/3] w-full object-cover shadow-lift"
-                />
+                <PartnerNetworkVisual />
               </Parallax>
-              {/* Decorative dot grid bottom-right */}
               <svg
                 aria-hidden
                 viewBox="0 0 80 80"
