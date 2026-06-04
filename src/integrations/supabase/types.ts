@@ -2948,6 +2948,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      audience_for_role: { Args: { _role: string }; Returns: string }
       can_access_student: {
         Args: { _student_id: string; _user_id: string }
         Returns: boolean
@@ -2970,6 +2971,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["admin_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      has_audience: {
+        Args: { _audience: string; _user_id: string }
         Returns: boolean
       }
       has_role: {
