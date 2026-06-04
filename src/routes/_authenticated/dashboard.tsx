@@ -61,13 +61,23 @@ function DashboardPage() {
   const fetchStudents = useServerFn(listStudents);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
   const fetchProfile = useServerFn(getProfile);
+  const fetchRoles = useServerFn(getMyRoles);
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
+  const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
   const onboardingCheckedRef = useRef(false);
 
+  useEffect(() => {
+    fetchRoles()
+      .then((r) => {
+        const aud = audiencesForRoles(r.roles);
+        setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
+      })
+      .catch(() => setIsStudentOnly(false));
+  }, [fetchRoles]);
 
   const handleDownloadPdf = useCallback((reportId: string) => {
     window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
