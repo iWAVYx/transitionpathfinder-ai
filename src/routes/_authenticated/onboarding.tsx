@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { completeOnboarding, getProfile } from "@/lib/profile.functions";
 import { createStudent, listStudents } from "@/lib/students.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
+import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 
 const ROLE_OPTIONS = [
   { id: "student", label: "Student", note: "This is my plan", icon: User },
@@ -148,7 +149,13 @@ function OnboardingPage() {
       } else {
         toast.success("You're all set. Welcome to TransitionForward.");
       }
-      navigate({ to: "/dashboard", replace: true });
+      // Send each role to the workspace that's actually theirs.
+      const aud = audiencesForRoles(
+        role === "educator" ? ["educator", "case_manager"] : [role],
+      );
+      const studentLike = aud.has("family") || aud.has("educator") || aud.has("student");
+      const target = studentLike ? "/dashboard" : fallbackPathFor([role]);
+      navigate({ to: target, replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       console.error("onboarding finish failed", err);
