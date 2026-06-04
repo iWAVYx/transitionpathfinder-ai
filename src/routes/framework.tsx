@@ -441,3 +441,174 @@ function FrameworkPage() {
     </SiteShell>
   );
 }
+
+/* ------------------- FOUR-YEAR ARC -------------------
+   Sticky scroll-driven storytelling: one year fills the viewport at a time,
+   with an animated progress line tracking position across the four grades. */
+type Band = (typeof bands)[number];
+
+function FourYearArc({ bands }: { bands: Band[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
+  // Progress line fills left→right across the four stops.
+  const lineWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative mt-10"
+      style={{ height: `${bands.length * 110}vh` }}
+    >
+      <div className="sticky top-20 mx-auto flex h-[calc(100vh-6rem)] max-w-5xl flex-col px-2 py-8">
+        {/* Progress rail */}
+        <div className="relative mb-8">
+          <div className="absolute inset-x-0 top-7 h-px bg-border" />
+          <motion.div
+            style={{ width: lineWidth }}
+            className="absolute left-0 top-7 h-px bg-primary"
+          />
+          <ol className="relative flex items-center justify-between">
+            {bands.map((b, i) => {
+              const start = i / bands.length;
+              const end = (i + 1) / bands.length;
+              return (
+                <ArcDot
+                  key={b.grade}
+                  grade={b.grade}
+                  scrollYProgress={scrollYProgress}
+                  start={start}
+                  end={end}
+                />
+              );
+            })}
+          </ol>
+        </div>
+
+        {/* Stacked year panels — each fades + lifts in over its scroll slice */}
+        <div className="relative flex-1">
+          {bands.map((b, i) => {
+            const start = i / bands.length;
+            const end = (i + 1) / bands.length;
+            return (
+              <ArcPanel
+                key={b.grade}
+                band={b}
+                index={i}
+                total={bands.length}
+                scrollYProgress={scrollYProgress}
+                start={start}
+                end={end}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArcDot({
+  grade,
+  scrollYProgress,
+  start,
+  end,
+}: {
+  grade: string;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  start: number;
+  end: number;
+}) {
+  // Dot lights up once scroll progress crosses its slice midpoint.
+  const mid = (start + end) / 2;
+  const active = useTransform(scrollYProgress, [mid - 0.02, mid + 0.02], [0, 1]);
+  const scale = useTransform(active, [0, 1], [1, 1.15]);
+  return (
+    <li className="relative flex flex-col items-center">
+      <motion.span
+        style={{ scale }}
+        className="relative z-10 inline-flex h-14 w-14 items-center justify-center rounded-full bg-background font-display text-xl font-semibold text-primary shadow-soft ring-4 ring-background"
+      >
+        <motion.span
+          aria-hidden
+          style={{ opacity: active }}
+          className="absolute inset-0 rounded-full border-2 border-primary"
+        />
+        <motion.span
+          aria-hidden
+          style={{ opacity: useTransform(active, [0, 1], [1, 0]) }}
+          className="absolute inset-0 rounded-full border border-primary/40"
+        />
+        {grade}
+      </motion.span>
+    </li>
+  );
+}
+
+function ArcPanel({
+  band,
+  index,
+  total,
+  scrollYProgress,
+  start,
+  end,
+}: {
+  band: Band;
+  index: number;
+  total: number;
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  start: number;
+  end: number;
+}) {
+  // Fade in over the first quarter of the slice, hold, then fade out at end —
+  // unless this is the last panel, which holds through to the end.
+  const isLast = index === total - 1;
+  const opacity = useTransform(
+    scrollYProgress,
+    isLast
+      ? [start, start + (end - start) * 0.25, 1]
+      : [start, start + (end - start) * 0.25, end - (end - start) * 0.15, end],
+    isLast ? [0, 1, 1] : [0, 1, 1, 0],
+  );
+  const y = useTransform(
+    scrollYProgress,
+    [start, start + (end - start) * 0.4],
+    [40, 0],
+  );
+
+  return (
+    <motion.article
+      style={{ opacity, y }}
+      className="absolute inset-0 flex flex-col"
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+        Year {index + 1} of {total} · Grade {band.grade}
+      </p>
+      <h3 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+        {toTitleCase(band.title)}
+      </h3>
+      <div className="mt-6 grid flex-1 gap-4 overflow-y-auto pb-2 sm:grid-cols-3 sm:overflow-visible">
+        <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Your child
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground">{band.student}</p>
+        </div>
+        <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            The team
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground">{band.team}</p>
+        </div>
+        <div className="rounded-2xl bg-gradient-warm p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Evidence we keep
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground">{band.evidence}</p>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
