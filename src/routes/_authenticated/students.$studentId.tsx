@@ -25,6 +25,7 @@ import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
 import { GoalsEditor } from "@/components/students/GoalsEditor";
 import { MembershipPanel } from "@/components/students/MembershipPanel";
 import { PathwayProgress } from "@/components/students/PathwayProgress";
+import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
 import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
@@ -433,6 +434,10 @@ function StudentDetailPage() {
 
         <div className="mt-6">
           <PathwayProgress studentId={studentId} />
+        </div>
+
+        <div className="mt-6">
+          <StudentVoicePanel studentId={studentId} />
         </div>
 
         <div className="mt-6">
