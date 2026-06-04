@@ -524,7 +524,7 @@ function ContactSection() {
     defaultValues: {
       full_name: "",
       email: "",
-      topic: "family-question",
+      topic: "general",
       message: "",
     },
   });
@@ -565,28 +565,36 @@ function ContactSection() {
           </p>
         </header>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <HelpCard
-            icon={<MessageCircle className="h-5 w-5" />}
-            title="Families & students"
-            body="Stuck on the Pathway Report, the IEP upload, or anything in the Student Hub? We'll walk through it with you."
-          />
-          <HelpCard
-            icon={<LifeBuoy className="h-5 w-5" />}
-            title="Educators & districts"
-            body="Caseload questions, training requests, CT SEDS alignment, or a 20-minute demo for your team — just ask."
-          />
-          <HelpCard
-            icon={<ShieldCheck className="h-5 w-5" />}
-            title="Accessibility & privacy"
-            body="Found a barrier or have a question about how we handle student data? Flag it here and we'll prioritize it."
-          />
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {SUPPORT_CATEGORIES.map((c) => (
+            <button
+              key={c.topic}
+              type="button"
+              onClick={() => {
+                form.setValue("topic", c.topic);
+                document
+                  .getElementById("contact-form")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="group flex flex-col rounded-2xl border border-border/60 bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
+                {c.icon}
+              </span>
+              <h3 className="mt-3 font-display text-base font-medium leading-snug">{c.title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{c.body}</p>
+              <span className="mt-3 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                Use this topic →
+              </span>
+            </button>
+          ))}
         </div>
 
         {!done ? (
           <form
+            id="contact-form"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-10 grid gap-5 rounded-3xl border bg-card p-6 shadow-soft md:p-8"
+            className="mt-10 grid gap-5 scroll-mt-24 rounded-3xl border bg-card p-6 shadow-soft md:p-8"
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Your name" error={form.formState.errors.full_name?.message}>
@@ -604,18 +612,24 @@ function ContactSection() {
 
             <Field label="What is this about?" error={form.formState.errors.topic?.message}>
               <Select
-                defaultValue="family-question"
+                value={form.watch("topic")}
+                defaultValue="general"
                 onValueChange={(v) => form.setValue("topic", v as ContactValues["topic"])}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pick the closest fit" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="family-question">I'm a family member with a question</SelectItem>
-                  <SelectItem value="educator-question">I'm an educator / case manager</SelectItem>
+                  <SelectItem value="general">General questions</SelectItem>
+                  <SelectItem value="family-question">Family support</SelectItem>
+                  <SelectItem value="educator-question">School & educator support</SelectItem>
+                  <SelectItem value="partnership">Partnership inquiry</SelectItem>
+                  <SelectItem value="technical">Technical help</SelectItem>
+                  <SelectItem value="demo-request">Demo request</SelectItem>
                   <SelectItem value="district-demo">School / district demo</SelectItem>
+                  <SelectItem value="feedback">Feedback or suggestions</SelectItem>
                   <SelectItem value="press-research">Press, research, or partnership</SelectItem>
-                  <SelectItem value="accessibility">Accessibility issue or feedback</SelectItem>
+                  <SelectItem value="accessibility">Accessibility issue</SelectItem>
                   <SelectItem value="other">Something else</SelectItem>
                 </SelectContent>
               </Select>
