@@ -170,7 +170,7 @@ export const saveOnboardingProgress = createServerFn({ method: "POST" })
       patch.onboarding_answers = data.onboarding_answers;
     const { error } = await supabase
       .from("profiles")
-      .upsert(patch, { onConflict: "id" });
+      .upsert(patch as never, { onConflict: "id" });
     if (error) {
       console.error("saveOnboardingProgress failed", error);
       throw new Error("Could not save progress.");
