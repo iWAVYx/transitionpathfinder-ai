@@ -26,7 +26,7 @@ import {
 } from "@/lib/partner-workspace.functions";
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
-    meta: [{ title: "Opportunities — TransitionForward" }],
+    meta: [{ title: "Pathway Partner Network — TransitionForward" }],
   }),
   component: OpportunitiesPage,
 });
@@ -221,7 +221,7 @@ function OpportunitiesPage() {
     <SiteShell>
       <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
         <Breadcrumbs
-          trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Opportunities" }]}
+          trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Pathway Partner Network" }]}
         />
       </div>
 
