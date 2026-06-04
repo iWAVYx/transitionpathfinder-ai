@@ -477,8 +477,12 @@ export function TextScrollFill({
 }) {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
   const words = text.split(/\s+/);
-  // Map progress 0..1 -> highlight first N words
-  const lit = Math.min(words.length, Math.max(0, Math.round(progress * words.length * 1.4)));
+  // useScrollProgress returns 0 when bottom enters viewport, 1 when top leaves.
+  // The text is most "readable" between progress 0.35 (text near center) and
+  // 0.75 (text just past center, about to leave). Map that band to 0..1 so
+  // words light up exactly as the reader's eye is on them — not before, not after.
+  const reading = Math.min(1, Math.max(0, (progress - 0.35) / 0.4));
+  const lit = Math.min(words.length, Math.round(reading * words.length));
   return (
     <p ref={ref} className={className}>
       {words.map((w, i) => (
