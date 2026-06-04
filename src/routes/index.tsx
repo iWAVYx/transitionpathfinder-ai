@@ -1041,11 +1041,34 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
   const canvasH = 900;
 
   return (
-    <div ref={sectionRef} className="relative" style={{ height: `${stops * 90}vh` }}>
+    <div ref={sectionRef} className="relative" style={{ height: `${stops * 130}vh` }}>
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+        {/* CT outline backdrop — soft sketched silhouette of Connecticut */}
+        <svg
+          aria-hidden
+          viewBox="0 0 400 260"
+          preserveAspectRatio="xMidYMid meet"
+          className="pointer-events-none absolute inset-0 m-auto h-[78vmin] w-[78vmin] text-primary/15"
+        >
+          <path
+            d="M22 92 L70 70 L132 56 L198 48 L266 54 L322 70 L368 92 L378 118 L372 142 L348 168 L320 184 L290 192 L268 188 L260 210 L246 224 L222 218 L210 200 L186 204 L164 196 L138 200 L112 192 L88 178 L66 158 L44 138 L30 116 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+            strokeDasharray="3 4"
+          />
+          <path
+            d="M22 92 L70 70 L132 56 L198 48 L266 54 L322 70 L368 92"
+            fill="none"
+            stroke="currentColor"
+            strokeOpacity="0.7"
+            strokeWidth="0.8"
+          />
+        </svg>
         {/* Map backdrop grid */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          className="pointer-events-none absolute inset-0 opacity-[0.25]"
           style={{
             backgroundImage:
               "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
