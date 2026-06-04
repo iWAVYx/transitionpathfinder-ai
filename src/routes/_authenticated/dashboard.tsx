@@ -318,6 +318,10 @@ function DashboardPage() {
           <WelcomeBanner firstName={friendly} />
         </div>
 
+        <div className="mt-4">
+          <NextBestAction surface="family" />
+        </div>
+
         {/* Header band */}
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
