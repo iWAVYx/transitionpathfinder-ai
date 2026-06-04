@@ -391,7 +391,7 @@ export const listSchoolReports = createServerFn({ method: "POST" })
 
     const { data: reports } = await supabaseAdmin
       .from("pathway_reports")
-      .select("id, student_id, created_at, audience")
+      .select("id, student_id, created_at")
       .in("student_id", ids)
       .order("created_at", { ascending: false })
       .limit(100);
