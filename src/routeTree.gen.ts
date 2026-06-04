@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -31,6 +32,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
 import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
@@ -59,6 +61,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
@@ -75,6 +78,8 @@ import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -82,6 +87,11 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
   path: '/waitlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -186,6 +196,11 @@ const ShareTokenRoute = ShareTokenRouteImport.update({
 const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   id: '/pathways/$pathwayId',
   path: '/pathways/$pathwayId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoResourcesRoute = DemoResourcesRouteImport.update({
@@ -331,6 +346,11 @@ const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
   path: '/owner/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStudentsStudentIdRoute =
   AuthenticatedStudentsStudentIdRouteImport.update({
     id: '/$studentId',
@@ -423,6 +443,18 @@ const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AuthenticatedFormsRoute,
 } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -459,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
@@ -487,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -505,10 +539,13 @@ export interface FileRoutesByFullPath {
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -529,6 +566,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
@@ -557,6 +595,7 @@ export interface FileRoutesByTo {
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -575,10 +614,13 @@ export interface FileRoutesByTo {
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -601,6 +643,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
@@ -629,6 +672,7 @@ export interface FileRoutesById {
   '/demo_/plan': typeof DemoPlanRoute
   '/demo_/report': typeof DemoReportRoute
   '/demo_/resources': typeof DemoResourcesRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -647,10 +691,13 @@ export interface FileRoutesById {
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -673,6 +720,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/waitlist'
     | '/admin'
     | '/admin-school'
@@ -701,6 +749,7 @@ export interface FileRouteTypes {
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
+    | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/forms/$slug'
@@ -719,10 +768,13 @@ export interface FileRouteTypes {
     | '/owner/waitlist'
     | '/reports/$reportId'
     | '/students/$studentId'
+    | '/lovable/email/suppression'
     | '/owner/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -743,6 +795,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/waitlist'
     | '/admin'
     | '/admin-school'
@@ -771,6 +824,7 @@ export interface FileRouteTypes {
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
+    | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/forms/$slug'
@@ -789,10 +843,13 @@ export interface FileRouteTypes {
     | '/owner/waitlist'
     | '/reports/$reportId'
     | '/students/$studentId'
+    | '/lovable/email/suppression'
     | '/owner'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -814,6 +871,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/resources'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/waitlist'
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
@@ -842,6 +900,7 @@ export interface FileRouteTypes {
     | '/demo_/plan'
     | '/demo_/report'
     | '/demo_/resources'
+    | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/forms/$slug'
@@ -860,10 +919,13 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/students/$studentId'
+    | '/lovable/email/suppression'
     | '/_authenticated/owner/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -886,6 +948,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   WaitlistRoute: typeof WaitlistRoute
   AdminInviteTokenRoute: typeof AdminInviteTokenRoute
   DemoHubRoute: typeof DemoHubRoute
@@ -894,11 +957,15 @@ export interface RootRouteChildren {
   DemoPlanRoute: typeof DemoPlanRoute
   DemoReportRoute: typeof DemoReportRoute
   DemoResourcesRoute: typeof DemoResourcesRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ShareTokenRoute: typeof ShareTokenRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -908,6 +975,13 @@ declare module '@tanstack/react-router' {
       path: '/waitlist'
       fullPath: '/waitlist'
       preLoaderRoute: typeof WaitlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1055,6 +1129,13 @@ declare module '@tanstack/react-router' {
       path: '/pathways/$pathwayId'
       fullPath: '/pathways/$pathwayId'
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/resources': {
@@ -1253,6 +1334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/students/$studentId': {
       id: '/_authenticated/students/$studentId'
       path: '/$studentId'
@@ -1364,6 +1452,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/forms/$slug'
       preLoaderRoute: typeof AuthenticatedFormsSlugRouteImport
       parentRoute: typeof AuthenticatedFormsRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -1541,6 +1643,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   WaitlistRoute: WaitlistRoute,
   AdminInviteTokenRoute: AdminInviteTokenRoute,
   DemoHubRoute: DemoHubRoute,
@@ -1549,11 +1652,15 @@ const rootRouteChildren: RootRouteChildren = {
   DemoPlanRoute: DemoPlanRoute,
   DemoReportRoute: DemoReportRoute,
   DemoResourcesRoute: DemoResourcesRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ShareTokenRoute: ShareTokenRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

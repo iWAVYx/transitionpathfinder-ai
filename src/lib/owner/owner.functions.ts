@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -1034,7 +1035,62 @@ export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
       email: data.email,
       role: data.role,
     });
-    return { invitation: { ...inserted, status: "pending" } as AdminInvitation };
+
+    // Send branded invitation email (best-effort; do not fail the invite if email errors).
+    let emailStatus: "sent" | "failed" | "skipped" = "skipped";
+    let emailError: string | null = null;
+    try {
+      const req = getRequest();
+      const origin = new URL(req.url).origin;
+      const authHeader = getRequestHeader("Authorization") ?? "";
+
+      // Look up inviter display name
+      const { data: inviterProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userId)
+        .maybeSingle();
+      const inviterName =
+        (inviterProfile?.full_name as string | null)?.trim() || "A platform admin";
+
+      const acceptUrl = `${origin}/admin-invite/${inserted.token}`;
+
+      const res = await fetch(`${origin}/lovable/email/transactional/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authHeader,
+        },
+        body: JSON.stringify({
+          templateName: "admin-invitation",
+          recipientEmail: data.email,
+          idempotencyKey: `admin-invite-${inserted.id}`,
+          templateData: {
+            inviterName,
+            roleLabel: ADMIN_ROLE_LABELS[data.role],
+            acceptUrl,
+            expiresAt: inserted.expires_at,
+            siteName: "Transition Pathways Hub",
+          },
+        }),
+      });
+      if (res.ok) {
+        emailStatus = "sent";
+      } else {
+        emailStatus = "failed";
+        emailError = await res.text().catch(() => `HTTP ${res.status}`);
+        console.error("Admin invite email send failed", res.status, emailError);
+      }
+    } catch (err) {
+      emailStatus = "failed";
+      emailError = err instanceof Error ? err.message : "Unknown error";
+      console.error("Admin invite email error", err);
+    }
+
+    return {
+      invitation: { ...inserted, status: "pending" } as AdminInvitation,
+      email: { status: emailStatus, error: emailError },
+    };
   });
 
 export const ownerRevokeAdminInvitation = createServerFn({ method: "POST" })
