@@ -43,6 +43,9 @@ const NAV: NavItem[] = [
   { to: "/owner/resources", label: "Resources", icon: BookOpen, group: "Content" },
   { to: "/owner/waitlist", label: "Waitlist", icon: ClipboardList, group: "Leads" },
   { to: "/owner/contacts", label: "Contact Forms", icon: Mail, group: "Leads" },
+  { to: "/owner/organizations", label: "Organizations", icon: Building2, group: "Platform" },
+  { to: "/owner/opportunities", label: "Opportunity Review", icon: Briefcase, group: "Platform" },
+  { to: "/owner/users", label: "Users", icon: UserCog, group: "Platform" },
   { to: "/owner/admins", label: "Admin Users", icon: Users, group: "Settings" },
   { to: "/owner/settings", label: "Site Settings", icon: Settings, group: "Settings" },
 ];
