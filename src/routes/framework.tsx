@@ -520,10 +520,10 @@ function ArcPanel({
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.team}</p>
         </div>
         <div className="rounded-2xl bg-gradient-warm p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[oklch(0.45_0.12_230)]">
             Evidence We Keep
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-foreground">{band.evidence}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[oklch(0.22_0.04_250)]">{band.evidence}</p>
         </div>
       </div>
     </motion.article>
