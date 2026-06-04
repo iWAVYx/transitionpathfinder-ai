@@ -363,6 +363,14 @@ function PathwayFlow() {
     if (!isLastStep) setActiveIdx(activeIdx + 1);
   };
 
+  const unmarkDone = (idx: number) => {
+    setDone((prev) => {
+      const next = new Set(prev);
+      next.delete(idx);
+      return next;
+    });
+  };
+
   return (
     <SiteShell>
       {/* Hero */}
