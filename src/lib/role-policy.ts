@@ -75,7 +75,7 @@ export function fallbackPathFor(roles: string[]): string {
   const a = audiencesForRoles(roles);
   if (a.has("admin")) return "/admin";
   if (a.has("school_admin")) return "/school/overview";
-  if (a.has("educator")) return "/insights";
+  if (a.has("educator")) return "/caseload";
   if (a.has("partner")) return "/partners-manage";
   if (a.has("family") || a.has("student")) return "/dashboard";
   return "/onboarding";
