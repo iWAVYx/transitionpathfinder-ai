@@ -77,7 +77,7 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
         invited_email: data.email,
         invited_by: userId,
         role: data.role,
-        status: "pending",
+        status: invitedUserId ? "accepted" : "pending",
         user_id: invitedUserId,
       })
       .select("*")

@@ -65,7 +65,7 @@ const userGroups: UserNavGroup[] = [
     label: "Caseload",
     roles: ["educator"],
     items: [
-      { to: "/students", label: "Assigned Students" },
+      { to: "/caseload", label: "My Caseload" },
       { to: "/goals", label: "Goal Tracker" },
       { to: "/documents", label: "Documents" },
     ],
