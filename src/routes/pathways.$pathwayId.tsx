@@ -494,17 +494,31 @@ function PathwayFlow() {
             >
               <ArrowLeft className="h-4 w-4" /> Previous
             </Button>
-            <Button onClick={markDone}>
-              {isLastStep ? (
-                <>
-                  <Check className="h-4 w-4" /> Mark complete
-                </>
-              ) : (
-                <>
-                  Mark done & continue <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
+            {done.has(activeIdx) ? (
+              <Button variant="secondary" onClick={() => unmarkDone(activeIdx)}>
+                Mark as not done
+              </Button>
+            ) : (
+              <Button onClick={markDone}>
+                {isLastStep ? (
+                  <>
+                    <Check className="h-4 w-4" /> Mark complete
+                  </>
+                ) : (
+                  <>
+                    Mark done & continue <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            )}
+            {!isLastStep && (
+              <Button
+                variant="ghost"
+                onClick={() => setActiveIdx(Math.min(total - 1, activeIdx + 1))}
+              >
+                Next <ArrowRight className="h-4 w-4" />
+              </Button>
+            )}
           </div>
 
           {allDone && (
