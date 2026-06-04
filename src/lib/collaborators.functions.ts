@@ -112,7 +112,21 @@ export const updateCollaboratorRole = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+
+    // Owner-only guard: only the student's owner may change collaborator roles.
+    // Prevents an invitee from self-escalating viewer -> editor via their own RLS row.
+    const { data: row, error: fetchErr } = await supabase
+      .from("student_collaborators")
+      .select("student_id, students:student_id(owner_id)")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (fetchErr || !row) throw new Error("Collaborator not found.");
+    const ownerId = (row as { students?: { owner_id?: string } }).students?.owner_id;
+    if (!ownerId || ownerId !== userId) {
+      throw new Error("Only the student owner can change collaborator roles.");
+    }
+
     const { error } = await supabase
       .from("student_collaborators")
       .update({ role: data.role })
