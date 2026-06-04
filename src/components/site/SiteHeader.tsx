@@ -111,11 +111,6 @@ const userGroups: UserNavGroup[] = [
 
 
 
-const mobileMarketingLinks: NavLink[] = [
-  ...navGroups.flatMap((g) => g.items),
-  ...navSingles,
-  { to: "/privacy", label: "Privacy" },
-];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
