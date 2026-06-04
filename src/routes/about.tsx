@@ -129,7 +129,7 @@ function FillReveal({
       {words.map((w, i) => {
         const start = i / words.length;
         const end = start + 1 / words.length;
-        const opacity = useTransform(scrollYProgress, [start * 0.8 + 0.1, end * 0.8 + 0.1], [0.2, 1]);
+        const opacity = useTransform(scrollYProgress, [start * 0.45 + 0.1, end * 0.45 + 0.1], [0.2, 1]);
         return (
           <motion.span key={i} style={{ opacity }} className="text-foreground">
             {w}{" "}
