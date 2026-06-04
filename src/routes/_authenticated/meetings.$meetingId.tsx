@@ -157,6 +157,10 @@ function MeetingDetailPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={pullFromProfile} disabled={pulling}>
+              <Wand2 className="h-4 w-4" />
+              {pulling ? "Pulling…" : "Pull from profile"}
+            </Button>
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="h-4 w-4" />
               Export summary
