@@ -75,11 +75,11 @@ function DashboardPage() {
       .then((r) => {
         const aud = audiencesForRoles(r.roles);
         setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
-        // School Administrator and Partner roles don't belong on the
+        // School Admin, District Admin, and Partner roles don't belong on the
         // family/student dashboard — send them to their workspace instead.
         // Skip if they also have family/educator/student access (multi-role).
         const studentLike = aud.has("family") || aud.has("educator") || aud.has("student");
-        if (!studentLike && (aud.has("school_admin") || aud.has("partner"))) {
+        if (!studentLike && (aud.has("district_admin") || aud.has("school_admin") || aud.has("partner"))) {
           navigate({ to: fallbackPathFor(r.roles), replace: true });
         }
       })
