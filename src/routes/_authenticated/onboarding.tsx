@@ -83,9 +83,17 @@ function OnboardingPage() {
       try {
         const [p, list] = await Promise.all([loadProfile(), loadStudents()]);
         if (cancelled) return;
-        if (p.onboarding_completed && list.students.length > 0) {
-          navigate({ to: "/dashboard", replace: true });
-          return;
+        if (p.onboarding_completed) {
+          const pr = (p.primary_role as RoleId | null) ?? null;
+          const studentLike = pr === "parent" || pr === "student" || pr === "educator";
+          if (studentLike && list.students.length > 0) {
+            navigate({ to: "/dashboard", replace: true });
+            return;
+          }
+          if (!studentLike && pr) {
+            navigate({ to: fallbackPathFor([pr]), replace: true });
+            return;
+          }
         }
         setRole((p.primary_role as RoleId | null) ?? null);
         setFirstName(p.first_name ?? "");
