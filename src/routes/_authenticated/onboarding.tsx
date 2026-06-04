@@ -25,12 +25,11 @@ import { createStudent, listStudents } from "@/lib/students.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
 
 const ROLE_OPTIONS = [
-  { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
   { id: "student", label: "Student", note: "This is my plan", icon: User },
-  { id: "educator", label: "Teacher or Case Manager", note: "I support students at school", icon: GraduationCap },
-  { id: "administrator", label: "School / District Leader", note: "I lead a team", icon: Users },
+  { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
+  { id: "educator", label: "Educator or Case Manager", note: "I support students at school — teacher, special educator, transition coordinator, or case manager", icon: GraduationCap },
+  { id: "school_admin", label: "School Administrator", note: "I lead a school or district's transition program", icon: Users },
   { id: "partner", label: "Partner Organization", note: "I run programs students can join", icon: Users },
-  { id: "other", label: "Something else", note: "Tell us more later", icon: User },
 ] as const;
 
 type RoleId = (typeof ROLE_OPTIONS)[number]["id"];
