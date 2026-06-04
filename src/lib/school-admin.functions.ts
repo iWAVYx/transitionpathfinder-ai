@@ -396,13 +396,15 @@ export const listSchoolReports = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(100);
 
-    const rows: SchoolReportRow[] = (reports ?? []).map((r) => ({
-      id: r.id,
-      student_id: r.student_id,
-      student_name: nameMap.get(r.student_id) ?? "Student",
-      created_at: r.created_at,
-      audience: (r as { audience?: string | null }).audience ?? null,
-    }));
+    const rows: SchoolReportRow[] = (reports ?? [])
+      .filter((r) => !!r.student_id)
+      .map((r) => ({
+        id: r.id,
+        student_id: r.student_id as string,
+        student_name: nameMap.get(r.student_id as string) ?? "Student",
+        created_at: r.created_at,
+        audience: null,
+      }));
     return { reports: rows };
   });
 
