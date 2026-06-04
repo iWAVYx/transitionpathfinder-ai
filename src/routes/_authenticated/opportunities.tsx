@@ -26,7 +26,7 @@ import {
 } from "@/lib/partner-workspace.functions";
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
-    meta: [{ title: "Opportunities — TransitionForward" }],
+    meta: [{ title: "Pathway Partner Network — TransitionForward" }],
   }),
   component: OpportunitiesPage,
 });
