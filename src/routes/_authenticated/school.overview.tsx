@@ -24,6 +24,7 @@ function SchoolOverviewPage() {
     >
       {(org, d) => (
         <div className="space-y-6">
+          <NextBestAction surface="school_admin" />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Metric label="Active Staff" value={d.metrics.active_members} icon={<Users className="h-3.5 w-3.5" />} />
             <Metric label="Pending Invites" value={d.metrics.pending_members} icon={<Mail className="h-3.5 w-3.5" />} />
