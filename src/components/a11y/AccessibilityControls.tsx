@@ -61,10 +61,7 @@ export function AccessibilityControls() {
       const savedFont = (localStorage.getItem(FONT_KEY) as FontSize | null) ?? "normal";
       const savedContrast = localStorage.getItem(CONTRAST_KEY) === "1";
       const savedDarkRaw = localStorage.getItem(DARK_KEY);
-      const prefersDark =
-        typeof window !== "undefined" &&
-        window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-      const savedDark = savedDarkRaw === null ? !!prefersDark : savedDarkRaw === "1";
+      const savedDark = savedDarkRaw === "1";
       setFont(savedFont);
       setContrast(savedContrast);
       setDark(savedDark);

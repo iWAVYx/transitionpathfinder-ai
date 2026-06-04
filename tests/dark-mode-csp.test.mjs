@@ -124,7 +124,7 @@ test("dark mode is applied before first paint when localStorage='1' under strict
   );
 });
 
-test("falls back to prefers-color-scheme:dark when no stored preference", () => {
+test("stays in light mode when no stored preference, even if OS prefers dark", () => {
   const nonce = randomUUID().replace(/-/g, "");
   const html = renderHead({ nonce, scriptSrc: extractDarkModeScript() });
   const csp = `script-src 'self' 'nonce-${nonce}'`;
@@ -135,7 +135,7 @@ test("falls back to prefers-color-scheme:dark when no stored preference", () => 
   });
   runHtmlUnderCsp(html, csp, ctx);
 
-  assert.equal(classes.has("dark"), true);
+  assert.equal(classes.has("dark"), false);
 });
 
 test("stays in light mode when stored='0' even if OS prefers dark", () => {
