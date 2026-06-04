@@ -309,7 +309,7 @@ export function SiteHeader() {
             <button
               type="button"
               aria-label="Open menu"
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-muted lg:hidden"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-muted xl:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
