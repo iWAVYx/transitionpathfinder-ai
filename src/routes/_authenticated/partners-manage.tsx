@@ -38,6 +38,7 @@ import {
   type PartnerWorkspace,
   type PartnerOrg,
 } from "@/lib/partner-workspace.functions";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
