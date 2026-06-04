@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Printer, Sparkles, CheckSquare, ClipboardList, MessageSquare } from "lucide-react";
+import { Plus, Printer, Sparkles, CheckSquare, ClipboardList, MessageSquare, Wand2 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getStudent } from "@/lib/students.functions";
 import {
   getMeeting,
   updateMeeting,
