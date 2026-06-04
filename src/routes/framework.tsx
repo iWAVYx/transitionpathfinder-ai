@@ -407,7 +407,7 @@ function FrameworkPage() {
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              The four-year arc
+              The Four-Year Arc
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
               Each grade asks something different.{" "}
