@@ -27,7 +27,7 @@ async function logActivity(
       action_type,
       target_type,
       target_id,
-      details,
+      details: details as any,
     });
   } catch (e) {
     console.error("logActivity failed", e);
