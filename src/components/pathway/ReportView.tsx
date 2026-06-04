@@ -168,6 +168,26 @@ export function ReportView({
     }
   };
 
+  const shareReport = async () => {
+    if (typeof window === "undefined") return;
+    const nav = navigator as Navigator & {
+      share?: (data: { title?: string; text?: string; url?: string }) => Promise<void>;
+    };
+    if (typeof nav.share === "function") {
+      try {
+        await nav.share({
+          title: `${name} — Pathway Report`,
+          text: `Pathway Report for ${name}`,
+          url: window.location.href,
+        });
+        return;
+      } catch {
+        /* fall through to copy */
+      }
+    }
+    await copyLink();
+  };
+
   const r = displayReport;
 
   // Executive Summary inputs (derived, no new data required)
