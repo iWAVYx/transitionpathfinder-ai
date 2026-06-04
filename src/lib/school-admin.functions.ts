@@ -464,15 +464,18 @@ export const getSchoolReadiness = createServerFn({ method: "POST" })
       supabaseAdmin.from("goals").select("student_id, status").in("student_id", ids),
     ]);
 
-    const withReport = new Set((reports ?? []).map((r) => r.student_id));
+    const withReport = new Set((reports ?? []).map((r) => r.student_id).filter((x): x is string => !!x));
     const openByStudent = new Map<string, number>();
     for (const a of actions ?? []) {
+      if (!a.student_id) continue;
       if (a.status !== "complete") {
         openByStudent.set(a.student_id, (openByStudent.get(a.student_id) ?? 0) + 1);
       }
     }
     const withActiveGoals = new Set(
-      (goals ?? []).filter((g) => g.status !== "met").map((g) => g.student_id),
+      (goals ?? [])
+        .filter((g) => g.status !== "met" && !!g.student_id)
+        .map((g) => g.student_id as string),
     );
 
     const totalOpen = Array.from(openByStudent.values()).reduce((n, v) => n + v, 0);
