@@ -213,6 +213,13 @@ function DashboardPage() {
     }
   }
 
+  /* ---------- student-only audience: first-person dashboard ---------- */
+  if (isStudentOnly === true && !loading && snap) {
+    return (
+      <StudentDashboard firstName={friendly} snap={snap} onToggleAction={toggleAction} />
+    );
+  }
+
   /* ---------- empty state: no students yet ---------- */
   if (!loading && students.length === 0) {
     return (
