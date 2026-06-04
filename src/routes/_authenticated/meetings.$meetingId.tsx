@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Printer, Sparkles, CheckSquare, ClipboardList, MessageSquare } from "lucide-react";
+import { Plus, Printer, Sparkles, CheckSquare, ClipboardList, MessageSquare, Wand2 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getStudent } from "@/lib/students.functions";
 import {
   getMeeting,
   updateMeeting,
@@ -34,6 +35,8 @@ function MeetingDetailPage() {
   const addQ = useServerFn(addQuestion);
   const addAction = useServerFn(addActionItem);
   const setStatus = useServerFn(setActionStatus);
+  const fetchStudent = useServerFn(getStudent);
+  const [pulling, setPulling] = useState(false);
 
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
@@ -68,6 +71,40 @@ function MeetingDetailPage() {
 
   function handlePrint() {
     window.print();
+  }
+
+  async function pullFromProfile() {
+    if (!meeting) return;
+    setPulling(true);
+    try {
+      const s = await fetchStudent({ data: { id: meeting.student_id } });
+      const extra = s as unknown as {
+        student_voice_statement?: string | null;
+        family_priorities?: string | null;
+        support_needs_summary?: string | null;
+      };
+      const patch: Partial<Pick<Meeting, "student_voice" | "family_concerns" | "teacher_notes">> = {};
+      if (!meeting.student_voice && extra.student_voice_statement) {
+        patch.student_voice = extra.student_voice_statement;
+      }
+      if (!meeting.family_concerns && extra.family_priorities) {
+        patch.family_concerns = extra.family_priorities;
+      }
+      if (!meeting.teacher_notes && extra.support_needs_summary) {
+        patch.teacher_notes = extra.support_needs_summary;
+      }
+      if (Object.keys(patch).length === 0) {
+        toast.info("Nothing new to pull — fields already filled or profile is empty.");
+        return;
+      }
+      await update({ data: { id: meeting.id, ...patch } as never });
+      setMeeting({ ...meeting, ...patch });
+      toast.success("Pulled from student profile.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not pull from profile.");
+    } finally {
+      setPulling(false);
+    }
   }
 
   if (loadError) {
@@ -120,6 +157,10 @@ function MeetingDetailPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={pullFromProfile} disabled={pulling}>
+              <Wand2 className="h-4 w-4" />
+              {pulling ? "Pulling…" : "Pull from profile"}
+            </Button>
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="h-4 w-4" />
               Export summary
