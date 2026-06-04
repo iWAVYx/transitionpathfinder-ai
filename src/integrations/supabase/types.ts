@@ -1429,6 +1429,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          parent_organization_id: string | null
           state: string | null
           type: string
           updated_at: string
@@ -1442,6 +1443,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          parent_organization_id?: string | null
           state?: string | null
           type?: string
           updated_at?: string
@@ -1455,13 +1457,22 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          parent_organization_id?: string | null
           state?: string | null
           type?: string
           updated_at?: string
           verified_status?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "organizations_parent_organization_id_fkey"
+            columns: ["parent_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       page_sections: {
         Row: {
@@ -3038,6 +3049,7 @@ export type Database = {
         | "teacher"
         | "school_admin"
         | "partner"
+        | "district_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3181,6 +3193,7 @@ export const Constants = {
         "teacher",
         "school_admin",
         "partner",
+        "district_admin",
       ],
     },
   },
