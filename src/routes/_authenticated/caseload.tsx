@@ -107,6 +107,12 @@ function CaseloadPage() {
           </Button>
         </div>
 
+        <div className="mt-6">
+          <NextBestAction surface="educator" />
+        </div>
+
+
+
         {/* Summary cards */}
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <SummaryCard icon={<Users className="h-4 w-4" />} label="Students" value={summary.total} />
