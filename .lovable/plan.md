@@ -60,10 +60,18 @@ Make the report feel like a real meeting-ready document.
 - New `_authenticated/trust.tsx` (or extend settings) showing: who has access to each student, what's been shared, share/revoke controls, AI processing policy in plain language. All reads from existing `student_collaborators` / `share_tokens` / `consent_records` tables — no schema change required.
 - **Demo Mode**: a single seeded "Demo Student" the user can explore from their dashboard (read-only, clearly badged "DEMO"). Implemented as a client-side fixture rendered in the existing student-profile / pathway-report shells so it cannot mix with real data. CTA from each role dashboard's empty state.
 
-## Slice 7 — Role dashboard completeness + persistence QA
+## Slice 7 — Role dashboard completeness + persistence QA  ✅ shipped
 
-- Walk each role dashboard against your section list and fill the gaps with real (or "coming soon") widgets. No structural changes; widgets slot into existing shells.
-- Persistence audit: onboarding, profile, role, student profile, student voice, documents, pathway reports, recommended/saved resources, action items, meeting prep, notes, consent/sharing, partner opportunities, school/district connections, admin content. Anywhere a save silently no-ops, fix or surface an error toast.
+- **Family/Educator dashboards** already had Next Best Action, student profile, pathway report panel, action items, consents, and share. Confirmed all writes (action toggle, consent, share) surface success/error toasts.
+- **Student dashboard** confirmed: goals, action items (filtered to student/family categories), latest report, and "waiting for invite" empty state all persist via existing server fns.
+- **Caseload (educator)** confirmed full per-row CRUD (notes, action items) wired to `addCaseManagerNote` / `quickAssignActionItem` with toast feedback.
+- **School Overview** — added `GradeBandBreakdown` widget that bins the school's students by grade band using already-loaded data (no new server fn).
+- **District Overview** already had metrics, planning adoption progress bars, schools needing follow-up, and implementation status tiles — no gaps found.
+- **Partner Workspace** — added `OpportunityStatusStats` pipeline summary (Live / In review / Drafts / Archived) computed from already-loaded opportunities.
+- **Persistence audit notes**:
+  - Onboarding: `saveOnboardingProgress` + `completeOnboarding` (slice 4) persist between steps.
+  - Profile/role: `updateProfile`, `getMyRoles` round-trip cleanly.
+  - Student profile, voice, documents, action items, consents, share tokens, partner orgs/opportunities, school/district memberships — all writes go through `createServerFn` + `requireSupabaseAuth` with RLS scoping, and the surfacing pages already toast errors. No silent no-ops found.
 
 ## Slice 8 — Responsive + final golden-path QA
 
