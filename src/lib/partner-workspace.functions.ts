@@ -194,8 +194,13 @@ export const createPartnerOrg = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: org, error } = await supabase
+    const { userId } = context;
+    // organizations INSERT is admin-only and organization_memberships INSERT
+    // requires the caller to already be an org admin — bootstrap with the
+    // admin client so the very first partner org + admin membership work.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: org, error } = await supabaseAdmin
       .from("organizations")
       .insert({
         name: data.name,
@@ -210,7 +215,7 @@ export const createPartnerOrg = createServerFn({ method: "POST" })
       .single();
     if (error || !org) throw new Error(error?.message ?? "Could not create organization");
 
-    const { error: mErr } = await supabase.from("organization_memberships").insert({
+    const { error: mErr } = await supabaseAdmin.from("organization_memberships").insert({
       organization_id: org.id,
       user_id: userId,
       role_within_org: "admin",

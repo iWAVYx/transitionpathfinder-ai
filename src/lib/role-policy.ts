@@ -55,7 +55,8 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/insights": ["educator", "school_admin", "admin"],
   "/analytics": ["educator", "school_admin", "admin"],
   "/admin": ["admin"],
-  "/admin-school": ["school_admin", "admin"],
+  // /admin-school is a legacy redirect to /school/overview — no guard needed
+
   "/partners-manage": ["partner", "admin"],
   "/school/overview": ["school_admin", "admin"],
   "/school/team": ["school_admin", "admin"],
