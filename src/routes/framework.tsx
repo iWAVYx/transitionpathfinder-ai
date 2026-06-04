@@ -203,7 +203,7 @@ function FrameworkPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-16">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              How we walk through it with you
+              How We Walk Through It With You
             </p>
             <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
               Grade 9 to graduation,{" "}
