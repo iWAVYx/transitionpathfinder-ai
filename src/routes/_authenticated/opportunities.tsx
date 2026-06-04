@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Search,
   GraduationCap,
@@ -10,6 +11,7 @@ import {
   Users,
   ExternalLink,
   MapPin,
+  Sparkles,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -18,6 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import { toTitleCase } from "@/lib/title-case";
+import {
+  listApprovedOpportunities,
+  type PublicOpportunity,
+} from "@/lib/partner-workspace.functions";
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
     meta: [{ title: "Opportunities — TransitionForward" }],
