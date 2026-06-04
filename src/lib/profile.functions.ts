@@ -122,9 +122,9 @@ export const completeOnboarding = createServerFn({ method: "POST" })
           primary_role: data.primary_role,
           onboarding_completed: true,
           ...(data.onboarding_answers
-            ? { onboarding_answers: data.onboarding_answers }
+            ? { onboarding_answers: data.onboarding_answers as never }
             : {}),
-        },
+        } as never,
         { onConflict: "id" },
       );
     if (error) {
