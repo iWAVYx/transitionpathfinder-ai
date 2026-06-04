@@ -412,25 +412,27 @@ export function SiteHeader() {
                     )}
                   </nav>
                   {visibleUserGroups.map((group) => (
-                    <div key={group.label} className="mt-4">
-                      <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
-                        {group.label}
-                      </p>
-                      <nav className="flex flex-col gap-0.5">
+                    <details key={group.label} className="group/menu mt-1 rounded-xl">
+                      <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+                        <span>{group.label}</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open/menu:rotate-180" />
+                      </summary>
+                      <div className="ml-2 mt-0.5 flex flex-col gap-0.5 border-l border-border/60 pl-2">
                         {group.items.map((item) => (
                           <Link
                             key={item.to}
                             to={item.to}
                             onClick={() => setOpen(false)}
-                            className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                            className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                             activeProps={{ className: "text-foreground bg-muted" }}
                           >
                             {item.label}
                           </Link>
                         ))}
-                      </nav>
-                    </div>
+                      </div>
+                    </details>
                   ))}
+
                 </>
               )}
 
