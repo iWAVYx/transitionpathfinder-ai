@@ -70,10 +70,12 @@ import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authe
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
+import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
 import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
 import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authenticated/owner.resources'
 import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_authenticated/owner.organizations'
+import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
@@ -403,6 +405,11 @@ const AuthenticatedOwnerWaitlistRoute =
     path: '/owner/waitlist',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedOwnerUsersRoute = AuthenticatedOwnerUsersRouteImport.update({
+  id: '/owner/users',
+  path: '/owner/users',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedOwnerTestimonialsRoute =
   AuthenticatedOwnerTestimonialsRouteImport.update({
     id: '/owner/testimonials',
@@ -425,6 +432,12 @@ const AuthenticatedOwnerOrganizationsRoute =
   AuthenticatedOwnerOrganizationsRouteImport.update({
     id: '/owner/organizations',
     path: '/owner/organizations',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOwnerOpportunitiesRoute =
+  AuthenticatedOwnerOpportunitiesRouteImport.update({
+    id: '/owner/opportunities',
+    path: '/owner/opportunities',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedOwnerMediaRoute = AuthenticatedOwnerMediaRouteImport.update({
@@ -574,10 +587,12 @@ export interface FileRoutesByFullPath {
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
+  '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
+  '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
@@ -655,10 +670,12 @@ export interface FileRoutesByTo {
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
+  '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
+  '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
@@ -738,10 +755,12 @@ export interface FileRoutesById {
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
+  '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/_authenticated/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
   '/_authenticated/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
+  '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
@@ -821,10 +840,12 @@ export interface FileRouteTypes {
     | '/owner/content'
     | '/owner/faqs'
     | '/owner/media'
+    | '/owner/opportunities'
     | '/owner/organizations'
     | '/owner/resources'
     | '/owner/settings'
     | '/owner/testimonials'
+    | '/owner/users'
     | '/owner/waitlist'
     | '/reports/$reportId'
     | '/school/implementation'
@@ -902,10 +923,12 @@ export interface FileRouteTypes {
     | '/owner/content'
     | '/owner/faqs'
     | '/owner/media'
+    | '/owner/opportunities'
     | '/owner/organizations'
     | '/owner/resources'
     | '/owner/settings'
     | '/owner/testimonials'
+    | '/owner/users'
     | '/owner/waitlist'
     | '/reports/$reportId'
     | '/school/implementation'
@@ -984,10 +1007,12 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/content'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/media'
+    | '/_authenticated/owner/opportunities'
     | '/_authenticated/owner/organizations'
     | '/_authenticated/owner/resources'
     | '/_authenticated/owner/settings'
     | '/_authenticated/owner/testimonials'
+    | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/school/implementation'
@@ -1473,6 +1498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerWaitlistRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/users': {
+      id: '/_authenticated/owner/users'
+      path: '/owner/users'
+      fullPath: '/owner/users'
+      preLoaderRoute: typeof AuthenticatedOwnerUsersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/testimonials': {
       id: '/_authenticated/owner/testimonials'
       path: '/owner/testimonials'
@@ -1499,6 +1531,13 @@ declare module '@tanstack/react-router' {
       path: '/owner/organizations'
       fullPath: '/owner/organizations'
       preLoaderRoute: typeof AuthenticatedOwnerOrganizationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/owner/opportunities': {
+      id: '/_authenticated/owner/opportunities'
+      path: '/owner/opportunities'
+      fullPath: '/owner/opportunities'
+      preLoaderRoute: typeof AuthenticatedOwnerOpportunitiesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/owner/media': {
@@ -1686,10 +1725,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
+  AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
   AuthenticatedOwnerOrganizationsRoute: typeof AuthenticatedOwnerOrganizationsRoute
   AuthenticatedOwnerResourcesRoute: typeof AuthenticatedOwnerResourcesRoute
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
   AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
+  AuthenticatedOwnerUsersRoute: typeof AuthenticatedOwnerUsersRoute
   AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
@@ -1727,10 +1768,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
+  AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
   AuthenticatedOwnerOrganizationsRoute: AuthenticatedOwnerOrganizationsRoute,
   AuthenticatedOwnerResourcesRoute: AuthenticatedOwnerResourcesRoute,
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
   AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
+  AuthenticatedOwnerUsersRoute: AuthenticatedOwnerUsersRoute,
   AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
@@ -1796,3 +1839,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
