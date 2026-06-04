@@ -60,9 +60,20 @@ const navSingles: NavLink[] = [
 ];
 
 const userGroups: UserNavGroup[] = [
+  // Educator / Case Manager — direct student/caseload support
+  {
+    label: "Caseload",
+    roles: ["educator"],
+    items: [
+      { to: "/students", label: "Assigned Students" },
+      { to: "/goals", label: "Goal Tracker" },
+      { to: "/documents", label: "Documents" },
+    ],
+  },
+  // Family + Student — their own profile/students
   {
     label: "Students",
-    roles: ["parent", "teacher", "admin"],
+    roles: ["family", "admin"],
     items: [
       { to: "/students", label: "Students" },
       { to: "/goals", label: "Goal Tracker" },
@@ -70,18 +81,18 @@ const userGroups: UserNavGroup[] = [
     ],
   },
   {
-    label: "Planning",
-    roles: ["parent", "teacher", "admin"],
+    label: "Planning Tools",
+    roles: ["family", "educator", "student", "admin"],
     items: [
       { to: "/pathway", label: "Create Pathway Report" },
       { to: "/reports", label: "Pathway Reports" },
-      { to: "/ppt-prep", label: "PPT Meeting Prep" },
+      { to: "/ppt-prep", label: "PPT / IEP Meeting Prep" },
       { to: "/meetings", label: "Meetings" },
     ],
   },
   {
     label: "Collaboration",
-    roles: ["parent", "teacher", "admin", "partner"],
+    roles: ["family", "educator", "admin", "partner"],
     items: [
       { to: "/messages", label: "Messages" },
       { to: "/feed", label: "Feed" },
@@ -91,19 +102,38 @@ const userGroups: UserNavGroup[] = [
   },
   {
     label: "Insights",
-    roles: ["teacher", "admin"],
+    roles: ["educator", "school_admin", "admin"],
     items: [
       { to: "/insights", label: "Insights" },
       { to: "/analytics", label: "Analytics" },
     ],
   },
+  // School Administrator — school-level oversight (separate from Platform Admin)
   {
-    label: "Admin",
-    roles: ["admin", "partner"],
+    label: "School Administration",
+    roles: ["school_admin", "admin"],
     items: [
-      { to: "/admin-school", label: "School Admin" },
-      { to: "/partners-manage", label: "Partner Workspace" },
+      { to: "/school/overview", label: "School Overview" },
+      { to: "/school/team", label: "Staff & Team" },
+      { to: "/school/reports", label: "School Reports" },
+      { to: "/school/implementation", label: "Implementation" },
+    ],
+  },
+  // Partner Organization workspace
+  {
+    label: "Partner Workspace",
+    roles: ["partner", "admin"],
+    items: [
+      { to: "/partners-manage", label: "Partner Profile & Opportunities" },
+    ],
+  },
+  // Account — visible to every signed-in user
+  {
+    label: "Account",
+    roles: ["student", "family", "educator", "school_admin", "admin", "partner"],
+    items: [
       { to: "/settings", label: "Settings" },
+      { to: "/help", label: "Help & Support" },
     ],
   },
 ];
