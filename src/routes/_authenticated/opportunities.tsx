@@ -231,7 +231,7 @@ function OpportunitiesPage() {
             Real options, vetted for Connecticut
           </p>
           <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">
-            Opportunities & Partner Programs
+            Pathway Partner Network
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             A curated starting point of colleges, technical programs, employers, state agencies,
