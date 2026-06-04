@@ -94,7 +94,13 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      status?: string;
+      priority?: string;
+      due_date?: string | null;
+      title?: string;
+      description?: string | null;
+    } = {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.priority !== undefined) patch.priority = data.priority;
     if (data.due_date !== undefined) patch.due_date = data.due_date;
