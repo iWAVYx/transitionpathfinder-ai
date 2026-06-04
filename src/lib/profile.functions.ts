@@ -10,6 +10,7 @@ export type Profile = {
   primary_role: string | null;
   onboarding_completed: boolean;
   language: string;
+  onboarding_answers: Record<string, unknown>;
 };
 
 export const getProfile = createServerFn({ method: "GET" })
