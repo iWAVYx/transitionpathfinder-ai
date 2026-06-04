@@ -179,6 +179,26 @@ const CATEGORIES: { key: Category | "all"; label: string; icon: React.ReactNode 
 function OpportunitiesPage() {
   const [active, setActive] = useState<Category | "all">("all");
   const [q, setQ] = useState("");
+  const [partnerOpps, setPartnerOpps] = useState<PublicOpportunity[]>([]);
+  const [loadingPartners, setLoadingPartners] = useState(true);
+  const fetchApproved = useServerFn(listApprovedOpportunities);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchApproved()
+      .then((rows) => {
+        if (!cancelled) setPartnerOpps(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setPartnerOpps([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingPartners(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchApproved]);
 
   const filtered = useMemo(() => {
     return CATALOG.filter((o) => {
@@ -188,6 +208,14 @@ function OpportunitiesPage() {
       return true;
     });
   }, [active, q]);
+
+  const filteredPartners = useMemo(() => {
+    return partnerOpps.filter((o) => {
+      const haystack = `${o.title} ${o.description ?? ""} ${o.organization_name} ${o.location ?? ""}`.toLowerCase();
+      if (q && !haystack.includes(q.toLowerCase())) return false;
+      return true;
+    });
+  }, [partnerOpps, q]);
 
   return (
     <SiteShell>
