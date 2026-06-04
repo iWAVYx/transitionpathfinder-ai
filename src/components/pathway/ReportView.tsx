@@ -303,12 +303,15 @@ export function ReportView({
               {saved ? "Saved" : saveLabel ?? "Save to Profile"}
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={copyLink} aria-label="Copy shareable link">
+          <Button variant="outline" size="sm" onClick={shareReport} aria-label="Share report">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "Copied" : "Copy Link"}
+            {copied ? "Copied" : "Share"}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Download className="h-4 w-4" /> Download
+          <Button variant="outline" size="sm" onClick={() => window.print()} aria-label="Print report">
+            <Printer className="h-4 w-4" /> Print
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => window.print()} aria-label="Download as PDF">
+            <Download className="h-4 w-4" /> PDF
           </Button>
         </div>
       </div>
