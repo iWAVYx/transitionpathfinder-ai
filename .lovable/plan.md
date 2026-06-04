@@ -49,13 +49,11 @@ Make the report feel like a real meeting-ready document.
 - `saveOnboardingProgress` server fn persists between steps so refresh resumes where the user left off.
 - `completeOnboarding` now accepts `onboarding_answers` and supports `district_admin` (was previously rejected by the enum).
 
-## Slice 5 — Resource recommendation engine + Meeting Prep + Action Items polish
+## Slice 5 — Resource recommender + Meeting Prep + Action Items  ✅ shipped
 
-Bundled because they share the same data sources.
-
-- **Recommender**: `recommendResourcesForStudent(student_id)` server fn that filters `resources_db` by interest/strength/need/grade/goals/readiness gaps. Adds "Recommended for This Student" + "Why this was recommended" chips. Surface in Pathway Report and Resource Library.
-- **Meeting Prep**: polish existing prep page — pull from Student Profile, Voice, Missing Info, Pathway Report, action items. Add "Print checklist" + "Mark as ready".
-- **Action Items**: ensure category, due date, priority, assignee, status, and link-to-source (report section / resource / meeting) all persist; polished empty states; progress indicator on dashboards.
+- **Recommender**: `recommendResourcesForStudent` scores verified resources against the student's strengths/interests/needs/grade and returns matches with "why this was recommended" chips. Surfaced via `RecommendedResourcesPanel` on the student detail page; users can save matches into their library (`saveResource`).
+- **Meeting Prep**: meeting detail page now has a "Pull from profile" button that prefills `student_voice`, `family_concerns`, and `teacher_notes` from the student record (only fills empty fields). Print/Export and Mark completed were already in place.
+- **Action Items**: full per-student CRUD via `action-items.functions.ts` (list/create/update/delete) using the existing `action_items` table. New `ActionItemsPanel` shows priority, category, due date, status (not_started / in_progress / completed / blocked) with a completion progress bar; mounted on the student detail page.
 
 ## Slice 6 — Trust & Consent center + Demo Mode
 
