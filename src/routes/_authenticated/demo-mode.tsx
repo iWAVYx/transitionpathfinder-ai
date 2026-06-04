@@ -21,7 +21,7 @@ function DemoModePage() {
   return (
     <SiteShell>
       <div className="container max-w-5xl py-8 space-y-6">
-        <Breadcrumbs items={[{ label: "Demo Mode" }]} />
+        <Breadcrumbs trail={[{ label: "Demo Mode" }]} />
 
         <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 flex items-start gap-3">
           <Sparkles className="h-5 w-5 text-primary mt-0.5" />

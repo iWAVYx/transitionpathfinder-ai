@@ -77,7 +77,7 @@ function TrustPage() {
   return (
     <SiteShell>
       <div className="container max-w-5xl py-8 space-y-6">
-        <Breadcrumbs items={[{ label: "Trust & Consent" }]} />
+        <Breadcrumbs trail={[{ label: "Trust & Consent" }]} />
 
         <header className="space-y-2">
           <div className="flex items-center gap-2">
