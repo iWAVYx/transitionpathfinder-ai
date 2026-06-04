@@ -312,12 +312,12 @@ function OnboardingPage() {
               type="button"
               variant="ghost"
               onClick={goBack}
-              disabled={idx === 0 || submitting}
+              disabled={safeIdx === 0 || submitting}
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
 
-            {stepId !== "student" ? (
+            {!isLastStep ? (
               <Button
                 type="button"
                 onClick={goNext}
