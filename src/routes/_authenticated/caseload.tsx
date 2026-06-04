@@ -92,7 +92,7 @@ function CaseloadPage() {
   return (
     <SiteShell>
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <Breadcrumbs items={[{ label: "Dashboard", href: "/dashboard" }, { label: "Caseload" }]} />
+        <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
           <div>
