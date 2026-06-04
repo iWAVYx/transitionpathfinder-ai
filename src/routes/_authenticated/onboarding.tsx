@@ -177,7 +177,7 @@ function OnboardingPage() {
       <section className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
         <div className="mb-5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Step {idx + 1} of {STEPS.length}</span>
+            <span>Step {safeIdx + 1} of {activeSteps.length}</span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="mt-2 h-2" />
