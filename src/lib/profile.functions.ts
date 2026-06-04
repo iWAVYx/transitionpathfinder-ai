@@ -69,18 +69,30 @@ const PRIMARY_ROLES = [
   "student",
   "educator",
   "school_admin",
+  "district_admin",
   "partner",
 ] as const;
 
-// Map an onboarding role ID → the set of app_role enum values to write.
-// Never writes `admin` (platform admin) from onboarding.
 const ROLES_FOR_PRIMARY: Record<string, string[]> = {
   parent: ["parent"],
   student: ["student"],
   educator: ["educator", "case_manager"],
   school_admin: ["school_admin"],
+  district_admin: ["district_admin"],
   partner: ["partner"],
 };
+
+// Recursive JSON schema for free-form onboarding answers.
+const jsonValueSchema: z.ZodType<unknown> = z.lazy(() =>
+  z.union([
+    z.string().max(2000),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(jsonValueSchema).max(50),
+    z.record(z.string().max(80), jsonValueSchema),
+  ]),
+);
 
 export const completeOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -90,6 +102,9 @@ export const completeOnboarding = createServerFn({ method: "POST" })
         primary_role: z.enum(PRIMARY_ROLES),
         first_name: z.string().trim().min(1).max(80),
         last_name: z.string().trim().max(80).optional().or(z.literal("")),
+        onboarding_answers: z
+          .record(z.string().max(80), jsonValueSchema)
+          .optional(),
       })
       .parse(i),
   )
@@ -106,6 +121,9 @@ export const completeOnboarding = createServerFn({ method: "POST" })
           full_name,
           primary_role: data.primary_role,
           onboarding_completed: true,
+          ...(data.onboarding_answers
+            ? { onboarding_answers: data.onboarding_answers }
+            : {}),
         },
         { onConflict: "id" },
       );
@@ -123,6 +141,39 @@ export const completeOnboarding = createServerFn({ method: "POST" })
           { onConflict: "user_id,role" },
         );
       if (roleError) console.error("completeOnboarding: user_roles upsert failed", role, roleError);
+    }
+    return { ok: true };
+  });
+
+// Lightweight progress save so onboarding is resumable on refresh.
+export const saveOnboardingProgress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        primary_role: z.enum(PRIMARY_ROLES).optional(),
+        first_name: z.string().trim().max(80).optional(),
+        last_name: z.string().trim().max(80).optional(),
+        onboarding_answers: z
+          .record(z.string().max(80), jsonValueSchema)
+          .optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const patch: Record<string, unknown> = { id: userId };
+    if (data.primary_role !== undefined) patch.primary_role = data.primary_role;
+    if (data.first_name !== undefined) patch.first_name = data.first_name || null;
+    if (data.last_name !== undefined) patch.last_name = data.last_name || null;
+    if (data.onboarding_answers !== undefined)
+      patch.onboarding_answers = data.onboarding_answers;
+    const { error } = await supabase
+      .from("profiles")
+      .upsert(patch, { onConflict: "id" });
+    if (error) {
+      console.error("saveOnboardingProgress failed", error);
+      throw new Error("Could not save progress.");
     }
     return { ok: true };
   });
