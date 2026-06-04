@@ -222,6 +222,24 @@ function DashboardPage() {
 
   /* ---------- empty state: no students yet ---------- */
   if (!loading && students.length === 0) {
+    // Student-only audience: show the student waiting-for-invite empty state.
+    if (isStudentOnly === true) {
+      return (
+        <StudentDashboard
+          firstName={friendly}
+          snap={{
+            student: null,
+            latestReport: null,
+            goals: [],
+            documents: [],
+            actionItems: [],
+            upcomingMeeting: null,
+            consents: [],
+          } as unknown as DashboardSnapshot}
+          onToggleAction={() => {}}
+        />
+      );
+    }
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
