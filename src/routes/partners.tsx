@@ -170,6 +170,68 @@ function CornerArc({ className }: { className?: string }) {
   );
 }
 
+/* Layered abstract network — replaces the stock hero image. Soft gradient
+   background with floating partner nodes connected by gentle pathways. */
+function PartnerNetworkVisual() {
+  const nodes = [
+    { x: 18, y: 22, r: 8, label: "College", tone: "oklch(0.78 0.12 50)" },
+    { x: 78, y: 18, r: 7, label: "Trade", tone: "oklch(0.78 0.1 220)" },
+    { x: 50, y: 38, r: 11, label: "Student", tone: "oklch(0.7 0.18 30)" },
+    { x: 20, y: 62, r: 7, label: "Family", tone: "oklch(0.82 0.1 25)" },
+    { x: 80, y: 60, r: 8, label: "Employer", tone: "oklch(0.78 0.12 50)" },
+    { x: 38, y: 82, r: 6, label: "Mentor", tone: "oklch(0.78 0.1 220)" },
+    { x: 64, y: 84, r: 6, label: "Community", tone: "oklch(0.82 0.1 25)" },
+  ];
+  const center = nodes[2];
+  return (
+    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-foreground/10 bg-gradient-warm shadow-lift">
+      <div className="absolute inset-0 bg-gradient-to-br from-peach/30 via-transparent to-sky/40" />
+      <div className="absolute -left-10 -top-10 h-56 w-56 rounded-full bg-peach/40 blur-3xl" />
+      <div className="absolute -bottom-12 -right-8 h-56 w-56 rounded-full bg-sky/40 blur-3xl" />
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+        <defs>
+          <radialGradient id="pnv-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="oklch(0.7 0.18 30)" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="oklch(0.7 0.18 30)" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle cx={center.x} cy={center.y} r="34" fill="url(#pnv-glow)" />
+        {nodes
+          .filter((_, i) => i !== 2)
+          .map((n, i) => (
+            <line
+              key={`l-${i}`}
+              x1={center.x}
+              y1={center.y}
+              x2={n.x}
+              y2={n.y}
+              stroke="currentColor"
+              strokeOpacity="0.35"
+              strokeWidth="0.4"
+              strokeDasharray="1.2 1.2"
+              className="text-foreground"
+            />
+          ))}
+        {nodes.map((n, i) => (
+          <g key={`n-${i}`}>
+            <circle cx={n.x} cy={n.y} r={n.r + 2} fill={n.tone} opacity="0.18" />
+            <circle cx={n.x} cy={n.y} r={n.r} fill={n.tone} opacity="0.9" />
+          </g>
+        ))}
+      </svg>
+      {nodes.map((n, i) => (
+        <span
+          key={`lbl-${i}`}
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground/80 shadow-soft backdrop-blur"
+          style={{ left: `${n.x}%`, top: `${n.y + (n.r + 6) / 1}%` }}
+        >
+          {n.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function PartnersPage() {
   return (
     <SiteShell>
@@ -255,19 +317,10 @@ function PartnersPage() {
             </div>
 
             <div className="relative">
-              <div className="absolute -inset-4 -z-10 bg-gradient-warm opacity-60 blur-2xl" />
-              {/* Decorative arc behind image */}
               <CornerArc className="pointer-events-none absolute -left-6 -top-6 -z-10 h-40 w-40 text-primary/40" />
               <Parallax speed={0.18}>
-                <img
-                  src={partnersHero}
-                  alt="A constellation of families, educators, mentors, and employers connected by glowing pathways"
-                  width={1600}
-                  height={1200}
-                  className="aspect-[4/3] w-full object-cover shadow-lift"
-                />
+                <PartnerNetworkVisual />
               </Parallax>
-              {/* Decorative dot grid bottom-right */}
               <svg
                 aria-hidden
                 viewBox="0 0 80 80"
