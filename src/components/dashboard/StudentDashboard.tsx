@@ -16,6 +16,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functions";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 type Props = {
   firstName: string;
