@@ -91,7 +91,7 @@ export function OwnerShell({
 
   if (status !== "allowed") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-dvh items-center justify-center bg-background">
         <div className="flex items-center gap-3 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span className="text-sm">
@@ -107,8 +107,8 @@ export function OwnerShell({
   const groups = Array.from(new Set(NAV.map((n) => n.group)));
 
   return (
-    <div className="min-h-screen bg-muted/30 text-foreground">
-      <div className="flex min-h-screen">
+    <div className="min-h-dvh bg-muted/30 text-foreground">
+      <div className="flex min-h-dvh">
         {/* Sidebar */}
         <aside className="hidden w-64 shrink-0 border-r border-border bg-background lg:flex lg:flex-col">
           <div className="flex items-center gap-2 border-b border-border px-5 py-4">

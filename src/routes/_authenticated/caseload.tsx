@@ -125,7 +125,7 @@ function CaseloadPage() {
             />
           </div>
           <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-            <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Students</SelectItem>
               <SelectItem value="needs-attention">Open Action Items</SelectItem>
