@@ -39,6 +39,7 @@ import {
   type PartnerOrg,
 } from "@/lib/partner-workspace.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
@@ -247,6 +248,8 @@ function PartnerManagePage() {
           </TabsList>
 
           <TabsContent value="opportunities" className="mt-4 space-y-6">
+            <OpportunityStatusStats opps={ws.opportunities} />
+
             <div className="flex justify-end">
               <Button onClick={() => setShowForm((s) => !s)}>
                 <Plus className="mr-1 h-4 w-4" /> New opportunity
