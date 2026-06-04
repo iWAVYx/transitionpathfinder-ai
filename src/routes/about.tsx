@@ -103,7 +103,7 @@ function Manifesto() {
   return (
     <section ref={ref} className="relative py-16 sm:py-28">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The promise</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The Promise</p>
         <h2 className="mt-6 font-display text-3xl font-medium leading-[1.15] tracking-tight text-foreground/30 sm:text-5xl lg:text-6xl">
           <FillReveal scrollYProgress={scrollYProgress}>
             Transition planning shouldn't be a binder, an inbox, and a hope.
