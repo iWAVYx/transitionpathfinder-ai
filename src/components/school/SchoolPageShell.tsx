@@ -92,7 +92,7 @@ export function SchoolPageShell({
             </div>
             {data && data.orgs.length > 1 && (
               <Select value={orgId} onValueChange={onSwitchOrg}>
-                <SelectTrigger className="w-72">
+                <SelectTrigger className="w-full sm:w-72">
                   <SelectValue placeholder="Select organization" />
                 </SelectTrigger>
                 <SelectContent>

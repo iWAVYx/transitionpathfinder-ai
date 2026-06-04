@@ -12,7 +12,7 @@ const TABS = [
 export function SchoolNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <nav className="mt-4 flex flex-wrap gap-1 border-b border-border/60">
+    <nav className="mt-4 -mx-4 flex gap-1 overflow-x-auto border-b border-border/60 px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
       {TABS.map(({ to, label, icon: Icon }) => {
         const active = pathname === to;
         return (
@@ -20,7 +20,7 @@ export function SchoolNav() {
             key={to}
             to={to}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-t-lg px-3 py-2 text-sm transition-colors",
+              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-t-lg px-3 py-2 text-sm transition-colors",
               active
                 ? "border-b-2 border-primary font-medium text-foreground"
                 : "text-muted-foreground hover:text-foreground",
