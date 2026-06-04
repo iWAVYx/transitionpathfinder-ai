@@ -22,6 +22,7 @@ import {
   getResourceCounts,
   type DashboardMetrics,
 } from "@/lib/owner/owner.functions";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
@@ -92,6 +93,8 @@ function OwnerDashboardPage() {
         <p className="text-sm text-muted-foreground">No metrics available.</p>
       ) : (
         <div className="space-y-6">
+          <NextBestAction surface="admin" />
+
           {/* Site status banner */}
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background p-4">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

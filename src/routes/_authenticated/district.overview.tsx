@@ -15,6 +15,7 @@ import {
   useDistrictDashboard,
 } from "@/components/district/DistrictPageShell";
 import { Button } from "@/components/ui/button";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/district/overview")({
   head: () => ({
@@ -37,6 +38,7 @@ function DistrictOverviewPage() {
     >
       {(district, d) => (
         <div className="space-y-6">
+          <NextBestAction surface="district_admin" />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Metric
               label="Connected Schools"

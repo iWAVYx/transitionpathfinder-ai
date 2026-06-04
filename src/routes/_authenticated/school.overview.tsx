@@ -3,6 +3,7 @@ import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight } from "lu
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { Button } from "@/components/ui/button";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
@@ -23,6 +24,7 @@ function SchoolOverviewPage() {
     >
       {(org, d) => (
         <div className="space-y-6">
+          <NextBestAction surface="school_admin" />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Metric label="Active Staff" value={d.metrics.active_members} icon={<Users className="h-3.5 w-3.5" />} />
             <Metric label="Pending Invites" value={d.metrics.pending_members} icon={<Mail className="h-3.5 w-3.5" />} />

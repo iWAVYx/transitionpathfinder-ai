@@ -41,6 +41,7 @@ import { listStudents, createShareToken } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -315,6 +316,10 @@ function DashboardPage() {
 
         <div className="mt-4">
           <WelcomeBanner firstName={friendly} />
+        </div>
+
+        <div className="mt-4">
+          <NextBestAction surface="family" />
         </div>
 
         {/* Header band */}

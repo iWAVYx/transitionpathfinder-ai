@@ -35,6 +35,7 @@ import {
   listStudentNotes,
   type CaseloadStudent,
 } from "@/lib/caseload.functions";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/caseload")({
   head: () => ({ meta: [{ title: "Caseload — TransitionForward" }] }),
@@ -105,6 +106,12 @@ function CaseloadPage() {
             <Link to="/students"><Plus className="h-4 w-4" /> Add Student</Link>
           </Button>
         </div>
+
+        <div className="mt-6">
+          <NextBestAction surface="educator" />
+        </div>
+
+
 
         {/* Summary cards */}
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
