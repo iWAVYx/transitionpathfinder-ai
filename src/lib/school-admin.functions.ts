@@ -226,3 +226,260 @@ export const updateMembershipStatus = createServerFn({ method: "POST" })
     if (error) throw new Error("Could not update membership.");
     return { ok: true };
   });
+
+/* ===================== Slice 3 additions ===================== */
+
+export const createSchoolForAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        name: z.string().trim().min(2).max(160),
+        type: z.enum(["school", "district", "agency"]).default("school"),
+        city: z.string().trim().max(120).optional(),
+        state: z.string().trim().max(60).optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    // Use admin client to bypass org RLS (organizations INSERT is admin-only)
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: org, error: orgErr } = await supabaseAdmin
+      .from("organizations")
+      .insert({
+        name: data.name,
+        type: data.type,
+        city: data.city ?? null,
+        state: data.state ?? null,
+        verified_status: "pending",
+      })
+      .select("id, name, type, city, state, verified_status")
+      .single();
+    if (orgErr || !org) throw new Error("Could not create organization.");
+
+    const { error: memErr } = await supabaseAdmin
+      .from("organization_memberships")
+      .insert({
+        organization_id: org.id,
+        user_id: userId,
+        role_within_org: "school_admin",
+        status: "active",
+      });
+    if (memErr) {
+      console.error("createSchoolForAdmin: membership insert failed", memErr);
+      throw new Error("Created organization, but couldn't add you as admin.");
+    }
+
+    void supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "school.created",
+      entity_type: "organization",
+      entity_id: org.id,
+      metadata: { name: data.name },
+    });
+
+    return { organization: org };
+  });
+
+export const inviteSchoolTeammate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        organization_id: z.string().uuid(),
+        email: z.string().trim().toLowerCase().email().max(255),
+        role_within_org: z.enum(["member", "admin", "school_admin"]).default("member"),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Resolve user by email
+    let invitedUserId: string | null = null;
+    try {
+      let page = 1;
+      while (page <= 5) {
+        const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+        if (error) break;
+        const hit = list.users.find((u) => (u.email ?? "").toLowerCase() === data.email);
+        if (hit) {
+          invitedUserId = hit.id;
+          break;
+        }
+        if (list.users.length < 200) break;
+        page++;
+      }
+    } catch {
+      /* ignore */
+    }
+
+    if (!invitedUserId) {
+      throw new Error(
+        "We couldn't find a TransitionForward account with that email. Ask them to sign up first.",
+      );
+    }
+
+    const { error } = await supabase.from("organization_memberships").insert({
+      organization_id: data.organization_id,
+      user_id: invitedUserId,
+      role_within_org: data.role_within_org,
+      status: "active",
+    });
+    if (error) {
+      if (error.code === "23505") throw new Error("That person is already on your team.");
+      console.error("inviteSchoolTeammate failed", error);
+      throw new Error("Could not add teammate.");
+    }
+
+    void supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "school.member_added",
+      entity_type: "organization",
+      entity_id: data.organization_id,
+      metadata: { email: data.email, role: data.role_within_org },
+    });
+
+    return { ok: true };
+  });
+
+export type SchoolReportRow = {
+  id: string;
+  student_id: string;
+  student_name: string;
+  created_at: string;
+  audience: string | null;
+};
+
+export const listSchoolReports = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ organization_id: z.string().uuid() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verify the caller actually admins this org
+    const { data: mem } = await supabase
+      .from("organization_memberships")
+      .select("id")
+      .eq("organization_id", data.organization_id)
+      .eq("user_id", context.userId)
+      .eq("status", "active")
+      .in("role_within_org", ["admin", "owner", "school_admin"])
+      .maybeSingle();
+    if (!mem) return { reports: [] as SchoolReportRow[] };
+
+    const { data: students } = await supabaseAdmin
+      .from("students")
+      .select("id, first_name, last_name, preferred_name")
+      .eq("organization_id", data.organization_id);
+
+    const ids = (students ?? []).map((s) => s.id);
+    if (ids.length === 0) return { reports: [] as SchoolReportRow[] };
+
+    const nameMap = new Map(
+      (students ?? []).map((s) => [
+        s.id,
+        `${s.preferred_name ?? s.first_name ?? "Student"} ${s.last_name ?? ""}`.trim(),
+      ]),
+    );
+
+    const { data: reports } = await supabaseAdmin
+      .from("pathway_reports")
+      .select("id, student_id, created_at, audience")
+      .in("student_id", ids)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    const rows: SchoolReportRow[] = (reports ?? []).map((r) => ({
+      id: r.id,
+      student_id: r.student_id,
+      student_name: nameMap.get(r.student_id) ?? "Student",
+      created_at: r.created_at,
+      audience: (r as { audience?: string | null }).audience ?? null,
+    }));
+    return { reports: rows };
+  });
+
+export type SchoolReadiness = {
+  total_students: number;
+  with_pathway_report: number;
+  with_open_action_items: number;
+  with_active_goals: number;
+  avg_open_actions_per_student: number;
+};
+
+export const getSchoolReadiness = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ organization_id: z.string().uuid() }).parse(i),
+  )
+  .handler(async ({ data, context }): Promise<SchoolReadiness> => {
+    const { supabase } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: mem } = await supabase
+      .from("organization_memberships")
+      .select("id")
+      .eq("organization_id", data.organization_id)
+      .eq("user_id", context.userId)
+      .eq("status", "active")
+      .in("role_within_org", ["admin", "owner", "school_admin"])
+      .maybeSingle();
+    if (!mem) {
+      return {
+        total_students: 0,
+        with_pathway_report: 0,
+        with_open_action_items: 0,
+        with_active_goals: 0,
+        avg_open_actions_per_student: 0,
+      };
+    }
+
+    const { data: students } = await supabaseAdmin
+      .from("students")
+      .select("id")
+      .eq("organization_id", data.organization_id);
+    const ids = (students ?? []).map((s) => s.id);
+    if (ids.length === 0) {
+      return {
+        total_students: 0,
+        with_pathway_report: 0,
+        with_open_action_items: 0,
+        with_active_goals: 0,
+        avg_open_actions_per_student: 0,
+      };
+    }
+
+    const [{ data: reports }, { data: actions }, { data: goals }] = await Promise.all([
+      supabaseAdmin.from("pathway_reports").select("student_id").in("student_id", ids),
+      supabaseAdmin.from("action_items").select("student_id, status").in("student_id", ids),
+      supabaseAdmin.from("goals").select("student_id, status").in("student_id", ids),
+    ]);
+
+    const withReport = new Set((reports ?? []).map((r) => r.student_id));
+    const openByStudent = new Map<string, number>();
+    for (const a of actions ?? []) {
+      if (a.status !== "complete") {
+        openByStudent.set(a.student_id, (openByStudent.get(a.student_id) ?? 0) + 1);
+      }
+    }
+    const withActiveGoals = new Set(
+      (goals ?? []).filter((g) => g.status !== "met").map((g) => g.student_id),
+    );
+
+    const totalOpen = Array.from(openByStudent.values()).reduce((n, v) => n + v, 0);
+
+    return {
+      total_students: ids.length,
+      with_pathway_report: withReport.size,
+      with_open_action_items: openByStudent.size,
+      with_active_goals: withActiveGoals.size,
+      avg_open_actions_per_student: ids.length ? Math.round((totalOpen / ids.length) * 10) / 10 : 0,
+    };
+  });
