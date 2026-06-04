@@ -65,7 +65,7 @@ function AboutHero() {
           transition={{ duration: 0.6 }}
           className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
         >
-          Our story
+          Our Story
         </motion.p>
         <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-7xl lg:text-8xl">
           <Word text="We built this for" d={0.1} />
