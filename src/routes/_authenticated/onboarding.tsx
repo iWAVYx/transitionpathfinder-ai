@@ -29,7 +29,8 @@ const ROLE_OPTIONS = [
   { id: "student", label: "Student", note: "This is my plan", icon: User },
   { id: "parent", label: "Parent or Guardian", note: "I'm planning with my child", icon: HeartHandshake },
   { id: "educator", label: "Educator or Case Manager", note: "I support students at school — teacher, special educator, transition coordinator, or case manager", icon: GraduationCap },
-  { id: "school_admin", label: "School Administrator", note: "I lead a school or district's transition program", icon: Users },
+  { id: "school_admin", label: "School Administrator", note: "I lead transition planning at a single school or building", icon: Users },
+  { id: "district_admin", label: "School District Administrator", note: "I oversee transition planning across multiple schools in a district", icon: Users },
   { id: "partner", label: "Partner Organization", note: "I run programs students can join", icon: Users },
 ] as const;
 

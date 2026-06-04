@@ -102,7 +102,7 @@ const userGroups: UserNavGroup[] = [
   },
   {
     label: "Insights",
-    roles: ["educator", "school_admin", "admin"],
+    roles: ["educator", "school_admin", "district_admin", "admin"],
     items: [
       { to: "/insights", label: "Insights" },
       { to: "/analytics", label: "Analytics" },
@@ -119,6 +119,17 @@ const userGroups: UserNavGroup[] = [
       { to: "/school/implementation", label: "Implementation" },
     ],
   },
+  // School District Administrator — district-level oversight across schools
+  {
+    label: "District Administration",
+    roles: ["district_admin", "admin"],
+    items: [
+      { to: "/district/overview", label: "District Overview" },
+      { to: "/district/schools", label: "Schools" },
+      { to: "/district/team", label: "People & Access" },
+      { to: "/district/reports", label: "District Reports" },
+    ],
+  },
   // Partner Organization workspace
   {
     label: "Partner Workspace",
@@ -130,7 +141,7 @@ const userGroups: UserNavGroup[] = [
   // Account — visible to every signed-in user
   {
     label: "Account",
-    roles: ["student", "family", "educator", "school_admin", "admin", "partner"],
+    roles: ["student", "family", "educator", "school_admin", "district_admin", "admin", "partner"],
     items: [
       { to: "/settings", label: "Settings" },
       { to: "/help", label: "Help & Support" },

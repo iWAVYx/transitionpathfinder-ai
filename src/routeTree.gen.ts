@@ -86,6 +86,10 @@ import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
+import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
+import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
+import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
+import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -496,6 +500,30 @@ const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AuthenticatedFormsRoute,
 } as any)
+const AuthenticatedDistrictTeamRoute =
+  AuthenticatedDistrictTeamRouteImport.update({
+    id: '/district/team',
+    path: '/district/team',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDistrictSchoolsRoute =
+  AuthenticatedDistrictSchoolsRouteImport.update({
+    id: '/district/schools',
+    path: '/district/schools',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDistrictReportsRoute =
+  AuthenticatedDistrictReportsRouteImport.update({
+    id: '/district/reports',
+    path: '/district/reports',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDistrictOverviewRoute =
+  AuthenticatedDistrictOverviewRouteImport.update({
+    id: '/district/overview',
+    path: '/district/overview',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -577,6 +605,10 @@ export interface FileRoutesByFullPath {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/district/reports': typeof AuthenticatedDistrictReportsRoute
+  '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
+  '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -660,6 +692,10 @@ export interface FileRoutesByTo {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/district/reports': typeof AuthenticatedDistrictReportsRoute
+  '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
+  '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -745,6 +781,10 @@ export interface FileRoutesById {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
+  '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
+  '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -830,6 +870,10 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/district/overview'
+    | '/district/reports'
+    | '/district/schools'
+    | '/district/team'
     | '/forms/$slug'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -913,6 +957,10 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/district/overview'
+    | '/district/reports'
+    | '/district/schools'
+    | '/district/team'
     | '/forms/$slug'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -997,6 +1045,10 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/_authenticated/district/overview'
+    | '/_authenticated/district/reports'
+    | '/_authenticated/district/schools'
+    | '/_authenticated/district/team'
     | '/_authenticated/forms/$slug'
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
@@ -1610,6 +1662,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSlugRouteImport
       parentRoute: typeof AuthenticatedFormsRoute
     }
+    '/_authenticated/district/team': {
+      id: '/_authenticated/district/team'
+      path: '/district/team'
+      fullPath: '/district/team'
+      preLoaderRoute: typeof AuthenticatedDistrictTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/district/schools': {
+      id: '/_authenticated/district/schools'
+      path: '/district/schools'
+      fullPath: '/district/schools'
+      preLoaderRoute: typeof AuthenticatedDistrictSchoolsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/district/reports': {
+      id: '/_authenticated/district/reports'
+      path: '/district/reports'
+      fullPath: '/district/reports'
+      preLoaderRoute: typeof AuthenticatedDistrictReportsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/district/overview': {
+      id: '/_authenticated/district/overview'
+      path: '/district/overview'
+      fullPath: '/district/overview'
+      preLoaderRoute: typeof AuthenticatedDistrictOverviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -1717,6 +1797,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
+  AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
+  AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
+  AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
   AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
@@ -1760,6 +1844,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
+  AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
+  AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
+  AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
   AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
