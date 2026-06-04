@@ -15,6 +15,7 @@ import {
   useDistrictDashboard,
 } from "@/components/district/DistrictPageShell";
 import { Button } from "@/components/ui/button";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/district/overview")({
   head: () => ({
