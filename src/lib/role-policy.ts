@@ -6,6 +6,7 @@ export type RoleAudience =
   | "family"
   | "educator"
   | "school_admin"
+  | "district_admin"
   | "admin"
   | "partner";
 
@@ -27,6 +28,9 @@ export function audiencesForRoles(roles: string[]): Set<RoleAudience> {
         break;
       case "school_admin":
         out.add("school_admin");
+        break;
+      case "district_admin":
+        out.add("district_admin");
         break;
       case "admin":
         out.add("admin");
@@ -52,8 +56,8 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/reports": ["family", "educator", "student", "admin"],
   "/ppt-prep": ["family", "educator", "admin"],
   "/meetings": ["family", "educator", "admin"],
-  "/insights": ["educator", "school_admin", "admin"],
-  "/analytics": ["educator", "school_admin", "admin"],
+  "/insights": ["educator", "school_admin", "district_admin", "admin"],
+  "/analytics": ["educator", "school_admin", "district_admin", "admin"],
   "/admin": ["admin"],
   // /admin-school is a legacy redirect to /school/overview — no guard needed
 
@@ -62,6 +66,12 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/school/team": ["school_admin", "admin"],
   "/school/reports": ["school_admin", "admin"],
   "/school/implementation": ["school_admin", "admin"],
+
+  // District-level workspace — separate from school and from Platform Admin.
+  "/district/overview": ["district_admin", "admin"],
+  "/district/schools": ["district_admin", "admin"],
+  "/district/team": ["district_admin", "admin"],
+  "/district/reports": ["district_admin", "admin"],
 };
 
 export function isAllowed(path: string, roles: string[]): boolean {
@@ -75,6 +85,7 @@ export function isAllowed(path: string, roles: string[]): boolean {
 export function fallbackPathFor(roles: string[]): string {
   const a = audiencesForRoles(roles);
   if (a.has("admin")) return "/admin";
+  if (a.has("district_admin")) return "/district/overview";
   if (a.has("school_admin")) return "/school/overview";
   if (a.has("educator")) return "/caseload";
   if (a.has("partner")) return "/partners-manage";
@@ -88,6 +99,7 @@ export const AUDIENCE_LABEL: Record<RoleAudience, string> = {
   family: "Family",
   educator: "Educator / Case Manager",
   school_admin: "School Administrator",
+  district_admin: "School District Administrator",
   admin: "Platform Admin",
   partner: "Partner Organization",
 };
