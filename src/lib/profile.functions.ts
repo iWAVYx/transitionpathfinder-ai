@@ -53,14 +53,26 @@ export const updateProfileLanguage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Onboarding role IDs surfaced to the user. These are the 5 first-class
+// signed-in personas. `educator` writes BOTH `educator` and `case_manager`
+// to user_roles so the UI can consistently say "Educator / Case Manager".
 const PRIMARY_ROLES = [
   "parent",
   "student",
   "educator",
-  "administrator",
+  "school_admin",
   "partner",
-  "other",
 ] as const;
+
+// Map an onboarding role ID → the set of app_role enum values to write.
+// Never writes `admin` (platform admin) from onboarding.
+const ROLES_FOR_PRIMARY: Record<string, string[]> = {
+  parent: ["parent"],
+  student: ["student"],
+  educator: ["educator", "case_manager"],
+  school_admin: ["school_admin"],
+  partner: ["partner"],
+};
 
 export const completeOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -76,7 +88,6 @@ export const completeOnboarding = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const full_name = [data.first_name, data.last_name].filter(Boolean).join(" ").trim() || null;
-    // Upsert in case the handle_new_user trigger hasn't populated this row yet.
     const { error } = await supabase
       .from("profiles")
       .upsert(
@@ -95,23 +106,15 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       throw new Error("Could not save your profile. Please try again.");
     }
 
-    // Mirror the onboarding role into user_roles so SQL has_role() checks match.
-    const roleMap: Record<string, string> = {
-      parent: "parent",
-      student: "student",
-      educator: "educator",
-      administrator: "admin",
-      partner: "partner",
-    };
-    const mappedRole = roleMap[data.primary_role];
-    if (mappedRole) {
+    const mappedRoles = ROLES_FOR_PRIMARY[data.primary_role] ?? [];
+    for (const role of mappedRoles) {
       const { error: roleError } = await supabase
         .from("user_roles")
         .upsert(
-          { user_id: userId, role: mappedRole as never },
+          { user_id: userId, role: role as never },
           { onConflict: "user_id,role" },
         );
-      if (roleError) console.error("completeOnboarding: user_roles upsert failed", roleError);
+      if (roleError) console.error("completeOnboarding: user_roles upsert failed", role, roleError);
     }
     return { ok: true };
   });
