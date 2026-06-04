@@ -225,7 +225,7 @@ function Chapter({ chapter, index }: { chapter: (typeof CHAPTERS)[number]; index
               viewport={{ once: true }}
               className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
             >
-              {chapter.eyebrow}
+              {toTitleCase(chapter.eyebrow)}
             </motion.p>
             <motion.h3
               initial={{ opacity: 0, y: 20 }}
