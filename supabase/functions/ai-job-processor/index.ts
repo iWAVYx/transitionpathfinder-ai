@@ -129,6 +129,17 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Require service-role bearer token. pg_cron and authenticated server-side
+  // callers pass it; anonymous browser callers cannot.
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const expected = `Bearer ${SERVICE_ROLE}`;
+  if (authHeader !== expected) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
   // Claim up to 5 queued jobs.
