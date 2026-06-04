@@ -39,7 +39,7 @@ import {
 } from "@/lib/golden-path.functions";
 import { listStudents, createShareToken } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
-import { audiencesForRoles } from "@/lib/role-policy";
+import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 
 
@@ -75,9 +75,16 @@ function DashboardPage() {
       .then((r) => {
         const aud = audiencesForRoles(r.roles);
         setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
+        // School Administrator and Partner roles don't belong on the
+        // family/student dashboard — send them to their workspace instead.
+        // Skip if they also have family/educator/student access (multi-role).
+        const studentLike = aud.has("family") || aud.has("educator") || aud.has("student");
+        if (!studentLike && (aud.has("school_admin") || aud.has("partner"))) {
+          navigate({ to: fallbackPathFor(r.roles), replace: true });
+        }
       })
       .catch(() => setIsStudentOnly(false));
-  }, [fetchRoles]);
+  }, [fetchRoles, navigate]);
 
   const handleDownloadPdf = useCallback((reportId: string) => {
     window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
