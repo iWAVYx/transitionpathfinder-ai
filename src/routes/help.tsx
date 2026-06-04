@@ -46,9 +46,14 @@ const ContactSchema = z.object({
   full_name: z.string().trim().min(1, "Please tell us your name").max(200),
   email: z.string().trim().email("Enter a valid email").max(255),
   topic: z.enum([
+    "general",
     "family-question",
     "educator-question",
     "district-demo",
+    "partnership",
+    "technical",
+    "demo-request",
+    "feedback",
     "press-research",
     "accessibility",
     "other",
@@ -63,13 +68,68 @@ const ContactSchema = z.object({
 type ContactValues = z.infer<typeof ContactSchema>;
 
 const TOPIC_TO_INQUIRY: Record<ContactValues["topic"], string> = {
+  general: "general",
   "family-question": "family",
   "educator-question": "educator",
   "district-demo": "demo",
+  partnership: "partnership",
+  technical: "technical",
+  "demo-request": "demo",
+  feedback: "feedback",
   "press-research": "press",
   accessibility: "accessibility",
   other: "general",
 };
+
+const SUPPORT_CATEGORIES: {
+  topic: ContactValues["topic"];
+  title: string;
+  body: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    topic: "general",
+    title: "General Questions",
+    body: "Not sure where to start? We'll point you to the right resource or teammate.",
+    icon: <MessageCircleQuestion className="h-5 w-5" />,
+  },
+  {
+    topic: "family-question",
+    title: "Family Support",
+    body: "Help with student profiles, Pathway Reports, IEP uploads, or planning at home.",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    topic: "educator-question",
+    title: "School and Educator Support",
+    body: "Caseload questions, training, CT SEDS alignment, or onboarding your team.",
+    icon: <School className="h-5 w-5" />,
+  },
+  {
+    topic: "partnership",
+    title: "Partnership Inquiries",
+    body: "Colleges, technical programs, BRS, employers, and community organizations.",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    topic: "technical",
+    title: "Technical Help",
+    body: "Login trouble, missing data, accessibility barriers, or a feature that isn't working.",
+    icon: <LifeBuoy className="h-5 w-5" />,
+  },
+  {
+    topic: "demo-request",
+    title: "Demo Requests",
+    body: "Schedule a 20-minute walkthrough for your school, district, or program.",
+    icon: <Eye className="h-5 w-5" />,
+  },
+  {
+    topic: "feedback",
+    title: "Feedback or Suggestions",
+    body: "Tell us what's working, what's missing, and what would make this better for you.",
+    icon: <ShieldCheck className="h-5 w-5" />,
+  },
+];
 
 export const Route = createFileRoute("/help")({
   head: () => ({
