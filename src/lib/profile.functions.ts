@@ -10,7 +10,8 @@ export type Profile = {
   primary_role: string | null;
   onboarding_completed: boolean;
   language: string;
-  onboarding_answers: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onboarding_answers: Record<string, any>;
 };
 
 export const getProfile = createServerFn({ method: "GET" })
