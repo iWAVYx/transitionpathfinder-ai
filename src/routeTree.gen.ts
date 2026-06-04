@@ -86,6 +86,7 @@ import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
+import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -497,6 +498,12 @@ const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AuthenticatedFormsRoute,
 } as any)
+const AuthenticatedDistrictSchoolsRoute =
+  AuthenticatedDistrictSchoolsRouteImport.update({
+    id: '/district/schools',
+    path: '/district/schools',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictOverviewRoute =
   AuthenticatedDistrictOverviewRouteImport.update({
     id: '/district/overview',
@@ -585,6 +592,7 @@ export interface FileRoutesByFullPath {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -669,6 +677,7 @@ export interface FileRoutesByTo {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -755,6 +764,7 @@ export interface FileRoutesById {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -841,6 +851,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/district/overview'
+    | '/district/schools'
     | '/forms/$slug'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -925,6 +936,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/district/overview'
+    | '/district/schools'
     | '/forms/$slug'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -1010,6 +1022,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/district/overview'
+    | '/_authenticated/district/schools'
     | '/_authenticated/forms/$slug'
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
@@ -1623,6 +1636,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSlugRouteImport
       parentRoute: typeof AuthenticatedFormsRoute
     }
+    '/_authenticated/district/schools': {
+      id: '/_authenticated/district/schools'
+      path: '/district/schools'
+      fullPath: '/district/schools'
+      preLoaderRoute: typeof AuthenticatedDistrictSchoolsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/overview': {
       id: '/_authenticated/district/overview'
       path: '/district/overview'
@@ -1738,6 +1758,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
+  AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
@@ -1782,6 +1803,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
+  AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
