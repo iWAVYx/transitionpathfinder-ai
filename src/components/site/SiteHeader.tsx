@@ -199,7 +199,7 @@ export function SiteHeader() {
               <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                 {group.label} <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-64 p-2">
+              <DropdownMenuContent align="start" className="max-h-[min(70vh,32rem)] min-w-64 overflow-y-auto p-2">
                 {group.items.map((item) => (
                   <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
                     <Link
@@ -253,7 +253,7 @@ export function SiteHeader() {
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-56 p-1.5">
+                <DropdownMenuContent align="end" className="max-h-[min(70vh,32rem)] min-w-56 overflow-y-auto p-1.5">
                   {visibleUserGroups.map((group, idx) => (
                     <div key={group.label}>
                       {idx > 0 && <DropdownMenuSeparator />}
