@@ -55,7 +55,7 @@ Make the report feel like a real meeting-ready document.
 - **Meeting Prep**: meeting detail page now has a "Pull from profile" button that prefills `student_voice`, `family_concerns`, and `teacher_notes` from the student record (only fills empty fields). Print/Export and Mark completed were already in place.
 - **Action Items**: full per-student CRUD via `action-items.functions.ts` (list/create/update/delete) using the existing `action_items` table. New `ActionItemsPanel` shows priority, category, due date, status (not_started / in_progress / completed / blocked) with a completion progress bar; mounted on the student detail page.
 
-## Slice 6 — Trust & Consent center + Demo Mode
+## Slice 6 — Trust & Consent center + Demo Mode  ✅ shipped
 
 - New `_authenticated/trust.tsx` (or extend settings) showing: who has access to each student, what's been shared, share/revoke controls, AI processing policy in plain language. All reads from existing `student_collaborators` / `share_tokens` / `consent_records` tables — no schema change required.
 - **Demo Mode**: a single seeded "Demo Student" the user can explore from their dashboard (read-only, clearly badged "DEMO"). Implemented as a client-side fixture rendered in the existing student-profile / pathway-report shells so it cannot mix with real data. CTA from each role dashboard's empty state.
