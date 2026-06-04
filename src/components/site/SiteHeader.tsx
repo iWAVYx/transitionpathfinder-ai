@@ -102,7 +102,7 @@ const userGroups: UserNavGroup[] = [
   },
   {
     label: "Insights",
-    roles: ["educator", "school_admin", "admin"],
+    roles: ["educator", "school_admin", "district_admin", "admin"],
     items: [
       { to: "/insights", label: "Insights" },
       { to: "/analytics", label: "Analytics" },
