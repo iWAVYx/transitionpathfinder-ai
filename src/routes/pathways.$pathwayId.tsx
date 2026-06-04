@@ -434,10 +434,18 @@ function PathwayFlow() {
                     )}
                   >
                     <span
+                      onClick={(e) => {
+                        if (isDone) {
+                          e.stopPropagation();
+                          unmarkDone(i);
+                        }
+                      }}
+                      role={isDone ? "button" : undefined}
+                      aria-label={isDone ? "Mark as not done" : undefined}
                       className={cn(
                         "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
                         isDone
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-primary text-primary-foreground hover:bg-primary/80 cursor-pointer"
                           : isActive
                             ? "bg-primary/15 text-primary"
                             : "bg-muted text-muted-foreground",
