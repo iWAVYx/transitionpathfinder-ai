@@ -187,7 +187,7 @@ function WaitlistPage() {
           </header>
 
           {!done && !current && (
-            <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:[&>*]:col-span-2 lg:[&>*:nth-child(4)]:col-start-2 lg:[&>*:nth-child(5)]:col-start-4">
               {ROLE_OPTIONS.map((opt) => (
                 <button
                   key={opt.key}
