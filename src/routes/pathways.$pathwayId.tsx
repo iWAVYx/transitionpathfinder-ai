@@ -377,9 +377,10 @@ function PathwayFlow() {
           <div className="relative mx-auto flex h-full max-w-5xl flex-col justify-end px-4 pb-8 text-background sm:px-6 lg:px-8">
             <Link
               to="/"
+              hash="pathways"
               className="mb-3 inline-flex w-fit items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-background/85 hover:text-background"
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> All pathways
+              <ArrowLeft className="h-3.5 w-3.5" /> Back to all pathways
             </Link>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">
               Guided flow

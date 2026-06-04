@@ -1,79 +1,43 @@
+# TransitionForward — UX & Polish Pass
 
-# TransitionForward — ParentSquare-Inspired Expansion
+This is a large multi-area pass (18 distinct items). To keep changes safe and reviewable, I'll group them into 4 phases and ship phase-by-phase, verifying after each. You can stop or reorder at any point.
 
-Positioning: *"Everything transition teams need to move every student forward."*
+## Phase 1 — Onboarding, navigation & scroll fundamentals
+These are the highest-leverage usability fixes.
 
-Delivered as one cohesive expansion, in two layers:
+1. **CT High School autocomplete** — Add reusable `SchoolPicker` component (Command-based combobox) with a bundled list of CT public + magnet + tech high schools + sentinel options (Home Schooled, Other, Not Listed, Prefer Not to Say). When "Other"/"Not Listed" → free-text fallback. Wire into: onboarding, student create/edit, waitlist, intake.
+2. **Page navigation & scroll behavior** — Audit `__root.tsx` / router scroll restoration. Ensure: new page → scroll top; hash link → smooth scroll to id with header offset; back nav → restore prior position. Add a `ScrollToTop` effect keyed by `pathname` (skip when hash present).
+3. **Back to All Pathways** — Update the link in `pathways/$pathwayId` to return to `/#pathways` (Real-Life Pathways section), not site top.
+4. **Guided pathway flow forward/back responsiveness** — Verify state preserved when stepping, fix any mobile layout breaks in `PathwayFlow`, ensure progress indicator stays in view.
+5. **Resource Hub sticky filter bar** — Fix z-index + top offset so the filter bar stays under the site header without clipping; smaller cards & tighter grid (more density, better responsive breakpoints).
 
-## Information Architecture (decided)
+## Phase 2 — Page-level content & layout
+6. **Personalized welcome banner** on `/dashboard` using profile first name with rotating encouraging sub-line.
+7. **Contact/Help page expansion** — `/help` gets 7 clearly-titled support categories (General Questions, Family Support, School and Educator Support, Partnership Inquiries, Technical Help, Demo Requests, Feedback or Suggestions) routed through the existing contact form with a category select prefilled.
+8. **Platform page Quiet Layers** — Shrink the 3 cards into refined supporting cards (smaller padding, lighter weight, aligned grid).
+9. **Partners page hero** — Replace current image with a layered abstract network/partner visual (soft gradient + floating nodes, integrated into background rather than a stock photo block).
+10. **Educators page** — Remove "Less Paperwork. More Presence." section, tighten following section spacing.
+11. **About page** — Reduce vertical spacing/oversized blocks for tighter pacing.
+12. **Waitlist symmetry & door routing** — Center/balance cards; each "door" passes a category param (`?audience=family|student|educator|school|partner`) prefilled into the waitlist form's role/interest field.
 
-Top nav (auth area) becomes:
+## Phase 3 — Motion & interactive polish
+13. **Framework page Four-Year Arc** — Redesign as a sticky scroll-driven storytelling section with year-by-year reveal, animated progress line, motion cards (Framer Motion + `useScroll`).
+14. **Home interactive map** — Pace out the scroll (increase scroll length), add CT outline sketch as background texture, tie reveals to scroll progress.
+15. **Scroll text/word highlight sync** — Recalibrate Research page (and any other pages using the effect) so highlight progress matches scroll position via tuned offsets.
 
-```text
-Dashboard · Students · Feed · Messages · Meetings · Forms · Resources · More ▾
-                                                                       └─ Goals, Documents,
-                                                                          Opportunities, Admin
-```
-
-Mobile: same items collapse into the existing dropdown. The marketing site nav stays unchanged.
-
-Each student page gets sub-tabs: Overview · Goals · Feed · Messages · Meetings · Forms · Documents — so every new module is reachable both globally (across all your students) and per-student.
-
----
-
-## Phase 1 — Full-stack modules (real DB + RLS + server functions + UI)
-
-### 1. Family Transition Feed (`/feed`, `/students/:id` Feed tab)
-- New table `feed_events` (student_id, actor_id, kind, title, body, ref_table, ref_id, payload, created_at) with RLS via `can_access_student`.
-- Event kinds: `report.generated`, `goal.added`, `goal.status_changed`, `reflection.added`, `progress_note.added`, `meeting.scheduled`, `meeting.summary_exported`, `form.completed`, `resource.matched`, `document.uploaded`, `message.posted`.
-- Server-side helper `emitFeedEvent()` called from existing pathway / goals / docs / meeting / forms server fns so the feed populates automatically.
-- UI: timeline with day grouping, kind icons/colors, filter chips (All, Goals, Meetings, Reports, Reflections, Messages), and "What does this mean?" inline explainers.
-
-### 2. Communication Center (`/messages`)
-- Tables `message_threads` (student_id, category, subject, created_by) and `messages` (thread_id, author_id, body, attachments jsonb) — RLS gated by `can_access_student` / `can_edit_student`.
-- Categories: Goal updates · Meeting prep · Family questions · Student reflections · Resource questions · Follow-up actions.
-- UI: two-pane inbox (threads list + thread view), category badges, "New thread" with required category, mark-resolved, link-to-student. Posting a message also writes a `message.posted` feed event.
-
-### 3. Meeting Center (`/meetings`, `/meetings/:id`)
-- Tables `meetings` (student_id, kind: PPT|IEP|transition|other, scheduled_at, location, status), `meeting_agenda_items`, `meeting_questions`, `meeting_action_items` (with assignee + due_date + status).
-- Pulls existing student voice, family concerns, teacher progress notes, and linked documents into one prep view.
-- Buttons: **Prepare for Meeting** (checklist wizard), **Add Family Question**, **Add Student Voice**, **Export Meeting Summary** (HTML→print/PDF using the existing ReportView print-CSS pattern).
-- Reminders surface in Feed and Notifications.
-
-### 4. Transition Forms Library (`/forms`, `/forms/:slug`)
-- `form_templates` (seed-only, slug, title, audience, schema jsonb) + `form_responses` (student_id, template_slug, respondent_id, answers jsonb, status, completed_at).
-- Seed templates: Student Interest Survey, Family Input, Teacher Input, Life Skills Checklist, Career Exploration Reflection, Postsecondary Goals Worksheet, Transportation Planning, Meeting Prep.
-- Generic JSON-schema-driven renderer (text / textarea / single-select / multi-select / scale / checklist).
-- Completed forms emit `form.completed` feed events and are surfaced to the next Pathway Report generation as additional context (passed into the existing AI report prompt).
-
----
-
-## Phase 2 — Polished UI scaffolds (mock/derived data, ready to wire later)
-
-5. **Notification Preferences** — extend existing `notification_prefs` UI with grouped sections (Channels: email/text/in-app · Cadence: instant/daily/weekly · Topics: meetings/reports/resources/messages). Toggles persist via existing server fn; SMS/in-app channels render as "Coming soon" with the preference saved.
-6. **Plain Language + Translation** — new `<Term>` + extended `<InfoBox>` glossary component used throughout new modules; language preference dropdown in Settings (EN / ES / ZH / VI / AR placeholders) stored on profile; UI strings on family-facing pages wired through a small `t()` helper so future translation drops in.
-7. **Student Hub enhancements** — `/students/:id` Overview becomes a card grid: My Goals · My Reflections · My Voice for My Meeting · My Next Step · My Progress · Careers I Want to Explore · Life Skills I'm Building. Cards pull from existing tables + new feed/forms data.
-8. **Admin/District Engagement Insights** — `/admin/insights` (admin role only) with KPI tiles + simple bar/line summaries: completed Student Voice profiles, completed Family Input forms, generated Pathway Reports, meeting prep completion, top career interests, top life-skill needs, weekly family engagement. Powered by aggregate read-only server fns over existing + new tables.
-
----
-
-## Cross-cutting
-
-- Reuse design tokens in `src/styles.css`; new modules feel warm + trustworthy (same palette, soft shadows, generous whitespace).
-- Every new page sets its own `head()` (title + description + og).
-- All new tables created in a single migration with GRANTs, RLS, and `can_access_student` / `can_edit_student` reuse — no auth.users FKs.
-- Realtime enabled for `messages` and `feed_events` so updates appear live.
-- All title-casing utility + multi-line marketing pattern from previous turns is respected.
+## Phase 4 — Typography & color polish
+16. **Title Case + brand color on header descriptions** — Sweep section header descriptions using `toTitleCase` helper where appropriate (titles, eyebrows) and apply subtle `text-primary` accent to 1-2 key phrases per description.
+17. **General responsive + spacing polish** — Cleanup pass on mobile breakpoints touched in earlier phases.
+18. **Verification** — Walk every changed route in the preview at desktop + mobile widths.
 
 ## Technical notes
+- New components: `src/components/forms/SchoolPicker.tsx`, `src/components/site/WelcomeBanner.tsx`, `src/components/effects/ScrollToTop.tsx`, `src/components/framework/FourYearArc.tsx`.
+- New data: `src/lib/ct-high-schools.ts` (~200 CT high schools, public + magnet + tech + private).
+- DB: extend `students.school` already free-text — no migration required. Waitlist already supports `role` + `reason`; will add an `audience` source tag via existing `source` column.
+- No schema migrations needed; all changes are frontend/UX.
 
-- New server-fn files: `feed.functions.ts`, `messages.functions.ts`, `meetings.functions.ts`, `forms.functions.ts`, `insights.functions.ts`.
-- One Supabase migration adds: `feed_events`, `message_threads`, `messages`, `meetings`, `meeting_agenda_items`, `meeting_questions`, `meeting_action_items`, `form_templates`, `form_responses`, plus indexes and RLS policies. Realtime publication updated for `messages` and `feed_events`. Seed insert for `form_templates` done via separate insert tool call after migration.
-- Existing `pathway.functions.ts`, `goals` editor, `documents.functions.ts`, `ppt.functions.ts` gain a small `emitFeedEvent` call so existing flows feed the timeline without breaking changes.
-- Header (`SiteHeader.tsx`) gets the new top-level items + "More" dropdown that already exists for overflow.
+## Why phased
+This is ~20 hours of careful work spread across 25+ files. Shipping all-at-once risks regressions you can't isolate. Phase-by-phase lets you verify each batch before the next.
 
-## Out of scope (call out for follow-ups)
-
-- Actual SMS sending and push notifications (only preferences captured now).
-- Real translation engine — language preference + `t()` plumbing only.
-- PDF rendering server-side — meeting summary uses the existing print-to-PDF pattern.
+## Question
+Want me to start with **Phase 1** now, or reorder (e.g., do the Four-Year Arc and welcome banner first because they're most visible)?

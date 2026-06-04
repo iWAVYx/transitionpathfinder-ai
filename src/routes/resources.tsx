@@ -584,7 +584,7 @@ function BrowseTab(props: {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
       {/* Search + filter bar */}
-      <div className="sticky top-2 z-10 mt-6 rounded-3xl border border-border/60 bg-background/90 p-4 shadow-soft backdrop-blur sm:p-5">
+      <div className="sticky top-16 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4">
         <div className="flex flex-col gap-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

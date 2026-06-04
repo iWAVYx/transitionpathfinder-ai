@@ -114,13 +114,31 @@ function WaitlistPage() {
   const [done, setDone] = useState(false);
   const submit = useServerFn(submitWaitlist);
 
-  // Pick up ?role=family|student|educator|district|partner from URL
+  // Pick up ?role= or ?audience= from URL. Each "door" on entry points like
+  // /partners or /educators can route here with their audience preselected.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    const r = params.get("role");
-    const known = ROLE_OPTIONS.find((o) => o.key === r);
-    if (known) setSelected(known.key);
+    const raw = params.get("role") ?? params.get("audience");
+    if (!raw) return;
+    // Map common audience aliases to internal role keys.
+    const ALIAS: Record<string, RoleKey> = {
+      family: "family",
+      families: "family",
+      parent: "family",
+      student: "student",
+      students: "student",
+      educator: "educator",
+      educators: "educator",
+      teacher: "educator",
+      school: "district",
+      schools: "district",
+      district: "district",
+      partner: "partner",
+      partners: "partner",
+    };
+    const key = ALIAS[raw.toLowerCase()];
+    if (key) setSelected(key);
   }, []);
 
   const form = useForm<FormValues>({
