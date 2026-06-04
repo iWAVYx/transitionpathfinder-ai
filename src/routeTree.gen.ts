@@ -86,6 +86,7 @@ import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
+import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -496,6 +497,12 @@ const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AuthenticatedFormsRoute,
 } as any)
+const AuthenticatedDistrictOverviewRoute =
+  AuthenticatedDistrictOverviewRouteImport.update({
+    id: '/district/overview',
+    path: '/district/overview',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -577,6 +584,7 @@ export interface FileRoutesByFullPath {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -660,6 +668,7 @@ export interface FileRoutesByTo {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -745,6 +754,7 @@ export interface FileRoutesById {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -830,6 +840,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/district/overview'
     | '/forms/$slug'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -913,6 +924,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/district/overview'
     | '/forms/$slug'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -997,6 +1009,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/_authenticated/district/overview'
     | '/_authenticated/forms/$slug'
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
@@ -1610,6 +1623,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSlugRouteImport
       parentRoute: typeof AuthenticatedFormsRoute
     }
+    '/_authenticated/district/overview': {
+      id: '/_authenticated/district/overview'
+      path: '/district/overview'
+      fullPath: '/district/overview'
+      preLoaderRoute: typeof AuthenticatedDistrictOverviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -1717,6 +1737,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
@@ -1760,6 +1781,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
   AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
