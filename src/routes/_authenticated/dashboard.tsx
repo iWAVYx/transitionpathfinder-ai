@@ -651,7 +651,7 @@ function DashboardPage() {
               />
               <ConsentRow
                 label="Team sharing"
-                desc="Invite teachers, case managers, and family with view or edit access."
+                desc="Invite educators, case managers, and family with view or edit access."
                 granted={snap.consents.some(
                   (c) => c.consent_type === "team_sharing" && c.consent_status === "granted",
                 )}
@@ -948,7 +948,7 @@ function ReportSections({ content }: { content: unknown }) {
         </SectionCard>
       )}
       {teacher?.goal_updates && (
-        <SectionCard label="Teacher/Case Manager Plan">
+        <SectionCard label="Educator / Case Manager Plan">
           <ul className="space-y-0.5 text-xs">
             {teacher.goal_updates.slice(0, 3).map((x, i) => <li key={i}>• {x}</li>)}
           </ul>

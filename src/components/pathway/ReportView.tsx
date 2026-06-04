@@ -813,7 +813,7 @@ export function ReportView({
       {/* ============ Teacher / case manager plan ============ */}
       {r.teacher_action_plan && (
         <Block
-          title="Teacher / Case Manager Action Plan"
+          title="Educator / Case Manager Action Plan"
           icon={<GraduationCap className="h-5 w-5" />}
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
