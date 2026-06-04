@@ -213,7 +213,7 @@ export function SiteHeader() {
                     >
                       <span className="text-sm font-medium text-foreground">{item.label}</span>
                       {item.desc && (
-                        <span className="text-xs text-muted-foreground">{item.desc}</span>
+                        <span className="text-xs text-primary/75">{item.desc}</span>
                       )}
                     </Link>
                   </DropdownMenuItem>
