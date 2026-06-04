@@ -1,15 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, TrendingUp, FileText, ClipboardList, Download, FileDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  BarChart3,
+  TrendingUp,
+  FileText,
+  ClipboardList,
+  Download,
+  FileDown,
+  CalendarIcon,
+  Loader2,
+} from "lucide-react";
+import { format } from "date-fns";
 import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
-import type { DistrictDashboard, DistrictOrg } from "@/lib/district-admin.functions";
-
 
 import {
   DistrictPageShell,
   useDistrictDashboard,
 } from "@/components/district/DistrictPageShell";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  getDistrictReportMetrics,
+  type DistrictOrg,
+  type DistrictReportWindow,
+} from "@/lib/district-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/district/reports")({
   head: () => ({ meta: [{ title: "District Reports — TransitionForward" }] }),
@@ -28,50 +45,133 @@ function DistrictReportsPage() {
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
     >
-      {(district, d) => (
-        <div className="space-y-6">
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button size="sm" variant="outline" onClick={() => exportCsv(district, d)}>
-              <Download className="h-3.5 w-3.5" /> Export CSV
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => exportPdf(district, d)}>
-              <FileDown className="h-3.5 w-3.5" /> Export PDF
-            </Button>
-          </div>
+      {(district) => <ReportsContent district={district} />}
+    </DistrictPageShell>
+  );
+}
 
+function ReportsContent({ district }: { district: DistrictOrg }) {
+  const fetchMetrics = useServerFn(getDistrictReportMetrics);
+  const [from, setFrom] = useState<Date | undefined>(undefined);
+  const [to, setTo] = useState<Date | undefined>(undefined);
+  const [win, setWin] = useState<DistrictReportWindow | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fromIso = useMemo(() => (from ? startOfDay(from).toISOString() : undefined), [from]);
+  const toIso = useMemo(() => (to ? endOfDay(to).toISOString() : undefined), [to]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const w = await fetchMetrics({
+          data: { district_id: district.id, from: fromIso, to: toIso },
+        });
+        if (!cancelled) setWin(w);
+      } catch {
+        if (!cancelled) toast.error("Could not load reporting metrics.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [district.id, fromIso, toIso, fetchMetrics]);
+
+  const rangeLabel =
+    from && to
+      ? `${format(from, "MMM d, yyyy")} – ${format(to, "MMM d, yyyy")}`
+      : from
+        ? `From ${format(from, "MMM d, yyyy")}`
+        : to
+          ? `Through ${format(to, "MMM d, yyyy")}`
+          : "All time";
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border bg-card p-4 shadow-soft">
+        <div className="flex flex-wrap items-end gap-3">
+          <DateField label="From" value={from} onChange={setFrom} />
+          <DateField label="To" value={to} onChange={setTo} />
+          {(from || to) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setFrom(undefined);
+                setTo(undefined);
+              }}
+            >
+              Clear
+            </Button>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Showing aggregate metrics for <span className="font-medium">{rangeLabel}</span>.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!win}
+            onClick={() => win && exportCsv(district, win, rangeLabel)}
+          >
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!win}
+            onClick={() => win && exportPdf(district, win, rangeLabel)}
+          >
+            <FileDown className="h-3.5 w-3.5" /> Export PDF
+          </Button>
+        </div>
+      </div>
+
+      {loading || !win ? (
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               label="Students Across District"
-              value={d.metrics.students_count}
+              value={win.metrics.students_count}
               icon={<TrendingUp className="h-3.5 w-3.5" />}
             />
             <Stat
               label="Pathway Reports"
-              value={d.metrics.reports_count}
+              value={win.metrics.reports_count}
               icon={<FileText className="h-3.5 w-3.5" />}
             />
             <Stat
               label="Open Action Items"
-              value={d.metrics.open_actions}
+              value={win.metrics.open_actions}
               icon={<ClipboardList className="h-3.5 w-3.5" />}
             />
             <Stat
               label="Connected Schools"
-              value={d.metrics.schools_count}
+              value={win.metrics.schools_count}
               icon={<BarChart3 className="h-3.5 w-3.5" />}
             />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
-            <Card title="Pathway Report Adoption" pct={d.metrics.pct_with_report}>
+            <Card title="Pathway Report Adoption" pct={win.metrics.pct_with_report}>
               Percentage of students in the district with at least one Pathway
-              Report created.
+              Report in this window.
             </Card>
-            <Card title="Active Transition Goals" pct={d.metrics.pct_with_goals}>
-              Percentage of students with at least one active (non-met) goal.
+            <Card title="Active Transition Goals" pct={win.metrics.pct_with_goals}>
+              Percentage of students with at least one active (non-met) goal
+              created in this window.
             </Card>
-            <Card title="Action Item Engagement" pct={d.metrics.pct_with_actions}>
-              Percentage of students with open action items being tracked.
+            <Card title="Action Item Engagement" pct={win.metrics.pct_with_actions}>
+              Percentage of students with open action items tracked in this
+              window.
             </Card>
           </div>
 
@@ -84,7 +184,7 @@ function DistrictReportsPage() {
                 private documents.
               </p>
             </div>
-            {d.schools.length === 0 ? (
+            {win.schools.length === 0 ? (
               <div className="p-10 text-center text-sm text-muted-foreground">
                 Connect schools from the Schools tab to see progress trends.
               </div>
@@ -101,7 +201,7 @@ function DistrictReportsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {d.schools.map((s) => {
+                    {win.schools.map((s) => {
                       const pct =
                         s.students_count > 0
                           ? Math.round((s.reports_count / s.students_count) * 100)
@@ -131,9 +231,60 @@ function DistrictReportsPage() {
               </div>
             )}
           </div>
-        </div>
+        </>
       )}
-    </DistrictPageShell>
+    </div>
+  );
+}
+
+function startOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function endOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: Date | undefined;
+  onChange: (d: Date | undefined) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              "w-[180px] justify-start text-left font-normal",
+              !value && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="h-3.5 w-3.5" />
+            {value ? format(value, "MMM d, yyyy") : "Any date"}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={value}
+            onSelect={onChange}
+            initialFocus
+            className={cn("p-3 pointer-events-auto")}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }
 
@@ -186,10 +337,11 @@ function slug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "district";
 }
 
-function buildRows(district: DistrictOrg, d: DistrictDashboard) {
-  const m = d.metrics;
+function buildRows(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: string) {
+  const m = w.metrics;
   const summary = [
     ["District", district.name],
+    ["Reporting Window", rangeLabel],
     ["Generated", new Date().toLocaleString()],
     ["Connected Schools", String(m.schools_count)],
     ["Students Across District", String(m.students_count)],
@@ -199,16 +351,24 @@ function buildRows(district: DistrictOrg, d: DistrictDashboard) {
     ["% Students with Active Goals", `${m.pct_with_goals}%`],
     ["% Students with Open Actions", `${m.pct_with_actions}%`],
   ];
-  const schoolRows = d.schools.map((s) => {
+  const schoolRows = w.schools.map((s) => {
     const pct = s.students_count > 0 ? Math.round((s.reports_count / s.students_count) * 100) : 0;
     return [s.name, s.students_count, s.reports_count, s.open_actions, `${pct}%`];
   });
   return { summary, schoolRows };
 }
 
-function exportCsv(district: DistrictOrg, d: DistrictDashboard) {
+function filenameSuffix(w: DistrictReportWindow) {
+  const fmt = (iso: string | null) => (iso ? iso.slice(0, 10) : "");
+  if (w.from && w.to) return `_${fmt(w.from)}_to_${fmt(w.to)}`;
+  if (w.from) return `_from_${fmt(w.from)}`;
+  if (w.to) return `_through_${fmt(w.to)}`;
+  return "_all-time";
+}
+
+function exportCsv(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: string) {
   try {
-    const { summary, schoolRows } = buildRows(district, d);
+    const { summary, schoolRows } = buildRows(district, w, rangeLabel);
     const esc = (v: unknown) => {
       const s = String(v ?? "");
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -223,7 +383,7 @@ function exportCsv(district: DistrictOrg, d: DistrictDashboard) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${slug(district.name)}-district-report.csv`;
+    a.download = `${slug(district.name)}-district-report${filenameSuffix(w)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("CSV exported.");
@@ -232,18 +392,22 @@ function exportCsv(district: DistrictOrg, d: DistrictDashboard) {
   }
 }
 
-async function exportPdf(district: DistrictOrg, d: DistrictDashboard) {
+async function exportPdf(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: string) {
   try {
     const { jsPDF } = await import("jspdf");
     const autoTable = (await import("jspdf-autotable")).default;
-    const { summary, schoolRows } = buildRows(district, d);
+    const { summary, schoolRows } = buildRows(district, w, rangeLabel);
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("District Report", 14, 18);
     doc.setFontSize(11);
     doc.text(district.name, 14, 26);
     doc.setFontSize(9);
-    doc.text(`Generated ${new Date().toLocaleString()} · Aggregate metrics only`, 14, 32);
+    doc.text(
+      `Window: ${rangeLabel} · Generated ${new Date().toLocaleString()} · Aggregate metrics only`,
+      14,
+      32,
+    );
 
     autoTable(doc, {
       startY: 38,
@@ -260,10 +424,9 @@ async function exportPdf(district: DistrictOrg, d: DistrictDashboard) {
       headStyles: { fillColor: [30, 41, 59] },
     });
 
-    doc.save(`${slug(district.name)}-district-report.pdf`);
+    doc.save(`${slug(district.name)}-district-report${filenameSuffix(w)}.pdf`);
     toast.success("PDF exported.");
   } catch {
     toast.error("Could not export PDF.");
   }
 }
-

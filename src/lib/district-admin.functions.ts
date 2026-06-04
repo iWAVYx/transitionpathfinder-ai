@@ -568,3 +568,176 @@ export const inviteDistrictTeammate = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/* ---------- date-windowed report metrics ---------- */
+
+export type DistrictReportWindow = {
+  from: string | null;
+  to: string | null;
+  metrics: {
+    schools_count: number;
+    students_count: number;
+    reports_count: number;
+    open_actions: number;
+    pct_with_report: number;
+    pct_with_goals: number;
+    pct_with_actions: number;
+  };
+  schools: Array<{
+    id: string;
+    name: string;
+    students_count: number;
+    reports_count: number;
+    open_actions: number;
+  }>;
+};
+
+export const getDistrictReportMetrics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        district_id: z.string().uuid(),
+        from: z.string().datetime().optional(),
+        to: z.string().datetime().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }): Promise<DistrictReportWindow> => {
+    const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!(await ensureDistrictAdmin(supabase, userId, data.district_id))) {
+      throw new Error("Not authorized for this district.");
+    }
+
+    const { data: schoolRows } = await supabaseAdmin
+      .from("organizations")
+      .select("id, name")
+      .eq("parent_organization_id", data.district_id)
+      .order("name");
+    const schools = (schoolRows ?? []) as Array<{ id: string; name: string }>;
+    const schoolIds = schools.map((s) => s.id);
+
+    if (schoolIds.length === 0) {
+      return {
+        from: data.from ?? null,
+        to: data.to ?? null,
+        metrics: {
+          schools_count: 0,
+          students_count: 0,
+          reports_count: 0,
+          open_actions: 0,
+          pct_with_report: 0,
+          pct_with_goals: 0,
+          pct_with_actions: 0,
+        },
+        schools: [],
+      };
+    }
+
+    const { data: orgStudents } = await supabaseAdmin
+      .from("students")
+      .select("id, organization_id")
+      .in("organization_id", schoolIds);
+    const studentsByOrg = new Map<string, string[]>();
+    for (const s of orgStudents ?? []) {
+      if (!s.organization_id) continue;
+      const arr = studentsByOrg.get(s.organization_id) ?? [];
+      arr.push(s.id);
+      studentsByOrg.set(s.organization_id, arr);
+    }
+    const allStudentIds = (orgStudents ?? []).map((s) => s.id);
+
+    const applyWindow = (q: any) => {
+      let out = q;
+      if (data.from) out = out.gte("created_at", data.from);
+      if (data.to) out = out.lte("created_at", data.to);
+      return out;
+    };
+
+    const [reportsRes, actionsRes, goalsRes] = await Promise.all([
+      allStudentIds.length
+        ? applyWindow(
+            supabaseAdmin.from("pathway_reports").select("student_id, created_at").in("student_id", allStudentIds),
+          )
+        : Promise.resolve({ data: [] as Array<{ student_id: string | null }> }),
+      allStudentIds.length
+        ? applyWindow(
+            supabaseAdmin
+              .from("action_items")
+              .select("student_id, status, created_at")
+              .in("student_id", allStudentIds),
+          )
+        : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
+      allStudentIds.length
+        ? applyWindow(
+            supabaseAdmin
+              .from("goals")
+              .select("student_id, status, created_at")
+              .in("student_id", allStudentIds),
+          )
+        : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
+    ]);
+
+    const reportRows = (reportsRes.data ?? []) as Array<{ student_id: string | null }>;
+    const actionRows = (actionsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
+    const goalRows = (goalsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
+
+    const reportsByStudent = new Set(
+      reportRows.map((r) => r.student_id).filter((x): x is string => !!x),
+    );
+    const goalsByStudent = new Set(
+      goalRows
+        .filter((g) => g.status !== "met" && !!g.student_id)
+        .map((g) => g.student_id as string),
+    );
+    const actionsByStudent = new Map<string, number>();
+    for (const a of actionRows) {
+      if (!a.student_id || a.status === "complete") continue;
+      actionsByStudent.set(a.student_id, (actionsByStudent.get(a.student_id) ?? 0) + 1);
+    }
+
+    let studentsTotal = 0;
+    let reportsTotal = 0;
+    let openActionsTotal = 0;
+    let withReportTotal = 0;
+    let withGoalsTotal = 0;
+    let withActionsTotal = 0;
+
+    const perSchool = schools.map((s) => {
+      const ids = studentsByOrg.get(s.id) ?? [];
+      const reports = ids.filter((id) => reportsByStudent.has(id)).length;
+      const openActs = ids.reduce((n, id) => n + (actionsByStudent.get(id) ?? 0), 0);
+      studentsTotal += ids.length;
+      reportsTotal += reports;
+      openActionsTotal += openActs;
+      withReportTotal += reports;
+      withGoalsTotal += ids.filter((id) => goalsByStudent.has(id)).length;
+      withActionsTotal += ids.filter((id) => (actionsByStudent.get(id) ?? 0) > 0).length;
+      return {
+        id: s.id,
+        name: s.name,
+        students_count: ids.length,
+        reports_count: reports,
+        open_actions: openActs,
+      };
+    });
+
+    const pct = (n: number, d: number) => (d > 0 ? Math.round((n / d) * 100) : 0);
+
+    return {
+      from: data.from ?? null,
+      to: data.to ?? null,
+      metrics: {
+        schools_count: schools.length,
+        students_count: studentsTotal,
+        reports_count: reportsTotal,
+        open_actions: openActionsTotal,
+        pct_with_report: pct(withReportTotal, studentsTotal),
+        pct_with_goals: pct(withGoalsTotal, studentsTotal),
+        pct_with_actions: pct(withActionsTotal, studentsTotal),
+      },
+      schools: perSchool,
+    };
+  });
+
