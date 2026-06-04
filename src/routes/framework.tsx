@@ -203,7 +203,7 @@ function FrameworkPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-16">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              How we walk through it with you
+              How We Walk Through It With You
             </p>
             <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
               Grade 9 to graduation,{" "}
@@ -290,7 +290,7 @@ function FrameworkPage() {
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-12 max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              The manifesto
+              The Manifesto
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
               What we believe about transition.
@@ -341,7 +341,7 @@ function FrameworkPage() {
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              The six threads
+              The Six Threads
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
               Six threads we weave,{" "}
@@ -407,7 +407,7 @@ function FrameworkPage() {
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              The four-year arc
+              The Four-Year Arc
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
               Each grade asks something different.{" "}
@@ -593,19 +593,19 @@ function ArcPanel({
       <div className="mt-6 grid flex-1 gap-4 overflow-y-auto pb-2 sm:grid-cols-3 sm:overflow-visible">
         <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            Your child
+            Your Child
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.student}</p>
         </div>
         <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            The team
+            The Team
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.team}</p>
         </div>
         <div className="rounded-2xl bg-gradient-warm p-5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-            Evidence we keep
+            Evidence We Keep
           </p>
           <p className="mt-2 text-sm leading-relaxed text-foreground">{band.evidence}</p>
         </div>

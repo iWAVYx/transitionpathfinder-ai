@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos } from "@/lib/photos";
+import { toTitleCase } from "@/lib/title-case";
 const aboutHero = photos.about;
 const aboutStudent = photos.aboutStudent;
 const pathCollege = photos.pathCollege;
@@ -65,7 +66,7 @@ function AboutHero() {
           transition={{ duration: 0.6 }}
           className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
         >
-          Our story
+          Our Story
         </motion.p>
         <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-7xl lg:text-8xl">
           <Word text="We built this for" d={0.1} />
@@ -103,7 +104,7 @@ function Manifesto() {
   return (
     <section ref={ref} className="relative py-16 sm:py-28">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The promise</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The Promise</p>
         <h2 className="mt-6 font-display text-3xl font-medium leading-[1.15] tracking-tight text-foreground/30 sm:text-5xl lg:text-6xl">
           <FillReveal scrollYProgress={scrollYProgress}>
             Transition planning shouldn't be a binder, an inbox, and a hope.
@@ -225,7 +226,7 @@ function Chapter({ chapter, index }: { chapter: (typeof CHAPTERS)[number]; index
               viewport={{ once: true }}
               className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
             >
-              {chapter.eyebrow}
+              {toTitleCase(chapter.eyebrow)}
             </motion.p>
             <motion.h3
               initial={{ opacity: 0, y: 20 }}
