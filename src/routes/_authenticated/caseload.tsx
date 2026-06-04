@@ -35,6 +35,7 @@ import {
   listStudentNotes,
   type CaseloadStudent,
 } from "@/lib/caseload.functions";
+import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/caseload")({
   head: () => ({ meta: [{ title: "Caseload — TransitionForward" }] }),
