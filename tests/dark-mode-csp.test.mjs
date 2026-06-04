@@ -105,6 +105,15 @@ test("shell wires CSP nonce on inline dark-mode script", () => {
   assertShellUsesNonce();
 });
 
+test("shell declares light as the default color-scheme for all pages", () => {
+  const src = readFileSync(ROOT_FILE, "utf8");
+  assert.match(
+    src,
+    /<meta\s+name="color-scheme"\s+content="light"\s*\/?>/,
+    'every page must default to light mode via <meta name="color-scheme" content="light">',
+  );
+});
+
 test("dark mode is applied before first paint when localStorage='1' under strict CSP", () => {
   const nonce = randomUUID().replace(/-/g, "");
   const scriptSrc = extractDarkModeScript();
