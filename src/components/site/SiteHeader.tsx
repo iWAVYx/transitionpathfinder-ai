@@ -198,10 +198,10 @@ export function SiteHeader() {
         </Link>
 
 
-        <nav className="hidden min-w-0 items-center gap-0.5 xl:flex">
+        <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
           {navGroups.map((group) => (
             <DropdownMenu key={group.label}>
-              <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:px-3">
+              <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                 {group.label} <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="min-w-64 p-2">
@@ -225,7 +225,7 @@ export function SiteHeader() {
             <Link
               key={item.to}
               to={item.to}
-              className="whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:px-3"
+              className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5"
               activeProps={{ className: "text-foreground bg-muted" }}
             >
               {item.label}
@@ -240,7 +240,7 @@ export function SiteHeader() {
 
               <Link
                 to="/dashboard"
-                className="whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 hover:text-foreground xl:px-3"
+                className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-2.5"
               >
                 Dashboard
               </Link>
@@ -248,14 +248,14 @@ export function SiteHeader() {
               {isPlatformAdmin && (
                 <Link
                   to="/owner"
-                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15 xl:px-3"
+                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/15 lg:px-2.5"
                 >
                   <Shield className="h-3.5 w-3.5" /> Admin Hub
                 </Link>
               )}
 
               <DropdownMenu>
-                <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground xl:px-3">
+                <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-56 p-1.5">
@@ -281,7 +281,8 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={() => signOut()}
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift xl:px-4"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift lg:px-3.5"
+
               >
                 Sign Out
               </button>
@@ -290,13 +291,13 @@ export function SiteHeader() {
             <>
               <Link
                 to="/login"
-                className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground xl:px-4"
+                className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-3"
               >
                 Sign In
               </Link>
               <Link
                 to="/waitlist"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift xl:px-4"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift lg:px-3.5"
               >
                 Join the Waitlist
               </Link>
@@ -309,7 +310,7 @@ export function SiteHeader() {
             <button
               type="button"
               aria-label="Open menu"
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-muted xl:hidden"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-muted lg:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
