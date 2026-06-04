@@ -199,7 +199,11 @@ function PartnerManagePage() {
           ]}
         />
 
-        <header className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <div className="mt-6">
+          <NextBestAction surface="partner" />
+        </div>
+
+        <header className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               Partner / Agency
