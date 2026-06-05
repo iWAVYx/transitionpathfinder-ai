@@ -24,6 +24,7 @@ import {
   Activity,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { toTitleCase } from "@/lib/title-case";
 
 type NavItem = {
   to: string;
