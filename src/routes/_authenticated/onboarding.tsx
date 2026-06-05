@@ -140,7 +140,6 @@ function OnboardingPage() {
 
   const safeIdx = Math.min(idx, activeSteps.length - 1);
   const stepId: StepId = activeSteps[safeIdx];
-  const progress = Math.round(((safeIdx + 1) / activeSteps.length) * 100);
   const isLastStep = safeIdx === activeSteps.length - 1;
 
   // Required keys per role: every `single` question must be answered.
@@ -166,6 +165,11 @@ function OnboardingPage() {
         return studentFirst.trim().length > 0;
     }
   }, [stepId, role, firstName, requiredAnswered, studentFirst]);
+
+  // Progress is computed from actual completion — starts at 0% and only
+  // ticks up when the current step is fully filled out.
+  const completedSteps = safeIdx + (canAdvance ? 1 : 0);
+  const progress = Math.round((completedSteps / activeSteps.length) * 100);
 
   // Persist progress on step change so refresh resumes where you left off.
   async function persistProgress(nextRole: RoleId | null = role) {
