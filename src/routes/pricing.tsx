@@ -240,7 +240,7 @@ function PricingPage() {
               <ShieldCheck className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="font-display text-xl">Our pricing promise</h2>
+              <h2 className="font-display text-xl">{toTitleCase("Our pricing promise")}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/85">
                 We will never charge a family for the core planning tools their
                 student needs to leave high school with a real plan. If a feature
