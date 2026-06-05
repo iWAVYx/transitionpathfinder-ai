@@ -144,11 +144,9 @@ export function DashboardWidgets() {
           hint={
             loading
               ? " "
-              : updatingGoals
-                ? "Updating…"
-                : goals.total === 0
-                  ? "Nothing yet"
-                  : `${goals.inProgress} in progress · ${goals.met} met`
+              : goals.total === 0
+                ? "Nothing yet"
+                : `${goals.inProgress} in progress · ${goals.met} met`
           }
           accent="warm"
         />
