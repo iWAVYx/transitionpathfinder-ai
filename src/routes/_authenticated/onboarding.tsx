@@ -28,7 +28,7 @@ import {
 } from "@/lib/profile.functions";
 import { createStudent, listStudents } from "@/lib/students.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
-import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
+import { fallbackPathFor } from "@/lib/role-policy";
 import {
   questionsForRole,
   type OnboardingQuestion,
