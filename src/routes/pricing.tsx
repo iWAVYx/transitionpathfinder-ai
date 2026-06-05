@@ -196,7 +196,7 @@ function PricingPage() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                       {tier.eyebrow}
                     </p>
-                    <h2 className="font-display text-xl">{tier.name}</h2>
+                    <h2 className="font-display text-xl">{toTitleCase(tier.name)}</h2>
                   </div>
                 </div>
 
