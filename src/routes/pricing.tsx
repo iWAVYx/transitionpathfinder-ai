@@ -279,7 +279,7 @@ function PricingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Families
             </p>
-            <p className="mt-2 font-display text-lg">Start a free Pathway Report</p>
+            <p className="mt-2 font-display text-lg">{toTitleCase("Start a free Pathway Report")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               No credit card. No district required.
             </p>
