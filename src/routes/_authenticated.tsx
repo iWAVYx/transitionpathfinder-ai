@@ -6,7 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { getProfile } from "@/lib/profile.functions";
 
 export const Route = createFileRoute("/_authenticated")({
-  // Server-side gate: redirect unauthenticated SSR/preload requests before rendering.
+  // Client-only gate: Supabase stores the session in localStorage, which the server
+  // cannot read. Running this in SSR would either redirect every authenticated user
+  // on hard refresh or silently pass without verifying the viewer. With ssr:false
+  // the gate executes in the browser where the session is available, and protected
+  // server functions are still enforced by `requireSupabaseAuth` middleware.
+  ssr: false,
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
