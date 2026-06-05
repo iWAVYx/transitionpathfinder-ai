@@ -45,11 +45,18 @@ const STATUS_META: Record<
     Icon: CircleDashed,
     iconClass: "text-muted-foreground",
   },
+  coming_soon: {
+    label: "Coming Soon",
+    chip: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30",
+    Icon: CircleDashed,
+    iconClass: "text-sky-600 dark:text-sky-400",
+  },
 };
 
 const CATEGORY_LABEL: Record<HealthCheck["category"], string> = {
-  data: "Student data flows",
+  infra: "Infrastructure",
   people: "Auth & roles",
+  data: "Student data flows",
   ops: "Inbound forms",
   ui: "Experience",
 };
@@ -58,7 +65,7 @@ function SystemHealthPage() {
   const probe = useServerFn(runSystemHealth);
   const [data, setData] = useState<{
     results: HealthCheck[];
-    summary: { working: number; attention: number; manual: number; total: number; checked_at: string };
+    summary: { working: number; attention: number; manual: number; coming_soon: number; total: number; checked_at: string };
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -113,11 +120,12 @@ function SystemHealthPage() {
       ) : (
         <div className="space-y-6">
           {/* Summary band */}
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <SummaryTile label="Total checks" value={data.summary.total} accent="text-foreground" Icon={Activity} />
             <SummaryTile label="Working" value={data.summary.working} accent="text-emerald-600 dark:text-emerald-400" Icon={CheckCircle2} />
             <SummaryTile label="Needs attention" value={data.summary.attention} accent="text-amber-600 dark:text-amber-400" Icon={AlertTriangle} />
             <SummaryTile label="Not connected" value={data.summary.manual} accent="text-muted-foreground" Icon={CircleDashed} />
+            <SummaryTile label="Coming soon" value={data.summary.coming_soon} accent="text-sky-600 dark:text-sky-400" Icon={CircleDashed} />
           </div>
 
           <p className="text-xs text-muted-foreground">
