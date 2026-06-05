@@ -393,10 +393,10 @@ function BeliefsMarquee() {
         <motion.div
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="flex shrink-0 gap-12 pr-12"
+          className="flex shrink-0 gap-6 pr-6 sm:gap-12 sm:pr-12"
         >
           {[...beliefs, ...beliefs].map((b, i) => (
-            <div key={i} className="flex shrink-0 items-center gap-4 font-display text-3xl text-background sm:text-4xl lg:text-5xl">
+            <div key={i} className="flex shrink-0 items-center gap-3 font-display text-xl text-background sm:gap-4 sm:text-3xl md:text-4xl lg:text-5xl">
               <b.icon className="h-6 w-6 text-peach" />
               {b.text}
               <span className="text-background/30">·</span>
