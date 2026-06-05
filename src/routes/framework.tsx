@@ -410,8 +410,8 @@ function FrameworkPage() {
               The Four-Year Arc
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              Each grade asks something different.{" "}
-              <TextMask className="font-display">We answer all of it.</TextMask>
+              {toTitleCase("Each grade asks something different.")}{" "}
+              <TextMask className="font-display">{toTitleCase("We answer all of it.")}</TextMask>
             </h2>
             <UnderlineSwoosh className="mx-auto mt-4 h-3 w-56 text-primary/60" />
           </div>
