@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { listMyReports } from "@/lib/pathway.functions";
+import { summarizeGoalStatuses } from "@/lib/goal-statuses.functions";
 
 type ReportRow = {
   id: string;
@@ -20,26 +21,6 @@ type ReportRow = {
 };
 
 type GoalTotals = { total: number; inProgress: number; met: number };
-
-function readGoalTotals(reportIds: string[]): GoalTotals {
-  const totals: GoalTotals = { total: 0, inProgress: 0, met: 0 };
-  if (typeof window === "undefined") return totals;
-  for (const id of reportIds) {
-    try {
-      const raw = localStorage.getItem(`tf:goal-status:${id}`);
-      if (!raw) continue;
-      const parsed = JSON.parse(raw) as Record<string, "not-started" | "in-progress" | "met">;
-      for (const status of Object.values(parsed)) {
-        totals.total += 1;
-        if (status === "in-progress") totals.inProgress += 1;
-        if (status === "met") totals.met += 1;
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-  return totals;
-}
 
 function formatWhen(iso: string) {
   const d = new Date(iso);
