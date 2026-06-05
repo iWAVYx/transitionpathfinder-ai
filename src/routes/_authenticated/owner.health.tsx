@@ -90,6 +90,29 @@ function SystemHealthPage() {
     }
   }
 
+  async function rerunOne(key: string) {
+    setRerunning((s) => ({ ...s, [key]: true }));
+    try {
+      const res = await probe();
+      setData((prev) => {
+        if (!prev) return res;
+        const updated = res.results.find((r) => r.key === key);
+        if (!updated) return prev;
+        return {
+          ...prev,
+          results: prev.results.map((r) => (r.key === key ? updated : r)),
+          summary: res.summary,
+        };
+      });
+    } finally {
+      setRerunning((s) => {
+        const next = { ...s };
+        delete next[key];
+        return next;
+      });
+    }
+  }
+
   const grouped = data
     ? (Object.keys(CATEGORY_LABEL) as Array<HealthCheck["category"]>).map((cat) => ({
         category: cat,
