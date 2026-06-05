@@ -394,7 +394,7 @@ function PartnersPage() {
                   </span>
                 </div>
                 <h3 className="mt-5 font-display text-2xl font-medium leading-tight tracking-tight">
-                  {title}
+                  {toTitleCase(title)}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
               </article>
