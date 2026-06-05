@@ -133,6 +133,26 @@ export const completeOnboarding = createServerFn({ method: "POST" })
     }
 
     const mappedRoles = ROLES_FOR_PRIMARY[data.primary_role] ?? [];
+    // Replace any prior onboarding-assigned roles so switching roles mid-onboarding
+    // doesn't leave stale entries (e.g. the legacy default 'parent' role). Admin
+    // and platform roles live in admin_roles, not here, so they aren't touched.
+    const replaceable = [
+      "parent",
+      "guardian",
+      "student",
+      "educator",
+      "teacher",
+      "case_manager",
+      "school_admin",
+      "district_admin",
+      "partner",
+    ];
+    const { error: clearError } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", userId)
+      .in("role", replaceable as never);
+    if (clearError) console.error("completeOnboarding: clear roles failed", clearError);
     for (const role of mappedRoles) {
       const { error: roleError } = await supabase
         .from("user_roles")
