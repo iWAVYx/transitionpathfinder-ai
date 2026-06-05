@@ -155,7 +155,7 @@ export function OwnerShell({
           </nav>
           <div className="border-t border-border px-3 py-3">
             <Link
-              to="/dashboard"
+              to="/"
               className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
