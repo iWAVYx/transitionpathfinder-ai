@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Building2, School, Users, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toTitleCase } from "@/lib/title-case";
 
 const TABS = [
   { to: "/district/overview", label: "District Overview", icon: Building2 },
@@ -27,7 +28,7 @@ export function DistrictNav() {
             )}
           >
             <Icon className="h-3.5 w-3.5" />
-            {label}
+            {toTitleCase(label)}
           </Link>
         );
       })}

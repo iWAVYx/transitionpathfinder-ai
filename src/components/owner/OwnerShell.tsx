@@ -24,6 +24,7 @@ import {
   Activity,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { toTitleCase } from "@/lib/title-case";
 
 type NavItem = {
   to: string;
@@ -124,7 +125,7 @@ export function OwnerShell({
             {groups.map((g) => (
               <div key={g} className="mb-5">
                 <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                  {g}
+                  {toTitleCase(g)}
                 </div>
                 <ul className="space-y-0.5">
                   {NAV.filter((n) => n.group === g).map((n) => {
@@ -144,7 +145,7 @@ export function OwnerShell({
                           }
                         >
                           <Icon className="h-4 w-4" />
-                          {n.label}
+                          {toTitleCase(n.label)}
                         </Link>
                       </li>
                     );
@@ -201,7 +202,7 @@ export function OwnerShell({
                         : "bg-muted text-foreground/70")
                     }
                   >
-                    {n.label}
+                    {toTitleCase(n.label)}
                   </Link>
                 );
               })}
