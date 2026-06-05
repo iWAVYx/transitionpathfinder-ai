@@ -28,7 +28,7 @@ export function SchoolNav() {
             )}
           >
             <Icon className="h-3.5 w-3.5" />
-            {label}
+            {toTitleCase(label)}
           </Link>
         );
       })}
