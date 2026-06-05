@@ -21,7 +21,102 @@ export type HealthCheck = {
   label: string;
   status: HealthStatus;
   detail: string;
+  /** Raw error / stack / SQL / HTTP body. Shown verbatim under "Details" when present. */
+  error?: string | null;
+  /** Step-by-step remediation hints rendered as a checklist when status !== "working". */
+  fixes?: string[];
   category: "data" | "people" | "ops" | "ui" | "infra";
+};
+
+/**
+ * Per-probe remediation library. Keys MUST match the probe key. Each entry
+ * is the "if this check shows red, here's what to do" playbook surfaced in
+ * the Admin Hub so on-call doesn't have to grep the codebase.
+ */
+const FIX_HINTS: Record<string, string[]> = {
+  supabase_connection: [
+    "Confirm Lovable Cloud is ACTIVE_HEALTHY (Connectors → Lovable Cloud).",
+    "Verify SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are set in server env.",
+    "Check the Postgres logs for connection saturation or restarts.",
+  ],
+  rls_policies: [
+    "Confirm the `has_role` security-definer function exists and has `SECURITY DEFINER` + `SET search_path = public`.",
+    "Re-run the Supabase linter — fix any 'function search_path mutable' or 'policy missing' warnings it surfaces.",
+    "Verify every student-scoped table has RLS enabled and a policy that calls `can_access_student(auth.uid(), student_id)`.",
+  ],
+  auth: [
+    "Make sure the request actually carried a bearer token — `attachSupabaseAuth` must be registered in `src/start.ts` `functionMiddleware`.",
+    "If the JWT was rejected, check SUPABASE_JWKS is the current value (rotate keys flow refreshes this).",
+    "Sign in fresh in another tab to rule out an expired refresh token.",
+  ],
+  profile_creation: [
+    "Verify the `handle_new_user` trigger is attached to `auth.users` AFTER INSERT.",
+    "Confirm `public.profiles` has the expected columns (id, full_name, email) and RLS allows the user to read their own row.",
+  ],
+  role_selection: [
+    "Confirm `/onboarding` calls `completeOnboarding` which inserts into `public.user_roles`.",
+    "Verify `user_roles` GRANTs include `INSERT` for `authenticated`.",
+  ],
+  onboarding: [
+    "Check the `profiles.onboarding_completed` column exists and defaults to false.",
+    "Re-run the onboarding flow as a QA user and confirm the row updates.",
+  ],
+  role_dashboards: [
+    "Confirm the `audience_for_role` SQL function still covers every role in the dashboards (parent/guardian/educator/teacher/case_manager/student/school_admin/district_admin/admin/partner).",
+    "If a role was added recently, update `audience_for_role` AND `src/lib/role-policy.ts` audience map together.",
+  ],
+  admin_hub_access: [
+    "Verify `public.admin_roles` exists with the expected `admin_role` enum.",
+    "Confirm the requesting user has a row in `admin_roles` with role `platform_owner` or `platform_admin`.",
+  ],
+  role_permissions: [
+    "Run the security scan — any new table without RLS or with `TO anon` on PII will surface here.",
+    "Confirm `user_roles` does NOT grant UPDATE (privilege-escalation guard).",
+  ],
+  add_student: [
+    "Confirm `public.students` has owner_id NOT NULL and an INSERT policy `auth.uid() = owner_id`.",
+    "From the app, try `/students` → 'Add Student' as a QA family account.",
+  ],
+  student_connections: [
+    "Verify `student_collaborators` has policies for owner-invite + invitee-accept paths.",
+    "Check that the invite email/token flow completed for at least one row in the table.",
+  ],
+  pathway_reports: [
+    "Confirm `pathway_reports` is reachable and `can_access_student(auth.uid(), student_id)` policies are intact.",
+    "If empty, run the Pathway Report generator end-to-end as a QA family account.",
+  ],
+  resource_saves: [
+    "Verify `saved_resources` RLS scopes rows to `auth.uid()`.",
+    "Save a resource from `/resources` to populate at least one row.",
+  ],
+  action_items: [
+    "Confirm `action_items` is reachable; check policies allow read for collaborators via `can_access_student`.",
+  ],
+  meeting_prep: [
+    "Confirm `meeting_prep_items` exists and is linked to a meeting + student with `can_access_student` policies.",
+  ],
+  data_persistence: [
+    "If counts are zero, sign in as the platform admin once and complete onboarding so a profile + role row exists.",
+    "If a table is unreachable, run the Supabase linter and re-check GRANTs on `profiles` / `user_roles`.",
+  ],
+  waitlist: [
+    "Confirm the `waitlist` table exists and the public waitlist form posts here.",
+    "Check that `INSERT` is granted to `anon` (waitlist is intentionally public-write).",
+  ],
+  contact_forms: [
+    "Confirm `contact_submissions` is reachable and the contact form server function writes to it.",
+  ],
+  partner_submissions: [
+    "Confirm `partner_opportunities` exists and the partner-apply form writes successfully.",
+  ],
+  partner_directory: [
+    "Confirm `organizations` is reachable and at least one approved org exists.",
+  ],
+  mobile_responsiveness: [
+    "If the published site is unreachable, check Lovable deploy status and re-publish.",
+    "If the viewport meta is missing, verify `src/routes/__root.tsx` head() still emits `<meta name='viewport' …>`.",
+    "Hard-refresh `/`, `/dashboard`, `/pathway` at 375px, 768px, 1024px to confirm layout still holds.",
+  ],
 };
 
 type Client = {
@@ -247,6 +342,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: "coming_soon",
           detail: p.comingSoonNote,
+          fixes: FIX_HINTS[p.key],
           category: p.category,
         });
         continue;
@@ -259,6 +355,8 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: c.ok ? "working" : "attention",
           detail: c.message,
+          error: c.ok ? null : c.message,
+          fixes: c.ok ? undefined : FIX_HINTS[p.key],
           category: p.category,
         });
         continue;
@@ -269,6 +367,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: "manual",
           detail: p.manualNote ?? "Manual verification.",
+          fixes: FIX_HINTS[p.key],
           category: p.category,
         });
         continue;
@@ -280,14 +379,20 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: r.ok ? "working" : "attention",
           detail: r.ok ? r.message : `Query failed: ${r.message}`,
+          error: r.ok ? null : r.message,
+          fixes: r.ok ? undefined : FIX_HINTS[p.key],
           category: p.category,
         });
       } catch (e) {
+        const message = e instanceof Error ? e.message : "Probe threw an exception.";
+        const stack = e instanceof Error && e.stack ? e.stack : null;
         results.push({
           key: p.key,
           label: p.label,
           status: "attention",
-          detail: e instanceof Error ? e.message : "Probe threw an exception.",
+          detail: message,
+          error: stack ?? message,
+          fixes: FIX_HINTS[p.key],
           category: p.category,
         });
       }

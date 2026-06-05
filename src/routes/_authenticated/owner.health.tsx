@@ -8,6 +8,8 @@ import {
   RefreshCw,
   Loader2,
   Activity,
+  Wrench,
+  ChevronDown,
 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
@@ -145,6 +147,7 @@ function SystemHealthPage() {
                     {items.map((item) => {
                       const meta = STATUS_META[item.status];
                       const Icon = meta.Icon;
+                      const showDetails = item.status !== "working";
                       return (
                         <li key={item.key} className="flex flex-wrap items-start gap-3 px-4 py-3 sm:flex-nowrap">
                           <Icon className={"mt-0.5 h-4 w-4 shrink-0 " + meta.iconClass} />
@@ -156,6 +159,47 @@ function SystemHealthPage() {
                               </Badge>
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">{item.detail}</p>
+
+                            {showDetails && (item.error || (item.fixes && item.fixes.length > 0)) && (
+                              <details className="group mt-2 rounded-md border border-border/60 bg-muted/30 open:bg-muted/40">
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground">
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Wrench className="h-3.5 w-3.5" />
+                                    Error details &amp; suggested fixes
+                                  </span>
+                                  <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                                </summary>
+                                <div className="space-y-3 border-t border-border/60 px-3 py-3">
+                                  {item.error && (
+                                    <div>
+                                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                        Raw output
+                                      </p>
+                                      <pre className="mt-1 max-h-48 overflow-auto rounded bg-background p-2 text-[11px] leading-snug text-foreground/90 ring-1 ring-border">
+{item.error}
+                                      </pre>
+                                    </div>
+                                  )}
+                                  {item.fixes && item.fixes.length > 0 && (
+                                    <div>
+                                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                        Suggested fixes
+                                      </p>
+                                      <ol className="mt-1 list-decimal space-y-1 pl-4 text-xs text-foreground/90">
+                                        {item.fixes.map((f, i) => (
+                                          <li key={i}>{f}</li>
+                                        ))}
+                                      </ol>
+                                    </div>
+                                  )}
+                                  {!item.error && (!item.fixes || item.fixes.length === 0) && (
+                                    <p className="text-xs text-muted-foreground">
+                                      No additional details captured for this probe.
+                                    </p>
+                                  )}
+                                </div>
+                              </details>
+                            )}
                           </div>
                         </li>
                       );
