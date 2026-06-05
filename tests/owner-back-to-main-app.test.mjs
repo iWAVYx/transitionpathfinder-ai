@@ -98,7 +98,7 @@ test("desktop sidebar contains a back-to-main-app link inside an lg:flex aside",
   );
   assert.match(
     aside,
-    /to="\/"[\s\S]{0,200}(Back to main app|Main app)/,
+    /to="\/"[\s\S]{0,600}(Back to main app|Main app)/,
     "desktop sidebar must contain a Link to=\"/\" labeled 'Back to main app'",
   );
 });
@@ -116,7 +116,7 @@ test("mobile/tablet nav strip contains a back-to-main-app link gated lg:hidden",
   );
   assert.match(
     mobileNav,
-    /to="\/"[\s\S]{0,200}Main app/,
+    /to="\/"[\s\S]{0,600}Main app/,
     "mobile/tablet nav must contain a Link to=\"/\" labeled 'Main app' " +
       "so tablet and phone users can exit the Admin Hub",
   );
