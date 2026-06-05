@@ -268,8 +268,8 @@ function StatTile({
   to: string;
   icon: React.ReactNode;
   label: string;
-  value: string;
-  hint: string;
+  value: React.ReactNode;
+  hint: React.ReactNode;
   accent: "primary" | "warm" | "sky";
 }) {
   const bg =
