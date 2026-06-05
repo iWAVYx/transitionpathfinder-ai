@@ -75,7 +75,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 function OnboardingPage() {
   const navigate = useNavigate();
   const loadProfile = useServerFn(getProfile);
-  const loadStudents = useServerFn(listStudents);
+  // (loadStudents was used to gate returning users; we now route purely on role.)
   const saveProfile = useServerFn(completeOnboarding);
   const saveProgress = useServerFn(saveOnboardingProgress);
   const addStudent = useServerFn(createStudent);
