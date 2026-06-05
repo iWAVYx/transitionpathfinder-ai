@@ -140,37 +140,65 @@ function FillReveal({
   );
 }
 
-/* ------------------- CHAPTER SCROLL ------------------- */
+/* ------------------- CHAPTER SCROLL (book-like) ------------------- */
 const CHAPTERS = [
   {
-    n: "01",
+    n: "I",
+    label: "Chapter One",
     eyebrow: "The beginning",
     title: "It started in a parking lot.",
-    body: "A parent sat in her car after a PPT meeting, surrounded by paperwork she couldn't decode. Her son was 16. Nobody could answer her one question: what now?",
+    opener:
+      "A parent sat in her car after a PPT meeting, surrounded by paperwork she couldn't decode.",
+    paragraphs: [
+      "Her son was sixteen. The folder on the passenger seat was thick with acronyms — IEP, PPT, BIP, FAPE — and thin on the one thing she actually needed: a clear next step.",
+      "She turned the key. She didn't drive. She just sat there, watching other parents leave the building with the same quiet, overwhelmed look. Nobody could answer her one question.",
+    ],
+    pullQuote: "What now?",
     img: aboutStudent,
     tone: "from-sky-soft to-background",
   },
   {
-    n: "02",
+    n: "II",
+    label: "Chapter Two",
     eyebrow: "What we heard",
     title: "Everyone was carrying it alone.",
-    body: "Students didn't know they had a voice in the room. Families translated documents at midnight. Teachers rebuilt the same plan over and over with no shared memory.",
+    opener:
+      "We listened to families, students, and teachers for a year. The story rhymed everywhere we went.",
+    paragraphs: [
+      "Students didn't know they had a voice in the room — meetings happened around them, not with them. Families translated dense documents at midnight, hoping they hadn't missed something that mattered.",
+      "Teachers and case managers rebuilt the same plan, again and again, with no shared memory between them. Everyone wanted the student to move forward. No one had the map.",
+    ],
+    pullQuote: "Everyone wanted the student to move forward. No one had the map.",
     img: pathCollege,
     tone: "from-peach-soft to-background",
   },
   {
-    n: "03",
+    n: "III",
+    label: "Chapter Three",
     eyebrow: "What we built",
     title: "One plan, four points of view.",
-    body: "TransitionForward turns scattered paperwork, student voice, and family priorities into a shared Pathway Report — written in plain language and built to be edited together.",
+    opener:
+      "TransitionForward turns scattered paperwork, student voice, and family priorities into one shared Pathway Report.",
+    paragraphs: [
+      "It is written in plain language. It is built to be edited together. Students, families, educators, and partners each see the same plan from their own angle — and each can add to it.",
+      "AI helps with the heavy lifting: extracting goals from an IEP, suggesting resources, drafting talking points. Humans still decide. The student is still the author.",
+    ],
+    pullQuote: "AI assists. Humans decide. The student is the author.",
     img: pathCareer,
     tone: "from-sky-soft to-peach-soft/60",
   },
   {
-    n: "04",
+    n: "IV",
+    label: "Chapter Four",
     eyebrow: "Where we're headed",
     title: "Every student. A real next step.",
-    body: "We're partnering with families, schools, universities, technical programs, and employers — so the path after high school is no longer a guess.",
+    opener:
+      "We're partnering with families, schools, universities, technical programs, and employers.",
+    paragraphs: [
+      "So the path after high school is no longer a guess. So the parking-lot moment becomes a starting line instead of a dead end.",
+      "There is a generation of students whose plans deserve to be more than a binder. This is the book we're writing with them — and you are invited to turn the page.",
+    ],
+    pullQuote: "Forward, together.",
     img: aboutHero,
     tone: "from-primary/15 to-peach-soft",
   },
@@ -179,76 +207,164 @@ const CHAPTERS = [
 function ChapterScroll() {
   return (
     <div className="relative">
+      <ReadingRail />
       {CHAPTERS.map((c, i) => (
-        <Chapter key={c.n} chapter={c} index={i} />
+        <Chapter key={c.n} chapter={c} index={i} total={CHAPTERS.length} />
       ))}
     </div>
   );
 }
 
-function Chapter({ chapter, index }: { chapter: (typeof CHAPTERS)[number]; index: number }) {
+function ReadingRail() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useTransform(scrollYProgress, [0.15, 0.85], [0, 1]);
+  return (
+    <motion.div
+      style={{ scaleX }}
+      className="fixed left-0 right-0 top-0 z-40 h-[2px] origin-left bg-gradient-to-r from-primary via-sky to-peach"
+    />
+  );
+}
+
+function Chapter({
+  chapter,
+  index,
+  total,
+}: {
+  chapter: (typeof CHAPTERS)[number];
+  index: number;
+  total: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [80, -80]);
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1.15, 1]);
-  const numberOpacity = useTransform(scrollYProgress, [0.1, 0.4], [0, 1]);
+
+  const rotateY = useTransform(scrollYProgress, [0, 0.5, 1], [10, 0, -8]);
+  const pageOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.5, 1, 1, 0.6]);
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1.18, 1.02]);
+  const imgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const numberOpacity = useTransform(scrollYProgress, [0.1, 0.45], [0, 1]);
   const reversed = index % 2 === 1;
 
+  const serif = "Georgia, 'Iowan Old Style', 'Apple Garamond', serif";
+
   return (
-    <section ref={ref} className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-14 sm:py-20`}>
+    <section
+      ref={ref}
+      className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-20 sm:py-28`}
+      style={{ perspective: "1600px" }}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-multiply"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 25% 30%, rgba(0,0,0,0.6) 0.5px, transparent 0.6px), radial-gradient(circle at 75% 65%, rgba(0,0,0,0.5) 0.5px, transparent 0.6px)",
+          backgroundSize: "3px 3px, 5px 5px",
+        }}
+      />
+
       <motion.div
         style={{ opacity: numberOpacity }}
-        className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 select-none font-display text-[28vw] font-medium leading-none text-foreground/[0.04] sm:text-[20vw]"
+        className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 select-none font-display text-[26vw] font-medium leading-none tracking-tighter text-foreground/[0.05] sm:text-[18vw]"
       >
         {chapter.n}
       </motion.div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className={`grid items-center gap-12 lg:grid-cols-12 lg:gap-16 ${reversed ? "lg:[&>*:first-child]:order-2" : ""}`}>
-          <motion.div style={{ y }} className="lg:col-span-7">
-            <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-foreground/10 shadow-lift">
+      <motion.div
+        style={{ rotateY, opacity: pageOpacity, transformStyle: "preserve-3d" }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      >
+        <div className="mb-10 flex items-center gap-4">
+          <span className="h-px flex-1 bg-foreground/15" />
+          <span className="font-display text-[11px] uppercase tracking-[0.4em] text-foreground/60">
+            {chapter.label} · {String(index + 1).padStart(2, "0")} of{" "}
+            {String(total).padStart(2, "0")}
+          </span>
+          <span className="h-px flex-1 bg-foreground/15" />
+        </div>
+
+        <div
+          className={`grid items-start gap-12 lg:grid-cols-12 lg:gap-16 ${
+            reversed ? "lg:[&>*:first-child]:order-2" : ""
+          }`}
+        >
+          <motion.div style={{ y: imgY }} className="lg:col-span-6">
+            <figure className="relative aspect-[4/5] overflow-hidden rounded-sm border border-foreground/10 shadow-lift">
               <motion.img
                 style={{ scale: imgScale }}
                 src={chapter.img}
                 alt=""
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover sepia-[0.08] saturate-[0.95]"
               />
-              <div className="absolute left-5 top-5 rounded-full bg-background/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground backdrop-blur">
-                Chapter {chapter.n}
-              </div>
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" />
+              <figcaption className="absolute bottom-4 left-5 right-5 font-display text-[11px] italic tracking-wide text-background/90">
+                Plate {String(index + 1).padStart(2, "0")} — {chapter.eyebrow}.
+              </figcaption>
+            </figure>
           </motion.div>
 
-          <div className="lg:col-span-5">
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
-            >
+          <div className="lg:col-span-6">
+            <p className="font-display text-[11px] uppercase tracking-[0.4em] text-primary">
               {toTitleCase(chapter.eyebrow)}
-            </motion.p>
+            </p>
             <motion.h3
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="mt-4 font-display text-3xl font-medium leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+              className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem]"
             >
               {chapter.title}
             </motion.h3>
+
+            <div className="mt-6 flex items-center gap-3 text-foreground/40">
+              <span className="h-px w-10 bg-foreground/30" />
+              <span className="text-xs">❦</span>
+              <span className="h-px w-10 bg-foreground/30" />
+            </div>
+
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="mt-5 text-lg text-muted-foreground"
+              transition={{ delay: 0.15 }}
+              className="mt-6 text-[1.15rem] leading-[1.75] text-foreground/85 first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[3.75rem] first-letter:font-medium first-letter:leading-[0.85] first-letter:text-primary"
+              style={{ fontFamily: serif }}
             >
-              {chapter.body}
+              {chapter.opener}
             </motion.p>
+
+            {chapter.paragraphs.map((p, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 + i * 0.08 }}
+                className="mt-5 text-[1.05rem] leading-[1.8] text-foreground/75"
+                style={{ fontFamily: serif }}
+              >
+                {p}
+              </motion.p>
+            ))}
+
+            <motion.blockquote
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="mt-8 border-l-2 border-primary/70 pl-5 font-display text-2xl italic leading-snug text-foreground/90 sm:text-3xl"
+            >
+              “{chapter.pullQuote}”
+            </motion.blockquote>
+
+            <div className="mt-10 flex items-center justify-between font-display text-[10px] uppercase tracking-[0.35em] text-foreground/40">
+              <span>TransitionForward</span>
+              <span>— {index + 1} —</span>
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
