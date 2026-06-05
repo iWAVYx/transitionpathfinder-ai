@@ -38,14 +38,18 @@ export function DashboardWidgets() {
   const summarize = useServerFn(summarizeGoalStatuses);
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
+  const [updatingGoals, setUpdatingGoals] = useState(false);
   const reportIdsRef = useRef<string[]>([]);
 
   const refreshGoals = useCallback(async () => {
+    setUpdatingGoals(true);
     try {
       const s = await summarize({ data: { reportIds: reportIdsRef.current } });
       setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
     } catch {
       /* keep prior counts on transient failure */
+    } finally {
+      setUpdatingGoals(false);
     }
   }, [summarize]);
 
