@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   FolderOpen,
@@ -12,6 +12,7 @@ import {
 
 import { listMyReports } from "@/lib/pathway.functions";
 import { summarizeGoalStatuses } from "@/lib/goal-statuses.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 type ReportRow = {
   id: string;
@@ -36,6 +37,16 @@ export function DashboardWidgets() {
   const summarize = useServerFn(summarizeGoalStatuses);
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
+  const reportIdsRef = useRef<string[]>([]);
+
+  const refreshGoals = useCallback(async () => {
+    try {
+      const s = await summarize({ data: { reportIds: reportIdsRef.current } });
+      setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
+    } catch {
+      /* keep prior counts on transient failure */
+    }
+  }, [summarize]);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,13 +54,8 @@ export function DashboardWidgets() {
       .then(async (r) => {
         if (cancelled) return;
         setReports(r.reports);
-        try {
-          const s = await summarize({ data: { reportIds: r.reports.map((x) => x.id) } });
-          if (cancelled) return;
-          setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
-        } catch {
-          /* leave goals at zero rather than show stale data */
-        }
+        reportIdsRef.current = r.reports.map((x) => x.id);
+        await refreshGoals();
       })
       .catch(() => {
         if (!cancelled) setReports([]);
@@ -57,7 +63,39 @@ export function DashboardWidgets() {
     return () => {
       cancelled = true;
     };
-  }, [list, summarize]);
+  }, [list, refreshGoals]);
+
+  // Live updates: refetch the summary whenever this user's goal statuses change.
+  useEffect(() => {
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (cancelled || !data.user) return;
+      const userId = data.user.id;
+      channel = supabase
+        .channel(`goal-statuses-${userId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "goal_statuses",
+            filter: `user_id=eq.${userId}`,
+          },
+          () => {
+            void refreshGoals();
+          },
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [refreshGoals]);
 
   const loading = reports === null;
   const empty = !loading && reports!.length === 0;
