@@ -184,6 +184,26 @@ function SystemHealthPage() {
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">{item.detail}</p>
 
+                            {showDetails && (
+                              <div className="mt-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => rerunOne(item.key)}
+                                  disabled={Boolean(rerunning[item.key]) || refreshing}
+                                  className="h-7 px-2 text-xs"
+                                >
+                                  {rerunning[item.key] ? (
+                                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <RefreshCw className="mr-1.5 h-3 w-3" />
+                                  )}
+                                  Re-run this check
+                                </Button>
+                              </div>
+                            )}
+
+
                             {showDetails && (item.error || (item.fixes && item.fixes.length > 0)) && (
                               <details className="group mt-2 rounded-md border border-border/60 bg-muted/30 open:bg-muted/40">
                                 <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground">
