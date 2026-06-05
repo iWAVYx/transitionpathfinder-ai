@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 
 import { toast } from "sonner";
@@ -57,7 +57,10 @@ function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name;
-  const friendly = fullName?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
+  const emailHandle = user?.email?.split("@")[0];
+  const [profileFirstName, setProfileFirstName] = useState<string | null>(null);
+  const friendly =
+    profileFirstName ?? fullName?.split(" ")[0] ?? emailHandle ?? "there";
 
   const fetchStudents = useServerFn(listStudents);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
@@ -69,7 +72,16 @@ function DashboardPage() {
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
   const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
-  const onboardingCheckedRef = useRef(false);
+
+  useEffect(() => {
+    fetchProfile()
+      .then((p) => {
+        if (p.first_name) setProfileFirstName(p.first_name);
+      })
+      .catch(() => {
+        /* fall back to user_metadata / email */
+      });
+  }, [fetchProfile]);
 
   useEffect(() => {
     fetchRoles()
@@ -143,25 +155,9 @@ function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // First-time users (no completed onboarding + no students) → /onboarding.
-  useEffect(() => {
-    if (onboardingCheckedRef.current) return;
-    if (loading) return;
-    if (students.length > 0) {
-      onboardingCheckedRef.current = true;
-      return;
-    }
-    onboardingCheckedRef.current = true;
-    fetchProfile()
-      .then((p) => {
-        if (!p.onboarding_completed) {
-          navigate({ to: "/onboarding", replace: true });
-        }
-      })
-      .catch(() => {
-        /* stay on dashboard empty-state if profile check fails */
-      });
-  }, [loading, students.length, fetchProfile, navigate]);
+  // Onboarding gate is owned by `_authenticated.tsx`; no redundant check here.
+
+
 
 
   async function handleSeed() {
