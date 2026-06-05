@@ -255,7 +255,7 @@ function PricingPage() {
       {/* FAQ */}
       <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">
         <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-          Questions families and districts ask us most
+          {toTitleCase("Questions families and districts ask us most")}
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Don't see your question? <Link to="/contact" className="font-medium text-primary hover:underline">Ask us directly</Link> — a real person answers within two business days.
