@@ -177,7 +177,15 @@ export function OwnerShell({
               {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
             </div>
             {/* Mobile nav */}
-            <div className="mt-4 flex gap-1.5 overflow-x-auto lg:hidden">
+            <div className="mt-4 flex items-center gap-1.5 overflow-x-auto lg:hidden">
+              <Link
+                to="/dashboard"
+                className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Main app
+              </Link>
+              <span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
               {NAV.map((n) => {
                 const active =
                   location.pathname === n.to ||
