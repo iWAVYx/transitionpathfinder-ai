@@ -155,7 +155,7 @@ export function OwnerShell({
           </nav>
           <div className="border-t border-border px-3 py-3">
             <Link
-              to="/dashboard"
+              to="/"
               className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
@@ -179,7 +179,7 @@ export function OwnerShell({
             {/* Mobile nav */}
             <div className="mt-4 flex items-center gap-1.5 overflow-x-auto lg:hidden">
               <Link
-                to="/dashboard"
+                to="/"
                 className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
