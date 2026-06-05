@@ -65,7 +65,7 @@ function SystemHealthPage() {
   const probe = useServerFn(runSystemHealth);
   const [data, setData] = useState<{
     results: HealthCheck[];
-    summary: { working: number; attention: number; manual: number; total: number; checked_at: string };
+    summary: { working: number; attention: number; manual: number; coming_soon: number; total: number; checked_at: string };
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
