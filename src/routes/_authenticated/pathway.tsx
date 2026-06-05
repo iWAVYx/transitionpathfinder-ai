@@ -183,7 +183,9 @@ function PathwayPage() {
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const progressPct = Math.round(((stepIndex + 1) / STEPS.length) * 100);
+  // Match the rule used by onboarding + roadmap: count only steps the user
+  // has finished and moved past, so step 1 of N starts at 0% instead of 1/N.
+  const progressPct = Math.round((stepIndex / STEPS.length) * 100);
 
   return (
     <SiteShell>
