@@ -309,7 +309,7 @@ function PricingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Districts
             </p>
-            <p className="mt-2 font-display text-lg">Request a written quote</p>
+            <p className="mt-2 font-display text-lg">{toTitleCase("Request a written quote")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Caseload-based pricing. DPA on file. Two-day turnaround.
             </p>
