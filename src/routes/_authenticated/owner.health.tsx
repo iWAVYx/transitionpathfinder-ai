@@ -45,11 +45,18 @@ const STATUS_META: Record<
     Icon: CircleDashed,
     iconClass: "text-muted-foreground",
   },
+  coming_soon: {
+    label: "Coming Soon",
+    chip: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30",
+    Icon: CircleDashed,
+    iconClass: "text-sky-600 dark:text-sky-400",
+  },
 };
 
 const CATEGORY_LABEL: Record<HealthCheck["category"], string> = {
-  data: "Student data flows",
+  infra: "Infrastructure",
   people: "Auth & roles",
+  data: "Student data flows",
   ops: "Inbound forms",
   ui: "Experience",
 };
