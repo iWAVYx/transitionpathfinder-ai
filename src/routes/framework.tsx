@@ -206,8 +206,8 @@ function FrameworkPage() {
               How We Walk Through It With You
             </p>
             <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
-              Grade 9 to graduation,{" "}
-              <TextMask className="font-display">all of it one connected story.</TextMask>
+              {toTitleCase("Grade 9 to graduation,")}{" "}
+              <TextMask className="font-display">{toTitleCase("all of it one connected story.")}</TextMask>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
               Adapted from <em>Transition Forward</em>, Caysi Morgan's graduate capstone at
