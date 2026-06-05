@@ -39,6 +39,7 @@ export function DashboardWidgets() {
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
   const [updatingGoals, setUpdatingGoals] = useState(false);
+  const [goalsError, setGoalsError] = useState(false);
   const reportIdsRef = useRef<string[]>([]);
 
   const refreshGoals = useCallback(async () => {
@@ -46,8 +47,9 @@ export function DashboardWidgets() {
     try {
       const s = await summarize({ data: { reportIds: reportIdsRef.current } });
       setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
+      setGoalsError(false);
     } catch {
-      /* keep prior counts on transient failure */
+      setGoalsError(true);
     } finally {
       setUpdatingGoals(false);
     }
@@ -137,6 +139,11 @@ export function DashboardWidgets() {
                 {goals.total}
                 <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
               </span>
+            ) : goalsError ? (
+              <span className="inline-flex items-center gap-2">
+                {goals.total}
+                <span className="inline-flex h-2 w-2 rounded-full bg-destructive" />
+              </span>
             ) : (
               String(goals.total)
             )
@@ -144,9 +151,11 @@ export function DashboardWidgets() {
           hint={
             loading
               ? " "
-              : goals.total === 0
-                ? "Nothing yet"
-                : `${goals.inProgress} in progress · ${goals.met} met`
+              : goalsError
+                ? `${goals.inProgress} in progress · ${goals.met} met · Couldn’t refresh`
+                : goals.total === 0
+                  ? "Nothing yet"
+                  : `${goals.inProgress} in progress · ${goals.met} met`
           }
           accent="warm"
         />
