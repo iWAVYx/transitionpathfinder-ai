@@ -293,7 +293,7 @@ function FrameworkPage() {
               The Manifesto
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              What we believe about transition.
+              {toTitleCase("What we believe about transition.")}
             </h2>
             <Squiggle className="mt-4 h-3 w-40 text-primary/60" />
           </div>
