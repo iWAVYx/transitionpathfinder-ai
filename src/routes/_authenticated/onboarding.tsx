@@ -224,6 +224,11 @@ function OnboardingPage() {
           onboarding_answers: answers as Record<string, unknown>,
         },
       });
+
+      // Create the linked student record:
+      //  - parent/educator → the student they just entered in the wizard
+      //  - student         → themselves, derived from the profile name they
+      //                      already entered, so they don't fill the same form twice
       if (needsStudent) {
         await addStudent({
           data: {
@@ -234,14 +239,32 @@ function OnboardingPage() {
           },
         });
         toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
+      } else if (role === "student") {
+        try {
+          await addStudent({
+            data: {
+              first_name: firstName.trim(),
+              last_name: lastName.trim() || undefined,
+            },
+          });
+        } catch (selfErr) {
+          // Non-fatal — student can still be invited later by a guardian/case manager.
+          console.error("onboarding: self-student create failed", selfErr);
+        }
+        toast.success("You're all set. Welcome to TransitionForward.");
       } else {
         toast.success("You're all set. Welcome to TransitionForward.");
       }
-      const aud = audiencesForRoles(
-        role === "educator" ? ["educator", "case_manager"] : [role],
-      );
-      const studentLike = aud.has("family") || aud.has("educator") || aud.has("student");
-      const target = studentLike ? "/dashboard" : fallbackPathFor([role]);
+
+      // Send each role to its primary workspace. Educators get /caseload (list
+      // view), students/families get /dashboard (per-student view), and the
+      // institutional roles fall back through role-policy.
+      const target =
+        role === "educator"
+          ? "/caseload"
+          : role === "parent" || role === "student"
+            ? "/dashboard"
+            : fallbackPathFor([role]);
       navigate({ to: target, replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
