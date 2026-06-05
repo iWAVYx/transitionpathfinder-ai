@@ -62,7 +62,7 @@ export function FormProgress() {
       >
         <div
           className="h-full bg-primary transition-[width] duration-500"
-          style={{ width: `${Math.max(pct, 4)}%` }}
+          style={{ width: `${pct}%` }}
         />
       </div>
       <p className="mt-1.5 text-xs italic text-muted-foreground">{label}</p>
