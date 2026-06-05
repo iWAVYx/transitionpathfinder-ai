@@ -127,7 +127,10 @@ function OnboardingPage() {
     };
   }, [loadProfile, loadStudents, navigate]);
 
-  const needsStudent = role === "parent" || role === "student" || role === "educator";
+  // Parents and educators add a student record in onboarding. A "student" role
+  // user IS the student, so we auto-create their record from their profile name
+  // at finish — no separate student step in the wizard.
+  const needsStudent = role === "parent" || role === "educator";
   const roleQuestions = useMemo(() => questionsForRole(role), [role]);
   const hasQuestions = !!roleQuestions && roleQuestions.questions.length > 0;
 
