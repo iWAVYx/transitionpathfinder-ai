@@ -41,15 +41,27 @@ export function DashboardWidgets() {
   const [updatingGoals, setUpdatingGoals] = useState(false);
   const [goalsError, setGoalsError] = useState(false);
   const reportIdsRef = useRef<string[]>([]);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryAttemptRef = useRef(0);
 
   const refreshGoals = useCallback(async () => {
+    const maxRetries = 5;
+    const baseDelayMs = 1000;
     setUpdatingGoals(true);
     try {
       const s = await summarize({ data: { reportIds: reportIdsRef.current } });
       setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
       setGoalsError(false);
+      retryAttemptRef.current = 0;
     } catch {
       setGoalsError(true);
+      if (retryAttemptRef.current < maxRetries) {
+        const delay = baseDelayMs * 2 ** retryAttemptRef.current;
+        retryAttemptRef.current += 1;
+        retryTimeoutRef.current = setTimeout(() => {
+          void refreshGoals();
+        }, delay);
+      }
     } finally {
       setUpdatingGoals(false);
     }
@@ -92,6 +104,11 @@ export function DashboardWidgets() {
             filter: `user_id=eq.${userId}`,
           },
           () => {
+            retryAttemptRef.current = 0;
+            if (retryTimeoutRef.current) {
+              clearTimeout(retryTimeoutRef.current);
+              retryTimeoutRef.current = null;
+            }
             void refreshGoals();
           },
         )
@@ -101,6 +118,10 @@ export function DashboardWidgets() {
     return () => {
       cancelled = true;
       if (channel) supabase.removeChannel(channel);
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
     };
   }, [refreshGoals]);
 
