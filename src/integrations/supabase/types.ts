@@ -3013,6 +3013,7 @@ export type Database = {
           uid: string
         }[]
       }
+      debug_try_insert_student: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
