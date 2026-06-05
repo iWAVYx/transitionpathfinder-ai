@@ -206,8 +206,8 @@ function FrameworkPage() {
               How We Walk Through It With You
             </p>
             <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
-              Grade 9 to graduation,{" "}
-              <TextMask className="font-display">all of it one connected story.</TextMask>
+              {toTitleCase("Grade 9 to graduation,")}{" "}
+              <TextMask className="font-display">{toTitleCase("all of it one connected story.")}</TextMask>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
               Adapted from <em>Transition Forward</em>, Caysi Morgan's graduate capstone at
@@ -293,7 +293,7 @@ function FrameworkPage() {
               The Manifesto
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              What we believe about transition.
+              {toTitleCase("What we believe about transition.")}
             </h2>
             <Squiggle className="mt-4 h-3 w-40 text-primary/60" />
           </div>
@@ -344,8 +344,8 @@ function FrameworkPage() {
               The Six Threads
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              Six threads we weave,{" "}
-              <TextMask className="font-display">all four years long.</TextMask>
+              {toTitleCase("Six threads we weave,")}{" "}
+              <TextMask className="font-display">{toTitleCase("all four years long.")}</TextMask>
             </h2>
             <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur">
               <Compass className="h-3.5 w-3.5 text-primary" /> Six threads, four years, one plan.
@@ -410,8 +410,8 @@ function FrameworkPage() {
               The Four-Year Arc
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              Each grade asks something different.{" "}
-              <TextMask className="font-display">We answer all of it.</TextMask>
+              {toTitleCase("Each grade asks something different.")}{" "}
+              <TextMask className="font-display">{toTitleCase("We answer all of it.")}</TextMask>
             </h2>
             <UnderlineSwoosh className="mx-auto mt-4 h-3 w-56 text-primary/60" />
           </div>
@@ -421,7 +421,7 @@ function FrameworkPage() {
 
           <div className="mt-12 overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
             <h3 className="font-display text-3xl font-medium sm:text-4xl">
-              Ready to see this applied to your child's IEP?
+              {toTitleCase("Ready to see this applied to your child's IEP?")}
             </h3>
             <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-foreground/80">
               Bring us your child's plan and we'll hand you back a grade-by-grade roadmap — every

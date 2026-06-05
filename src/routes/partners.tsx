@@ -272,16 +272,16 @@ function PartnersPage() {
               </Reveal>
               <h1 className="mt-7 font-display text-[clamp(2.25rem,6.5vw,5.75rem)] font-medium leading-[0.98] tracking-tight">
                 <Reveal>
-                  <span className="block">Real places.</span>
+                  <span className="block">{toTitleCase("Real places.")}</span>
                 </Reveal>
                 <Reveal delay={120}>
-                  <span className="block">Real people.</span>
+                  <span className="block">{toTitleCase("Real people.")}</span>
                 </Reveal>
                 <Reveal delay={240}>
                   <span className="block">
-                    Real{" "}
+                    {toTitleCase("Real")}{" "}
                     <TextMask gradient="linear-gradient(120deg, oklch(0.78 0.12 50), oklch(0.78 0.1 220), oklch(0.82 0.1 25))">
-                      next steps
+                      {toTitleCase("next steps")}
                     </TextMask>
                     .
                   </span>
@@ -394,7 +394,7 @@ function PartnersPage() {
                   </span>
                 </div>
                 <h3 className="mt-5 font-display text-2xl font-medium leading-tight tracking-tight">
-                  {title}
+                  {toTitleCase(title)}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
               </article>
@@ -443,7 +443,7 @@ function PartnersPage() {
                     </span>
                     <div className="col-span-1">
                       <h3 className="font-display text-2xl font-medium leading-tight tracking-tight sm:text-3xl">
-                        {title}
+                        {toTitleCase(title)}
                       </h3>
                       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
                         {body}

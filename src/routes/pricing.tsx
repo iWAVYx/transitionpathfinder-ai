@@ -12,6 +12,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -151,7 +152,7 @@ function PricingPage() {
             <Sparkles className="h-3 w-3" /> Transparent pricing
           </Badge>
           <h1 className="mt-4 font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            Free for families. Fair for schools.
+            {toTitleCase("Free for families. Fair for schools.")}
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             We won't make families pay for transition planning, and we won't make
@@ -195,7 +196,7 @@ function PricingPage() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                       {tier.eyebrow}
                     </p>
-                    <h2 className="font-display text-xl">{tier.name}</h2>
+                    <h2 className="font-display text-xl">{toTitleCase(tier.name)}</h2>
                   </div>
                 </div>
 
@@ -239,7 +240,7 @@ function PricingPage() {
               <ShieldCheck className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="font-display text-xl">Our pricing promise</h2>
+              <h2 className="font-display text-xl">{toTitleCase("Our pricing promise")}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/85">
                 We will never charge a family for the core planning tools their
                 student needs to leave high school with a real plan. If a feature
@@ -254,7 +255,7 @@ function PricingPage() {
       {/* FAQ */}
       <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">
         <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
-          Questions families and districts ask us most
+          {toTitleCase("Questions families and districts ask us most")}
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Don't see your question? <Link to="/contact" className="font-medium text-primary hover:underline">Ask us directly</Link> — a real person answers within two business days.
@@ -278,7 +279,7 @@ function PricingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Families
             </p>
-            <p className="mt-2 font-display text-lg">Start a free Pathway Report</p>
+            <p className="mt-2 font-display text-lg">{toTitleCase("Start a free Pathway Report")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               No credit card. No district required.
             </p>
@@ -293,7 +294,7 @@ function PricingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Educators
             </p>
-            <p className="mt-2 font-display text-lg">Try the educator workspace</p>
+            <p className="mt-2 font-display text-lg">{toTitleCase("Try the educator workspace")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Bring up to 25 students. We'll set you up.
             </p>
@@ -308,7 +309,7 @@ function PricingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Districts
             </p>
-            <p className="mt-2 font-display text-lg">Request a written quote</p>
+            <p className="mt-2 font-display text-lg">{toTitleCase("Request a written quote")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Caseload-based pricing. DPA on file. Two-day turnaround.
             </p>
