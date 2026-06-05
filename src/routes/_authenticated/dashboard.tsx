@@ -88,16 +88,22 @@ function DashboardPage() {
       .then((r) => {
         const aud = audiencesForRoles(r.roles);
         setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
-        // School Admin, District Admin, and Partner roles don't belong on the
-        // family/student dashboard — send them to their workspace instead.
-        // Skip if they also have family/educator/student access (multi-role).
-        const studentLike = aud.has("family") || aud.has("educator") || aud.has("student");
-        if (!studentLike && (aud.has("district_admin") || aud.has("school_admin") || aud.has("partner"))) {
-          navigate({ to: fallbackPathFor(r.roles), replace: true });
+        // Route non-family roles to their proper workspace:
+        // - School/District Admin & Partner → their hub
+        // - Educator / Case Manager → /caseload (unless they also have family access)
+        // Family + Student stay on this dashboard.
+        const hasFamily = aud.has("family");
+        if (!hasFamily) {
+          if (aud.has("district_admin") || aud.has("school_admin") || aud.has("partner")) {
+            navigate({ to: fallbackPathFor(r.roles), replace: true });
+          } else if (aud.has("educator")) {
+            navigate({ to: "/caseload", replace: true });
+          }
         }
       })
       .catch(() => setIsStudentOnly(false));
   }, [fetchRoles, navigate]);
+
 
   const handleDownloadPdf = useCallback((reportId: string) => {
     window.open(`/reports/${reportId}?print=1`, "_blank", "noopener");
