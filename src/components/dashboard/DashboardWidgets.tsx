@@ -43,6 +43,7 @@ export function DashboardWidgets() {
   const reportIdsRef = useRef<string[]>([]);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
+  const retryPausedRef = useRef(false);
 
   const refreshGoals = useCallback(async () => {
     const maxRetries = 5;
@@ -55,7 +56,7 @@ export function DashboardWidgets() {
       retryAttemptRef.current = 0;
     } catch {
       setGoalsError(true);
-      if (retryAttemptRef.current < maxRetries) {
+      if (retryAttemptRef.current < maxRetries && !retryPausedRef.current) {
         const delay = baseDelayMs * 2 ** retryAttemptRef.current;
         retryAttemptRef.current += 1;
         retryTimeoutRef.current = setTimeout(() => {
@@ -124,6 +125,29 @@ export function DashboardWidgets() {
       }
     };
   }, [refreshGoals]);
+
+  // Pause/resume retries when the user switches browser tabs.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) {
+        retryPausedRef.current = true;
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+      } else {
+        retryPausedRef.current = false;
+        if (goalsError) {
+          retryAttemptRef.current = 0;
+          void refreshGoals();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [goalsError, refreshGoals]);
 
   const loading = reports === null;
   const empty = !loading && reports!.length === 0;
