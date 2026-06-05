@@ -80,6 +80,7 @@ import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authe
 import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_authenticated/owner.organizations'
 import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
+import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenticated/owner.health'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
@@ -468,6 +469,12 @@ const AuthenticatedOwnerMediaRoute = AuthenticatedOwnerMediaRouteImport.update({
   path: '/owner/media',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOwnerHealthRoute =
+  AuthenticatedOwnerHealthRouteImport.update({
+    id: '/owner/health',
+    path: '/owner/health',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerFaqsRoute = AuthenticatedOwnerFaqsRouteImport.update({
   id: '/owner/faqs',
   path: '/owner/faqs',
@@ -640,6 +647,7 @@ export interface FileRoutesByFullPath {
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
@@ -730,6 +738,7 @@ export interface FileRoutesByTo {
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
@@ -822,6 +831,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/_authenticated/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/_authenticated/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
@@ -914,6 +924,7 @@ export interface FileRouteTypes {
     | '/owner/contacts'
     | '/owner/content'
     | '/owner/faqs'
+    | '/owner/health'
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
@@ -1004,6 +1015,7 @@ export interface FileRouteTypes {
     | '/owner/contacts'
     | '/owner/content'
     | '/owner/faqs'
+    | '/owner/health'
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
@@ -1095,6 +1107,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
     | '/_authenticated/owner/faqs'
+    | '/_authenticated/owner/health'
     | '/_authenticated/owner/media'
     | '/_authenticated/owner/opportunities'
     | '/_authenticated/owner/organizations'
@@ -1657,6 +1670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerMediaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/health': {
+      id: '/_authenticated/owner/health'
+      path: '/owner/health'
+      fullPath: '/owner/health'
+      preLoaderRoute: typeof AuthenticatedOwnerHealthRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/faqs': {
       id: '/_authenticated/owner/faqs'
       path: '/owner/faqs'
@@ -1869,6 +1889,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
+  AuthenticatedOwnerHealthRoute: typeof AuthenticatedOwnerHealthRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
   AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
   AuthenticatedOwnerOrganizationsRoute: typeof AuthenticatedOwnerOrganizationsRoute
@@ -1919,6 +1940,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
+  AuthenticatedOwnerHealthRoute: AuthenticatedOwnerHealthRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
   AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
   AuthenticatedOwnerOrganizationsRoute: AuthenticatedOwnerOrganizationsRoute,

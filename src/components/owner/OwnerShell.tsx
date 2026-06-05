@@ -21,6 +21,7 @@ import {
   Building2,
   Briefcase,
   UserCog,
+  Activity,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 
@@ -33,6 +34,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
+  { to: "/owner/health", label: "System Health", icon: Activity, group: "Overview" },
   { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
   { to: "/owner/activity", label: "Activity Logs", icon: History, group: "Overview" },
   { to: "/owner/content", label: "Site Content", icon: FileText, group: "Content" },
