@@ -17,6 +17,7 @@ import { NotificationsBell } from "./NotificationsBell";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
+import { toTitleCase } from "@/lib/title-case";
 
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
