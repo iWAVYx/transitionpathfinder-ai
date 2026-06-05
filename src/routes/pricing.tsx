@@ -294,7 +294,7 @@ function PricingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Educators
             </p>
-            <p className="mt-2 font-display text-lg">Try the educator workspace</p>
+            <p className="mt-2 font-display text-lg">{toTitleCase("Try the educator workspace")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Bring up to 25 students. We'll set you up.
             </p>
