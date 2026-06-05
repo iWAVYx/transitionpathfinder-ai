@@ -43,6 +43,7 @@ export function DashboardWidgets() {
   const reportIdsRef = useRef<string[]>([]);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
+  const retryPausedRef = useRef(false);
 
   const refreshGoals = useCallback(async () => {
     const maxRetries = 5;
@@ -55,7 +56,7 @@ export function DashboardWidgets() {
       retryAttemptRef.current = 0;
     } catch {
       setGoalsError(true);
-      if (retryAttemptRef.current < maxRetries) {
+      if (retryAttemptRef.current < maxRetries && !retryPausedRef.current) {
         const delay = baseDelayMs * 2 ** retryAttemptRef.current;
         retryAttemptRef.current += 1;
         retryTimeoutRef.current = setTimeout(() => {
