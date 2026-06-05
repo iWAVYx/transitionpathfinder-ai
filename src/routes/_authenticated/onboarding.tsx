@@ -140,7 +140,6 @@ function OnboardingPage() {
 
   const safeIdx = Math.min(idx, activeSteps.length - 1);
   const stepId: StepId = activeSteps[safeIdx];
-  const progress = Math.round(((safeIdx + 1) / activeSteps.length) * 100);
   const isLastStep = safeIdx === activeSteps.length - 1;
 
   // Required keys per role: every `single` question must be answered.
