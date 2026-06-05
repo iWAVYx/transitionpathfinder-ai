@@ -12,6 +12,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
