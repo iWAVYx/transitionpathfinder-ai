@@ -3005,15 +3005,6 @@ export type Database = {
         Returns: boolean
       }
       claim_admin_if_unclaimed: { Args: never; Returns: boolean }
-      debug_auth_uid: {
-        Args: never
-        Returns: {
-          jwt_sub: string
-          role: string
-          uid: string
-        }[]
-      }
-      debug_try_insert_student: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
