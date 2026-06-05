@@ -3009,7 +3009,6 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
-      diag_insert_student: { Args: { _owner: string }; Returns: Json }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
@@ -3069,7 +3068,6 @@ export type Database = {
         }[]
       }
       track_share_view: { Args: { _token: string }; Returns: undefined }
-      whoami: { Args: never; Returns: Json }
     }
     Enums: {
       admin_role:
