@@ -55,7 +55,7 @@ function AboutHero() {
   const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[75svh] min-h-[480px] overflow-hidden">
+    <section ref={ref} className="relative isolate -mt-px h-[80svh] min-h-[420px] overflow-hidden sm:h-[75svh] sm:min-h-[480px]">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
         <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
       </motion.div>
