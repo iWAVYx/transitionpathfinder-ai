@@ -344,8 +344,8 @@ function FrameworkPage() {
               The Six Threads
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium leading-tight sm:text-5xl">
-              Six threads we weave,{" "}
-              <TextMask className="font-display">all four years long.</TextMask>
+              {toTitleCase("Six threads we weave,")}{" "}
+              <TextMask className="font-display">{toTitleCase("all four years long.")}</TextMask>
             </h2>
             <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur">
               <Compass className="h-3.5 w-3.5 text-primary" /> Six threads, four years, one plan.
