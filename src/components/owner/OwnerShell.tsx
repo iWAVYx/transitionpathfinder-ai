@@ -202,7 +202,7 @@ export function OwnerShell({
                         : "bg-muted text-foreground/70")
                     }
                   >
-                    {n.label}
+                    {toTitleCase(n.label)}
                   </Link>
                 );
               })}
