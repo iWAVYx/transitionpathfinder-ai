@@ -265,7 +265,7 @@ function FrameworkPage() {
             "On the same page.",
           ].map((q, i) => (
             <span key={i} className="font-display text-2xl text-foreground/70 sm:text-3xl">
-              {q}
+              {toTitleCase(q)}
               <span className="mx-6 inline-block text-primary/40">✦</span>
             </span>
           ))}
