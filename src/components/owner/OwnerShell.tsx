@@ -125,7 +125,7 @@ export function OwnerShell({
             {groups.map((g) => (
               <div key={g} className="mb-5">
                 <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                  {g}
+                  {toTitleCase(g)}
                 </div>
                 <ul className="space-y-0.5">
                   {NAV.filter((n) => n.group === g).map((n) => {
