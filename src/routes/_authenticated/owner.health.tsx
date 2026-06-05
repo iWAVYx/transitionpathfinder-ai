@@ -71,6 +71,7 @@ function SystemHealthPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [rerunning, setRerunning] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
     const res = await probe();
@@ -87,6 +88,29 @@ function SystemHealthPage() {
       await load();
     } finally {
       setRefreshing(false);
+    }
+  }
+
+  async function rerunOne(key: string) {
+    setRerunning((s) => ({ ...s, [key]: true }));
+    try {
+      const res = await probe();
+      setData((prev) => {
+        if (!prev) return res;
+        const updated = res.results.find((r) => r.key === key);
+        if (!updated) return prev;
+        return {
+          ...prev,
+          results: prev.results.map((r) => (r.key === key ? updated : r)),
+          summary: res.summary,
+        };
+      });
+    } finally {
+      setRerunning((s) => {
+        const next = { ...s };
+        delete next[key];
+        return next;
+      });
     }
   }
 
@@ -159,6 +183,26 @@ function SystemHealthPage() {
                               </Badge>
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">{item.detail}</p>
+
+                            {showDetails && (
+                              <div className="mt-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => rerunOne(item.key)}
+                                  disabled={Boolean(rerunning[item.key]) || refreshing}
+                                  className="h-7 px-2 text-xs"
+                                >
+                                  {rerunning[item.key] ? (
+                                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <RefreshCw className="mr-1.5 h-3 w-3" />
+                                  )}
+                                  Re-run this check
+                                </Button>
+                              </div>
+                            )}
+
 
                             {showDetails && (item.error || (item.fixes && item.fixes.length > 0)) && (
                               <details className="group mt-2 rounded-md border border-border/60 bg-muted/30 open:bg-muted/40">
