@@ -152,7 +152,7 @@ function PricingPage() {
             <Sparkles className="h-3 w-3" /> Transparent pricing
           </Badge>
           <h1 className="mt-4 font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            Free for families. Fair for schools.
+            {toTitleCase("Free for families. Fair for schools.")}
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             We won't make families pay for transition planning, and we won't make
