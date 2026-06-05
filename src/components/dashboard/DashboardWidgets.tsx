@@ -33,17 +33,31 @@ function formatWhen(iso: string) {
 
 export function DashboardWidgets() {
   const list = useServerFn(listMyReports);
+  const summarize = useServerFn(summarizeGoalStatuses);
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
 
   useEffect(() => {
+    let cancelled = false;
     list()
-      .then((r) => {
+      .then(async (r) => {
+        if (cancelled) return;
         setReports(r.reports);
-        setGoals(readGoalTotals(r.reports.map((x) => x.id)));
+        try {
+          const s = await summarize({ data: { reportIds: r.reports.map((x) => x.id) } });
+          if (cancelled) return;
+          setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
+        } catch {
+          /* leave goals at zero rather than show stale data */
+        }
       })
-      .catch(() => setReports([]));
-  }, [list]);
+      .catch(() => {
+        if (!cancelled) setReports([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [list, summarize]);
 
   const loading = reports === null;
   const empty = !loading && reports!.length === 0;
