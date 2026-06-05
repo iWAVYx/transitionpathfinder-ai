@@ -139,6 +139,11 @@ export function DashboardWidgets() {
                 {goals.total}
                 <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
               </span>
+            ) : goalsError ? (
+              <span className="inline-flex items-center gap-2">
+                {goals.total}
+                <span className="inline-flex h-2 w-2 rounded-full bg-destructive" />
+              </span>
             ) : (
               String(goals.total)
             )
@@ -146,9 +151,11 @@ export function DashboardWidgets() {
           hint={
             loading
               ? " "
-              : goals.total === 0
-                ? "Nothing yet"
-                : `${goals.inProgress} in progress · ${goals.met} met`
+              : goalsError
+                ? `${goals.inProgress} in progress · ${goals.met} met · Couldn’t refresh`
+                : goals.total === 0
+                  ? "Nothing yet"
+                  : `${goals.inProgress} in progress · ${goals.met} met`
           }
           accent="warm"
         />
