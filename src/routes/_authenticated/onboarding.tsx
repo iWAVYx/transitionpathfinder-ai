@@ -166,6 +166,11 @@ function OnboardingPage() {
     }
   }, [stepId, role, firstName, requiredAnswered, studentFirst]);
 
+  // Progress is computed from actual completion — starts at 0% and only
+  // ticks up when the current step is fully filled out.
+  const completedSteps = safeIdx + (canAdvance ? 1 : 0);
+  const progress = Math.round((completedSteps / activeSteps.length) * 100);
+
   // Persist progress on step change so refresh resumes where you left off.
   async function persistProgress(nextRole: RoleId | null = role) {
     try {
