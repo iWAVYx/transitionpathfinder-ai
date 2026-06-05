@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -54,21 +55,21 @@ function AboutHero() {
   const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[75svh] min-h-[480px] overflow-hidden">
+    <section ref={ref} className="relative isolate -mt-px h-[80svh] min-h-[420px] overflow-hidden sm:h-[75svh] sm:min-h-[480px]">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
         <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
       </motion.div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/50 to-background/20" />
-      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-20 sm:px-6 lg:px-8">
+      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-12 sm:px-6 sm:pb-20 lg:px-8">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
+          className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs"
         >
           Our Story
         </motion.p>
-        <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-7xl lg:text-8xl">
+        <h1 className="mt-4 max-w-4xl font-display text-[2.5rem] font-medium leading-[1.05] tracking-tight text-foreground sm:mt-5 sm:text-6xl md:text-7xl lg:text-8xl">
           <Word text="We built this for" d={0.1} />
           <br />
           <Word text="the kids who never " d={0.3} />
@@ -102,10 +103,10 @@ function Manifesto() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   // Fill text from left to right based on scroll
   return (
-    <section ref={ref} className="relative py-16 sm:py-28">
+    <section ref={ref} className="relative py-14 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The Promise</p>
-        <h2 className="mt-6 font-display text-3xl font-medium leading-[1.15] tracking-tight text-foreground/30 sm:text-5xl lg:text-6xl">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs">The Promise</p>
+        <h2 className="mt-5 font-display text-[1.75rem] font-medium leading-[1.2] tracking-tight text-foreground/30 sm:mt-6 sm:text-4xl md:text-5xl lg:text-6xl">
           <FillReveal scrollYProgress={scrollYProgress}>
             Transition planning shouldn't be a binder, an inbox, and a hope.
             It should be a clear, kind, shared plan — built around the student.
@@ -236,21 +237,26 @@ function Chapter({
   total: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
 
-  const rotateY = useTransform(scrollYProgress, [0, 0.5, 1], [10, 0, -8]);
+  const rotateYDesktop = useTransform(scrollYProgress, [0, 0.5, 1], [10, 0, -8]);
   const pageOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.5, 1, 1, 0.6]);
   const imgScale = useTransform(scrollYProgress, [0, 1], [1.18, 1.02]);
-  const imgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const imgYDesktop = useTransform(scrollYProgress, [0, 1], [40, -40]);
   const numberOpacity = useTransform(scrollYProgress, [0.1, 0.45], [0, 1]);
   const reversed = index % 2 === 1;
+
+  // Disable 3D rotation on mobile (causes horizontal overflow + jitter) and parallax Y offset.
+  const rotateY = isMobile ? 0 : rotateYDesktop;
+  const imgY = isMobile ? 0 : imgYDesktop;
 
   const serif = "Georgia, 'Iowan Old Style', 'Apple Garamond', serif";
 
   return (
     <section
       ref={ref}
-      className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-20 sm:py-28`}
+      className={`relative overflow-hidden bg-gradient-to-b ${chapter.tone} py-14 sm:py-20 lg:py-28`}
       style={{ perspective: "1600px" }}
     >
       <div
@@ -265,7 +271,7 @@ function Chapter({
 
       <motion.div
         style={{ opacity: numberOpacity }}
-        className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 select-none font-display text-[26vw] font-medium leading-none tracking-tighter text-foreground/[0.05] sm:text-[18vw]"
+        className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 select-none font-display text-[40vw] font-medium leading-none tracking-tighter text-foreground/[0.05] sm:-top-6 sm:text-[26vw] lg:text-[18vw]"
       >
         {chapter.n}
       </motion.div>
@@ -274,9 +280,9 @@ function Chapter({
         style={{ rotateY, opacity: pageOpacity, transformStyle: "preserve-3d" }}
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       >
-        <div className="mb-10 flex items-center gap-4">
+        <div className="mb-7 flex items-center gap-2 sm:mb-10 sm:gap-4">
           <span className="h-px flex-1 bg-foreground/15" />
-          <span className="font-display text-[11px] uppercase tracking-[0.4em] text-foreground/60">
+          <span className="font-display text-[9px] uppercase tracking-[0.3em] text-foreground/60 sm:text-[11px] sm:tracking-[0.4em]">
             {chapter.label} · {String(index + 1).padStart(2, "0")} of{" "}
             {String(total).padStart(2, "0")}
           </span>
@@ -284,12 +290,12 @@ function Chapter({
         </div>
 
         <div
-          className={`grid items-start gap-12 lg:grid-cols-12 lg:gap-16 ${
+          className={`grid items-start gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-16 ${
             reversed ? "lg:[&>*:first-child]:order-2" : ""
           }`}
         >
           <motion.div style={{ y: imgY }} className="lg:col-span-6">
-            <figure className="relative aspect-[4/5] overflow-hidden rounded-sm border border-foreground/10 shadow-lift">
+            <figure className="relative aspect-[4/3] overflow-hidden rounded-sm border border-foreground/10 shadow-lift sm:aspect-[4/5]">
               <motion.img
                 style={{ scale: imgScale }}
                 src={chapter.img}
@@ -297,14 +303,14 @@ function Chapter({
                 className="h-full w-full object-cover sepia-[0.08] saturate-[0.95]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" />
-              <figcaption className="absolute bottom-4 left-5 right-5 font-display text-[11px] italic tracking-wide text-background/90">
+              <figcaption className="absolute bottom-3 left-4 right-4 font-display text-[10px] italic tracking-wide text-background/90 sm:bottom-4 sm:left-5 sm:right-5 sm:text-[11px]">
                 Plate {String(index + 1).padStart(2, "0")} — {chapter.eyebrow}.
               </figcaption>
             </figure>
           </motion.div>
 
           <div className="lg:col-span-6">
-            <p className="font-display text-[11px] uppercase tracking-[0.4em] text-primary">
+            <p className="font-display text-[10px] uppercase tracking-[0.3em] text-primary sm:text-[11px] sm:tracking-[0.4em]">
               {toTitleCase(chapter.eyebrow)}
             </p>
             <motion.h3
@@ -312,15 +318,15 @@ function Chapter({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem]"
+              className="mt-3 font-display text-[2rem] font-medium leading-[1.1] tracking-tight text-foreground sm:mt-4 sm:text-4xl md:text-5xl lg:text-[3.25rem]"
             >
               {chapter.title}
             </motion.h3>
 
-            <div className="mt-6 flex items-center gap-3 text-foreground/40">
-              <span className="h-px w-10 bg-foreground/30" />
+            <div className="mt-5 flex items-center gap-3 text-foreground/40 sm:mt-6">
+              <span className="h-px w-8 bg-foreground/30 sm:w-10" />
               <span className="text-xs">❦</span>
-              <span className="h-px w-10 bg-foreground/30" />
+              <span className="h-px w-8 bg-foreground/30 sm:w-10" />
             </div>
 
             <motion.p
@@ -328,7 +334,7 @@ function Chapter({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
-              className="mt-6 text-[1.15rem] leading-[1.75] text-foreground/85 first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[3.75rem] first-letter:font-medium first-letter:leading-[0.85] first-letter:text-primary"
+              className="mt-5 text-[1.05rem] leading-[1.7] text-foreground/85 first-letter:float-left first-letter:mr-2 first-letter:mt-1 first-letter:font-display first-letter:text-[3rem] first-letter:font-medium first-letter:leading-[0.85] first-letter:text-primary sm:mt-6 sm:text-[1.15rem] sm:leading-[1.75] sm:first-letter:mr-3 sm:first-letter:text-[3.75rem]"
               style={{ fontFamily: serif }}
             >
               {chapter.opener}
@@ -341,7 +347,7 @@ function Chapter({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 + i * 0.08 }}
-                className="mt-5 text-[1.05rem] leading-[1.8] text-foreground/75"
+                className="mt-4 text-[1rem] leading-[1.75] text-foreground/75 sm:mt-5 sm:text-[1.05rem] sm:leading-[1.8]"
                 style={{ fontFamily: serif }}
               >
                 {p}
@@ -353,12 +359,12 @@ function Chapter({
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
-              className="mt-8 border-l-2 border-primary/70 pl-5 font-display text-2xl italic leading-snug text-foreground/90 sm:text-3xl"
+              className="mt-7 border-l-2 border-primary/70 pl-4 font-display text-xl italic leading-snug text-foreground/90 sm:mt-8 sm:pl-5 sm:text-2xl md:text-3xl"
             >
               “{chapter.pullQuote}”
             </motion.blockquote>
 
-            <div className="mt-10 flex items-center justify-between font-display text-[10px] uppercase tracking-[0.35em] text-foreground/40">
+            <div className="mt-8 flex items-center justify-between font-display text-[9px] uppercase tracking-[0.3em] text-foreground/40 sm:mt-10 sm:text-[10px] sm:tracking-[0.35em]">
               <span>TransitionForward</span>
               <span>— {index + 1} —</span>
             </div>
@@ -387,10 +393,10 @@ function BeliefsMarquee() {
         <motion.div
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="flex shrink-0 gap-12 pr-12"
+          className="flex shrink-0 gap-6 pr-6 sm:gap-12 sm:pr-12"
         >
           {[...beliefs, ...beliefs].map((b, i) => (
-            <div key={i} className="flex shrink-0 items-center gap-4 font-display text-3xl text-background sm:text-4xl lg:text-5xl">
+            <div key={i} className="flex shrink-0 items-center gap-3 font-display text-xl text-background sm:gap-4 sm:text-3xl md:text-4xl lg:text-5xl">
               <b.icon className="h-6 w-6 text-peach" />
               {b.text}
               <span className="text-background/30">·</span>
@@ -412,7 +418,7 @@ function ClosingCTA() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+          className="font-display text-[2.25rem] font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl"
         >
           Forward, together.
         </motion.h2>
