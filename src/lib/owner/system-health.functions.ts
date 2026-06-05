@@ -236,6 +236,9 @@ export const runSystemHealth = createServerFn({ method: "GET" })
       { key: "mobile_responsiveness", label: "Mobile Responsiveness", category: "ui", manualNote: "Verified at 375px, 768px, 1024px across signup, onboarding, dashboards, Pathway Report, Admin Hub. Recheck after layout changes." },
     ];
 
+    // Run all custom probes once up-front; the loop below routes results by key.
+    const custom = await customProbes(client, (context as { userId: string }).userId);
+
     const results: HealthCheck[] = [];
     for (const p of probes) {
       if (p.comingSoonNote) {
@@ -244,6 +247,18 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: "coming_soon",
           detail: p.comingSoonNote,
+          category: p.category,
+        });
+        continue;
+      }
+      // Custom probe (replaces the older "manual" placeholder for this key).
+      if (custom[p.key]) {
+        const c = custom[p.key];
+        results.push({
+          key: p.key,
+          label: p.label,
+          status: c.ok ? "working" : "attention",
+          detail: c.message,
           category: p.category,
         });
         continue;
@@ -277,6 +292,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
         });
       }
     }
+
 
     const summary = {
       working: results.filter((r) => r.status === "working").length,
