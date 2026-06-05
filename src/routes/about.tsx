@@ -103,10 +103,10 @@ function Manifesto() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   // Fill text from left to right based on scroll
   return (
-    <section ref={ref} className="relative py-16 sm:py-28">
+    <section ref={ref} className="relative py-14 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">The Promise</p>
-        <h2 className="mt-6 font-display text-3xl font-medium leading-[1.15] tracking-tight text-foreground/30 sm:text-5xl lg:text-6xl">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs">The Promise</p>
+        <h2 className="mt-5 font-display text-[1.75rem] font-medium leading-[1.2] tracking-tight text-foreground/30 sm:mt-6 sm:text-4xl md:text-5xl lg:text-6xl">
           <FillReveal scrollYProgress={scrollYProgress}>
             Transition planning shouldn't be a binder, an inbox, and a hope.
             It should be a clear, kind, shared plan — built around the student.
