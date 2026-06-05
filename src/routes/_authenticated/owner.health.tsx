@@ -71,6 +71,7 @@ function SystemHealthPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [rerunning, setRerunning] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
     const res = await probe();
