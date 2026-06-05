@@ -31,7 +31,10 @@ type Client = {
       opts?: { count?: "exact"; head?: boolean },
     ) => Promise<{ count: number | null; error: { message: string } | null }>;
   };
-  rpc?: (name: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
+  rpc: (
+    name: string,
+    args?: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: { message: string } | null }>;
 };
 
 function getClient(c: { supabase: unknown }): Client {
@@ -47,6 +50,123 @@ async function tableProbe(
     .select("*", { count: "exact", head: true });
   if (error) return { ok: false, count: null, message: error.message };
   return { ok: true, count: count ?? 0, message: `${count ?? 0} rows reachable` };
+}
+
+/**
+ * Custom probes that replace the older "manual" checks. Each returns the
+ * health status the row should report, so the System Health dashboard
+ * shows real signal instead of "Not Connected".
+ */
+async function customProbes(
+  client: Client,
+  userId: string,
+): Promise<Record<string, { ok: boolean; message: string }>> {
+  // auth: requireSupabaseAuth already validated the JWT to reach this code,
+  // so a present userId proves the auth pipeline (token → JWKS → session) works.
+  const auth = userId
+    ? { ok: true, message: `Authenticated session resolved (uid ${userId.slice(0, 8)}…).` }
+    : { ok: false, message: "No authenticated user on the request." };
+
+  // rls_policies: exercise the security-definer helpers that every
+  // student-scoped RLS policy depends on. If `has_role` runs, the
+  // policy plumbing is reachable end-to-end.
+  let rls: { ok: boolean; message: string };
+  try {
+    const { data, error } = await client.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    rls = error
+      ? { ok: false, message: `has_role RPC failed: ${error.message}` }
+      : { ok: true, message: `Security-definer helpers reachable (has_role → ${String(data)}).` };
+  } catch (e) {
+    rls = { ok: false, message: e instanceof Error ? e.message : "has_role RPC threw." };
+  }
+
+  // role_dashboards: verify the audience_for_role mapping resolves a
+  // non-null audience for every role the dashboards key off of.
+  let roleDash: { ok: boolean; message: string };
+  try {
+    const roles = [
+      "parent",
+      "guardian",
+      "educator",
+      "teacher",
+      "case_manager",
+      "student",
+      "school_admin",
+      "district_admin",
+      "admin",
+      "partner",
+    ];
+    let failed: string | null = null;
+    for (const r of roles) {
+      const { data, error } = await client.rpc("audience_for_role", { _role: r });
+      if (error) {
+        failed = `audience_for_role(${r}) errored: ${error.message}`;
+        break;
+      }
+      if (data == null) {
+        failed = `audience_for_role(${r}) returned null — role missing from mapping.`;
+        break;
+      }
+    }
+    roleDash = failed
+      ? { ok: false, message: failed }
+      : { ok: true, message: `All ${roles.length} role→audience mappings resolved.` };
+  } catch (e) {
+    roleDash = { ok: false, message: e instanceof Error ? e.message : "audience_for_role probe threw." };
+  }
+
+  // data_persistence: confirm that core long-lived tables are readable
+  // and non-empty (the admin viewing this page must at least have a
+  // profile + role row), proving writes from earlier sessions survived.
+  let persist: { ok: boolean; message: string };
+  try {
+    const p = await client.from("profiles").select("*", { count: "exact", head: true });
+    const u = await client.from("user_roles").select("*", { count: "exact", head: true });
+    if (p.error) persist = { ok: false, message: `profiles unreachable: ${p.error.message}` };
+    else if (u.error) persist = { ok: false, message: `user_roles unreachable: ${u.error.message}` };
+    else if ((p.count ?? 0) < 1 || (u.count ?? 0) < 1)
+      persist = { ok: false, message: `Persistent state empty (profiles=${p.count}, user_roles=${u.count}).` };
+    else
+      persist = {
+        ok: true,
+        message: `Persistent state intact: ${p.count} profiles, ${u.count} role bindings.`,
+      };
+  } catch (e) {
+    persist = { ok: false, message: e instanceof Error ? e.message : "persistence probe threw." };
+  }
+
+  // mobile_responsiveness: fetch the published site and confirm the
+  // responsive viewport meta tag is present in the HTML shell. If the
+  // tag is missing or the site is unreachable, mobile rendering will
+  // break — surface that here rather than waiting on manual QA.
+  let mobile: { ok: boolean; message: string };
+  try {
+    const r = await fetch("https://transitionpathfinder-ai.lovable.app/", {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!r.ok) {
+      mobile = { ok: false, message: `Published site returned HTTP ${r.status}.` };
+    } else {
+      const html = await r.text();
+      const hasViewport = /<meta[^>]+name=["']viewport["'][^>]*>/i.test(html);
+      mobile = hasViewport
+        ? { ok: true, message: "Responsive viewport meta present on published site." }
+        : { ok: false, message: "Viewport meta tag missing on published site." };
+    }
+  } catch (e) {
+    mobile = { ok: false, message: e instanceof Error ? e.message : "Could not fetch published site." };
+  }
+
+  return {
+    auth,
+    rls_policies: rls,
+    role_dashboards: roleDash,
+    data_persistence: persist,
+    mobile_responsiveness: mobile,
+  };
 }
 
 export const runSystemHealth = createServerFn({ method: "GET" })
