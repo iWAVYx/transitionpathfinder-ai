@@ -26,7 +26,7 @@ import {
   getProfile,
   saveOnboardingProgress,
 } from "@/lib/profile.functions";
-import { createStudent, listStudents } from "@/lib/students.functions";
+import { createStudent } from "@/lib/students.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
 import { fallbackPathFor } from "@/lib/role-policy";
 import {
