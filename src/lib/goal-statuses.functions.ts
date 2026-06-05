@@ -49,3 +49,40 @@ export const upsertGoalStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
+/**
+ * Aggregate every goal status the current user owns across the given reports.
+ * RLS already scopes by `auth.uid()` AND verifies student access on each row,
+ * so this is safe to call with whatever report ids the dashboard loaded.
+ * Returns 0 totals when no reports are supplied — never throws on empty input.
+ */
+export const summarizeGoalStatuses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { reportIds: string[] }) =>
+    z
+      .object({
+        reportIds: z.array(z.string().uuid()).max(500),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (data.reportIds.length === 0) {
+      return { total: 0, inProgress: 0, met: 0, notStarted: 0 };
+    }
+    const { supabase, userId } = context;
+    const { data: rows, error } = await supabase
+      .from("goal_statuses")
+      .select("status")
+      .eq("user_id", userId)
+      .in("report_id", data.reportIds);
+    if (error) throw new Error(error.message);
+    let inProgress = 0;
+    let met = 0;
+    let notStarted = 0;
+    for (const r of rows ?? []) {
+      if (r.status === "in-progress") inProgress += 1;
+      else if (r.status === "met") met += 1;
+      else if (r.status === "not-started") notStarted += 1;
+    }
+    return { total: (rows ?? []).length, inProgress, met, notStarted };
+  });

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { listMyReports } from "@/lib/pathway.functions";
+import { summarizeGoalStatuses } from "@/lib/goal-statuses.functions";
 
 type ReportRow = {
   id: string;
@@ -20,26 +21,6 @@ type ReportRow = {
 };
 
 type GoalTotals = { total: number; inProgress: number; met: number };
-
-function readGoalTotals(reportIds: string[]): GoalTotals {
-  const totals: GoalTotals = { total: 0, inProgress: 0, met: 0 };
-  if (typeof window === "undefined") return totals;
-  for (const id of reportIds) {
-    try {
-      const raw = localStorage.getItem(`tf:goal-status:${id}`);
-      if (!raw) continue;
-      const parsed = JSON.parse(raw) as Record<string, "not-started" | "in-progress" | "met">;
-      for (const status of Object.values(parsed)) {
-        totals.total += 1;
-        if (status === "in-progress") totals.inProgress += 1;
-        if (status === "met") totals.met += 1;
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-  return totals;
-}
 
 function formatWhen(iso: string) {
   const d = new Date(iso);
@@ -52,17 +33,31 @@ function formatWhen(iso: string) {
 
 export function DashboardWidgets() {
   const list = useServerFn(listMyReports);
+  const summarize = useServerFn(summarizeGoalStatuses);
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
 
   useEffect(() => {
+    let cancelled = false;
     list()
-      .then((r) => {
+      .then(async (r) => {
+        if (cancelled) return;
         setReports(r.reports);
-        setGoals(readGoalTotals(r.reports.map((x) => x.id)));
+        try {
+          const s = await summarize({ data: { reportIds: r.reports.map((x) => x.id) } });
+          if (cancelled) return;
+          setGoals({ total: s.total, inProgress: s.inProgress, met: s.met });
+        } catch {
+          /* leave goals at zero rather than show stale data */
+        }
       })
-      .catch(() => setReports([]));
-  }, [list]);
+      .catch(() => {
+        if (!cancelled) setReports([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [list, summarize]);
 
   const loading = reports === null;
   const empty = !loading && reports!.length === 0;
