@@ -251,9 +251,9 @@ export function SiteHeader() {
                       to={item.to}
                       className="flex flex-col items-start gap-0.5 rounded-lg px-3 py-2"
                     >
-                      <span className="text-sm font-medium text-foreground">{item.label}</span>
+                      <span className="text-sm font-medium text-foreground">{toTitleCase(item.label)}</span>
                       {item.desc && (
-                        <span className="text-xs text-primary/75">{item.desc}</span>
+                        <span className="text-xs text-primary/75">{toTitleCase(item.desc)}</span>
                       )}
                     </Link>
                   </DropdownMenuItem>
