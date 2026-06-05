@@ -97,7 +97,7 @@ function OnboardingPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [p, list] = await Promise.all([loadProfile(), loadStudents()]);
+        const p = await loadProfile();
         if (cancelled) return;
         if (p.onboarding_completed) {
           const pr = (p.primary_role as RoleId | null) ?? null;
