@@ -127,7 +127,7 @@ function OnboardingPage() {
     return () => {
       cancelled = true;
     };
-  }, [loadProfile, loadStudents, navigate]);
+  }, [loadProfile, navigate]);
 
   // Parents and educators add a student record in onboarding. A "student" role
   // user IS the student, so we auto-create their record from their profile name
