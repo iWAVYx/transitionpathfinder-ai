@@ -126,6 +126,29 @@ export function DashboardWidgets() {
     };
   }, [refreshGoals]);
 
+  // Pause/resume retries when the user switches browser tabs.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) {
+        retryPausedRef.current = true;
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+      } else {
+        retryPausedRef.current = false;
+        if (goalsError) {
+          retryAttemptRef.current = 0;
+          void refreshGoals();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [goalsError, refreshGoals]);
+
   const loading = reports === null;
   const empty = !loading && reports!.length === 0;
 
