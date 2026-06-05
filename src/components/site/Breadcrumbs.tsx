@@ -30,14 +30,14 @@ export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
               <ChevronRight className="h-3.5 w-3.5 opacity-60" aria-hidden />
               {last || !c.to ? (
                 <span aria-current={last ? "page" : undefined} className="font-medium text-foreground">
-                  {c.label}
+                  {toTitleCase(c.label)}
                 </span>
               ) : (
                 <Link
                   to={c.to as never}
                   className="rounded-full px-2 py-1 hover:bg-muted hover:text-foreground"
                 >
-                  {c.label}
+                  {toTitleCase(c.label)}
                 </Link>
               )}
             </li>
