@@ -57,7 +57,10 @@ function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name;
-  const friendly = fullName?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
+  const emailHandle = user?.email?.split("@")[0];
+  const [profileFirstName, setProfileFirstName] = useState<string | null>(null);
+  const friendly =
+    profileFirstName ?? fullName?.split(" ")[0] ?? emailHandle ?? "there";
 
   const fetchStudents = useServerFn(listStudents);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
@@ -69,7 +72,16 @@ function DashboardPage() {
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
   const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
-  const onboardingCheckedRef = useRef(false);
+
+  useEffect(() => {
+    fetchProfile()
+      .then((p) => {
+        if (p.first_name) setProfileFirstName(p.first_name);
+      })
+      .catch(() => {
+        /* fall back to user_metadata / email */
+      });
+  }, [fetchProfile]);
 
   useEffect(() => {
     fetchRoles()
