@@ -265,7 +265,7 @@ function FrameworkPage() {
             "On the same page.",
           ].map((q, i) => (
             <span key={i} className="font-display text-2xl text-foreground/70 sm:text-3xl">
-              {q}
+              {toTitleCase(q)}
               <span className="mx-6 inline-block text-primary/40">✦</span>
             </span>
           ))}
@@ -276,7 +276,7 @@ function FrameworkPage() {
       <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
         <TextScrollFill
           className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
-          text="Transition is not a senior-year scramble — it's a four-year story told one grade at a time."
+          text={toTitleCase("Transition is not a senior-year scramble — it's a four-year story told one grade at a time.")}
         />
       </section>
 

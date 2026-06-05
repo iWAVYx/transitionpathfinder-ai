@@ -264,7 +264,7 @@ function PricingPage() {
         <dl className="mt-8 divide-y divide-border/60 rounded-3xl border bg-card shadow-soft">
           {faqs.map((faq) => (
             <div key={faq.q} className="px-6 py-5">
-              <dt className="font-display text-base">{faq.q}</dt>
+              <dt className="font-display text-base">{toTitleCase(faq.q)}</dt>
               <dd className="mt-2 text-sm leading-relaxed text-foreground/85">{faq.a}</dd>
             </div>
           ))}
