@@ -342,6 +342,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: "coming_soon",
           detail: p.comingSoonNote,
+          fixes: FIX_HINTS[p.key],
           category: p.category,
         });
         continue;
@@ -354,6 +355,8 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: c.ok ? "working" : "attention",
           detail: c.message,
+          error: c.ok ? null : c.message,
+          fixes: c.ok ? undefined : FIX_HINTS[p.key],
           category: p.category,
         });
         continue;
@@ -364,6 +367,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: "manual",
           detail: p.manualNote ?? "Manual verification.",
+          fixes: FIX_HINTS[p.key],
           category: p.category,
         });
         continue;
@@ -375,14 +379,20 @@ export const runSystemHealth = createServerFn({ method: "GET" })
           label: p.label,
           status: r.ok ? "working" : "attention",
           detail: r.ok ? r.message : `Query failed: ${r.message}`,
+          error: r.ok ? null : r.message,
+          fixes: r.ok ? undefined : FIX_HINTS[p.key],
           category: p.category,
         });
       } catch (e) {
+        const message = e instanceof Error ? e.message : "Probe threw an exception.";
+        const stack = e instanceof Error && e.stack ? e.stack : null;
         results.push({
           key: p.key,
           label: p.label,
           status: "attention",
-          detail: e instanceof Error ? e.message : "Probe threw an exception.",
+          detail: message,
+          error: stack ?? message,
+          fixes: FIX_HINTS[p.key],
           category: p.category,
         });
       }
