@@ -145,7 +145,7 @@ export function OwnerShell({
                           }
                         >
                           <Icon className="h-4 w-4" />
-                          {n.label}
+                          {toTitleCase(n.label)}
                         </Link>
                       </li>
                     );
