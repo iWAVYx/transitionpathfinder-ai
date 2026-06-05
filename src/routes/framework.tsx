@@ -421,7 +421,7 @@ function FrameworkPage() {
 
           <div className="mt-12 overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-hero p-10 text-center shadow-soft">
             <h3 className="font-display text-3xl font-medium sm:text-4xl">
-              Ready to see this applied to your child's IEP?
+              {toTitleCase("Ready to see this applied to your child's IEP?")}
             </h3>
             <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-foreground/80">
               Bring us your child's plan and we'll hand you back a grade-by-grade roadmap — every
