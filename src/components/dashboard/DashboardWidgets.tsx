@@ -8,6 +8,7 @@ import {
   Sparkles,
   ArrowRight,
   Users,
+  RefreshCw,
 } from "lucide-react";
 
 import { listMyReports } from "@/lib/pathway.functions";
