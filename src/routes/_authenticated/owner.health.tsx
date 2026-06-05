@@ -120,11 +120,12 @@ function SystemHealthPage() {
       ) : (
         <div className="space-y-6">
           {/* Summary band */}
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <SummaryTile label="Total checks" value={data.summary.total} accent="text-foreground" Icon={Activity} />
             <SummaryTile label="Working" value={data.summary.working} accent="text-emerald-600 dark:text-emerald-400" Icon={CheckCircle2} />
             <SummaryTile label="Needs attention" value={data.summary.attention} accent="text-amber-600 dark:text-amber-400" Icon={AlertTriangle} />
             <SummaryTile label="Not connected" value={data.summary.manual} accent="text-muted-foreground" Icon={CircleDashed} />
+            <SummaryTile label="Coming soon" value={data.summary.coming_soon} accent="text-sky-600 dark:text-sky-400" Icon={CircleDashed} />
           </div>
 
           <p className="text-xs text-muted-foreground">
