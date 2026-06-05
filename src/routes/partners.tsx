@@ -443,7 +443,7 @@ function PartnersPage() {
                     </span>
                     <div className="col-span-1">
                       <h3 className="font-display text-2xl font-medium leading-tight tracking-tight sm:text-3xl">
-                        {title}
+                        {toTitleCase(title)}
                       </h3>
                       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
                         {body}
