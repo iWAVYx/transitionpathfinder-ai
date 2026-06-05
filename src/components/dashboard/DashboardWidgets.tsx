@@ -129,13 +129,26 @@ export function DashboardWidgets() {
           to="/goals"
           icon={<Target className="h-5 w-5" />}
           label="Goals tracked"
-          value={loading ? "—" : String(goals.total)}
+          value={
+            loading ? (
+              "—"
+            ) : updatingGoals ? (
+              <span className="inline-flex items-center gap-2">
+                {goals.total}
+                <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+              </span>
+            ) : (
+              String(goals.total)
+            )
+          }
           hint={
             loading
               ? " "
-              : goals.total === 0
-                ? "Nothing yet"
-                : `${goals.inProgress} in progress · ${goals.met} met`
+              : updatingGoals
+                ? "Updating…"
+                : goals.total === 0
+                  ? "Nothing yet"
+                  : `${goals.inProgress} in progress · ${goals.met} met`
           }
           accent="warm"
         />
