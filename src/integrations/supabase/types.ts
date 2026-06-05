@@ -3068,6 +3068,7 @@ export type Database = {
         }[]
       }
       track_share_view: { Args: { _token: string }; Returns: undefined }
+      whoami: { Args: never; Returns: Json }
     }
     Enums: {
       admin_role:
