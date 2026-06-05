@@ -60,16 +60,16 @@ function AboutHero() {
         <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
       </motion.div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/50 to-background/20" />
-      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-20 sm:px-6 lg:px-8">
+      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-12 sm:px-6 sm:pb-20 lg:px-8">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-xs font-semibold uppercase tracking-[0.28em] text-primary"
+          className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs"
         >
           Our Story
         </motion.p>
-        <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-7xl lg:text-8xl">
+        <h1 className="mt-4 max-w-4xl font-display text-[2.5rem] font-medium leading-[1.05] tracking-tight text-foreground sm:mt-5 sm:text-6xl md:text-7xl lg:text-8xl">
           <Word text="We built this for" d={0.1} />
           <br />
           <Word text="the kids who never " d={0.3} />
