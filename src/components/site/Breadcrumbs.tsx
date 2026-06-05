@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Home } from "lucide-react";
+import { toTitleCase } from "@/lib/title-case";
 
 export type Crumb = { label: string; to?: string };
 
