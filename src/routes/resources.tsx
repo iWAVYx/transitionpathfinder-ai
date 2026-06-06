@@ -489,14 +489,18 @@ function ResourcesPage() {
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
                   </span>
+                  <span className="rounded-full bg-muted px-2 py-0.5">External</span>
+                  {r.location_scope && r.location_scope.toLowerCase() !== "connecticut" && (
+                    <span className="rounded-full bg-muted px-2 py-0.5">
+                      {r.location_scope.replace(/_/g, " ")}
+                    </span>
+                  )}
                   {r.featured && (
                     <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   )}
-                  {r.url && (
-                    <span className="rounded-full bg-muted px-2 py-0.5">External</span>
-                  )}
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
+
                 <h3 className="mt-3 font-display text-base font-medium leading-snug">
                   {r.title}
                 </h3>
