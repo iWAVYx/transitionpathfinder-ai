@@ -538,6 +538,10 @@ function ResourcesPage() {
                     )}
                   </div>
                 </div>
+                <div className="mt-3 flex justify-end">
+                  <AddToPathwayButton title={r.title} description={r.description} link={r.url} />
+                </div>
+
               </article>
             ))}
           </div>
