@@ -1702,7 +1702,7 @@ function DocumentContents({ report, name }: { report: PathwayReport; name: strin
       <ol className="grid gap-x-8 gap-y-2 px-6 py-5 sm:grid-cols-2 sm:px-8">
         {items.map((it, i) => (
           <li key={it.id} className="flex items-baseline gap-3 text-sm">
-            <span className="font-mono text-xs text-primary/80">
+            <span className="font-mono text-xs text-primary">
               {String(i + 1).padStart(2, "0")}
             </span>
             <a
