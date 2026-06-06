@@ -31,7 +31,7 @@ import {
   X,
   Copy,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -186,6 +186,8 @@ function ResourcesPage() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
+  const [liveMessage, setLiveMessage] = useState("");
+  const hasAnnounced = useRef(false);
 
   const fetchDb = useServerFn(listVerifiedResources);
   const fetchFeatured = useServerFn(listFeaturedResources);
@@ -298,6 +300,27 @@ function ResourcesPage() {
     () => RESOURCES.filter((r) => saved[r.id]),
     [saved],
   );
+
+  // Announce filter/result changes to screen readers
+  useEffect(() => {
+    if (!hasAnnounced.current) {
+      hasAnnounced.current = true;
+      return;
+    }
+    let msg = "";
+    if (tab === "browse") {
+      const c = visible.length;
+      if (c === 0) {
+        msg = "No resources match those filters.";
+      } else {
+        msg = `${c} resource${c !== 1 ? "s" : ""} found.`;
+      }
+    } else if (tab === "saved") {
+      const c = savedResources.length;
+      msg = `${c} saved resource${c !== 1 ? "s" : ""}.`;
+    }
+    setLiveMessage(msg);
+  }, [tab, visible.length, savedResources.length, query, filters]);
 
   const featured = RESOURCES.filter((r) => r.featured);
 
@@ -671,6 +694,10 @@ function ResourcesPage() {
         </div>
       </section>
 
+      {/* Screen-reader announcement for filter/result changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </div>
 
       {/* TAB BAR */}
 
