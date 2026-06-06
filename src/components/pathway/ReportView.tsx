@@ -228,7 +228,12 @@ export function ReportView({
           : null;
 
   return (
-    <section className="report-root mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    <section
+      className={cn(
+        "report-root mx-auto px-4 py-10 sm:px-6 lg:px-8",
+        density === "compact" ? "report-compact max-w-7xl" : "max-w-6xl",
+      )}
+    >
       <ReportTOC report={r} audience={audience} />
 
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
