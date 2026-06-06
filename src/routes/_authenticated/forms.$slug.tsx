@@ -18,7 +18,11 @@ import { listStudents, type Student } from "@/lib/students.functions";
 
 export const Route = createFileRoute("/_authenticated/forms/$slug")({
   head: () => ({ meta: [{ title: "Transition Form — TransitionForward" }] }),
-  component: FormDetailPage,
+  component: () => (
+    <RoleGuard path="/forms/$slug" allow={["family", "educator", "student", "admin"]}>
+      <FormDetailPage />
+    </RoleGuard>
+  ),
 });
 
 function FormDetailPage() {
