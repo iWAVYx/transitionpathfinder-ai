@@ -81,6 +81,7 @@ function SettingsPage() {
     setSaving(key);
     try {
       await update({ data: { setting_key: key, setting_value: val } });
+      setValues((p) => ({ ...p, [key]: val }));
       toast.success(`${key} saved`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -88,6 +89,11 @@ function SettingsPage() {
       setSaving(null);
     }
   }
+
+  // Surface any settings stored in the DB that aren't in the predefined GROUPS,
+  // so admins can still see and edit them.
+  const knownKeys = new Set(GROUPS.flatMap((g) => g.keys.map((k) => k.key)));
+  const extraKeys = Array.from(byKey.keys()).filter((k) => !knownKeys.has(k));
 
   if (loading) {
     return (
