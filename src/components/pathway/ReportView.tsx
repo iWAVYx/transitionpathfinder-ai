@@ -234,6 +234,30 @@ export function ReportView({
         density === "compact" ? "report-compact max-w-7xl" : "max-w-6xl",
       )}
     >
+      {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
+      <style>{`
+        @media (min-width: 640px) {
+          .report-compact { font-size: 0.94rem; }
+          .report-compact .font-display { letter-spacing: -0.01em; }
+          .report-compact h1 { font-size: 1.875rem; line-height: 2.25rem; }
+          .report-compact h2 { font-size: 1.375rem; line-height: 1.85rem; }
+          .report-compact h3 { font-size: 1.125rem; line-height: 1.6rem; }
+          .report-compact h4 { font-size: 1rem; line-height: 1.4rem; }
+          .report-compact .p-5 { padding: 0.875rem; }
+          .report-compact .p-6 { padding: 1rem; }
+          .report-compact .p-8 { padding: 1.25rem; }
+          .report-compact .sm\\:p-8 { padding: 1.25rem; }
+          .report-compact .sm\\:p-10 { padding: 1.5rem; }
+          .report-compact .py-10 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+          .report-compact .sm\\:py-12 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+          .report-compact .mt-10 { margin-top: 1.5rem; }
+          .report-compact .mt-8 { margin-top: 1.25rem; }
+          .report-compact .gap-4 { gap: 0.75rem; }
+          .report-compact .gap-6 { gap: 1rem; }
+          .report-compact .gap-x-8 { column-gap: 1.25rem; }
+        }
+      `}</style>
+
       <ReportTOC report={r} audience={audience} />
 
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
