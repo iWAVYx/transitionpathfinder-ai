@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { FormRenderer } from "@/components/forms/FormRenderer";
 import {
