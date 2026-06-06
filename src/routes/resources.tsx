@@ -472,7 +472,6 @@ function ResourcesPage() {
                 target={r.url ? "_blank" : undefined}
                 rel={r.url ? "noreferrer" : undefined}
                 className={`group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-              >
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{r.resource_type}</span>
@@ -517,7 +516,6 @@ function ResourcesPage() {
               <article
                 key={r.id}
                 className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-              >
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
