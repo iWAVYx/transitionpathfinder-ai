@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { FileText, ArrowRight } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
 import { listTemplates, type FormTemplate } from "@/lib/forms.functions";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/forms")({
       },
     ],
   }),
-  component: FormsPage,
+  component: () => (<RoleGuard path="/forms"><FormsPage /></RoleGuard>),
 });
 
 const AUDIENCE_LABEL: Record<string, string> = {

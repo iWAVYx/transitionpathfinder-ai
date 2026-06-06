@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Shield, Users, Link2, FileCheck, Eye, EyeOff, Sparkles } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/trust")({
   head: () => ({ meta: [{ title: "Trust & Consent — TransitionForward" }] }),
-  component: TrustPage,
+  component: () => (<RoleGuard path="/trust"><TrustPage /></RoleGuard>),
 });
 
 const CONSENT_LABELS: Record<string, string> = {

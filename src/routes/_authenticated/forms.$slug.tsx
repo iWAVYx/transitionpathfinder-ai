@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { FormRenderer } from "@/components/forms/FormRenderer";
 import {
@@ -17,7 +18,11 @@ import { listStudents, type Student } from "@/lib/students.functions";
 
 export const Route = createFileRoute("/_authenticated/forms/$slug")({
   head: () => ({ meta: [{ title: "Transition Form — TransitionForward" }] }),
-  component: FormDetailPage,
+  component: () => (
+    <RoleGuard path="/forms/$slug" allow={["family", "educator", "student", "admin"]}>
+      <FormDetailPage />
+    </RoleGuard>
+  ),
 });
 
 function FormDetailPage() {

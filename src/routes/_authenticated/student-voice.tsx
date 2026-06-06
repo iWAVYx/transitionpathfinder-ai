@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Loader2, MessageSquareQuote, Check } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/student-voice")({
       },
     ],
   }),
-  component: StudentVoicePage,
+  component: () => (<RoleGuard path="/student-voice"><StudentVoicePage /></RoleGuard>),
 });
 
 type AgeBand = "middle" | "early-high" | "late-high" | "post-secondary";

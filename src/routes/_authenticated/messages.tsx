@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { MessageCircle, Plus, CheckCircle2, Circle } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
       },
     ],
   }),
-  component: MessagesPage,
+  component: () => (<RoleGuard path="/messages"><MessagesPage /></RoleGuard>),
 });
 
 function MessagesPage() {
