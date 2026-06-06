@@ -823,8 +823,9 @@ function BrowseTab(props: {
   featured: Resource[];
   saved: SavedMap;
   toggleSave: (id: string, collection?: Collection) => void;
+  density: "compact" | "comfortable";
 }) {
-  const { query, setQuery, filters, setF, clearFilters, activeFilterCount, visible, featured, saved, toggleSave } = props;
+  const { query, setQuery, filters, setF, clearFilters, activeFilterCount, visible, featured, saved, toggleSave, density } = props;
 
   // Group visible by format for sectioned display when no topic filter selected
   const grouped = useMemo(() => {
@@ -949,9 +950,9 @@ function BrowseTab(props: {
               Editors' picks
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
             {featured.map((r) => (
-              <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact />
+              <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
             ))}
           </div>
         </div>
@@ -969,9 +970,9 @@ function BrowseTab(props: {
                 {grouped[fmt]?.length} resources
               </p>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
               {grouped[fmt]!.map((r) => (
-                <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
+                <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
               ))}
             </div>
           </div>
@@ -994,9 +995,11 @@ function BrowseTab(props: {
 function RecommendedTab({
   saved,
   toggleSave,
+  density,
 }: {
   saved: SavedMap;
   toggleSave: (id: string, c?: Collection) => void;
+  density: "compact" | "comfortable";
 }) {
   // Lightweight demo recommendations — in production this reads from
   // student profile, pathway report goals, and readiness scorecard.
@@ -1058,9 +1061,9 @@ function RecommendedTab({
           body="Once a student has goals, interests, and a grade level, the library can suggest videos, agencies, and worksheets that match."
         />
       ) : (
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className={`mt-10 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
           {recs.map((r) => (
-            <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
+            <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
           ))}
         </div>
       )}
@@ -1075,11 +1078,13 @@ function SavedTab({
   resources,
   remove,
   toggleSave,
+  density,
 }: {
   saved: SavedMap;
   resources: Resource[];
   remove: (id: string) => void;
   toggleSave: (id: string, c?: Collection) => void;
+  density: "compact" | "comfortable";
 }) {
   // Group by collection
   const byCollection = useMemo(() => {
@@ -1123,13 +1128,14 @@ function SavedTab({
                   · {byCollection[c].length}
                 </span>
               </h3>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
                 {byCollection[c].map((r) => (
                   <ResourceCard
                     key={r.id}
                     resource={r}
                     saved={true}
                     onSave={() => remove(r.id)}
+                    compact={density === "compact"}
                   />
                 ))}
               </div>
@@ -1346,7 +1352,7 @@ function ResourceCard({
           />
         </div>
       )}
-      <div className="flex flex-1 flex-col p-4">
+      <div className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}>
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{fmt.label}</Badge>
           <Badge tone="muted">External</Badge>
@@ -1355,39 +1361,39 @@ function ResourceCard({
           ) : (
             <Badge tone="muted">{LOCATION_LABEL[r.location]}</Badge>
           )}
-          {r.audiences.slice(0, 2).map((a) => (
+          {r.audiences.slice(0, compact ? 2 : 3).map((a) => (
             <Badge key={a} tone="muted">
               {AUDIENCE_META[a]}
             </Badge>
           ))}
         </div>
 
-        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <p className={`mt-2 font-semibold uppercase tracking-[0.16em] text-muted-foreground ${compact ? "text-[11px]" : "text-xs"}`}>
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
         </p>
-        <h3 className="mt-1 font-display text-base font-medium leading-snug tracking-tight">
+        <h3 className={`mt-1 font-display font-medium leading-snug tracking-tight ${compact ? "text-base" : "text-lg"}`}>
           {toTitleCase(r.title)}
         </h3>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+        <p className={`mt-1.5 leading-relaxed text-muted-foreground ${compact ? "text-sm line-clamp-2" : "text-sm line-clamp-3"}`}>
           {r.description}
         </p>
-        {r.whyItHelps && (
+        {!compact && r.whyItHelps && (
           <p className="mt-2 rounded-xl bg-muted/60 px-3 py-1.5 text-xs leading-relaxed text-foreground/80">
             <span className="font-semibold">Why it helps:</span> {r.whyItHelps}
           </p>
         )}
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {r.topics.slice(0, 3).map((t) => (
+        <div className={`mt-2 flex flex-wrap ${compact ? "gap-1.5" : "gap-2"}`}>
+          {r.topics.slice(0, compact ? 3 : 5).map((t) => (
             <span
               key={t}
-              className="rounded-full bg-secondary/60 px-2.5 py-0.5 text-[10px] font-medium text-foreground/70"
+              className={`rounded-full bg-secondary/60 font-medium text-foreground/70 ${compact ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}
             >
               {TOPIC_META[t].label}
             </span>
           ))}
         </div>
-        <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
+        <div className={`flex items-center gap-3 text-muted-foreground ${compact ? "mt-3 text-[11px]" : "mt-4 text-xs"}`}>
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {r.estimatedTime}
           </span>
@@ -1399,7 +1405,7 @@ function ResourceCard({
         </div>
 
         {/* Podcast inline audio */}
-        {r.format === "podcast" && r.audioUrl && (
+        {!compact && r.format === "podcast" && r.audioUrl && (
           <div className="mt-3 rounded-xl border border-border/60 bg-muted/40 p-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               {r.podcastTitle} · {r.episodeTitle}
@@ -1411,7 +1417,7 @@ function ResourceCard({
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+        <div className={`mt-auto flex flex-wrap items-center gap-2 ${compact ? "pt-4" : "pt-5"}`}>
           {r.link ? (
             <a
               href={r.link}
