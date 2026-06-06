@@ -734,8 +734,11 @@ function BrowseTab(props: {
               onChange={(v) => setF("audience", v as Filters["audience"])}
               options={[
                 ["all", "All audiences"],
-                ...Object.entries(AUDIENCE_META) as [string, string][],
+                ...(Object.entries(AUDIENCE_META) as [string, string][]).filter(
+                  ([k]) => k !== "admin",
+                ),
               ]}
+
             />
             <FilterSelect
               icon={Folder}
