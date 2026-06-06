@@ -117,6 +117,26 @@ const FIX_HINTS: Record<string, string[]> = {
     "If the viewport meta is missing, verify `src/routes/__root.tsx` head() still emits `<meta name='viewport' …>`.",
     "Hard-refresh `/`, `/dashboard`, `/pathway` at 375px, 768px, 1024px to confirm layout still holds.",
   ],
+  privilege_escalation_guard: [
+    "REVOKE UPDATE on public.user_roles FROM authenticated — a successful UPDATE means any signed-in user can grant themselves admin.",
+    "Re-check the GRANTs migration: only SELECT/INSERT/DELETE belong on user_roles for `authenticated`.",
+  ],
+  storage_documents: [
+    "Confirm the `student-documents` storage bucket exists and is private.",
+    "Verify storage RLS policies scope SELECT/INSERT to `can_access_student(auth.uid(), student_id)`.",
+  ],
+  share_links: [
+    "Confirm `share_tokens` table is reachable and `resolve_share_token` SQL function is intact.",
+    "Generate a share link from a Pathway Report and open it in a private window to verify the public read path.",
+  ],
+  ai_gateway: [
+    "Confirm `LOVABLE_API_KEY` is set under Project Secrets.",
+    "If the key is rotated, redeploy server functions so the new value is picked up.",
+  ],
+  can_access_student_helper: [
+    "Confirm `can_access_student(uuid, uuid)` exists with `SECURITY DEFINER` + `SET search_path = public`.",
+    "Every student-scoped table policy must call this helper.",
+  ],
 };
 
 type Client = {
