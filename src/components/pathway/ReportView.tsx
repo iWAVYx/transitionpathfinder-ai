@@ -1907,12 +1907,18 @@ function ReportTOC({
   };
 
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setQuery("");
+      setFocusedIndex(-1);
+      searchRef.current?.blur();
+      return;
+    }
     if (filteredItems.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setFocusedIndex((prev) => {
         const next = prev < filteredItems.length - 1 ? prev + 1 : 0;
-        itemRefs.current[next]?.focus();
         itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
         return next;
       });
@@ -1920,22 +1926,36 @@ function ReportTOC({
       e.preventDefault();
       setFocusedIndex((prev) => {
         const next = prev > 0 ? prev - 1 : filteredItems.length - 1;
-        itemRefs.current[next]?.focus();
         itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
         return next;
       });
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setFocusedIndex(0);
+      itemRefs.current[0]?.scrollIntoView({ block: "nearest" });
+    } else if (e.key === "End") {
+      e.preventDefault();
+      const last = filteredItems.length - 1;
+      setFocusedIndex(last);
+      itemRefs.current[last]?.scrollIntoView({ block: "nearest" });
     } else if (e.key === "Enter") {
       e.preventDefault();
       const targetIndex = focusedIndex >= 0 ? focusedIndex : filteredItems.findIndex((it) => it.id === activeId);
       const idx = targetIndex >= 0 ? targetIndex : 0;
       doJump(filteredItems[idx].id);
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      setQuery("");
-      searchRef.current?.blur();
-      setFocusedIndex(-1);
     }
   };
+
+  const activeDescendantId =
+    focusedIndex >= 0 && filteredItems[focusedIndex]
+      ? `report-outline-opt-${filteredItems[focusedIndex].id}`
+      : undefined;
+  const resultsMessage =
+    query.trim().length === 0
+      ? `${items.length} sections available`
+      : filteredItems.length === 0
+        ? `No sections match ${query}`
+        : `${filteredItems.length} of ${items.length} sections match`;
 
   return (
     <nav
