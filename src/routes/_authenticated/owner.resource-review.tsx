@@ -213,7 +213,7 @@ function ReviewQueuePage() {
     setSelected(new Set());
   }
 
-  async function handleBulk(decision: BulkReviewDecision) {
+  function handleBulk(decision: BulkReviewDecision) {
     if (selectedIds.length === 0) {
       toast.error("Select at least one needs-review resource.");
       return;
@@ -222,20 +222,18 @@ function ReviewQueuePage() {
       toast.error("Add bulk notes explaining the requested changes.");
       return;
     }
-    if (decision === "archive") {
-      if (
-        !confirm(
-          `Archive ${selectedIds.length} resource${selectedIds.length === 1 ? "" : "s"}? They will be removed from the active library.`,
-        )
-      )
-        return;
-    }
+    setPendingDecision(decision);
+    setConfirmOpen(true);
+  }
+
+  async function executeBulk() {
+    if (!pendingDecision || selectedIds.length === 0) return;
     setBulkSubmitting(true);
     try {
       const res = await bulkReview({
         data: {
           ids: selectedIds,
-          decision,
+          decision: pendingDecision,
           resolution_notes: bulkNotes.trim() || null,
         },
       });
@@ -254,7 +252,14 @@ function ReviewQueuePage() {
       toast.error(e instanceof Error ? e.message : "Bulk action failed");
     } finally {
       setBulkSubmitting(false);
+      setConfirmOpen(false);
+      setPendingDecision(null);
     }
+  }
+
+  function cancelBulk() {
+    setConfirmOpen(false);
+    setPendingDecision(null);
   }
 
 
