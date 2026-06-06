@@ -87,6 +87,7 @@ import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_a
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
 import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenticated/owner.health'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
+import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
 import { Route as AuthenticatedOwnerBlogRouteImport } from './routes/_authenticated/owner.blog'
@@ -512,6 +513,12 @@ const AuthenticatedOwnerFaqsRoute = AuthenticatedOwnerFaqsRouteImport.update({
   path: '/faqs',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerEmailsRoute =
+  AuthenticatedOwnerEmailsRouteImport.update({
+    id: '/emails',
+    path: '/emails',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerContentRoute =
   AuthenticatedOwnerContentRouteImport.update({
     id: '/content',
@@ -681,6 +688,7 @@ export interface FileRoutesByFullPath {
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
@@ -776,6 +784,7 @@ export interface FileRoutesByTo {
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
@@ -874,6 +883,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
@@ -972,6 +982,7 @@ export interface FileRouteTypes {
     | '/owner/blog'
     | '/owner/contacts'
     | '/owner/content'
+    | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
     | '/owner/media'
@@ -1067,6 +1078,7 @@ export interface FileRouteTypes {
     | '/owner/blog'
     | '/owner/contacts'
     | '/owner/content'
+    | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
     | '/owner/media'
@@ -1164,6 +1176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/blog'
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
+    | '/_authenticated/owner/emails'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/health'
     | '/_authenticated/owner/media'
@@ -1779,6 +1792,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFaqsRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/emails': {
+      id: '/_authenticated/owner/emails'
+      path: '/emails'
+      fullPath: '/owner/emails'
+      preLoaderRoute: typeof AuthenticatedOwnerEmailsRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/content': {
       id: '/_authenticated/owner/content'
       path: '/content'
@@ -1932,6 +1952,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerBlogRoute: typeof AuthenticatedOwnerBlogRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
+  AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerHealthRoute: typeof AuthenticatedOwnerHealthRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
@@ -1954,6 +1975,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerBlogRoute: AuthenticatedOwnerBlogRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
+  AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerHealthRoute: AuthenticatedOwnerHealthRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
@@ -2136,13 +2158,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
