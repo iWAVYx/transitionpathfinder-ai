@@ -638,31 +638,34 @@ function ResourcesPage() {
       )}
 
       {/* GLOBAL SEARCH */}
-      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search videos, podcasts, books, worksheets, agencies…"
-            className="w-full rounded-2xl border border-border bg-background py-3.5 pl-12 pr-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
+      <section className="sticky top-16 z-40 mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search videos, podcasts, books, worksheets, agencies…"
+              className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-10 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           {query && (
-            <button
-              onClick={() => setQuery("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <p className="mt-2 px-2 text-xs text-muted-foreground">
+              Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
+            </p>
           )}
         </div>
-        {query && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
-          </p>
-        )}
       </section>
+
 
       {/* TAB BAR */}
 
@@ -773,7 +776,7 @@ function BrowseTab(props: {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
       {/* Filter bar */}
-      <div className="sticky top-16 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4">
+      <div className="sticky top-36 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
               icon={Tag}
