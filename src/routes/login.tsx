@@ -43,11 +43,33 @@ function LoginPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
 
+  // Post-auth gate. Runs for both password sign-in (where the form already
+  // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
+  // the user back here with a freshly persisted session. If the account has
+  // a verified TOTP factor but the session is still aal1, bounce to the 2FA
+  // challenge before letting them through to their redirect target.
   useEffect(() => {
-    if (!loading && user) {
+    if (loading || !user) return;
+    let cancelled = false;
+    (async () => {
+      const { data: aal } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (cancelled) return;
+      if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+        navigate({
+          to: "/login/2fa",
+          search: { redirect: search.redirect },
+          replace: true,
+        });
+        return;
+      }
       navigate({ to: search.redirect, replace: true });
-    }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user, loading, search.redirect, navigate]);
+
 
   return (
     <SiteShell>
