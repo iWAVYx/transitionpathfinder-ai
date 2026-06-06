@@ -1028,7 +1028,7 @@ function RecommendedTab({
           body="Once a student has goals, interests, and a grade level, the library can suggest videos, agencies, and worksheets that match."
         />
       ) : (
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {recs.map((r) => (
             <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
           ))}
@@ -1093,7 +1093,7 @@ function SavedTab({
                   · {byCollection[c].length}
                 </span>
               </h3>
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {byCollection[c].map((r) => (
                   <ResourceCard
                     key={r.id}
@@ -1303,7 +1303,7 @@ function ResourceCard({
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
       {r.format === "video" && r.youtubeId && !compact && (
         <div className="aspect-video w-full bg-black">
           <iframe
@@ -1316,7 +1316,7 @@ function ResourceCard({
           />
         </div>
       )}
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{fmt.label}</Badge>
           <Badge tone="muted">External</Badge>
@@ -1332,7 +1332,7 @@ function ResourceCard({
           ))}
         </div>
 
-        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
         </p>
