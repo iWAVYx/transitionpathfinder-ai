@@ -1822,36 +1822,131 @@ function ReportTOC({
   if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary Goals" });
   items.push({ id: "sec-education", label: "Education & Training" });
   items.push({ id: "sec-life-skills", label: "Life Skills" });
+  if (report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP Translator" });
+  if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What We Still Need" });
   if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: "Student Voice" });
   if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family Plan" });
   if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "PPT Prep" });
   if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities" });
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
   items.push({ id: "sec-thirty-day", label: "30-Day Plan" });
-
+  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Human Review" });
   void audience;
+
+  const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("report-outline-open");
+    if (stored === "0") setOpen(false);
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("report-outline-open", open ? "1" : "0");
+  }, [open]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") return;
+    const els = items
+      .map((it) => document.getElementById(it.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (els.length === 0) return;
+    const visible = new Map<string, number>();
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.set(e.target.id, e.intersectionRatio);
+          else visible.delete(e.target.id);
+        }
+        let bestId: string | null = null;
+        let bestRatio = -1;
+        for (const [id, ratio] of visible) {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = id;
+          }
+        }
+        if (bestId) setActiveId(bestId);
+      },
+      { rootMargin: "-30% 0px -55% 0px", threshold: [0, 0.25, 0.5, 1] },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, [items.length]);
+
+  const jumpTo = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("report-block-open", { detail: { id } }));
+    }
+    // Wait a frame so the section can expand before scrolling.
+    requestAnimationFrame(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveId(id);
+    });
+  };
+
   return (
     <nav
-      aria-label="Report contents"
-      className="no-print pointer-events-none fixed right-4 top-32 z-20 hidden xl:block"
+      aria-label="Report outline"
+      className={cn(
+        "no-print pointer-events-none fixed right-4 top-32 z-20 hidden lg:block",
+      )}
     >
-      <div className="pointer-events-auto w-56 rounded-2xl border border-border/60 bg-card/95 p-4 shadow-soft backdrop-blur">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-          In this report
-        </p>
-        <ul className="mt-3 space-y-1.5 text-sm">
-          {items.map((it) => (
-            <li key={it.id}>
-              <a
-                href={`#${it.id}`}
-                className="block rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                {it.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+      <div className="pointer-events-auto flex w-64 flex-col rounded-2xl border border-border/60 bg-card/95 shadow-soft backdrop-blur">
+        <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+            Report Outline
+          </p>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="report-outline-list"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ChevronDown
+              aria-hidden
+              className={cn("h-4 w-4 transition-transform", open ? "rotate-0" : "-rotate-90")}
+            />
+            <span className="sr-only">{open ? "Hide outline" : "Show outline"}</span>
+          </button>
+        </div>
+        {open && (
+          <ol
+            id="report-outline-list"
+            className="max-h-[calc(100vh-14rem)] space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
+          >
+            {items.map((it, i) => {
+              const isActive = activeId === it.id;
+              return (
+                <li key={it.id}>
+                  <a
+                    href={`#${it.id}`}
+                    onClick={jumpTo(it.id)}
+                    aria-current={isActive ? "true" : undefined}
+                    className={cn(
+                      "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors",
+                      isActive
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    <span className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="leading-snug">{it.label}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </div>
     </nav>
+  );
+}
   );
 }
