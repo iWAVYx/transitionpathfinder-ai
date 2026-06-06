@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
