@@ -140,3 +140,61 @@ test.describe("report a11y — key flow checks @ desktop", () => {
     expect(next).not.toBe(initial);
   });
 });
+
+/**
+ * Mobile + tablet flows. The outline sidebar is desktop-only by design
+ * (`hidden lg:block`), so we don't check it here — instead we verify the
+ * audience tabs, collapsible sections, and primary landmarks stay usable
+ * and accessible on small screens.
+ */
+const SMALL_VIEWPORTS = [
+  { label: "mobile", width: 390, height: 844 },
+  { label: "tablet", width: 768, height: 1024 },
+];
+
+for (const vp of SMALL_VIEWPORTS) {
+  test.describe(`report a11y — key flows @ ${vp.label}`, () => {
+    test.use({ viewport: { width: vp.width, height: vp.height } });
+
+    test("desktop-only outline is hidden, primary landmarks unique", async ({
+      page,
+    }) => {
+      await gotoReport(page);
+
+      // The fixed outline nav must not render on small screens.
+      const outline = page.getByRole("complementary", { name: /outline/i });
+      await expect(outline).toHaveCount(0);
+
+      // Header + demo step nav stay distinguishable via aria-label.
+      await expect(page.getByRole("navigation", { name: /primary/i })).toBeVisible();
+      await expect(
+        page.getByRole("navigation", { name: /demo walkthrough steps/i }),
+      ).toBeVisible();
+      await expect(page.getByRole("main")).toBeVisible();
+    });
+
+    test("audience tabs and collapsible sections work via keyboard", async ({
+      page,
+    }) => {
+      await gotoReport(page);
+
+      const tabs = page.getByRole("tablist").first().getByRole("tab");
+      expect(await tabs.count()).toBeGreaterThan(1);
+      const first = tabs.first();
+      await first.scrollIntoViewIfNeeded();
+      await first.focus();
+      await page.keyboard.press("ArrowRight");
+      const focused = await page.evaluate(() =>
+        document.activeElement?.getAttribute("role"),
+      );
+      expect(focused).toBe("tab");
+
+      const toggle = page.locator('button[aria-expanded][aria-controls]').first();
+      await toggle.scrollIntoViewIfNeeded();
+      const initial = await toggle.getAttribute("aria-expanded");
+      await toggle.click();
+      const next = await toggle.getAttribute("aria-expanded");
+      expect(next).not.toBe(initial);
+    });
+  });
+}
