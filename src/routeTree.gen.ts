@@ -32,6 +32,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as Login2faRouteImport } from './routes/login.2fa'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
@@ -45,6 +46,7 @@ import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authenticated/student-voice'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
@@ -217,6 +219,11 @@ const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   path: '/pathways/$pathwayId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Login2faRoute = Login2faRouteImport.update({
+  id: '/2fa',
+  path: '/2fa',
+  getParentRoute: () => LoginRoute,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -281,6 +288,11 @@ const AuthenticatedStudentVoiceRoute =
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
@@ -609,7 +621,7 @@ export interface FileRoutesByFullPath {
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
-  '/login': typeof LoginRoute
+  '/login': typeof LoginRouteWithChildren
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -640,6 +652,7 @@ export interface FileRoutesByFullPath {
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
@@ -653,6 +666,7 @@ export interface FileRoutesByFullPath {
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
@@ -703,7 +717,7 @@ export interface FileRoutesByTo {
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
-  '/login': typeof LoginRoute
+  '/login': typeof LoginRouteWithChildren
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -733,6 +747,7 @@ export interface FileRoutesByTo {
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
@@ -746,6 +761,7 @@ export interface FileRoutesByTo {
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
@@ -798,7 +814,7 @@ export interface FileRoutesById {
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
-  '/login': typeof LoginRoute
+  '/login': typeof LoginRouteWithChildren
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -829,6 +845,7 @@ export interface FileRoutesById {
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
+  '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
@@ -842,6 +859,7 @@ export interface FileRoutesById {
   '/demo_/report': typeof DemoReportRoute
   '/demo_/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
@@ -925,6 +943,7 @@ export interface FileRouteTypes {
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
+    | '/security'
     | '/settings'
     | '/student-voice'
     | '/students'
@@ -938,6 +957,7 @@ export interface FileRouteTypes {
     | '/demo/report'
     | '/demo/resources'
     | '/email/unsubscribe'
+    | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/district/overview'
@@ -1018,6 +1038,7 @@ export interface FileRouteTypes {
     | '/pathway'
     | '/ppt-prep'
     | '/reports'
+    | '/security'
     | '/settings'
     | '/student-voice'
     | '/students'
@@ -1031,6 +1052,7 @@ export interface FileRouteTypes {
     | '/demo/report'
     | '/demo/resources'
     | '/email/unsubscribe'
+    | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/district/overview'
@@ -1113,6 +1135,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pathway'
     | '/_authenticated/ppt-prep'
     | '/_authenticated/reports'
+    | '/_authenticated/security'
     | '/_authenticated/settings'
     | '/_authenticated/student-voice'
     | '/_authenticated/students'
@@ -1126,6 +1149,7 @@ export interface FileRouteTypes {
     | '/demo_/report'
     | '/demo_/resources'
     | '/email/unsubscribe'
+    | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/district/overview'
@@ -1178,7 +1202,7 @@ export interface RootRouteChildren {
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
   HelpRoute: typeof HelpRoute
-  LoginRoute: typeof LoginRoute
+  LoginRoute: typeof LoginRouteWithChildren
   PartnersRoute: typeof PartnersRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
@@ -1370,6 +1394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login/2fa': {
+      id: '/login/2fa'
+      path: '/2fa'
+      fullPath: '/login/2fa'
+      preLoaderRoute: typeof Login2faRouteImport
+      parentRoute: typeof LoginRoute
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -1459,6 +1490,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/reports': {
@@ -1980,6 +2018,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
+  AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
@@ -2015,6 +2054,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
+  AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
@@ -2044,6 +2084,16 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface LoginRouteChildren {
+  Login2faRoute: typeof Login2faRoute
+}
+
+const LoginRouteChildren: LoginRouteChildren = {
+  Login2faRoute: Login2faRoute,
+}
+
+const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -2055,7 +2105,7 @@ const rootRouteChildren: RootRouteChildren = {
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
   HelpRoute: HelpRoute,
-  LoginRoute: LoginRoute,
+  LoginRoute: LoginRouteWithChildren,
   PartnersRoute: PartnersRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
@@ -2086,13 +2136,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

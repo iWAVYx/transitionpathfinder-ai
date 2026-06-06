@@ -113,12 +113,28 @@ function SignInForm() {
     defaultValues: { email: "", password: "" },
   });
 
+  const navigate = useNavigate();
+  const search = Route.useSearch();
   const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     setSubmitting(true);
     const { error } = await supabase.auth.signInWithPassword(values);
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       toast.error(error.message);
+      return;
+    }
+    // After password sign-in, see whether this account needs to escalate to
+    // aal2 (a verified TOTP factor exists). If so, route to /login/2fa and
+    // preserve the original redirect target.
+    const { data: aal } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    setSubmitting(false);
+    if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+      navigate({
+        to: "/login/2fa",
+        search: { redirect: search.redirect },
+        replace: true,
+      });
       return;
     }
     toast.success("Signed in");
