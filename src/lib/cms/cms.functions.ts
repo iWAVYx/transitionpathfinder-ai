@@ -448,7 +448,7 @@ const blogInput = z.object({
   category: z.string().trim().max(100).optional().nullable(),
   tags: z.array(z.string().trim().min(1).max(60)).max(20).default([]),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
-  published_at: z.string().datetime().optional().nullable(),
+  published_at: z.string().min(1).max(64).optional().nullable(),
   seo_title: z.string().trim().max(200).optional().nullable(),
   seo_description: z.string().trim().max(500).optional().nullable(),
 });

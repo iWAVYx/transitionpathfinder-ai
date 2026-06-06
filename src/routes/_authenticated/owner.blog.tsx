@@ -122,9 +122,33 @@ function BlogPage() {
                   {p.excerpt && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.excerpt}</p>}
                 </div>
                 <div className="flex shrink-0 gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={async () => {
+                      const next = p.status === "published" ? "draft" : "published";
+                      try {
+                        await save({ data: { ...(p as any), status: next } });
+                        toast.success(next === "published" ? "Published" : "Unpublished");
+                        refresh();
+                      } catch (e: any) {
+                        toast.error(e?.message ?? "Failed");
+                      }
+                    }}
+                  >
+                    {p.status === "published" ? "Unpublish" : "Publish"}
+                  </Button>
                   <Button size="sm" variant="ghost" onClick={() => setDraft(p as Draft)}>Edit</Button>
                   <Button size="icon" variant="ghost" onClick={async () => {
-                    if (confirm("Delete this post?")) { await del({ data: { id: p.id } }); refresh(); }
+                    if (confirm(`Delete "${p.title}"? This cannot be undone.`)) {
+                      try {
+                        await del({ data: { id: p.id } });
+                        toast.success("Deleted");
+                        refresh();
+                      } catch (e: any) {
+                        toast.error(e?.message ?? "Failed to delete");
+                      }
+                    }
                   }}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
