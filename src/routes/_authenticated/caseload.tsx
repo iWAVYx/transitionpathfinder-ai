@@ -166,6 +166,7 @@ function CaseloadPage() {
           )}
         </div>
       </section>
+      </RoleGuard>
     </SiteShell>
   );
 }
