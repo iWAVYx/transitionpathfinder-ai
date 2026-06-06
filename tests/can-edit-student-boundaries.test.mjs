@@ -38,10 +38,18 @@ function freshClient() {
   });
 }
 
-async function signIn(client, email) {
+// Cache one signed-in client + user per account to stay under Supabase Auth's
+// password-grant rate limit (which trips quickly when a test file logs in
+// dozens of times). Tests must NOT sign these clients out.
+const SESSION_POOL = new Map();
+async function getSession(email) {
+  if (SESSION_POOL.has(email)) return SESSION_POOL.get(email);
+  const client = freshClient();
   const { data, error } = await client.auth.signInWithPassword({ email, password: PASSWORD });
   assert.ok(!error, `sign-in for ${email} failed: ${error?.message}`);
-  return data.user;
+  const session = { client, user: data.user };
+  SESSION_POOL.set(email, session);
+  return session;
 }
 
 // Set up a fresh student owned by qa.parent and seed every collaborator state
