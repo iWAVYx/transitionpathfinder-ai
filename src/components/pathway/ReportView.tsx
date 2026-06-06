@@ -1969,9 +1969,11 @@ function ReportTOC({
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
                 <input
+                  ref={searchRef}
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={onSearchKeyDown}
                   placeholder="Find section…"
                   className="w-full rounded-md border border-border bg-background py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
@@ -1983,17 +1985,22 @@ function ReportTOC({
             >
               {filteredItems.map((it, i) => {
                 const isActive = activeId === it.id;
+                const isFocused = focusedIndex === i;
                 return (
                   <li key={it.id}>
                     <a
+                      ref={(el) => { itemRefs.current[i] = el; }}
                       href={`#${it.id}`}
                       onClick={jumpTo(it.id)}
+                      onFocus={() => setFocusedIndex(i)}
+                      onBlur={() => setFocusedIndex((prev) => (prev === i ? -1 : prev))}
                       aria-current={isActive ? "true" : undefined}
                       className={cn(
-                        "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors",
+                        "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors outline-none",
                         isActive
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
+                        isFocused && "ring-1 ring-primary/60",
                       )}
                     >
                       <span className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
