@@ -297,6 +297,15 @@ function ResourcesPage() {
 
   const featured = RESOURCES.filter((r) => r.featured);
 
+  const filteredFeaturedDb = useMemo(
+    () => featuredDb.filter(dbMatchesQuery),
+    [featuredDb, query],
+  );
+  const filteredDbResources = useMemo(
+    () => (dbResources ?? []).filter(dbMatchesQuery),
+    [dbResources, query],
+  );
+
   return (
     <SiteShell>
       {/* HERO */}
