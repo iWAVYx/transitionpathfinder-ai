@@ -569,6 +569,76 @@ function ReviewQueuePage() {
           )}
         </div>
       )}
+
+      {/* Bulk action confirmation modal */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              Confirm bulk action
+            </DialogTitle>
+            <DialogDescription>
+              Review the selection and consequences before proceeding.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Action
+              </p>
+              <p className="mt-1 text-sm font-medium capitalize">
+                {pendingDecision?.replace("_", " ") ?? "—"}
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Selected resources
+              </p>
+              <p className="mt-1 text-2xl font-semibold">{selectedIds.length}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {pendingDecision === "archive"
+                  ? "These resources will be removed from the active library and archived for history."
+                  : pendingDecision === "request_changes"
+                    ? "These resources will be sent back for revisions."
+                    : pendingDecision === "publish"
+                      ? "These resources will be approved and made publicly visible immediately."
+                      : "These resources will be approved and marked as ready for publishing."}
+              </p>
+            </div>
+
+            {bulkNotes.trim() && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Bulk notes
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-3">{bulkNotes}</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={cancelBulk} disabled={bulkSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              variant={pendingDecision === "archive" ? "destructive" : "default"}
+              onClick={executeBulk}
+              disabled={bulkSubmitting}
+            >
+              {bulkSubmitting ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Processing…
+                </>
+              ) : (
+                <>Confirm {pendingDecision?.replace("_", " ")}</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </OwnerShell>
   );
 }
