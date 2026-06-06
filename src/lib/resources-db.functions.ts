@@ -11,24 +11,91 @@ export type DbResource = {
   format: string | null;
   url: string | null;
   source_name: string | null;
+  source_id: string | null;
   location_scope: string;
   estimated_time: string | null;
   grade_range: string | null;
+  featured: boolean;
+  published_status: string;
+  role_relevance: string[] | null;
+  pathway_relevance: string[] | null;
 };
+
+const RESOURCE_COLS =
+  "id,title,description,resource_type,audience,topic,format,url,source_name,source_id,location_scope,estimated_time,grade_range,featured,published_status,role_relevance,pathway_relevance";
 
 export const listVerifiedResources = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabaseAdmin
       .from("resources")
-      .select(
-        "id,title,description,resource_type,audience,topic,format,url,source_name,location_scope,estimated_time,grade_range",
-      )
-      .eq("verified_status", "verified")
+      .select(RESOURCE_COLS)
+      .in("published_status", ["published", "featured", "approved"])
+      .order("featured", { ascending: false })
       .order("created_at", { ascending: false })
-      .limit(100);
+      .limit(500);
     if (error) {
       console.error("listVerifiedResources failed", error);
       return { resources: [] as DbResource[] };
     }
-    return { resources: (data ?? []) as DbResource[] };
+    return { resources: (data ?? []) as unknown as DbResource[] };
+  });
+
+export const listFeaturedResources = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { data, error } = await supabaseAdmin
+      .from("resources")
+      .select(RESOURCE_COLS)
+      .eq("featured", true)
+      .in("published_status", ["published", "featured", "approved"])
+      .order("updated_at", { ascending: false })
+      .limit(24);
+    if (error) return { resources: [] as DbResource[] };
+    return { resources: (data ?? []) as unknown as DbResource[] };
+  });
+
+export type ResourceSourcePublic = {
+  id: string;
+  source_name: string;
+  source_url: string | null;
+  organization_name: string | null;
+  description: string | null;
+  source_type: string;
+  audience_focus: string[];
+  topic_focus: string[];
+  location_scope: string;
+  review_status: string;
+  last_reviewed_at: string | null;
+  resource_count: number;
+};
+
+export const listSourceLibraries = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { data: sources, error } = await supabaseAdmin
+      .from("resource_sources")
+      .select(
+        "id,source_name,source_url,organization_name,description,source_type,audience_focus,topic_focus,location_scope,review_status,last_reviewed_at",
+      )
+      .neq("review_status", "archived")
+      .order("review_status", { ascending: true })
+      .order("source_name", { ascending: true });
+    if (error || !sources) return { sources: [] as ResourceSourcePublic[] };
+
+    // Count published resources per source
+    const ids = sources.map((s: { id: string }) => s.id);
+    const counts = new Map<string, number>();
+    if (ids.length) {
+      const { data: rows } = await supabaseAdmin
+        .from("resources")
+        .select("source_id")
+        .in("source_id", ids)
+        .in("published_status", ["published", "featured", "approved"]);
+      for (const r of (rows ?? []) as Array<{ source_id: string | null }>) {
+        if (r.source_id) counts.set(r.source_id, (counts.get(r.source_id) ?? 0) + 1);
+      }
+    }
+    const out: ResourceSourcePublic[] = sources.map((s: any) => ({
+      ...s,
+      resource_count: counts.get(s.id) ?? 0,
+    }));
+    return { sources: out };
   });
