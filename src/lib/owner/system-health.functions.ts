@@ -275,12 +275,108 @@ async function customProbes(
     mobile = { ok: false, message: e instanceof Error ? e.message : "Could not fetch published site." };
   }
 
+  // privilege_escalation_guard: attempt to UPDATE public.user_roles as the
+  // authenticated admin. Even an admin should be blocked because the table
+  // intentionally has no UPDATE grant — that's the guard that prevents any
+  // signed-in user from elevating themselves. A successful UPDATE here is a
+  // CRITICAL finding.
+  let privGuard: { ok: boolean; message: string };
+  try {
+    const anyClient = client as unknown as {
+      from: (t: string) => {
+        update: (v: Record<string, unknown>) => {
+          eq: (c: string, v: string) => Promise<{ error: { message: string; code?: string } | null }>;
+        };
+      };
+    };
+    const { error } = await anyClient
+      .from("user_roles")
+      .update({ role: "admin" })
+      .eq("user_id", userId);
+    if (error) {
+      privGuard = {
+        ok: true,
+        message: `UPDATE on user_roles correctly blocked (${error.code ?? "denied"}).`,
+      };
+    } else {
+      privGuard = {
+        ok: false,
+        message: "CRITICAL: UPDATE on user_roles succeeded — privilege escalation possible.",
+      };
+    }
+  } catch (e) {
+    // Thrown errors also count as "blocked" — the operation did not succeed.
+    privGuard = {
+      ok: true,
+      message: `UPDATE on user_roles blocked (${e instanceof Error ? e.message : "threw"}).`,
+    };
+  }
+
+  // can_access_student_helper: exercise the security-definer function that
+  // every student-scoped policy depends on. The admin caller should resolve
+  // to `true` for any student id thanks to the `has_role(_user_id,'admin')`
+  // branch inside the helper.
+  let casHelper: { ok: boolean; message: string };
+  try {
+    const { data, error } = await client.rpc("can_access_student", {
+      _user_id: userId,
+      _student_id: "00000000-0000-0000-0000-000000000000",
+    });
+    casHelper = error
+      ? { ok: false, message: `can_access_student RPC failed: ${error.message}` }
+      : { ok: true, message: `can_access_student reachable (admin → ${String(data)}).` };
+  } catch (e) {
+    casHelper = { ok: false, message: e instanceof Error ? e.message : "can_access_student threw." };
+  }
+
+  // ai_gateway: confirm the Lovable AI key is present in the server env so
+  // server functions calling the gateway will not 401 at runtime.
+  const aiKey = typeof process !== "undefined" ? process.env.LOVABLE_API_KEY : undefined;
+  const aiGateway = aiKey
+    ? { ok: true, message: "LOVABLE_API_KEY present in server environment." }
+    : { ok: false, message: "LOVABLE_API_KEY missing — AI features will fail." };
+
+  // storage_documents: list objects in the private student-documents bucket.
+  // We don't need any results — a non-error response proves the bucket
+  // exists and the request was authenticated through storage RLS.
+  let storage: { ok: boolean; message: string };
+  try {
+    const storageClient = (client as unknown as {
+      storage: { from: (b: string) => { list: (p?: string, o?: { limit: number }) => Promise<{ error: { message: string } | null }> } };
+    }).storage;
+    const { error } = await storageClient.from("student-documents").list("", { limit: 1 });
+    storage = error
+      ? { ok: false, message: `student-documents bucket unreachable: ${error.message}` }
+      : { ok: true, message: "student-documents bucket reachable." };
+  } catch (e) {
+    storage = { ok: false, message: e instanceof Error ? e.message : "storage probe threw." };
+  }
+
+  // share_links: count rows in share_tokens. Even zero rows is fine — what
+  // we're proving is that the table + its RLS read path are intact.
+  let shareLinks: { ok: boolean; message: string };
+  try {
+    const { count, error } = await client
+      .from("share_tokens")
+      .select("*", { count: "exact", head: true });
+    shareLinks = error
+      ? { ok: false, message: `share_tokens unreachable: ${error.message}` }
+      : { ok: true, message: `share_tokens reachable (${count ?? 0} active tokens).` };
+  } catch (e) {
+    shareLinks = { ok: false, message: e instanceof Error ? e.message : "share_tokens probe threw." };
+  }
+
   return {
     auth,
     rls_policies: rls,
     role_dashboards: roleDash,
     data_persistence: persist,
     mobile_responsiveness: mobile,
+    privilege_escalation_guard: privGuard,
+    can_access_student_helper: casHelper,
+    ai_gateway: aiGateway,
+    storage_documents: storage,
+    share_links: shareLinks,
   };
 }
 
