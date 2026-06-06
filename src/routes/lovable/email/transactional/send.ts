@@ -59,6 +59,25 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        // Authorization: only platform admins/owners may invoke this endpoint
+        // directly. Public-facing flows (contact forms, waitlist, etc.) must
+        // go through their own dedicated server route that performs input
+        // validation and then calls the email send internally with the
+        // service role. Without this check, any signed-in user could send
+        // platform-branded emails with attacker-controlled content to any
+        // address — a phishing vector.
+        const { data: adminRole, error: adminErr } = await supabase
+          .from('admin_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .in('role', ['platform_owner', 'platform_admin'])
+          .limit(1)
+          .maybeSingle()
+
+        if (adminErr || !adminRole) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
+        }
+
         // Parse request body
         let templateName: string
         let recipientEmail: string
