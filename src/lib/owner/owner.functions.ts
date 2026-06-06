@@ -606,11 +606,22 @@ export const RESOURCE_AUDIENCES = [
   "parent_guardian",
   "teacher",
   "school_admin",
+  "district_admin",
   "partner",
   "all",
 ] as const;
 export const RESOURCE_VERIFIED_STATUSES = ["pending", "verified", "rejected"] as const;
 export type ResourceVerifiedStatus = (typeof RESOURCE_VERIFIED_STATUSES)[number];
+
+export const RESOURCE_PUBLISHED_STATUSES = [
+  "draft",
+  "needs_review",
+  "approved",
+  "published",
+  "featured",
+  "archived",
+] as const;
+export type ResourcePublishedStatus = (typeof RESOURCE_PUBLISHED_STATUSES)[number];
 
 export type ResourceRow = {
   id: string;
@@ -628,7 +639,15 @@ export type ResourceRow = {
   url: string | null;
   image_url: string | null;
   source_name: string | null;
+  source_id: string | null;
+  original_resource_url: string | null;
   verified_status: ResourceVerifiedStatus;
+  published_status: ResourcePublishedStatus;
+  featured: boolean;
+  link_status: string;
+  review_notes: string | null;
+  role_relevance: string[] | null;
+  pathway_relevance: string[] | null;
   created_by_user_id: string | null;
   created_at: string;
   updated_at: string | null;
@@ -678,7 +697,14 @@ const resourceInput = z.object({
   url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
   image_url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
   source_name: z.string().trim().max(200).optional().nullable(),
+  source_id: z.string().uuid().nullable().optional(),
+  original_resource_url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
   verified_status: z.enum(RESOURCE_VERIFIED_STATUSES).default("pending"),
+  published_status: z.enum(RESOURCE_PUBLISHED_STATUSES).default("draft"),
+  featured: z.boolean().default(false),
+  review_notes: z.string().trim().max(4000).nullable().optional(),
+  role_relevance: z.array(z.string()).default([]),
+  pathway_relevance: z.array(z.string()).default([]),
 });
 
 export const ownerSaveResource = createServerFn({ method: "POST" })
