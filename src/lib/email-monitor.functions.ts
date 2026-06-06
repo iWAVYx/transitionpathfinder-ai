@@ -122,6 +122,15 @@ export const getEmailMonitor = createServerFn({ method: "POST" })
         return true;
       });
     }
+    if (data.search) {
+      const q = data.search.toLowerCase();
+      filtered = filtered.filter((r) => {
+        const emailMatch = (r.recipient_email ?? "").toLowerCase().includes(q);
+        const metaUserId = (r as any).metadata?.user_id ?? (r as any).metadata?.userId ?? "";
+        const uidMatch = String(metaUserId).toLowerCase().includes(q);
+        return emailMatch || uidMatch;
+      });
+    }
 
     // Stats from filtered (template-filtered) set, ignoring status filter
     const statsSource = data.template
