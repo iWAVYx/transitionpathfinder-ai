@@ -1129,7 +1129,9 @@ function AddToPathwayButton({
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(item.id);
-                    toast.success("ID copied to clipboard");
+                    toast.success("Copied to clipboard", {
+                      description: `Action item ID ${item.id.slice(0, 8)}… ready to paste.`,
+                    });
                   } catch {
                     toast.error("Could not copy ID");
                   }
