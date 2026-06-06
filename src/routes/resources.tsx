@@ -455,7 +455,7 @@ function ResourcesPage() {
               </p>
             </div>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredFeaturedDb.slice(0, 6).map((r) => (
               <a
                 key={r.id}
