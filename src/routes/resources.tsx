@@ -245,6 +245,25 @@ function ResourcesPage() {
   const activeFilterCount =
     Object.values(filters).filter((v) => v !== "all").length + (query ? 1 : 0);
 
+  // Global search helper for DB resources
+  const dbMatchesQuery = (r: DbResource) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    const hay = [
+      r.title,
+      r.description ?? "",
+      r.source_name ?? "",
+      r.topic ?? "",
+      r.resource_type,
+      r.location_scope,
+      r.grade_range ?? "",
+      r.estimated_time ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+    return hay.includes(q);
+  };
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return RESOURCES.filter((r) => {
@@ -263,6 +282,7 @@ function ResourcesPage() {
         r.author || "",
         r.whyItHelps || "",
         ...r.topics.map((t) => TOPIC_META[t].label),
+        ...r.audiences.map((a) => AUDIENCE_META[a]),
       ]
         .join(" ")
         .toLowerCase();
@@ -276,6 +296,15 @@ function ResourcesPage() {
   );
 
   const featured = RESOURCES.filter((r) => r.featured);
+
+  const filteredFeaturedDb = useMemo(
+    () => featuredDb.filter(dbMatchesQuery),
+    [featuredDb, query],
+  );
+  const filteredDbResources = useMemo(
+    () => (dbResources ?? []).filter(dbMatchesQuery),
+    [dbResources, query],
+  );
 
   return (
     <SiteShell>
@@ -384,7 +413,7 @@ function ResourcesPage() {
       </section>
 
       {/* FEATURED RESOURCES (curated picks from DB) */}
-      {featuredDb.length > 0 && (
+      {filteredFeaturedDb.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -400,7 +429,7 @@ function ResourcesPage() {
             </div>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredDb.slice(0, 6).map((r) => (
+            {filteredFeaturedDb.slice(0, 6).map((r) => (
               <a
                 key={r.id}
                 href={r.url ?? "#"}
@@ -429,7 +458,7 @@ function ResourcesPage() {
       )}
 
       {/* VERIFIED LIBRARY (live from DB) */}
-      {dbResources && dbResources.length > 0 && (
+      {filteredDbResources.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -444,11 +473,11 @@ function ResourcesPage() {
               </p>
             </div>
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-              {dbResources.length} verified
+              {filteredDbResources.length} verified
             </span>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {dbResources.slice(0, 6).map((r) => (
+            {filteredDbResources.slice(0, 6).map((r) => (
               <article
                 key={r.id}
                 className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
@@ -596,9 +625,36 @@ function ResourcesPage() {
         </section>
       )}
 
+      {/* GLOBAL SEARCH */}
+      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search videos, podcasts, books, worksheets, agencies…"
+            className="w-full rounded-2xl border border-border bg-background py-3.5 pl-12 pr-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {query && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
+          </p>
+        )}
+      </section>
+
       {/* TAB BAR */}
 
-      <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center gap-2 border-b border-border">
           {(
             [
@@ -704,19 +760,9 @@ function BrowseTab(props: {
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-      {/* Search + filter bar */}
+      {/* Filter bar */}
       <div className="sticky top-16 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4">
-        <div className="flex flex-col gap-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search videos, podcasts, books, worksheets, agencies…"
-              className="w-full rounded-full border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
               icon={Tag}
               label="Format"
@@ -811,7 +857,6 @@ function BrowseTab(props: {
             </button>
           </div>
         </div>
-      </div>
 
       {/* Featured strip (only when no filters) */}
       {activeFilterCount === 0 && (
