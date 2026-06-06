@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({
     meta: [{ title: "Pathway Partner Network — TransitionForward" }],
   }),
-  component: OpportunitiesPage,
+  component: () => (<RoleGuard path="/opportunities"><OpportunitiesPage /></RoleGuard>),
 });
 
 type Category =
