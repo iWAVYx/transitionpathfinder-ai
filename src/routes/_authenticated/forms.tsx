@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/forms")({
       },
     ],
   }),
-  component: FormsPage,
+  component: () => (<RoleGuard path="/forms"><FormsPage /></RoleGuard>),
 });
 
 const AUDIENCE_LABEL: Record<string, string> = {
