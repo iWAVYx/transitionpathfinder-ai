@@ -756,7 +756,7 @@ export function ReportView({
             {r.career_matches.map((c) => (
               <div key={c.cluster} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-display text-xl">{toTitleCase(c.cluster)}</h4>
+                  <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
                   <ReadinessBadge level={c.readiness_level} compact />
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
