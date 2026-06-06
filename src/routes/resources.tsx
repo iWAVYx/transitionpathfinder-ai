@@ -251,27 +251,6 @@ function ResourcesPage() {
   const activeFilterCount =
     Object.values(filters).filter((v) => v !== "all").length + (query ? 1 : 0);
 
-  // Announce filter/result changes to screen readers
-  useEffect(() => {
-    if (!hasAnnounced.current) {
-      hasAnnounced.current = true;
-      return;
-    }
-    let msg = "";
-    if (tab === "browse") {
-      const c = visible.length;
-      if (c === 0) {
-        msg = "No resources match those filters.";
-      } else {
-        msg = `${c} resource${c !== 1 ? "s" : ""} found.`;
-      }
-    } else if (tab === "saved") {
-      const c = savedResources.length;
-      msg = `${c} saved resource${c !== 1 ? "s" : ""}.`;
-    }
-    setLiveMessage(msg);
-  }, [tab, visible.length, savedResources.length, query, filters]);
-
   // Global search helper for DB resources
   const dbMatchesQuery = (r: DbResource) => {
     const q = query.trim().toLowerCase();
@@ -321,6 +300,27 @@ function ResourcesPage() {
     () => RESOURCES.filter((r) => saved[r.id]),
     [saved],
   );
+
+  // Announce filter/result changes to screen readers
+  useEffect(() => {
+    if (!hasAnnounced.current) {
+      hasAnnounced.current = true;
+      return;
+    }
+    let msg = "";
+    if (tab === "browse") {
+      const c = visible.length;
+      if (c === 0) {
+        msg = "No resources match those filters.";
+      } else {
+        msg = `${c} resource${c !== 1 ? "s" : ""} found.`;
+      }
+    } else if (tab === "saved") {
+      const c = savedResources.length;
+      msg = `${c} saved resource${c !== 1 ? "s" : ""}.`;
+    }
+    setLiveMessage(msg);
+  }, [tab, visible.length, savedResources.length, query, filters]);
 
   const featured = RESOURCES.filter((r) => r.featured);
 
