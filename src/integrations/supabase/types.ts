@@ -1897,6 +1897,66 @@ export type Database = {
           },
         ]
       }
+      resource_sources: {
+        Row: {
+          audience_focus: string[]
+          created_at: string
+          created_by_user_id: string | null
+          description: string | null
+          id: string
+          last_reviewed_at: string | null
+          location_scope: string
+          next_review_due_at: string | null
+          notes: string | null
+          organization_name: string | null
+          review_status: string
+          source_name: string
+          source_type: string
+          source_url: string | null
+          topic_focus: string[]
+          update_frequency: string
+          updated_at: string
+        }
+        Insert: {
+          audience_focus?: string[]
+          created_at?: string
+          created_by_user_id?: string | null
+          description?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          location_scope?: string
+          next_review_due_at?: string | null
+          notes?: string | null
+          organization_name?: string | null
+          review_status?: string
+          source_name: string
+          source_type?: string
+          source_url?: string | null
+          topic_focus?: string[]
+          update_frequency?: string
+          updated_at?: string
+        }
+        Update: {
+          audience_focus?: string[]
+          created_at?: string
+          created_by_user_id?: string | null
+          description?: string | null
+          id?: string
+          last_reviewed_at?: string | null
+          location_scope?: string
+          next_review_due_at?: string | null
+          notes?: string | null
+          organization_name?: string | null
+          review_status?: string
+          source_name?: string
+          source_type?: string
+          source_url?: string | null
+          topic_focus?: string[]
+          update_frequency?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       resource_tags: {
         Row: {
           id: string
@@ -1925,19 +1985,33 @@ export type Database = {
       }
       resources: {
         Row: {
+          accessibility_notes: string | null
+          age_appropriateness: string | null
           age_range: string | null
           audience: string
+          copyright_notes: string | null
           created_at: string
           created_by_user_id: string | null
           description: string | null
           estimated_time: string | null
+          featured: boolean
           format: string | null
           grade_range: string | null
           id: string
           image_url: string | null
+          link_checked_at: string | null
+          link_status: string
           location_scope: string
+          original_resource_url: string | null
+          pathway_relevance: string[]
+          published_status: string
           reading_level: string | null
           resource_type: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by_user_id: string | null
+          role_relevance: string[]
+          source_id: string | null
           source_name: string | null
           title: string
           topic: string | null
@@ -1946,19 +2020,33 @@ export type Database = {
           verified_status: string
         }
         Insert: {
+          accessibility_notes?: string | null
+          age_appropriateness?: string | null
           age_range?: string | null
           audience?: string
+          copyright_notes?: string | null
           created_at?: string
           created_by_user_id?: string | null
           description?: string | null
           estimated_time?: string | null
+          featured?: boolean
           format?: string | null
           grade_range?: string | null
           id?: string
           image_url?: string | null
+          link_checked_at?: string | null
+          link_status?: string
           location_scope?: string
+          original_resource_url?: string | null
+          pathway_relevance?: string[]
+          published_status?: string
           reading_level?: string | null
           resource_type: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by_user_id?: string | null
+          role_relevance?: string[]
+          source_id?: string | null
           source_name?: string | null
           title: string
           topic?: string | null
@@ -1967,19 +2055,33 @@ export type Database = {
           verified_status?: string
         }
         Update: {
+          accessibility_notes?: string | null
+          age_appropriateness?: string | null
           age_range?: string | null
           audience?: string
+          copyright_notes?: string | null
           created_at?: string
           created_by_user_id?: string | null
           description?: string | null
           estimated_time?: string | null
+          featured?: boolean
           format?: string | null
           grade_range?: string | null
           id?: string
           image_url?: string | null
+          link_checked_at?: string | null
+          link_status?: string
           location_scope?: string
+          original_resource_url?: string | null
+          pathway_relevance?: string[]
+          published_status?: string
           reading_level?: string | null
           resource_type?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by_user_id?: string | null
+          role_relevance?: string[]
+          source_id?: string | null
           source_name?: string | null
           title?: string
           topic?: string | null
@@ -1987,7 +2089,15 @@ export type Database = {
           url?: string | null
           verified_status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "resources_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "resource_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_resources: {
         Row: {
