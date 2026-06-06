@@ -72,6 +72,16 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/district/schools": ["district_admin", "admin"],
   "/district/team": ["district_admin", "admin"],
   "/district/reports": ["district_admin", "admin"],
+
+  // Student/family workspace utilities — partner workspace excluded.
+  "/feed": ["family", "educator", "student", "admin"],
+  "/messages": ["family", "educator", "student", "admin"],
+  "/student-voice": ["family", "educator", "student", "admin"],
+  "/forms": ["family", "educator", "student", "admin"],
+  // Partners may browse the opportunity catalog they contribute to.
+  "/opportunities": ["family", "educator", "student", "admin", "partner"],
+  // Consent / privacy info — every workspace audience except partner.
+  "/trust": ["family", "educator", "student", "school_admin", "district_admin", "admin"],
 };
 
 export function isAllowed(path: string, roles: string[]): boolean {
