@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/feed")({
       },
     ],
   }),
-  component: FeedPage,
+  component: () => (<RoleGuard path="/feed"><FeedPage /></RoleGuard>),
 });
 
 const FILTERS = [
