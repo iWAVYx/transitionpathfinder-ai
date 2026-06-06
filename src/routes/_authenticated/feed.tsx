@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
 import { cn } from "@/lib/utils";
