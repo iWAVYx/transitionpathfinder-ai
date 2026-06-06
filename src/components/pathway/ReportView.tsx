@@ -1755,7 +1755,7 @@ function MiniCard({
         accent ? "border-primary/30 bg-primary/5" : "border-border/60 bg-background",
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
       <BulletList items={items} compact={compact} />
     </div>
   );
