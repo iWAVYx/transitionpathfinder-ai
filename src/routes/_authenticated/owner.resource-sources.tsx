@@ -200,7 +200,7 @@ function SourcesPage() {
               <div><Label>Description</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={3} /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Type</Label>
-                  <Select value={editing.source_type} onValueChange={(v) => setEditing({ ...editing, source_type: v })}>
+                  <Select value={editing.source_type} onValueChange={(v) => setEditing({ ...editing, source_type: v as typeof SOURCE_TYPES[number] })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{SOURCE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                   </Select>
