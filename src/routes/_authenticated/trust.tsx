@@ -18,7 +18,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/trust")({
   head: () => ({ meta: [{ title: "Trust & Consent — TransitionForward" }] }),
-  component: TrustPage,
+  component: () => (<RoleGuard path="/trust"><TrustPage /></RoleGuard>),
 });
 
 const CONSENT_LABELS: Record<string, string> = {
