@@ -666,10 +666,14 @@ export function ReportView({
                 className="rounded-2xl border border-border/60 bg-card p-5 lift-card"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h4 className="font-display text-lg">{toTitleCase(row.category)}</h4>
+                  <h3 className="font-display text-lg">{toTitleCase(row.category)}</h3>
                   <ReadinessBadge level={row.level} compact />
                 </div>
-                <Progress value={READINESS_PCT[row.level] ?? 50} className="mt-3 h-2" />
+                <Progress
+                  value={READINESS_PCT[row.level] ?? 50}
+                  className="mt-3 h-2"
+                  aria-label={`${toTitleCase(row.category)} readiness: ${row.level}`}
+                />
                 <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-primary">
                   What We Saw
                 </p>
@@ -729,7 +733,7 @@ export function ReportView({
                 </div>
 
                 <div className="mt-5 rounded-2xl bg-muted/50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
                     Action Steps
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -752,7 +756,7 @@ export function ReportView({
             {r.career_matches.map((c) => (
               <div key={c.cluster} className="rounded-2xl border bg-card p-5 lift-card">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-display text-xl">{toTitleCase(c.cluster)}</h4>
+                  <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
                   <ReadinessBadge level={c.readiness_level} compact />
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
@@ -777,7 +781,7 @@ export function ReportView({
                 </div>
                 <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
                 <p className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
                     Next Exploration Step
                   </span>
                   <br />
@@ -887,7 +891,7 @@ export function ReportView({
                 key={i}
                 className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
               >
-                <h4 className="font-display text-lg">{toTitleCase(g.item)}</h4>
+                <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
                 <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
                 <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
                 <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
@@ -1040,7 +1044,7 @@ export function ReportView({
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
                       {toTitleCase(o.category)}
                     </Badge>
-                    <h4 className="font-display text-lg">{toTitleCase(o.name)}</h4>
+                    <h3 className="font-display text-lg">{toTitleCase(o.name)}</h3>
                   </div>
                   <ReadinessBadge level={o.readiness_level} compact />
                 </div>
@@ -1072,7 +1076,7 @@ export function ReportView({
                 />
                 <div className="rounded-2xl border bg-card p-5 lift-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h4 className="font-display text-lg">{toTitleCase(s.stage)}</h4>
+                    <h3 className="font-display text-lg">{toTitleCase(s.stage)}</h3>
                     <Badge
                       variant={s.status === "complete" ? "default" : "outline"}
                       className="uppercase tracking-wider"
@@ -1698,7 +1702,7 @@ function DocumentContents({ report, name }: { report: PathwayReport; name: strin
       <ol className="grid gap-x-8 gap-y-2 px-6 py-5 sm:grid-cols-2 sm:px-8">
         {items.map((it, i) => (
           <li key={it.id} className="flex items-baseline gap-3 text-sm">
-            <span className="font-mono text-xs text-primary/80">
+            <span className="font-mono text-xs text-primary">
               {String(i + 1).padStart(2, "0")}
             </span>
             <a
@@ -1751,7 +1755,7 @@ function MiniCard({
         accent ? "border-primary/30 bg-primary/5" : "border-border/60 bg-background",
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
       <BulletList items={items} compact={compact} />
     </div>
   );
@@ -1769,7 +1773,7 @@ function HorizonCard({ label, items }: { label: string; items: string[] }) {
 function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mt-2 first:mt-0">
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
       <p className="text-sm text-foreground/80">{children}</p>
     </div>
   );
