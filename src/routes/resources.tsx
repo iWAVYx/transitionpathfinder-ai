@@ -1107,7 +1107,7 @@ function AddToPathwayButton({
     setBusyId(studentId);
     try {
       const desc = [description, link].filter(Boolean).join("\n\n");
-      await addItem({
+      const { item } = await addItem({
         data: {
           student_id: studentId,
           title: title.slice(0, 200),
@@ -1116,7 +1116,21 @@ function AddToPathwayButton({
           priority: "medium",
         },
       });
-      toast.success("Added to pathway");
+      toast.success("Added to pathway", {
+        description: (
+          <span>
+            View it on the{" "}
+            <Link
+              to="/students/$studentId"
+              params={{ studentId }}
+              className="underline text-primary"
+            >
+              student page
+            </Link>
+            .
+          </span>
+        ),
+      });
       setOpen(false);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not add to pathway");
