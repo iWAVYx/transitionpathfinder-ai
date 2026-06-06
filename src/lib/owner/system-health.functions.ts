@@ -117,6 +117,26 @@ const FIX_HINTS: Record<string, string[]> = {
     "If the viewport meta is missing, verify `src/routes/__root.tsx` head() still emits `<meta name='viewport' …>`.",
     "Hard-refresh `/`, `/dashboard`, `/pathway` at 375px, 768px, 1024px to confirm layout still holds.",
   ],
+  privilege_escalation_guard: [
+    "REVOKE UPDATE on public.user_roles FROM authenticated — a successful UPDATE means any signed-in user can grant themselves admin.",
+    "Re-check the GRANTs migration: only SELECT/INSERT/DELETE belong on user_roles for `authenticated`.",
+  ],
+  storage_documents: [
+    "Confirm the `student-documents` storage bucket exists and is private.",
+    "Verify storage RLS policies scope SELECT/INSERT to `can_access_student(auth.uid(), student_id)`.",
+  ],
+  share_links: [
+    "Confirm `share_tokens` table is reachable and `resolve_share_token` SQL function is intact.",
+    "Generate a share link from a Pathway Report and open it in a private window to verify the public read path.",
+  ],
+  ai_gateway: [
+    "Confirm `LOVABLE_API_KEY` is set under Project Secrets.",
+    "If the key is rotated, redeploy server functions so the new value is picked up.",
+  ],
+  can_access_student_helper: [
+    "Confirm `can_access_student(uuid, uuid)` exists with `SECURITY DEFINER` + `SET search_path = public`.",
+    "Every student-scoped table policy must call this helper.",
+  ],
 };
 
 type Client = {
@@ -255,12 +275,108 @@ async function customProbes(
     mobile = { ok: false, message: e instanceof Error ? e.message : "Could not fetch published site." };
   }
 
+  // privilege_escalation_guard: attempt to UPDATE public.user_roles as the
+  // authenticated admin. Even an admin should be blocked because the table
+  // intentionally has no UPDATE grant — that's the guard that prevents any
+  // signed-in user from elevating themselves. A successful UPDATE here is a
+  // CRITICAL finding.
+  let privGuard: { ok: boolean; message: string };
+  try {
+    const anyClient = client as unknown as {
+      from: (t: string) => {
+        update: (v: Record<string, unknown>) => {
+          eq: (c: string, v: string) => Promise<{ error: { message: string; code?: string } | null }>;
+        };
+      };
+    };
+    const { error } = await anyClient
+      .from("user_roles")
+      .update({ role: "admin" })
+      .eq("user_id", userId);
+    if (error) {
+      privGuard = {
+        ok: true,
+        message: `UPDATE on user_roles correctly blocked (${error.code ?? "denied"}).`,
+      };
+    } else {
+      privGuard = {
+        ok: false,
+        message: "CRITICAL: UPDATE on user_roles succeeded — privilege escalation possible.",
+      };
+    }
+  } catch (e) {
+    // Thrown errors also count as "blocked" — the operation did not succeed.
+    privGuard = {
+      ok: true,
+      message: `UPDATE on user_roles blocked (${e instanceof Error ? e.message : "threw"}).`,
+    };
+  }
+
+  // can_access_student_helper: exercise the security-definer function that
+  // every student-scoped policy depends on. The admin caller should resolve
+  // to `true` for any student id thanks to the `has_role(_user_id,'admin')`
+  // branch inside the helper.
+  let casHelper: { ok: boolean; message: string };
+  try {
+    const { data, error } = await client.rpc("can_access_student", {
+      _user_id: userId,
+      _student_id: "00000000-0000-0000-0000-000000000000",
+    });
+    casHelper = error
+      ? { ok: false, message: `can_access_student RPC failed: ${error.message}` }
+      : { ok: true, message: `can_access_student reachable (admin → ${String(data)}).` };
+  } catch (e) {
+    casHelper = { ok: false, message: e instanceof Error ? e.message : "can_access_student threw." };
+  }
+
+  // ai_gateway: confirm the Lovable AI key is present in the server env so
+  // server functions calling the gateway will not 401 at runtime.
+  const aiKey = typeof process !== "undefined" ? process.env.LOVABLE_API_KEY : undefined;
+  const aiGateway = aiKey
+    ? { ok: true, message: "LOVABLE_API_KEY present in server environment." }
+    : { ok: false, message: "LOVABLE_API_KEY missing — AI features will fail." };
+
+  // storage_documents: list objects in the private student-documents bucket.
+  // We don't need any results — a non-error response proves the bucket
+  // exists and the request was authenticated through storage RLS.
+  let storage: { ok: boolean; message: string };
+  try {
+    const storageClient = (client as unknown as {
+      storage: { from: (b: string) => { list: (p?: string, o?: { limit: number }) => Promise<{ error: { message: string } | null }> } };
+    }).storage;
+    const { error } = await storageClient.from("student-documents").list("", { limit: 1 });
+    storage = error
+      ? { ok: false, message: `student-documents bucket unreachable: ${error.message}` }
+      : { ok: true, message: "student-documents bucket reachable." };
+  } catch (e) {
+    storage = { ok: false, message: e instanceof Error ? e.message : "storage probe threw." };
+  }
+
+  // share_links: count rows in share_tokens. Even zero rows is fine — what
+  // we're proving is that the table + its RLS read path are intact.
+  let shareLinks: { ok: boolean; message: string };
+  try {
+    const { count, error } = await client
+      .from("share_tokens")
+      .select("*", { count: "exact", head: true });
+    shareLinks = error
+      ? { ok: false, message: `share_tokens unreachable: ${error.message}` }
+      : { ok: true, message: `share_tokens reachable (${count ?? 0} active tokens).` };
+  } catch (e) {
+    shareLinks = { ok: false, message: e instanceof Error ? e.message : "share_tokens probe threw." };
+  }
+
   return {
     auth,
     rls_policies: rls,
     role_dashboards: roleDash,
     data_persistence: persist,
     mobile_responsiveness: mobile,
+    privilege_escalation_guard: privGuard,
+    can_access_student_helper: casHelper,
+    ai_gateway: aiGateway,
+    storage_documents: storage,
+    share_links: shareLinks,
   };
 }
 
@@ -329,6 +445,13 @@ export const runSystemHealth = createServerFn({ method: "GET" })
 
       // Experience
       { key: "mobile_responsiveness", label: "Mobile Responsiveness", category: "ui", manualNote: "Verified at 375px, 768px, 1024px across signup, onboarding, dashboards, Pathway Report, Admin Hub. Recheck after layout changes." },
+
+      // Security guards (active probes that exercise real boundaries)
+      { key: "privilege_escalation_guard", label: "Privilege Escalation Guard", category: "infra" },
+      { key: "can_access_student_helper", label: "Student Access Helper", category: "infra" },
+      { key: "storage_documents", label: "Document Storage", category: "data" },
+      { key: "share_links", label: "Share Links", category: "data" },
+      { key: "ai_gateway", label: "AI Gateway Key", category: "infra" },
     ];
 
     // Run all custom probes once up-front; the loop below routes results by key.
