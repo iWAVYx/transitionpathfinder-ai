@@ -1,11 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
 import {
-  A11Y_TAGS,
   expectNoAxeViolations,
   expectReportLandmarks,
   expectKeyboardFlows,
 } from "./helpers/report-a11y-checks";
-import AxeBuilder from "@axe-core/playwright";
 
 /**
  * Signed-in accessibility audit for the authenticated Pathway Report page
@@ -68,7 +66,3 @@ for (const vp of VIEWPORTS) {
     });
   });
 }
-
-// Suppress unused-import warning — A11Y_TAGS is re-exported for downstream specs.
-void A11Y_TAGS;
-void AxeBuilder;
