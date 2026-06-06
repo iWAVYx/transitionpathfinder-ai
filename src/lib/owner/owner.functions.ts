@@ -448,8 +448,13 @@ export const submitContactForm = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_submissions").insert({
+    const { createClient } = await import("@supabase/supabase-js");
+    const url = process.env.SUPABASE_URL!;
+    const anonKey = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const anonClient = createClient(url, anonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { error } = await anonClient.from("contact_submissions").insert({
       first_name: data.first_name,
       last_name: data.last_name ?? null,
       email: data.email,
@@ -462,6 +467,7 @@ export const submitContactForm = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 // ---------- Site settings ----------
 
