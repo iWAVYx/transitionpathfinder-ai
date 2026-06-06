@@ -142,6 +142,29 @@ function OwnerDashboardPage() {
             />
           </div>
 
+          {/* Resource library health */}
+          {reviewCounts && (reviewCounts.resourcesNeedingReview + reviewCounts.brokenLinks + reviewCounts.sourcesNeedingReview > 0) && (
+            <section>
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Resource library health
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Link to="/owner/resources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources needing review</p>
+                  <p className="mt-2 text-2xl font-semibold">{reviewCounts.resourcesNeedingReview}</p>
+                </Link>
+                <Link to="/owner/resources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken links</p>
+                  <p className={`mt-2 text-2xl font-semibold ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
+                </Link>
+                <Link to="/owner/resource-sources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source libraries to review</p>
+                  <p className="mt-2 text-2xl font-semibold">{reviewCounts.sourcesNeedingReview}</p>
+                </Link>
+              </div>
+            </section>
+          )}
+
           {/* Quick actions */}
           <section>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
