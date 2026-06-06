@@ -19,11 +19,14 @@ import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ownerListReviewQueue,
   ownerReviewResource,
+  ownerBulkReviewResources,
   type ReviewQueueItem,
   type ReviewDecision,
+  type BulkReviewDecision,
 } from "@/lib/owner/owner.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/resource-review")({
