@@ -455,7 +455,7 @@ function ResourcesPage() {
             ))}
           </div>
         </section>
-      )
+      )}
 
       {/* VERIFIED LIBRARY (live from DB) */}
       {dbResources && dbResources.length > 0 && (
