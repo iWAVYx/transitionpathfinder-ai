@@ -33,4 +33,4 @@ jobs:
           E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
           E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
           E2E_REPORT_ID: ${{ secrets.E2E_REPORT_ID }}
-        run: bunx playwright test tests/e2e/report-a11y.spec.ts tests/e2e/reports-signed-in-a11y.signedin.spec.ts
+        run: bunx playwright test tests/e2e/report-a11y.spec.ts tests/e2e/reports-signed-in-a11y.signedin.spec.ts tests/e2e/reports-session-lifecycle.signedin.spec.ts
