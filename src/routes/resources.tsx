@@ -1064,7 +1064,124 @@ function SavedTab({
   );
 }
 
+// ───────────────────────── Add to Pathway
+
+const LOCATION_LABEL: Record<LocationScope, string> = {
+  national: "National",
+  connecticut: "Connecticut",
+  local: "Local",
+};
+
+function AddToPathwayButton({
+  title,
+  description,
+  link,
+}: {
+  title: string;
+  description?: string | null;
+  link?: string | null;
+}) {
+  const { user } = useAuth();
+  const fetchStudents = useServerFn(listStudents);
+  const addItem = useServerFn(createStudentActionItem);
+  const [open, setOpen] = useState(false);
+  const [students, setStudents] = useState<Student[] | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !user || students !== null) return;
+    fetchStudents()
+      .then((r) => setStudents(r.students))
+      .catch(() => setStudents([]));
+  }, [open, user, students, fetchStudents]);
+
+  const handleAdd = async (studentId: string) => {
+    setBusyId(studentId);
+    try {
+      const desc = [description, link].filter(Boolean).join("\n\n");
+      await addItem({
+        data: {
+          student_id: studentId,
+          title: title.slice(0, 200),
+          description: desc ? desc.slice(0, 2000) : undefined,
+          category: "family",
+          priority: "medium",
+        },
+      });
+      toast.success("Added to pathway");
+      setOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not add to pathway");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+      >
+        <ListPlus className="h-3.5 w-3.5" /> Add to pathway
+      </Link>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+      >
+        <ListPlus className="h-3.5 w-3.5" /> Add to pathway
+      </button>
+      {open && (
+        <div className="absolute right-0 z-20 mt-2 w-64 rounded-xl border border-border bg-popover p-2 shadow-lift">
+          <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Add to which student?
+          </p>
+          {students === null ? (
+            <p className="px-2 py-2 text-xs text-muted-foreground">Loading…</p>
+          ) : students.length === 0 ? (
+            <Link
+              to="/students"
+              className="block px-2 py-2 text-xs text-primary hover:underline"
+            >
+              Create a student first →
+            </Link>
+          ) : (
+            <ul className="max-h-64 overflow-y-auto">
+              {students.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(s.id)}
+                    disabled={busyId === s.id}
+                    className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-xs hover:bg-muted disabled:opacity-50"
+                  >
+                    <span className="truncate">
+                      {s.first_name}
+                      {s.last_name ? ` ${s.last_name}` : ""}
+                    </span>
+                    {busyId === s.id && (
+                      <span className="text-[10px] text-muted-foreground">…</span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ───────────────────────── Resource Card
+
+
 
 function ResourceCard({
   resource: r,
