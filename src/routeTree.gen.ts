@@ -78,6 +78,7 @@ import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_au
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
 import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authenticated/owner.resources'
 import { Route as AuthenticatedOwnerResourceSourcesRouteImport } from './routes/_authenticated/owner.resource-sources'
+import { Route as AuthenticatedOwnerResourceReviewRouteImport } from './routes/_authenticated/owner.resource-review'
 import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_authenticated/owner.organizations'
 import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
@@ -459,6 +460,12 @@ const AuthenticatedOwnerResourceSourcesRoute =
     path: '/owner/resource-sources',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedOwnerResourceReviewRoute =
+  AuthenticatedOwnerResourceReviewRouteImport.update({
+    id: '/owner/resource-review',
+    path: '/owner/resource-review',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerOrganizationsRoute =
   AuthenticatedOwnerOrganizationsRouteImport.update({
     id: '/owner/organizations',
@@ -658,6 +665,7 @@ export interface FileRoutesByFullPath {
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
+  '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
@@ -750,6 +758,7 @@ export interface FileRoutesByTo {
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
+  '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
@@ -844,6 +853,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/_authenticated/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
+  '/_authenticated/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/_authenticated/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
   '/_authenticated/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
@@ -938,6 +948,7 @@ export interface FileRouteTypes {
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
+    | '/owner/resource-review'
     | '/owner/resource-sources'
     | '/owner/resources'
     | '/owner/settings'
@@ -1030,6 +1041,7 @@ export interface FileRouteTypes {
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
+    | '/owner/resource-review'
     | '/owner/resource-sources'
     | '/owner/resources'
     | '/owner/settings'
@@ -1123,6 +1135,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/media'
     | '/_authenticated/owner/opportunities'
     | '/_authenticated/owner/organizations'
+    | '/_authenticated/owner/resource-review'
     | '/_authenticated/owner/resource-sources'
     | '/_authenticated/owner/resources'
     | '/_authenticated/owner/settings'
@@ -1669,6 +1682,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerResourceSourcesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/owner/resource-review': {
+      id: '/_authenticated/owner/resource-review'
+      path: '/owner/resource-review'
+      fullPath: '/owner/resource-review'
+      preLoaderRoute: typeof AuthenticatedOwnerResourceReviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/organizations': {
       id: '/_authenticated/owner/organizations'
       path: '/owner/organizations'
@@ -1913,6 +1933,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
   AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
   AuthenticatedOwnerOrganizationsRoute: typeof AuthenticatedOwnerOrganizationsRoute
+  AuthenticatedOwnerResourceReviewRoute: typeof AuthenticatedOwnerResourceReviewRoute
   AuthenticatedOwnerResourceSourcesRoute: typeof AuthenticatedOwnerResourceSourcesRoute
   AuthenticatedOwnerResourcesRoute: typeof AuthenticatedOwnerResourcesRoute
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
@@ -1965,6 +1986,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
   AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
   AuthenticatedOwnerOrganizationsRoute: AuthenticatedOwnerOrganizationsRoute,
+  AuthenticatedOwnerResourceReviewRoute: AuthenticatedOwnerResourceReviewRoute,
   AuthenticatedOwnerResourceSourcesRoute:
     AuthenticatedOwnerResourceSourcesRoute,
   AuthenticatedOwnerResourcesRoute: AuthenticatedOwnerResourcesRoute,

@@ -149,13 +149,15 @@ function OwnerDashboardPage() {
                 Resource library health
               </h2>
               <div className="grid gap-4 sm:grid-cols-3">
-                <Link to="/owner/resources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                <Link to="/owner/resource-review" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources needing review</p>
                   <p className="mt-2 text-2xl font-semibold">{reviewCounts.resourcesNeedingReview}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Open review queue →</p>
                 </Link>
-                <Link to="/owner/resources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                <Link to="/owner/resource-review" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken links</p>
                   <p className={`mt-2 text-2xl font-semibold ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Resolve in queue →</p>
                 </Link>
                 <Link to="/owner/resource-sources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source libraries to review</p>

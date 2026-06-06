@@ -819,6 +819,124 @@ export const ownerDeleteResource = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ─────────────────────────── Review workflow
+
+export type ReviewQueueItem = ResourceRow & { review_reason: "needs_review" | "broken_link" };
+
+export const ownerListReviewQueue = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    await requireAnyAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: needs }, { data: broken }] = await Promise.all([
+      supabaseAdmin
+        .from("resources")
+        .select("*")
+        .in("published_status", ["draft", "needs_review"])
+        .order("updated_at", { ascending: true })
+        .limit(200),
+      supabaseAdmin
+        .from("resources")
+        .select("*")
+        .eq("link_status", "broken")
+        .order("link_checked_at", { ascending: true })
+        .limit(200),
+    ]);
+    const needsItems: ReviewQueueItem[] = ((needs ?? []) as ResourceRow[]).map((r) => ({
+      ...r,
+      review_reason: "needs_review",
+    }));
+    const brokenItems: ReviewQueueItem[] = ((broken ?? []) as ResourceRow[])
+      .filter((b) => !needsItems.some((n) => n.id === b.id))
+      .map((r) => ({ ...r, review_reason: "broken_link" }));
+    return { items: [...needsItems, ...brokenItems] };
+  });
+
+const REVIEW_DECISIONS = [
+  "approve",
+  "publish",
+  "request_changes",
+  "resolve_link",
+  "mark_broken",
+  "archive",
+] as const;
+export type ReviewDecision = (typeof REVIEW_DECISIONS)[number];
+
+export const ownerReviewResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        decision: z.enum(REVIEW_DECISIONS),
+        resolution_notes: z.string().trim().max(4000).optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const nowIso = new Date().toISOString();
+    const patch: Record<string, any> = {
+      reviewed_by_user_id: userId,
+      reviewed_at: nowIso,
+    };
+
+    // Append a timestamped note to the existing review_notes history.
+    if (data.resolution_notes && data.resolution_notes.trim().length > 0) {
+      const { data: existing } = await supabaseAdmin
+        .from("resources")
+        .select("review_notes")
+        .eq("id", data.id)
+        .maybeSingle();
+      const stamp = `[${nowIso.slice(0, 10)} · ${data.decision}] ${data.resolution_notes.trim()}`;
+      patch.review_notes = existing?.review_notes
+        ? `${existing.review_notes}\n\n${stamp}`
+        : stamp;
+    }
+
+    switch (data.decision) {
+      case "approve":
+        patch.published_status = "approved";
+        patch.verified_status = "verified";
+        break;
+      case "publish":
+        patch.published_status = "published";
+        patch.verified_status = "verified";
+        break;
+      case "request_changes":
+        patch.published_status = "needs_review";
+        break;
+      case "resolve_link":
+        patch.link_status = "ok";
+        patch.link_checked_at = nowIso;
+        break;
+      case "mark_broken":
+        patch.link_status = "broken";
+        patch.link_checked_at = nowIso;
+        break;
+      case "archive":
+        patch.published_status = "archived";
+        break;
+    }
+
+    const { error } = await supabaseAdmin
+      .from("resources")
+      .update(patch as never)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    await logActivity(supabase, userId, "resource_reviewed", "resource", data.id, {
+      decision: data.decision,
+      has_notes: !!patch.review_notes,
+    });
+
+    return { ok: true };
+  });
+
 // ---------- Analytics ----------
 
 export type AnalyticsSeriesPoint = { date: string; count: number };
