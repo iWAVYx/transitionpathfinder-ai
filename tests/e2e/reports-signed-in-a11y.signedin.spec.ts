@@ -1,27 +1,19 @@
 import { test, expect, type Page } from "@playwright/test";
+import {
+  A11Y_TAGS,
+  expectNoAxeViolations,
+  expectReportLandmarks,
+  expectKeyboardFlows,
+} from "./helpers/report-a11y-checks";
 import AxeBuilder from "@axe-core/playwright";
 
 /**
  * Signed-in accessibility audit for the authenticated Pathway Report page
- * (`/reports/$reportId`). Mirrors the public demo report a11y suite so the
- * SAME `ReportView` component is checked in the real, signed-in shell —
- * including the auth-aware SiteHeader and report-detail toolbar that only
- * render when a user is logged in.
- *
- * Requires E2E_REPORT_ID at run time (a report ID the test user owns or has
- * access to). The whole suite is skipped when it's missing so PRs / forks
- * without secrets don't fail.
+ * (`/reports/$reportId`). Shares helpers with the 2FA spec so the post-2FA
+ * audit covers the same surface.
  */
 
 const REPORT_ID = process.env.E2E_REPORT_ID;
-
-const A11Y_TAGS = [
-  "wcag2a",
-  "wcag2aa",
-  "wcag21a",
-  "wcag21aa",
-  "best-practice",
-];
 
 const VIEWPORTS = [
   { label: "mobile", width: 390, height: 844 },
