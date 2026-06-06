@@ -13,6 +13,7 @@ import {
   LinkIcon,
   Link2Off,
   Send,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { OwnerShell } from "@/components/owner/OwnerShell";
@@ -21,6 +22,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ownerListReviewQueue,
   ownerReviewResource,
   ownerBulkReviewResources,
@@ -28,6 +37,7 @@ import {
   type ReviewDecision,
   type BulkReviewDecision,
 } from "@/lib/owner/owner.functions";
+
 
 export const Route = createFileRoute("/_authenticated/owner/resource-review")({
   head: () => ({ meta: [{ title: "Review Queue — Admin Hub" }] }),
@@ -105,6 +115,8 @@ function ReviewQueuePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkNotes, setBulkNotes] = useState("");
   const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDecision, setPendingDecision] = useState<BulkReviewDecision | null>(null);
 
   async function reload(preserveIndex = false) {
     setLoading(true);
@@ -201,7 +213,7 @@ function ReviewQueuePage() {
     setSelected(new Set());
   }
 
-  async function handleBulk(decision: BulkReviewDecision) {
+  function handleBulk(decision: BulkReviewDecision) {
     if (selectedIds.length === 0) {
       toast.error("Select at least one needs-review resource.");
       return;
@@ -210,20 +222,18 @@ function ReviewQueuePage() {
       toast.error("Add bulk notes explaining the requested changes.");
       return;
     }
-    if (decision === "archive") {
-      if (
-        !confirm(
-          `Archive ${selectedIds.length} resource${selectedIds.length === 1 ? "" : "s"}? They will be removed from the active library.`,
-        )
-      )
-        return;
-    }
+    setPendingDecision(decision);
+    setConfirmOpen(true);
+  }
+
+  async function executeBulk() {
+    if (!pendingDecision || selectedIds.length === 0) return;
     setBulkSubmitting(true);
     try {
       const res = await bulkReview({
         data: {
           ids: selectedIds,
-          decision,
+          decision: pendingDecision,
           resolution_notes: bulkNotes.trim() || null,
         },
       });
@@ -242,7 +252,14 @@ function ReviewQueuePage() {
       toast.error(e instanceof Error ? e.message : "Bulk action failed");
     } finally {
       setBulkSubmitting(false);
+      setConfirmOpen(false);
+      setPendingDecision(null);
     }
+  }
+
+  function cancelBulk() {
+    setConfirmOpen(false);
+    setPendingDecision(null);
   }
 
 
@@ -552,6 +569,76 @@ function ReviewQueuePage() {
           )}
         </div>
       )}
+
+      {/* Bulk action confirmation modal */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              Confirm bulk action
+            </DialogTitle>
+            <DialogDescription>
+              Review the selection and consequences before proceeding.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Action
+              </p>
+              <p className="mt-1 text-sm font-medium capitalize">
+                {pendingDecision?.replace("_", " ") ?? "—"}
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Selected resources
+              </p>
+              <p className="mt-1 text-2xl font-semibold">{selectedIds.length}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {pendingDecision === "archive"
+                  ? "These resources will be removed from the active library and archived for history."
+                  : pendingDecision === "request_changes"
+                    ? "These resources will be sent back for revisions."
+                    : pendingDecision === "publish"
+                      ? "These resources will be approved and made publicly visible immediately."
+                      : "These resources will be approved and marked as ready for publishing."}
+              </p>
+            </div>
+
+            {bulkNotes.trim() && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Bulk notes
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-3">{bulkNotes}</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={cancelBulk} disabled={bulkSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              variant={pendingDecision === "archive" ? "destructive" : "default"}
+              onClick={executeBulk}
+              disabled={bulkSubmitting}
+            >
+              {bulkSubmitting ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Processing…
+                </>
+              ) : (
+                <>Confirm {pendingDecision?.replace("_", " ")}</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </OwnerShell>
   );
 }
