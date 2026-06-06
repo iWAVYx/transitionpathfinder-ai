@@ -46,7 +46,10 @@ import {
   unsaveResource,
   type SavedResourceRow,
 } from "@/lib/saved-resources.functions";
+import { listStudents, type Student } from "@/lib/students.functions";
+import { createStudentActionItem } from "@/lib/action-items.functions";
 import { toast } from "sonner";
+import { ListPlus } from "lucide-react";
 
 import { photos } from "@/lib/photos";
 const resourcesHero = photos.resources;
@@ -486,14 +489,18 @@ function ResourcesPage() {
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
                   </span>
+                  <span className="rounded-full bg-muted px-2 py-0.5">External</span>
+                  {r.location_scope && r.location_scope.toLowerCase() !== "connecticut" && (
+                    <span className="rounded-full bg-muted px-2 py-0.5">
+                      {r.location_scope.replace(/_/g, " ")}
+                    </span>
+                  )}
                   {r.featured && (
                     <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   )}
-                  {r.url && (
-                    <span className="rounded-full bg-muted px-2 py-0.5">External</span>
-                  )}
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
+
                 <h3 className="mt-3 font-display text-base font-medium leading-snug">
                   {r.title}
                 </h3>
@@ -531,6 +538,10 @@ function ResourcesPage() {
                     )}
                   </div>
                 </div>
+                <div className="mt-3 flex justify-end">
+                  <AddToPathwayButton title={r.title} description={r.description} link={r.url} />
+                </div>
+
               </article>
             ))}
           </div>
@@ -1061,7 +1072,124 @@ function SavedTab({
   );
 }
 
+// ───────────────────────── Add to Pathway
+
+const LOCATION_LABEL: Record<LocationScope, string> = {
+  national: "National",
+  connecticut: "Connecticut",
+  local: "Local",
+};
+
+function AddToPathwayButton({
+  title,
+  description,
+  link,
+}: {
+  title: string;
+  description?: string | null;
+  link?: string | null;
+}) {
+  const { user } = useAuth();
+  const fetchStudents = useServerFn(listStudents);
+  const addItem = useServerFn(createStudentActionItem);
+  const [open, setOpen] = useState(false);
+  const [students, setStudents] = useState<Student[] | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !user || students !== null) return;
+    fetchStudents()
+      .then((r) => setStudents(r.students))
+      .catch(() => setStudents([]));
+  }, [open, user, students, fetchStudents]);
+
+  const handleAdd = async (studentId: string) => {
+    setBusyId(studentId);
+    try {
+      const desc = [description, link].filter(Boolean).join("\n\n");
+      await addItem({
+        data: {
+          student_id: studentId,
+          title: title.slice(0, 200),
+          description: desc ? desc.slice(0, 2000) : undefined,
+          category: "family",
+          priority: "medium",
+        },
+      });
+      toast.success("Added to pathway");
+      setOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not add to pathway");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+      >
+        <ListPlus className="h-3.5 w-3.5" /> Add to pathway
+      </Link>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+      >
+        <ListPlus className="h-3.5 w-3.5" /> Add to pathway
+      </button>
+      {open && (
+        <div className="absolute right-0 z-20 mt-2 w-64 rounded-xl border border-border bg-popover p-2 shadow-lift">
+          <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Add to which student?
+          </p>
+          {students === null ? (
+            <p className="px-2 py-2 text-xs text-muted-foreground">Loading…</p>
+          ) : students.length === 0 ? (
+            <Link
+              to="/students"
+              className="block px-2 py-2 text-xs text-primary hover:underline"
+            >
+              Create a student first →
+            </Link>
+          ) : (
+            <ul className="max-h-64 overflow-y-auto">
+              {students.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(s.id)}
+                    disabled={busyId === s.id}
+                    className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-xs hover:bg-muted disabled:opacity-50"
+                  >
+                    <span className="truncate">
+                      {s.first_name}
+                      {s.last_name ? ` ${s.last_name}` : ""}
+                    </span>
+                    {busyId === s.id && (
+                      <span className="text-[10px] text-muted-foreground">…</span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ───────────────────────── Resource Card
+
+
 
 function ResourceCard({
   resource: r,
@@ -1106,13 +1234,19 @@ function ResourceCard({
       <div className="flex flex-1 flex-col p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{fmt.label}</Badge>
-          {r.location === "connecticut" && <Badge tone="warm">Connecticut</Badge>}
+          <Badge tone="muted">External</Badge>
+          {r.location === "connecticut" ? (
+            <Badge tone="warm">Connecticut</Badge>
+          ) : (
+            <Badge tone="muted">{LOCATION_LABEL[r.location]}</Badge>
+          )}
           {r.audiences.slice(0, 2).map((a) => (
             <Badge key={a} tone="muted">
               {AUDIENCE_META[a]}
             </Badge>
           ))}
         </div>
+
         <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
@@ -1192,11 +1326,13 @@ function ResourceCard({
           >
             <Share2 className="h-3.5 w-3.5" /> Share
           </button>
+          <AddToPathwayButton title={r.title} description={r.description} link={r.link} />
         </div>
       </div>
     </article>
   );
 }
+
 
 // ───────────────────────── Small UI bits
 
