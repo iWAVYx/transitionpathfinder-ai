@@ -1357,7 +1357,7 @@ function ResourceCard({
             </span>
           ))}
         </div>
-        <div className="mt-4 flex items-center gap-3 text-[11px] text-muted-foreground">
+        <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {r.estimatedTime}
           </span>
