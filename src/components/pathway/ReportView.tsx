@@ -1556,7 +1556,21 @@ function Block({
       }
     };
     window.addEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
-    return () => window.removeEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
+    const openHandler = (e: Event) => {
+      const detail = (e as CustomEvent<{ id: string }>).detail;
+      if (!detail || detail.id !== id) return;
+      setCollapsed(false);
+      try {
+        window.localStorage.setItem(blockStorageKey(id), "0");
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener("report-block-open", openHandler as EventListener);
+    return () => {
+      window.removeEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
+      window.removeEventListener("report-block-open", openHandler as EventListener);
+    };
   }, [id]);
 
   const toggle = () => {
