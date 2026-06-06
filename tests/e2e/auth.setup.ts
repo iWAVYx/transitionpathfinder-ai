@@ -1,4 +1,5 @@
 import { test as setup, expect } from "@playwright/test";
+import { authenticator } from "otplib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -41,12 +42,29 @@ setup("authenticate test user", async ({ page }) => {
   await signInPanel.getByLabel(/password/i).fill(password!);
   await signInPanel.getByRole("button", { name: /sign in/i }).click();
 
-  // The _authenticated layout redirects to /dashboard (or /onboarding) once
-  // Supabase finishes hydrating. Either is fine — we just need to leave
-  // /login so the session has been persisted to localStorage.
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
-    timeout: 20_000,
-  });
+  // If the user has TOTP enrolled, the login flow lands on /login/2fa first.
+  // Satisfy the challenge with the seeded secret so storageState ends up at
+  // aal2 — otherwise every signed-in spec would be stuck behind the 2FA gate.
+  const totpSecret = process.env.E2E_TOTP_SECRET;
+  await page.waitForURL(
+    (url) => !url.pathname.match(/^\/login$/),
+    { timeout: 20_000 },
+  );
+  if (new URL(page.url()).pathname.startsWith("/login/2fa")) {
+    setup.skip(
+      !totpSecret,
+      "Account requires 2FA but E2E_TOTP_SECRET is not set — signed-in suite skipped",
+    );
+    const code = authenticator.generate(totpSecret!);
+    const otp = page.getByLabel(/six-digit authenticator code/i);
+    await otp.click();
+    await page.keyboard.type(code, { delay: 30 });
+    await page.getByRole("button", { name: /^verify$/i }).click();
+    await page.waitForURL(
+      (url) => !url.pathname.startsWith("/login"),
+      { timeout: 20_000 },
+    );
+  }
 
   // Sanity check: the session token is now in localStorage.
   const hasSession = await page.evaluate(() =>

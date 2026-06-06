@@ -20,6 +20,17 @@ export const Route = createFileRoute("/_authenticated")({
         search: { redirect: location.pathname },
       });
     }
+    // 2FA gate: if the user has a verified TOTP factor but hasn't completed
+    // the challenge this session, bounce to /login/2fa. The /login/2fa route
+    // itself lives outside _authenticated so this doesn't loop.
+    const { data: aal } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+      throw redirect({
+        to: "/login/2fa",
+        search: { redirect: location.pathname },
+      });
+    }
   },
   component: AuthenticatedLayout,
 });
