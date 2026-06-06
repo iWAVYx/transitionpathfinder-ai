@@ -394,6 +394,8 @@ export function ReportView({
             >
               <ChevronsDownUp className="h-4 w-4" /> Collapse all
             </Button>
+          </div>
+
           {onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "secondary"}
