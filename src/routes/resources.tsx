@@ -46,7 +46,10 @@ import {
   unsaveResource,
   type SavedResourceRow,
 } from "@/lib/saved-resources.functions";
+import { listStudents, type Student } from "@/lib/students.functions";
+import { createStudentActionItem } from "@/lib/action-items.functions";
 import { toast } from "sonner";
+import { Plus, ListPlus } from "lucide-react";
 
 import { photos } from "@/lib/photos";
 const resourcesHero = photos.resources;
