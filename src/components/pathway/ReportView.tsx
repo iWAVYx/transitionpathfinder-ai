@@ -1907,12 +1907,18 @@ function ReportTOC({
   };
 
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setQuery("");
+      setFocusedIndex(-1);
+      searchRef.current?.blur();
+      return;
+    }
     if (filteredItems.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setFocusedIndex((prev) => {
         const next = prev < filteredItems.length - 1 ? prev + 1 : 0;
-        itemRefs.current[next]?.focus();
         itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
         return next;
       });
@@ -1920,22 +1926,36 @@ function ReportTOC({
       e.preventDefault();
       setFocusedIndex((prev) => {
         const next = prev > 0 ? prev - 1 : filteredItems.length - 1;
-        itemRefs.current[next]?.focus();
         itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
         return next;
       });
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setFocusedIndex(0);
+      itemRefs.current[0]?.scrollIntoView({ block: "nearest" });
+    } else if (e.key === "End") {
+      e.preventDefault();
+      const last = filteredItems.length - 1;
+      setFocusedIndex(last);
+      itemRefs.current[last]?.scrollIntoView({ block: "nearest" });
     } else if (e.key === "Enter") {
       e.preventDefault();
       const targetIndex = focusedIndex >= 0 ? focusedIndex : filteredItems.findIndex((it) => it.id === activeId);
       const idx = targetIndex >= 0 ? targetIndex : 0;
       doJump(filteredItems[idx].id);
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      setQuery("");
-      searchRef.current?.blur();
-      setFocusedIndex(-1);
     }
   };
+
+  const activeDescendantId =
+    focusedIndex >= 0 && filteredItems[focusedIndex]
+      ? `report-outline-opt-${filteredItems[focusedIndex].id}`
+      : undefined;
+  const resultsMessage =
+    query.trim().length === 0
+      ? `${items.length} sections available`
+      : filteredItems.length === 0
+        ? `No sections match ${query}`
+        : `${filteredItems.length} of ${items.length} sections match`;
 
   return (
     <nav
@@ -1966,11 +1986,24 @@ function ReportTOC({
         {open && (
           <>
             <div className="border-b border-border/60 px-3 py-2">
+              <label htmlFor="report-outline-search" className="sr-only">
+                Search report sections
+              </label>
+              <p id="report-outline-search-help" className="sr-only">
+                Type to filter sections. Use Up and Down arrow keys to move through results, Enter to jump to the selected section, Escape to clear.
+              </p>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
                 <input
                   ref={searchRef}
+                  id="report-outline-search"
                   type="text"
+                  role="combobox"
+                  aria-expanded={filteredItems.length > 0}
+                  aria-controls="report-outline-list"
+                  aria-autocomplete="list"
+                  aria-activedescendant={activeDescendantId}
+                  aria-describedby="report-outline-search-help report-outline-status"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={onSearchKeyDown}
@@ -1978,45 +2011,63 @@ function ReportTOC({
                   className="w-full rounded-md border border-border bg-background py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
+              <p
+                id="report-outline-status"
+                role="status"
+                aria-live="polite"
+                className="sr-only"
+              >
+                {resultsMessage}
+              </p>
             </div>
-            <ol
+            <ul
               id="report-outline-list"
+              role="listbox"
+              aria-label="Report sections"
+              aria-activedescendant={activeDescendantId}
               className="max-h-[calc(100vh-18rem)] space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
             >
               {filteredItems.map((it, i) => {
                 const isActive = activeId === it.id;
                 const isFocused = focusedIndex === i;
+                const optionId = `report-outline-opt-${it.id}`;
                 return (
-                  <li key={it.id}>
+                  <li key={it.id} role="presentation">
                     <a
                       ref={(el) => { itemRefs.current[i] = el; }}
+                      id={optionId}
                       href={`#${it.id}`}
                       onClick={jumpTo(it.id)}
-                      onFocus={() => setFocusedIndex(i)}
-                      onBlur={() => setFocusedIndex((prev) => (prev === i ? -1 : prev))}
-                      aria-current={isActive ? "true" : undefined}
+                      role="option"
+                      aria-selected={isFocused}
+                      aria-current={isActive ? "location" : undefined}
+                      tabIndex={-1}
                       className={cn(
                         "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors outline-none",
                         isActive
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
                         isFocused && "ring-1 ring-primary/60",
+                        "focus-visible:ring-2 focus-visible:ring-primary",
                       )}
                     >
-                      <span className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
+                      <span aria-hidden className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="leading-snug">{it.label}</span>
+                      <span className="leading-snug">
+                        {it.label}
+                        {isActive && <span className="sr-only"> (current section)</span>}
+                      </span>
                     </a>
                   </li>
                 );
               })}
               {filteredItems.length === 0 && (
-                <li className="px-2 py-4 text-center text-xs text-muted-foreground">
+                <li role="presentation" className="px-2 py-4 text-center text-xs text-muted-foreground">
                   No sections match “{query}”
                 </li>
               )}
-            </ol>
+            </ul>
           </>
         )}
       </div>
