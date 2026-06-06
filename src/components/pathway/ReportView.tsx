@@ -308,6 +308,38 @@ export function ReportView({
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div
+            role="group"
+            aria-label="Report density"
+            className="inline-flex rounded-lg border bg-muted/50 p-0.5"
+          >
+            <button
+              type="button"
+              onClick={() => setDensity("compact")}
+              aria-pressed={density === "compact"}
+              className={cn(
+                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                density === "compact"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Compact
+            </button>
+            <button
+              type="button"
+              onClick={() => setDensity("comfortable")}
+              aria-pressed={density === "comfortable"}
+              className={cn(
+                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                density === "comfortable"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Comfortable
+            </button>
+          </div>
           {onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "secondary"}
