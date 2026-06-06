@@ -72,10 +72,12 @@ export const recommendResourcesForStudent = createServerFn({ method: "POST" })
 
     const { data: resources, error: rErr } = await supabase
       .from("resources")
-      .select("id, title, description, resource_type, topic, url, source_name, grade_range, audience")
-      .eq("verified_status", "verified")
+      .select("id, title, description, resource_type, topic, url, source_name, grade_range, audience, featured, role_relevance, pathway_relevance")
+      .in("published_status", ["published", "featured", "approved"])
       .limit(500);
     if (rErr || !resources) return { items: [] as RecommendedResource[] };
+
+    const pathwayHint = (student.current_transition_status ?? "").toLowerCase();
 
     const scored: RecommendedResource[] = resources
       .map((r) => {
@@ -113,6 +115,23 @@ export const recommendResourcesForStudent = createServerFn({ method: "POST" })
           }
         } else {
           score -= 2;
+        }
+
+        const roleRel = (r as any).role_relevance as string[] | null;
+        if (roleRel && (roleRel.includes("student") || roleRel.includes("all"))) {
+          score += 1;
+          if (reasons.length < 3) reasons.push("Relevant to students");
+        }
+
+        const pathwayRel = (r as any).pathway_relevance as string[] | null;
+        if (pathwayHint && pathwayRel && pathwayRel.some((p) => pathwayHint.includes(p.toLowerCase()))) {
+          score += 2;
+          if (reasons.length < 3) reasons.push("Matches current transition stage");
+        }
+
+        if ((r as any).featured) {
+          score += 2;
+          if (reasons.length < 3) reasons.push("Featured by TransitionForward");
         }
 
         if (score > 0 && reasons.length === 0) reasons.push("Verified, broadly relevant resource");
