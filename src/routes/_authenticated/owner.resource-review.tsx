@@ -13,6 +13,7 @@ import {
   LinkIcon,
   Link2Off,
   Send,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { OwnerShell } from "@/components/owner/OwnerShell";
@@ -21,6 +22,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ownerListReviewQueue,
   ownerReviewResource,
   ownerBulkReviewResources,
@@ -28,6 +37,7 @@ import {
   type ReviewDecision,
   type BulkReviewDecision,
 } from "@/lib/owner/owner.functions";
+
 
 export const Route = createFileRoute("/_authenticated/owner/resource-review")({
   head: () => ({ meta: [{ title: "Review Queue — Admin Hub" }] }),
