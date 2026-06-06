@@ -462,7 +462,7 @@ function ResourcesPage() {
                 href={r.url ?? "#"}
                 target={r.url ? "_blank" : undefined}
                 rel={r.url ? "noreferrer" : undefined}
-                className="group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+                className="group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
               >
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
@@ -473,7 +473,7 @@ function ResourcesPage() {
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">{r.description}</p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">{r.description}</p>
                 )}
                 {r.source_name && (
                   <p className="mt-3 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
@@ -503,11 +503,11 @@ function ResourcesPage() {
               {filteredDbResources.length} verified
             </span>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredDbResources.slice(0, 6).map((r) => (
               <article
                 key={r.id}
-                className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
+                className="flex flex-col rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-shadow hover:shadow-lift"
               >
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
@@ -529,7 +529,7 @@ function ResourcesPage() {
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                     {r.description}
                   </p>
                 )}
