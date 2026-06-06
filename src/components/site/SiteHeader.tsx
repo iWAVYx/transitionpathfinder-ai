@@ -238,7 +238,7 @@ export function SiteHeader() {
         </Link>
 
 
-        <nav className="hidden min-w-0 items-center gap-0.5 lg:flex">
+        <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 lg:flex">
           {navGroups.map((group) => (
             <DropdownMenu key={group.label}>
               <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
