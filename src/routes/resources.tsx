@@ -29,6 +29,7 @@ import {
   Hammer,
   Building2,
   X,
+  Copy,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -1118,16 +1119,33 @@ function AddToPathwayButton({
       });
       toast.success("Added to pathway", {
         description: (
-          <span>
-            View it on the{" "}
-            <Link
-              to="/students/$studentId"
-              params={{ studentId }}
-              className="underline text-primary"
-            >
-              student page
-            </Link>
-            .
+          <span className="block">
+            <span className="block text-[11px] font-mono text-muted-foreground mb-1">
+              ID: {item.id}
+            </span>
+            <span className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(item.id);
+                    toast.success("ID copied to clipboard");
+                  } catch {
+                    toast.error("Could not copy ID");
+                  }
+                }}
+                className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] font-medium hover:bg-muted/80"
+              >
+                <Copy className="h-3 w-3" /> Copy ID
+              </button>
+              <Link
+                to="/students/$studentId"
+                params={{ studentId }}
+                className="text-[11px] underline text-primary"
+              >
+                View on student page
+              </Link>
+            </span>
           </span>
         ),
       });
