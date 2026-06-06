@@ -1226,13 +1226,19 @@ function ResourceCard({
       <div className="flex flex-1 flex-col p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{fmt.label}</Badge>
-          {r.location === "connecticut" && <Badge tone="warm">Connecticut</Badge>}
+          <Badge tone="muted">External</Badge>
+          {r.location === "connecticut" ? (
+            <Badge tone="warm">Connecticut</Badge>
+          ) : (
+            <Badge tone="muted">{LOCATION_LABEL[r.location]}</Badge>
+          )}
           {r.audiences.slice(0, 2).map((a) => (
             <Badge key={a} tone="muted">
               {AUDIENCE_META[a]}
             </Badge>
           ))}
         </div>
+
         <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
