@@ -455,14 +455,14 @@ function ResourcesPage() {
               </p>
             </div>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredFeaturedDb.slice(0, 6).map((r) => (
               <a
                 key={r.id}
                 href={r.url ?? "#"}
                 target={r.url ? "_blank" : undefined}
                 rel={r.url ? "noreferrer" : undefined}
-                className="group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+                className="group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
               >
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
@@ -473,7 +473,7 @@ function ResourcesPage() {
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">{r.description}</p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">{r.description}</p>
                 )}
                 {r.source_name && (
                   <p className="mt-3 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
@@ -503,11 +503,11 @@ function ResourcesPage() {
               {filteredDbResources.length} verified
             </span>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredDbResources.slice(0, 6).map((r) => (
               <article
                 key={r.id}
-                className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
+                className="flex flex-col rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-shadow hover:shadow-lift"
               >
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
@@ -529,7 +529,7 @@ function ResourcesPage() {
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                     {r.description}
                   </p>
                 )}
@@ -627,9 +627,9 @@ function ResourcesPage() {
               {sourceLibs.length} sources
             </span>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {sourceLibs.map((s) => (
-              <article key={s.id} className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift">
+              <article key={s.id} className="flex flex-col rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-shadow hover:shadow-lift">
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {s.source_type.replace(/_/g, " ")}
@@ -644,7 +644,7 @@ function ResourcesPage() {
                   <p className="mt-1 text-xs text-muted-foreground">{s.organization_name}</p>
                 )}
                 {s.description && (
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">{s.description}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">{s.description}</p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
                   <span>{s.resource_count} curated</span>
@@ -919,7 +919,7 @@ function BrowseTab(props: {
               Editors' picks
             </p>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {featured.map((r) => (
               <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact />
             ))}
@@ -939,7 +939,7 @@ function BrowseTab(props: {
                 {grouped[fmt]?.length} resources
               </p>
             </div>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {grouped[fmt]!.map((r) => (
                 <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
               ))}
@@ -1028,7 +1028,7 @@ function RecommendedTab({
           body="Once a student has goals, interests, and a grade level, the library can suggest videos, agencies, and worksheets that match."
         />
       ) : (
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {recs.map((r) => (
             <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
           ))}
@@ -1093,7 +1093,7 @@ function SavedTab({
                   · {byCollection[c].length}
                 </span>
               </h3>
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {byCollection[c].map((r) => (
                   <ResourceCard
                     key={r.id}
@@ -1303,7 +1303,7 @@ function ResourceCard({
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
       {r.format === "video" && r.youtubeId && !compact && (
         <div className="aspect-video w-full bg-black">
           <iframe
@@ -1316,7 +1316,7 @@ function ResourceCard({
           />
         </div>
       )}
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{fmt.label}</Badge>
           <Badge tone="muted">External</Badge>
@@ -1332,22 +1332,22 @@ function ResourceCard({
           ))}
         </div>
 
-        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
         </p>
-        <h3 className="mt-1 font-display text-lg font-medium leading-snug tracking-tight">
+        <h3 className="mt-1 font-display text-base font-medium leading-snug tracking-tight">
           {toTitleCase(r.title)}
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-2">
           {r.description}
         </p>
         {r.whyItHelps && (
-          <p className="mt-2 rounded-xl bg-muted/60 px-3 py-2 text-xs leading-relaxed text-foreground/80">
+          <p className="mt-2 rounded-xl bg-muted/60 px-3 py-1.5 text-xs leading-relaxed text-foreground/80">
             <span className="font-semibold">Why it helps:</span> {r.whyItHelps}
           </p>
         )}
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {r.topics.slice(0, 3).map((t) => (
             <span
               key={t}
@@ -1357,7 +1357,7 @@ function ResourceCard({
             </span>
           ))}
         </div>
-        <div className="mt-4 flex items-center gap-3 text-[11px] text-muted-foreground">
+        <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {r.estimatedTime}
           </span>
@@ -1370,18 +1370,18 @@ function ResourceCard({
 
         {/* Podcast inline audio */}
         {r.format === "podcast" && r.audioUrl && (
-          <div className="mt-4 rounded-2xl border border-border/60 bg-muted/40 p-3">
+          <div className="mt-3 rounded-xl border border-border/60 bg-muted/40 p-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               {r.podcastTitle} · {r.episodeTitle}
             </p>
-            <audio controls preload="none" className="mt-2 w-full">
+            <audio controls preload="none" className="mt-1 w-full">
               <source src={r.audioUrl} type="audio/mpeg" />
               Your browser does not support embedded audio.
             </audio>
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
           {r.link ? (
             <a
               href={r.link}
