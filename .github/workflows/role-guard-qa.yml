@@ -1,0 +1,34 @@
+name: Role-guard QA
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/role-policy.ts"
+      - "src/components/RoleGuard.tsx"
+      - "src/routes/_authenticated/**"
+      - "tests/role-guard-matrix.test.mjs"
+      - "tests/__snapshots__/role-guard-matrix.snap.json"
+      - ".github/workflows/role-guard-qa.yml"
+  push:
+    branches: [main]
+
+jobs:
+  role-guard-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # No install needed — the test only uses node:test + fs and parses
+      # src/lib/role-policy.ts directly. Keeps CI fast and avoids depending
+      # on the rest of the project's toolchain.
+      - name: Run role-guard regression
+        run: node --test tests/role-guard-matrix.test.mjs
+      - name: How to update snapshot
+        if: failure()
+        run: |
+          echo "::error::Route audience matrix changed unexpectedly."
+          echo "If the change is intentional, regenerate the snapshot locally:"
+          echo "  UPDATE_SNAPSHOTS=1 npm run test:role-guard"
+          echo "Then commit tests/__snapshots__/role-guard-matrix.snap.json."
