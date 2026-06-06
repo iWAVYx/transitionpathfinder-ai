@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
       },
     ],
   }),
-  component: MessagesPage,
+  component: () => (<RoleGuard path="/messages"><MessagesPage /></RoleGuard>),
 });
 
 function MessagesPage() {
