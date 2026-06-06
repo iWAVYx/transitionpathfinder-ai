@@ -33,7 +33,13 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
-import { listVerifiedResources, type DbResource } from "@/lib/resources-db.functions";
+import {
+  listVerifiedResources,
+  listFeaturedResources,
+  listSourceLibraries,
+  type DbResource,
+  type ResourceSourcePublic,
+} from "@/lib/resources-db.functions";
 import {
   listSavedResources,
   saveResource,
@@ -178,10 +184,14 @@ function ResourcesPage() {
   const { saved, toggle, remove } = useSaved();
 
   const fetchDb = useServerFn(listVerifiedResources);
+  const fetchFeatured = useServerFn(listFeaturedResources);
+  const fetchSources = useServerFn(listSourceLibraries);
   const fetchSaved = useServerFn(listSavedResources);
   const doSave = useServerFn(saveResource);
   const doUnsave = useServerFn(unsaveResource);
   const [dbResources, setDbResources] = useState<DbResource[] | null>(null);
+  const [featuredDb, setFeaturedDb] = useState<DbResource[]>([]);
+  const [sourceLibs, setSourceLibs] = useState<ResourceSourcePublic[]>([]);
   const [savedDb, setSavedDb] = useState<SavedResourceRow[]>([]);
   const savedIds = useMemo(() => new Set(savedDb.map((s) => s.resource_id)), [savedDb]);
   const { user } = useAuth();
@@ -189,7 +199,13 @@ function ResourcesPage() {
     fetchDb()
       .then((r) => setDbResources(r.resources))
       .catch(() => setDbResources([]));
-  }, [fetchDb]);
+    fetchFeatured()
+      .then((r) => setFeaturedDb(r.resources))
+      .catch(() => setFeaturedDb([]));
+    fetchSources()
+      .then((r) => setSourceLibs(r.sources))
+      .catch(() => setSourceLibs([]));
+  }, [fetchDb, fetchFeatured, fetchSources]);
   useEffect(() => {
     if (!user) {
       setSavedDb([]);
@@ -367,6 +383,51 @@ function ResourcesPage() {
         </div>
       </section>
 
+      {/* FEATURED RESOURCES (curated picks from DB) */}
+      {featuredDb.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
+                Featured
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Editors' picks this month
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Hand-selected by the TransitionForward team for high impact and trusted sourcing.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredDb.slice(0, 6).map((r) => (
+              <a
+                key={r.id}
+                href={r.url ?? "#"}
+                target={r.url ? "_blank" : undefined}
+                rel={r.url ? "noreferrer" : undefined}
+                className="group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{r.resource_type}</span>
+                  {r.url && <span className="rounded-full bg-muted px-2 py-0.5">External</span>}
+                </div>
+                <h3 className="mt-3 font-display text-base font-medium leading-snug group-hover:text-primary">
+                  {r.title}
+                </h3>
+                {r.description && (
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">{r.description}</p>
+                )}
+                {r.source_name && (
+                  <p className="mt-3 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* VERIFIED LIBRARY (live from DB) */}
       {dbResources && dbResources.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
@@ -392,10 +453,16 @@ function ResourcesPage() {
                 key={r.id}
                 className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
               >
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
                   </span>
+                  {r.featured && (
+                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                  )}
+                  {r.url && (
+                    <span className="rounded-full bg-muted px-2 py-0.5">External</span>
+                  )}
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
                 <h3 className="mt-3 font-display text-base font-medium leading-snug">
@@ -407,7 +474,9 @@ function ResourcesPage() {
                   </p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
-                  <span>{r.source_name ?? r.location_scope}</span>
+                  <span className="truncate">
+                    {r.source_name ? `Source: ${r.source_name}` : r.location_scope}
+                  </span>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleToggleSaveDb(r.id)}
@@ -474,6 +543,58 @@ function ResourcesPage() {
         </section>
       )}
 
+
+      {/* BROWSE BY SOURCE LIBRARY */}
+      {sourceLibs.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Trusted source libraries
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Browse by source
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Resources curated from leading professional, government, nonprofit, and educational libraries.
+              </p>
+            </div>
+            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+              {sourceLibs.length} sources
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {sourceLibs.map((s) => (
+              <article key={s.id} className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift">
+                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
+                    {s.source_type.replace(/_/g, " ")}
+                  </span>
+                  <span className="rounded-full bg-muted px-2 py-0.5">{s.location_scope}</span>
+                  {s.review_status === "featured" && (
+                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                  )}
+                </div>
+                <h3 className="mt-3 font-display text-base font-medium leading-snug">{s.source_name}</h3>
+                {s.organization_name && (
+                  <p className="mt-1 text-xs text-muted-foreground">{s.organization_name}</p>
+                )}
+                {s.description && (
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">{s.description}</p>
+                )}
+                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
+                  <span>{s.resource_count} curated</span>
+                  {s.source_url && (
+                    <a href={s.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">
+                      Visit library <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* TAB BAR */}
 
