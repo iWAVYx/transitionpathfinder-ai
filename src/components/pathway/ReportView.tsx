@@ -367,6 +367,33 @@ export function ReportView({
               Comfortable
             </button>
           </div>
+          <div className="inline-flex gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (typeof window !== "undefined")
+                  window.dispatchEvent(
+                    new CustomEvent("report-blocks-toggle", { detail: { open: true } }),
+                  );
+              }}
+              aria-label="Expand all sections"
+            >
+              <ChevronsUpDown className="h-4 w-4" /> Expand all
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (typeof window !== "undefined")
+                  window.dispatchEvent(
+                    new CustomEvent("report-blocks-toggle", { detail: { open: false } }),
+                  );
+              }}
+              aria-label="Collapse all sections"
+            >
+              <ChevronsDownUp className="h-4 w-4" /> Collapse all
+            </Button>
           {onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "secondary"}
