@@ -33,7 +33,13 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
-import { listVerifiedResources, type DbResource } from "@/lib/resources-db.functions";
+import {
+  listVerifiedResources,
+  listFeaturedResources,
+  listSourceLibraries,
+  type DbResource,
+  type ResourceSourcePublic,
+} from "@/lib/resources-db.functions";
 import {
   listSavedResources,
   saveResource,
@@ -178,10 +184,14 @@ function ResourcesPage() {
   const { saved, toggle, remove } = useSaved();
 
   const fetchDb = useServerFn(listVerifiedResources);
+  const fetchFeatured = useServerFn(listFeaturedResources);
+  const fetchSources = useServerFn(listSourceLibraries);
   const fetchSaved = useServerFn(listSavedResources);
   const doSave = useServerFn(saveResource);
   const doUnsave = useServerFn(unsaveResource);
   const [dbResources, setDbResources] = useState<DbResource[] | null>(null);
+  const [featuredDb, setFeaturedDb] = useState<DbResource[]>([]);
+  const [sourceLibs, setSourceLibs] = useState<ResourceSourcePublic[]>([]);
   const [savedDb, setSavedDb] = useState<SavedResourceRow[]>([]);
   const savedIds = useMemo(() => new Set(savedDb.map((s) => s.resource_id)), [savedDb]);
   const { user } = useAuth();
@@ -189,7 +199,13 @@ function ResourcesPage() {
     fetchDb()
       .then((r) => setDbResources(r.resources))
       .catch(() => setDbResources([]));
-  }, [fetchDb]);
+    fetchFeatured()
+      .then((r) => setFeaturedDb(r.resources))
+      .catch(() => setFeaturedDb([]));
+    fetchSources()
+      .then((r) => setSourceLibs(r.sources))
+      .catch(() => setSourceLibs([]));
+  }, [fetchDb, fetchFeatured, fetchSources]);
   useEffect(() => {
     if (!user) {
       setSavedDb([]);
