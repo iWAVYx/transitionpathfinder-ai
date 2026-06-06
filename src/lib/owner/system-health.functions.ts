@@ -445,6 +445,13 @@ export const runSystemHealth = createServerFn({ method: "GET" })
 
       // Experience
       { key: "mobile_responsiveness", label: "Mobile Responsiveness", category: "ui", manualNote: "Verified at 375px, 768px, 1024px across signup, onboarding, dashboards, Pathway Report, Admin Hub. Recheck after layout changes." },
+
+      // Security guards (active probes that exercise real boundaries)
+      { key: "privilege_escalation_guard", label: "Privilege Escalation Guard", category: "infra" },
+      { key: "can_access_student_helper", label: "Student Access Helper", category: "infra" },
+      { key: "storage_documents", label: "Document Storage", category: "data" },
+      { key: "share_links", label: "Share Links", category: "data" },
+      { key: "ai_gateway", label: "AI Gateway Key", category: "infra" },
     ];
 
     // Run all custom probes once up-front; the loop below routes results by key.
