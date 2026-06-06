@@ -383,6 +383,51 @@ function ResourcesPage() {
         </div>
       </section>
 
+      {/* FEATURED RESOURCES (curated picks from DB) */}
+      {featuredDb.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
+                Featured
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Editors' picks this month
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Hand-selected by the TransitionForward team for high impact and trusted sourcing.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredDb.slice(0, 6).map((r) => (
+              <a
+                key={r.id}
+                href={r.url ?? "#"}
+                target={r.url ? "_blank" : undefined}
+                rel={r.url ? "noreferrer" : undefined}
+                className="group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{r.resource_type}</span>
+                  {r.url && <span className="rounded-full bg-muted px-2 py-0.5">External</span>}
+                </div>
+                <h3 className="mt-3 font-display text-base font-medium leading-snug group-hover:text-primary">
+                  {r.title}
+                </h3>
+                {r.description && (
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-3">{r.description}</p>
+                )}
+                {r.source_name && (
+                  <p className="mt-3 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* VERIFIED LIBRARY (live from DB) */}
       {dbResources && dbResources.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
