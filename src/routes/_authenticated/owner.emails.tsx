@@ -105,6 +105,7 @@ function EmailMonitorPage() {
   const [range, setRange] = useState<RangeOpt>("7d");
   const [template, setTemplate] = useState<string>("all");
   const [status, setStatus] = useState<StatusOpt>("all");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
 
   const params = useMemo(
@@ -112,10 +113,11 @@ function EmailMonitorPage() {
       range,
       template: template === "all" ? undefined : template,
       status,
+      search: search.trim() || undefined,
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
     }),
-    [range, template, status, page],
+    [range, template, status, search, page],
   );
 
   const { data, isLoading, isFetching, refetch } = useQuery({
