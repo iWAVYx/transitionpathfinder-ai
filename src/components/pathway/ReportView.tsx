@@ -1986,11 +1986,24 @@ function ReportTOC({
         {open && (
           <>
             <div className="border-b border-border/60 px-3 py-2">
+              <label htmlFor="report-outline-search" className="sr-only">
+                Search report sections
+              </label>
+              <p id="report-outline-search-help" className="sr-only">
+                Type to filter sections. Use Up and Down arrow keys to move through results, Enter to jump to the selected section, Escape to clear.
+              </p>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
                 <input
                   ref={searchRef}
+                  id="report-outline-search"
                   type="text"
+                  role="combobox"
+                  aria-expanded={filteredItems.length > 0}
+                  aria-controls="report-outline-list"
+                  aria-autocomplete="list"
+                  aria-activedescendant={activeDescendantId}
+                  aria-describedby="report-outline-search-help report-outline-status"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={onSearchKeyDown}
@@ -1998,45 +2011,63 @@ function ReportTOC({
                   className="w-full rounded-md border border-border bg-background py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
+              <p
+                id="report-outline-status"
+                role="status"
+                aria-live="polite"
+                className="sr-only"
+              >
+                {resultsMessage}
+              </p>
             </div>
-            <ol
+            <ul
               id="report-outline-list"
+              role="listbox"
+              aria-label="Report sections"
+              aria-activedescendant={activeDescendantId}
               className="max-h-[calc(100vh-18rem)] space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
             >
               {filteredItems.map((it, i) => {
                 const isActive = activeId === it.id;
                 const isFocused = focusedIndex === i;
+                const optionId = `report-outline-opt-${it.id}`;
                 return (
-                  <li key={it.id}>
+                  <li key={it.id} role="presentation">
                     <a
                       ref={(el) => { itemRefs.current[i] = el; }}
+                      id={optionId}
                       href={`#${it.id}`}
                       onClick={jumpTo(it.id)}
-                      onFocus={() => setFocusedIndex(i)}
-                      onBlur={() => setFocusedIndex((prev) => (prev === i ? -1 : prev))}
-                      aria-current={isActive ? "true" : undefined}
+                      role="option"
+                      aria-selected={isFocused}
+                      aria-current={isActive ? "location" : undefined}
+                      tabIndex={-1}
                       className={cn(
                         "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors outline-none",
                         isActive
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
                         isFocused && "ring-1 ring-primary/60",
+                        "focus-visible:ring-2 focus-visible:ring-primary",
                       )}
                     >
-                      <span className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
+                      <span aria-hidden className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="leading-snug">{it.label}</span>
+                      <span className="leading-snug">
+                        {it.label}
+                        {isActive && <span className="sr-only"> (current section)</span>}
+                      </span>
                     </a>
                   </li>
                 );
               })}
               {filteredItems.length === 0 && (
-                <li className="px-2 py-4 text-center text-xs text-muted-foreground">
+                <li role="presentation" className="px-2 py-4 text-center text-xs text-muted-foreground">
                   No sections match “{query}”
                 </li>
               )}
-            </ol>
+            </ul>
           </>
         )}
       </div>
