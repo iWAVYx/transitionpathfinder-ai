@@ -1336,7 +1336,7 @@ function ResourceCard({
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
         </p>
-        <h3 className="mt-1 font-display text-lg font-medium leading-snug tracking-tight">
+        <h3 className="mt-1 font-display text-base font-medium leading-snug tracking-tight">
           {toTitleCase(r.title)}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
