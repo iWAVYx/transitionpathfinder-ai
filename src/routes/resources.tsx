@@ -857,7 +857,6 @@ function BrowseTab(props: {
             </button>
           </div>
         </div>
-      </div>
 
       {/* Featured strip (only when no filters) */}
       {activeFilterCount === 0 && (
