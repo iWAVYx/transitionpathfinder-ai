@@ -627,9 +627,9 @@ function ResourcesPage() {
               {sourceLibs.length} sources
             </span>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {sourceLibs.map((s) => (
-              <article key={s.id} className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift">
+              <article key={s.id} className="flex flex-col rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition-shadow hover:shadow-lift">
                 <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {s.source_type.replace(/_/g, " ")}
@@ -644,7 +644,7 @@ function ResourcesPage() {
                   <p className="mt-1 text-xs text-muted-foreground">{s.organization_name}</p>
                 )}
                 {s.description && (
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-3">{s.description}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">{s.description}</p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
                   <span>{s.resource_count} curated</span>
@@ -919,7 +919,7 @@ function BrowseTab(props: {
               Editors' picks
             </p>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {featured.map((r) => (
               <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact />
             ))}
@@ -939,7 +939,7 @@ function BrowseTab(props: {
                 {grouped[fmt]?.length} resources
               </p>
             </div>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {grouped[fmt]!.map((r) => (
                 <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} />
               ))}
