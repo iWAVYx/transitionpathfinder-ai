@@ -646,6 +646,8 @@ function ResourcesPage() {
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <input
+              type="search"
+              aria-label="Search resources"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search videos, podcasts, books, worksheets, agencies…"
