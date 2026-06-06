@@ -19,11 +19,14 @@ import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ownerListReviewQueue,
   ownerReviewResource,
+  ownerBulkReviewResources,
   type ReviewQueueItem,
   type ReviewDecision,
+  type BulkReviewDecision,
 } from "@/lib/owner/owner.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/resource-review")({
@@ -92,12 +95,16 @@ const DECISIONS: {
 function ReviewQueuePage() {
   const list = useServerFn(ownerListReviewQueue);
   const review = useServerFn(ownerReviewResource);
+  const bulkReview = useServerFn(ownerBulkReviewResources);
 
   const [items, setItems] = useState<ReviewQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkNotes, setBulkNotes] = useState("");
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
 
   async function reload(preserveIndex = false) {
     setLoading(true);
@@ -165,6 +172,80 @@ function ReviewQueuePage() {
     });
   }
 
+  const bulkEligible = useMemo(
+    () => items.filter((i) => i.review_reason === "needs_review"),
+    [items],
+  );
+  const selectedIds = useMemo(
+    () => bulkEligible.filter((i) => selected.has(i.id)).map((i) => i.id),
+    [bulkEligible, selected],
+  );
+  const allEligibleSelected =
+    bulkEligible.length > 0 && selectedIds.length === bulkEligible.length;
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+  function toggleAllEligible() {
+    setSelected((prev) => {
+      if (bulkEligible.every((i) => prev.has(i.id))) return new Set();
+      return new Set(bulkEligible.map((i) => i.id));
+    });
+  }
+  function clearSelection() {
+    setSelected(new Set());
+  }
+
+  async function handleBulk(decision: BulkReviewDecision) {
+    if (selectedIds.length === 0) {
+      toast.error("Select at least one needs-review resource.");
+      return;
+    }
+    if (decision === "request_changes" && bulkNotes.trim().length < 3) {
+      toast.error("Add bulk notes explaining the requested changes.");
+      return;
+    }
+    if (decision === "archive") {
+      if (
+        !confirm(
+          `Archive ${selectedIds.length} resource${selectedIds.length === 1 ? "" : "s"}? They will be removed from the active library.`,
+        )
+      )
+        return;
+    }
+    setBulkSubmitting(true);
+    try {
+      const res = await bulkReview({
+        data: {
+          ids: selectedIds,
+          decision,
+          resolution_notes: bulkNotes.trim() || null,
+        },
+      });
+      if (res.failed_count > 0) {
+        toast.warning(`${res.succeeded} updated, ${res.failed_count} failed.`);
+      } else {
+        toast.success(`${res.succeeded} resource${res.succeeded === 1 ? "" : "s"} updated.`);
+      }
+      setItems((prev) =>
+        prev.filter((p) => !selectedIds.includes(p.id) || res.failed_ids.includes(p.id)),
+      );
+      setSelected(new Set(res.failed_ids));
+      setBulkNotes("");
+      setIndex((i) => Math.min(i, Math.max(0, items.length - selectedIds.length - 1)));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Bulk action failed");
+    } finally {
+      setBulkSubmitting(false);
+    }
+  }
+
+
   return (
     <OwnerShell
       title="Review Queue"
@@ -203,6 +284,131 @@ function ReviewQueuePage() {
             <StatCard label="Needs review" value={counts.needs} tone="warning" />
             <StatCard label="Broken links" value={counts.broken} tone="danger" />
           </div>
+
+          {/* Bulk actions */}
+          {bulkEligible.length > 0 && (
+            <section className="rounded-lg border border-border bg-background p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-semibold">Bulk actions</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Select multiple needs-review resources to approve, request changes, publish,
+                    or archive together. Broken-link items must be handled individually.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={toggleAllEligible}
+                    className="rounded-md border border-border px-2 py-1 hover:bg-muted"
+                  >
+                    {allEligibleSelected ? "Clear all" : `Select all (${bulkEligible.length})`}
+                  </button>
+                  {selectedIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearSelection}
+                      className="rounded-md border border-border px-2 py-1 hover:bg-muted"
+                    >
+                      Clear ({selectedIds.length})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-3 max-h-64 overflow-y-auto rounded-md border border-border divide-y divide-border">
+                {bulkEligible.map((it) => {
+                  const isChecked = selected.has(it.id);
+                  return (
+                    <label
+                      key={it.id}
+                      className="flex cursor-pointer items-start gap-3 px-3 py-2 text-sm hover:bg-muted/50"
+                    >
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={() => toggleOne(it.id)}
+                        className="mt-0.5"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium truncate">{it.title}</span>
+                          <Badge variant="outline" className="text-[10px]">
+                            {it.published_status}
+                          </Badge>
+                          {it.source_name && (
+                            <span className="text-[11px] text-muted-foreground">
+                              · {it.source_name}
+                            </span>
+                          )}
+                        </div>
+                        {it.description && (
+                          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                            {it.description}
+                          </p>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+
+              <div className="mt-3">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Bulk notes
+                </label>
+                <Textarea
+                  value={bulkNotes}
+                  onChange={(e) => setBulkNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Optional — appended to each selected resource's review history. Required when requesting changes."
+                  maxLength={4000}
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground mr-auto">
+                  {selectedIds.length} selected
+                </span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("approve")}
+                >
+                  <CheckCircle2 className="mr-1 h-4 w-4" /> Approve
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("publish")}
+                >
+                  <Send className="mr-1 h-4 w-4" /> Approve & Publish
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("request_changes")}
+                >
+                  <MessageSquare className="mr-1 h-4 w-4" /> Request Changes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("archive")}
+                >
+                  <Archive className="mr-1 h-4 w-4" /> Archive
+                </Button>
+                {bulkSubmitting && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            </section>
+          )}
+
+
 
           {/* Step indicator */}
           <div className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2 text-sm">

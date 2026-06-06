@@ -937,6 +937,87 @@ export const ownerReviewResource = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const BULK_REVIEW_DECISIONS = ["approve", "publish", "request_changes", "archive"] as const;
+export type BulkReviewDecision = (typeof BULK_REVIEW_DECISIONS)[number];
+
+export const ownerBulkReviewResources = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        ids: z.array(z.string().uuid()).min(1).max(100),
+        decision: z.enum(BULK_REVIEW_DECISIONS),
+        resolution_notes: z.string().trim().max(4000).optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const nowIso = new Date().toISOString();
+    const basePatch: Record<string, any> = {
+      reviewed_by_user_id: userId,
+      reviewed_at: nowIso,
+    };
+    switch (data.decision) {
+      case "approve":
+        basePatch.published_status = "approved";
+        basePatch.verified_status = "verified";
+        break;
+      case "publish":
+        basePatch.published_status = "published";
+        basePatch.verified_status = "verified";
+        break;
+      case "request_changes":
+        basePatch.published_status = "needs_review";
+        break;
+      case "archive":
+        basePatch.published_status = "archived";
+        break;
+    }
+
+    const notes = data.resolution_notes?.trim() ?? "";
+    let succeeded = 0;
+    const failed: string[] = [];
+
+    // Fetch existing notes in one query so we can append per-row history.
+    let existingNotesById = new Map<string, string | null>();
+    if (notes.length > 0) {
+      const { data: rows } = await supabaseAdmin
+        .from("resources")
+        .select("id, review_notes")
+        .in("id", data.ids);
+      existingNotesById = new Map((rows ?? []).map((r: any) => [r.id, r.review_notes]));
+    }
+
+    for (const id of data.ids) {
+      const patch = { ...basePatch };
+      if (notes.length > 0) {
+        const stamp = `[${nowIso.slice(0, 10)} · ${data.decision} · bulk] ${notes}`;
+        const prev = existingNotesById.get(id);
+        patch.review_notes = prev ? `${prev}\n\n${stamp}` : stamp;
+      }
+      const { error } = await supabaseAdmin
+        .from("resources")
+        .update(patch as never)
+        .eq("id", id);
+      if (error) {
+        failed.push(id);
+        continue;
+      }
+      succeeded++;
+      await logActivity(supabase, userId, "resource_reviewed", "resource", id, {
+        decision: data.decision,
+        bulk: true,
+        has_notes: notes.length > 0,
+      });
+    }
+
+    return { ok: failed.length === 0, succeeded, failed_count: failed.length, failed_ids: failed };
+  });
+
 // ---------- Analytics ----------
 
 export type AnalyticsSeriesPoint = { date: string; count: number };
