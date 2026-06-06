@@ -694,6 +694,10 @@ function ResourcesPage() {
         </div>
       </section>
 
+      {/* Screen-reader announcement for filter/result changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </div>
 
       {/* TAB BAR */}
 
