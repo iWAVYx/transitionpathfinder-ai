@@ -413,7 +413,7 @@ function ResourcesPage() {
       </section>
 
       {/* FEATURED RESOURCES (curated picks from DB) */}
-      {featuredDb.length > 0 && (
+      {filteredFeaturedDb.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -429,7 +429,7 @@ function ResourcesPage() {
             </div>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredDb.slice(0, 6).map((r) => (
+            {filteredFeaturedDb.slice(0, 6).map((r) => (
               <a
                 key={r.id}
                 href={r.url ?? "#"}
@@ -455,7 +455,7 @@ function ResourcesPage() {
             ))}
           </div>
         </section>
-      )}
+      )
 
       {/* VERIFIED LIBRARY (live from DB) */}
       {dbResources && dbResources.length > 0 && (
