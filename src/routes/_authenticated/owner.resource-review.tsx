@@ -285,6 +285,131 @@ function ReviewQueuePage() {
             <StatCard label="Broken links" value={counts.broken} tone="danger" />
           </div>
 
+          {/* Bulk actions */}
+          {bulkEligible.length > 0 && (
+            <section className="rounded-lg border border-border bg-background p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-semibold">Bulk actions</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Select multiple needs-review resources to approve, request changes, publish,
+                    or archive together. Broken-link items must be handled individually.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={toggleAllEligible}
+                    className="rounded-md border border-border px-2 py-1 hover:bg-muted"
+                  >
+                    {allEligibleSelected ? "Clear all" : `Select all (${bulkEligible.length})`}
+                  </button>
+                  {selectedIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearSelection}
+                      className="rounded-md border border-border px-2 py-1 hover:bg-muted"
+                    >
+                      Clear ({selectedIds.length})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-3 max-h-64 overflow-y-auto rounded-md border border-border divide-y divide-border">
+                {bulkEligible.map((it) => {
+                  const isChecked = selected.has(it.id);
+                  return (
+                    <label
+                      key={it.id}
+                      className="flex cursor-pointer items-start gap-3 px-3 py-2 text-sm hover:bg-muted/50"
+                    >
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={() => toggleOne(it.id)}
+                        className="mt-0.5"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium truncate">{it.title}</span>
+                          <Badge variant="outline" className="text-[10px]">
+                            {it.published_status}
+                          </Badge>
+                          {it.source_name && (
+                            <span className="text-[11px] text-muted-foreground">
+                              · {it.source_name}
+                            </span>
+                          )}
+                        </div>
+                        {it.description && (
+                          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                            {it.description}
+                          </p>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+
+              <div className="mt-3">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Bulk notes
+                </label>
+                <Textarea
+                  value={bulkNotes}
+                  onChange={(e) => setBulkNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Optional — appended to each selected resource's review history. Required when requesting changes."
+                  maxLength={4000}
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground mr-auto">
+                  {selectedIds.length} selected
+                </span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("approve")}
+                >
+                  <CheckCircle2 className="mr-1 h-4 w-4" /> Approve
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("publish")}
+                >
+                  <Send className="mr-1 h-4 w-4" /> Approve & Publish
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("request_changes")}
+                >
+                  <MessageSquare className="mr-1 h-4 w-4" /> Request Changes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={bulkSubmitting || selectedIds.length === 0}
+                  onClick={() => handleBulk("archive")}
+                >
+                  <Archive className="mr-1 h-4 w-4" /> Archive
+                </Button>
+                {bulkSubmitting && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            </section>
+          )}
+
+
+
           {/* Step indicator */}
           <div className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2 text-sm">
             <span className="text-muted-foreground">
