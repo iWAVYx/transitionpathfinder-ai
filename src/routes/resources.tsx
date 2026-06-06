@@ -189,6 +189,15 @@ function ResourcesPage() {
   const [liveMessage, setLiveMessage] = useState("");
   const hasAnnounced = useRef(false);
 
+  const [viewDensity, setViewDensity] = useState<"compact" | "comfortable">(() => {
+    try {
+      return (typeof window !== "undefined" && localStorage.getItem("tf.viewDensity") as "compact" | "comfortable") || "compact";
+    } catch { return "compact"; }
+  });
+  useEffect(() => {
+    try { if (typeof window !== "undefined") localStorage.setItem("tf.viewDensity", viewDensity); } catch {}
+  }, [viewDensity]);
+
   const fetchDb = useServerFn(listVerifiedResources);
   const fetchFeatured = useServerFn(listFeaturedResources);
   const fetchSources = useServerFn(listSourceLibraries);
