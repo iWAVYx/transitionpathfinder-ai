@@ -55,8 +55,7 @@ async function getSession(email) {
 // Set up a fresh student owned by qa.parent and seed every collaborator state
 // + one goal that every prober will try to update.
 async function setupFixture() {
-  const ownerClient = freshClient();
-  const owner = await signIn(ownerClient, ACCOUNTS.owner);
+  const { client: ownerClient, user: owner } = await getSession(ACCOUNTS.owner);
 
   const { data: student, error: sErr } = await ownerClient
     .from("students")
@@ -65,13 +64,10 @@ async function setupFixture() {
     .single();
   assert.ok(!sErr, `student seed failed: ${sErr?.message}`);
 
-  // Resolve collaborator user ids (they all share the test password).
+  // Resolve collaborator user ids via the pooled sessions (no fresh logins).
   const ids = {};
   for (const key of ["editor", "viewer", "pendingEditor"]) {
-    const c = freshClient();
-    const u = await signIn(c, ACCOUNTS[key]);
-    ids[key] = u.id;
-    await c.auth.signOut();
+    ids[key] = (await getSession(ACCOUNTS[key])).user.id;
   }
 
   // Owner inserts collaborator rows directly with user_id + status pre-set
@@ -124,23 +120,20 @@ async function setupFixture() {
 async function teardown({ ownerClient, studentId }) {
   // students CASCADE → collaborators, goals, etc. go with it.
   if (studentId) await ownerClient.from("students").delete().eq("id", studentId);
-  await ownerClient.auth.signOut();
+  // Do NOT sign out: ownerClient is the pooled session, reused by other tests.
 }
 
 // Attempts to update the seeded goal as `email`, and reports whether the
-// update actually took effect (using a fresh owner read to bypass the
-// prober's own RLS view, which can hide the row regardless of the write
-// result).
+// update actually took effect (using an owner read to bypass the prober's
+// own RLS view, which can hide the row regardless of the write result).
 async function probeUpdate({ email, goalId, ownerClient }) {
-  const probe = freshClient();
-  await signIn(probe, email);
+  const { client: probe } = await getSession(email);
   const marker = `mut-${email}-${Date.now()}`;
   const writeResult = await probe
     .from("goals")
     .update({ title: marker })
     .eq("id", goalId)
     .select("id");
-  await probe.auth.signOut();
 
   const { data: after, error: readErr } = await ownerClient
     .from("goals")
