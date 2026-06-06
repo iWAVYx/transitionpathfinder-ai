@@ -733,7 +733,7 @@ export function ReportView({
                 </div>
 
                 <div className="mt-5 rounded-2xl bg-muted/50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
                     Action Steps
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
