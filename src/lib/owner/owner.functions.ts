@@ -606,11 +606,22 @@ export const RESOURCE_AUDIENCES = [
   "parent_guardian",
   "teacher",
   "school_admin",
+  "district_admin",
   "partner",
   "all",
 ] as const;
 export const RESOURCE_VERIFIED_STATUSES = ["pending", "verified", "rejected"] as const;
 export type ResourceVerifiedStatus = (typeof RESOURCE_VERIFIED_STATUSES)[number];
+
+export const RESOURCE_PUBLISHED_STATUSES = [
+  "draft",
+  "needs_review",
+  "approved",
+  "published",
+  "featured",
+  "archived",
+] as const;
+export type ResourcePublishedStatus = (typeof RESOURCE_PUBLISHED_STATUSES)[number];
 
 export type ResourceRow = {
   id: string;
@@ -628,7 +639,15 @@ export type ResourceRow = {
   url: string | null;
   image_url: string | null;
   source_name: string | null;
+  source_id: string | null;
+  original_resource_url: string | null;
   verified_status: ResourceVerifiedStatus;
+  published_status: ResourcePublishedStatus;
+  featured: boolean;
+  link_status: string;
+  review_notes: string | null;
+  role_relevance: string[] | null;
+  pathway_relevance: string[] | null;
   created_by_user_id: string | null;
   created_at: string;
   updated_at: string | null;
@@ -678,7 +697,14 @@ const resourceInput = z.object({
   url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
   image_url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
   source_name: z.string().trim().max(200).optional().nullable(),
+  source_id: z.string().uuid().nullable().optional(),
+  original_resource_url: z.string().trim().url().max(2000).optional().nullable().or(z.literal("")),
   verified_status: z.enum(RESOURCE_VERIFIED_STATUSES).default("pending"),
+  published_status: z.enum(RESOURCE_PUBLISHED_STATUSES).default("draft"),
+  featured: z.boolean().default(false),
+  review_notes: z.string().trim().max(4000).nullable().optional(),
+  role_relevance: z.array(z.string()).default([]),
+  pathway_relevance: z.array(z.string()).default([]),
 });
 
 export const ownerSaveResource = createServerFn({ method: "POST" })
@@ -692,6 +718,7 @@ export const ownerSaveResource = createServerFn({ method: "POST" })
     const row: Record<string, any> = { ...rest };
     if (row.url === "") row.url = null;
     if (row.image_url === "") row.image_url = null;
+    if (row.original_resource_url === "") row.original_resource_url = null;
     if (id) {
       const { error } = await supabaseAdmin
         .from("resources")
@@ -711,6 +738,69 @@ export const ownerSaveResource = createServerFn({ method: "POST" })
       await logActivity(supabase, userId, "resource_created", "resource", ins.id);
       return { ok: true, id: ins.id };
     }
+  });
+
+export const ownerSetResourcePublishedStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        published_status: z.enum(RESOURCE_PUBLISHED_STATUSES),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch: Record<string, any> = {
+      published_status: data.published_status,
+      reviewed_by_user_id: userId,
+      reviewed_at: new Date().toISOString(),
+    };
+    if (data.published_status === "published" || data.published_status === "featured" || data.published_status === "approved") {
+      patch.verified_status = "verified";
+    }
+    const { error } = await supabaseAdmin.from("resources").update(patch as never).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await logActivity(supabase, userId, "resource_status_changed", "resource", data.id, { published_status: data.published_status });
+    return { ok: true };
+  });
+
+export const ownerSetResourceFeatured = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid(), featured: z.boolean() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("resources")
+      .update({ featured: data.featured } as never)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await logActivity(supabase, userId, data.featured ? "resource_featured" : "resource_unfeatured", "resource", data.id);
+    return { ok: true };
+  });
+
+export const ownerMarkResourceLinkChecked = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid(), link_status: z.enum(["ok", "broken", "unknown"]) }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("resources")
+      .update({ link_status: data.link_status, link_checked_at: new Date().toISOString() } as never)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const ownerDeleteResource = createServerFn({ method: "POST" })

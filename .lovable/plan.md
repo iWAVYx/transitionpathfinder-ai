@@ -1,100 +1,91 @@
-# Signed-In Polish Pass — Plan
+## Resource Library v2 — Plan
 
-This is a polish + persistence pass. No structural rebuild, no public-site redesign, no changes to the 7-role model, the routing tree, the navigation system, or the Lovable Cloud schema unless a slice explicitly calls for additive changes (new columns/tables, never destructive).
+Additive only. Existing `resources` table, `/resources` page, `/owner/resources` admin, recommender, and roles stay in place. New work layers on top.
 
-Because the request is huge, I'll ship it in **8 reviewable slices**. After each slice you can say "next" (continue), "stop", or "adjust X". I won't move on until you say so.
+### 1. Database (one migration)
 
----
+**New table `resource_sources`** (the "trusted source library" concept):
+- `id`, `source_name`, `source_url`, `organization_name`
+- `source_type` (library | government | nonprofit | professional_association | research_center | curriculum | tools | media | local_resource)
+- `audience_focus[]`, `topic_focus[]` (text arrays)
+- `location_scope` (national | connecticut | local | online)
+- `update_frequency` (ongoing | monthly | quarterly | yearly | unknown)
+- `review_status` (needs_review | approved | featured | archived)
+- `last_reviewed_at`, `next_review_due_at`, `notes`
+- `created_by_user_id`, `created_at`, `updated_at`
+- RLS: anyone signed-in can SELECT approved/featured; only admin can INSERT/UPDATE/DELETE.
 
-## Guardrails (apply to every slice)
+**Extend `resources`** (additive columns, no breaking changes):
+- `source_id uuid REFERENCES resource_sources`
+- `original_resource_url text`
+- `reviewed_by_user_id uuid`, `reviewed_at timestamptz`, `review_notes text`
+- `copyright_notes text`, `accessibility_notes text`, `age_appropriateness text`
+- `role_relevance text[]`, `pathway_relevance text[]`
+- `published_status text` (draft | needs_review | approved | published | featured | archived) — defaults `published` for back-compat; existing `verified_status` is left in place and mirrored
+- `featured boolean default false`
+- `link_status text` (unknown | ok | broken), `link_checked_at timestamptz`
 
-- Keep the existing role structure, dashboard structure, route tree, design tokens, and visual identity.
-- Educator/Case Manager ≠ School Admin ≠ District Admin ≠ Platform Admin. Never collapse them.
-- All sensitive reads stay RLS-scoped via `can_access_student` / `auth.uid()`. No new `TO anon` policies on PII.
-- Server-side writes go through `createServerFn` with `requireSupabaseAuth`; admin-elevated work uses `supabaseAdmin` inside the handler (never at module scope).
-- No fake/dead buttons. If a feature isn't implementable in-pass, ship a polished "coming soon" state with a clear reason.
-- No hardcoded demo data leaking into real accounts. Demo Mode is clearly labeled and scoped.
-- Responsive: desktop / tablet / mobile checked on every touched surface.
+Existing CHECK on `audience` is widened to add `district_admin` (currently missing).
 
----
+### 2. Server functions
 
-## Slice 1 — Pathway Report polish (the core deliverable)
+`src/lib/resource-sources.functions.ts` (admin-gated via `has_role(admin)`):
+- `listSources({ filters })`, `getSource(id)`, `upsertSource(payload)`, `archiveSource(id)`, `featureSource(id)`, `markSourceReviewed(id, next_due, notes)`
+- `listSourcesNeedingReview()`, `listSourcesPublic()` (for the user-facing "Browse by Source Library")
 
-Make the report feel like a real meeting-ready document.
+`src/lib/owner/owner.functions.ts` — extend `ownerSaveResource` to accept the new fields; add `ownerPublishResource`, `ownerFeatureResource`, `ownerArchiveResource`, `ownerListNeedsReview`, `ownerMarkLinkChecked`.
 
-- Refactor `src/components/pathway/ReportView.tsx` into a clearly-sectioned, print-friendly layout with consistent section cards, readiness badges, and "Based on Information Provided" / "Needs Human Review" labels where appropriate.
-- Audit which of the requested sections already render (Snapshot, Strengths/Preferences/Interests/Needs, Student Voice, Postsecondary Goals, Recommended Pathways, Career & Life Matches, Readiness Scorecard, IEP Translator, Missing Information, Family Action Plan, Educator Action Plan, Meeting Prep Questions, Recommended Resources, Opportunity Matches, 30/90/180/365-day next steps). Add polished empty/"needs more info" states for any that are missing data.
-- Print stylesheet pass: page breaks between major sections, hide nav/chrome on `@media print`.
-- Header action bar: Download PDF, Share, Save, Print, "Generate updated version" — all wired to existing functions or showing a clear locked/coming-soon state.
-- Standardized AI disclaimer footer block.
+`src/lib/resources-db.functions.ts` — extend `listVerifiedResources` to also return new fields (source, featured, published_status) and add `listResourcesBySource(sourceId)`, `listFeaturedResources()`.
 
-## Slice 2 — Next Best Action system
+### 3. Seed data (committed as a migration via `INSERT … ON CONFLICT DO NOTHING`)
 
-- New `src/components/dashboard/NextBestAction.tsx` — small card with title, why-it-matters line, and a single primary CTA that links into the relevant feature.
-- New server fn `getNextBestAction` (per role) in `src/lib/next-best-action.functions.ts` that inspects real data (profile completeness, has-student, has-report, has-action-items, has-opportunity, waitlist count for owner, etc.) and returns a typed `{ headline, body, ctaLabel, ctaHref }`.
-- Mount on Student, Family, Educator, School Admin, District Admin, Partner, and Platform Admin dashboards. Existing dashboards (`StudentDashboard`, `dashboard.tsx`, school/district/partner/owner shells) get a top slot — no structural change.
+Insert 4 source libraries (CEC Improving Your Practice, CEC Professional Resources, Do2Learn, CT SDE — both URLs as one source with two URL entries, NCLD Research and Insights) plus the ~30 source-specific resource cards listed in the brief, all marked `published_status='published'`, with `source_id` wired up and `source_name`/`url` mirrored for the existing UI. Descriptions are short (no copyrighted content); each card links out to the original.
 
-## Slice 3 — Student Voice as a real feature
+### 4. Admin Hub — Resource Source Manager
 
-- New route `_authenticated/student-voice.tsx` (or extend existing if present) with the 9 age-appropriate prompts you listed.
-- Persist to a new `student_voice_responses` table (student_id, prompt_key, response_text, updated_at) with RLS via `can_edit_student` / `can_access_student`.
-- Surface answers in: Student Profile page, Pathway Report ("Student Voice" section), Meeting Prep, and as inputs to the resource recommender.
-- Warm, student-friendly visual treatment using existing tokens (no new palette).
+New route `src/routes/_authenticated/owner.resource-sources.tsx` (admin-only via existing `OwnerShell`):
+- Table of sources with filters (Source Type / Audience / Topic / Location / Review Status / Update Frequency / Needs Review)
+- Add/Edit drawer with all fields
+- Per-row actions: Approve, Feature, Archive, Mark Reviewed (sets `last_reviewed_at = now()`, prompts next-due date + notes), View Resources From Source
+- Dashboard card on `owner.index.tsx`: "Sources Needing Review (n)" + "Resources Needing Review (n)" + "Broken Links to Check (n)"
 
-## Slice 4 — Role-based onboarding depth  ✅ shipped
+Extend existing `owner.resources.tsx`:
+- New columns: Source, Published Status, Featured
+- New filters: Source, Published Status
+- Per-row actions: Publish, Feature, Archive
+- "Add Resource From Source" button on each source row links here pre-filled
 
-- Added role-specific question sets in `src/lib/onboarding-questions.ts` for parent, student, educator, school_admin, district_admin, partner.
-- Onboarding flow now has 4 steps: role → about you → role-specific questions → student (when needed).
-- New `profiles.onboarding_answers` JSONB column (additive migration) persists answers.
-- `saveOnboardingProgress` server fn persists between steps so refresh resumes where the user left off.
-- `completeOnboarding` now accepts `onboarding_answers` and supports `district_admin` (was previously rejected by the enum).
+### 5. Public Resource Library UI (`/resources`)
 
-## Slice 5 — Resource recommender + Meeting Prep + Action Items  ✅ shipped
+Add new sections above the existing grid, sourced from the DB:
+- **Featured Resources** (where `featured = true`)
+- **Browse by Source Library** — 4 cards (CEC, Do2Learn, CT SDE, NCLD) showing source name, description, audience/topic focus chips, resource count, last reviewed date, "View resources" link → `/resources?source=<id>`
+- **Recommended for You** (existing recommender, kept)
+- Audience / Topic / Format / Source / Location / Status filters extended with the brief's full vocabularies
+- Every resource card gains an **"External Resource"** chip + clear **"Source: <name>"** attribution line
 
-- **Recommender**: `recommendResourcesForStudent` scores verified resources against the student's strengths/interests/needs/grade and returns matches with "why this was recommended" chips. Surfaced via `RecommendedResourcesPanel` on the student detail page; users can save matches into their library (`saveResource`).
-- **Meeting Prep**: meeting detail page now has a "Pull from profile" button that prefills `student_voice`, `family_concerns`, and `teacher_notes` from the student record (only fills empty fields). Print/Export and Mark completed were already in place.
-- **Action Items**: full per-student CRUD via `action-items.functions.ts` (list/create/update/delete) using the existing `action_items` table. New `ActionItemsPanel` shows priority, category, due date, status (not_started / in_progress / completed / blocked) with a completion progress bar; mounted on the student detail page.
+### 6. Recommender hook-up
 
-## Slice 6 — Trust & Consent center + Demo Mode  ✅ shipped
+Extend `resource-recommender.functions.ts` to factor in `role_relevance` and `pathway_relevance` arrays so pathway-report needs (employment, self-advocacy, IEP prep) map to the new seeded resources. Existing scoring stays; new fields are additive bonuses.
 
-- New `_authenticated/trust.tsx` (or extend settings) showing: who has access to each student, what's been shared, share/revoke controls, AI processing policy in plain language. All reads from existing `student_collaborators` / `share_tokens` / `consent_records` tables — no schema change required.
-- **Demo Mode**: a single seeded "Demo Student" the user can explore from their dashboard (read-only, clearly badged "DEMO"). Implemented as a client-side fixture rendered in the existing student-profile / pathway-report shells so it cannot mix with real data. CTA from each role dashboard's empty state.
+### 7. Out of scope (call out explicitly)
 
-## Slice 7 — Role dashboard completeness + persistence QA  ✅ shipped
+- No automated scraping of the source libraries. Resources are admin-curated. Adding a scraper is a follow-up.
+- No file uploads of copyrighted PDFs — links only, per the copyright section of the brief.
+- No changes to roles, dashboards, navigation, or auth.
 
-- **Family/Educator dashboards** already had Next Best Action, student profile, pathway report panel, action items, consents, and share. Confirmed all writes (action toggle, consent, share) surface success/error toasts.
-- **Student dashboard** confirmed: goals, action items (filtered to student/family categories), latest report, and "waiting for invite" empty state all persist via existing server fns.
-- **Caseload (educator)** confirmed full per-row CRUD (notes, action items) wired to `addCaseManagerNote` / `quickAssignActionItem` with toast feedback.
-- **School Overview** — added `GradeBandBreakdown` widget that bins the school's students by grade band using already-loaded data (no new server fn).
-- **District Overview** already had metrics, planning adoption progress bars, schools needing follow-up, and implementation status tiles — no gaps found.
-- **Partner Workspace** — added `OpportunityStatusStats` pipeline summary (Live / In review / Drafts / Archived) computed from already-loaded opportunities.
-- **Persistence audit notes**:
-  - Onboarding: `saveOnboardingProgress` + `completeOnboarding` (slice 4) persist between steps.
-  - Profile/role: `updateProfile`, `getMyRoles` round-trip cleanly.
-  - Student profile, voice, documents, action items, consents, share tokens, partner orgs/opportunities, school/district memberships — all writes go through `createServerFn` + `requireSupabaseAuth` with RLS scoping, and the surfacing pages already toast errors. No silent no-ops found.
+### Sequencing
 
-## Slice 8 — Responsive + final golden-path QA  ✅ shipped
+1. Migration (table + columns + widened audience check + RLS + grants)
+2. Seed migration (sources + cards) — runs after step 1 is approved so types regenerate
+3. Server functions (sources + extended resources/owner)
+4. Admin Source Manager route + dashboard cards
+5. Public `/resources` sections + filters + attribution
+6. Recommender extension
+7. QA: source list loads, filters work, admin can add/edit/feature/archive, save/recommend still works, external links open, attribution visible
 
-**Responsive sweep (code + preview spot-checks)**
-- Public landing (`/`) verified at 360px — hero, CTAs, header collapse correctly with no horizontal overflow.
-- Touched components from slices 1–7 audited against responsive class patterns:
-  - `NextBestAction`, `GradeBandBreakdown`, `OpportunityStatusStats`: use `grid-cols-1` / `sm:grid-cols-2` / `sm:grid-cols-4`, `flex-wrap`, `min-w-0`, and `sm:p-6` padding scaling — all reflow cleanly at 360 / 768 / 1280.
-  - `ReportView` (slice 1): section cards already use `print:break-inside-avoid` and `sm:p-8` paddings; print stylesheet hides nav chrome.
-  - `StudentVoicePanel`, `ActionItemsPanel`, `RecommendedResourcesPanel`: stacked single-column on mobile, two-column from `md:` up.
-  - `TrustPage` and `DemoMode` (slice 6): `max-w-5xl` containers with `space-y-6` — no fixed-width pitfalls.
-- Onboarding flow (slice 4): step layout uses `max-w-2xl` with `space-y-6` — narrow enough to look intentional on tablet/desktop, full-width on phones.
+### Notes for review
 
-**Golden-path verification**
-- The shared browser session isn't authenticated against the preview, so the 6 auth-gated golden paths (family-creates-report, educator-adds-action-item, student-voice-flow, partner-publishes-opportunity, school-admin-invites-team, trust-revoke-share) can't be driven end-to-end from here.
-- All paths were verified at the code level: server fns exist, are wired into the relevant pages, return typed results, and the calling components surface success/error via `toast`. No silent no-ops were found in the slice-7 persistence audit.
-- Recommended manual run: sign in to the preview, then walk each path. If anything breaks, report the failing step and I'll fix it surgically.
-
-**Polish pass complete.** All 8 slices shipped. Reply with anything specific you'd like polished further, a bug you hit during golden-path testing, or "publish" when you're ready to ship.
-
----
-
-## What you'll see after each slice
-
-A short summary of what shipped, what files changed, and the next slice queued up. Any new tables/columns are additive migrations you approve before they run.
-
-**Reply "start slice 1" (or "start with slice N") to begin.**
+- The brief lists ~30 seed cards. I'll seed exactly those, with the source URLs you provided as the `original_resource_url`. Short admin-written descriptions only.
+- "TransitionForward Curated" and "Partner Resource" will be added as two extra source rows (no URL on Curated) so the Source filter has the full vocabulary from the brief.
+- This is ~1 migration + ~6–8 new files + edits to ~4 existing files. I'll deliver it in one pass after you approve.
