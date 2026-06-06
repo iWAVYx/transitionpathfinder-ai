@@ -1381,7 +1381,7 @@ function ResourceCard({
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
           {r.link ? (
             <a
               href={r.link}
