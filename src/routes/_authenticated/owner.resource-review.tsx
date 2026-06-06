@@ -95,12 +95,16 @@ const DECISIONS: {
 function ReviewQueuePage() {
   const list = useServerFn(ownerListReviewQueue);
   const review = useServerFn(ownerReviewResource);
+  const bulkReview = useServerFn(ownerBulkReviewResources);
 
   const [items, setItems] = useState<ReviewQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkNotes, setBulkNotes] = useState("");
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
 
   async function reload(preserveIndex = false) {
     setLoading(true);
