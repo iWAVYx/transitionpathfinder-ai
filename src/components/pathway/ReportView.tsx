@@ -1076,7 +1076,7 @@ export function ReportView({
                 />
                 <div className="rounded-2xl border bg-card p-5 lift-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h4 className="font-display text-lg">{toTitleCase(s.stage)}</h4>
+                    <h3 className="font-display text-lg">{toTitleCase(s.stage)}</h3>
                     <Badge
                       variant={s.status === "complete" ? "default" : "outline"}
                       className="uppercase tracking-wider"
