@@ -891,7 +891,7 @@ export function ReportView({
                 key={i}
                 className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
               >
-                <h4 className="font-display text-lg">{toTitleCase(g.item)}</h4>
+                <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
                 <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
                 <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
                 <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
