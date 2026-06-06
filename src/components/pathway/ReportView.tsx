@@ -22,6 +22,9 @@ import {
   BookOpen,
   Lightbulb,
   Route as RouteIcon,
+  ChevronDown,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from "lucide-react";
 import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
@@ -364,6 +367,35 @@ export function ReportView({
               Comfortable
             </button>
           </div>
+          <div className="inline-flex gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (typeof window !== "undefined")
+                  window.dispatchEvent(
+                    new CustomEvent("report-blocks-toggle", { detail: { open: true } }),
+                  );
+              }}
+              aria-label="Expand all sections"
+            >
+              <ChevronsUpDown className="h-4 w-4" /> Expand all
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (typeof window !== "undefined")
+                  window.dispatchEvent(
+                    new CustomEvent("report-blocks-toggle", { detail: { open: false } }),
+                  );
+              }}
+              aria-label="Collapse all sections"
+            >
+              <ChevronsDownUp className="h-4 w-4" /> Collapse all
+            </Button>
+          </div>
+
           {onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "secondary"}
@@ -1484,6 +1516,11 @@ function AudienceTab({
   );
 }
 
+const BLOCK_TOGGLE_EVENT = "report-blocks-toggle";
+function blockStorageKey(id: string) {
+  return `tf:report-block:${id}`;
+}
+
 function Block({
   title,
   children,
@@ -1497,26 +1534,109 @@ function Block({
   id?: string;
   eyebrow?: string;
 }) {
+  const collapsible = Boolean(id);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (!id || typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(blockStorageKey(id));
+    if (stored === "1") setCollapsed(true);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || typeof window === "undefined") return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ open: boolean }>).detail;
+      if (!detail) return;
+      setCollapsed(!detail.open);
+      try {
+        window.localStorage.setItem(blockStorageKey(id), detail.open ? "0" : "1");
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
+    return () => window.removeEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
+  }, [id]);
+
+  const toggle = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      if (id && typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem(blockStorageKey(id), next ? "1" : "0");
+        } catch {
+          /* ignore */
+        }
+      }
+      return next;
+    });
+  };
+
+  const contentId = id ? `${id}-content` : undefined;
+
   return (
-    <section id={id} className="report-section mt-14 page-break scroll-mt-24">
+    <section
+      id={id}
+      data-collapsed={collapsible && collapsed ? "true" : "false"}
+      className="report-section report-block mt-14 page-break scroll-mt-24"
+    >
       <div className="mb-6 border-b border-border/60 pb-4">
-        <div className="flex items-center gap-3">
-          <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
-          {icon && <span className="text-primary">{icon}</span>}
-          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
-            {toTitleCase(title)}
-          </h2>
-        </div>
+        {collapsible ? (
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={!collapsed}
+            aria-controls={contentId}
+            className="no-print group flex w-full items-center gap-3 text-left"
+          >
+            <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
+            {icon && <span className="text-primary">{icon}</span>}
+            <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
+              {toTitleCase(title)}
+            </h2>
+            <ChevronDown
+              aria-hidden
+              className={cn(
+                "ml-auto h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:text-foreground",
+                collapsed ? "-rotate-90" : "rotate-0",
+              )}
+            />
+          </button>
+        ) : (
+          <div className="flex items-center gap-3">
+            <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
+            {icon && <span className="text-primary">{icon}</span>}
+            <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
+              {toTitleCase(title)}
+            </h2>
+          </div>
+        )}
+        {/* Print-only static header (always visible, no chevron) */}
+        {collapsible && (
+          <div className="hidden print:flex items-center gap-3">
+            <span className="section-number font-mono text-xs font-semibold tracking-wider text-primary" />
+            <h2 className="font-display text-2xl font-medium tracking-tight sm:text-[1.6rem]">
+              {toTitleCase(title)}
+            </h2>
+          </div>
+        )}
         {eyebrow && (
           <p className="mt-1 pl-[1px] text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {eyebrow}
           </p>
         )}
       </div>
-      <div>{children}</div>
+      <div
+        id={contentId}
+        className={cn("report-block-content", collapsible && collapsed ? "hidden print:block" : "")}
+      >
+        {children}
+      </div>
     </section>
   );
 }
+
 
 function MetaField({ label, value }: { label: string; value: string }) {
   return (
