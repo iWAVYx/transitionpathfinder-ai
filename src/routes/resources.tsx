@@ -1129,9 +1129,22 @@ function AddToPathwayButton({
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(item.id);
-                    toast.success("Copied to clipboard", {
-                      description: `Action item ID ${item.id.slice(0, 8)}… ready to paste.`,
-                    });
+                    try {
+                      const pasted = await navigator.clipboard.readText();
+                      if (pasted === item.id) {
+                        toast.success("Copied to clipboard", {
+                          description: `Action item ID ${item.id.slice(0, 8)}… verified and ready to paste.`,
+                        });
+                      } else {
+                        toast.error("Clipboard mismatch", {
+                          description: "Copied text doesn't match the action-item ID. Please try again.",
+                        });
+                      }
+                    } catch {
+                      toast.success("Copied to clipboard", {
+                        description: `Action item ID ${item.id.slice(0, 8)}… ready to paste.`,
+                      });
+                    }
                   } catch {
                     toast.error("Could not copy ID");
                   }
