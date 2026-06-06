@@ -1370,11 +1370,11 @@ function ResourceCard({
 
         {/* Podcast inline audio */}
         {r.format === "podcast" && r.audioUrl && (
-          <div className="mt-4 rounded-2xl border border-border/60 bg-muted/40 p-3">
+          <div className="mt-3 rounded-xl border border-border/60 bg-muted/40 p-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               {r.podcastTitle} · {r.episodeTitle}
             </p>
-            <audio controls preload="none" className="mt-2 w-full">
+            <audio controls preload="none" className="mt-1 w-full">
               <source src={r.audioUrl} type="audio/mpeg" />
               Your browser does not support embedded audio.
             </audio>
