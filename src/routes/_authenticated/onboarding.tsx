@@ -218,7 +218,11 @@ function OnboardingPage() {
     if (needsStudent && !studentFirst.trim()) return;
     setSubmitting(true);
     try {
-      await saveProfile({
+      // 1) Persist name + primary_role FIRST (without flipping onboarding_completed).
+      //    createStudent reads profile.primary_role to wire the right relationship
+      //    row (parent → student_guardians, educator → student_team_members), so
+      //    primary_role must exist on the profile before we insert the student.
+      await saveProgress({
         data: {
           primary_role: role,
           first_name: firstName.trim(),
@@ -227,10 +231,10 @@ function OnboardingPage() {
         },
       });
 
-      // Create the linked student record:
-      //  - parent/educator → the student they just entered in the wizard
-      //  - student         → themselves, derived from the profile name they
-      //                      already entered, so they don't fill the same form twice
+      // 2) Create the linked student record BEFORE marking onboarding complete.
+      //    If this fails, the user stays here with onboarding_completed=false so
+      //    a refresh resumes the wizard instead of stranding them on /dashboard
+      //    with no student. Self-student (student role) stays best-effort.
       if (needsStudent) {
         await addStudent({
           data: {
@@ -240,7 +244,6 @@ function OnboardingPage() {
             school: studentSchool.trim() || undefined,
           },
         });
-        toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
       } else if (role === "student") {
         try {
           await addStudent({
@@ -253,7 +256,20 @@ function OnboardingPage() {
           // Non-fatal — student can still be invited later by a guardian/case manager.
           console.error("onboarding: self-student create failed", selfErr);
         }
-        toast.success("You're all set. Welcome to TransitionForward.");
+      }
+
+      // 3) Now flip onboarding_completed and assign user_roles.
+      await saveProfile({
+        data: {
+          primary_role: role,
+          first_name: firstName.trim(),
+          last_name: lastName.trim() || undefined,
+          onboarding_answers: answers as Record<string, unknown>,
+        },
+      });
+
+      if (needsStudent) {
+        toast.success(`${studentFirst.trim()} is on the dashboard. Let's keep going.`);
       } else {
         toast.success("You're all set. Welcome to TransitionForward.");
       }
@@ -271,7 +287,9 @@ function OnboardingPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       console.error("onboarding finish failed", err);
-      toast.error(msg);
+      toast.error(msg, {
+        description: "Your progress is saved — try again or come back later.",
+      });
     } finally {
       setSubmitting(false);
     }
