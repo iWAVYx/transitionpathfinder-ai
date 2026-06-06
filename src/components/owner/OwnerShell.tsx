@@ -22,6 +22,7 @@ import {
   Briefcase,
   UserCog,
   Activity,
+  ClipboardCheck,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { toTitleCase } from "@/lib/title-case";
@@ -45,6 +46,7 @@ const NAV: NavItem[] = [
   { to: "/owner/testimonials", label: "Testimonials", icon: MessageSquareQuote, group: "Content" },
   { to: "/owner/resources", label: "Resources", icon: BookOpen, group: "Content" },
   { to: "/owner/resource-sources", label: "Source Libraries", icon: BookOpen, group: "Content" },
+  { to: "/owner/resource-review", label: "Review Queue", icon: ClipboardCheck, group: "Content" },
   { to: "/owner/waitlist", label: "Waitlist", icon: ClipboardList, group: "Leads" },
   { to: "/owner/contacts", label: "Contact Forms", icon: Mail, group: "Leads" },
   { to: "/owner/organizations", label: "Organizations", icon: Building2, group: "Platform" },
