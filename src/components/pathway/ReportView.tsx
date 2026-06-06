@@ -25,6 +25,7 @@ import {
   ChevronDown,
   ChevronsDownUp,
   ChevronsUpDown,
+  Search,
 } from "lucide-react";
 import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
@@ -1835,6 +1836,7 @@ function ReportTOC({
 
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
   const [open, setOpen] = useState(true);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1888,6 +1890,12 @@ function ReportTOC({
     });
   };
 
+  const filteredItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((it) => it.label.toLowerCase().includes(q));
+  }, [items, query]);
+
   return (
     <nav
       aria-label="Report outline"
@@ -1915,34 +1923,53 @@ function ReportTOC({
           </button>
         </div>
         {open && (
-          <ol
-            id="report-outline-list"
-            className="max-h-[calc(100vh-14rem)] space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
-          >
-            {items.map((it, i) => {
-              const isActive = activeId === it.id;
-              return (
-                <li key={it.id}>
-                  <a
-                    href={`#${it.id}`}
-                    onClick={jumpTo(it.id)}
-                    aria-current={isActive ? "true" : undefined}
-                    className={cn(
-                      "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors",
-                      isActive
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
-                    )}
-                  >
-                    <span className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="leading-snug">{it.label}</span>
-                  </a>
+          <>
+            <div className="border-b border-border/60 px-3 py-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Find section…"
+                  className="w-full rounded-md border border-border bg-background py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </div>
+            <ol
+              id="report-outline-list"
+              className="max-h-[calc(100vh-18rem)] space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
+            >
+              {filteredItems.map((it, i) => {
+                const isActive = activeId === it.id;
+                return (
+                  <li key={it.id}>
+                    <a
+                      href={`#${it.id}`}
+                      onClick={jumpTo(it.id)}
+                      aria-current={isActive ? "true" : undefined}
+                      className={cn(
+                        "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors",
+                        isActive
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
+                      )}
+                    >
+                      <span className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="leading-snug">{it.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+              {filteredItems.length === 0 && (
+                <li className="px-2 py-4 text-center text-xs text-muted-foreground">
+                  No sections match “{query}”
                 </li>
-              );
-            })}
-          </ol>
+              )}
+            </ol>
+          </>
         )}
       </div>
     </nav>
