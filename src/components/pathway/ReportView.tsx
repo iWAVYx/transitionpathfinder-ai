@@ -666,10 +666,14 @@ export function ReportView({
                 className="rounded-2xl border border-border/60 bg-card p-5 lift-card"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h4 className="font-display text-lg">{toTitleCase(row.category)}</h4>
+                  <h3 className="font-display text-lg">{toTitleCase(row.category)}</h3>
                   <ReadinessBadge level={row.level} compact />
                 </div>
-                <Progress value={READINESS_PCT[row.level] ?? 50} className="mt-3 h-2" />
+                <Progress
+                  value={READINESS_PCT[row.level] ?? 50}
+                  className="mt-3 h-2"
+                  aria-label={`${toTitleCase(row.category)} readiness: ${row.level}`}
+                />
                 <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-primary">
                   What We Saw
                 </p>
