@@ -1,0 +1,29 @@
+name: Report a11y (axe-core)
+
+on:
+  pull_request:
+    paths:
+      - "src/components/pathway/**"
+      - "src/routes/demo_.report.tsx"
+      - "src/components/site/**"
+      - "tests/e2e/report-a11y.spec.ts"
+      - "playwright.config.ts"
+      - ".github/workflows/report-a11y.yml"
+  push:
+    branches: [main]
+
+jobs:
+  report-a11y:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+      - name: Run axe-core report-page suite
+        run: bunx playwright test tests/e2e/report-a11y.spec.ts
