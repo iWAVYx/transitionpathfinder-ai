@@ -33,4 +33,7 @@ jobs:
           E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
           E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
           E2E_REPORT_ID: ${{ secrets.E2E_REPORT_ID }}
-        run: bunx playwright test tests/e2e/report-a11y.spec.ts tests/e2e/reports-signed-in-a11y.signedin.spec.ts tests/e2e/reports-session-lifecycle.signedin.spec.ts
+          # Optional — when present, auth.setup completes the 2FA challenge
+          # for the test user and the dedicated 2FA spec runs end-to-end.
+          E2E_TOTP_SECRET: ${{ secrets.E2E_TOTP_SECRET }}
+        run: bunx playwright test tests/e2e/report-a11y.spec.ts tests/e2e/reports-signed-in-a11y.signedin.spec.ts tests/e2e/reports-session-lifecycle.signedin.spec.ts tests/e2e/reports-2fa-challenge.signedin.spec.ts
