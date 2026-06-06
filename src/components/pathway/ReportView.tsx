@@ -1837,6 +1837,9 @@ function ReportTOC({
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
   const [open, setOpen] = useState(true);
   const [query, setQuery] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1877,12 +1880,20 @@ function ReportTOC({
     return () => obs.disconnect();
   }, [items.length]);
 
-  const jumpTo = (id: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
+  const filteredItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((it) => it.label.toLowerCase().includes(q));
+  }, [items, query]);
+
+  useEffect(() => {
+    setFocusedIndex(-1);
+  }, [filteredItems.length]);
+
+  const doJump = (id: string) => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("report-block-open", { detail: { id } }));
     }
-    // Wait a frame so the section can expand before scrolling.
     requestAnimationFrame(() => {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1890,11 +1901,41 @@ function ReportTOC({
     });
   };
 
-  const filteredItems = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((it) => it.label.toLowerCase().includes(q));
-  }, [items, query]);
+  const jumpTo = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    doJump(id);
+  };
+
+  const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (filteredItems.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedIndex((prev) => {
+        const next = prev < filteredItems.length - 1 ? prev + 1 : 0;
+        itemRefs.current[next]?.focus();
+        itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
+        return next;
+      });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusedIndex((prev) => {
+        const next = prev > 0 ? prev - 1 : filteredItems.length - 1;
+        itemRefs.current[next]?.focus();
+        itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
+        return next;
+      });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const targetIndex = focusedIndex >= 0 ? focusedIndex : filteredItems.findIndex((it) => it.id === activeId);
+      const idx = targetIndex >= 0 ? targetIndex : 0;
+      doJump(filteredItems[idx].id);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setQuery("");
+      searchRef.current?.blur();
+      setFocusedIndex(-1);
+    }
+  };
 
   return (
     <nav
