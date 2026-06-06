@@ -781,7 +781,7 @@ export function ReportView({
                 </div>
                 <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
                 <p className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
                     Next Exploration Step
                   </span>
                   <br />
