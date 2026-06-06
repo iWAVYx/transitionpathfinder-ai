@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +93,7 @@ function CaseloadPage() {
 
   return (
     <SiteShell>
+      <RoleGuard path="/caseload">
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
 
@@ -164,6 +166,7 @@ function CaseloadPage() {
           )}
         </div>
       </section>
+      </RoleGuard>
     </SiteShell>
   );
 }
