@@ -277,10 +277,8 @@ test("DELETE on goals follows the same can_edit_student matrix as UPDATE", async
   for (const c of cases) {
     const fx = await setupFixture();
     try {
-      const probe = freshClient();
-      await signIn(probe, c.email);
+      const { client: probe } = await getSession(c.email);
       const del = await probe.from("goals").delete().eq("id", fx.goalId).select("id");
-      await probe.auth.signOut();
 
       const { data: still } = await fx.ownerClient
         .from("goals")
