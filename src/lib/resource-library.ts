@@ -18,7 +18,10 @@ export type ResourceAudience =
   | "family"
   | "teacher"
   | "admin"
+  | "school_admin"
+  | "district_admin"
   | "partner";
+
 
 export type ResourceTopic =
   | "transition-planning"
@@ -136,10 +139,13 @@ export const FORMAT_META: Record<ResourceFormat, { label: string; verb: string }
 export const AUDIENCE_META: Record<ResourceAudience, string> = {
   student: "Student",
   family: "Parent / Guardian",
-  teacher: "Teacher",
-  admin: "School Admin",
-  partner: "Partner Org",
+  teacher: "Educator / Case Manager",
+  admin: "School Administrator",
+  school_admin: "School Administrator",
+  district_admin: "School District Administrator",
+  partner: "Partner Organization",
 };
+
 
 export const RESOURCES: Resource[] = [
   // ───────────────────────── Transition Planning Basics
