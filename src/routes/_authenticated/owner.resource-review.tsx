@@ -172,6 +172,80 @@ function ReviewQueuePage() {
     });
   }
 
+  const bulkEligible = useMemo(
+    () => items.filter((i) => i.review_reason === "needs_review"),
+    [items],
+  );
+  const selectedIds = useMemo(
+    () => bulkEligible.filter((i) => selected.has(i.id)).map((i) => i.id),
+    [bulkEligible, selected],
+  );
+  const allEligibleSelected =
+    bulkEligible.length > 0 && selectedIds.length === bulkEligible.length;
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+  function toggleAllEligible() {
+    setSelected((prev) => {
+      if (bulkEligible.every((i) => prev.has(i.id))) return new Set();
+      return new Set(bulkEligible.map((i) => i.id));
+    });
+  }
+  function clearSelection() {
+    setSelected(new Set());
+  }
+
+  async function handleBulk(decision: BulkReviewDecision) {
+    if (selectedIds.length === 0) {
+      toast.error("Select at least one needs-review resource.");
+      return;
+    }
+    if (decision === "request_changes" && bulkNotes.trim().length < 3) {
+      toast.error("Add bulk notes explaining the requested changes.");
+      return;
+    }
+    if (decision === "archive") {
+      if (
+        !confirm(
+          `Archive ${selectedIds.length} resource${selectedIds.length === 1 ? "" : "s"}? They will be removed from the active library.`,
+        )
+      )
+        return;
+    }
+    setBulkSubmitting(true);
+    try {
+      const res = await bulkReview({
+        data: {
+          ids: selectedIds,
+          decision,
+          resolution_notes: bulkNotes.trim() || null,
+        },
+      });
+      if (res.failed_count > 0) {
+        toast.warning(`${res.succeeded} updated, ${res.failed_count} failed.`);
+      } else {
+        toast.success(`${res.succeeded} resource${res.succeeded === 1 ? "" : "s"} updated.`);
+      }
+      setItems((prev) =>
+        prev.filter((p) => !selectedIds.includes(p.id) || res.failed_ids.includes(p.id)),
+      );
+      setSelected(new Set(res.failed_ids));
+      setBulkNotes("");
+      setIndex((i) => Math.min(i, Math.max(0, items.length - selectedIds.length - 1)));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Bulk action failed");
+    } finally {
+      setBulkSubmitting(false);
+    }
+  }
+
+
   return (
     <OwnerShell
       title="Review Queue"
