@@ -62,6 +62,7 @@ export const getPartnerWorkspace = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<PartnerWorkspace> => {
     const { supabase, userId } = context;
 
+    // Membership check runs under the user's RLS context (cannot be spoofed).
     const { data: memberships } = await supabase
       .from("organization_memberships")
       .select("organization_id")
@@ -72,7 +73,12 @@ export const getPartnerWorkspace = createServerFn({ method: "POST" })
       return { is_partner: false, orgs: [], selected_org: null, opportunities: [] };
     }
 
-    const { data: orgsData } = await supabase
+    // contact_email column SELECT is revoked from the authenticated role,
+    // so we elevate to the service role here AFTER confirming the caller is
+    // an active member of these specific orgs.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: orgsData } = await supabaseAdmin
       .from("organizations")
       .select(ORG_SELECT)
       .in("id", orgIds)
@@ -85,7 +91,7 @@ export const getPartnerWorkspace = createServerFn({ method: "POST" })
     const selected =
       (data.org_id && orgs.find((o) => o.id === data.org_id)) || orgs[0];
 
-    const { data: opps } = await supabase
+    const { data: opps } = await supabaseAdmin
       .from("partner_opportunities")
       .select(
         "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, contact_email, created_at",
@@ -270,10 +276,15 @@ export const listApprovedOpportunities = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<PublicOpportunity[]> => {
     const { supabase } = context;
+    // NOTE: contact_email is intentionally omitted from this public catalog
+    // listing. It is harvest-bait for scrapers and is not needed for the
+    // browse experience — users should reach out via application_url or the
+    // partner workspace. Org members still see contact_email through
+    // getPartnerWorkspace.
     const { data, error } = await supabase
       .from("partner_opportunities")
       .select(
-        "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, contact_email, created_at, organizations:organization_id (name, city, state, website)",
+        "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, created_at, organizations:organization_id (name, city, state, website)",
       )
       .eq("status", "approved")
       .order("created_at", { ascending: false })
@@ -290,7 +301,7 @@ export const listApprovedOpportunities = createServerFn({ method: "POST" })
       age_range: row.age_range,
       eligibility: row.eligibility,
       application_url: row.application_url,
-      contact_email: row.contact_email,
+      contact_email: null,
       created_at: row.created_at,
       organization_name: row.organizations?.name ?? "Partner organization",
       organization_city: row.organizations?.city ?? null,
