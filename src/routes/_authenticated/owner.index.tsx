@@ -22,6 +22,7 @@ import {
   getResourceCounts,
   type DashboardMetrics,
 } from "@/lib/owner/owner.functions";
+import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
@@ -63,21 +64,25 @@ function MetricCard({
 function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
   const fetchResourceCounts = useServerFn(getResourceCounts);
+  const fetchReviewCounts = useServerFn(adminListResourcesNeedingReview);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [resourceCounts, setResourceCounts] = useState<{ published: number; drafts: number } | null>(null);
+  const [reviewCounts, setReviewCounts] = useState<{ resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       fetchMetrics().catch(() => null),
       fetchResourceCounts().catch(() => null),
+      fetchReviewCounts().catch(() => null),
     ])
-      .then(([m, r]) => {
+      .then(([m, r, rev]) => {
         setMetrics(m);
         setResourceCounts(r);
+        setReviewCounts(rev);
       })
       .finally(() => setLoading(false));
-  }, [fetchMetrics, fetchResourceCounts]);
+  }, [fetchMetrics, fetchResourceCounts, fetchReviewCounts]);
 
   return (
     <OwnerShell
