@@ -295,6 +295,9 @@ function SettingsPage() {
             >
               Send password reset email
             </Button>
+            <Button asChild variant="outline" className="ml-2">
+              <Link to="/security">Manage two-factor authentication</Link>
+            </Button>
           </div>
         </div>
 
