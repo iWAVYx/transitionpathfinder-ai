@@ -186,6 +186,8 @@ function ResourcesPage() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
+  const [liveMessage, setLiveMessage] = useState("");
+  const hasAnnounced = useRef(false);
 
   const fetchDb = useServerFn(listVerifiedResources);
   const fetchFeatured = useServerFn(listFeaturedResources);
