@@ -79,7 +79,7 @@ export function DemoStepBar({ current, student }: Props) {
         </div>
 
         {/* Step rail */}
-        <nav className="scrollbar-none -mx-1 mt-3 flex gap-1 overflow-x-auto pb-3">
+        <nav aria-label="Demo walkthrough steps" className="scrollbar-none -mx-1 mt-3 flex gap-1 overflow-x-auto pb-3">
           {DEMO_STEPS.map((s, i) => {
             const Icon = s.icon;
             const active = s.id === current;
@@ -93,7 +93,7 @@ export function DemoStepBar({ current, student }: Props) {
                   active
                     ? "border-primary bg-primary text-primary-foreground"
                     : done
-                      ? "border-primary/30 bg-primary/5 text-primary"
+                      ? "border-primary/40 bg-primary/10 text-foreground"
                       : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
                 }`}
               >
