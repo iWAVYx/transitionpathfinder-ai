@@ -1044,7 +1044,7 @@ export function ReportView({
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
                       {toTitleCase(o.category)}
                     </Badge>
-                    <h4 className="font-display text-lg">{toTitleCase(o.name)}</h4>
+                    <h3 className="font-display text-lg">{toTitleCase(o.name)}</h3>
                   </div>
                   <ReadinessBadge level={o.readiness_level} compact />
                 </div>
