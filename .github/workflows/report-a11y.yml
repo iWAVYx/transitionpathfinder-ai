@@ -5,8 +5,13 @@ on:
     paths:
       - "src/components/pathway/**"
       - "src/routes/demo_.report.tsx"
+      - "src/routes/_authenticated/reports.$reportId.tsx"
+      - "src/routes/_authenticated.tsx"
+      - "src/routes/_authenticated/security.tsx"
+      - "src/routes/login.tsx"
+      - "src/routes/login.2fa.tsx"
       - "src/components/site/**"
-      - "tests/e2e/report-a11y.spec.ts"
+      - "tests/e2e/**"
       - "playwright.config.ts"
       - ".github/workflows/report-a11y.yml"
   push:
