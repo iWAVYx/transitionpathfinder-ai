@@ -45,6 +45,7 @@ export const getEmailMonitor = createServerFn({ method: "POST" })
         end: z.string().datetime().optional(),
         template: z.string().trim().max(200).optional(),
         status: z.enum(["all", "sent", "failed", "suppressed", "pending"]).default("all"),
+        search: z.string().trim().max(255).optional(),
         limit: z.number().int().min(1).max(200).default(50),
         offset: z.number().int().min(0).max(10000).default(0),
       })
