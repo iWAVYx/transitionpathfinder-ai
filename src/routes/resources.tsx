@@ -458,7 +458,7 @@ function ResourcesPage() {
       )}
 
       {/* VERIFIED LIBRARY (live from DB) */}
-      {dbResources && dbResources.length > 0 && (
+      {filteredDbResources.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -473,11 +473,11 @@ function ResourcesPage() {
               </p>
             </div>
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-              {dbResources.length} verified
+              {filteredDbResources.length} verified
             </span>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {dbResources.slice(0, 6).map((r) => (
+            {filteredDbResources.slice(0, 6).map((r) => (
               <article
                 key={r.id}
                 className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
