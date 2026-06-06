@@ -199,6 +199,52 @@ function SettingsPage() {
             </div>
           </section>
         ))}
+
+        {extraKeys.length > 0 && (
+          <section className="rounded-lg border border-border bg-background p-5">
+            <h2 className="mb-1 font-display text-base font-medium">Other settings</h2>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Keys stored in the database that aren't in the predefined groups. Edited as raw JSON.
+            </p>
+            <div className="space-y-4">
+              {extraKeys.map((key) => {
+                const val = values[key];
+                const text =
+                  typeof val === "string" ? val : JSON.stringify(val ?? null, null, 2);
+                return (
+                  <div key={key} className="grid gap-2 sm:grid-cols-[200px_1fr_auto] sm:items-start">
+                    <Label htmlFor={key} className="pt-2 text-sm font-medium break-all">{key}</Label>
+                    <Textarea
+                      id={key}
+                      rows={3}
+                      className="font-mono text-xs"
+                      value={text}
+                      onChange={(e) => setValues((p) => ({ ...p, [key]: e.target.value }))}
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={saving === key}
+                      onClick={() => {
+                        let toSave: any = values[key];
+                        if (typeof toSave === "string") {
+                          try { toSave = JSON.parse(toSave); } catch { /* keep as string */ }
+                        }
+                        save(key, toSave);
+                      }}
+                    >
+                      {saving === key ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Save className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </OwnerShell>
   );
