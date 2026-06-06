@@ -1948,5 +1948,4 @@ function ReportTOC({
     </nav>
   );
 }
-  );
-}
+
