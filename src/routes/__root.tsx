@@ -80,6 +80,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "mty7hJKViUPYrp94f2c2KJ9AF3OSH1F1Ee6TYzdshRE" },
       { title: "TransitionForward" },
       { name: "description", content: "Student-centered transition planning for Connecticut families, students, and educators." },
       { property: "og:title", content: "TransitionForward" },
