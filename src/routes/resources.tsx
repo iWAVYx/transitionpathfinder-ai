@@ -408,10 +408,16 @@ function ResourcesPage() {
                 key={r.id}
                 className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
               >
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
                   </span>
+                  {r.featured && (
+                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                  )}
+                  {r.url && (
+                    <span className="rounded-full bg-muted px-2 py-0.5">External</span>
+                  )}
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
                 <h3 className="mt-3 font-display text-base font-medium leading-snug">
@@ -423,7 +429,9 @@ function ResourcesPage() {
                   </p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
-                  <span>{r.source_name ?? r.location_scope}</span>
+                  <span className="truncate">
+                    {r.source_name ? `Source: ${r.source_name}` : r.location_scope}
+                  </span>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleToggleSaveDb(r.id)}
