@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "node --test tests/*.test.mjs",
-    "test:role-guard": "node --test tests/role-guard-matrix.test.mjs"
+    "test:role-guard": "node --test tests/role-guard-matrix.test.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
@@ -85,6 +86,7 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "^2.1.1",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",

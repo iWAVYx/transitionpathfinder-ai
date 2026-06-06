@@ -638,7 +638,10 @@ function ResourcesPage() {
       )}
 
       {/* GLOBAL SEARCH */}
-      <section className="sticky top-16 z-40 mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+      <section
+        data-testid="resources-sticky-search"
+        className="sticky top-16 z-40 mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8"
+      >
         <div className="rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md">
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -776,7 +779,10 @@ function BrowseTab(props: {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
       {/* Filter bar */}
-      <div className="sticky top-36 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4">
+      <div
+        data-testid="resources-sticky-filters"
+        className="sticky top-36 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4"
+      >
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
               icon={Tag}
