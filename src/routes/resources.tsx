@@ -625,9 +625,36 @@ function ResourcesPage() {
         </section>
       )}
 
+      {/* GLOBAL SEARCH */}
+      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search videos, podcasts, books, worksheets, agencies…"
+            className="w-full rounded-2xl border border-border bg-background py-3.5 pl-12 pr-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {query && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
+          </p>
+        )}
+      </section>
+
       {/* TAB BAR */}
 
-      <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center gap-2 border-b border-border">
           {(
             [
