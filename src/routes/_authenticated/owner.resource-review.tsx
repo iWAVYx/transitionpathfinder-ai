@@ -115,6 +115,8 @@ function ReviewQueuePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkNotes, setBulkNotes] = useState("");
   const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDecision, setPendingDecision] = useState<BulkReviewDecision | null>(null);
 
   async function reload(preserveIndex = false) {
     setLoading(true);
