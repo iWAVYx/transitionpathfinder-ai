@@ -1318,11 +1318,13 @@ function ResourceCard({
           >
             <Share2 className="h-3.5 w-3.5" /> Share
           </button>
+          <AddToPathwayButton title={r.title} description={r.description} link={r.link} />
         </div>
       </div>
     </article>
   );
 }
+
 
 // ───────────────────────── Small UI bits
 
