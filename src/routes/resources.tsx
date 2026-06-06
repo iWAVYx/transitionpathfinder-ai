@@ -245,6 +245,25 @@ function ResourcesPage() {
   const activeFilterCount =
     Object.values(filters).filter((v) => v !== "all").length + (query ? 1 : 0);
 
+  // Global search helper for DB resources
+  const dbMatchesQuery = (r: DbResource) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    const hay = [
+      r.title,
+      r.description ?? "",
+      r.source_name ?? "",
+      r.topic ?? "",
+      r.resource_type,
+      r.location_scope,
+      r.grade_range ?? "",
+      r.estimated_time ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+    return hay.includes(q);
+  };
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return RESOURCES.filter((r) => {
@@ -263,6 +282,7 @@ function ResourcesPage() {
         r.author || "",
         r.whyItHelps || "",
         ...r.topics.map((t) => TOPIC_META[t].label),
+        ...r.audiences.map((a) => AUDIENCE_META[a]),
       ]
         .join(" ")
         .toLowerCase();
