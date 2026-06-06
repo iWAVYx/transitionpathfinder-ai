@@ -109,6 +109,18 @@ export function ReportView({
   const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const [parallaxY, setParallaxY] = useState(0);
+  const [density, setDensity] = useState<"compact" | "comfortable">("compact");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("report-density");
+    if (stored === "compact" || stored === "comfortable") setDensity(stored);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("report-density", density);
+  }, [density]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
