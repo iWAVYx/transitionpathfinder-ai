@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/student-voice")({
       },
     ],
   }),
-  component: StudentVoicePage,
+  component: () => (<RoleGuard path="/student-voice"><StudentVoicePage /></RoleGuard>),
 });
 
 type AgeBand = "middle" | "early-high" | "late-high" | "post-secondary";
