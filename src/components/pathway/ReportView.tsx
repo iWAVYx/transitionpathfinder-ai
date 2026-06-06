@@ -1773,7 +1773,7 @@ function HorizonCard({ label, items }: { label: string; items: string[] }) {
 function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mt-2 first:mt-0">
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
       <p className="text-sm text-foreground/80">{children}</p>
     </div>
   );
