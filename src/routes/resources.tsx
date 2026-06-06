@@ -1343,11 +1343,11 @@ function ResourceCard({
           {r.description}
         </p>
         {r.whyItHelps && (
-          <p className="mt-2 rounded-xl bg-muted/60 px-3 py-2 text-xs leading-relaxed text-foreground/80">
+          <p className="mt-2 rounded-xl bg-muted/60 px-3 py-1.5 text-xs leading-relaxed text-foreground/80">
             <span className="font-semibold">Why it helps:</span> {r.whyItHelps}
           </p>
         )}
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {r.topics.slice(0, 3).map((t) => (
             <span
               key={t}
