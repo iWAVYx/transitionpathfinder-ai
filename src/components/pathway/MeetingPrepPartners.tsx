@@ -90,9 +90,16 @@ export function MeetingPrepPartners({
                     <p className="text-sm font-medium">{s.label}</p>
                     <p className="text-xs text-muted-foreground">{s.detail}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">
+                  <a
+                    href={buildGoogleCalendarUrl(s)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
+                    title="Add to Google Calendar"
+                  >
+                    <CalendarDays className="h-3 w-3" aria-hidden />
                     {s.when}
-                  </span>
+                  </a>
                 </li>
               ))}
             </ol>
