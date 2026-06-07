@@ -200,6 +200,11 @@ async function withRestore(restore, body) {
 }
 
 test("revoking access flips signed-URL mint eligibility immediately per role", { skip: SKIP }, async () => {
+  if (!canMutate()) {
+    console.warn("iep-signed-url-revocation: current DB role lacks DELETE/INSERT on user_roles/student_collaborators; skipping (CI uses service role)");
+    return;
+  }
+
   const ctx = discoverActors();
   if (
     !ctx.student_id || !ctx.owner_id || !ctx.editor_id ||
