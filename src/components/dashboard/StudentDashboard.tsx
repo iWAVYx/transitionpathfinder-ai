@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 
 type Props = {
   firstName: string;
@@ -207,6 +208,11 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
               </ul>
             )}
           </section>
+        </div>
+
+        {/* Calendar — your meetings, prep steps, and to-dos */}
+        <div className="mt-6">
+          <DashboardCalendar snap={snap} compact />
         </div>
 
         {/* Latest report */}

@@ -42,6 +42,7 @@ import { listStudents, createShareToken } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
+import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 
 
@@ -569,6 +570,11 @@ function DashboardPage() {
                 </ul>
               )}
             </Panel>
+          </div>
+
+          {/* Calendar — meetings, action items, prep deadlines */}
+          <div className="mt-6">
+            <DashboardCalendar snap={snap} />
           </div>
 
           {/* Meeting Prep + Recommended Resources */}
