@@ -374,11 +374,13 @@ function PartnerNetworkAdminPage() {
 
       <OpportunitiesDrawer
         partner={oppsPartner}
-        onClose={() => setOppsPartner(null)}
+        autoOpenNew={openNewForPartner}
+        onClose={() => { setOppsPartner(null); setOpenNewForPartner(false); }}
       />
     </OwnerShell>
   );
 }
+
 
 function OpportunitiesDrawer({
   partner,
