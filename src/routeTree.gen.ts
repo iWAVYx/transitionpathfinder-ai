@@ -85,6 +85,7 @@ import { Route as AuthenticatedOwnerResourceSourcesRouteImport } from './routes/
 import { Route as AuthenticatedOwnerResourceReviewRouteImport } from './routes/_authenticated/owner.resource-review'
 import { Route as AuthenticatedOwnerPartnerSubmissionsRouteImport } from './routes/_authenticated/owner.partner-submissions'
 import { Route as AuthenticatedOwnerPartnerOutreachRouteImport } from './routes/_authenticated/owner.partner-outreach'
+import { Route as AuthenticatedOwnerPartnerNetworkStatusRouteImport } from './routes/_authenticated/owner.partner-network-status'
 import { Route as AuthenticatedOwnerPartnerNetworkRouteImport } from './routes/_authenticated/owner.partner-network'
 import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_authenticated/owner.organizations'
 import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
@@ -507,6 +508,12 @@ const AuthenticatedOwnerPartnerOutreachRoute =
     path: '/partner-outreach',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerPartnerNetworkStatusRoute =
+  AuthenticatedOwnerPartnerNetworkStatusRouteImport.update({
+    id: '/partner-network-status',
+    path: '/partner-network-status',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerPartnerNetworkRoute =
   AuthenticatedOwnerPartnerNetworkRouteImport.update({
     id: '/partner-network',
@@ -731,6 +738,7 @@ export interface FileRoutesByFullPath {
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
   '/owner/partner-network': typeof AuthenticatedOwnerPartnerNetworkRoute
+  '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
@@ -832,6 +840,7 @@ export interface FileRoutesByTo {
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
   '/owner/partner-network': typeof AuthenticatedOwnerPartnerNetworkRoute
+  '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
@@ -936,6 +945,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/_authenticated/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
   '/_authenticated/owner/partner-network': typeof AuthenticatedOwnerPartnerNetworkRoute
+  '/_authenticated/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/_authenticated/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/_authenticated/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
   '/_authenticated/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
@@ -1040,6 +1050,7 @@ export interface FileRouteTypes {
     | '/owner/opportunities'
     | '/owner/organizations'
     | '/owner/partner-network'
+    | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
     | '/owner/resource-review'
@@ -1141,6 +1152,7 @@ export interface FileRouteTypes {
     | '/owner/opportunities'
     | '/owner/organizations'
     | '/owner/partner-network'
+    | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
     | '/owner/resource-review'
@@ -1244,6 +1256,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/opportunities'
     | '/_authenticated/owner/organizations'
     | '/_authenticated/owner/partner-network'
+    | '/_authenticated/owner/partner-network-status'
     | '/_authenticated/owner/partner-outreach'
     | '/_authenticated/owner/partner-submissions'
     | '/_authenticated/owner/resource-review'
@@ -1843,6 +1856,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerPartnerOutreachRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/partner-network-status': {
+      id: '/_authenticated/owner/partner-network-status'
+      path: '/partner-network-status'
+      fullPath: '/owner/partner-network-status'
+      preLoaderRoute: typeof AuthenticatedOwnerPartnerNetworkStatusRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/partner-network': {
       id: '/_authenticated/owner/partner-network'
       path: '/partner-network'
@@ -2060,6 +2080,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
   AuthenticatedOwnerOrganizationsRoute: typeof AuthenticatedOwnerOrganizationsRoute
   AuthenticatedOwnerPartnerNetworkRoute: typeof AuthenticatedOwnerPartnerNetworkRoute
+  AuthenticatedOwnerPartnerNetworkStatusRoute: typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   AuthenticatedOwnerPartnerOutreachRoute: typeof AuthenticatedOwnerPartnerOutreachRoute
   AuthenticatedOwnerPartnerSubmissionsRoute: typeof AuthenticatedOwnerPartnerSubmissionsRoute
   AuthenticatedOwnerResourceReviewRoute: typeof AuthenticatedOwnerResourceReviewRoute
@@ -2087,6 +2108,8 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
   AuthenticatedOwnerOrganizationsRoute: AuthenticatedOwnerOrganizationsRoute,
   AuthenticatedOwnerPartnerNetworkRoute: AuthenticatedOwnerPartnerNetworkRoute,
+  AuthenticatedOwnerPartnerNetworkStatusRoute:
+    AuthenticatedOwnerPartnerNetworkStatusRoute,
   AuthenticatedOwnerPartnerOutreachRoute:
     AuthenticatedOwnerPartnerOutreachRoute,
   AuthenticatedOwnerPartnerSubmissionsRoute:
