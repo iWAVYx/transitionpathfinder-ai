@@ -381,6 +381,8 @@ function DrillSheet({
     }
   }
 
+  const canExport = data && data.rows.length > 0;
+
   return (
     <Sheet open={!!metric} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
@@ -392,7 +394,7 @@ function DrillSheet({
         </SheetHeader>
 
         <div className="mt-5 space-y-4">
-          {/* Search + Filters */}
+          {/* Search + Filters + Export */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -425,6 +427,21 @@ function DrillSheet({
                 </SelectContent>
               </Select>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-2"
+              disabled={!canExport}
+              onClick={() => {
+                if (!data?.rows.length || !metric) return;
+                const label = METRIC_LABEL[metric].toLowerCase().replace(/\s+/g, "-");
+                const date = new Date().toISOString().slice(0, 10);
+                downloadCSV(data.rows, `${label}-${date}.csv`);
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
           </div>
 
           {isLoading && (
