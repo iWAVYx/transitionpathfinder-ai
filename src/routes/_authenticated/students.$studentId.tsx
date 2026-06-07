@@ -27,6 +27,7 @@ import { MembershipPanel } from "@/components/students/MembershipPanel";
 import { PathwayProgress } from "@/components/students/PathwayProgress";
 import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
 import { RecommendedResourcesPanel } from "@/components/students/RecommendedResourcesPanel";
+import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartnersPanel";
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
@@ -448,6 +449,10 @@ function StudentDetailPage() {
 
         <div className="mt-6">
           <RecommendedResourcesPanel studentId={studentId} />
+        </div>
+
+        <div className="mt-6">
+          <RecommendedPartnersPanel studentId={studentId} />
         </div>
 
         <div className="mt-6">

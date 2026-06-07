@@ -93,7 +93,7 @@ const CHECKLIST: Array<{ surface: string; status: CheckStatus; detail: string }>
   { surface: "Pathway Report", status: "needs_review", detail: "Reports render student plans, but partner suggestions are not yet embedded as a report section." },
   { surface: "Action Items", status: "not_connected", detail: "Matched partners are not yet generating suggested action items on the dashboard." },
   { surface: "Meeting Prep", status: "not_connected", detail: "Meeting prep packets do not yet surface partner contacts or upcoming opportunity deadlines." },
-  { surface: "Student Profile", status: "partial", detail: "Matching engine reads profile (interests, county, supports) but profile UI has no partner panel." },
+  { surface: "Student Profile", status: "connected", detail: "Student detail page renders Recommended Partners panel via matchPartnersForStudent; save persists to student_saved_partners." },
   { surface: "Resource Library", status: "not_connected", detail: "Partner records live in their own tables; the resource library does not index them yet." },
   { surface: "Platform Admin Partner Manager", status: "connected", detail: "/owner/partner-network supports create, edit, bulk JSON import with Zod validation." },
   { surface: "Partner Outreach Tracker", status: "connected", detail: "/owner/partner-outreach logs contacts and follow-up dates against partner_outreach_log." },
