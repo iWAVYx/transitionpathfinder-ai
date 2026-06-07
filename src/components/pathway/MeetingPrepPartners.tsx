@@ -304,7 +304,7 @@ function gcalDate(d: Date) {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
 }
 
-function buildGoogleCalendarUrl(step: DeadlineStep) {
+function buildGoogleCalendarUrl(step: DeadlineStep, tz?: string) {
   const start = gcalDate(step.date);
   const end = new Date(step.date);
   end.setDate(end.getDate() + 1);
@@ -314,6 +314,7 @@ function buildGoogleCalendarUrl(step: DeadlineStep) {
     dates: `${start}/${gcalDate(end)}`,
     details: `${step.detail}\n\n(${step.when})`,
   });
+  if (tz) params.set("ctz", tz);
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
