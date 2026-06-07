@@ -67,6 +67,21 @@ function downloadCsv(filename: string, rows: RecipientRow[]) {
   URL.revokeObjectURL(url);
 }
 
+function downloadEngagementCsv(filename: string, daily: Array<{ date: string; views: number; clicks: number }>) {
+  const header = ["date", "views", "clicks"];
+  const lines = [header.join(",")];
+  for (const d of daily) {
+    lines.push([csvEscape(d.date), d.views, d.clicks].join(","));
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function BroadcastsPage() {
   const create = useServerFn(createAnnouncement);
   const list = useServerFn(listAnnouncements);
