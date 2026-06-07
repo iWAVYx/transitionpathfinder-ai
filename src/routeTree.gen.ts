@@ -90,6 +90,7 @@ import { Route as AuthenticatedOwnerPartnerNetworkRouteImport } from './routes/_
 import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_authenticated/owner.organizations'
 import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
+import { Route as AuthenticatedOwnerImportAuditRouteImport } from './routes/_authenticated/owner.import-audit'
 import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenticated/owner.health'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
@@ -537,6 +538,12 @@ const AuthenticatedOwnerMediaRoute = AuthenticatedOwnerMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerImportAuditRoute =
+  AuthenticatedOwnerImportAuditRouteImport.update({
+    id: '/import-audit',
+    path: '/import-audit',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerHealthRoute =
   AuthenticatedOwnerHealthRouteImport.update({
     id: '/health',
@@ -734,6 +741,7 @@ export interface FileRoutesByFullPath {
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
+  '/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
@@ -836,6 +844,7 @@ export interface FileRoutesByTo {
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
+  '/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
@@ -941,6 +950,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/health': typeof AuthenticatedOwnerHealthRoute
+  '/_authenticated/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/_authenticated/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
@@ -1046,6 +1056,7 @@ export interface FileRouteTypes {
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
+    | '/owner/import-audit'
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
@@ -1148,6 +1159,7 @@ export interface FileRouteTypes {
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
+    | '/owner/import-audit'
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
@@ -1252,6 +1264,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/emails'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/health'
+    | '/_authenticated/owner/import-audit'
     | '/_authenticated/owner/media'
     | '/_authenticated/owner/opportunities'
     | '/_authenticated/owner/organizations'
@@ -1891,6 +1904,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerMediaRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/import-audit': {
+      id: '/_authenticated/owner/import-audit'
+      path: '/import-audit'
+      fullPath: '/owner/import-audit'
+      preLoaderRoute: typeof AuthenticatedOwnerImportAuditRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/health': {
       id: '/_authenticated/owner/health'
       path: '/health'
@@ -2076,6 +2096,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerHealthRoute: typeof AuthenticatedOwnerHealthRoute
+  AuthenticatedOwnerImportAuditRoute: typeof AuthenticatedOwnerImportAuditRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
   AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
   AuthenticatedOwnerOrganizationsRoute: typeof AuthenticatedOwnerOrganizationsRoute
@@ -2104,6 +2125,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerHealthRoute: AuthenticatedOwnerHealthRoute,
+  AuthenticatedOwnerImportAuditRoute: AuthenticatedOwnerImportAuditRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
   AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
   AuthenticatedOwnerOrganizationsRoute: AuthenticatedOwnerOrganizationsRoute,
@@ -2292,13 +2314,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
