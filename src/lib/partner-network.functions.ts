@@ -1,5 +1,51 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+const OPP_TYPES = [
+  "internship",
+  "job_shadowing",
+  "volunteer_experience",
+  "supported_employment",
+  "day_program",
+  "employment_exploration",
+  "employment_enrichment",
+  "certificate_program",
+  "college_program",
+  "technical_training",
+  "mentorship",
+  "independent_living_support",
+  "transportation_support",
+  "family_support",
+  "agency_connection",
+] as const;
+
+export const opportunityItemSchema = z.object({
+  opportunity_title: z.string().min(1, "Title is required").max(255, "Max 255 characters"),
+  opportunity_type: z.string().refine((v) => (OPP_TYPES as readonly string[]).includes(v), {
+    message: `Must be one of: ${OPP_TYPES.join(", ")}`,
+  }),
+  description: z.string().max(2000).optional().transform((v) => v?.trim() || null),
+  location: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  county: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  pathway_category: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  age_range: z.string().max(50).optional().transform((v) => v?.trim() || null),
+  eligibility: z.string().max(2000).optional().transform((v) => v?.trim() || null),
+  support_level: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  schedule: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  cost_or_funding_notes: z.string().max(2000).optional().transform((v) => v?.trim() || null),
+  application_url: z
+    .union([z.string().url("Invalid URL").max(500), z.literal(""), z.null()])
+    .optional()
+    .transform((v) => v?.trim() || null),
+  contact_email: z
+    .union([z.string().email("Invalid email").max(255), z.literal(""), z.null()])
+    .optional()
+    .transform((v) => v?.trim() || null),
+  next_step: z.string().max(1000).optional().transform((v) => v?.trim() || null),
+  status: z.enum(["open", "waitlist", "closed", "archived"]).optional(),
+  is_public: z.boolean().optional(),
+});
 
 type PartnerRow = {
   id: string;
