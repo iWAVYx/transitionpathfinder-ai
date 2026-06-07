@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // Tags applied by the CT seed expansion. Records touched by the import
 // carry at least one of these in collection_tags.
 const CT_SEED_TAGS = [
+  // v1 tags
   "statewide_anchors",
   "ct_disability_providers",
   "dds_reimagining",
@@ -14,6 +15,15 @@ const CT_SEED_TAGS = [
   "dds_providers",
   "employment_pathways",
   "family_advocacy",
+  // v2 tags (workforce/training/employer expansion)
+  "ct_seed_v2",
+  "free_ct_training",
+  "youth_employment",
+  "adult_education",
+  "workforce_boards",
+  "manufacturing_trades",
+  "disability_employment",
+  "employer_pipeline",
 ] as const;
 
 export type ImportAuditPartner = {
