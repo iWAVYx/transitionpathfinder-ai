@@ -141,6 +141,19 @@ export const deletePartner = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const listOpportunitiesForPartner = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { partner_id: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("partner_network_opportunities")
+      .select("*")
+      .eq("partner_id", data.partner_id)
+      .order("updated_at", { ascending: false });
+    if (error) throw error;
+    return { opportunities: rows ?? [] };
+  });
+
 export const upsertOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id?: string; values: Record<string, unknown> }) => d)
@@ -161,6 +174,32 @@ export const upsertOpportunity = createServerFn({ method: "POST" })
     if (error) throw error;
     return { id: (row as { id: string }).id };
   });
+
+export const archiveOpportunity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; status?: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("partner_network_opportunities")
+      .update({ status: data.status ?? "archived" } as never)
+      .eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const deleteOpportunity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("partner_network_opportunities")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+
 
 
 export const savePartnerForStudent = createServerFn({ method: "POST" })
