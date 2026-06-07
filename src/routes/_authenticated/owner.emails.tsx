@@ -2,11 +2,12 @@ import { useState, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Mail, RefreshCw, AlertTriangle, CheckCircle2, Ban, Clock } from "lucide-react";
+import { Mail, RefreshCw, AlertTriangle, CheckCircle2, Ban, Clock, Search } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { getEmailMonitor } from "@/lib/email-monitor.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -104,6 +105,7 @@ function EmailMonitorPage() {
   const [range, setRange] = useState<RangeOpt>("7d");
   const [template, setTemplate] = useState<string>("all");
   const [status, setStatus] = useState<StatusOpt>("all");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
 
   const params = useMemo(
@@ -111,10 +113,11 @@ function EmailMonitorPage() {
       range,
       template: template === "all" ? undefined : template,
       status,
+      search: search.trim() || undefined,
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
     }),
-    [range, template, status, page],
+    [range, template, status, search, page],
   );
 
   const { data, isLoading, isFetching, refetch } = useQuery({
@@ -198,6 +201,20 @@ function EmailMonitorPage() {
                 <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
             </Select>
+
+            <div className="relative flex-1 min-w-[260px] max-w-md">
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by email or user ID…"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(0);
+                }}
+                className="pl-9"
+              />
+            </div>
           </div>
 
           {/* Stats */}

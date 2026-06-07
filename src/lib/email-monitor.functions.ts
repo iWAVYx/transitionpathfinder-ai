@@ -45,6 +45,7 @@ export const getEmailMonitor = createServerFn({ method: "POST" })
         end: z.string().datetime().optional(),
         template: z.string().trim().max(200).optional(),
         status: z.enum(["all", "sent", "failed", "suppressed", "pending"]).default("all"),
+        search: z.string().trim().max(255).optional(),
         limit: z.number().int().min(1).max(200).default(50),
         offset: z.number().int().min(0).max(10000).default(0),
       })
@@ -119,6 +120,15 @@ export const getEmailMonitor = createServerFn({ method: "POST" })
         if (data.status === "suppressed") return SUPPRESSED_STATUSES.has(r.status);
         if (data.status === "pending") return PENDING_STATUSES.has(r.status);
         return true;
+      });
+    }
+    if (data.search) {
+      const q = data.search.toLowerCase();
+      filtered = filtered.filter((r) => {
+        const emailMatch = (r.recipient_email ?? "").toLowerCase().includes(q);
+        const metaUserId = (r as any).metadata?.user_id ?? (r as any).metadata?.userId ?? "";
+        const uidMatch = String(metaUserId).toLowerCase().includes(q);
+        return emailMatch || uidMatch;
       });
     }
 
