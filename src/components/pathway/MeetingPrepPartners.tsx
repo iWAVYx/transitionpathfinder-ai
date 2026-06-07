@@ -9,6 +9,7 @@ import {
   CalendarClock,
   CalendarPlus,
   CalendarDays,
+  Globe,
 } from "lucide-react";
 import {
   matchPartnersForStudent,
@@ -16,7 +17,35 @@ import {
 } from "@/lib/partner-matching.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
+
+const TIMEZONES = [
+  { value: "America/New_York", label: "Eastern Time" },
+  { value: "America/Chicago", label: "Central Time" },
+  { value: "America/Denver", label: "Mountain Time" },
+  { value: "America/Los_Angeles", label: "Pacific Time" },
+  { value: "America/Anchorage", label: "Alaska Time" },
+  { value: "Pacific/Honolulu", label: "Hawaii Time" },
+];
+
+function getBrowserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return "America/New_York";
+  }
+}
+
+function isKnownTimezone(tz: string): boolean {
+  return TIMEZONES.some((t) => t.value === tz);
+}
 
 /**
  * Meeting Prep — Top Partner Contacts + Suggested Deadlines.
