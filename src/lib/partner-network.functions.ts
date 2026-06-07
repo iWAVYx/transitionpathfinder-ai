@@ -88,6 +88,21 @@ export const listPublicPartners = createServerFn({ method: "GET" }).handler(asyn
   return { partners: (data ?? []) as Partial<PartnerRow>[] };
 });
 
+// SIGNED-IN browse — wraps the public list. Includes opportunities count if needed in future.
+export const listPartnersForBrowse = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("partner_organizations")
+      .select(PUBLIC_COLS)
+      .eq("is_public", true)
+      .in("verification_status", ["verified", "featured", "potential", "needs_review"])
+      .order("is_featured", { ascending: false })
+      .order("organization_name", { ascending: true });
+    if (error) throw error;
+    return { partners: (data ?? []) as Partial<PartnerRow>[] };
+  });
+
 // SIGNED-IN — full directory
 export const listPartners = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
