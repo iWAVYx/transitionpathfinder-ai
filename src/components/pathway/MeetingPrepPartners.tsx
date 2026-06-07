@@ -56,28 +56,50 @@ export function MeetingPrepPartners({
   return (
     <div className="space-y-8">
       <section>
-        <h3 className="font-display text-lg font-medium tracking-tight">Suggested deadlines</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-display text-lg font-medium tracking-tight">Suggested deadlines</h3>
+          {deadlines.parsed && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                downloadIcs(deadlines.steps, studentId, () =>
+                  toast.success("Calendar reminders downloaded — open the file to add them."),
+                )
+              }
+            >
+              <CalendarPlus className="mr-1.5 h-4 w-4" aria-hidden /> Add reminders to calendar
+            </Button>
+          )}
+        </div>
         {deadlines.parsed ? (
-          <ol className="mt-3 space-y-2">
-            {deadlines.steps.map((s, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card p-3"
-              >
-                <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{s.label}</p>
-                  <p className="text-xs text-muted-foreground">{s.detail}</p>
-                </div>
-                <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">
-                  {s.when}
-                </span>
-              </li>
-            ))}
-          </ol>
+          <>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Each reminder pops up the day before — share the file with anyone helping prep
+              (other parent, case manager, advocate) so they get notified too.
+            </p>
+            <ol className="mt-3 space-y-2">
+              {deadlines.steps.map((s, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card p-3"
+                >
+                  <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{s.label}</p>
+                    <p className="text-xs text-muted-foreground">{s.detail}</p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">
+                    {s.when}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
-            Add a meeting date above and we'll lay out a week-by-week prep timeline.
+            Add a meeting date above and we'll lay out a week-by-week prep timeline with
+            calendar reminders you can share.
           </p>
         )}
       </section>
