@@ -52,8 +52,9 @@ export const listPartners = createServerFn({ method: "GET" })
       .order("is_featured", { ascending: false })
       .order("organization_name", { ascending: true });
     if (error) throw error;
-    return { partners: (data ?? []) as PartnerRow[] };
+    return { partners: (data ?? []) as unknown as PartnerRow[] };
   });
+
 
 // ADMIN — full data + opportunities
 export const listAdminPartners = createServerFn({ method: "GET" })

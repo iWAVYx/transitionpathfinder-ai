@@ -19,6 +19,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PartnerDirectoryRouteImport } from './routes/partner-directory'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FrameworkRouteImport } from './routes/framework'
@@ -155,6 +156,11 @@ const PlatformRoute = PlatformRouteImport.update({
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerDirectoryRoute = PartnerDirectoryRouteImport.update({
+  id: '/partner-directory',
+  path: '/partner-directory',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -636,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
+  '/partner-directory': typeof PartnerDirectoryRoute
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -734,6 +741,7 @@ export interface FileRoutesByTo {
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
+  '/partner-directory': typeof PartnerDirectoryRoute
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -833,6 +841,7 @@ export interface FileRoutesById {
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
+  '/partner-directory': typeof PartnerDirectoryRoute
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -933,6 +942,7 @@ export interface FileRouteTypes {
     | '/framework'
     | '/help'
     | '/login'
+    | '/partner-directory'
     | '/partners'
     | '/platform'
     | '/pricing'
@@ -1031,6 +1041,7 @@ export interface FileRouteTypes {
     | '/framework'
     | '/help'
     | '/login'
+    | '/partner-directory'
     | '/partners'
     | '/platform'
     | '/pricing'
@@ -1129,6 +1140,7 @@ export interface FileRouteTypes {
     | '/framework'
     | '/help'
     | '/login'
+    | '/partner-directory'
     | '/partners'
     | '/platform'
     | '/pricing'
@@ -1229,6 +1241,7 @@ export interface RootRouteChildren {
   FrameworkRoute: typeof FrameworkRoute
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRouteWithChildren
+  PartnerDirectoryRoute: typeof PartnerDirectoryRoute
   PartnersRoute: typeof PartnersRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
@@ -1327,6 +1340,13 @@ declare module '@tanstack/react-router' {
       path: '/partners'
       fullPath: '/partners'
       preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner-directory': {
+      id: '/partner-directory'
+      path: '/partner-directory'
+      fullPath: '/partner-directory'
+      preLoaderRoute: typeof PartnerDirectoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -2150,6 +2170,7 @@ const rootRouteChildren: RootRouteChildren = {
   FrameworkRoute: FrameworkRoute,
   HelpRoute: HelpRoute,
   LoginRoute: LoginRouteWithChildren,
+  PartnerDirectoryRoute: PartnerDirectoryRoute,
   PartnersRoute: PartnersRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
