@@ -139,6 +139,9 @@ function PartnerNetworkAdminPage() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [oppsPartner, setOppsPartner] = useState<Row | null>(null);
+  const [openNewForPartner, setOpenNewForPartner] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerQ, setPickerQ] = useState("");
 
   const refresh = () => {
     setRows(null);
@@ -158,6 +161,15 @@ function PartnerNetworkAdminPage() {
       return true;
     });
   }, [rows, filter, q]);
+
+  const pickerResults = useMemo(() => {
+    const term = pickerQ.toLowerCase().trim();
+    const base = rows ?? [];
+    if (!term) return base.slice(0, 25);
+    return base
+      .filter((r) => r.organization_name.toLowerCase().includes(term))
+      .slice(0, 25);
+  }, [rows, pickerQ]);
 
   async function update(id: string, patch: Parameters<typeof setStatus>[0]["data"]) {
     setBusy(id);
@@ -190,13 +202,69 @@ function PartnerNetworkAdminPage() {
             {s}
           </button>
         ))}
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search organizations…"
-          className="ml-auto max-w-xs"
-        />
+        <div className="ml-auto flex items-center gap-2">
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search organizations…"
+            className="max-w-xs"
+          />
+          <Button size="sm" onClick={() => { setPickerOpen(true); setPickerQ(""); }}>
+            <Plus className="mr-1 h-3 w-3" /> Add opportunity
+          </Button>
+        </div>
       </div>
+
+      {pickerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-background/80 p-4 backdrop-blur-sm sm:pt-24"
+          onClick={() => setPickerOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg rounded-lg border border-border bg-background p-4 shadow-lg"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Pick a partner organization</h3>
+              <Button size="sm" variant="ghost" onClick={() => setPickerOpen(false)}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+            <Input
+              autoFocus
+              value={pickerQ}
+              onChange={(e) => setPickerQ(e.target.value)}
+              placeholder="Search…"
+            />
+            <ul className="mt-3 max-h-80 space-y-1 overflow-y-auto">
+              {pickerResults.length === 0 ? (
+                <li className="p-3 text-center text-xs text-muted-foreground">
+                  No matches.
+                </li>
+              ) : (
+                pickerResults.map((r) => (
+                  <li key={r.id}>
+                    <button
+                      onClick={() => {
+                        setPickerOpen(false);
+                        setOpenNewForPartner(true);
+                        setOppsPartner(r);
+                      }}
+                      className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-muted"
+                    >
+                      <span className="truncate">{r.organization_name}</span>
+                      <Badge variant="outline" className="text-[10px]">
+                        {r.verification_status}
+                      </Badge>
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
 
       {rows === null ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -306,17 +374,21 @@ function PartnerNetworkAdminPage() {
 
       <OpportunitiesDrawer
         partner={oppsPartner}
-        onClose={() => setOppsPartner(null)}
+        autoOpenNew={openNewForPartner}
+        onClose={() => { setOppsPartner(null); setOpenNewForPartner(false); }}
       />
     </OwnerShell>
   );
 }
 
+
 function OpportunitiesDrawer({
   partner,
+  autoOpenNew = false,
   onClose,
 }: {
   partner: Row | null;
+  autoOpenNew?: boolean;
   onClose: () => void;
 }) {
   const listOpps = useServerFn(listOpportunitiesForPartner);
@@ -328,16 +400,23 @@ function OpportunitiesDrawer({
   const [editing, setEditing] = useState<Opportunity | null>(null);
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState("");
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   useEffect(() => {
     if (!partner) {
       setOpps(null);
       setEditing(null);
+      setBulkOpen(false);
+      setBulkText("");
       return;
     }
     setOpps(null);
+    if (autoOpenNew) setEditing(emptyOpp(partner.id));
     listOpps({ data: { partner_id: partner.id } })
       .then((r) => setOpps(r.opportunities as Opportunity[]))
+
       .catch(() => setOpps([]));
   }, [partner, listOpps]);
 
@@ -427,17 +506,89 @@ function OpportunitiesDrawer({
           />
         ) : (
           <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <p className="text-sm text-muted-foreground">
                 {opps === null ? "Loading…" : `${opps.length} opportunit${opps.length === 1 ? "y" : "ies"}`}
               </p>
-              <Button
-                size="sm"
-                onClick={() => partner && setEditing(emptyOpp(partner.id))}
-              >
-                <Plus className="mr-1 h-3 w-3" /> New
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setBulkOpen((v) => !v)}
+                >
+                  Paste JSON
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => partner && setEditing(emptyOpp(partner.id))}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> New
+                </Button>
+              </div>
             </div>
+
+            {bulkOpen && (
+              <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Paste a JSON array of opportunities. Each must include{" "}
+                  <code>opportunity_title</code> and <code>opportunity_type</code>.
+                </p>
+                <Textarea
+                  rows={8}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  placeholder='[{"opportunity_title":"…","opportunity_type":"internship","description":"…","location":"Hartford","county":"Hartford"}]'
+                  className="font-mono text-xs"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => { setBulkOpen(false); setBulkText(""); }}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={bulkSaving || !bulkText.trim()}
+                    onClick={async () => {
+                      if (!partner) return;
+                      let parsed: any;
+                      try {
+                        parsed = JSON.parse(bulkText);
+                        if (!Array.isArray(parsed)) throw new Error("Must be an array");
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Invalid JSON");
+                        return;
+                      }
+                      setBulkSaving(true);
+                      let ok = 0, fail = 0;
+                      for (const raw of parsed) {
+                        if (!raw?.opportunity_title || !raw?.opportunity_type) { fail++; continue; }
+                        const values: Record<string, unknown> = {
+                          partner_id: partner.id,
+                          status: "open",
+                          is_public: true,
+                          ...raw,
+                        };
+                        for (const k of Object.keys(values)) {
+                          if (typeof values[k] === "string" && (values[k] as string).trim() === "") values[k] = null;
+                        }
+                        try {
+                          await saveOpp({ data: { values } });
+                          ok++;
+                        } catch { fail++; }
+                      }
+                      setBulkSaving(false);
+                      toast.success(`Imported ${ok}${fail ? ` (${fail} failed)` : ""}`);
+                      setBulkText("");
+                      setBulkOpen(false);
+                      reload();
+                    }}
+                  >
+                    {bulkSaving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                    Import
+                  </Button>
+                </div>
+              </div>
+            )}
+
 
             {opps === null ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
