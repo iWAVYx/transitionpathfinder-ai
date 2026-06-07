@@ -553,16 +553,15 @@ export const listMyCalendarOrganizations = createServerFn({ method: "POST" })
       .eq("status", "active");
     if (error) {
       console.error("listMyCalendarOrganizations", error);
-      return { organizations: [] as Array<{ id: string; name: string; kind: null }> };
+      return { organizations: [] as Array<{ id: string; name: string }> };
     }
-    const orgs = ((data ?? []) as Array<{
-      organizations: { id: string; name: string; kind: null } | null;
+    const orgs = ((data ?? []) as unknown as Array<{
+      organizations: { id: string; name: string } | null;
     }>)
       .map((row) => row.organizations)
-      .filter((o): o is { id: string; name: string; kind: null } => !!o);
-    // Dedupe by id
-    const map = new Map<string, { id: string; name: string; kind: null }>();
-    for (const o of orgs) map.set(o.id, { ...o, kind: null });
+      .filter((o): o is { id: string; name: string } => !!o);
+    const map = new Map<string, { id: string; name: string }>();
+    for (const o of orgs) map.set(o.id, o);
     return { organizations: Array.from(map.values()) };
   });
 
