@@ -1,0 +1,56 @@
+{
+  "anon": {
+    "read_documents": false,
+    "insert_documents": false,
+    "write_documents": false,
+    "read_summaries": false,
+    "write_summaries": false,
+    "read_storage": false,
+    "write_storage": false
+  },
+  "editor_collab": {
+    "read_documents": true,
+    "insert_documents": true,
+    "write_documents": true,
+    "read_summaries": true,
+    "write_summaries": true,
+    "read_storage": true,
+    "write_storage": true
+  },
+  "owner": {
+    "read_documents": true,
+    "insert_documents": true,
+    "write_documents": true,
+    "read_summaries": true,
+    "write_summaries": true,
+    "read_storage": true,
+    "write_storage": true
+  },
+  "platform_admin": {
+    "read_documents": true,
+    "insert_documents": true,
+    "write_documents": true,
+    "read_summaries": true,
+    "write_summaries": true,
+    "read_storage": true,
+    "write_storage": true
+  },
+  "unrelated": {
+    "read_documents": false,
+    "insert_documents": false,
+    "write_documents": false,
+    "read_summaries": false,
+    "write_summaries": false,
+    "read_storage": false,
+    "write_storage": false
+  },
+  "viewer_collab": {
+    "read_documents": true,
+    "insert_documents": false,
+    "write_documents": false,
+    "read_summaries": true,
+    "write_summaries": false,
+    "read_storage": true,
+    "write_storage": false
+  }
+}
