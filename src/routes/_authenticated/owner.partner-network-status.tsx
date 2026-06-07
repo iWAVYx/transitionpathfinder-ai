@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   CircleHelp,
   CircleSlash,
+  Download,
   FileText,
   Flag,
   HeartHandshake,
@@ -29,6 +30,7 @@ import {
 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -49,6 +51,7 @@ import {
   getPartnerMetricRows,
   type MetricKey,
   type PartnerNetworkStatus,
+  type DrillRow,
 } from "@/lib/partner-network-status.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/partner-network-status")({
@@ -191,6 +194,38 @@ function formatDate(value: string | null) {
   } catch {
     return value;
   }
+}
+
+function escapeCsvCell(value: string) {
+  const cell = String(value ?? "").replace(/"/g, '""');
+  if (cell.includes(",") || cell.includes('"') || cell.includes("\n") || cell.includes("\r")) {
+    return `"${cell}"`;
+  }
+  return cell;
+}
+
+function downloadCSV(rows: DrillRow[], filename: string) {
+  const headers = ["ID", "Name", "Details", "Status", "Meta", "Updated At"];
+  const lines = rows.map((r) =>
+    [
+      escapeCsvCell(r.id),
+      escapeCsvCell(r.primary),
+      escapeCsvCell(r.secondary ?? ""),
+      escapeCsvCell(r.status ?? ""),
+      escapeCsvCell(r.meta ?? ""),
+      escapeCsvCell(r.updated_at ?? ""),
+    ].join(","),
+  );
+  const csv = [headers.join(","), ...lines].join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 function MetricCard({
@@ -346,6 +381,8 @@ function DrillSheet({
     }
   }
 
+  const canExport = data && data.rows.length > 0;
+
   return (
     <Sheet open={!!metric} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
@@ -357,7 +394,7 @@ function DrillSheet({
         </SheetHeader>
 
         <div className="mt-5 space-y-4">
-          {/* Search + Filters */}
+          {/* Search + Filters + Export */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -390,6 +427,21 @@ function DrillSheet({
                 </SelectContent>
               </Select>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-2"
+              disabled={!canExport}
+              onClick={() => {
+                if (!data?.rows.length || !metric) return;
+                const label = METRIC_LABEL[metric].toLowerCase().replace(/\s+/g, "-");
+                const date = new Date().toISOString().slice(0, 10);
+                downloadCSV(data.rows, `${label}-${date}.csv`);
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
           </div>
 
           {isLoading && (
