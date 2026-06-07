@@ -229,3 +229,151 @@ export const dismissAnnouncement = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ---------- Engagement tracking ----------
+
+async function primaryRoleFor(userId: string): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  return (data?.role as string | undefined) ?? null;
+}
+
+export const trackAnnouncementView = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const role = await primaryRoleFor(userId);
+    // Unique index on (announcement_id, user_id) WHERE event_type='view'
+    // makes duplicate views a no-op.
+    await supabaseAdmin
+      .from("announcement_events")
+      .insert({
+        announcement_id: data.id,
+        user_id: userId,
+        event_type: "view",
+        role,
+      });
+    return { ok: true };
+  });
+
+export const trackAnnouncementClick = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        link_url: z.string().trim().max(2000).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const role = await primaryRoleFor(userId);
+    await supabaseAdmin.from("announcement_events").insert({
+      announcement_id: data.id,
+      user_id: userId,
+      event_type: "click",
+      role,
+      link_url: data.link_url ?? null,
+    });
+    return { ok: true };
+  });
+
+export type AnnouncementEngagement = {
+  announcement_id: string;
+  views: number;
+  clicks: number;
+  unique_viewers: number;
+  unique_clickers: number;
+  by_role: Array<{ role: string; views: number; clicks: number }>;
+  recent: Array<{
+    user_id: string;
+    email: string | null;
+    full_name: string | null;
+    role: string | null;
+    event_type: "view" | "click";
+    created_at: string;
+  }>;
+};
+
+export const getAnnouncementEngagement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }): Promise<AnnouncementEngagement> => {
+    await requirePlatformAdmin(context.supabase, context.userId);
+
+    const { data: events, error } = await supabaseAdmin
+      .from("announcement_events")
+      .select("user_id, event_type, role, created_at")
+      .eq("announcement_id", data.id)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (error) throw new Error(error.message);
+
+    const rows = (events ?? []) as Array<{
+      user_id: string;
+      event_type: "view" | "click";
+      role: string | null;
+      created_at: string;
+    }>;
+
+    let views = 0;
+    let clicks = 0;
+    const viewers = new Set<string>();
+    const clickers = new Set<string>();
+    const byRole = new Map<string, { views: number; clicks: number }>();
+    for (const r of rows) {
+      const roleKey = r.role ?? "unknown";
+      const slot = byRole.get(roleKey) ?? { views: 0, clicks: 0 };
+      if (r.event_type === "view") {
+        views++;
+        viewers.add(r.user_id);
+        slot.views++;
+      } else {
+        clicks++;
+        clickers.add(r.user_id);
+        slot.clicks++;
+      }
+      byRole.set(roleKey, slot);
+    }
+
+    const recentRows = rows.slice(0, 25);
+    const userIds = Array.from(new Set(recentRows.map((r) => r.user_id)));
+    const profileMap = new Map<string, { email: string | null; full_name: string | null }>();
+    if (userIds.length > 0) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id, email, full_name")
+        .in("id", userIds);
+      for (const p of profs ?? []) {
+        profileMap.set((p as any).id, {
+          email: (p as any).email ?? null,
+          full_name: (p as any).full_name ?? null,
+        });
+      }
+    }
+
+    return {
+      announcement_id: data.id,
+      views,
+      clicks,
+      unique_viewers: viewers.size,
+      unique_clickers: clickers.size,
+      by_role: Array.from(byRole.entries())
+        .map(([role, v]) => ({ role, ...v }))
+        .sort((a, b) => b.views + b.clicks - (a.views + a.clicks)),
+      recent: recentRows.map((r) => ({
+        user_id: r.user_id,
+        email: profileMap.get(r.user_id)?.email ?? null,
+        full_name: profileMap.get(r.user_id)?.full_name ?? null,
+        role: r.role,
+        event_type: r.event_type,
+        created_at: r.created_at,
+      })),
+    };
+  });
