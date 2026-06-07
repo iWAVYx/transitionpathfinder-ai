@@ -52,8 +52,9 @@ export const listPartners = createServerFn({ method: "GET" })
       .order("is_featured", { ascending: false })
       .order("organization_name", { ascending: true });
     if (error) throw error;
-    return { partners: (data ?? []) as PartnerRow[] };
+    return { partners: (data ?? []) as unknown as PartnerRow[] };
   });
+
 
 // ADMIN — full data + opportunities
 export const listAdminPartners = createServerFn({ method: "GET" })
@@ -93,18 +94,18 @@ export const upsertPartner = createServerFn({ method: "POST" })
     if (data.id) {
       const { error } = await context.supabase
         .from("partner_organizations")
-        .update(payload)
+        .update(payload as never)
         .eq("id", data.id);
       if (error) throw error;
       return { id: data.id };
     }
     const { data: row, error } = await context.supabase
       .from("partner_organizations")
-      .insert({ ...payload, created_by: context.userId })
+      .insert({ ...payload, created_by: context.userId } as never)
       .select("id")
       .single();
     if (error) throw error;
-    return { id: row.id };
+    return { id: (row as { id: string }).id };
   });
 
 export const setPartnerStatus = createServerFn({ method: "POST" })
@@ -122,7 +123,7 @@ export const setPartnerStatus = createServerFn({ method: "POST" })
     const { id, ...patch } = data;
     const { error } = await context.supabase
       .from("partner_organizations")
-      .update({ ...patch, last_reviewed_at: new Date().toISOString() })
+      .update({ ...patch, last_reviewed_at: new Date().toISOString() } as never)
       .eq("id", id);
     if (error) throw error;
     return { ok: true };
@@ -147,19 +148,20 @@ export const upsertOpportunity = createServerFn({ method: "POST" })
     if (data.id) {
       const { error } = await context.supabase
         .from("partner_network_opportunities")
-        .update(data.values)
+        .update(data.values as never)
         .eq("id", data.id);
       if (error) throw error;
       return { id: data.id };
     }
     const { data: row, error } = await context.supabase
       .from("partner_network_opportunities")
-      .insert(data.values)
+      .insert(data.values as never)
       .select("id")
       .single();
     if (error) throw error;
-    return { id: row.id };
+    return { id: (row as { id: string }).id };
   });
+
 
 export const savePartnerForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
