@@ -90,7 +90,7 @@ const STATUS_META: Record<
 const CHECKLIST: Array<{ surface: string; status: CheckStatus; detail: string }> = [
   { surface: "Public Partner Directory", status: "connected", detail: "/partner-directory pulls live records via listPublicPartners with search + county filters." },
   { surface: "Signed-In Opportunity Matches", status: "connected", detail: "/opportunities renders DB-driven grid with per-student recommendations via matchPartnersForStudent." },
-  { surface: "Pathway Report", status: "needs_review", detail: "Reports render student plans, but partner suggestions are not yet embedded as a report section." },
+  { surface: "Pathway Report", status: "connected", detail: "Reports linked to a student render a live Partner Suggestions section via matchPartnersForStudent, with TOC entry." },
   { surface: "Action Items", status: "not_connected", detail: "Matched partners are not yet generating suggested action items on the dashboard." },
   { surface: "Meeting Prep", status: "not_connected", detail: "Meeting prep packets do not yet surface partner contacts or upcoming opportunity deadlines." },
   { surface: "Student Profile", status: "connected", detail: "Student detail page renders Recommended Partners panel via matchPartnersForStudent; save persists to student_saved_partners." },

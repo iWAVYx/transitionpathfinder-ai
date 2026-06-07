@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/accordion";
 import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
+import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSuggestions";
 import { cn } from "@/lib/utils";
 
 import { toTitleCase } from "@/lib/title-case";
@@ -495,7 +496,7 @@ export function ReportView({
       </div>
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <DocumentContents report={r} name={name} />
+      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} />
 
 
       {/* ============ Executive Summary ============ */}
@@ -1034,6 +1035,19 @@ export function ReportView({
           <BulletList items={r.family_questions_for_ppt} />
         </Block>
       )}
+
+      {/* ============ Partner suggestions (live, student-linked) ============ */}
+      <Block
+        id="sec-partner-suggestions"
+        title="Partner Suggestions"
+        icon={<HeartHandshake className="h-5 w-5" />}
+      >
+        <p className="mb-4 text-sm text-muted-foreground">
+          Organizations from the TransitionForward network matched to {name}'s pathway goals,
+          interests, county, and support needs.
+        </p>
+        <ReportPartnerSuggestions studentId={studentId} />
+      </Block>
 
       {/* ============ Opportunity matches ============ */}
       {r.opportunity_matches && r.opportunity_matches.length > 0 && (
@@ -1670,7 +1684,15 @@ function MetaField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DocumentContents({ report, name }: { report: PathwayReport; name: string }) {
+function DocumentContents({
+  report,
+  name,
+  hasLinkedStudent,
+}: {
+  report: PathwayReport;
+  name: string;
+  hasLinkedStudent?: boolean;
+}) {
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
   items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
@@ -1686,6 +1708,7 @@ function DocumentContents({ report, name }: { report: PathwayReport; name: strin
   if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s Voice` });
   if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family Action Plan" });
   if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP Meeting Prep" });
+  if (hasLinkedStudent) items.push({ id: "sec-partner-suggestions", label: "Partner Suggestions" });
   if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to Explore" });
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress Timeline" });
   items.push({ id: "sec-thirty-day", label: "A Gentle 30-Day Plan" });
