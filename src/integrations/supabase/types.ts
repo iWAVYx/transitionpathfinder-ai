@@ -439,6 +439,50 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          created_at: string
+          detail: string | null
+          event_date: string
+          id: string
+          owner_user_id: string
+          student_id: string | null
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          event_date: string
+          id?: string
+          owner_user_id: string
+          student_id?: string | null
+          title: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          event_date?: string
+          id?: string
+          owner_user_id?: string
+          student_id?: string | null
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_notes: {
         Row: {
           content: string
