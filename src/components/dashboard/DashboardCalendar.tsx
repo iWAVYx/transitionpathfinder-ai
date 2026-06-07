@@ -153,6 +153,8 @@ function toIcsEvent(ev: TeamCalendarEvent): IcsEvent {
   };
 }
 
+type OrgOption = { id: string; name: string };
+
 type Props = {
   /** Scope the calendar to a single student. Omit for "all my collaborations." */
   studentId?: string | null;
@@ -165,7 +167,24 @@ type Props = {
   /** List of students the user can attach events to (id + name). If empty,
    *  only personal events can be created. */
   studentOptions?: Array<{ id: string; name: string }>;
+  /** Optional pre-supplied list of organizations. If omitted the component
+   *  fetches the caller's active memberships. */
+  organizationOptions?: OrgOption[];
+  /** Optional default visibility tier offered first in the create form. */
+  defaultVisibility?: CalendarVisibility;
+  /** Hide visibility tiers that don't apply to this surface. */
+  allowedVisibilities?: CalendarVisibility[];
 };
+
+const ALL_VISIBILITIES: CalendarVisibility[] = [
+  "private",
+  "family_team",
+  "school_team",
+  "district_team",
+  "partner_only",
+  "platform_admin_only",
+  "public_event",
+];
 
 export function DashboardCalendar({
   studentId = null,
@@ -173,16 +192,23 @@ export function DashboardCalendar({
   title = "Calendar",
   subtitle = "Meetings, action items, prep deadlines, and team events.",
   studentOptions = [],
+  organizationOptions,
+  defaultVisibility,
+  allowedVisibilities,
 }: Props) {
   const fetchEvents = useServerFn(listCalendarEvents);
   const createEvent = useServerFn(createCalendarEvent);
   const removeEvent = useServerFn(deleteCalendarEvent);
+  const updateEvent = useServerFn(updateCalendarEvent);
+  const fetchOrgs = useServerFn(listMyCalendarOrganizations);
 
   const [events, setEvents] = useState<TeamCalendarEvent[]>([]);
+  const [orgs, setOrgs] = useState<OrgOption[]>(organizationOptions ?? []);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<Date>(() => startOfMonth(new Date()));
   const [tz, setTz] = useState<string>(getBrowserTz);
   const [addOpen, setAddOpen] = useState(false);
+  const [filterKind, setFilterKind] = useState<string>("all");
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -191,7 +217,6 @@ export function DashboardCalendar({
         data: studentId ? { student_id: studentId } : {},
       });
       setEvents(res.events);
-      // On first load, jump to the month of the next upcoming event.
       const upcoming = res.events.find((e) => !isPastIso(e.event_date));
       if (upcoming) setCursor(startOfMonth(parseDate(upcoming.event_date)));
     } catch (err) {
@@ -205,15 +230,36 @@ export function DashboardCalendar({
     reload();
   }, [reload]);
 
+  useEffect(() => {
+    if (organizationOptions !== undefined) {
+      setOrgs(organizationOptions);
+      return;
+    }
+    let cancelled = false;
+    fetchOrgs({ data: {} })
+      .then((r) => {
+        if (!cancelled) setOrgs(r.organizations);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchOrgs, organizationOptions]);
+
+  const filteredEvents = useMemo(() => {
+    if (filterKind === "all") return events;
+    return events.filter((e) => e.kind === filterKind);
+  }, [events, filterKind]);
+
   const monthEvents = useMemo(() => {
     const start = toIsoDate(startOfMonth(cursor));
     const end = toIsoDate(endOfMonth(cursor));
-    return events.filter((e) => e.event_date >= start && e.event_date <= end);
-  }, [events, cursor]);
+    return filteredEvents.filter((e) => e.event_date >= start && e.event_date <= end);
+  }, [filteredEvents, cursor]);
 
   const upcoming = useMemo(
-    () => events.filter((e) => !isPastIso(e.event_date)).slice(0, 10),
-    [events],
+    () => filteredEvents.filter((e) => !isPastIso(e.event_date)).slice(0, 10),
+    [filteredEvents],
   );
 
   const grid = useMemo(() => {
@@ -250,6 +296,23 @@ export function DashboardCalendar({
     }
   }
 
+  async function handleComplete(ev: TeamCalendarEvent) {
+    if (!ev.id.startsWith("cal-") || !ev.is_mine) return;
+    const id = ev.id.slice("cal-".length);
+    const next = ev.event_status === "completed" ? "scheduled" : "completed";
+    try {
+      await updateEvent({ data: { id, status: next } });
+      setEvents((prev) =>
+        prev.map((e) => (e.id === ev.id ? { ...e, event_status: next } : e)),
+      );
+      toast.success(next === "completed" ? "Marked complete." : "Reopened.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update event.");
+    }
+  }
+
+  const visibilityChoices = (allowedVisibilities ?? ALL_VISIBILITIES);
+
   return (
     <section className="rounded-3xl border bg-card p-6 shadow-soft">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -262,6 +325,19 @@ export function DashboardCalendar({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Select value={filterKind} onValueChange={setFilterKind}>
+            <SelectTrigger className="h-8 w-auto gap-1 text-xs" aria-label="Filter by type">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">All events</SelectItem>
+              <SelectItem value="meeting" className="text-xs">Meetings</SelectItem>
+              <SelectItem value="prep" className="text-xs">Prep</SelectItem>
+              <SelectItem value="action" className="text-xs">Action items</SelectItem>
+              <SelectItem value="team" className="text-xs">Team events</SelectItem>
+              <SelectItem value="personal" className="text-xs">Personal</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={tz} onValueChange={setTz}>
             <SelectTrigger className="h-8 w-auto gap-1 text-xs" aria-label="Timezone">
               <SelectValue />
@@ -279,13 +355,16 @@ export function DashboardCalendar({
             onOpenChange={setAddOpen}
             defaultStudentId={studentId ?? null}
             studentOptions={studentOptions}
+            organizationOptions={orgs}
+            visibilityChoices={visibilityChoices}
+            defaultVisibility={defaultVisibility ?? "private"}
             onCreate={async (input) => {
               await createEvent({ data: input });
               setAddOpen(false);
               toast.success(
-                input.visibility === "team"
-                  ? "Event added — visible to everyone collaborating on this student."
-                  : "Event added to your personal calendar.",
+                input.visibility === "private"
+                  ? "Event added to your personal calendar."
+                  : "Event added to the shared calendar.",
               );
               await reload();
             }}
