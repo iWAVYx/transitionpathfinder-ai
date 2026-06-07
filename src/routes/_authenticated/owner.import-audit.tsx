@@ -338,12 +338,13 @@ function ImportAuditPage() {
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Partner</th>
                     <th className="px-4 py-2">Updated</th>
+                    <th className="px-4 py-2 text-right">Changes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredOpps.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                      <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                         No opportunities match this view.
                       </td>
                     </tr>
@@ -362,6 +363,16 @@ function ImportAuditPage() {
                         <td className="px-4 py-2 text-xs text-muted-foreground">
                           {fmt(o.updated_at)}
                         </td>
+                        <td className="px-4 py-2 text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setSelectedOpp(o)}
+                          >
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            {opportunityChangedFields(o).length}
+                          </Button>
+                        </td>
                       </tr>
                     ))
                   )}
@@ -371,6 +382,15 @@ function ImportAuditPage() {
           </section>
         </div>
       )}
+
+      <PartnerChangesDialog
+        partner={selectedPartner}
+        onClose={() => setSelectedPartner(null)}
+      />
+      <OpportunityChangesDialog
+        opportunity={selectedOpp}
+        onClose={() => setSelectedOpp(null)}
+      />
     </OwnerShell>
   );
 }
