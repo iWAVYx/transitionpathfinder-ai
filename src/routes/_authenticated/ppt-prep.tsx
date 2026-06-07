@@ -224,6 +224,10 @@ function AgendaView({
         </ol>
       </Block>
 
+      <Block title="Partner contacts & deadlines">
+        <MeetingPrepPartners studentId={studentId} meetingDate={meetingDate} />
+      </Block>
+
       <Block title="Questions to ask">
         <BulletList items={agenda.questions_to_ask} />
       </Block>
