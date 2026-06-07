@@ -38,12 +38,22 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
+          missing=()
           if [ -z "$SUPABASE_URL" ]; then
-            echo "::error::SUPABASE_URL secret is not configured in this repository."
-            exit 1
+            missing+=("SUPABASE_URL")
           fi
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "::error::SUPABASE_SERVICE_ROLE_KEY secret is not configured in this repository."
+            missing+=("SUPABASE_SERVICE_ROLE_KEY")
+          fi
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required repository secrets: ${missing[*]}"
+            echo ""
+            echo "Remediation:"
+            echo "  1. Go to Settings → Secrets and variables → Actions"
+            echo "  2. Add the missing secret(s) above with values from your Lovable Cloud project."
+            echo "     - SUPABASE_URL: your project URL (e.g. https://<ref>.supabase.co)"
+            echo "     - SUPABASE_SERVICE_ROLE_KEY: the service_role key (keep it secret)"
             exit 1
           fi
 
