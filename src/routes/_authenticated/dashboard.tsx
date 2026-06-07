@@ -325,6 +325,7 @@ function DashboardPage() {
         <Breadcrumbs trail={[{ label: "Dashboard" }]} />
 
         <div className="mt-4">
+          <AnnouncementsBanner />
           <WelcomeBanner firstName={friendly} />
         </div>
 
