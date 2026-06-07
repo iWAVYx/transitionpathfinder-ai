@@ -62,6 +62,10 @@ export function MeetingPrepPartners({
   const fetchMatches = useServerFn(matchPartnersForStudent);
   const [items, setItems] = useState<PartnerMatch[] | null>(null);
   const [errored, setErrored] = useState(false);
+  const [tz, setTz] = useState<string>(() => {
+    const browser = getBrowserTimezone();
+    return isKnownTimezone(browser) ? browser : "America/New_York";
+  });
 
   useEffect(() => {
     if (!studentId) return;
