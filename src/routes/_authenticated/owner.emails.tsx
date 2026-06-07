@@ -201,6 +201,20 @@ function EmailMonitorPage() {
                 <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
             </Select>
+
+            <div className="relative flex-1 min-w-[260px] max-w-md">
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by email or user ID…"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(0);
+                }}
+                className="pl-9"
+              />
+            </div>
           </div>
 
           {/* Stats */}
