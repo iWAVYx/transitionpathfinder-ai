@@ -75,7 +75,8 @@ function parseDateOnly(input: string): Date | null {
 
 /** List every student id the caller can access (owner OR accepted collaborator). */
 async function listAccessibleStudentIds(
-  supabase: ReturnType<typeof getSb>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
   userId: string,
 ): Promise<Array<{ id: string; name: string }>> {
   const [ownedRes, collabRes] = await Promise.all([
@@ -88,7 +89,11 @@ async function listAccessibleStudentIds(
   ]);
 
   const map = new Map<string, string>();
-  for (const s of ownedRes.data ?? []) {
+  for (const s of (ownedRes.data ?? []) as Array<{
+    id: string;
+    first_name: string;
+    last_name: string | null;
+  }>) {
     map.set(s.id, `${s.first_name}${s.last_name ? ` ${s.last_name}` : ""}`);
   }
   for (const c of (collabRes.data ?? []) as Array<{
@@ -100,12 +105,6 @@ async function listAccessibleStudentIds(
     }
   }
   return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-}
-
-// Tiny type helper for the supabase client returned by middleware
-type Sb = Awaited<ReturnType<typeof import("@/integrations/supabase/auth-middleware").requireSupabaseAuth>>;
-function getSb(): Sb {
-  return null as never;
 }
 
 export const listCalendarEvents = createServerFn({ method: "POST" })
@@ -133,7 +132,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     const toIso = data.to ?? toIsoDate(defaultTo);
 
     // Resolve accessible students (filtered to one if requested).
-    const allStudents = await listAccessibleStudentIds(supabase as unknown as Sb, userId);
+    const allStudents = await listAccessibleStudentIds(supabase, userId);
     const students = data.student_id
       ? allStudents.filter((s) => s.id === data.student_id)
       : allStudents;
