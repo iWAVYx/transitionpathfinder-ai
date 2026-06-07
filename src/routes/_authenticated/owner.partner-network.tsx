@@ -506,17 +506,89 @@ function OpportunitiesDrawer({
           />
         ) : (
           <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <p className="text-sm text-muted-foreground">
                 {opps === null ? "Loading…" : `${opps.length} opportunit${opps.length === 1 ? "y" : "ies"}`}
               </p>
-              <Button
-                size="sm"
-                onClick={() => partner && setEditing(emptyOpp(partner.id))}
-              >
-                <Plus className="mr-1 h-3 w-3" /> New
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setBulkOpen((v) => !v)}
+                >
+                  Paste JSON
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => partner && setEditing(emptyOpp(partner.id))}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> New
+                </Button>
+              </div>
             </div>
+
+            {bulkOpen && (
+              <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Paste a JSON array of opportunities. Each must include{" "}
+                  <code>opportunity_title</code> and <code>opportunity_type</code>.
+                </p>
+                <Textarea
+                  rows={8}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  placeholder='[{"opportunity_title":"…","opportunity_type":"internship","description":"…","location":"Hartford","county":"Hartford"}]'
+                  className="font-mono text-xs"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => { setBulkOpen(false); setBulkText(""); }}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={bulkSaving || !bulkText.trim()}
+                    onClick={async () => {
+                      if (!partner) return;
+                      let parsed: any;
+                      try {
+                        parsed = JSON.parse(bulkText);
+                        if (!Array.isArray(parsed)) throw new Error("Must be an array");
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Invalid JSON");
+                        return;
+                      }
+                      setBulkSaving(true);
+                      let ok = 0, fail = 0;
+                      for (const raw of parsed) {
+                        if (!raw?.opportunity_title || !raw?.opportunity_type) { fail++; continue; }
+                        const values: Record<string, unknown> = {
+                          partner_id: partner.id,
+                          status: "open",
+                          is_public: true,
+                          ...raw,
+                        };
+                        for (const k of Object.keys(values)) {
+                          if (typeof values[k] === "string" && (values[k] as string).trim() === "") values[k] = null;
+                        }
+                        try {
+                          await saveOpp({ data: { values } });
+                          ok++;
+                        } catch { fail++; }
+                      }
+                      setBulkSaving(false);
+                      toast.success(`Imported ${ok}${fail ? ` (${fail} failed)` : ""}`);
+                      setBulkText("");
+                      setBulkOpen(false);
+                      reload();
+                    }}
+                  >
+                    {bulkSaving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                    Import
+                  </Button>
+                </div>
+              </div>
+            )}
+
 
             {opps === null ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
