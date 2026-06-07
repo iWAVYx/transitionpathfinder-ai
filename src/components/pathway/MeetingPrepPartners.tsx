@@ -8,6 +8,7 @@ import {
   Star,
   CalendarClock,
   CalendarPlus,
+  CalendarDays,
 } from "lucide-react";
 import {
   matchPartnersForStudent,
@@ -89,9 +90,16 @@ export function MeetingPrepPartners({
                     <p className="text-sm font-medium">{s.label}</p>
                     <p className="text-xs text-muted-foreground">{s.detail}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">
+                  <a
+                    href={buildGoogleCalendarUrl(s)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
+                    title="Add to Google Calendar"
+                  >
+                    <CalendarDays className="h-3 w-3" aria-hidden />
                     {s.when}
-                  </span>
+                  </a>
                 </li>
               ))}
             </ol>
@@ -237,6 +245,25 @@ function computeDeadlines(meetingDate: string | null): {
       ),
     ],
   };
+}
+
+// ---- Google Calendar URL builder -------------------------------------------
+
+function gcalDate(d: Date) {
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+}
+
+function buildGoogleCalendarUrl(step: DeadlineStep) {
+  const start = gcalDate(step.date);
+  const end = new Date(step.date);
+  end.setDate(end.getDate() + 1);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `PPT Prep: ${step.label}`,
+    dates: `${start}/${gcalDate(end)}`,
+    details: `${step.detail}\n\n(${step.when})`,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
 // ---- ICS builder -----------------------------------------------------------
