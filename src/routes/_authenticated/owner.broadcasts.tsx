@@ -451,7 +451,56 @@ function BroadcastsPage() {
                   </div>
 
                   {isOpen && (
-                    <div className="mt-2 rounded-md border border-border bg-muted/30 p-3">
+                    <div className="mt-2 rounded-md border border-border bg-muted/30 p-3 space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-xs font-medium">Range</span>
+                        </div>
+                        <div className="flex gap-1">
+                          {(["7d", "30d", "90d", "custom"] as const).map((r) => (
+                            <button
+                              key={r}
+                              onClick={() => {
+                                setEngRange(r);
+                                loadEngagement(a.id, { range: r, from: engFrom, to: engTo });
+                              }}
+                              className={
+                                "rounded px-2 py-1 text-[11px] font-medium " +
+                                (engRange === r
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-background border border-border text-muted-foreground hover:text-foreground")
+                              }
+                            >
+                              {r === "custom" ? "Custom" : r}
+                            </button>
+                          ))}
+                        </div>
+                        {engRange === "custom" && (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="date"
+                              className="h-7 w-36 text-xs"
+                              value={engFrom}
+                              onChange={(e) => {
+                                setEngFrom(e.target.value);
+                                if (engTo) loadEngagement(a.id, { range: "custom", from: e.target.value, to: engTo });
+                              }}
+                            />
+                            <span className="text-xs text-muted-foreground">to</span>
+                            <Input
+                              type="date"
+                              className="h-7 w-36 text-xs"
+                              value={engTo}
+                              onChange={(e) => {
+                                setEngTo(e.target.value);
+                                if (engFrom) loadEngagement(a.id, { range: "custom", from: engFrom, to: e.target.value });
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
                       {eng === "loading" || !eng ? (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading engagement…
@@ -464,6 +513,15 @@ function BroadcastsPage() {
                             <Stat label="Clicks" value={eng.clicks} />
                             <Stat label="Unique clickers" value={eng.unique_clickers} />
                           </div>
+
+                          {eng.daily.length > 0 && (
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                                Daily trend
+                              </div>
+                              <DailyChart data={eng.daily} />
+                            </div>
+                          )}
 
                           <div>
                             <div className="mb-1 text-xs font-semibold text-muted-foreground">
