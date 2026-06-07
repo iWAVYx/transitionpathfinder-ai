@@ -1878,6 +1878,139 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_outreach_log: {
+        Row: {
+          channel: string
+          contact_person: string | null
+          contacted_at: string
+          created_at: string
+          id: string
+          logged_by: string | null
+          next_follow_up_date: string | null
+          outcome: string | null
+          partner_id: string
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          contact_person?: string | null
+          contacted_at?: string
+          created_at?: string
+          id?: string
+          logged_by?: string | null
+          next_follow_up_date?: string | null
+          outcome?: string | null
+          partner_id: string
+          summary: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          contact_person?: string | null
+          contacted_at?: string
+          created_at?: string
+          id?: string
+          logged_by?: string | null
+          next_follow_up_date?: string | null
+          outcome?: string | null
+          partner_id?: string
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_outreach_log_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_submissions: {
+        Row: {
+          admin_notes: string | null
+          age_range: string | null
+          audience_served: string | null
+          consent_to_contact: boolean
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          created_at: string
+          id: string
+          message: string | null
+          organization_name: string
+          organization_type: string | null
+          pathway_fit: string | null
+          promoted_partner_id: string | null
+          region: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          services_offered: string | null
+          source: string | null
+          status: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          age_range?: string | null
+          audience_served?: string | null
+          consent_to_contact?: boolean
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          organization_name: string
+          organization_type?: string | null
+          pathway_fit?: string | null
+          promoted_partner_id?: string | null
+          region?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          services_offered?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          age_range?: string | null
+          audience_served?: string | null
+          consent_to_contact?: boolean
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          organization_name?: string
+          organization_type?: string | null
+          pathway_fit?: string | null
+          promoted_partner_id?: string | null
+          region?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          services_offered?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_submissions_promoted_partner_id_fkey"
+            columns: ["promoted_partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pathway_progress: {
         Row: {
           completed: boolean
