@@ -281,7 +281,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
           "id, opportunity_title, opportunity_type, county, status, updated_at, partner_organizations(organization_name)",
         );
       if (search?.trim()) q = q.ilike("opportunity_title", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("status", statusFilter);
+      if (statusFilter) q = q.eq("status", statusFilter as any);
       if (sortBy === "name") q = q.order("opportunity_title", { ascending });
       else if (sortBy === "status") q = q.order("status", { ascending });
       else if (sortBy === "type") q = q.order("opportunity_type", { ascending });
@@ -307,7 +307,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
         .select("id, organization_name, contact_name, contact_email, region, status, created_at")
         .eq("status", "pending_review");
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("status", statusFilter);
+      if (statusFilter) q = q.eq("status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("status", { ascending });
       else if (sortBy === "type") q = q.order("region", { ascending });
