@@ -9,6 +9,7 @@ import {
   CalendarClock,
   CalendarPlus,
   CalendarDays,
+  Globe,
 } from "lucide-react";
 import {
   matchPartnersForStudent,
@@ -16,7 +17,35 @@ import {
 } from "@/lib/partner-matching.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
+
+const TIMEZONES = [
+  { value: "America/New_York", label: "Eastern Time" },
+  { value: "America/Chicago", label: "Central Time" },
+  { value: "America/Denver", label: "Mountain Time" },
+  { value: "America/Los_Angeles", label: "Pacific Time" },
+  { value: "America/Anchorage", label: "Alaska Time" },
+  { value: "Pacific/Honolulu", label: "Hawaii Time" },
+];
+
+function getBrowserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return "America/New_York";
+  }
+}
+
+function isKnownTimezone(tz: string): boolean {
+  return TIMEZONES.some((t) => t.value === tz);
+}
 
 /**
  * Meeting Prep — Top Partner Contacts + Suggested Deadlines.
@@ -33,6 +62,10 @@ export function MeetingPrepPartners({
   const fetchMatches = useServerFn(matchPartnersForStudent);
   const [items, setItems] = useState<PartnerMatch[] | null>(null);
   const [errored, setErrored] = useState(false);
+  const [tz, setTz] = useState<string>(() => {
+    const browser = getBrowserTimezone();
+    return isKnownTimezone(browser) ? browser : "America/New_York";
+  });
 
   useEffect(() => {
     if (!studentId) return;
@@ -60,17 +93,35 @@ export function MeetingPrepPartners({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-display text-lg font-medium tracking-tight">Suggested deadlines</h3>
           {deadlines.parsed && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                downloadIcs(deadlines.steps, studentId, () =>
-                  toast.success("Calendar reminders downloaded — open the file to add them."),
-                )
-              }
-            >
-              <CalendarPlus className="mr-1.5 h-4 w-4" aria-hidden /> Add reminders to calendar
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Select value={tz} onValueChange={setTz}>
+                <SelectTrigger
+                  className="h-8 w-auto gap-1 text-xs"
+                  aria-label="Select timezone"
+                >
+                  <Globe className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                  <SelectValue placeholder="Timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map((t) => (
+                    <SelectItem key={t.value} value={t.value} className="text-xs">
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  downloadIcs(deadlines.steps, studentId, tz, () =>
+                    toast.success("Calendar reminders downloaded — open the file to add them."),
+                  )
+                }
+              >
+                <CalendarPlus className="mr-1.5 h-4 w-4" aria-hidden /> Add reminders to calendar
+              </Button>
+            </div>
           )}
         </div>
         {deadlines.parsed ? (
@@ -91,7 +142,7 @@ export function MeetingPrepPartners({
                     <p className="text-xs text-muted-foreground">{s.detail}</p>
                   </div>
                   <a
-                    href={buildGoogleCalendarUrl(s)}
+                    href={buildGoogleCalendarUrl(s, tz)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
@@ -253,7 +304,7 @@ function gcalDate(d: Date) {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
 }
 
-function buildGoogleCalendarUrl(step: DeadlineStep) {
+function buildGoogleCalendarUrl(step: DeadlineStep, tz?: string) {
   const start = gcalDate(step.date);
   const end = new Date(step.date);
   end.setDate(end.getDate() + 1);
@@ -263,6 +314,7 @@ function buildGoogleCalendarUrl(step: DeadlineStep) {
     dates: `${start}/${gcalDate(end)}`,
     details: `${step.detail}\n\n(${step.when})`,
   });
+  if (tz) params.set("ctz", tz);
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
@@ -304,7 +356,7 @@ function icsLine(name: string, value: string) {
   return out.join("\r\n");
 }
 
-function buildIcs(steps: DeadlineStep[], studentId: string | null) {
+function buildIcs(steps: DeadlineStep[], studentId: string | null, tz?: string) {
   const stamp = icsStamp();
   const uidSeed = studentId ?? "meeting-prep";
   const events = steps.map((s, idx) => {
@@ -328,24 +380,25 @@ function buildIcs(steps: DeadlineStep[], studentId: string | null) {
       "END:VEVENT",
     ].join("\r\n");
   });
-  return [
+  const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//TransitionForward//PPT Meeting Prep//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    ...events,
-    "END:VCALENDAR",
-    "",
-  ].join("\r\n");
+  ];
+  if (tz) lines.push(`X-WR-TIMEZONE:${tz}`);
+  lines.push(...events, "END:VCALENDAR", "");
+  return lines.join("\r\n");
 }
 
 function downloadIcs(
   steps: DeadlineStep[],
   studentId: string | null,
+  tz?: string,
   onDone?: () => void,
 ) {
-  const ics = buildIcs(steps, studentId);
+  const ics = buildIcs(steps, studentId, tz);
   const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
