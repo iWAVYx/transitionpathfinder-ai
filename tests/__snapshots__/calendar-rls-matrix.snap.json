@@ -1,0 +1,37 @@
+{
+  "anon": {
+    "admin_only": false,
+    "family_team": false,
+    "private": false,
+    "public_event": true,
+    "student_team": false
+  },
+  "owner": {
+    "admin_only": true,
+    "family_team": true,
+    "private": true,
+    "public_event": true,
+    "student_team": true
+  },
+  "parent_collab": {
+    "admin_only": false,
+    "family_team": true,
+    "private": false,
+    "public_event": true,
+    "student_team": true
+  },
+  "platform_admin": {
+    "admin_only": true,
+    "family_team": true,
+    "private": true,
+    "public_event": true,
+    "student_team": true
+  },
+  "unrelated": {
+    "admin_only": false,
+    "family_team": false,
+    "private": false,
+    "public_event": true,
+    "student_team": false
+  }
+}
