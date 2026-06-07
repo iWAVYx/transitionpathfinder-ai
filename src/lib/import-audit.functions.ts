@@ -21,10 +21,15 @@ export type ImportAuditPartner = {
   organization_name: string;
   partner_type: string | null;
   verification_status: string | null;
+  partnership_status: string | null;
   outreach_status: string | null;
   city: string | null;
   county: string | null;
   collection_tags: string[];
+  seed_tags_applied: string[];
+  admin_notes: string | null;
+  last_reviewed_at: string | null;
+  next_review_due_at: string | null;
   operation: "created" | "updated";
   created_at: string;
   updated_at: string;
@@ -35,9 +40,12 @@ export type ImportAuditOpportunity = {
   opportunity_title: string;
   opportunity_type: string | null;
   status: string | null;
+  description: string | null;
+  next_step: string | null;
   partner_id: string | null;
   partner_name: string | null;
   partner_tags: string[];
+  seed_tags_applied: string[];
   operation: "created" | "updated";
   created_at: string;
   updated_at: string;
