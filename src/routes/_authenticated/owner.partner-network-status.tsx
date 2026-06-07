@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Briefcase,
   Building2,
   CalendarClock,
@@ -17,13 +20,23 @@ import {
   Loader2,
   MapPin,
   PhoneCall,
+  Search,
   ShieldCheck,
   Sparkles,
   Star,
   Users,
+  X,
 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -95,6 +108,77 @@ const METRIC_LABEL: Record<MetricKey, string> = {
   connecticutResources: "Connecticut resources",
   savedOpportunities: "Saved opportunities",
 };
+
+const STATUS_FILTER_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
+  partner_verification: [
+    { value: "", label: "All statuses" },
+    { value: "verified", label: "Verified" },
+    { value: "needs_review", label: "Needs review" },
+    { value: "pending_approval", label: "Pending approval" },
+    { value: "archived", label: "Archived" },
+  ],
+  partner_partnership: [
+    { value: "", label: "All statuses" },
+    { value: "active", label: "Active" },
+    { value: "potential", label: "Potential" },
+    { value: "archived", label: "Archived" },
+  ],
+  partner_outreach: [
+    { value: "", label: "All statuses" },
+    { value: "not_contacted", label: "Not contacted" },
+    { value: "outreach_needed", label: "Outreach needed" },
+    { value: "follow_up", label: "Follow up" },
+    { value: "contacted", label: "Contacted" },
+  ],
+  opportunity: [
+    { value: "", label: "All statuses" },
+    { value: "active", label: "Active" },
+    { value: "paused", label: "Paused" },
+    { value: "closed", label: "Closed" },
+    { value: "draft", label: "Draft" },
+  ],
+  submission: [
+    { value: "", label: "All statuses" },
+    { value: "pending_review", label: "Pending review" },
+    { value: "approved", label: "Approved" },
+    { value: "rejected", label: "Rejected" },
+  ],
+};
+
+function getFilterOptions(metric: MetricKey) {
+  switch (metric) {
+    case "totalPartners":
+    case "connecticutResources":
+    case "featuredPartners":
+    case "needsReview":
+      return STATUS_FILTER_OPTIONS.partner_verification;
+    case "verifiedPartners":
+      return STATUS_FILTER_OPTIONS.partner_partnership;
+    case "potentialPartners":
+      return STATUS_FILTER_OPTIONS.partner_verification;
+    case "outreachNeeded":
+      return STATUS_FILTER_OPTIONS.partner_outreach;
+    case "totalOpportunities":
+      return STATUS_FILTER_OPTIONS.opportunity;
+    case "partnerSubmissions":
+      return STATUS_FILTER_OPTIONS.submission;
+    default:
+      return null;
+  }
+}
+
+function getDefaultSort(metric: MetricKey): { sortBy: "name" | "status" | "updated_at" | "type" | "county"; sortDirection: "asc" | "desc" } {
+  switch (metric) {
+    case "needsReview":
+    case "outreachNeeded":
+    case "totalOpportunities":
+    case "partnerSubmissions":
+    case "savedOpportunities":
+      return { sortBy: "updated_at", sortDirection: "desc" };
+    default:
+      return { sortBy: "name", sortDirection: "asc" };
+  }
+}
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -176,6 +260,31 @@ function ChecklistRow({
   );
 }
 
+function SortHeader({
+  label,
+  active,
+  direction,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  direction: "asc" | "desc";
+  onClick: () => void;
+}) {
+  const Icon = active ? (direction === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th
+      className="px-3 py-2 text-left cursor-pointer select-none hover:text-foreground transition-colors"
+      onClick={onClick}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <Icon className="h-3 w-3 opacity-60" />
+      </span>
+    </th>
+  );
+}
+
 function DrillSheet({
   metric,
   onClose,
@@ -183,12 +292,59 @@ function DrillSheet({
   metric: MetricKey | null;
   onClose: () => void;
 }) {
+  const defaults = metric ? getDefaultSort(metric) : { sortBy: "name" as const, sortDirection: "asc" as const };
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "status" | "updated_at" | "type" | "county">(defaults.sortBy);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaults.sortDirection);
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Reset local state when metric changes
+  const prevMetricRef = useRef<MetricKey | null>(null);
+  if (metric !== prevMetricRef.current) {
+    prevMetricRef.current = metric;
+    if (metric) {
+      const d = getDefaultSort(metric);
+      setSortBy(d.sortBy);
+      setSortDirection(d.sortDirection);
+      setSearch("");
+      setStatusFilter("");
+    }
+  }
+
   const fetchRows = useServerFn(getPartnerMetricRows);
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["owner", "partner-metric-rows", metric],
-    queryFn: () => fetchRows({ data: { metric: metric as MetricKey } }),
+    queryKey: [
+      "owner",
+      "partner-metric-rows",
+      metric,
+      search.trim(),
+      sortBy,
+      sortDirection,
+      statusFilter,
+    ],
+    queryFn: () =>
+      fetchRows({
+        data: {
+          metric: metric as MetricKey,
+          search: search.trim() || undefined,
+          sortBy: sortBy || undefined,
+          sortDirection,
+          statusFilter: statusFilter || undefined,
+        },
+      }),
     enabled: !!metric,
   });
+
+  const filterOptions = metric ? getFilterOptions(metric) : null;
+
+  function toggleSort(column: "name" | "status" | "updated_at" | "type" | "county") {
+    if (sortBy === column) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(column);
+      setSortDirection(column === "updated_at" ? "desc" : "asc");
+    }
+  }
 
   return (
     <Sheet open={!!metric} onOpenChange={(o) => !o && onClose()}>
@@ -200,7 +356,42 @@ function DrillSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-5">
+        <div className="mt-5 space-y-4">
+          {/* Search + Filters */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {filterOptions && (
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-44">
+                  <SelectValue placeholder="Filter status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
           {isLoading && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Loading…
@@ -213,7 +404,7 @@ function DrillSheet({
           )}
           {data && data.rows.length === 0 && (
             <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              No records yet.
+              No records found.
             </p>
           )}
           {data && data.rows.length > 0 && (
@@ -222,9 +413,24 @@ function DrillSheet({
                 <table className="w-full text-sm">
                   <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-3 py-2 text-left">Name</th>
-                      <th className="px-3 py-2 text-left">Status</th>
-                      <th className="px-3 py-2 text-left">Updated</th>
+                      <SortHeader
+                        label="Name"
+                        active={sortBy === "name"}
+                        direction={sortDirection}
+                        onClick={() => toggleSort("name")}
+                      />
+                      <SortHeader
+                        label="Status"
+                        active={sortBy === "status"}
+                        direction={sortDirection}
+                        onClick={() => toggleSort("status")}
+                      />
+                      <SortHeader
+                        label="Updated"
+                        active={sortBy === "updated_at"}
+                        direction={sortDirection}
+                        onClick={() => toggleSort("updated_at")}
+                      />
                     </tr>
                   </thead>
                   <tbody>
