@@ -395,9 +395,10 @@ function buildIcs(steps: DeadlineStep[], studentId: string | null, tz?: string) 
 function downloadIcs(
   steps: DeadlineStep[],
   studentId: string | null,
+  tz?: string,
   onDone?: () => void,
 ) {
-  const ics = buildIcs(steps, studentId);
+  const ics = buildIcs(steps, studentId, tz);
   const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
