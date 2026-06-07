@@ -82,6 +82,37 @@ function downloadEngagementCsv(filename: string, daily: Array<{ date: string; vi
   URL.revokeObjectURL(url);
 }
 
+async function downloadEngagementXlsx(
+  filename: string,
+  daily: Array<{ date: string; views: number; clicks: number }>,
+  meta: { announcementId: string; range: string; from?: string; to?: string; role: string },
+) {
+  const XLSX = await import("xlsx");
+  const wb = XLSX.utils.book_new();
+
+  const dailyRows: (string | number)[][] = [
+    ["Date", "Views", "Clicks"],
+    ...daily.map((d) => [d.date, d.views, d.clicks]),
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(dailyRows);
+  ws["!cols"] = [{ wch: 14 }, { wch: 10 }, { wch: 10 }];
+  XLSX.utils.book_append_sheet(wb, ws, "Daily");
+
+  const metaRows: (string | number)[][] = [
+    ["Announcement ID", meta.announcementId],
+    ["Range", meta.range],
+    ["From", meta.from ?? ""],
+    ["To", meta.to ?? ""],
+    ["Role", meta.role],
+    ["Exported at", new Date().toISOString()],
+  ];
+  const wsMeta = XLSX.utils.aoa_to_sheet(metaRows);
+  wsMeta["!cols"] = [{ wch: 18 }, { wch: 40 }];
+  XLSX.utils.book_append_sheet(wb, wsMeta, "Filters");
+
+  XLSX.writeFile(wb, filename);
+}
+
 function BroadcastsPage() {
   const create = useServerFn(createAnnouncement);
   const list = useServerFn(listAnnouncements);
