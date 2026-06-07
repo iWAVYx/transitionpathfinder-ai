@@ -180,7 +180,19 @@ function PptPrepPage() {
   );
 }
 
-function AgendaView({ name, agenda, onReset }: { name: string; agenda: PptAgenda; onReset: () => void }) {
+function AgendaView({
+  name,
+  agenda,
+  studentId,
+  meetingDate,
+  onReset,
+}: {
+  name: string;
+  agenda: PptAgenda;
+  studentId: string | null;
+  meetingDate: string | null;
+  onReset: () => void;
+}) {
   return (
     <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
