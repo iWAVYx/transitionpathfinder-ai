@@ -118,26 +118,35 @@ export const getImportAudit = createServerFn({ method: "POST" })
     const { data: partners } = await supabase
       .from("partner_organizations")
       .select(
-        "id, organization_name, partner_type, verification_status, outreach_status, city, county, collection_tags, created_at, updated_at",
+        "id, organization_name, partner_type, verification_status, partnership_status, outreach_status, city, county, collection_tags, admin_notes, last_reviewed_at, next_review_due_at, created_at, updated_at",
       )
       .overlaps("collection_tags", tags)
       .gte("updated_at", since)
       .order("updated_at", { ascending: false })
       .limit(500);
 
-    const partnerRows: ImportAuditPartner[] = (partners ?? []).map((p: any) => ({
-      id: p.id,
-      organization_name: p.organization_name,
-      partner_type: p.partner_type,
-      verification_status: p.verification_status,
-      outreach_status: p.outreach_status,
-      city: p.city,
-      county: p.county,
-      collection_tags: p.collection_tags ?? [],
-      operation: classify(p.created_at, p.updated_at),
-      created_at: p.created_at,
-      updated_at: p.updated_at,
-    }));
+    const seedSet = new Set<string>(CT_SEED_TAGS);
+    const partnerRows: ImportAuditPartner[] = (partners ?? []).map((p: any) => {
+      const ctags: string[] = p.collection_tags ?? [];
+      return {
+        id: p.id,
+        organization_name: p.organization_name,
+        partner_type: p.partner_type,
+        verification_status: p.verification_status,
+        partnership_status: p.partnership_status,
+        outreach_status: p.outreach_status,
+        city: p.city,
+        county: p.county,
+        collection_tags: ctags,
+        seed_tags_applied: ctags.filter((t) => seedSet.has(t)),
+        admin_notes: p.admin_notes,
+        last_reviewed_at: p.last_reviewed_at,
+        next_review_due_at: p.next_review_due_at,
+        operation: classify(p.created_at, p.updated_at),
+        created_at: p.created_at,
+        updated_at: p.updated_at,
+      };
+    });
 
     const partnerIdToName = new Map(partnerRows.map((p) => [p.id, p.organization_name]));
     const partnerIdToTags = new Map(partnerRows.map((p) => [p.id, p.collection_tags]));
@@ -146,7 +155,7 @@ export const getImportAudit = createServerFn({ method: "POST" })
     const { data: opps } = await supabase
       .from("partner_network_opportunities")
       .select(
-        "id, opportunity_title, opportunity_type, status, partner_id, created_at, updated_at",
+        "id, opportunity_title, opportunity_type, status, description, next_step, partner_id, created_at, updated_at",
       )
       .gte("updated_at", since)
       .order("updated_at", { ascending: false })
@@ -181,9 +190,12 @@ export const getImportAudit = createServerFn({ method: "POST" })
           opportunity_title: o.opportunity_title,
           opportunity_type: o.opportunity_type,
           status: o.status,
+          description: o.description,
+          next_step: o.next_step,
           partner_id: o.partner_id,
           partner_name: o.partner_id ? partnerIdToName.get(o.partner_id) ?? null : null,
           partner_tags: tagsForPartner,
+          seed_tags_applied: tagsForPartner.filter((t) => seedSet.has(t)),
           operation: classify(o.created_at, o.updated_at) as "created" | "updated",
           created_at: o.created_at,
           updated_at: o.updated_at,
