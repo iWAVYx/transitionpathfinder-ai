@@ -95,6 +95,7 @@ export function ReportView({
   saved,
   demo = false,
   meta,
+  studentId,
 }: {
   name: string;
   report: PathwayReport;
@@ -106,6 +107,7 @@ export function ReportView({
   saved?: boolean;
   demo?: boolean;
   meta?: ReportMeta;
+  studentId?: string;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
