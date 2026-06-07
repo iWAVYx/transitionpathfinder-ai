@@ -48,7 +48,7 @@ export const createPptPrep = createServerFn({ method: "POST" })
 
     const { data: report, error } = await supabase
       .from("pathway_reports")
-      .select("id, content, student_intakes(student_first_name, grade_band, family_concerns, current_goals)")
+      .select("id, student_id, content, student_intakes(student_first_name, grade_band, family_concerns, current_goals)")
       .eq("id", data.report_id)
       .single();
 
