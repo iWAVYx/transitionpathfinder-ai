@@ -399,6 +399,7 @@ function OpportunitiesDrawer({
   const saveOpp = useServerFn(upsertOpportunity);
   const archiveOpp = useServerFn(archiveOpportunity);
   const removeOpp = useServerFn(deleteOpportunity);
+  const bulkInsert = useServerFn(bulkInsertOpportunities);
 
   const [opps, setOpps] = useState<Opportunity[] | null>(null);
   const [editing, setEditing] = useState<Opportunity | null>(null);
