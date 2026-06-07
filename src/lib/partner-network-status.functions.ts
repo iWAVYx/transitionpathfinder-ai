@@ -195,7 +195,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
     if (metric === "totalPartners") {
       let q = supabase.from("partner_organizations").select(partnerCols);
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("verification_status", statusFilter);
+      if (statusFilter) q = q.eq("verification_status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("verification_status", { ascending });
       else if (sortBy === "type") q = q.order("partner_type", { ascending });
@@ -206,7 +206,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
     } else if (metric === "verifiedPartners") {
       let q = supabase.from("partner_organizations").select(partnerCols).eq("verification_status", "verified");
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("partnership_status", statusFilter);
+      if (statusFilter) q = q.eq("partnership_status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("partnership_status", { ascending });
       else if (sortBy === "type") q = q.order("partner_type", { ascending });
@@ -217,7 +217,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
     } else if (metric === "potentialPartners") {
       let q = supabase.from("partner_organizations").select(partnerCols).eq("partnership_status", "potential");
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("verification_status", statusFilter);
+      if (statusFilter) q = q.eq("verification_status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("verification_status", { ascending });
       else if (sortBy === "type") q = q.order("partner_type", { ascending });
@@ -244,7 +244,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
         .select(partnerCols)
         .in("outreach_status", ["not_contacted", "outreach_needed", "follow_up"]);
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("outreach_status", statusFilter);
+      if (statusFilter) q = q.eq("outreach_status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("outreach_status", { ascending });
       else if (sortBy === "type") q = q.order("partner_type", { ascending });
@@ -255,7 +255,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
     } else if (metric === "featuredPartners") {
       let q = supabase.from("partner_organizations").select(partnerCols).eq("is_featured", true);
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("verification_status", statusFilter);
+      if (statusFilter) q = q.eq("verification_status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("verification_status", { ascending });
       else if (sortBy === "type") q = q.order("partner_type", { ascending });
@@ -266,7 +266,7 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
     } else if (metric === "connecticutResources") {
       let q = supabase.from("partner_organizations").select(partnerCols).eq("state", "CT");
       if (search?.trim()) q = q.ilike("organization_name", `%${search.trim()}%`);
-      if (statusFilter) q = q.eq("verification_status", statusFilter);
+      if (statusFilter) q = q.eq("verification_status", statusFilter as any);
       if (sortBy === "name") q = q.order("organization_name", { ascending });
       else if (sortBy === "status") q = q.order("verification_status", { ascending });
       else if (sortBy === "type") q = q.order("partner_type", { ascending });
