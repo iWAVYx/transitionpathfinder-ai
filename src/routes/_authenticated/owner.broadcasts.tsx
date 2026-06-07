@@ -594,19 +594,41 @@ function BroadcastsPage() {
                                 <div className="text-xs font-semibold text-muted-foreground">
                                   Daily trend
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    downloadEngagementCsv(
-                                      `engagement-${a.id.slice(0, 8)}-${engRange}.csv`,
-                                      eng.daily,
-                                    )
-                                  }
-                                  className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
-                                >
-                                  <Download className="h-3 w-3" />
-                                  Export CSV
-                                </button>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      downloadEngagementCsv(
+                                        `engagement-${a.id.slice(0, 8)}-${engRange}.csv`,
+                                        eng.daily,
+                                      )
+                                    }
+                                    className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                    Export CSV
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      downloadEngagementXlsx(
+                                        `engagement-${a.id.slice(0, 8)}-${engRange}.xlsx`,
+                                        eng.daily,
+                                        {
+                                          announcementId: a.id,
+                                          range: engRange,
+                                          from: engRange === "custom" ? engFrom : undefined,
+                                          to: engRange === "custom" ? engTo : undefined,
+                                          role: engRole,
+                                        },
+                                      )
+                                    }
+                                    className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                    Export XLSX
+                                  </button>
+                                </div>
                               </div>
                               <DailyChart data={eng.daily} />
                             </div>
