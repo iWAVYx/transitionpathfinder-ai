@@ -572,10 +572,17 @@ function DashboardPage() {
             </Panel>
           </div>
 
-          {/* Calendar — meetings, action items, prep deadlines */}
+          {/* Calendar — meetings, action items, prep deadlines, team events */}
           <div className="mt-6">
-            <DashboardCalendar snap={snap} />
+            <DashboardCalendar
+              studentId={s.id}
+              studentOptions={students.map((st) => ({
+                id: st.id,
+                name: `${st.first_name}${st.last_name ? ` ${st.last_name}` : ""}`,
+              }))}
+            />
           </div>
+
 
           {/* Meeting Prep + Recommended Resources */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
