@@ -36,7 +36,10 @@ import {
   listCalendarEvents,
   createCalendarEvent,
   deleteCalendarEvent,
+  updateCalendarEvent,
+  listMyCalendarOrganizations,
   type TeamCalendarEvent,
+  type CalendarVisibility,
 } from "@/lib/calendar.functions";
 import {
   buildGoogleCalendarUrl,
