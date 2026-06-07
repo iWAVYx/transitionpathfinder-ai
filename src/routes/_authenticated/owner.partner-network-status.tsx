@@ -299,7 +299,7 @@ function DrillSheet({
   const [statusFilter, setStatusFilter] = useState("");
 
   // Reset local state when metric changes
-  const prevMetricRef = React.useRef<MetricKey | null>(null);
+  const prevMetricRef = useRef<MetricKey | null>(null);
   if (metric !== prevMetricRef.current) {
     prevMetricRef.current = metric;
     if (metric) {
