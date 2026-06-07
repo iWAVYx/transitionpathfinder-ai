@@ -54,7 +54,7 @@ export const getPartnerNetworkStatus = createServerFn({ method: "GET" })
       supabase
         .from("partner_organizations")
         .select("id", { count: "exact", head: true })
-        .in("outreach_status", ["not_contacted", "needs_follow_up"]),
+        .in("outreach_status", ["not_contacted", "outreach_needed", "follow_up"]),
       supabase
         .from("partner_organizations")
         .select("id", { count: "exact", head: true })
