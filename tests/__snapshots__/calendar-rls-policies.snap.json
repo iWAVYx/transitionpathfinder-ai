@@ -1,0 +1,38 @@
+[
+  {
+    "polname": "calendar_events_delete",
+    "polcmd": "d",
+    "polroles": [
+      "authenticated"
+    ],
+    "using_expr": "((owner_user_id = auth.uid()) OR has_role(auth.uid(), 'admin'::app_role))",
+    "check_expr": null
+  },
+  {
+    "polname": "calendar_events_insert",
+    "polcmd": "a",
+    "polroles": [
+      "authenticated"
+    ],
+    "using_expr": null,
+    "check_expr": "((owner_user_id = auth.uid()) AND ((visibility = 'private'::text) OR ((visibility = 'platform_admin_only'::text) AND has_audience(auth.uid(), 'admin'::text)) OR ((visibility = 'public_event'::text) AND has_audience(auth.uid(), 'admin'::text)) OR ((visibility = ANY (ARRAY['team'::text, 'student_team'::text, 'family_team'::text])) AND (student_id IS NOT NULL) AND can_access_student(auth.uid(), student_id)) OR ((visibility = ANY (ARRAY['school_team'::text, 'district_team'::text, 'partner_only'::text])) AND (related_organization_id IS NOT NULL) AND is_org_member(auth.uid(), related_organization_id))))"
+  },
+  {
+    "polname": "calendar_events_select",
+    "polcmd": "r",
+    "polroles": [
+      "authenticated"
+    ],
+    "using_expr": "((owner_user_id = auth.uid()) OR (visibility = 'public_event'::text) OR ((visibility = 'platform_admin_only'::text) AND has_audience(auth.uid(), 'admin'::text)) OR ((visibility = ANY (ARRAY['team'::text, 'student_team'::text, 'family_team'::text])) AND (student_id IS NOT NULL) AND can_access_student(auth.uid(), student_id)) OR ((visibility = ANY (ARRAY['school_team'::text, 'district_team'::text, 'partner_only'::text])) AND (related_organization_id IS NOT NULL) AND is_org_member(auth.uid(), related_organization_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+    "check_expr": null
+  },
+  {
+    "polname": "calendar_events_update",
+    "polcmd": "w",
+    "polroles": [
+      "authenticated"
+    ],
+    "using_expr": "((owner_user_id = auth.uid()) OR has_role(auth.uid(), 'admin'::app_role))",
+    "check_expr": "(((owner_user_id = auth.uid()) OR has_role(auth.uid(), 'admin'::app_role)) AND ((visibility = 'private'::text) OR ((visibility = 'platform_admin_only'::text) AND has_audience(auth.uid(), 'admin'::text)) OR ((visibility = 'public_event'::text) AND has_audience(auth.uid(), 'admin'::text)) OR ((visibility = ANY (ARRAY['team'::text, 'student_team'::text, 'family_team'::text])) AND (student_id IS NOT NULL) AND can_access_student(auth.uid(), student_id)) OR ((visibility = ANY (ARRAY['school_team'::text, 'district_team'::text, 'partner_only'::text])) AND (related_organization_id IS NOT NULL) AND is_org_member(auth.uid(), related_organization_id))))"
+  }
+]
