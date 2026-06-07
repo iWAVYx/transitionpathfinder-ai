@@ -334,6 +334,7 @@ const engagementSchema = z.object({
   range: z.enum(["7d", "30d", "90d", "custom"]).default("7d"),
   from: z.string().optional(),
   to: z.string().optional(),
+  role: z.string().min(1).optional(),
 });
 
 export const getAnnouncementEngagement = createServerFn({ method: "POST" })
