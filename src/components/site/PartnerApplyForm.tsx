@@ -57,9 +57,15 @@ const Schema = z.object({
 
 type FormValues = z.infer<typeof Schema>;
 
+const SERVES_IEP_LABEL: Record<"yes" | "exploring" | "unsure", string> = {
+  yes: "Actively serves students with IEPs",
+  exploring: "Exploring how to better support students with IEPs",
+  unsure: "Unsure — open to a conversation",
+};
+
 export function PartnerApplyForm() {
   const [done, setDone] = useState(false);
-  const submit = useServerFn(submitWaitlist);
+  const submit = useServerFn(submitPartnerApplication);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Schema),
@@ -76,24 +82,16 @@ export function PartnerApplyForm() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const reason = [
-        `Organization: ${values.organization}`,
-        `Type: ${ORG_TYPE_LABEL[values.org_type]}`,
-        `Region: ${values.region}`,
-        `Serves IEP students: ${values.serves_iep}`,
-        ``,
-        values.program_summary,
-      ].join("\n");
-
       await submit({
         data: {
-          full_name: values.contact_name,
-          email: values.email,
-          role: "partner",
-          state: values.region,
-          student_grade_band: "",
-          reason,
-          source: "partners-apply",
+          organization_name: values.organization,
+          organization_type: ORG_TYPE_LABEL[values.org_type],
+          contact_name: values.contact_name,
+          contact_email: values.email,
+          region: values.region,
+          services_offered: values.program_summary,
+          audience_served: SERVES_IEP_LABEL[values.serves_iep],
+          consent_to_contact: true,
         },
       });
       setDone(true);
