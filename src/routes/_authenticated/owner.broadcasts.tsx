@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Megaphone, Download, Trash2, Eye, EyeOff, Users } from "lucide-react";
+import { Loader2, Megaphone, Download, Trash2, Eye, EyeOff, Users, BarChart3 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,9 +22,11 @@ import {
   createAnnouncement,
   deleteAnnouncement,
   exportRecipientsByRole,
+  getAnnouncementEngagement,
   listAnnouncements,
   togglePublishAnnouncement,
   type Announcement,
+  type AnnouncementEngagement,
   type RecipientRow,
 } from "@/lib/broadcasts.functions";
 
@@ -71,6 +73,28 @@ function BroadcastsPage() {
   const del = useServerFn(deleteAnnouncement);
   const toggle = useServerFn(togglePublishAnnouncement);
   const exportFn = useServerFn(exportRecipientsByRole);
+  const engagementFn = useServerFn(getAnnouncementEngagement);
+
+  const [openEngagement, setOpenEngagement] = useState<string | null>(null);
+  const [engagement, setEngagement] = useState<Record<string, AnnouncementEngagement | "loading">>({});
+
+  const loadEngagement = async (id: string) => {
+    if (openEngagement === id) {
+      setOpenEngagement(null);
+      return;
+    }
+    setOpenEngagement(id);
+    if (engagement[id] && engagement[id] !== "loading") return;
+    setEngagement((prev) => ({ ...prev, [id]: "loading" }));
+    try {
+      const res = await engagementFn({ data: { id } });
+      setEngagement((prev) => ({ ...prev, [id]: res }));
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to load engagement.");
+      setOpenEngagement(null);
+    }
+  };
+
 
   const [items, setItems] = useState<Announcement[] | null>(null);
   const [title, setTitle] = useState("");
@@ -355,63 +379,182 @@ function BroadcastsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {items.map((a) => (
-              <div
-                key={a.id}
-                className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4 sm:flex-row sm:items-start sm:justify-between"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className={sevBadge[a.severity]}>{a.severity}</Badge>
-                    {!a.published && <Badge variant="secondary">unpublished</Badge>}
-                    {a.expires_at && new Date(a.expires_at) < new Date() && (
-                      <Badge variant="secondary">expired</Badge>
-                    )}
-                    <span className="text-sm font-medium">{a.title}</span>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1">
-                    {a.target_roles.map((r) => (
-                      <span
-                        key={r}
-                        className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+            {items.map((a) => {
+              const eng = engagement[a.id];
+              const isOpen = openEngagement === a.id;
+              return (
+                <div
+                  key={a.id}
+                  className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4"
+                >
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className={sevBadge[a.severity]}>{a.severity}</Badge>
+                        {!a.published && <Badge variant="secondary">unpublished</Badge>}
+                        {a.expires_at && new Date(a.expires_at) < new Date() && (
+                          <Badge variant="secondary">expired</Badge>
+                        )}
+                        <span className="text-sm font-medium">{a.title}</span>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {a.target_roles.map((r) => (
+                          <span
+                            key={r}
+                            className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                          >
+                            {r}
+                          </span>
+                        ))}
+                        <span className="text-[10px] text-muted-foreground">
+                          · {new Date(a.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-1.5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        title="View engagement"
+                        onClick={() => loadEngagement(a.id)}
                       >
-                        {r}
-                      </span>
-                    ))}
-                    <span className="text-[10px] text-muted-foreground">
-                      · {new Date(a.created_at).toLocaleString()}
-                    </span>
+                        <BarChart3 className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await toggle({ data: { id: a.id, published: !a.published } });
+                          refresh();
+                        }}
+                      >
+                        {a.published ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          if (!confirm("Delete this announcement?")) return;
+                          await del({ data: { id: a.id } });
+                          refresh();
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
+
+                  {isOpen && (
+                    <div className="mt-2 rounded-md border border-border bg-muted/30 p-3">
+                      {eng === "loading" || !eng ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading engagement…
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <Stat label="Views" value={eng.views} />
+                            <Stat label="Unique viewers" value={eng.unique_viewers} />
+                            <Stat label="Clicks" value={eng.clicks} />
+                            <Stat label="Unique clickers" value={eng.unique_clickers} />
+                          </div>
+
+                          <div>
+                            <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                              By role
+                            </div>
+                            {eng.by_role.length === 0 ? (
+                              <div className="text-xs text-muted-foreground">No activity yet.</div>
+                            ) : (
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-xs">
+                                  <thead className="text-muted-foreground">
+                                    <tr className="text-left">
+                                      <th className="py-1 pr-3 font-medium">Role</th>
+                                      <th className="py-1 pr-3 font-medium">Views</th>
+                                      <th className="py-1 pr-3 font-medium">Clicks</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {eng.by_role.map((r) => (
+                                      <tr key={r.role} className="border-t border-border/60">
+                                        <td className="py-1 pr-3">{r.role}</td>
+                                        <td className="py-1 pr-3">{r.views}</td>
+                                        <td className="py-1 pr-3">{r.clicks}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                              Recent activity
+                            </div>
+                            {eng.recent.length === 0 ? (
+                              <div className="text-xs text-muted-foreground">No events yet.</div>
+                            ) : (
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-xs">
+                                  <thead className="text-muted-foreground">
+                                    <tr className="text-left">
+                                      <th className="py-1 pr-3 font-medium">When</th>
+                                      <th className="py-1 pr-3 font-medium">User</th>
+                                      <th className="py-1 pr-3 font-medium">Role</th>
+                                      <th className="py-1 pr-3 font-medium">Event</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {eng.recent.map((r, i) => (
+                                      <tr key={i} className="border-t border-border/60">
+                                        <td className="py-1 pr-3 whitespace-nowrap">
+                                          {new Date(r.created_at).toLocaleString()}
+                                        </td>
+                                        <td className="py-1 pr-3">
+                                          {r.full_name || r.email || r.user_id.slice(0, 8)}
+                                        </td>
+                                        <td className="py-1 pr-3">{r.role ?? "—"}</td>
+                                        <td className="py-1 pr-3">
+                                          <Badge
+                                            variant="secondary"
+                                            className={
+                                              r.event_type === "click"
+                                                ? "bg-emerald-100 text-emerald-800"
+                                                : "bg-sky-100 text-sky-800"
+                                            }
+                                          >
+                                            {r.event_type}
+                                          </Badge>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="flex shrink-0 gap-1.5">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      await toggle({ data: { id: a.id, published: !a.published } });
-                      refresh();
-                    }}
-                  >
-                    {a.published ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      if (!confirm("Delete this announcement?")) return;
-                      await del({ data: { id: a.id } });
-                      refresh();
-                    }}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
     </OwnerShell>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border border-border bg-background p-2">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-lg font-semibold">{value}</div>
+    </div>
   );
 }

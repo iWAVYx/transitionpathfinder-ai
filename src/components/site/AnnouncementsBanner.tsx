@@ -1,7 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { X, Megaphone, ExternalLink } from "lucide-react";
-import { dismissAnnouncement, listMyAnnouncements } from "@/lib/broadcasts.functions";
+import {
+  dismissAnnouncement,
+  listMyAnnouncements,
+  trackAnnouncementClick,
+  trackAnnouncementView,
+} from "@/lib/broadcasts.functions";
 
 type Item = {
   id: string;
@@ -26,7 +31,10 @@ const SEV_STYLES: Record<Item["severity"], string> = {
 export function AnnouncementsBanner() {
   const list = useServerFn(listMyAnnouncements);
   const dismiss = useServerFn(dismissAnnouncement);
+  const trackView = useServerFn(trackAnnouncementView);
+  const trackClick = useServerFn(trackAnnouncementClick);
   const [items, setItems] = useState<Item[]>([]);
+  const viewedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -41,6 +49,14 @@ export function AnnouncementsBanner() {
     };
   }, [list]);
 
+  useEffect(() => {
+    for (const a of items) {
+      if (viewedRef.current.has(a.id)) continue;
+      viewedRef.current.add(a.id);
+      trackView({ data: { id: a.id } }).catch(() => {});
+    }
+  }, [items, trackView]);
+
   if (items.length === 0) return null;
 
   const onDismiss = async (id: string) => {
@@ -50,6 +66,10 @@ export function AnnouncementsBanner() {
     } catch {
       /* noop */
     }
+  };
+
+  const onClickLink = (a: Item) => {
+    trackClick({ data: { id: a.id, link_url: a.link_url ?? undefined } }).catch(() => {});
   };
 
   return (
@@ -70,6 +90,8 @@ export function AnnouncementsBanner() {
                 href={a.link_url}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => onClickLink(a)}
+                onAuxClick={() => onClickLink(a)}
                 className="mt-2 inline-flex items-center gap-1 text-xs font-medium underline underline-offset-2"
               >
                 {a.link_label || "Learn more"}
