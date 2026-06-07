@@ -1,0 +1,417 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { Loader2, Megaphone, Download, Trash2, Eye, EyeOff, Users } from "lucide-react";
+import { OwnerShell } from "@/components/owner/OwnerShell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  APP_ROLES,
+  createAnnouncement,
+  deleteAnnouncement,
+  exportRecipientsByRole,
+  listAnnouncements,
+  togglePublishAnnouncement,
+  type Announcement,
+  type RecipientRow,
+} from "@/lib/broadcasts.functions";
+
+export const Route = createFileRoute("/_authenticated/owner/broadcasts")({
+  head: () => ({ meta: [{ title: "Broadcasts — Admin Hub" }] }),
+  component: BroadcastsPage,
+});
+
+const ROLE_OPTIONS = ["all", ...APP_ROLES] as const;
+
+function csvEscape(v: string | null | undefined): string {
+  const s = (v ?? "").toString();
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function downloadCsv(filename: string, rows: RecipientRow[]) {
+  const header = ["email", "full_name", "first_name", "last_name", "roles", "user_id"];
+  const lines = [header.join(",")];
+  for (const r of rows) {
+    lines.push(
+      [
+        csvEscape(r.email),
+        csvEscape(r.full_name),
+        csvEscape(r.first_name),
+        csvEscape(r.last_name),
+        csvEscape(r.roles.join("|")),
+        csvEscape(r.user_id),
+      ].join(","),
+    );
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function BroadcastsPage() {
+  const create = useServerFn(createAnnouncement);
+  const list = useServerFn(listAnnouncements);
+  const del = useServerFn(deleteAnnouncement);
+  const toggle = useServerFn(togglePublishAnnouncement);
+  const exportFn = useServerFn(exportRecipientsByRole);
+
+  const [items, setItems] = useState<Announcement[] | null>(null);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkLabel, setLinkLabel] = useState("");
+  const [severity, setSeverity] = useState<"info" | "success" | "warning" | "critical">("info");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(["all"]);
+  const [expiresInDays, setExpiresInDays] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+
+  const [exportRoles, setExportRoles] = useState<string[]>(["parent", "guardian"]);
+  const [exporting, setExporting] = useState(false);
+  const [previewCount, setPreviewCount] = useState<number | null>(null);
+
+  const refresh = () => {
+    setItems(null);
+    list()
+      .then((r) => setItems(r.announcements))
+      .catch(() => setItems([]));
+  };
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleRole = (role: string, set: string[], setSet: (v: string[]) => void) => {
+    if (set.includes(role)) setSet(set.filter((r) => r !== role));
+    else setSet([...set, role]);
+  };
+
+  const onCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedRoles.length === 0) {
+      toast.error("Pick at least one target audience.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const expires_at =
+        expiresInDays && Number(expiresInDays) > 0
+          ? new Date(Date.now() + Number(expiresInDays) * 86_400_000).toISOString()
+          : null;
+      await create({
+        data: {
+          title: title.trim(),
+          body: body.trim(),
+          link_url: linkUrl.trim() || undefined,
+          link_label: linkLabel.trim() || undefined,
+          target_roles: selectedRoles,
+          severity,
+          published: true,
+          expires_at,
+        },
+      });
+      toast.success("Announcement posted.");
+      setTitle("");
+      setBody("");
+      setLinkUrl("");
+      setLinkLabel("");
+      setExpiresInDays("");
+      refresh();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to create announcement.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onExport = async (downloadAfter: boolean) => {
+    if (exportRoles.length === 0) {
+      toast.error("Pick at least one role to export.");
+      return;
+    }
+    setExporting(true);
+    try {
+      const res = await exportFn({ data: { roles: exportRoles } });
+      setPreviewCount(res.recipients.length);
+      if (downloadAfter) {
+        if (res.recipients.length === 0) {
+          toast.message("No recipients match those roles.");
+        } else {
+          downloadCsv(`recipients-${exportRoles.join("-")}.csv`, res.recipients);
+          toast.success(`Exported ${res.recipients.length} recipients.`);
+        }
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Export failed.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const sevBadge = useMemo(
+    () => ({
+      info: "bg-sky-100 text-sky-800",
+      success: "bg-emerald-100 text-emerald-800",
+      warning: "bg-amber-100 text-amber-800",
+      critical: "bg-red-100 text-red-800",
+    }),
+    [],
+  );
+
+  return (
+    <OwnerShell
+      title="Broadcasts"
+      description="Post in-app announcements to selected roles, or export recipients by role for an external marketing tool."
+    >
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Create announcement */}
+        <section className="rounded-lg border border-border bg-background p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Megaphone className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">New in-app announcement</h2>
+          </div>
+          <form onSubmit={onCreate} className="space-y-3">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                maxLength={200}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="body">Message</Label>
+              <Textarea
+                id="body"
+                rows={4}
+                maxLength={5000}
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="linkLabel">CTA label (optional)</Label>
+                <Input
+                  id="linkLabel"
+                  maxLength={100}
+                  value={linkLabel}
+                  onChange={(e) => setLinkLabel(e.target.value)}
+                  placeholder="Learn more"
+                />
+              </div>
+              <div>
+                <Label htmlFor="linkUrl">CTA URL (optional)</Label>
+                <Input
+                  id="linkUrl"
+                  maxLength={1000}
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  placeholder="https://…"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Severity</Label>
+                <Select value={severity} onValueChange={(v) => setSeverity(v as any)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="info">Info</SelectItem>
+                    <SelectItem value="success">Success</SelectItem>
+                    <SelectItem value="warning">Warning</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="expires">Expires in (days, blank = never)</Label>
+                <Input
+                  id="expires"
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={expiresInDays}
+                  onChange={(e) => setExpiresInDays(e.target.value)}
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="mb-2 block">Target audience</Label>
+              <div className="flex flex-wrap gap-2">
+                {ROLE_OPTIONS.map((r) => {
+                  const checked = selectedRoles.includes(r);
+                  return (
+                    <label
+                      key={r}
+                      className={
+                        "flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs " +
+                        (checked
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-foreground/70 hover:bg-muted")
+                      }
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() => toggleRole(r, selectedRoles, setSelectedRoles)}
+                      />
+                      {r}
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Use "all" to show to every signed-in user.
+              </p>
+            </div>
+            <Button type="submit" disabled={saving} className="w-full">
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Post announcement
+            </Button>
+          </form>
+        </section>
+
+        {/* Export by role */}
+        <section className="rounded-lg border border-border bg-background p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">Export recipients by role</h2>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            For mass email campaigns (newsletters, announcements), download a CSV of users matching
+            the roles below and import into your marketing tool (Mailchimp, Resend Broadcasts,
+            Brevo, etc.). The platform sender is reserved for transactional email only.
+          </p>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {APP_ROLES.map((r) => {
+              const checked = exportRoles.includes(r);
+              return (
+                <label
+                  key={r}
+                  className={
+                    "flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs " +
+                    (checked
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-foreground/70 hover:bg-muted")
+                  }
+                >
+                  <Checkbox
+                    checked={checked}
+                    onCheckedChange={() => toggleRole(r, exportRoles, setExportRoles)}
+                  />
+                  {r}
+                </label>
+              );
+            })}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => onExport(false)} disabled={exporting}>
+              {exporting ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+              Count recipients
+            </Button>
+            <Button size="sm" onClick={() => onExport(true)} disabled={exporting}>
+              <Download className="mr-2 h-3.5 w-3.5" />
+              Download CSV
+            </Button>
+            {previewCount !== null && (
+              <span className="text-xs text-muted-foreground">
+                {previewCount} recipient{previewCount === 1 ? "" : "s"} match.
+              </span>
+            )}
+          </div>
+        </section>
+      </div>
+
+      {/* Existing announcements */}
+      <section className="mt-8">
+        <h2 className="mb-3 text-sm font-semibold">Recent announcements</h2>
+        {items === null ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : items.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No announcements yet.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {items.map((a) => (
+              <div
+                key={a.id}
+                className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4 sm:flex-row sm:items-start sm:justify-between"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className={sevBadge[a.severity]}>{a.severity}</Badge>
+                    {!a.published && <Badge variant="secondary">unpublished</Badge>}
+                    {a.expires_at && new Date(a.expires_at) < new Date() && (
+                      <Badge variant="secondary">expired</Badge>
+                    )}
+                    <span className="text-sm font-medium">{a.title}</span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {a.target_roles.map((r) => (
+                      <span
+                        key={r}
+                        className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                      >
+                        {r}
+                      </span>
+                    ))}
+                    <span className="text-[10px] text-muted-foreground">
+                      · {new Date(a.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex shrink-0 gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      await toggle({ data: { id: a.id, published: !a.published } });
+                      refresh();
+                    }}
+                  >
+                    {a.published ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      if (!confirm("Delete this announcement?")) return;
+                      await del({ data: { id: a.id } });
+                      refresh();
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </OwnerShell>
+  );
+}

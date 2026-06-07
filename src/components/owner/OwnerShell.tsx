@@ -23,6 +23,7 @@ import {
   UserCog,
   Activity,
   ClipboardCheck,
+  Megaphone,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { toTitleCase } from "@/lib/title-case";
@@ -50,6 +51,7 @@ const NAV: NavItem[] = [
   { to: "/owner/waitlist", label: "Waitlist", icon: ClipboardList, group: "Leads" },
   { to: "/owner/contacts", label: "Contact Forms", icon: Mail, group: "Leads" },
   { to: "/owner/emails", label: "Email Monitor", icon: Mail, group: "Platform" },
+  { to: "/owner/broadcasts", label: "Broadcasts", icon: Megaphone, group: "Platform" },
   { to: "/owner/organizations", label: "Organizations", icon: Building2, group: "Platform" },
   { to: "/owner/opportunities", label: "Opportunity Review", icon: Briefcase, group: "Platform" },
   { to: "/owner/users", label: "Users", icon: UserCog, group: "Platform" },

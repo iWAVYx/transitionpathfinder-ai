@@ -26,6 +26,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { WelcomeBanner } from "@/components/site/WelcomeBanner";
+import { AnnouncementsBanner } from "@/components/site/AnnouncementsBanner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { toTitleCase } from "@/lib/title-case";
@@ -324,6 +325,7 @@ function DashboardPage() {
         <Breadcrumbs trail={[{ label: "Dashboard" }]} />
 
         <div className="mt-4">
+          <AnnouncementsBanner />
           <WelcomeBanner firstName={friendly} />
         </div>
 
