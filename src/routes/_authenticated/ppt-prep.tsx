@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { listMyReports } from "@/lib/pathway.functions";
 import { createPptPrep, type PptAgenda } from "@/lib/ppt.functions";
+import { MeetingPrepPartners } from "@/components/pathway/MeetingPrepPartners";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/ppt-prep")({
