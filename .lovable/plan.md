@@ -1,57 +1,68 @@
-# Add 2FA + Playwright 2FA-gated report-a11y test
 
-## 1. Backend / auth flow
+# Partner Network Expansion — Implementation Plan
 
-- Use Supabase Auth's built-in MFA (TOTP). No schema changes — factors live in `auth.mfa_factors`.
-- Add a small `profiles.mfa_required` boolean (default `false`) so we can require 2FA per user; RLS: user can read own row, only service role can flip the flag. (Skippable — we can also just require 2FA for anyone with a verified factor.)
+This is a large, multi-layer build. I want to confirm scope and sequencing before touching code, because doing it all in one pass risks destabilizing the existing structure you explicitly asked me to preserve (role system, dashboards, Admin Hub, website layout).
 
-## 2. Frontend: enrollment
+## Current state (what I'll build on, not replace)
 
-- New route `src/routes/_authenticated/security.tsx`: "Two-factor authentication" panel.
-  - `supabase.auth.mfa.enroll({ factorType: 'totp' })` → show QR + secret.
-  - User enters 6-digit code → `mfa.challenge` + `mfa.verify` to activate factor.
-  - List existing factors + "Remove" (`mfa.unenroll`).
+- `src/routes/partners.tsx` — public marketing page (kept as-is, will link to new public directory)
+- `src/routes/_authenticated/partners-manage.tsx` — existing partner mgmt (will extend)
+- `src/lib/partner-workspace.functions.ts` — existing partner serverFns (will extend)
+- `src/lib/resource-recommender.functions.ts` + `resources-db.functions.ts` — existing recommender (will hook opportunities in)
+- Owner Hub routes under `src/routes/_authenticated/owner.*` — will add `owner.partner-network.tsx` and `owner.opportunities.tsx` (latter already exists; will extend)
 
-## 3. Frontend: challenge during sign-in
+## Proposed phasing
 
-- After successful password sign-in, call `supabase.auth.mfa.getAuthenticatorAssuranceLevel()`.
-  - If `currentLevel === 'aal1' && nextLevel === 'aal2'`, push user to new `/login/2fa` route.
-- `src/routes/login.2fa.tsx`:
-  - Reads the first verified TOTP factor, calls `mfa.challenge`, renders the existing `input-otp` 6-digit input, submits via `mfa.verify`.
-  - On success, `navigate({ to: search.redirect ?? '/reports' })`.
-  - "Sign out" escape hatch.
-- Same `aal2` check in the integration-managed `_authenticated` gate (extend via a thin wrapper route only if needed — otherwise add a `beforeLoad` check on the report subtree that redirects to `/login/2fa` when `nextLevel === 'aal2'`).
+I recommend shipping this in 4 phases rather than one mega-commit. Each phase is independently testable and won't break the live app.
 
-## 4. Wire Google OAuth path
+### Phase 1 — Data model + seed (foundation)
+Migration adds/extends two tables:
 
-- After OAuth callback lands on `/auth/callback`, run the same AAL check and route to `/login/2fa` when needed.
+- `partner_organizations`
+  - All fields you listed: org_name, partner_type (enum), description, website_url, contact_email, phone, address, city, county, state, service_area, audience_served[], age_range, disability_focus[], pathway_categories[], services_offered[], opportunity_types[], virtual_or_in_person, transportation_notes, eligibility_notes, referral_process, source_url, verification_status (enum), partnership_status (enum), outreach_status (enum), admin_notes, last_reviewed_at, next_review_due_at, is_public, is_featured, collection_tags[], timestamps
+- `partner_opportunities`
+  - opportunity_title, partner_id (FK), opportunity_type (enum), description, location, county, pathway_category, age_range, eligibility, support_level, schedule, cost_or_funding_notes, application_url, contact_email, next_step, status, timestamps
+- Enums: `partner_type`, `verification_status` (verified/potential/needs_review/pending_approval/featured/archived), `outreach_status` (not_contacted/researching/outreach_needed/contacted/in_conversation/approved/declined/follow_up/archived), `opportunity_type`
+- Junction table `student_saved_partners` (student_id, partner_id or opportunity_id, saved_by, notes) — for signed-in saves and pathway attachment
+- RLS:
+  - Public SELECT on `partner_organizations` WHERE `is_public = true AND verification_status IN ('verified','featured','potential')` via a server fn (no `TO anon` policy — use `supabaseAdmin` in a public serverFn with column projection)
+  - Authenticated SELECT on full directory
+  - Platform admin (`is_platform_admin`) full CRUD
+  - `student_saved_partners` scoped via `can_access_student`
+- Seed migration inserts ~80+ CT organizations across the collections you listed, each tagged with appropriate status (Verified for state agencies; Potential Partner / Needs Review / Outreach Needed for everything else), collection tags, and pathway categories. Inclusive employer leads get a "Potential Opportunity Lead" framing flag.
 
-## 5. Playwright
+### Phase 2 — Public Partner Directory
+- New route `src/routes/partner-directory.tsx` (public, SSR, own SEO head)
+- Search + filters: category, county, pathway, audience, opportunity type
+- Featured section, separate "Community Resources & Leads" section for unverified
+- Status badges with careful public labels: "Verified Partner", "Community Resource", "Potential Opportunity Lead", "Needs Verification"
+- "Suggest a partner" + "Become a partner" CTAs (reuse existing `PartnerApplyForm`)
+- Disclaimer footer: "Listings are provided to support transition planning…"
 
-- `tests/e2e/auth.setup.ts`: when `E2E_TOTP_SECRET` is set, after password sign-in detect the `/login/2fa` redirect, generate a code with `otplib.authenticator.generate(E2E_TOTP_SECRET)`, submit, then persist storage state as today.
-- New spec `tests/e2e/reports-2fa-challenge.signedin.spec.ts` (runs in `authed` Playwright project) at 390×844 and 768×1024:
-  1. Start from a clean context (no storage state). Sign in with password.
-  2. Assert URL is `/login/2fa`, OTP input is focused, `aria-live` announces the challenge.
-  3. Assert `/reports/$E2E_REPORT_ID` redirects back to `/login/2fa` (proving aal2 gate).
-  4. Submit wrong code → inline error, still on `/login/2fa`, no session upgrade.
-  5. Submit correct code (otplib) → lands on `/reports/$E2E_REPORT_ID`.
-  6. Re-run the existing report-a11y key-flow assertions (axe scan, landmark uniqueness, audience tablist arrow keys, collapsible `aria-expanded`) — imported from a shared helper so this spec and `reports-signed-in-a11y.signedin.spec.ts` stay in sync.
-- Extract the shared a11y assertions into `tests/e2e/helpers/report-a11y-checks.ts` and have both signed-in specs call it.
+### Phase 3 — Signed-in matching + saves
+- Extend `resource-recommender.functions.ts` to also surface partner opportunities scored against student interests, pathway goals, grade, county, support needs
+- Surface matches in: `RecommendedResourcesPanel`, `ReportView` (Pathway Report), `ActionItemsPanel` (create action item from opportunity), `meetings.$meetingId` prep
+- Match card shows: why it fits, which goal it supports, next step, verification badge, Save / Add to Pathway / Add to Meeting Prep / Create Action Item
 
-## 6. CI
+### Phase 4 — Platform Admin Partner Manager
+- New owner route `src/routes/_authenticated/owner.partner-network.tsx` (under existing OwnerShell — no nav restructure)
+- Table view with admin filters (status, type, county, pathway, audience, opp type, last reviewed, outreach needed)
+- Drawer for: add/edit/archive partner, verify/feature, approve submissions, outreach notes + next follow-up date, add/edit opportunities, publish toggle
+- All CRUD via `partner-network.functions.ts` serverFns gated by `is_platform_admin`
 
-- Add `E2E_TOTP_SECRET` to the secrets passed through in `.github/workflows/report-a11y.yml`.
-- The whole 2FA spec auto-skips when `E2E_TOTP_SECRET` or `E2E_REPORT_ID` is missing, so the workflow stays green until the secret is set.
+## Technical notes (for the record)
 
-## Technical notes
+- All server logic via `createServerFn`, never edge functions
+- Public reads through a serverFn that uses `supabaseAdmin` with explicit column projection (never broad `TO anon` policies — per project security memory)
+- Student-scoped saves use `can_access_student` (per project security memory)
+- No changes to existing role system, dashboards, OwnerShell nav structure, or website layout
+- Existing `partners-manage.tsx` left intact; the new owner page is the admin power tool
 
-- `bun add otplib` (dev) for deterministic TOTP in tests.
-- Seed: in setup, enroll a TOTP factor for the test user once via a tiny `tests/e2e/scripts/enroll-totp.ts` that uses the service-role key locally to call `auth.admin` + insert a known secret. Documented as a one-time manual step; the secret is then stored as `E2E_TOTP_SECRET`.
-- `_authenticated` layout stays integration-managed. The aal2 enforcement lives in a child `beforeLoad` on `/reports` (and any other sensitive subtrees) — not by rewriting the managed layout.
-- No changes to `src/integrations/supabase/client.ts`, `auth-middleware.ts`, `auth-attacher.ts`, or `types.ts`.
+## What I need from you before I start
 
-## Files
+This is roughly 2–3 days of focused work compressed into one session. Two questions:
 
-- New: `src/routes/login.2fa.tsx`, `src/routes/_authenticated/security.tsx`, `tests/e2e/helpers/report-a11y-checks.ts`, `tests/e2e/reports-2fa-challenge.signedin.spec.ts`, `tests/e2e/scripts/enroll-totp.ts`.
-- Edited: `src/routes/login.tsx` (post-signin AAL check), `src/routes/_authenticated/reports.$reportId.tsx` (aal2 `beforeLoad`), `tests/e2e/auth.setup.ts` (TOTP step), `tests/e2e/reports-signed-in-a11y.signedin.spec.ts` (use shared helper), `.github/workflows/report-a11y.yml` (pass `E2E_TOTP_SECRET`), `package.json` (add `otplib`).
-- Migration: add `profiles.mfa_required` (optional — confirm before including).
+1. **Phasing**: ship Phase 1+2 first (data + public directory) and follow up with 3+4, or commit to all four in one go? I strongly recommend phased.
+2. **Seed data canonical**: I will seed every org you named with plausible defaults (website URLs from public sources where I'm confident, status defaults as you specified, county/tags inferred). Anything I'm not confident about (specific contact emails, phone numbers) I'll leave null rather than guess. OK?
+
+Once you confirm, I'll start with the Phase 1 migration.
