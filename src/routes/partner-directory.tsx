@@ -167,6 +167,33 @@ function PartnerDirectoryPage() {
               ))}
             </select>
           </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setCollection("all")}
+              className={`rounded-full border px-3 py-1 text-xs transition ${
+                collection === "all"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background text-foreground hover:bg-muted"
+              }`}
+            >
+              All collections
+            </button>
+            {COLLECTIONS.map((c) => (
+              <button
+                key={c.tag}
+                type="button"
+                onClick={() => setCollection(c.tag)}
+                className={`rounded-full border px-3 py-1 text-xs transition ${
+                  collection === c.tag
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:bg-muted"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
             <Link to="/partners" className="underline-offset-4 hover:underline">
               Become a partner →
@@ -178,6 +205,16 @@ function PartnerDirectoryPage() {
           </div>
         </div>
       </section>
+
+      {activeCollection && (
+        <div className="border-b border-border bg-primary/5">
+          <div className="mx-auto max-w-6xl px-6 py-3 text-sm text-foreground">
+            <span className="font-medium">{activeCollection.label}:</span>{" "}
+            <span className="text-muted-foreground">{activeCollection.blurb}</span>
+          </div>
+        </div>
+      )}
+
 
       <main className="mx-auto max-w-6xl px-6 py-10">
         {rows === null ? (
