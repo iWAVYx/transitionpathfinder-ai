@@ -48,6 +48,29 @@ function psql(sql) {
   }).trim();
 }
 
+// Probe whether this DB role can DELETE from student_collaborators. The
+// sandbox/preview role is select+insert only; revocation regression requires
+// destructive privileges (CI uses the service role / db owner). If we can't
+// mutate, skip rather than fail with a permission error.
+function canMutate() {
+  try {
+    psql(`
+      DO $$ BEGIN
+        IF NOT has_table_privilege(current_user, 'public.student_collaborators', 'DELETE')
+           OR NOT has_table_privilege(current_user, 'public.user_roles', 'DELETE')
+           OR NOT has_table_privilege(current_user, 'public.student_collaborators', 'INSERT')
+           OR NOT has_table_privilege(current_user, 'public.user_roles', 'INSERT')
+        THEN
+          RAISE EXCEPTION 'insufficient privileges';
+        END IF;
+      END $$;
+    `);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function canAccess(uid, studentId) {
   if (!uid) return false;
   const out = psql(
