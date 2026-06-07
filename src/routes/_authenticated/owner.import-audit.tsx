@@ -75,6 +75,8 @@ function ImportAuditPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [opFilter, setOpFilter] = useState<"all" | "created" | "updated">("all");
+  const [selectedPartner, setSelectedPartner] = useState<ImportAuditPartner | null>(null);
+  const [selectedOpp, setSelectedOpp] = useState<ImportAuditOpportunity | null>(null);
 
   const refresh = () => {
     setLoading(true);
