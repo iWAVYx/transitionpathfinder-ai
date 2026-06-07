@@ -620,26 +620,26 @@ function OpportunitiesDrawer({
                     onClick={async () => {
                       if (!partner || bulkValid.length === 0) return;
                       setBulkSaving(true);
-                      let ok = 0, fail = 0;
-                      for (const values of bulkValid) {
-                        const payload = {
-                          partner_id: partner.id,
-                          status: "open",
-                          is_public: true,
-                          ...values,
-                        };
-                        try {
-                          await saveOpp({ data: { values: payload } });
-                          ok++;
-                        } catch { fail++; }
+                      try {
+                        const result = await bulkInsert({
+                          data: { partner_id: partner.id, items: bulkValid },
+                        });
+                        if (!result.ok) {
+                          setBulkErrors(result.errors);
+                          toast.error(`Server validation failed: ${result.errors.length} issue${result.errors.length === 1 ? "" : "s"}`);
+                        } else {
+                          toast.success(`Imported ${result.inserted} record${result.inserted === 1 ? "" : "s"}`);
+                          setBulkText("");
+                          setBulkOpen(false);
+                          setBulkErrors([]);
+                          setBulkValid([]);
+                          reload();
+                        }
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Import failed");
+                      } finally {
+                        setBulkSaving(false);
                       }
-                      setBulkSaving(false);
-                      toast.success(`Imported ${ok}${fail ? ` (${fail} failed)` : ""}`);
-                      setBulkText("");
-                      setBulkOpen(false);
-                      setBulkErrors([]);
-                      setBulkValid([]);
-                      reload();
                     }}
                   >
                     {bulkSaving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
