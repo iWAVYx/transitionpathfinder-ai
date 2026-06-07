@@ -80,11 +80,13 @@ function BroadcastsPage() {
   const [engRange, setEngRange] = useState<"7d" | "30d" | "90d" | "custom">("7d");
   const [engFrom, setEngFrom] = useState<string>("");
   const [engTo, setEngTo] = useState<string>("");
+  const [engRole, setEngRole] = useState<string>("all");
 
-  const loadEngagement = async (id: string, opts?: { range?: typeof engRange; from?: string; to?: string }) => {
+  const loadEngagement = async (id: string, opts?: { range?: typeof engRange; from?: string; to?: string; role?: string }) => {
     const range = opts?.range ?? engRange;
     const from = opts?.from ?? engFrom;
     const to = opts?.to ?? engTo;
+    const role = opts?.role ?? engRole;
     if (openEngagement === id && !opts) {
       setOpenEngagement(null);
       return;
@@ -92,7 +94,7 @@ function BroadcastsPage() {
     setOpenEngagement(id);
     setEngagement((prev) => ({ ...prev, [id]: "loading" }));
     try {
-      const res = await engagementFn({ data: { id, range, from: from || undefined, to: to || undefined } });
+      const res = await engagementFn({ data: { id, range, from: from || undefined, to: to || undefined, role } });
       setEngagement((prev) => ({ ...prev, [id]: res }));
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to load engagement.");
@@ -463,7 +465,7 @@ function BroadcastsPage() {
                               key={r}
                               onClick={() => {
                                 setEngRange(r);
-                                loadEngagement(a.id, { range: r, from: engFrom, to: engTo });
+                                loadEngagement(a.id, { range: r, from: engFrom, to: engTo, role: engRole });
                               }}
                               className={
                                 "rounded px-2 py-1 text-[11px] font-medium " +
@@ -484,7 +486,7 @@ function BroadcastsPage() {
                               value={engFrom}
                               onChange={(e) => {
                                 setEngFrom(e.target.value);
-                                if (engTo) loadEngagement(a.id, { range: "custom", from: e.target.value, to: engTo });
+                                if (engTo) loadEngagement(a.id, { range: "custom", from: e.target.value, to: engTo, role: engRole });
                               }}
                             />
                             <span className="text-xs text-muted-foreground">to</span>
@@ -494,11 +496,37 @@ function BroadcastsPage() {
                               value={engTo}
                               onChange={(e) => {
                                 setEngTo(e.target.value);
-                                if (engFrom) loadEngagement(a.id, { range: "custom", from: engFrom, to: e.target.value });
+                                if (engFrom) loadEngagement(a.id, { range: "custom", from: engFrom, to: e.target.value, role: engRole });
                               }}
                             />
                           </div>
                         )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-xs font-medium">Role</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {ROLE_OPTIONS.map((r) => (
+                            <button
+                              key={r}
+                              onClick={() => {
+                                setEngRole(r);
+                                loadEngagement(a.id, { range: engRange, from: engFrom, to: engTo, role: r });
+                              }}
+                              className={
+                                "rounded px-2 py-1 text-[11px] font-medium " +
+                                (engRole === r
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-background border border-border text-muted-foreground hover:text-foreground")
+                              }
+                            >
+                              {r}
+                            </button>
+                          ))}
+                        </div>
                       </div>
 
                       {eng === "loading" || !eng ? (

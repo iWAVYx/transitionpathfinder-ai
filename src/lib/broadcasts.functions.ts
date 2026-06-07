@@ -334,6 +334,7 @@ const engagementSchema = z.object({
   range: z.enum(["7d", "30d", "90d", "custom"]).default("7d"),
   from: z.string().optional(),
   to: z.string().optional(),
+  role: z.string().min(1).optional(),
 });
 
 export const getAnnouncementEngagement = createServerFn({ method: "POST" })
@@ -346,12 +347,16 @@ export const getAnnouncementEngagement = createServerFn({ method: "POST" })
     const startIso = start.toISOString();
     const endIso = new Date(end.getTime() + 86_400_000 - 1).toISOString();
 
-    const { data: events, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("announcement_events")
       .select("user_id, event_type, role, created_at")
       .eq("announcement_id", data.id)
       .gte("created_at", startIso)
-      .lte("created_at", endIso)
+      .lte("created_at", endIso);
+    if (data.role && data.role !== "all") {
+      query = query.eq("role", data.role);
+    }
+    const { data: events, error } = await query
       .order("created_at", { ascending: false })
       .limit(2000);
     if (error) throw new Error(error.message);
