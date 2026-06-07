@@ -40,7 +40,7 @@ function PptPrepPage() {
   const [topConcerns, setTopConcerns] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [agenda, setAgenda] = useState<{ agenda: PptAgenda; studentName: string } | null>(null);
+  const [agenda, setAgenda] = useState<{ agenda: PptAgenda; studentName: string; studentId: string | null; meetingDate: string | null } | null>(null);
 
   useEffect(() => {
     list()
