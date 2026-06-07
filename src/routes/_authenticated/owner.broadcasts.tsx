@@ -80,11 +80,13 @@ function BroadcastsPage() {
   const [engRange, setEngRange] = useState<"7d" | "30d" | "90d" | "custom">("7d");
   const [engFrom, setEngFrom] = useState<string>("");
   const [engTo, setEngTo] = useState<string>("");
+  const [engRole, setEngRole] = useState<string>("all");
 
-  const loadEngagement = async (id: string, opts?: { range?: typeof engRange; from?: string; to?: string }) => {
+  const loadEngagement = async (id: string, opts?: { range?: typeof engRange; from?: string; to?: string; role?: string }) => {
     const range = opts?.range ?? engRange;
     const from = opts?.from ?? engFrom;
     const to = opts?.to ?? engTo;
+    const role = opts?.role ?? engRole;
     if (openEngagement === id && !opts) {
       setOpenEngagement(null);
       return;
@@ -92,7 +94,7 @@ function BroadcastsPage() {
     setOpenEngagement(id);
     setEngagement((prev) => ({ ...prev, [id]: "loading" }));
     try {
-      const res = await engagementFn({ data: { id, range, from: from || undefined, to: to || undefined } });
+      const res = await engagementFn({ data: { id, range, from: from || undefined, to: to || undefined, role } });
       setEngagement((prev) => ({ ...prev, [id]: res }));
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to load engagement.");
