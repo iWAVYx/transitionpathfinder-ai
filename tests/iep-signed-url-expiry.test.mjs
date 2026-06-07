@@ -172,7 +172,7 @@ function mintEligibility(studentId, uid) {
   const out = psql(
     `SELECT public.can_access_student('${uid}'::uuid, '${studentId}'::uuid)::text;`,
   );
-  return out.trim() === "t";
+  return out.trim() === "true";
 }
 
 test("signed URLs for IEP PDFs expire at TTL and are gated per role", { skip: SKIP }, async () => {
