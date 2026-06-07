@@ -260,6 +260,31 @@ function ChecklistRow({
   );
 }
 
+function SortHeader({
+  label,
+  active,
+  direction,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  direction: "asc" | "desc";
+  onClick: () => void;
+}) {
+  const Icon = active ? (direction === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th
+      className="px-3 py-2 text-left cursor-pointer select-none hover:text-foreground transition-colors"
+      onClick={onClick}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <Icon className="h-3 w-3 opacity-60" />
+      </span>
+    </th>
+  );
+}
+
 function DrillSheet({
   metric,
   onClose,
@@ -267,12 +292,59 @@ function DrillSheet({
   metric: MetricKey | null;
   onClose: () => void;
 }) {
+  const defaults = metric ? getDefaultSort(metric) : { sortBy: "name" as const, sortDirection: "asc" as const };
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "status" | "updated_at" | "type" | "county">(defaults.sortBy);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaults.sortDirection);
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Reset local state when metric changes
+  const prevMetricRef = React.useRef<MetricKey | null>(null);
+  if (metric !== prevMetricRef.current) {
+    prevMetricRef.current = metric;
+    if (metric) {
+      const d = getDefaultSort(metric);
+      setSortBy(d.sortBy);
+      setSortDirection(d.sortDirection);
+      setSearch("");
+      setStatusFilter("");
+    }
+  }
+
   const fetchRows = useServerFn(getPartnerMetricRows);
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["owner", "partner-metric-rows", metric],
-    queryFn: () => fetchRows({ data: { metric: metric as MetricKey } }),
+    queryKey: [
+      "owner",
+      "partner-metric-rows",
+      metric,
+      search.trim(),
+      sortBy,
+      sortDirection,
+      statusFilter,
+    ],
+    queryFn: () =>
+      fetchRows({
+        data: {
+          metric: metric as MetricKey,
+          search: search.trim() || undefined,
+          sortBy: sortBy || undefined,
+          sortDirection,
+          statusFilter: statusFilter || undefined,
+        },
+      }),
     enabled: !!metric,
   });
+
+  const filterOptions = metric ? getFilterOptions(metric) : null;
+
+  function toggleSort(column: "name" | "status" | "updated_at" | "type" | "county") {
+    if (sortBy === column) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(column);
+      setSortDirection(column === "updated_at" ? "desc" : "asc");
+    }
+  }
 
   return (
     <Sheet open={!!metric} onOpenChange={(o) => !o && onClose()}>
@@ -284,7 +356,42 @@ function DrillSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-5">
+        <div className="mt-5 space-y-4">
+          {/* Search + Filters */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {filterOptions && (
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-44">
+                  <SelectValue placeholder="Filter status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
           {isLoading && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Loading…
@@ -297,7 +404,7 @@ function DrillSheet({
           )}
           {data && data.rows.length === 0 && (
             <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              No records yet.
+              No records found.
             </p>
           )}
           {data && data.rows.length > 0 && (
@@ -306,9 +413,24 @@ function DrillSheet({
                 <table className="w-full text-sm">
                   <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-3 py-2 text-left">Name</th>
-                      <th className="px-3 py-2 text-left">Status</th>
-                      <th className="px-3 py-2 text-left">Updated</th>
+                      <SortHeader
+                        label="Name"
+                        active={sortBy === "name"}
+                        direction={sortDirection}
+                        onClick={() => toggleSort("name")}
+                      />
+                      <SortHeader
+                        label="Status"
+                        active={sortBy === "status"}
+                        direction={sortDirection}
+                        onClick={() => toggleSort("status")}
+                      />
+                      <SortHeader
+                        label="Updated"
+                        active={sortBy === "updated_at"}
+                        direction={sortDirection}
+                        onClick={() => toggleSort("updated_at")}
+                      />
                     </tr>
                   </thead>
                   <tbody>
