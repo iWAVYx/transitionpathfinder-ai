@@ -48,7 +48,7 @@ export const createPptPrep = createServerFn({ method: "POST" })
 
     const { data: report, error } = await supabase
       .from("pathway_reports")
-      .select("id, content, student_intakes(student_first_name, grade_band, family_concerns, current_goals)")
+      .select("id, student_id, content, student_intakes(student_first_name, grade_band, family_concerns, current_goals)")
       .eq("id", data.report_id)
       .single();
 
@@ -78,7 +78,12 @@ Generate a PPT meeting prep packet. Make every question and script specific to $
         experimental_output: Output.object({ schema: AgendaSchema }),
         prompt,
       });
-      return { agenda: experimental_output as PptAgenda, studentName: name };
+      return {
+        agenda: experimental_output as PptAgenda,
+        studentName: name,
+        studentId: (report as unknown as { student_id: string | null }).student_id,
+        meetingDate: data.meeting_date || null,
+      };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("PPT prep generation failed", msg);

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { listMyReports } from "@/lib/pathway.functions";
 import { createPptPrep, type PptAgenda } from "@/lib/ppt.functions";
+import { MeetingPrepPartners } from "@/components/pathway/MeetingPrepPartners";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/ppt-prep")({
@@ -39,7 +40,7 @@ function PptPrepPage() {
   const [topConcerns, setTopConcerns] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [agenda, setAgenda] = useState<{ agenda: PptAgenda; studentName: string } | null>(null);
+  const [agenda, setAgenda] = useState<{ agenda: PptAgenda; studentName: string; studentId: string | null; meetingDate: string | null } | null>(null);
 
   useEffect(() => {
     list()
@@ -69,7 +70,13 @@ function PptPrepPage() {
   if (agenda) {
     return (
       <SiteShell>
-        <AgendaView name={agenda.studentName} agenda={agenda.agenda} onReset={() => setAgenda(null)} />
+        <AgendaView
+          name={agenda.studentName}
+          agenda={agenda.agenda}
+          studentId={agenda.studentId}
+          meetingDate={agenda.meetingDate}
+          onReset={() => setAgenda(null)}
+        />
       </SiteShell>
     );
   }
@@ -173,7 +180,19 @@ function PptPrepPage() {
   );
 }
 
-function AgendaView({ name, agenda, onReset }: { name: string; agenda: PptAgenda; onReset: () => void }) {
+function AgendaView({
+  name,
+  agenda,
+  studentId,
+  meetingDate,
+  onReset,
+}: {
+  name: string;
+  agenda: PptAgenda;
+  studentId: string | null;
+  meetingDate: string | null;
+  onReset: () => void;
+}) {
   return (
     <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
@@ -203,6 +222,10 @@ function AgendaView({ name, agenda, onReset }: { name: string; agenda: PptAgenda
             </li>
           ))}
         </ol>
+      </Block>
+
+      <Block title="Partner contacts & deadlines">
+        <MeetingPrepPartners studentId={studentId} meetingDate={meetingDate} />
       </Block>
 
       <Block title="Questions to ask">
