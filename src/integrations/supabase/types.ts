@@ -1616,6 +1616,83 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_network_opportunities: {
+        Row: {
+          age_range: string | null
+          application_url: string | null
+          contact_email: string | null
+          cost_or_funding_notes: string | null
+          county: string | null
+          created_at: string
+          description: string | null
+          eligibility: string | null
+          id: string
+          is_public: boolean
+          location: string | null
+          next_step: string | null
+          opportunity_title: string
+          opportunity_type: Database["public"]["Enums"]["partner_opportunity_type"]
+          partner_id: string
+          pathway_category: string | null
+          schedule: string | null
+          status: string
+          support_level: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          application_url?: string | null
+          contact_email?: string | null
+          cost_or_funding_notes?: string | null
+          county?: string | null
+          created_at?: string
+          description?: string | null
+          eligibility?: string | null
+          id?: string
+          is_public?: boolean
+          location?: string | null
+          next_step?: string | null
+          opportunity_title: string
+          opportunity_type?: Database["public"]["Enums"]["partner_opportunity_type"]
+          partner_id: string
+          pathway_category?: string | null
+          schedule?: string | null
+          status?: string
+          support_level?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          application_url?: string | null
+          contact_email?: string | null
+          cost_or_funding_notes?: string | null
+          county?: string | null
+          created_at?: string
+          description?: string | null
+          eligibility?: string | null
+          id?: string
+          is_public?: boolean
+          location?: string | null
+          next_step?: string | null
+          opportunity_title?: string
+          opportunity_type?: Database["public"]["Enums"]["partner_opportunity_type"]
+          partner_id?: string
+          pathway_category?: string | null
+          schedule?: string | null
+          status?: string
+          support_level?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_network_opportunities_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_opportunities: {
         Row: {
           age_range: string | null
@@ -1677,6 +1754,129 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_organizations: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          age_range: string | null
+          audience_served: string[]
+          city: string | null
+          collection_tags: string[]
+          contact_email: string | null
+          county: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          disability_focus: string[]
+          eligibility_notes: string | null
+          id: string
+          is_featured: boolean
+          is_public: boolean
+          last_reviewed_at: string | null
+          next_follow_up_date: string | null
+          next_review_due_at: string | null
+          opportunity_types: string[]
+          organization_name: string
+          outreach_notes: string | null
+          outreach_status: Database["public"]["Enums"]["partner_outreach_status"]
+          partner_type: Database["public"]["Enums"]["partner_type"]
+          partnership_status: string
+          pathway_categories: string[]
+          phone: string | null
+          referral_process: string | null
+          service_area: string | null
+          services_offered: string[]
+          source_url: string | null
+          state: string
+          tags: string[]
+          transportation_notes: string | null
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["partner_verification_status"]
+          virtual_or_in_person: string | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          age_range?: string | null
+          audience_served?: string[]
+          city?: string | null
+          collection_tags?: string[]
+          contact_email?: string | null
+          county?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          disability_focus?: string[]
+          eligibility_notes?: string | null
+          id?: string
+          is_featured?: boolean
+          is_public?: boolean
+          last_reviewed_at?: string | null
+          next_follow_up_date?: string | null
+          next_review_due_at?: string | null
+          opportunity_types?: string[]
+          organization_name: string
+          outreach_notes?: string | null
+          outreach_status?: Database["public"]["Enums"]["partner_outreach_status"]
+          partner_type?: Database["public"]["Enums"]["partner_type"]
+          partnership_status?: string
+          pathway_categories?: string[]
+          phone?: string | null
+          referral_process?: string | null
+          service_area?: string | null
+          services_offered?: string[]
+          source_url?: string | null
+          state?: string
+          tags?: string[]
+          transportation_notes?: string | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["partner_verification_status"]
+          virtual_or_in_person?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          age_range?: string | null
+          audience_served?: string[]
+          city?: string | null
+          collection_tags?: string[]
+          contact_email?: string | null
+          county?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          disability_focus?: string[]
+          eligibility_notes?: string | null
+          id?: string
+          is_featured?: boolean
+          is_public?: boolean
+          last_reviewed_at?: string | null
+          next_follow_up_date?: string | null
+          next_review_due_at?: string | null
+          opportunity_types?: string[]
+          organization_name?: string
+          outreach_notes?: string | null
+          outreach_status?: Database["public"]["Enums"]["partner_outreach_status"]
+          partner_type?: Database["public"]["Enums"]["partner_type"]
+          partnership_status?: string
+          pathway_categories?: string[]
+          phone?: string | null
+          referral_process?: string | null
+          service_area?: string | null
+          services_offered?: string[]
+          source_url?: string | null
+          state?: string
+          tags?: string[]
+          transportation_notes?: string | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["partner_verification_status"]
+          virtual_or_in_person?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
       }
       pathway_progress: {
         Row: {
@@ -2706,6 +2906,57 @@ export type Database = {
           },
         ]
       }
+      student_saved_partners: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          opportunity_id: string | null
+          partner_id: string | null
+          pinned: boolean
+          saved_by_user_id: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          partner_id?: string | null
+          pinned?: boolean
+          saved_by_user_id: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          partner_id?: string | null
+          pinned?: boolean
+          saved_by_user_id?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_saved_partners_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "partner_network_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_saved_partners_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_strengths_needs: {
         Row: {
           category: string
@@ -3305,6 +3556,66 @@ export type Database = {
         | "school_admin"
         | "partner"
         | "district_admin"
+      partner_opportunity_type:
+        | "internship"
+        | "job_shadowing"
+        | "volunteer_experience"
+        | "supported_employment"
+        | "day_program"
+        | "employment_exploration"
+        | "employment_enrichment"
+        | "certificate_program"
+        | "college_program"
+        | "technical_training"
+        | "mentorship"
+        | "independent_living_support"
+        | "transportation_support"
+        | "family_support"
+        | "agency_connection"
+      partner_outreach_status:
+        | "not_contacted"
+        | "researching"
+        | "outreach_needed"
+        | "contacted"
+        | "in_conversation"
+        | "approved"
+        | "declined"
+        | "follow_up"
+        | "archived"
+      partner_type:
+        | "state_agency"
+        | "disability_service_provider"
+        | "employment_provider"
+        | "supported_employment"
+        | "day_program"
+        | "residential_support"
+        | "independent_living"
+        | "transition_program"
+        | "college_postsecondary"
+        | "technical_training"
+        | "certificate_program"
+        | "employer"
+        | "inclusive_employer_lead"
+        | "social_enterprise"
+        | "nonprofit"
+        | "for_profit_business"
+        | "advocacy_family_support"
+        | "transportation_support"
+        | "community_resource"
+        | "workforce_development"
+        | "youth_young_adult_program"
+        | "state_provider_directory"
+        | "state_provider_list"
+        | "vocational_rehabilitation"
+        | "student_transition_program"
+        | "transition_internship_program"
+      partner_verification_status:
+        | "verified"
+        | "potential"
+        | "needs_review"
+        | "pending_approval"
+        | "featured"
+        | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3449,6 +3760,70 @@ export const Constants = {
         "school_admin",
         "partner",
         "district_admin",
+      ],
+      partner_opportunity_type: [
+        "internship",
+        "job_shadowing",
+        "volunteer_experience",
+        "supported_employment",
+        "day_program",
+        "employment_exploration",
+        "employment_enrichment",
+        "certificate_program",
+        "college_program",
+        "technical_training",
+        "mentorship",
+        "independent_living_support",
+        "transportation_support",
+        "family_support",
+        "agency_connection",
+      ],
+      partner_outreach_status: [
+        "not_contacted",
+        "researching",
+        "outreach_needed",
+        "contacted",
+        "in_conversation",
+        "approved",
+        "declined",
+        "follow_up",
+        "archived",
+      ],
+      partner_type: [
+        "state_agency",
+        "disability_service_provider",
+        "employment_provider",
+        "supported_employment",
+        "day_program",
+        "residential_support",
+        "independent_living",
+        "transition_program",
+        "college_postsecondary",
+        "technical_training",
+        "certificate_program",
+        "employer",
+        "inclusive_employer_lead",
+        "social_enterprise",
+        "nonprofit",
+        "for_profit_business",
+        "advocacy_family_support",
+        "transportation_support",
+        "community_resource",
+        "workforce_development",
+        "youth_young_adult_program",
+        "state_provider_directory",
+        "state_provider_list",
+        "vocational_rehabilitation",
+        "student_transition_program",
+        "transition_internship_program",
+      ],
+      partner_verification_status: [
+        "verified",
+        "potential",
+        "needs_review",
+        "pending_approval",
+        "featured",
+        "archived",
       ],
     },
   },
