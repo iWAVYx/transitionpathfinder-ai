@@ -95,7 +95,7 @@ test("calendar_events RLS is enabled", { skip: SKIP }, () => {
   const enabled = psqlQuery(
     `SELECT relrowsecurity::text FROM pg_class WHERE oid = 'public.calendar_events'::regclass`,
   );
-  assert.equal(enabled, "t", "RLS must be enabled on calendar_events");
+  assert.match(enabled, /^(t|true)$/, "RLS must be enabled on calendar_events");
 });
 
 test("calendar_events RLS policies match committed snapshot", { skip: SKIP }, () => {
