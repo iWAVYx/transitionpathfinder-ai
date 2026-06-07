@@ -23,6 +23,7 @@ import {
   UserCog,
   Activity,
   ClipboardCheck,
+  Megaphone,
 } from "lucide-react";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { toTitleCase } from "@/lib/title-case";
