@@ -1,0 +1,41 @@
+name: Calendar RLS regression QA
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/**"
+      - "src/lib/calendar.functions.ts"
+      - "src/lib/calendar-events.ts"
+      - "src/components/dashboard/DashboardCalendar.tsx"
+      - "tests/calendar-rls.test.mjs"
+      - "tests/__snapshots__/calendar-rls-*.snap.json"
+      - ".github/workflows/calendar-rls-qa.yml"
+  push:
+    branches: [main]
+
+jobs:
+  calendar-rls:
+    runs-on: ubuntu-latest
+    # Requires SUPABASE_DB_URL pointing at a Postgres database that has the
+    # current schema migrations applied (staging or an ephemeral CI database).
+    # If the secret is absent the suite skips itself rather than failing.
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install psql client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Run calendar RLS regression
+        run: node --test tests/calendar-rls.test.mjs
+      - name: How to update snapshot
+        if: failure()
+        run: |
+          echo "::error::Calendar RLS policies or visibility matrix drifted."
+          echo "If the change is intentional, regenerate the snapshots locally with:"
+          echo "  UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs"
+          echo "Then commit tests/__snapshots__/calendar-rls-*.snap.json and re-run."
