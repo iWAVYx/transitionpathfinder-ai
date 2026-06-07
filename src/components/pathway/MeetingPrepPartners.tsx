@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getVtimezoneBlock } from "@/lib/calendar-events";
 
 const TIMEZONES = [
   { value: "America/New_York", label: "Eastern Time" },
@@ -356,20 +357,41 @@ function icsLine(name: string, value: string) {
   return out.join("\r\n");
 }
 
+function icsLocal(d: Date) {
+  return (
+    `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}` +
+    `T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
+  );
+}
+
 function buildIcs(steps: DeadlineStep[], studentId: string | null, tz?: string) {
   const stamp = icsStamp();
   const uidSeed = studentId ?? "meeting-prep";
+  const tzBlock = tz ? getVtimezoneBlock(tz) : null;
+  const tzid = tzBlock ? tz! : null;
   const events = steps.map((s, idx) => {
-    const start = icsDate(s.date);
-    const end = new Date(s.date);
-    end.setDate(end.getDate() + 1);
-    const uid = `${uidSeed}-${idx}-${start}@transitionforward`;
+    const start = new Date(
+      s.date.getFullYear(),
+      s.date.getMonth(),
+      s.date.getDate(),
+      9, 0, 0,
+    );
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const uid = `${uidSeed}-${idx}-${icsDate(s.date)}@transitionforward`;
+    const dtStart = tzid
+      ? `DTSTART;TZID=${tzid}:${icsLocal(start)}`
+      : `DTSTART;VALUE=DATE:${icsDate(s.date)}`;
+    const endDay = new Date(s.date);
+    endDay.setDate(endDay.getDate() + 1);
+    const dtEnd = tzid
+      ? `DTEND;TZID=${tzid}:${icsLocal(end)}`
+      : `DTEND;VALUE=DATE:${icsDate(endDay)}`;
     return [
       "BEGIN:VEVENT",
       icsLine("UID", uid),
       icsLine("DTSTAMP", stamp),
-      `DTSTART;VALUE=DATE:${start}`,
-      `DTEND;VALUE=DATE:${icsDate(end)}`,
+      dtStart,
+      dtEnd,
       icsLine("SUMMARY", `PPT Prep: ${s.label}`),
       icsLine("DESCRIPTION", `${s.detail}\n\n(${s.when})`),
       "BEGIN:VALARM",
@@ -388,6 +410,7 @@ function buildIcs(steps: DeadlineStep[], studentId: string | null, tz?: string) 
     "METHOD:PUBLISH",
   ];
   if (tz) lines.push(`X-WR-TIMEZONE:${tz}`);
+  if (tzBlock) lines.push(tzBlock);
   lines.push(...events, "END:VCALENDAR", "");
   return lines.join("\r\n");
 }

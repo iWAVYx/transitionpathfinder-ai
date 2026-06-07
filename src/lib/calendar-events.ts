@@ -190,18 +190,162 @@ function icsEscape(v: string) {
   return v.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 }
 
+/**
+ * Local datetime in YYYYMMDDTHHMMSS (no Z, no offset). Paired with TZID=...
+ * this is the RFC 5545 way to anchor an event to a specific timezone so
+ * Outlook and Apple Calendar render it at the right wall-clock time.
+ */
+function icsLocal(d: Date) {
+  return (
+    `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}` +
+    `T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
+  );
+}
+
+/**
+ * Minimal VTIMEZONE blocks for the timezones surfaced in the UI. Each block
+ * includes the canonical STANDARD/DAYLIGHT rules so importing clients can
+ * resolve DST transitions correctly. UTC offsets are -HHMM.
+ */
+const VTIMEZONES: Record<string, string> = {
+  "America/New_York": [
+    "BEGIN:VTIMEZONE",
+    "TZID:America/New_York",
+    "BEGIN:DAYLIGHT",
+    "TZOFFSETFROM:-0500",
+    "TZOFFSETTO:-0400",
+    "TZNAME:EDT",
+    "DTSTART:19700308T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+    "END:DAYLIGHT",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:-0400",
+    "TZOFFSETTO:-0500",
+    "TZNAME:EST",
+    "DTSTART:19701101T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ].join("\r\n"),
+  "America/Chicago": [
+    "BEGIN:VTIMEZONE",
+    "TZID:America/Chicago",
+    "BEGIN:DAYLIGHT",
+    "TZOFFSETFROM:-0600",
+    "TZOFFSETTO:-0500",
+    "TZNAME:CDT",
+    "DTSTART:19700308T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+    "END:DAYLIGHT",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:-0500",
+    "TZOFFSETTO:-0600",
+    "TZNAME:CST",
+    "DTSTART:19701101T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ].join("\r\n"),
+  "America/Denver": [
+    "BEGIN:VTIMEZONE",
+    "TZID:America/Denver",
+    "BEGIN:DAYLIGHT",
+    "TZOFFSETFROM:-0700",
+    "TZOFFSETTO:-0600",
+    "TZNAME:MDT",
+    "DTSTART:19700308T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+    "END:DAYLIGHT",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:-0600",
+    "TZOFFSETTO:-0700",
+    "TZNAME:MST",
+    "DTSTART:19701101T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ].join("\r\n"),
+  "America/Los_Angeles": [
+    "BEGIN:VTIMEZONE",
+    "TZID:America/Los_Angeles",
+    "BEGIN:DAYLIGHT",
+    "TZOFFSETFROM:-0800",
+    "TZOFFSETTO:-0700",
+    "TZNAME:PDT",
+    "DTSTART:19700308T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+    "END:DAYLIGHT",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:-0700",
+    "TZOFFSETTO:-0800",
+    "TZNAME:PST",
+    "DTSTART:19701101T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ].join("\r\n"),
+  "America/Anchorage": [
+    "BEGIN:VTIMEZONE",
+    "TZID:America/Anchorage",
+    "BEGIN:DAYLIGHT",
+    "TZOFFSETFROM:-0900",
+    "TZOFFSETTO:-0800",
+    "TZNAME:AKDT",
+    "DTSTART:19700308T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+    "END:DAYLIGHT",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:-0800",
+    "TZOFFSETTO:-0900",
+    "TZNAME:AKST",
+    "DTSTART:19701101T020000",
+    "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ].join("\r\n"),
+  "Pacific/Honolulu": [
+    "BEGIN:VTIMEZONE",
+    "TZID:Pacific/Honolulu",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:-1000",
+    "TZOFFSETTO:-1000",
+    "TZNAME:HST",
+    "DTSTART:19700101T000000",
+    "END:STANDARD",
+    "END:VTIMEZONE",
+  ].join("\r\n"),
+};
+
+export function getVtimezoneBlock(tz: string): string | null {
+  return VTIMEZONES[tz] ?? null;
+}
+
 export function buildIcsForEvents(events: CalendarEvent[], tz?: string) {
   const stamp = icsStamp();
+  const tzid = tz && VTIMEZONES[tz] ? tz : null;
   const vevents = events.map((ev, idx) => {
-    const start = gcalDate(ev.date);
-    const end = new Date(ev.date);
-    end.setDate(end.getDate() + 1);
+    // Anchor each reminder to 9:00 AM local on its date with a 30-min window.
+    // When TZID is present, Outlook/Apple/Google render it at 9 AM in that
+    // timezone instead of as a floating all-day event.
+    const start = new Date(
+      ev.date.getFullYear(),
+      ev.date.getMonth(),
+      ev.date.getDate(),
+      9, 0, 0,
+    );
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const dtStart = tzid
+      ? `DTSTART;TZID=${tzid}:${icsLocal(start)}`
+      : `DTSTART:${icsLocal(start)}`;
+    const dtEnd = tzid
+      ? `DTEND;TZID=${tzid}:${icsLocal(end)}`
+      : `DTEND:${icsLocal(end)}`;
     return [
       "BEGIN:VEVENT",
       `UID:${ev.id}-${idx}@transitionforward`,
       `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${start}`,
-      `DTEND;VALUE=DATE:${gcalDate(end)}`,
+      dtStart,
+      dtEnd,
       `SUMMARY:${icsEscape(ev.title)}`,
       `DESCRIPTION:${icsEscape(ev.detail || "")}`,
       "BEGIN:VALARM",
@@ -220,6 +364,7 @@ export function buildIcsForEvents(events: CalendarEvent[], tz?: string) {
     "METHOD:PUBLISH",
   ];
   if (tz) lines.push(`X-WR-TIMEZONE:${tz}`);
+  if (tzid) lines.push(VTIMEZONES[tzid]);
   lines.push(...vevents, "END:VCALENDAR", "");
   return lines.join("\r\n");
 }
