@@ -14,6 +14,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { z } from "zod";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -107,6 +108,33 @@ const OPP_TYPES = [
 ] as const;
 
 const OPP_STATUSES = ["open", "waitlist", "closed", "archived"] as const;
+
+const opportunityItemSchema = z.object({
+  opportunity_title: z.string().min(1, "Title is required").max(255, "Max 255 characters"),
+  opportunity_type: z.string().refine((v) => OPP_TYPES.includes(v as any), {
+    message: `Must be one of: ${OPP_TYPES.join(", ")}`,
+  }),
+  description: z.string().max(2000).optional().transform((v) => v?.trim() || null),
+  location: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  county: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  pathway_category: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  age_range: z.string().max(50).optional().transform((v) => v?.trim() || null),
+  eligibility: z.string().max(2000).optional().transform((v) => v?.trim() || null),
+  support_level: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  schedule: z.string().max(255).optional().transform((v) => v?.trim() || null),
+  cost_or_funding_notes: z.string().max(2000).optional().transform((v) => v?.trim() || null),
+  application_url: z
+    .union([z.string().url("Invalid URL").max(500), z.literal(""), z.null()])
+    .optional()
+    .transform((v) => v?.trim() || null),
+  contact_email: z
+    .union([z.string().email("Invalid email").max(255), z.literal(""), z.null()])
+    .optional()
+    .transform((v) => v?.trim() || null),
+  next_step: z.string().max(1000).optional().transform((v) => v?.trim() || null),
+  status: z.enum(["open", "waitlist", "closed", "archived"]).optional(),
+  is_public: z.boolean().optional(),
+});
 
 function emptyOpp(partner_id: string): Opportunity {
   return {
@@ -403,6 +431,8 @@ function OpportunitiesDrawer({
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkText, setBulkText] = useState("");
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkErrors, setBulkErrors] = useState<{ row: number; field: string; message: string }[]>([]);
+  const [bulkValid, setBulkValid] = useState<Record<string, unknown>[]>([]);
 
   useEffect(() => {
     if (!partner) {
@@ -410,13 +440,14 @@ function OpportunitiesDrawer({
       setEditing(null);
       setBulkOpen(false);
       setBulkText("");
+      setBulkErrors([]);
+      setBulkValid([]);
       return;
     }
     setOpps(null);
     if (autoOpenNew) setEditing(emptyOpp(partner.id));
     listOpps({ data: { partner_id: partner.id } })
       .then((r) => setOpps(r.opportunities as Opportunity[]))
-
       .catch(() => setOpps([]));
   }, [partner, listOpps]);
 
@@ -528,7 +559,7 @@ function OpportunitiesDrawer({
             </div>
 
             {bulkOpen && (
-              <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
+              <div className="rounded-md border border-border bg-muted/30 p-3 space-y-3">
                 <p className="text-xs text-muted-foreground">
                   Paste a JSON array of opportunities. Each must include{" "}
                   <code>opportunity_title</code> and <code>opportunity_type</code>.
@@ -536,42 +567,92 @@ function OpportunitiesDrawer({
                 <Textarea
                   rows={8}
                   value={bulkText}
-                  onChange={(e) => setBulkText(e.target.value)}
+                  onChange={(e) => {
+                    setBulkText(e.target.value);
+                    setBulkErrors([]);
+                    setBulkValid([]);
+                  }}
                   placeholder='[{"opportunity_title":"…","opportunity_type":"internship","description":"…","location":"Hartford","county":"Hartford"}]'
                   className="font-mono text-xs"
                 />
+                {bulkErrors.length > 0 && (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2 space-y-1">
+                    <p className="text-xs font-semibold text-destructive">
+                      Validation failed ({bulkErrors.length} issue{bulkErrors.length === 1 ? "" : "s"})
+                    </p>
+                    <ul className="max-h-40 overflow-y-auto space-y-0.5">
+                      {bulkErrors.map((err, i) => (
+                        <li key={i} className="text-[11px] text-destructive">
+                          Row {err.row + 1} · <span className="font-medium">{err.field}</span> · {err.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {bulkValid.length > 0 && bulkErrors.length === 0 && (
+                  <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2">
+                    <p className="text-xs font-medium text-emerald-600">
+                      {bulkValid.length} valid record{bulkValid.length === 1 ? "" : "s"} ready to import
+                    </p>
+                  </div>
+                )}
                 <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => { setBulkOpen(false); setBulkText(""); }}>
+                  <Button size="sm" variant="ghost" onClick={() => { setBulkOpen(false); setBulkText(""); setBulkErrors([]); setBulkValid([]); }}>
                     Cancel
                   </Button>
                   <Button
                     size="sm"
-                    disabled={bulkSaving || !bulkText.trim()}
-                    onClick={async () => {
-                      if (!partner) return;
-                      let parsed: any;
+                    variant="secondary"
+                    disabled={!bulkText.trim()}
+                    onClick={() => {
+                      setBulkErrors([]);
+                      setBulkValid([]);
+                      let parsed: unknown;
                       try {
                         parsed = JSON.parse(bulkText);
                         if (!Array.isArray(parsed)) throw new Error("Must be an array");
+                        if (parsed.length === 0) throw new Error("Array is empty");
                       } catch (e) {
                         toast.error(e instanceof Error ? e.message : "Invalid JSON");
                         return;
                       }
+                      const errors: { row: number; field: string; message: string }[] = [];
+                      const valid: Record<string, unknown>[] = [];
+                      parsed.forEach((item, idx) => {
+                        const result = opportunityItemSchema.safeParse(item);
+                        if (!result.success) {
+                          result.error.issues.forEach((issue) => {
+                            errors.push({ row: idx, field: issue.path.join("."), message: issue.message });
+                          });
+                        } else {
+                          valid.push(result.data);
+                        }
+                      });
+                      setBulkErrors(errors);
+                      setBulkValid(valid);
+                      if (errors.length === 0) {
+                        toast.success(`${valid.length} record${valid.length === 1 ? "" : "s"} validated`);
+                      }
+                    }}
+                  >
+                    Validate & Preview
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={bulkSaving || bulkErrors.length > 0 || bulkValid.length === 0}
+                    onClick={async () => {
+                      if (!partner || bulkValid.length === 0) return;
                       setBulkSaving(true);
                       let ok = 0, fail = 0;
-                      for (const raw of parsed) {
-                        if (!raw?.opportunity_title || !raw?.opportunity_type) { fail++; continue; }
-                        const values: Record<string, unknown> = {
+                      for (const values of bulkValid) {
+                        const payload = {
                           partner_id: partner.id,
                           status: "open",
                           is_public: true,
-                          ...raw,
+                          ...values,
                         };
-                        for (const k of Object.keys(values)) {
-                          if (typeof values[k] === "string" && (values[k] as string).trim() === "") values[k] = null;
-                        }
                         try {
-                          await saveOpp({ data: { values } });
+                          await saveOpp({ data: { values: payload } });
                           ok++;
                         } catch { fail++; }
                       }
@@ -579,11 +660,13 @@ function OpportunitiesDrawer({
                       toast.success(`Imported ${ok}${fail ? ` (${fail} failed)` : ""}`);
                       setBulkText("");
                       setBulkOpen(false);
+                      setBulkErrors([]);
+                      setBulkValid([]);
                       reload();
                     }}
                   >
                     {bulkSaving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
-                    Import
+                    Import {bulkValid.length > 0 ? `(${bulkValid.length})` : ""}
                   </Button>
                 </div>
               </div>
