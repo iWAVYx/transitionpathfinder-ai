@@ -221,6 +221,45 @@ export const upsertOpportunity = createServerFn({ method: "POST" })
     return { id: (row as { id: string }).id };
   });
 
+export const bulkInsertOpportunities = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { partner_id: string; items: unknown[] }) => d)
+  .handler(async ({ data, context }) => {
+    const errors: { row: number; field: string; message: string }[] = [];
+    const valid: Record<string, unknown>[] = [];
+
+    for (let idx = 0; idx < data.items.length; idx++) {
+      const result = opportunityItemSchema.safeParse(data.items[idx]);
+      if (!result.success) {
+        result.error.issues.forEach((issue) => {
+          errors.push({ row: idx, field: issue.path.join("."), message: issue.message });
+        });
+      } else {
+        valid.push({
+          partner_id: data.partner_id,
+          status: "open",
+          is_public: true,
+          ...result.data,
+        });
+      }
+    }
+
+    if (errors.length > 0) {
+      return { ok: false, errors, inserted: 0 };
+    }
+
+    if (valid.length === 0) {
+      return { ok: false, errors: [{ row: 0, field: "items", message: "No valid items to import" }], inserted: 0 };
+    }
+
+    const { error } = await context.supabase
+      .from("partner_network_opportunities")
+      .insert(valid as never);
+    if (error) throw error;
+    return { ok: true, errors: [] as typeof errors, inserted: valid.length };
+  });
+
+
 export const archiveOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string; status?: string }) => d)
