@@ -60,12 +60,23 @@ function statusLabel(s: string): { label: string; tone: string } {
   }
 }
 
+const COLLECTIONS: { tag: string; label: string; blurb: string }[] = [
+  { tag: "free_ct_training", label: "Free CT training", blurb: "No-cost workforce training pathways across Connecticut." },
+  { tag: "youth_employment", label: "Youth employment", blurb: "Summer jobs, youth workforce, and first-job programs." },
+  { tag: "adult_education", label: "Adult education", blurb: "GED, ESL, and adult learning bridges to postsecondary." },
+  { tag: "workforce_boards", label: "Workforce boards", blurb: "Regional Workforce Investment Boards serving CT." },
+  { tag: "manufacturing_trades", label: "Manufacturing & trades", blurb: "Manufacturing pipelines and skilled-trades training." },
+  { tag: "disability_employment", label: "Disability employment", blurb: "Supported employment and disability-focused job programs." },
+  { tag: "inclusive_employer_leads", label: "Inclusive employer leads", blurb: "Employers exploring inclusive hiring in CT." },
+];
+
 function PartnerDirectoryPage() {
   const fetchList = useServerFn(listPublicPartners);
   const [rows, setRows] = useState<Partner[] | null>(null);
   const [q, setQ] = useState("");
   const [county, setCounty] = useState<string>("all");
   const [pathway, setPathway] = useState<string>("all");
+  const [collection, setCollection] = useState<string>("all");
 
   useEffect(() => {
     fetchList()
@@ -82,10 +93,13 @@ function PartnerDirectoryPage() {
     [rows],
   );
 
+  const activeCollection = COLLECTIONS.find((c) => c.tag === collection);
+
   const filtered = useMemo(() => {
     return (rows ?? []).filter((p) => {
       if (county !== "all" && p.county !== county) return false;
       if (pathway !== "all" && !(p.pathway_categories ?? []).includes(pathway)) return false;
+      if (collection !== "all" && !(p.collection_tags ?? []).includes(collection)) return false;
       if (q) {
         const hay =
           `${p.organization_name} ${p.description ?? ""} ${(p.collection_tags ?? []).join(" ")}`.toLowerCase();
@@ -93,7 +107,7 @@ function PartnerDirectoryPage() {
       }
       return true;
     });
-  }, [rows, q, county, pathway]);
+  }, [rows, q, county, pathway, collection]);
 
   const verified = filtered.filter((p) =>
     ["verified", "featured"].includes(p.verification_status),
