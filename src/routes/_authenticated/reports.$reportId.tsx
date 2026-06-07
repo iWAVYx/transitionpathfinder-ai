@@ -234,6 +234,7 @@ function ReportDetailPage() {
         resetLabel="Back to my reports"
         saved={!!state.studentId}
         saveLabel={students.length > 0 ? "Save to student profile" : undefined}
+        studentId={state.studentId ?? undefined}
         meta={{
           reportId: `TF-${reportId.slice(0, 8).toUpperCase()}`,
           preparedFor: state.name,
