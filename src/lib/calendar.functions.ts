@@ -204,9 +204,22 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         events.push({
           id: `action-${a.id}`,
           kind: "action",
+          event_type: "Action Item Due",
           title: a.title,
           detail: a.description ?? `Action item · ${a.category}`,
           event_date: a.due_date.slice(0, 10),
+          start_time: null,
+          end_time: null,
+          all_day: true,
+          location: null,
+          meeting_link: null,
+          color_label: null,
+          visibility: null,
+          event_status: null,
+          related_organization_id: null,
+          related_pathway_report_id: null,
+          related_action_item_id: a.id,
+          related_meeting_id: null,
           student_id: a.student_id,
           student_name: nameById.get(a.student_id) ?? null,
           owner_user_id: null,
@@ -232,9 +245,22 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         events.push({
           id: `meeting-${m.id}`,
           kind: "meeting",
+          event_type: m.kind === "iep" || m.kind === "ppt" ? "PPT / IEP Meeting" : "Transition Meeting",
           title: m.title || `${m.kind} meeting`,
           detail: m.location ? `Location: ${m.location}` : "Upcoming meeting",
           event_date: meetingDateIso,
+          start_time: null,
+          end_time: null,
+          all_day: true,
+          location: m.location,
+          meeting_link: null,
+          color_label: null,
+          visibility: null,
+          event_status: null,
+          related_organization_id: null,
+          related_pathway_report_id: null,
+          related_action_item_id: null,
+          related_meeting_id: m.id,
           student_id: m.student_id,
           student_name: nameById.get(m.student_id) ?? null,
           owner_user_id: null,
@@ -253,9 +279,22 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
             events.push({
               id: `prep-${m.id}-${step.offset}`,
               kind: "prep",
+              event_type: "Meeting Prep",
               title: `PPT Prep: ${step.label}`,
               detail: step.detail,
               event_date: iso,
+              start_time: null,
+              end_time: null,
+              all_day: true,
+              location: null,
+              meeting_link: null,
+              color_label: null,
+              visibility: null,
+              event_status: null,
+              related_organization_id: null,
+              related_pathway_report_id: null,
+              related_action_item_id: null,
+              related_meeting_id: m.id,
               student_id: m.student_id,
               student_name: nameById.get(m.student_id) ?? null,
               owner_user_id: null,
@@ -269,10 +308,12 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       }
     }
 
-    // Custom calendar_events visible to the caller (RLS handles team-vs-private).
+    // Custom calendar_events visible to the caller (RLS handles visibility tiers).
     const calRes = await supabase
       .from("calendar_events")
-      .select("id, owner_user_id, student_id, title, detail, event_date, visibility")
+      .select(
+        "id, owner_user_id, student_id, title, detail, event_date, visibility, event_type, start_time, end_time, all_day, location, meeting_link, color_label, status, related_organization_id, related_pathway_report_id, related_action_item_id, related_meeting_id",
+      )
       .gte("event_date", fromIso)
       .lte("event_date", toIso);
 
@@ -301,15 +342,41 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       title: string;
       detail: string | null;
       event_date: string;
-      visibility: "private" | "team";
+      visibility: CalendarVisibility;
+      event_type: string;
+      start_time: string | null;
+      end_time: string | null;
+      all_day: boolean;
+      location: string | null;
+      meeting_link: string | null;
+      color_label: string | null;
+      status: CalendarStatus;
+      related_organization_id: string | null;
+      related_pathway_report_id: string | null;
+      related_action_item_id: string | null;
+      related_meeting_id: string | null;
     }>) {
       const isMine = row.owner_user_id === userId;
+      const teamish = row.visibility !== "private";
       events.push({
         id: `cal-${row.id}`,
-        kind: row.visibility === "team" ? "team" : "personal",
+        kind: teamish ? "team" : "personal",
+        event_type: row.event_type,
         title: row.title,
         detail: row.detail ?? "",
         event_date: row.event_date.slice(0, 10),
+        start_time: row.start_time,
+        end_time: row.end_time,
+        all_day: row.all_day,
+        location: row.location,
+        meeting_link: row.meeting_link,
+        color_label: row.color_label,
+        visibility: row.visibility,
+        event_status: row.status,
+        related_organization_id: row.related_organization_id,
+        related_pathway_report_id: row.related_pathway_report_id,
+        related_action_item_id: row.related_action_item_id,
+        related_meeting_id: row.related_meeting_id,
         student_id: row.student_id,
         student_name: row.student_id ? nameById.get(row.student_id) ?? null : null,
         owner_user_id: row.owner_user_id,
