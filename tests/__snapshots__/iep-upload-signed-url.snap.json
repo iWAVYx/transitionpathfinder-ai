@@ -1,0 +1,38 @@
+{
+  "anon": {
+    "can_get_signed_url": false,
+    "can_upload": false,
+    "can_overwrite": false,
+    "can_delete": false
+  },
+  "editor_collab": {
+    "can_get_signed_url": true,
+    "can_upload": true,
+    "can_overwrite": true,
+    "can_delete": true
+  },
+  "owner": {
+    "can_get_signed_url": true,
+    "can_upload": true,
+    "can_overwrite": true,
+    "can_delete": true
+  },
+  "platform_admin": {
+    "can_get_signed_url": true,
+    "can_upload": true,
+    "can_overwrite": true,
+    "can_delete": true
+  },
+  "unrelated": {
+    "can_get_signed_url": false,
+    "can_upload": false,
+    "can_overwrite": false,
+    "can_delete": false
+  },
+  "viewer_collab": {
+    "can_get_signed_url": true,
+    "can_upload": false,
+    "can_overwrite": false,
+    "can_delete": false
+  }
+}
