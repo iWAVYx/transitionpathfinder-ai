@@ -37,6 +37,7 @@ import {
   type CaseloadStudent,
 } from "@/lib/caseload.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 
 export const Route = createFileRoute("/_authenticated/caseload")({
   head: () => ({ meta: [{ title: "Caseload — TransitionForward" }] }),
@@ -121,6 +122,20 @@ function CaseloadPage() {
           <SummaryCard icon={<ClipboardList className="h-4 w-4" />} label="Open Action Items" value={summary.open} />
           <SummaryCard icon={<FileText className="h-4 w-4" />} label="Missing Pathway Report" value={summary.missingReport} />
         </div>
+
+        {/* Team calendar — aggregates events across every student on the caseload */}
+        <div className="mt-6">
+          <DashboardCalendar
+            title="Team calendar"
+            subtitle="Meetings, action items, and team-shared events across your caseload."
+            studentOptions={rows.map((r) => ({
+              id: r.id,
+              name: `${r.first_name}${r.last_name ? ` ${r.last_name}` : ""}`,
+            }))}
+          />
+        </div>
+
+
 
         {/* Filters */}
         <div className="mt-6 flex flex-wrap items-center gap-2">
