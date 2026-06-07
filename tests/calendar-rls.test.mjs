@@ -5,9 +5,9 @@
 // `public.calendar_events` is the shared collaboration surface across
 // students, parents, educators, school/district admins and partners. A bad
 // edit to its RLS policies could either (a) leak a family's private events
-// to an unrelated student, or (b) break legitimate cross-role visibility
-// for an accepted collaborator. This suite catches both regressions on
-// every schema or policy change.
+// to an unrelated student/parent, or (b) break legitimate cross-role
+// visibility for an accepted collaborator. This suite catches both
+// regressions on every schema or policy change.
 //
 // What it checks
 // --------------
@@ -15,22 +15,22 @@
 //    `public.calendar_events` are compared against a committed snapshot.
 //    Any intentional change to the policies must come with a snapshot
 //    update, which forces human review of the new access semantics.
-// 2. **Behavioral matrix.** A synthetic owner / parent-collaborator /
-//    unrelated-student / platform-admin / anon × private / student_team /
+// 2. **Behavioral matrix.** Synthetic owner / parent-collaborator /
+//    unrelated-user / platform-admin / anon × private / student_team /
 //    family_team / public_event / platform_admin_only matrix is evaluated
-//    using the same helper functions the policies call (`has_role`,
-//    `has_audience`, `can_access_student`). Result is compared to a
-//    committed matrix snapshot. Drift fails CI.
-// 3. **Mutation guards.** The WITH CHECK clauses for INSERT and UPDATE are
-//    evaluated against spoof / leak / self-promotion attempts and must all
-//    reject.
+//    against the same SECURITY DEFINER helpers the policies call
+//    (`has_role`, `has_audience`, `can_access_student`). The result is
+//    compared to a committed matrix snapshot AND to hard invariants that
+//    must always hold ("anon must never see private events", etc.).
+// 3. **Mutation guards.** The boolean predicates the WITH CHECK clauses
+//    encode for INSERT/UPDATE are evaluated against spoof / leak /
+//    self-promotion attempts and must all reject.
 //
 // To intentionally update snapshots after a reviewed policy change:
 //   UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs
 //
-// Requires either `SUPABASE_DB_URL` or the standard PG* env vars to be set
-// (both are wired up in CI and in the Lovable sandbox). Skips gracefully
-// otherwise so local devs without DB access aren't blocked.
+// Requires either `SUPABASE_DB_URL` or the standard PG* env vars (both are
+// wired in CI and the Lovable sandbox). Skips gracefully otherwise.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -51,18 +51,29 @@ const UPDATE = process.env.UPDATE_SNAPSHOTS === "1";
 
 const DB_AVAILABLE =
   Boolean(process.env.SUPABASE_DB_URL) || Boolean(process.env.PGHOST);
+const SKIP = DB_AVAILABLE ? false : "no database (set SUPABASE_DB_URL)";
 
-function psql(sql) {
-  const args = ["-tAX", "-v", "ON_ERROR_STOP=1", "-c", sql];
+function psqlArgs(extra = []) {
+  const args = ["-tAX", "-v", "ON_ERROR_STOP=1", ...extra];
   if (process.env.SUPABASE_DB_URL) {
-    args.unshift(process.env.SUPABASE_DB_URL);
-    args.unshift("-d");
+    args.push("-d", process.env.SUPABASE_DB_URL);
   }
-  const out = execFileSync("psql", args, {
+  return args;
+}
+
+function psqlQuery(sql) {
+  return execFileSync("psql", psqlArgs(["-c", sql]), {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
-  });
-  return out.trim();
+  }).trim();
+}
+
+function psqlScript(sql) {
+  return execFileSync("psql", psqlArgs(), {
+    input: sql,
+    encoding: "utf8",
+    stdio: ["pipe", "pipe", "pipe"],
+  }).trim();
 }
 
 function readSnap(url) {
@@ -77,11 +88,18 @@ function writeSnap(url, value) {
 }
 
 // ---------------------------------------------------------------------------
-// 1. Policy snapshot — exact USING / WITH CHECK text on the table
+// 1. Policy snapshot
 // ---------------------------------------------------------------------------
 
-test("calendar_events RLS policies match committed snapshot", { skip: !DB_AVAILABLE ? "no database" : false }, () => {
-  const raw = psql(`
+test("calendar_events RLS is enabled", { skip: SKIP }, () => {
+  const enabled = psqlQuery(
+    `SELECT relrowsecurity::text FROM pg_class WHERE oid = 'public.calendar_events'::regclass`,
+  );
+  assert.equal(enabled, "t", "RLS must be enabled on calendar_events");
+});
+
+test("calendar_events RLS policies match committed snapshot", { skip: SKIP }, () => {
+  const raw = psqlQuery(`
     SELECT json_agg(row ORDER BY (row->>'polname'))::text FROM (
       SELECT json_build_object(
         'polname', polname,
@@ -99,13 +117,6 @@ test("calendar_events RLS policies match committed snapshot", { skip: !DB_AVAILA
   `);
   const current = JSON.parse(raw);
 
-  // Also assert RLS is enabled.
-  const rlsEnabled =
-    psql(
-      `SELECT relrowsecurity::text FROM pg_class WHERE oid = 'public.calendar_events'::regclass`,
-    ) === "t";
-  assert.equal(rlsEnabled, true, "RLS must be enabled on calendar_events");
-
   if (UPDATE) {
     writeSnap(SNAP_POLICIES, current);
     return;
@@ -113,7 +124,7 @@ test("calendar_events RLS policies match committed snapshot", { skip: !DB_AVAILA
   const expected = readSnap(SNAP_POLICIES);
   assert.ok(
     expected,
-    "Missing snapshot. Run: UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs",
+    "Missing policy snapshot. Run: UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs",
   );
   assert.deepEqual(
     current,
@@ -123,94 +134,105 @@ test("calendar_events RLS policies match committed snapshot", { skip: !DB_AVAILA
 });
 
 // ---------------------------------------------------------------------------
-// 2. Behavioral matrix — owner/parent/unrelated/admin/anon × 5 visibilities
+// 2. Behavioral matrix
 // ---------------------------------------------------------------------------
 //
-// We simulate the SELECT policy by composing the same boolean expression
-// PostgREST would evaluate, using the project's SECURITY DEFINER helpers
-// (`has_role`, `has_audience`, `can_access_student`). The test runs inside
-// a single transaction that ROLLBACKs, so no rows persist.
+// We compose the same boolean expression the SELECT policy would evaluate
+// using the project's SECURITY DEFINER helpers, against real users picked
+// dynamically from the database (so we don't have to touch the auth schema
+// in CI). The whole thing runs inside a transaction that ROLLBACKs.
+//
+// Picker logic:
+//   - owner: a profile that already owns a student
+//   - parent_collab: any other profile (we insert an accepted collaborator
+//     row for them on the owner's student inside the transaction)
+//   - unrelated: a third profile with no relation to the student
+//   - admin: a profile with public.user_roles.role = 'admin'
 
 const MATRIX_SQL = `
 BEGIN;
 
--- Synthetic actors (real auth.users rows so foreign keys resolve)
-WITH ins_users AS (
-  INSERT INTO auth.users (id, email, instance_id, aud, role, encrypted_password,
-    raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token,
-    email_change, email_change_token_new, recovery_token)
-  VALUES
-    ('00000000-0000-0000-0000-00000000a001'::uuid, 'rls-owner@test.local',
-      '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '',
-      '{}'::jsonb, '{}'::jsonb, now(), now(), '', '', '', ''),
-    ('00000000-0000-0000-0000-00000000a002'::uuid, 'rls-parent@test.local',
-      '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '',
-      '{}'::jsonb, '{}'::jsonb, now(), now(), '', '', '', ''),
-    ('00000000-0000-0000-0000-00000000a003'::uuid, 'rls-unrelated@test.local',
-      '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '',
-      '{}'::jsonb, '{}'::jsonb, now(), now(), '', '', '', ''),
-    ('00000000-0000-0000-0000-00000000a004'::uuid, 'rls-admin@test.local',
-      '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '',
-      '{}'::jsonb, '{}'::jsonb, now(), now(), '', '', '', '')
-  ON CONFLICT (id) DO NOTHING
-  RETURNING 1
-) SELECT count(*) FROM ins_users;
+-- Pick representative users from existing seed data
+DO $$
+DECLARE
+  owner_id uuid;
+  parent_id uuid;
+  unrelated_id uuid;
+  admin_id uuid;
+  student_id uuid;
+BEGIN
+  SELECT s.owner_id, s.id INTO owner_id, student_id
+  FROM public.students s
+  ORDER BY s.created_at
+  LIMIT 1;
 
-INSERT INTO public.profiles(id, full_name, email, primary_role)
-VALUES
-  ('00000000-0000-0000-0000-00000000a001','RLS Owner','rls-owner@test.local','student'),
-  ('00000000-0000-0000-0000-00000000a002','RLS Parent','rls-parent@test.local','parent'),
-  ('00000000-0000-0000-0000-00000000a003','RLS Other','rls-unrelated@test.local','student'),
-  ('00000000-0000-0000-0000-00000000a004','RLS Admin','rls-admin@test.local','admin')
-ON CONFLICT (id) DO NOTHING;
+  SELECT user_id INTO admin_id
+  FROM public.user_roles WHERE role = 'admin'
+  ORDER BY user_id LIMIT 1;
 
-INSERT INTO public.user_roles(user_id, role) VALUES
-  ('00000000-0000-0000-0000-00000000a004','admin')
-ON CONFLICT DO NOTHING;
+  SELECT p.id INTO parent_id
+  FROM public.profiles p
+  WHERE p.id <> owner_id AND p.id <> coalesce(admin_id,'00000000-0000-0000-0000-000000000000')
+    AND NOT EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = p.id AND ur.role = 'admin')
+  ORDER BY p.id LIMIT 1;
 
-INSERT INTO public.students(id, owner_id, first_name)
-VALUES ('00000000-0000-0000-0000-00000000b001'::uuid,
-        '00000000-0000-0000-0000-00000000a001'::uuid, 'RLS Student')
-ON CONFLICT (id) DO NOTHING;
+  SELECT p.id INTO unrelated_id
+  FROM public.profiles p
+  WHERE p.id NOT IN (owner_id, parent_id, coalesce(admin_id,'00000000-0000-0000-0000-000000000000'))
+    AND NOT EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = p.id AND ur.role = 'admin')
+  ORDER BY p.id LIMIT 1;
 
-INSERT INTO public.student_collaborators(student_id, user_id, invited_email, invited_by, role, status)
-VALUES (
-  '00000000-0000-0000-0000-00000000b001',
-  '00000000-0000-0000-0000-00000000a002',
-  'rls-parent@test.local',
-  '00000000-0000-0000-0000-00000000a001',
-  'viewer', 'accepted'
-) ON CONFLICT DO NOTHING;
+  IF owner_id IS NULL OR parent_id IS NULL OR unrelated_id IS NULL OR admin_id IS NULL THEN
+    RAISE EXCEPTION 'Insufficient seed data for calendar RLS matrix test (owner=%, parent=%, unrelated=%, admin=%)',
+      owner_id, parent_id, unrelated_id, admin_id;
+  END IF;
 
--- Build the matrix as a single JSON blob so the Node side can compare.
-WITH
-  viewers(uid, label) AS (VALUES
-    ('00000000-0000-0000-0000-00000000a001'::uuid,'owner'),
-    ('00000000-0000-0000-0000-00000000a002'::uuid,'parent_collab'),
-    ('00000000-0000-0000-0000-00000000a003'::uuid,'unrelated'),
-    ('00000000-0000-0000-0000-00000000a004'::uuid,'platform_admin'),
-    (NULL,'anon')
-  ),
-  events(title, owner, sid, vis) AS (VALUES
-    ('private',        '00000000-0000-0000-0000-00000000a001'::uuid,'00000000-0000-0000-0000-00000000b001'::uuid,'private'),
-    ('student_team',   '00000000-0000-0000-0000-00000000a001','00000000-0000-0000-0000-00000000b001','student_team'),
-    ('family_team',    '00000000-0000-0000-0000-00000000a001','00000000-0000-0000-0000-00000000b001','family_team'),
-    ('public_event',   '00000000-0000-0000-0000-00000000a001',NULL,'public_event'),
-    ('admin_only',     '00000000-0000-0000-0000-00000000a001',NULL,'platform_admin_only')
-  ),
-  matrix AS (
-    SELECT v.label AS viewer, e.title AS event,
-      (
-        (v.uid IS NOT NULL AND e.owner = v.uid)
-        OR (e.vis = 'public_event')
-        OR (e.vis = 'platform_admin_only' AND v.uid IS NOT NULL AND public.has_audience(v.uid,'admin'))
-        OR (e.vis IN ('team','student_team','family_team')
-            AND e.sid IS NOT NULL AND v.uid IS NOT NULL
-            AND public.can_access_student(v.uid, e.sid))
-        OR (v.uid IS NOT NULL AND public.has_role(v.uid,'admin'))
-      ) AS can_see
-    FROM viewers v CROSS JOIN events e
-  )
+  -- Stash IDs for the next statement
+  CREATE TEMP TABLE __rls_actors (
+    role text PRIMARY KEY, uid uuid
+  ) ON COMMIT DROP;
+  INSERT INTO __rls_actors VALUES
+    ('owner', owner_id),
+    ('parent_collab', parent_id),
+    ('unrelated', unrelated_id),
+    ('platform_admin', admin_id);
+
+  CREATE TEMP TABLE __rls_student (sid uuid) ON COMMIT DROP;
+  INSERT INTO __rls_student VALUES (student_id);
+
+  -- Wire parent as accepted collaborator
+  INSERT INTO public.student_collaborators(student_id, user_id, invited_email, invited_by, role, status)
+  VALUES (student_id, parent_id, 'rls-parent@test.local', owner_id, 'viewer', 'accepted')
+  ON CONFLICT DO NOTHING;
+END $$;
+
+-- Emit the matrix as JSON, with NULL added for anon
+WITH viewers AS (
+  SELECT role AS label, uid FROM __rls_actors
+  UNION ALL SELECT 'anon', NULL
+),
+events(title, vis, with_student) AS (VALUES
+  ('private', 'private', true),
+  ('student_team', 'student_team', true),
+  ('family_team', 'family_team', true),
+  ('public_event', 'public_event', false),
+  ('admin_only', 'platform_admin_only', false)
+),
+ctx AS (SELECT (SELECT uid FROM __rls_actors WHERE role='owner') AS owner_id,
+               (SELECT sid FROM __rls_student) AS student_id),
+matrix AS (
+  SELECT v.label AS viewer, e.title AS event,
+    (
+      (v.uid IS NOT NULL AND v.uid = ctx.owner_id)
+      OR (e.vis = 'public_event')
+      OR (e.vis = 'platform_admin_only' AND v.uid IS NOT NULL AND public.has_audience(v.uid,'admin'))
+      OR (e.vis IN ('team','student_team','family_team')
+          AND e.with_student AND v.uid IS NOT NULL
+          AND public.can_access_student(v.uid, ctx.student_id))
+      OR (v.uid IS NOT NULL AND public.has_role(v.uid,'admin'))
+    ) AS can_see
+  FROM viewers v CROSS JOIN events e CROSS JOIN ctx
+)
 SELECT json_object_agg(viewer, per_event ORDER BY viewer)::text
 FROM (
   SELECT viewer, json_object_agg(event, can_see ORDER BY event) AS per_event
@@ -220,21 +242,14 @@ FROM (
 ROLLBACK;
 `;
 
-test("calendar_events visibility matrix matches committed snapshot", { skip: !DB_AVAILABLE ? "no database" : false }, () => {
-  // psql -c with a multi-statement script needs -f or stdin; pipe via stdin.
-  const args = ["-tAX", "-v", "ON_ERROR_STOP=1"];
-  if (process.env.SUPABASE_DB_URL) {
-    args.push("-d", process.env.SUPABASE_DB_URL);
-  }
-  const out = execFileSync("psql", args, {
-    input: MATRIX_SQL,
-    encoding: "utf8",
-    stdio: ["pipe", "pipe", "pipe"],
-  });
-  // The final SELECT emits the JSON object; previous statements emit row counts.
-  const lines = out.trim().split("\n").filter((l) => l.startsWith("{"));
-  const jsonLine = lines[lines.length - 1];
-  assert.ok(jsonLine, `no JSON matrix in psql output: ${out}`);
+test("calendar_events visibility matrix matches committed snapshot", { skip: SKIP }, () => {
+  const out = psqlScript(MATRIX_SQL);
+  const jsonLine = out
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith("{") && l.endsWith("}"))
+    .pop();
+  assert.ok(jsonLine, `no JSON matrix in psql output:\n${out}`);
   const current = JSON.parse(jsonLine);
 
   if (UPDATE) {
@@ -270,38 +285,34 @@ test("calendar_events visibility matrix matches committed snapshot", { skip: !DB
 });
 
 // ---------------------------------------------------------------------------
-// 3. Mutation guards — INSERT/UPDATE WITH CHECK rejects spoofing
+// 3. Mutation guards
 // ---------------------------------------------------------------------------
-//
-// We can't `SET ROLE authenticated` from arbitrary CI environments, so we
-// assert the boolean predicates the WITH CHECK clauses encode. If the
-// snapshot test passes, these expressions are the real ones from the DB.
 
 const GUARD_SQL = `
+WITH actors AS (
+  SELECT
+    (SELECT owner_id FROM public.students ORDER BY created_at LIMIT 1) AS owner_id,
+    (SELECT p.id FROM public.profiles p
+       WHERE NOT EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = p.id AND ur.role='admin')
+         AND p.id <> (SELECT owner_id FROM public.students ORDER BY created_at LIMIT 1)
+       ORDER BY p.id LIMIT 1) AS attacker_id,
+    (SELECT id FROM public.students ORDER BY created_at LIMIT 1) AS student_id
+)
 SELECT json_build_object(
   'spoof_other_owner',
-    -- Non-owner trying to claim someone else's owner_user_id
-    NOT (
-      ('00000000-0000-0000-0000-00000000a001'::uuid = '00000000-0000-0000-0000-00000000a003'::uuid)
-    ),
+    NOT (attacker_id = owner_id),
   'leak_team_event_to_inaccessible_student',
-    NOT public.can_access_student(
-      '00000000-0000-0000-0000-00000000a003'::uuid,
-      gen_random_uuid()
-    ),
+    NOT public.can_access_student(attacker_id, student_id),
   'self_promote_admin_only',
-    NOT public.has_audience(
-      '00000000-0000-0000-0000-00000000a003'::uuid, 'admin'
-    ),
+    NOT public.has_audience(attacker_id, 'admin'),
   'self_promote_public_event',
-    NOT public.has_audience(
-      '00000000-0000-0000-0000-00000000a003'::uuid, 'admin'
-    )
+    NOT public.has_audience(attacker_id, 'admin')
 )::text
+FROM actors
 `;
 
-test("calendar_events mutation guards reject spoof / leak / privilege escalation", { skip: !DB_AVAILABLE ? "no database" : false }, () => {
-  const raw = psql(GUARD_SQL);
+test("calendar_events mutation guards reject spoof / leak / privilege escalation", { skip: SKIP }, () => {
+  const raw = psqlQuery(GUARD_SQL);
   const guards = JSON.parse(raw);
   for (const [k, v] of Object.entries(guards)) {
     assert.equal(v, true, `Mutation guard "${k}" must reject — got ${v}`);
