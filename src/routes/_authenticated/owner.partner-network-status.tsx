@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   CircleHelp,
   CircleSlash,
+  Download,
   FileText,
   Flag,
   HeartHandshake,
@@ -29,6 +30,7 @@ import {
 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -49,6 +51,7 @@ import {
   getPartnerMetricRows,
   type MetricKey,
   type PartnerNetworkStatus,
+  type DrillRow,
 } from "@/lib/partner-network-status.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/partner-network-status")({
