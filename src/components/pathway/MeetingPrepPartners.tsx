@@ -356,7 +356,7 @@ function icsLine(name: string, value: string) {
   return out.join("\r\n");
 }
 
-function buildIcs(steps: DeadlineStep[], studentId: string | null) {
+function buildIcs(steps: DeadlineStep[], studentId: string | null, tz?: string) {
   const stamp = icsStamp();
   const uidSeed = studentId ?? "meeting-prep";
   const events = steps.map((s, idx) => {
@@ -380,16 +380,16 @@ function buildIcs(steps: DeadlineStep[], studentId: string | null) {
       "END:VEVENT",
     ].join("\r\n");
   });
-  return [
+  const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//TransitionForward//PPT Meeting Prep//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    ...events,
-    "END:VCALENDAR",
-    "",
-  ].join("\r\n");
+  ];
+  if (tz) lines.push(`X-WR-TIMEZONE:${tz}`);
+  lines.push(...events, "END:VCALENDAR", "");
+  return lines.join("\r\n");
 }
 
 function downloadIcs(
