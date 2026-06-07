@@ -73,6 +73,28 @@ function BroadcastsPage() {
   const del = useServerFn(deleteAnnouncement);
   const toggle = useServerFn(togglePublishAnnouncement);
   const exportFn = useServerFn(exportRecipientsByRole);
+  const engagementFn = useServerFn(getAnnouncementEngagement);
+
+  const [openEngagement, setOpenEngagement] = useState<string | null>(null);
+  const [engagement, setEngagement] = useState<Record<string, AnnouncementEngagement | "loading">>({});
+
+  const loadEngagement = async (id: string) => {
+    if (openEngagement === id) {
+      setOpenEngagement(null);
+      return;
+    }
+    setOpenEngagement(id);
+    if (engagement[id] && engagement[id] !== "loading") return;
+    setEngagement((prev) => ({ ...prev, [id]: "loading" }));
+    try {
+      const res = await engagementFn({ data: { id } });
+      setEngagement((prev) => ({ ...prev, [id]: res }));
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to load engagement.");
+      setOpenEngagement(null);
+    }
+  };
+
 
   const [items, setItems] = useState<Announcement[] | null>(null);
   const [title, setTitle] = useState("");
