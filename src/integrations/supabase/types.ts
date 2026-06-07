@@ -255,6 +255,44 @@ export type Database = {
           },
         ]
       }
+      announcement_events: {
+        Row: {
+          announcement_id: string
+          created_at: string
+          event_type: string
+          id: string
+          link_url: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          link_url?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          link_url?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_events_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           body: string
