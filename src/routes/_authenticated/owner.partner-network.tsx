@@ -44,6 +44,8 @@ import {
   upsertOpportunity,
   archiveOpportunity,
   deleteOpportunity,
+  opportunityItemSchema,
+  bulkInsertOpportunities,
 } from "@/lib/partner-network.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/partner-network")({
