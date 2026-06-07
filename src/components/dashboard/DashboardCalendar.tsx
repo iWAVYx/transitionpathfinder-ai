@@ -236,7 +236,7 @@ export function DashboardCalendar({
       return;
     }
     let cancelled = false;
-    fetchOrgs({ data: {} })
+    fetchOrgs()
       .then((r) => {
         if (!cancelled) setOrgs(r.organizations);
       })
