@@ -14,13 +14,44 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  *  - "personal" calendar_events row the caller owns (visibility='private')
  */
 
+export type CalendarVisibility =
+  | "private"
+  | "team"
+  | "student_team"
+  | "family_team"
+  | "school_team"
+  | "district_team"
+  | "partner_only"
+  | "platform_admin_only"
+  | "public_event";
+
+export type CalendarStatus =
+  | "scheduled"
+  | "completed"
+  | "cancelled"
+  | "rescheduled"
+  | "needs_follow_up";
+
 export type TeamCalendarEvent = {
   id: string;
   kind: "action" | "meeting" | "prep" | "team" | "personal";
+  event_type: string;
   title: string;
   detail: string;
   /** ISO YYYY-MM-DD (local day) */
   event_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  all_day: boolean;
+  location: string | null;
+  meeting_link: string | null;
+  color_label: string | null;
+  visibility: CalendarVisibility | null;
+  event_status: CalendarStatus | null;
+  related_organization_id: string | null;
+  related_pathway_report_id: string | null;
+  related_action_item_id: string | null;
+  related_meeting_id: string | null;
   student_id: string | null;
   student_name: string | null;
   owner_user_id: string | null;
@@ -173,9 +204,22 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         events.push({
           id: `action-${a.id}`,
           kind: "action",
+          event_type: "Action Item Due",
           title: a.title,
           detail: a.description ?? `Action item · ${a.category}`,
           event_date: a.due_date.slice(0, 10),
+          start_time: null,
+          end_time: null,
+          all_day: true,
+          location: null,
+          meeting_link: null,
+          color_label: null,
+          visibility: null,
+          event_status: null,
+          related_organization_id: null,
+          related_pathway_report_id: null,
+          related_action_item_id: a.id,
+          related_meeting_id: null,
           student_id: a.student_id,
           student_name: nameById.get(a.student_id) ?? null,
           owner_user_id: null,
@@ -201,9 +245,22 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         events.push({
           id: `meeting-${m.id}`,
           kind: "meeting",
+          event_type: m.kind === "iep" || m.kind === "ppt" ? "PPT / IEP Meeting" : "Transition Meeting",
           title: m.title || `${m.kind} meeting`,
           detail: m.location ? `Location: ${m.location}` : "Upcoming meeting",
           event_date: meetingDateIso,
+          start_time: null,
+          end_time: null,
+          all_day: true,
+          location: m.location,
+          meeting_link: null,
+          color_label: null,
+          visibility: null,
+          event_status: null,
+          related_organization_id: null,
+          related_pathway_report_id: null,
+          related_action_item_id: null,
+          related_meeting_id: m.id,
           student_id: m.student_id,
           student_name: nameById.get(m.student_id) ?? null,
           owner_user_id: null,
@@ -222,9 +279,22 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
             events.push({
               id: `prep-${m.id}-${step.offset}`,
               kind: "prep",
+              event_type: "Meeting Prep",
               title: `PPT Prep: ${step.label}`,
               detail: step.detail,
               event_date: iso,
+              start_time: null,
+              end_time: null,
+              all_day: true,
+              location: null,
+              meeting_link: null,
+              color_label: null,
+              visibility: null,
+              event_status: null,
+              related_organization_id: null,
+              related_pathway_report_id: null,
+              related_action_item_id: null,
+              related_meeting_id: m.id,
               student_id: m.student_id,
               student_name: nameById.get(m.student_id) ?? null,
               owner_user_id: null,
@@ -238,10 +308,12 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       }
     }
 
-    // Custom calendar_events visible to the caller (RLS handles team-vs-private).
+    // Custom calendar_events visible to the caller (RLS handles visibility tiers).
     const calRes = await supabase
       .from("calendar_events")
-      .select("id, owner_user_id, student_id, title, detail, event_date, visibility")
+      .select(
+        "id, owner_user_id, student_id, title, detail, event_date, visibility, event_type, start_time, end_time, all_day, location, meeting_link, color_label, status, related_organization_id, related_pathway_report_id, related_action_item_id, related_meeting_id",
+      )
       .gte("event_date", fromIso)
       .lte("event_date", toIso);
 
@@ -270,15 +342,41 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       title: string;
       detail: string | null;
       event_date: string;
-      visibility: "private" | "team";
+      visibility: CalendarVisibility;
+      event_type: string;
+      start_time: string | null;
+      end_time: string | null;
+      all_day: boolean;
+      location: string | null;
+      meeting_link: string | null;
+      color_label: string | null;
+      status: CalendarStatus;
+      related_organization_id: string | null;
+      related_pathway_report_id: string | null;
+      related_action_item_id: string | null;
+      related_meeting_id: string | null;
     }>) {
       const isMine = row.owner_user_id === userId;
+      const teamish = row.visibility !== "private";
       events.push({
         id: `cal-${row.id}`,
-        kind: row.visibility === "team" ? "team" : "personal",
+        kind: teamish ? "team" : "personal",
+        event_type: row.event_type,
         title: row.title,
         detail: row.detail ?? "",
         event_date: row.event_date.slice(0, 10),
+        start_time: row.start_time,
+        end_time: row.end_time,
+        all_day: row.all_day,
+        location: row.location,
+        meeting_link: row.meeting_link,
+        color_label: row.color_label,
+        visibility: row.visibility,
+        event_status: row.status,
+        related_organization_id: row.related_organization_id,
+        related_pathway_report_id: row.related_pathway_report_id,
+        related_action_item_id: row.related_action_item_id,
+        related_meeting_id: row.related_meeting_id,
         student_id: row.student_id,
         student_name: row.student_id ? nameById.get(row.student_id) ?? null : null,
         owner_user_id: row.owner_user_id,
@@ -293,23 +391,96 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     return { events };
   });
 
+const EVENT_TYPES = [
+  "PPT / IEP Meeting",
+  "Transition Meeting",
+  "Family Check-In",
+  "Student Task",
+  "Educator Task",
+  "School Team Meeting",
+  "District Implementation Date",
+  "Partner Opportunity Deadline",
+  "Program Date",
+  "Document Due Date",
+  "Pathway Report Review",
+  "Action Item Due",
+  "Resource Follow-Up",
+  "Partner Outreach Follow-Up",
+  "Demo Request",
+  "Contact Follow-Up",
+  "Waitlist Follow-Up",
+  "Training / Workshop",
+  "System Reminder",
+  "Other",
+] as const;
+
+const VISIBILITY_VALUES = [
+  "private",
+  "team",
+  "student_team",
+  "family_team",
+  "school_team",
+  "district_team",
+  "partner_only",
+  "platform_admin_only",
+  "public_event",
+] as const;
+
+const STATUS_VALUES = [
+  "scheduled",
+  "completed",
+  "cancelled",
+  "rescheduled",
+  "needs_follow_up",
+] as const;
+
+const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
+
+const calendarEventInput = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    detail: z.string().max(2000).optional().nullable(),
+    event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    visibility: z.enum(VISIBILITY_VALUES).default("private"),
+    event_type: z.enum(EVENT_TYPES).default("Other"),
+    status: z.enum(STATUS_VALUES).default("scheduled"),
+    student_id: z.string().uuid().optional().nullable(),
+    related_organization_id: z.string().uuid().optional().nullable(),
+    related_pathway_report_id: z.string().uuid().optional().nullable(),
+    related_action_item_id: z.string().uuid().optional().nullable(),
+    related_meeting_id: z.string().uuid().optional().nullable(),
+    start_time: z.string().regex(TIME_RE).optional().nullable(),
+    end_time: z.string().regex(TIME_RE).optional().nullable(),
+    all_day: z.boolean().default(true),
+    timezone: z.string().max(64).optional().nullable(),
+    location: z.string().max(300).optional().nullable(),
+    meeting_link: z.string().url().max(500).optional().nullable(),
+    color_label: z.string().max(40).optional().nullable(),
+    reminder_settings: z.array(z.string().max(40)).max(8).optional(),
+  })
+  .refine(
+    (v) =>
+      v.visibility === "private" ||
+      v.visibility === "platform_admin_only" ||
+      v.visibility === "public_event" ||
+      ((v.visibility === "team" ||
+        v.visibility === "student_team" ||
+        v.visibility === "family_team") &&
+        !!v.student_id) ||
+      ((v.visibility === "school_team" ||
+        v.visibility === "district_team" ||
+        v.visibility === "partner_only") &&
+        !!v.related_organization_id),
+    {
+      message:
+        "Pick a student for family/team events, or an organization for school/district/partner events.",
+      path: ["visibility"],
+    },
+  );
+
 export const createCalendarEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z
-      .object({
-        title: z.string().trim().min(1).max(200),
-        detail: z.string().max(2000).optional().nullable(),
-        event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        visibility: z.enum(["private", "team"]).default("private"),
-        student_id: z.string().uuid().optional().nullable(),
-      })
-      .refine((v) => v.visibility === "private" || !!v.student_id, {
-        message: "Team events must be linked to a student.",
-        path: ["student_id"],
-      })
-      .parse(i),
-  )
+  .inputValidator((i: unknown) => calendarEventInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
@@ -321,11 +492,77 @@ export const createCalendarEvent = createServerFn({ method: "POST" })
         detail: data.detail ?? null,
         event_date: data.event_date,
         visibility: data.visibility,
+        event_type: data.event_type,
+        status: data.status,
+        related_organization_id: data.related_organization_id ?? null,
+        related_pathway_report_id: data.related_pathway_report_id ?? null,
+        related_action_item_id: data.related_action_item_id ?? null,
+        related_meeting_id: data.related_meeting_id ?? null,
+        start_time: data.start_time ?? null,
+        end_time: data.end_time ?? null,
+        all_day: data.all_day,
+        timezone: data.timezone ?? null,
+        location: data.location ?? null,
+        meeting_link: data.meeting_link ?? null,
+        color_label: data.color_label ?? null,
+        reminder_settings: data.reminder_settings ?? [],
+        source_type: "manual",
       })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
     return { id: row.id as string };
+  });
+
+export const updateCalendarEvent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        title: z.string().trim().min(1).max(200).optional(),
+        detail: z.string().max(2000).optional().nullable(),
+        event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        event_type: z.enum(EVENT_TYPES).optional(),
+        status: z.enum(STATUS_VALUES).optional(),
+        start_time: z.string().regex(TIME_RE).optional().nullable(),
+        end_time: z.string().regex(TIME_RE).optional().nullable(),
+        all_day: z.boolean().optional(),
+        location: z.string().max(300).optional().nullable(),
+        meeting_link: z.string().url().max(500).optional().nullable(),
+        color_label: z.string().max(40).optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { id, ...patch } = data;
+    const { error } = await supabase.from("calendar_events").update(patch).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listMyCalendarOrganizations = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("organization_memberships")
+      .select("organization_id, organizations:organization_id (id, name)")
+      .eq("user_id", userId)
+      .eq("status", "active");
+    if (error) {
+      console.error("listMyCalendarOrganizations", error);
+      return { organizations: [] as Array<{ id: string; name: string }> };
+    }
+    const orgs = ((data ?? []) as unknown as Array<{
+      organizations: { id: string; name: string } | null;
+    }>)
+      .map((row) => row.organizations)
+      .filter((o): o is { id: string; name: string } => !!o);
+    const map = new Map<string, { id: string; name: string }>();
+    for (const o of orgs) map.set(o.id, o);
+    return { organizations: Array.from(map.values()) };
   });
 
 export const deleteCalendarEvent = createServerFn({ method: "POST" })

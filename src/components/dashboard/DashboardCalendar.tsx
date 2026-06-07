@@ -36,7 +36,10 @@ import {
   listCalendarEvents,
   createCalendarEvent,
   deleteCalendarEvent,
+  updateCalendarEvent,
+  listMyCalendarOrganizations,
   type TeamCalendarEvent,
+  type CalendarVisibility,
 } from "@/lib/calendar.functions";
 import {
   buildGoogleCalendarUrl,
@@ -150,6 +153,8 @@ function toIcsEvent(ev: TeamCalendarEvent): IcsEvent {
   };
 }
 
+type OrgOption = { id: string; name: string };
+
 type Props = {
   /** Scope the calendar to a single student. Omit for "all my collaborations." */
   studentId?: string | null;
@@ -162,7 +167,24 @@ type Props = {
   /** List of students the user can attach events to (id + name). If empty,
    *  only personal events can be created. */
   studentOptions?: Array<{ id: string; name: string }>;
+  /** Optional pre-supplied list of organizations. If omitted the component
+   *  fetches the caller's active memberships. */
+  organizationOptions?: OrgOption[];
+  /** Optional default visibility tier offered first in the create form. */
+  defaultVisibility?: CalendarVisibility;
+  /** Hide visibility tiers that don't apply to this surface. */
+  allowedVisibilities?: CalendarVisibility[];
 };
+
+const ALL_VISIBILITIES: CalendarVisibility[] = [
+  "private",
+  "family_team",
+  "school_team",
+  "district_team",
+  "partner_only",
+  "platform_admin_only",
+  "public_event",
+];
 
 export function DashboardCalendar({
   studentId = null,
@@ -170,16 +192,23 @@ export function DashboardCalendar({
   title = "Calendar",
   subtitle = "Meetings, action items, prep deadlines, and team events.",
   studentOptions = [],
+  organizationOptions,
+  defaultVisibility,
+  allowedVisibilities,
 }: Props) {
   const fetchEvents = useServerFn(listCalendarEvents);
   const createEvent = useServerFn(createCalendarEvent);
   const removeEvent = useServerFn(deleteCalendarEvent);
+  const updateEvent = useServerFn(updateCalendarEvent);
+  const fetchOrgs = useServerFn(listMyCalendarOrganizations);
 
   const [events, setEvents] = useState<TeamCalendarEvent[]>([]);
+  const [orgs, setOrgs] = useState<OrgOption[]>(organizationOptions ?? []);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<Date>(() => startOfMonth(new Date()));
   const [tz, setTz] = useState<string>(getBrowserTz);
   const [addOpen, setAddOpen] = useState(false);
+  const [filterKind, setFilterKind] = useState<string>("all");
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -188,7 +217,6 @@ export function DashboardCalendar({
         data: studentId ? { student_id: studentId } : {},
       });
       setEvents(res.events);
-      // On first load, jump to the month of the next upcoming event.
       const upcoming = res.events.find((e) => !isPastIso(e.event_date));
       if (upcoming) setCursor(startOfMonth(parseDate(upcoming.event_date)));
     } catch (err) {
@@ -202,15 +230,36 @@ export function DashboardCalendar({
     reload();
   }, [reload]);
 
+  useEffect(() => {
+    if (organizationOptions !== undefined) {
+      setOrgs(organizationOptions);
+      return;
+    }
+    let cancelled = false;
+    fetchOrgs()
+      .then((r) => {
+        if (!cancelled) setOrgs(r.organizations);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchOrgs, organizationOptions]);
+
+  const filteredEvents = useMemo(() => {
+    if (filterKind === "all") return events;
+    return events.filter((e) => e.kind === filterKind);
+  }, [events, filterKind]);
+
   const monthEvents = useMemo(() => {
     const start = toIsoDate(startOfMonth(cursor));
     const end = toIsoDate(endOfMonth(cursor));
-    return events.filter((e) => e.event_date >= start && e.event_date <= end);
-  }, [events, cursor]);
+    return filteredEvents.filter((e) => e.event_date >= start && e.event_date <= end);
+  }, [filteredEvents, cursor]);
 
   const upcoming = useMemo(
-    () => events.filter((e) => !isPastIso(e.event_date)).slice(0, 10),
-    [events],
+    () => filteredEvents.filter((e) => !isPastIso(e.event_date)).slice(0, 10),
+    [filteredEvents],
   );
 
   const grid = useMemo(() => {
@@ -247,6 +296,23 @@ export function DashboardCalendar({
     }
   }
 
+  async function handleComplete(ev: TeamCalendarEvent) {
+    if (!ev.id.startsWith("cal-") || !ev.is_mine) return;
+    const id = ev.id.slice("cal-".length);
+    const next = ev.event_status === "completed" ? "scheduled" : "completed";
+    try {
+      await updateEvent({ data: { id, status: next } });
+      setEvents((prev) =>
+        prev.map((e) => (e.id === ev.id ? { ...e, event_status: next } : e)),
+      );
+      toast.success(next === "completed" ? "Marked complete." : "Reopened.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update event.");
+    }
+  }
+
+  const visibilityChoices = (allowedVisibilities ?? ALL_VISIBILITIES);
+
   return (
     <section className="rounded-3xl border bg-card p-6 shadow-soft">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -259,6 +325,19 @@ export function DashboardCalendar({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Select value={filterKind} onValueChange={setFilterKind}>
+            <SelectTrigger className="h-8 w-auto gap-1 text-xs" aria-label="Filter by type">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">All events</SelectItem>
+              <SelectItem value="meeting" className="text-xs">Meetings</SelectItem>
+              <SelectItem value="prep" className="text-xs">Prep</SelectItem>
+              <SelectItem value="action" className="text-xs">Action items</SelectItem>
+              <SelectItem value="team" className="text-xs">Team events</SelectItem>
+              <SelectItem value="personal" className="text-xs">Personal</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={tz} onValueChange={setTz}>
             <SelectTrigger className="h-8 w-auto gap-1 text-xs" aria-label="Timezone">
               <SelectValue />
@@ -276,13 +355,16 @@ export function DashboardCalendar({
             onOpenChange={setAddOpen}
             defaultStudentId={studentId ?? null}
             studentOptions={studentOptions}
+            organizationOptions={orgs}
+            visibilityChoices={visibilityChoices}
+            defaultVisibility={defaultVisibility ?? "private"}
             onCreate={async (input) => {
               await createEvent({ data: input });
               setAddOpen(false);
               toast.success(
-                input.visibility === "team"
-                  ? "Event added — visible to everyone collaborating on this student."
-                  : "Event added to your personal calendar.",
+                input.visibility === "private"
+                  ? "Event added to your personal calendar."
+                  : "Event added to the shared calendar.",
               );
               await reload();
             }}
@@ -469,15 +551,25 @@ export function DashboardCalendar({
                       Add
                     </a>
                     {ev.is_mine && ev.id.startsWith("cal-") && (
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(ev)}
-                        className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
-                        title="Delete event"
-                        aria-label="Delete event"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleComplete(ev)}
+                          className="rounded-full px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                          title={ev.event_status === "completed" ? "Reopen" : "Mark complete"}
+                        >
+                          {ev.event_status === "completed" ? "Reopen" : "Done"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(ev)}
+                          className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+                          title="Delete event"
+                          aria-label="Delete event"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
                     )}
                   </div>
                 </li>
@@ -492,45 +584,130 @@ export function DashboardCalendar({
 
 // ---------------------------------------------------------------------------
 
+const EVENT_TYPE_OPTIONS = [
+  "PPT / IEP Meeting",
+  "Transition Meeting",
+  "Family Check-In",
+  "Student Task",
+  "Educator Task",
+  "School Team Meeting",
+  "District Implementation Date",
+  "Partner Opportunity Deadline",
+  "Program Date",
+  "Document Due Date",
+  "Pathway Report Review",
+  "Action Item Due",
+  "Resource Follow-Up",
+  "Partner Outreach Follow-Up",
+  "Demo Request",
+  "Contact Follow-Up",
+  "Waitlist Follow-Up",
+  "Training / Workshop",
+  "System Reminder",
+  "Other",
+] as const;
+
+type EventTypeOption = (typeof EVENT_TYPE_OPTIONS)[number];
+
+function visibilityLabel(v: CalendarVisibility): string {
+  switch (v) {
+    case "private": return "Private (only you)";
+    case "team":
+    case "student_team":
+    case "family_team": return "Student team (everyone collaborating on this student)";
+    case "school_team": return "School team";
+    case "district_team": return "District team";
+    case "partner_only": return "Partner organization only";
+    case "platform_admin_only": return "Platform admins only";
+    case "public_event": return "Public (all signed-in users)";
+  }
+}
+
+type CreateEventInput = {
+  title: string;
+  detail: string | null;
+  event_date: string;
+  visibility: CalendarVisibility;
+  event_type: EventTypeOption;
+  status: "scheduled";
+  student_id: string | null;
+  related_organization_id: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  all_day: boolean;
+  location: string | null;
+  meeting_link: string | null;
+};
+
 function AddEventPopover({
   open,
   onOpenChange,
   defaultStudentId,
   studentOptions,
+  organizationOptions,
+  visibilityChoices,
+  defaultVisibility,
   onCreate,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultStudentId: string | null;
   studentOptions: Array<{ id: string; name: string }>;
-  onCreate: (input: {
-    title: string;
-    detail: string | null;
-    event_date: string;
-    visibility: "private" | "team";
-    student_id: string | null;
-  }) => Promise<void>;
+  organizationOptions: OrgOption[];
+  visibilityChoices: CalendarVisibility[];
+  defaultVisibility: CalendarVisibility;
+  onCreate: (input: CreateEventInput) => Promise<void>;
 }) {
   const [title, setTitle] = useState("");
   const [detail, setDetail] = useState("");
   const [date, setDate] = useState<string>(toIsoDate(new Date()));
-  const [visibility, setVisibility] = useState<"private" | "team">("private");
+  const [eventType, setEventType] = useState<EventTypeOption>("Other");
+  const [visibility, setVisibility] = useState<CalendarVisibility>(defaultVisibility);
   const [studentSel, setStudentSel] = useState<string>(
     defaultStudentId ?? (studentOptions[0]?.id ?? ""),
   );
+  const [orgSel, setOrgSel] = useState<string>(organizationOptions[0]?.id ?? "");
+  const [allDay, setAllDay] = useState<boolean>(true);
+  const [startTime, setStartTime] = useState<string>("09:00");
+  const [endTime, setEndTime] = useState<string>("09:30");
+  const [location, setLocation] = useState<string>("");
+  const [meetingLink, setMeetingLink] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      setTitle("");
-      setDetail("");
-      setDate(toIsoDate(new Date()));
-      setVisibility(defaultStudentId ? "team" : "private");
-      setStudentSel(defaultStudentId ?? (studentOptions[0]?.id ?? ""));
-    }
-  }, [open, defaultStudentId, studentOptions]);
-
   const teamPossible = studentOptions.length > 0 || !!defaultStudentId;
+  const orgPossible = organizationOptions.length > 0;
+
+  // Restrict the visible options based on what the caller actually allows AND
+  // what data the user has (e.g. only show "school_team" if they belong to an org).
+  const availableVisibilities = useMemo<CalendarVisibility[]>(() => {
+    return visibilityChoices.filter((v) => {
+      if (v === "private" || v === "platform_admin_only" || v === "public_event") return true;
+      if (v === "team" || v === "student_team" || v === "family_team") return teamPossible;
+      return orgPossible;
+    });
+  }, [visibilityChoices, teamPossible, orgPossible]);
+
+  useEffect(() => {
+    if (!open) return;
+    setTitle("");
+    setDetail("");
+    setDate(toIsoDate(new Date()));
+    setEventType("Other");
+    const initial = availableVisibilities.includes(defaultVisibility)
+      ? defaultVisibility
+      : availableVisibilities[0] ?? "private";
+    setVisibility(initial);
+    setStudentSel(defaultStudentId ?? (studentOptions[0]?.id ?? ""));
+    setOrgSel(organizationOptions[0]?.id ?? "");
+    setAllDay(true);
+    setStartTime("09:00");
+    setEndTime("09:30");
+    setLocation("");
+    setMeetingLink("");
+  }, [open, defaultStudentId, studentOptions, organizationOptions, defaultVisibility, availableVisibilities]);
+
+  const needsStudent = ["team", "student_team", "family_team"].includes(visibility);
+  const needsOrg = ["school_team", "district_team", "partner_only"].includes(visibility);
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -540,7 +717,7 @@ function AddEventPopover({
           Add event
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] pointer-events-auto" align="end">
+      <PopoverContent className="w-[360px] pointer-events-auto max-h-[80vh] overflow-y-auto" align="end">
         <form
           className="space-y-3"
           onSubmit={async (e) => {
@@ -549,8 +726,16 @@ function AddEventPopover({
               toast.error("Title is required.");
               return;
             }
-            if (visibility === "team" && !studentSel) {
-              toast.error("Pick a student for team events.");
+            if (needsStudent && !studentSel) {
+              toast.error("Pick a student for student/family team events.");
+              return;
+            }
+            if (needsOrg && !orgSel) {
+              toast.error("Pick an organization for school, district, or partner events.");
+              return;
+            }
+            if (meetingLink.trim() && !/^https?:\/\//i.test(meetingLink.trim())) {
+              toast.error("Meeting link must start with http:// or https://");
               return;
             }
             setBusy(true);
@@ -560,8 +745,18 @@ function AddEventPopover({
                 detail: detail.trim() ? detail.trim() : null,
                 event_date: date,
                 visibility,
-                student_id: visibility === "team" ? studentSel : (defaultStudentId ?? null),
+                event_type: eventType,
+                status: "scheduled",
+                student_id: needsStudent ? studentSel : (defaultStudentId ?? null),
+                related_organization_id: needsOrg ? orgSel : null,
+                all_day: allDay,
+                start_time: allDay ? null : startTime,
+                end_time: allDay ? null : endTime,
+                location: location.trim() ? location.trim() : null,
+                meeting_link: meetingLink.trim() ? meetingLink.trim() : null,
               });
+            } catch (err) {
+              toast.error(err instanceof Error ? err.message : "Could not save event.");
             } finally {
               setBusy(false);
             }
@@ -578,15 +773,70 @@ function AddEventPopover({
               autoFocus
             />
           </div>
+
+          <div>
+            <Label className="text-xs">Event type</Label>
+            <Select value={eventType} onValueChange={(v) => setEventType(v as EventTypeOption)}>
+              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {EVENT_TYPE_OPTIONS.map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <Label htmlFor="ce-date" className="text-xs">Date</Label>
+            <Input id="ce-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              id="ce-allday"
+              type="checkbox"
+              checked={allDay}
+              onChange={(e) => setAllDay(e.target.checked)}
+              className="h-3.5 w-3.5"
+            />
+            <Label htmlFor="ce-allday" className="text-xs cursor-pointer">All-day event</Label>
+          </div>
+
+          {!allDay && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="ce-start" className="text-xs">Start</Label>
+                <Input id="ce-start" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor="ce-end" className="text-xs">End</Label>
+                <Input id="ce-end" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor="ce-location" className="text-xs">Location (optional)</Label>
             <Input
-              id="ce-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              id="ce-location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Room 204 / Zoom"
+              maxLength={300}
             />
           </div>
+
+          <div>
+            <Label htmlFor="ce-link" className="text-xs">Meeting link (optional)</Label>
+            <Input
+              id="ce-link"
+              value={meetingLink}
+              onChange={(e) => setMeetingLink(e.target.value)}
+              placeholder="https://meet.google.com/..."
+              maxLength={500}
+            />
+          </div>
+
           <div>
             <Label htmlFor="ce-detail" className="text-xs">Note (optional)</Label>
             <Textarea
@@ -597,41 +847,47 @@ function AddEventPopover({
               maxLength={2000}
             />
           </div>
+
           <div>
             <Label className="text-xs">Visibility</Label>
-            <Select
-              value={visibility}
-              onValueChange={(v) => setVisibility(v as "private" | "team")}
-              disabled={!teamPossible}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={visibility} onValueChange={(v) => setVisibility(v as CalendarVisibility)}>
+              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="private">Private (only you)</SelectItem>
-                <SelectItem value="team" disabled={!teamPossible}>
-                  Team (everyone collaborating on this student)
-                </SelectItem>
+                {availableVisibilities.map((v) => (
+                  <SelectItem key={v} value={v}>{visibilityLabel(v)}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
-          {visibility === "team" && !defaultStudentId && studentOptions.length > 0 && (
+
+          {needsStudent && studentOptions.length > 0 && (
             <div>
               <Label className="text-xs">Student</Label>
               <Select value={studentSel} onValueChange={setStudentSel}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Pick a student" />
-                </SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Pick a student" /></SelectTrigger>
                 <SelectContent>
                   {studentOptions.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           )}
+
+          {needsOrg && organizationOptions.length > 0 && (
+            <div>
+              <Label className="text-xs">Organization</Label>
+              <Select value={orgSel} onValueChange={setOrgSel}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Pick an organization" /></SelectTrigger>
+                <SelectContent>
+                  {organizationOptions.map((o) => (
+                    <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
               Cancel

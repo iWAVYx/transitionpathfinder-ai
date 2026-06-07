@@ -441,39 +441,128 @@ export type Database = {
       }
       calendar_events: {
         Row: {
+          all_day: boolean
+          audience_roles: string[]
+          color_label: string | null
           created_at: string
           detail: string | null
+          end_time: string | null
           event_date: string
+          event_type: string
           id: string
+          location: string | null
+          meeting_link: string | null
           owner_user_id: string
+          recurrence_rule: string | null
+          related_action_item_id: string | null
+          related_meeting_id: string | null
+          related_organization_id: string | null
+          related_partner_id: string | null
+          related_pathway_report_id: string | null
+          reminder_settings: Json
+          source_type: string
+          start_time: string | null
+          status: string
           student_id: string | null
+          timezone: string | null
           title: string
           updated_at: string
           visibility: string
         }
         Insert: {
+          all_day?: boolean
+          audience_roles?: string[]
+          color_label?: string | null
           created_at?: string
           detail?: string | null
+          end_time?: string | null
           event_date: string
+          event_type?: string
           id?: string
+          location?: string | null
+          meeting_link?: string | null
           owner_user_id: string
+          recurrence_rule?: string | null
+          related_action_item_id?: string | null
+          related_meeting_id?: string | null
+          related_organization_id?: string | null
+          related_partner_id?: string | null
+          related_pathway_report_id?: string | null
+          reminder_settings?: Json
+          source_type?: string
+          start_time?: string | null
+          status?: string
           student_id?: string | null
+          timezone?: string | null
           title: string
           updated_at?: string
           visibility?: string
         }
         Update: {
+          all_day?: boolean
+          audience_roles?: string[]
+          color_label?: string | null
           created_at?: string
           detail?: string | null
+          end_time?: string | null
           event_date?: string
+          event_type?: string
           id?: string
+          location?: string | null
+          meeting_link?: string | null
           owner_user_id?: string
+          recurrence_rule?: string | null
+          related_action_item_id?: string | null
+          related_meeting_id?: string | null
+          related_organization_id?: string | null
+          related_partner_id?: string | null
+          related_pathway_report_id?: string | null
+          reminder_settings?: Json
+          source_type?: string
+          start_time?: string | null
+          status?: string
           student_id?: string | null
+          timezone?: string | null
           title?: string
           updated_at?: string
           visibility?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "calendar_events_related_action_item_id_fkey"
+            columns: ["related_action_item_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_related_meeting_id_fkey"
+            columns: ["related_meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_related_organization_id_fkey"
+            columns: ["related_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_related_partner_id_fkey"
+            columns: ["related_partner_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_related_pathway_report_id_fkey"
+            columns: ["related_pathway_report_id"]
+            isOneToOne: false
+            referencedRelation: "pathway_reports"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "calendar_events_student_id_fkey"
             columns: ["student_id"]
