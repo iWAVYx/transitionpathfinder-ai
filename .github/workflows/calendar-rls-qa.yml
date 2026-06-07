@@ -13,6 +13,7 @@ on:
       - "tests/calendar-rls.test.mjs"
       - "tests/documents-rls.test.mjs"
       - "tests/iep-upload-signed-url.test.mjs"
+      - "tests/iep-signed-url-expiry.test.mjs"
       - "tests/__snapshots__/calendar-rls-*.snap.json"
       - "tests/__snapshots__/documents-rls-*.snap.json"
       - "tests/__snapshots__/iep-upload-signed-url.snap.json"
