@@ -621,3 +621,82 @@ function Stat({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
+function DailyChart({ data }: { data: Array<{ date: string; views: number; clicks: number }> }) {
+  const pad = 24;
+  const barGap = 2;
+  const maxVal = Math.max(1, ...data.map((d) => Math.max(d.views, d.clicks)));
+  const h = 128;
+  const totalBarWidth = Math.max(4, (300 - pad * 2) / data.length - barGap);
+  const barW = Math.max(2, totalBarWidth / 2);
+  const innerW = data.length * (barW * 2 + barGap) + barGap;
+  const w = innerW + pad * 2;
+
+  return (
+    <div className="overflow-x-auto">
+      <svg width={w} height={h + pad + 16} className="block">
+        <g transform={`translate(${pad}, ${pad})`}>
+          {/* Grid lines */}
+          {[0, 0.25, 0.5, 0.75, 1].map((t) => {
+            const y = h - t * h;
+            return (
+              <line key={t} x1={0} x2={innerW} y1={y} y2={y} stroke="currentColor" strokeOpacity={0.1} />
+            );
+          })}
+          {data.map((d, i) => {
+            const x = i * (barW * 2 + barGap) + barGap;
+            const vh = (d.views / maxVal) * h;
+            const ch = (d.clicks / maxVal) * h;
+            return (
+              <g key={d.date}>
+                <rect
+                  x={x}
+                  y={h - vh}
+                  width={barW}
+                  height={vh}
+                  rx={2}
+                  className="fill-sky-400"
+                />
+                <rect
+                  x={x + barW}
+                  y={h - ch}
+                  width={barW}
+                  height={ch}
+                  rx={2}
+                  className="fill-emerald-400"
+                />
+              </g>
+            );
+          })}
+        </g>
+        {/* X-axis labels */}
+        {data.map((d, i) => {
+          const x = pad + i * (barW * 2 + barGap) + barGap + barW;
+          const label = new Date(d.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+          return (
+            <text
+              key={d.date + "-label"}
+              x={x}
+              y={h + pad + 12}
+              textAnchor="middle"
+              className="fill-muted-foreground"
+              style={{ fontSize: 9 }}
+            >
+              {label}
+            </text>
+          );
+        })}
+      </svg>
+      <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-sm bg-sky-400" />
+          Views
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-sm bg-emerald-400" />
+          Clicks
+        </span>
+      </div>
+    </div>
+  );
+}
