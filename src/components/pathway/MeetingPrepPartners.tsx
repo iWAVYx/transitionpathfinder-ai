@@ -8,6 +8,7 @@ import {
   Star,
   CalendarClock,
   CalendarPlus,
+  CalendarDays,
 } from "lucide-react";
 import {
   matchPartnersForStudent,
