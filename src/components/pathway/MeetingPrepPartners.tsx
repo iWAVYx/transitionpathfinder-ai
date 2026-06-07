@@ -247,6 +247,25 @@ function computeDeadlines(meetingDate: string | null): {
   };
 }
 
+// ---- Google Calendar URL builder -------------------------------------------
+
+function gcalDate(d: Date) {
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+}
+
+function buildGoogleCalendarUrl(step: DeadlineStep) {
+  const start = gcalDate(step.date);
+  const end = new Date(step.date);
+  end.setDate(end.getDate() + 1);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `PPT Prep: ${step.label}`,
+    dates: `${start}/${gcalDate(end)}`,
+    details: `${step.detail}\n\n(${step.when})`,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 // ---- ICS builder -----------------------------------------------------------
 
 function pad(n: number) {
