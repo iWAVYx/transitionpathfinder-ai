@@ -291,6 +291,7 @@ export type AnnouncementEngagement = {
   unique_viewers: number;
   unique_clickers: number;
   by_role: Array<{ role: string; views: number; clicks: number }>;
+  daily: Array<{ date: string; views: number; clicks: number }>;
   recent: Array<{
     user_id: string;
     email: string | null;
@@ -301,18 +302,58 @@ export type AnnouncementEngagement = {
   }>;
 };
 
+function startOfDay(d: Date) {
+  const nd = new Date(d);
+  nd.setHours(0, 0, 0, 0);
+  return nd;
+}
+
+function formatISODate(d: Date) {
+  return d.toISOString().split("T")[0];
+}
+
+function getRangeBounds(range: "7d" | "30d" | "90d" | "custom", from?: string, to?: string) {
+  const now = new Date();
+  const end = startOfDay(now);
+  let start = new Date(end);
+  if (range === "7d") start.setDate(end.getDate() - 6);
+  else if (range === "30d") start.setDate(end.getDate() - 29);
+  else if (range === "90d") start.setDate(end.getDate() - 89);
+  else if (range === "custom" && from && to) {
+    start = startOfDay(new Date(from));
+    const customEnd = startOfDay(new Date(to));
+    if (customEnd >= start) {
+      end.setTime(customEnd.getTime());
+    }
+  }
+  return { start, end };
+}
+
+const engagementSchema = z.object({
+  id: z.string().uuid(),
+  range: z.enum(["7d", "30d", "90d", "custom"]).default("7d"),
+  from: z.string().optional(),
+  to: z.string().optional(),
+});
+
 export const getAnnouncementEngagement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .inputValidator((data) => engagementSchema.parse(data))
   .handler(async ({ data, context }): Promise<AnnouncementEngagement> => {
     await requirePlatformAdmin(context.supabase, context.userId);
+
+    const { start, end } = getRangeBounds(data.range, data.from, data.to);
+    const startIso = start.toISOString();
+    const endIso = new Date(end.getTime() + 86_400_000 - 1).toISOString();
 
     const { data: events, error } = await supabaseAdmin
       .from("announcement_events")
       .select("user_id, event_type, role, created_at")
       .eq("announcement_id", data.id)
+      .gte("created_at", startIso)
+      .lte("created_at", endIso)
       .order("created_at", { ascending: false })
-      .limit(1000);
+      .limit(2000);
     if (error) throw new Error(error.message);
 
     const rows = (events ?? []) as Array<{
@@ -327,20 +368,39 @@ export const getAnnouncementEngagement = createServerFn({ method: "POST" })
     const viewers = new Set<string>();
     const clickers = new Set<string>();
     const byRole = new Map<string, { views: number; clicks: number }>();
+
+    const daily = new Map<string, { views: number; clicks: number }>();
+    const dayCount = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86_400_000) + 1);
+    for (let i = 0; i < dayCount; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      daily.set(formatISODate(d), { views: 0, clicks: 0 });
+    }
+
     for (const r of rows) {
       const roleKey = r.role ?? "unknown";
       const slot = byRole.get(roleKey) ?? { views: 0, clicks: 0 };
+      const dayKey = formatISODate(new Date(r.created_at));
+      const daySlot = daily.get(dayKey) ?? { views: 0, clicks: 0 };
+
       if (r.event_type === "view") {
         views++;
         viewers.add(r.user_id);
         slot.views++;
+        daySlot.views++;
       } else {
         clicks++;
         clickers.add(r.user_id);
         slot.clicks++;
+        daySlot.clicks++;
       }
       byRole.set(roleKey, slot);
+      daily.set(dayKey, daySlot);
     }
+
+    const dailySorted = Array.from(daily.entries())
+      .map(([date, v]) => ({ date, ...v }))
+      .sort((a, b) => a.date.localeCompare(b.date));
 
     const recentRows = rows.slice(0, 25);
     const userIds = Array.from(new Set(recentRows.map((r) => r.user_id)));
@@ -367,6 +427,7 @@ export const getAnnouncementEngagement = createServerFn({ method: "POST" })
       by_role: Array.from(byRole.entries())
         .map(([role, v]) => ({ role, ...v }))
         .sort((a, b) => b.views + b.clicks - (a.views + a.clicks)),
+      daily: dailySorted,
       recent: recentRows.map((r) => ({
         user_id: r.user_id,
         email: profileMap.get(r.user_id)?.email ?? null,

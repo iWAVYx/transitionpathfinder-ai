@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Megaphone, Download, Trash2, Eye, EyeOff, Users, BarChart3 } from "lucide-react";
+import { Loader2, Megaphone, Download, Trash2, Eye, EyeOff, Users, BarChart3, CalendarIcon } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,17 +77,22 @@ function BroadcastsPage() {
 
   const [openEngagement, setOpenEngagement] = useState<string | null>(null);
   const [engagement, setEngagement] = useState<Record<string, AnnouncementEngagement | "loading">>({});
+  const [engRange, setEngRange] = useState<"7d" | "30d" | "90d" | "custom">("7d");
+  const [engFrom, setEngFrom] = useState<string>("");
+  const [engTo, setEngTo] = useState<string>("");
 
-  const loadEngagement = async (id: string) => {
-    if (openEngagement === id) {
+  const loadEngagement = async (id: string, opts?: { range?: typeof engRange; from?: string; to?: string }) => {
+    const range = opts?.range ?? engRange;
+    const from = opts?.from ?? engFrom;
+    const to = opts?.to ?? engTo;
+    if (openEngagement === id && !opts) {
       setOpenEngagement(null);
       return;
     }
     setOpenEngagement(id);
-    if (engagement[id] && engagement[id] !== "loading") return;
     setEngagement((prev) => ({ ...prev, [id]: "loading" }));
     try {
-      const res = await engagementFn({ data: { id } });
+      const res = await engagementFn({ data: { id, range, from: from || undefined, to: to || undefined } });
       setEngagement((prev) => ({ ...prev, [id]: res }));
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to load engagement.");
@@ -446,7 +451,56 @@ function BroadcastsPage() {
                   </div>
 
                   {isOpen && (
-                    <div className="mt-2 rounded-md border border-border bg-muted/30 p-3">
+                    <div className="mt-2 rounded-md border border-border bg-muted/30 p-3 space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-xs font-medium">Range</span>
+                        </div>
+                        <div className="flex gap-1">
+                          {(["7d", "30d", "90d", "custom"] as const).map((r) => (
+                            <button
+                              key={r}
+                              onClick={() => {
+                                setEngRange(r);
+                                loadEngagement(a.id, { range: r, from: engFrom, to: engTo });
+                              }}
+                              className={
+                                "rounded px-2 py-1 text-[11px] font-medium " +
+                                (engRange === r
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-background border border-border text-muted-foreground hover:text-foreground")
+                              }
+                            >
+                              {r === "custom" ? "Custom" : r}
+                            </button>
+                          ))}
+                        </div>
+                        {engRange === "custom" && (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="date"
+                              className="h-7 w-36 text-xs"
+                              value={engFrom}
+                              onChange={(e) => {
+                                setEngFrom(e.target.value);
+                                if (engTo) loadEngagement(a.id, { range: "custom", from: e.target.value, to: engTo });
+                              }}
+                            />
+                            <span className="text-xs text-muted-foreground">to</span>
+                            <Input
+                              type="date"
+                              className="h-7 w-36 text-xs"
+                              value={engTo}
+                              onChange={(e) => {
+                                setEngTo(e.target.value);
+                                if (engFrom) loadEngagement(a.id, { range: "custom", from: engFrom, to: e.target.value });
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
                       {eng === "loading" || !eng ? (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading engagement…
@@ -459,6 +513,15 @@ function BroadcastsPage() {
                             <Stat label="Clicks" value={eng.clicks} />
                             <Stat label="Unique clickers" value={eng.unique_clickers} />
                           </div>
+
+                          {eng.daily.length > 0 && (
+                            <div>
+                              <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                                Daily trend
+                              </div>
+                              <DailyChart data={eng.daily} />
+                            </div>
+                          )}
 
                           <div>
                             <div className="mb-1 text-xs font-semibold text-muted-foreground">
@@ -555,6 +618,85 @@ function Stat({ label, value }: { label: string; value: number }) {
     <div className="rounded-md border border-border bg-background p-2">
       <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="text-lg font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function DailyChart({ data }: { data: Array<{ date: string; views: number; clicks: number }> }) {
+  const pad = 24;
+  const barGap = 2;
+  const maxVal = Math.max(1, ...data.map((d) => Math.max(d.views, d.clicks)));
+  const h = 128;
+  const totalBarWidth = Math.max(4, (300 - pad * 2) / data.length - barGap);
+  const barW = Math.max(2, totalBarWidth / 2);
+  const innerW = data.length * (barW * 2 + barGap) + barGap;
+  const w = innerW + pad * 2;
+
+  return (
+    <div className="overflow-x-auto">
+      <svg width={w} height={h + pad + 16} className="block">
+        <g transform={`translate(${pad}, ${pad})`}>
+          {/* Grid lines */}
+          {[0, 0.25, 0.5, 0.75, 1].map((t) => {
+            const y = h - t * h;
+            return (
+              <line key={t} x1={0} x2={innerW} y1={y} y2={y} stroke="currentColor" strokeOpacity={0.1} />
+            );
+          })}
+          {data.map((d, i) => {
+            const x = i * (barW * 2 + barGap) + barGap;
+            const vh = (d.views / maxVal) * h;
+            const ch = (d.clicks / maxVal) * h;
+            return (
+              <g key={d.date}>
+                <rect
+                  x={x}
+                  y={h - vh}
+                  width={barW}
+                  height={vh}
+                  rx={2}
+                  className="fill-sky-400"
+                />
+                <rect
+                  x={x + barW}
+                  y={h - ch}
+                  width={barW}
+                  height={ch}
+                  rx={2}
+                  className="fill-emerald-400"
+                />
+              </g>
+            );
+          })}
+        </g>
+        {/* X-axis labels */}
+        {data.map((d, i) => {
+          const x = pad + i * (barW * 2 + barGap) + barGap + barW;
+          const label = new Date(d.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+          return (
+            <text
+              key={d.date + "-label"}
+              x={x}
+              y={h + pad + 12}
+              textAnchor="middle"
+              className="fill-muted-foreground"
+              style={{ fontSize: 9 }}
+            >
+              {label}
+            </text>
+          );
+        })}
+      </svg>
+      <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-sm bg-sky-400" />
+          Views
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-sm bg-emerald-400" />
+          Clicks
+        </span>
+      </div>
     </div>
   );
 }
