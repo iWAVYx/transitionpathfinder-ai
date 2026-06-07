@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Download, Plus, Pencil, Database } from "lucide-react";
+import { Loader2, Download, Plus, Pencil, Database, Eye } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   getImportAudit,
   type ImportAuditResult,
@@ -68,6 +75,8 @@ function ImportAuditPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [opFilter, setOpFilter] = useState<"all" | "created" | "updated">("all");
+  const [selectedPartner, setSelectedPartner] = useState<ImportAuditPartner | null>(null);
+  const [selectedOpp, setSelectedOpp] = useState<ImportAuditOpportunity | null>(null);
 
   const refresh = () => {
     setLoading(true);
@@ -255,12 +264,13 @@ function ImportAuditPage() {
                     <th className="px-4 py-2">Location</th>
                     <th className="px-4 py-2">Seed Tags</th>
                     <th className="px-4 py-2">Updated</th>
+                    <th className="px-4 py-2 text-right">Changes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredPartners.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                      <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">
                         No partners match this view.
                       </td>
                     </tr>
@@ -291,6 +301,16 @@ function ImportAuditPage() {
                         <td className="px-4 py-2 text-xs text-muted-foreground">
                           {fmt(p.updated_at)}
                         </td>
+                        <td className="px-4 py-2 text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setSelectedPartner(p)}
+                          >
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            {partnerChangedFields(p).length}
+                          </Button>
+                        </td>
                       </tr>
                     ))
                   )}
@@ -320,12 +340,13 @@ function ImportAuditPage() {
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Partner</th>
                     <th className="px-4 py-2">Updated</th>
+                    <th className="px-4 py-2 text-right">Changes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredOpps.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                      <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                         No opportunities match this view.
                       </td>
                     </tr>
@@ -344,6 +365,16 @@ function ImportAuditPage() {
                         <td className="px-4 py-2 text-xs text-muted-foreground">
                           {fmt(o.updated_at)}
                         </td>
+                        <td className="px-4 py-2 text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setSelectedOpp(o)}
+                          >
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            {opportunityChangedFields(o).length}
+                          </Button>
+                        </td>
                       </tr>
                     ))
                   )}
@@ -353,6 +384,286 @@ function ImportAuditPage() {
           </section>
         </div>
       )}
+
+      <PartnerChangesDialog
+        partner={selectedPartner}
+        onClose={() => setSelectedPartner(null)}
+      />
+      <OpportunityChangesDialog
+        opportunity={selectedOpp}
+        onClose={() => setSelectedOpp(null)}
+      />
     </OwnerShell>
+  );
+}
+
+// ---------------- Field-level change viewer ----------------
+
+type FieldChange = {
+  field: string;
+  label: string;
+  kind: "tags_added" | "text_set" | "status_set" | "date_set";
+  value: string | string[] | null;
+  note?: string;
+};
+
+const SEED_TAG_SET = new Set([
+  "statewide_anchors",
+  "ct_disability_providers",
+  "dds_reimagining",
+  "inclusive_employer_leads",
+  "state_resources",
+  "employer_leads",
+  "dds_providers",
+  "employment_pathways",
+  "family_advocacy",
+]);
+
+function partnerChangedFields(p: ImportAuditPartner): FieldChange[] {
+  const out: FieldChange[] = [];
+  if (p.operation === "created") {
+    out.push({
+      field: "*",
+      label: "Record created",
+      kind: "text_set",
+      value: p.organization_name,
+      note: "All fields populated by seed import.",
+    });
+  }
+  if (p.seed_tags_applied.length) {
+    out.push({
+      field: "collection_tags",
+      label: "Seed tags applied",
+      kind: "tags_added",
+      value: p.seed_tags_applied,
+    });
+  }
+  if (p.admin_notes) {
+    out.push({
+      field: "admin_notes",
+      label: "Admin notes",
+      kind: "text_set",
+      value: p.admin_notes,
+      note: "Safety / verification disclaimer added by import.",
+    });
+  }
+  if (p.outreach_status && p.outreach_status !== "not_contacted") {
+    out.push({
+      field: "outreach_status",
+      label: "Outreach status",
+      kind: "status_set",
+      value: p.outreach_status,
+    });
+  }
+  if (p.verification_status) {
+    out.push({
+      field: "verification_status",
+      label: "Verification status",
+      kind: "status_set",
+      value: p.verification_status,
+    });
+  }
+  if (p.partnership_status) {
+    out.push({
+      field: "partnership_status",
+      label: "Partnership status",
+      kind: "status_set",
+      value: p.partnership_status,
+    });
+  }
+  if (p.last_reviewed_at) {
+    out.push({
+      field: "last_reviewed_at",
+      label: "Last reviewed",
+      kind: "date_set",
+      value: p.last_reviewed_at,
+    });
+  }
+  if (p.next_review_due_at) {
+    out.push({
+      field: "next_review_due_at",
+      label: "Next review due",
+      kind: "date_set",
+      value: p.next_review_due_at,
+    });
+  }
+  return out;
+}
+
+function opportunityChangedFields(o: ImportAuditOpportunity): FieldChange[] {
+  const out: FieldChange[] = [];
+  if (o.operation === "created") {
+    out.push({
+      field: "*",
+      label: "Record created",
+      kind: "text_set",
+      value: o.opportunity_title,
+      note: "All fields populated by seed import.",
+    });
+  }
+  if (o.opportunity_type) {
+    out.push({
+      field: "opportunity_type",
+      label: "Opportunity type",
+      kind: "status_set",
+      value: o.opportunity_type,
+    });
+  }
+  if (o.status) {
+    out.push({
+      field: "status",
+      label: "Status",
+      kind: "status_set",
+      value: o.status,
+    });
+  }
+  if (o.description) {
+    out.push({
+      field: "description",
+      label: "Description",
+      kind: "text_set",
+      value: o.description,
+    });
+  }
+  if (o.next_step) {
+    out.push({
+      field: "next_step",
+      label: "Next step",
+      kind: "text_set",
+      value: o.next_step,
+    });
+  }
+  if (o.seed_tags_applied.length) {
+    out.push({
+      field: "partner.collection_tags",
+      label: "Inherited seed tags (from partner)",
+      kind: "tags_added",
+      value: o.seed_tags_applied,
+    });
+  }
+  return out;
+}
+
+function ChangeRow({ change }: { change: FieldChange }) {
+  return (
+    <div className="rounded-md border border-border bg-muted/30 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-sm font-medium">{change.label}</div>
+        <code className="text-[10px] text-muted-foreground">{change.field}</code>
+      </div>
+      <div className="mt-2 text-sm">
+        {change.kind === "tags_added" && Array.isArray(change.value) ? (
+          <div className="flex flex-wrap gap-1">
+            {change.value.map((t) => (
+              <Badge
+                key={t}
+                className={
+                  SEED_TAG_SET.has(t)
+                    ? "bg-emerald-100 text-emerald-900 hover:bg-emerald-100"
+                    : ""
+                }
+                variant={SEED_TAG_SET.has(t) ? "default" : "outline"}
+              >
+                {t}
+              </Badge>
+            ))}
+          </div>
+        ) : change.kind === "date_set" && typeof change.value === "string" ? (
+          <span className="text-muted-foreground">
+            {new Date(change.value).toLocaleString()}
+          </span>
+        ) : change.kind === "status_set" ? (
+          <Badge variant="outline" className="capitalize">
+            {String(change.value ?? "—").replace(/_/g, " ")}
+          </Badge>
+        ) : (
+          <p className="whitespace-pre-wrap text-foreground/90">
+            {String(change.value ?? "—")}
+          </p>
+        )}
+      </div>
+      {change.note ? (
+        <p className="mt-2 text-xs text-muted-foreground">{change.note}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function PartnerChangesDialog({
+  partner,
+  onClose,
+}: {
+  partner: ImportAuditPartner | null;
+  onClose: () => void;
+}) {
+  const changes = partner ? partnerChangedFields(partner) : [];
+  return (
+    <Dialog open={!!partner} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
+        {partner ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {partner.organization_name}
+                <OpBadge op={partner.operation} />
+              </DialogTitle>
+              <DialogDescription>
+                {changes.length} field{changes.length === 1 ? "" : "s"} touched by the
+                CT seed import · created {fmt(partner.created_at)} · updated{" "}
+                {fmt(partner.updated_at)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+              {changes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No seed-attributable field values present.
+                </p>
+              ) : (
+                changes.map((c) => <ChangeRow key={c.field} change={c} />)
+              )}
+            </div>
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function OpportunityChangesDialog({
+  opportunity,
+  onClose,
+}: {
+  opportunity: ImportAuditOpportunity | null;
+  onClose: () => void;
+}) {
+  const changes = opportunity ? opportunityChangedFields(opportunity) : [];
+  return (
+    <Dialog open={!!opportunity} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
+        {opportunity ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {opportunity.opportunity_title}
+                <OpBadge op={opportunity.operation} />
+              </DialogTitle>
+              <DialogDescription>
+                {changes.length} field{changes.length === 1 ? "" : "s"} touched · partner:{" "}
+                {opportunity.partner_name ?? "—"} · updated {fmt(opportunity.updated_at)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+              {changes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No seed-attributable field values present.
+                </p>
+              ) : (
+                changes.map((c) => <ChangeRow key={c.field} change={c} />)
+              )}
+            </div>
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
