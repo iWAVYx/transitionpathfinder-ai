@@ -548,21 +548,21 @@ export const listMyCalendarOrganizations = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("organization_memberships")
-      .select("organization_id, organizations:organization_id (id, name, kind)")
+      .select("organization_id, organizations:organization_id (id, name)")
       .eq("user_id", userId)
       .eq("status", "active");
     if (error) {
       console.error("listMyCalendarOrganizations", error);
-      return { organizations: [] as Array<{ id: string; name: string; kind: string | null }> };
+      return { organizations: [] as Array<{ id: string; name: string; kind: null }> };
     }
     const orgs = ((data ?? []) as Array<{
-      organizations: { id: string; name: string; kind: string | null } | null;
+      organizations: { id: string; name: string; kind: null } | null;
     }>)
       .map((row) => row.organizations)
-      .filter((o): o is { id: string; name: string; kind: string | null } => !!o);
+      .filter((o): o is { id: string; name: string; kind: null } => !!o);
     // Dedupe by id
-    const map = new Map<string, { id: string; name: string; kind: string | null }>();
-    for (const o of orgs) map.set(o.id, o);
+    const map = new Map<string, { id: string; name: string; kind: null }>();
+    for (const o of orgs) map.set(o.id, { ...o, kind: null });
     return { organizations: Array.from(map.values()) };
   });
 
