@@ -14,13 +14,44 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  *  - "personal" calendar_events row the caller owns (visibility='private')
  */
 
+export type CalendarVisibility =
+  | "private"
+  | "team"
+  | "student_team"
+  | "family_team"
+  | "school_team"
+  | "district_team"
+  | "partner_only"
+  | "platform_admin_only"
+  | "public_event";
+
+export type CalendarStatus =
+  | "scheduled"
+  | "completed"
+  | "cancelled"
+  | "rescheduled"
+  | "needs_follow_up";
+
 export type TeamCalendarEvent = {
   id: string;
   kind: "action" | "meeting" | "prep" | "team" | "personal";
+  event_type: string;
   title: string;
   detail: string;
   /** ISO YYYY-MM-DD (local day) */
   event_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  all_day: boolean;
+  location: string | null;
+  meeting_link: string | null;
+  color_label: string | null;
+  visibility: CalendarVisibility | null;
+  event_status: CalendarStatus | null;
+  related_organization_id: string | null;
+  related_pathway_report_id: string | null;
+  related_action_item_id: string | null;
+  related_meeting_id: string | null;
   student_id: string | null;
   student_name: string | null;
   owner_user_id: string | null;
