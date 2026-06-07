@@ -18,6 +18,7 @@ import {
   deleteStudentActionItem,
   type StudentActionItem,
 } from "@/lib/action-items.functions";
+import { PartnerSuggestedActions } from "./PartnerSuggestedActions";
 
 const STATUS_LABELS: Record<string, string> = {
   not_started: "Not started",
@@ -179,6 +180,8 @@ export function ActionItemsPanel({ studentId }: { studentId: string }) {
           </div>
         )}
       </div>
+
+      <PartnerSuggestedActions studentId={studentId} onAdded={() => void reload()} />
 
       {items === null && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
 
