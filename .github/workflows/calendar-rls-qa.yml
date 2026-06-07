@@ -12,8 +12,10 @@ on:
       - "src/components/pathway/IepUpload.tsx"
       - "tests/calendar-rls.test.mjs"
       - "tests/documents-rls.test.mjs"
+      - "tests/iep-upload-signed-url.test.mjs"
       - "tests/__snapshots__/calendar-rls-*.snap.json"
       - "tests/__snapshots__/documents-rls-*.snap.json"
+      - "tests/__snapshots__/iep-upload-signed-url.snap.json"
       - ".github/workflows/calendar-rls-qa.yml"
   push:
     branches: [main]
