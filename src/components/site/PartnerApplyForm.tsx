@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { submitWaitlist } from "@/lib/waitlist.functions";
+import { submitPartnerApplication } from "@/lib/partner-submissions.functions";
 
 const ORG_TYPES = [
   "four-year-college",
