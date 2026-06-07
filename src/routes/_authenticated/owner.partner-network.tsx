@@ -384,9 +384,11 @@ function PartnerNetworkAdminPage() {
 
 function OpportunitiesDrawer({
   partner,
+  autoOpenNew = false,
   onClose,
 }: {
   partner: Row | null;
+  autoOpenNew?: boolean;
   onClose: () => void;
 }) {
   const listOpps = useServerFn(listOpportunitiesForPartner);
@@ -398,16 +400,23 @@ function OpportunitiesDrawer({
   const [editing, setEditing] = useState<Opportunity | null>(null);
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState("");
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   useEffect(() => {
     if (!partner) {
       setOpps(null);
       setEditing(null);
+      setBulkOpen(false);
+      setBulkText("");
       return;
     }
     setOpps(null);
+    if (autoOpenNew) setEditing(emptyOpp(partner.id));
     listOpps({ data: { partner_id: partner.id } })
       .then((r) => setOpps(r.opportunities as Opportunity[]))
+
       .catch(() => setOpps([]));
   }, [partner, listOpps]);
 
