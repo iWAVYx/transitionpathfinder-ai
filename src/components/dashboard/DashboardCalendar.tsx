@@ -551,15 +551,25 @@ export function DashboardCalendar({
                       Add
                     </a>
                     {ev.is_mine && ev.id.startsWith("cal-") && (
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(ev)}
-                        className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
-                        title="Delete event"
-                        aria-label="Delete event"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleComplete(ev)}
+                          className="rounded-full px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                          title={ev.event_status === "completed" ? "Reopen" : "Mark complete"}
+                        >
+                          {ev.event_status === "completed" ? "Reopen" : "Done"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(ev)}
+                          className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+                          title="Delete event"
+                          aria-label="Delete event"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
                     )}
                   </div>
                 </li>
