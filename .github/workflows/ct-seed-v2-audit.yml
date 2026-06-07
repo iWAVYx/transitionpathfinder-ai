@@ -33,16 +33,22 @@ jobs:
           restore-keys: |
             bun-deps-${{ runner.os }}-
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: Verify Supabase secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "::error::SUPABASE_URL secret is not configured in this repository."
+            exit 1
+          fi
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::SUPABASE_SERVICE_ROLE_KEY secret is not configured in this repository."
+            exit 1
+          fi
 
       - name: Run CT seed v2 audit regression
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: bun run test:ct-seed-v2
-
-      - name: Report skip hint
-        if: failure()
-        run: |
-          echo "::notice::If the test was skipped due to missing Supabase credentials, add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY as repository secrets."

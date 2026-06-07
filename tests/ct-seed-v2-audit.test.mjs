@@ -69,6 +69,9 @@ test("CT_SEED_TAGS whitelist includes every v2 tag", () => {
 
 test("every v2 partner renders a complete Changes dialog", async (t) => {
   if (!SUPABASE_URL || !SERVICE_ROLE) {
+    if (process.env.CI) {
+      assert.fail("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured in CI");
+    }
     t.skip("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
     return;
   }
