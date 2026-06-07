@@ -92,7 +92,7 @@ const CHECKLIST: Array<{ surface: string; status: CheckStatus; detail: string }>
   { surface: "Signed-In Opportunity Matches", status: "connected", detail: "/opportunities renders DB-driven grid with per-student recommendations via matchPartnersForStudent." },
   { surface: "Pathway Report", status: "connected", detail: "Reports linked to a student render a live Partner Suggestions section via matchPartnersForStudent, with TOC entry." },
   { surface: "Action Items", status: "connected", detail: "Action Items panel surfaces one-click suggestions from top partner matches (matchPartnersForStudent); accepting creates an action_item via createStudentActionItem." },
-  { surface: "Meeting Prep", status: "not_connected", detail: "Meeting prep packets do not yet surface partner contacts or upcoming opportunity deadlines." },
+  { surface: "Meeting Prep", status: "connected", detail: "PPT meeting prep now shows the top 5 matched partner contacts for the linked student and a week-by-week deadline countdown (records request, partner outreach, student review, folder pack) derived from the meeting date." },
   { surface: "Student Profile", status: "connected", detail: "Student detail page renders Recommended Partners panel via matchPartnersForStudent; save persists to student_saved_partners." },
   { surface: "Resource Library", status: "not_connected", detail: "Partner records live in their own tables; the resource library does not index them yet." },
   { surface: "Platform Admin Partner Manager", status: "connected", detail: "/owner/partner-network supports create, edit, bulk JSON import with Zod validation." },
