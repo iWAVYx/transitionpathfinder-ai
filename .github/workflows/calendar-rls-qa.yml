@@ -50,6 +50,8 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node --test tests/iep-signed-url-expiry.test.mjs
+      - name: IEP signed-URL revocation regression
+        run: node --test tests/iep-signed-url-revocation.test.mjs
       - name: How to update snapshots
         if: failure()
         run: |
