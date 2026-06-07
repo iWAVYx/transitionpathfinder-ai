@@ -196,6 +196,38 @@ function formatDate(value: string | null) {
   }
 }
 
+function escapeCsvCell(value: string) {
+  const cell = String(value ?? "").replace(/"/g, '""');
+  if (cell.includes(",") || cell.includes('"') || cell.includes("\n") || cell.includes("\r")) {
+    return `"${cell}"`;
+  }
+  return cell;
+}
+
+function downloadCSV(rows: DrillRow[], filename: string) {
+  const headers = ["ID", "Name", "Details", "Status", "Meta", "Updated At"];
+  const lines = rows.map((r) =>
+    [
+      escapeCsvCell(r.id),
+      escapeCsvCell(r.primary),
+      escapeCsvCell(r.secondary ?? ""),
+      escapeCsvCell(r.status ?? ""),
+      escapeCsvCell(r.meta ?? ""),
+      escapeCsvCell(r.updated_at ?? ""),
+    ].join(","),
+  );
+  const csv = [headers.join(","), ...lines].join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 function MetricCard({
   label,
   value,
