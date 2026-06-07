@@ -109,6 +109,77 @@ const METRIC_LABEL: Record<MetricKey, string> = {
   savedOpportunities: "Saved opportunities",
 };
 
+const STATUS_FILTER_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
+  partner_verification: [
+    { value: "", label: "All statuses" },
+    { value: "verified", label: "Verified" },
+    { value: "needs_review", label: "Needs review" },
+    { value: "pending_approval", label: "Pending approval" },
+    { value: "archived", label: "Archived" },
+  ],
+  partner_partnership: [
+    { value: "", label: "All statuses" },
+    { value: "active", label: "Active" },
+    { value: "potential", label: "Potential" },
+    { value: "archived", label: "Archived" },
+  ],
+  partner_outreach: [
+    { value: "", label: "All statuses" },
+    { value: "not_contacted", label: "Not contacted" },
+    { value: "outreach_needed", label: "Outreach needed" },
+    { value: "follow_up", label: "Follow up" },
+    { value: "contacted", label: "Contacted" },
+  ],
+  opportunity: [
+    { value: "", label: "All statuses" },
+    { value: "active", label: "Active" },
+    { value: "paused", label: "Paused" },
+    { value: "closed", label: "Closed" },
+    { value: "draft", label: "Draft" },
+  ],
+  submission: [
+    { value: "", label: "All statuses" },
+    { value: "pending_review", label: "Pending review" },
+    { value: "approved", label: "Approved" },
+    { value: "rejected", label: "Rejected" },
+  ],
+};
+
+function getFilterOptions(metric: MetricKey) {
+  switch (metric) {
+    case "totalPartners":
+    case "connecticutResources":
+    case "featuredPartners":
+    case "needsReview":
+      return STATUS_FILTER_OPTIONS.partner_verification;
+    case "verifiedPartners":
+      return STATUS_FILTER_OPTIONS.partner_partnership;
+    case "potentialPartners":
+      return STATUS_FILTER_OPTIONS.partner_verification;
+    case "outreachNeeded":
+      return STATUS_FILTER_OPTIONS.partner_outreach;
+    case "totalOpportunities":
+      return STATUS_FILTER_OPTIONS.opportunity;
+    case "partnerSubmissions":
+      return STATUS_FILTER_OPTIONS.submission;
+    default:
+      return null;
+  }
+}
+
+function getDefaultSort(metric: MetricKey): { sortBy: "name" | "status" | "updated_at" | "type" | "county"; sortDirection: "asc" | "desc" } {
+  switch (metric) {
+    case "needsReview":
+    case "outreachNeeded":
+    case "totalOpportunities":
+    case "partnerSubmissions":
+    case "savedOpportunities":
+      return { sortBy: "updated_at", sortDirection: "desc" };
+    default:
+      return { sortBy: "name", sortDirection: "asc" };
+  }
+}
+
 function formatDate(value: string | null) {
   if (!value) return "—";
   try {
