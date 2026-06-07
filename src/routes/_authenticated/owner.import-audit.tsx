@@ -262,12 +262,13 @@ function ImportAuditPage() {
                     <th className="px-4 py-2">Location</th>
                     <th className="px-4 py-2">Seed Tags</th>
                     <th className="px-4 py-2">Updated</th>
+                    <th className="px-4 py-2 text-right">Changes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredPartners.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                      <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">
                         No partners match this view.
                       </td>
                     </tr>
@@ -297,6 +298,16 @@ function ImportAuditPage() {
                         </td>
                         <td className="px-4 py-2 text-xs text-muted-foreground">
                           {fmt(p.updated_at)}
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setSelectedPartner(p)}
+                          >
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            {partnerChangedFields(p).length}
+                          </Button>
                         </td>
                       </tr>
                     ))
