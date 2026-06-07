@@ -1,0 +1,86 @@
+[
+  {
+    "rel": "public.document_summaries",
+    "polname": "Access doc summaries via student",
+    "polcmd": "r",
+    "using_expr": "can_access_student(auth.uid(), student_id)",
+    "check_expr": null
+  },
+  {
+    "rel": "public.document_summaries",
+    "polname": "Delete doc summaries via student",
+    "polcmd": "d",
+    "using_expr": "can_edit_student(auth.uid(), student_id)",
+    "check_expr": null
+  },
+  {
+    "rel": "public.document_summaries",
+    "polname": "Insert doc summaries via student",
+    "polcmd": "a",
+    "using_expr": null,
+    "check_expr": "can_edit_student(auth.uid(), student_id)"
+  },
+  {
+    "rel": "public.document_summaries",
+    "polname": "Update doc summaries via student",
+    "polcmd": "w",
+    "using_expr": "can_edit_student(auth.uid(), student_id)",
+    "check_expr": null
+  },
+  {
+    "rel": "public.documents",
+    "polname": "Access docs via student",
+    "polcmd": "r",
+    "using_expr": "can_access_student(auth.uid(), student_id)",
+    "check_expr": null
+  },
+  {
+    "rel": "public.documents",
+    "polname": "Delete docs via student",
+    "polcmd": "d",
+    "using_expr": "can_edit_student(auth.uid(), student_id)",
+    "check_expr": null
+  },
+  {
+    "rel": "public.documents",
+    "polname": "Insert docs via student",
+    "polcmd": "a",
+    "using_expr": null,
+    "check_expr": "(can_edit_student(auth.uid(), student_id) AND (auth.uid() = uploaded_by))"
+  },
+  {
+    "rel": "public.documents",
+    "polname": "Update docs via student",
+    "polcmd": "w",
+    "using_expr": "can_edit_student(auth.uid(), student_id)",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Access student docs via student access",
+    "polcmd": "r",
+    "using_expr": "((bucket_id = 'student-documents'::text) AND can_access_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Delete student docs via edit access",
+    "polcmd": "d",
+    "using_expr": "((bucket_id = 'student-documents'::text) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Update student docs via edit access",
+    "polcmd": "w",
+    "using_expr": "((bucket_id = 'student-documents'::text) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Upload student docs via edit access",
+    "polcmd": "a",
+    "using_expr": null,
+    "check_expr": "((bucket_id = 'student-documents'::text) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))"
+  }
+]
