@@ -90,6 +90,7 @@ import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
+import { Route as AuthenticatedOwnerBroadcastsRouteImport } from './routes/_authenticated/owner.broadcasts'
 import { Route as AuthenticatedOwnerBlogRouteImport } from './routes/_authenticated/owner.blog'
 import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenticated/owner.admins'
@@ -531,6 +532,12 @@ const AuthenticatedOwnerContactsRoute =
     path: '/contacts',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerBroadcastsRoute =
+  AuthenticatedOwnerBroadcastsRouteImport.update({
+    id: '/broadcasts',
+    path: '/broadcasts',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerBlogRoute = AuthenticatedOwnerBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -686,6 +693,7 @@ export interface FileRoutesByFullPath {
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
+  '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
@@ -782,6 +790,7 @@ export interface FileRoutesByTo {
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
+  '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
@@ -881,6 +890,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/admins': typeof AuthenticatedOwnerAdminsRoute
   '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/_authenticated/owner/blog': typeof AuthenticatedOwnerBlogRoute
+  '/_authenticated/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
@@ -980,6 +990,7 @@ export interface FileRouteTypes {
     | '/owner/admins'
     | '/owner/analytics'
     | '/owner/blog'
+    | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
     | '/owner/emails'
@@ -1076,6 +1087,7 @@ export interface FileRouteTypes {
     | '/owner/admins'
     | '/owner/analytics'
     | '/owner/blog'
+    | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
     | '/owner/emails'
@@ -1174,6 +1186,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/admins'
     | '/_authenticated/owner/analytics'
     | '/_authenticated/owner/blog'
+    | '/_authenticated/owner/broadcasts'
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
     | '/_authenticated/owner/emails'
@@ -1813,6 +1826,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerContactsRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/broadcasts': {
+      id: '/_authenticated/owner/broadcasts'
+      path: '/broadcasts'
+      fullPath: '/owner/broadcasts'
+      preLoaderRoute: typeof AuthenticatedOwnerBroadcastsRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/blog': {
       id: '/_authenticated/owner/blog'
       path: '/blog'
@@ -1950,6 +1970,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
   AuthenticatedOwnerBlogRoute: typeof AuthenticatedOwnerBlogRoute
+  AuthenticatedOwnerBroadcastsRoute: typeof AuthenticatedOwnerBroadcastsRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
@@ -1973,6 +1994,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
   AuthenticatedOwnerBlogRoute: AuthenticatedOwnerBlogRoute,
+  AuthenticatedOwnerBroadcastsRoute: AuthenticatedOwnerBroadcastsRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
   AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
