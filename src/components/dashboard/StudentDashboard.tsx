@@ -210,10 +210,11 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           </section>
         </div>
 
-        {/* Calendar — your meetings, prep steps, and to-dos */}
+        {/* Calendar — your meetings, prep steps, and team events */}
         <div className="mt-6">
-          <DashboardCalendar snap={snap} compact />
+          <DashboardCalendar studentId={s.id} compact title="Your calendar" />
         </div>
+
 
         {/* Latest report */}
         <section className="mt-6 rounded-3xl border bg-card p-6 shadow-soft">
