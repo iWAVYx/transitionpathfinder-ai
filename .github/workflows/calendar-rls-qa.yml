@@ -1,4 +1,4 @@
-name: Calendar RLS regression QA
+name: RLS regression QA
 
 on:
   pull_request:
@@ -7,18 +7,23 @@ on:
       - "src/lib/calendar.functions.ts"
       - "src/lib/calendar-events.ts"
       - "src/components/dashboard/DashboardCalendar.tsx"
+      - "src/lib/documents.functions.ts"
+      - "src/lib/iep-extract.functions.ts"
+      - "src/components/pathway/IepUpload.tsx"
       - "tests/calendar-rls.test.mjs"
+      - "tests/documents-rls.test.mjs"
       - "tests/__snapshots__/calendar-rls-*.snap.json"
+      - "tests/__snapshots__/documents-rls-*.snap.json"
       - ".github/workflows/calendar-rls-qa.yml"
   push:
     branches: [main]
 
 jobs:
-  calendar-rls:
+  rls-regression:
     runs-on: ubuntu-latest
     # Requires SUPABASE_DB_URL pointing at a Postgres database that has the
     # current schema migrations applied (staging or an ephemeral CI database).
-    # If the secret is absent the suite skips itself rather than failing.
+    # If the secret is absent each suite skips itself rather than failing.
     env:
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
     steps:
@@ -30,12 +35,15 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends postgresql-client
-      - name: Run calendar RLS regression
+      - name: Calendar RLS regression
         run: node --test tests/calendar-rls.test.mjs
-      - name: How to update snapshot
+      - name: Documents + student-storage RLS regression
+        run: node --test tests/documents-rls.test.mjs
+      - name: How to update snapshots
         if: failure()
         run: |
-          echo "::error::Calendar RLS policies or visibility matrix drifted."
-          echo "If the change is intentional, regenerate the snapshots locally with:"
+          echo "::error::An RLS policy snapshot or behavioral matrix drifted."
+          echo "If the change is intentional, regenerate the affected snapshot(s) locally with:"
           echo "  UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs"
-          echo "Then commit tests/__snapshots__/calendar-rls-*.snap.json and re-run."
+          echo "  UPDATE_SNAPSHOTS=1 node --test tests/documents-rls.test.mjs"
+          echo "Then commit tests/__snapshots__/*.snap.json and re-run."
