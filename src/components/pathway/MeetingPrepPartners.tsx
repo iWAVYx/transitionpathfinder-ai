@@ -93,17 +93,35 @@ export function MeetingPrepPartners({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-display text-lg font-medium tracking-tight">Suggested deadlines</h3>
           {deadlines.parsed && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                downloadIcs(deadlines.steps, studentId, () =>
-                  toast.success("Calendar reminders downloaded — open the file to add them."),
-                )
-              }
-            >
-              <CalendarPlus className="mr-1.5 h-4 w-4" aria-hidden /> Add reminders to calendar
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Select value={tz} onValueChange={setTz}>
+                <SelectTrigger
+                  className="h-8 w-auto gap-1 text-xs"
+                  aria-label="Select timezone"
+                >
+                  <Globe className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                  <SelectValue placeholder="Timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map((t) => (
+                    <SelectItem key={t.value} value={t.value} className="text-xs">
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  downloadIcs(deadlines.steps, studentId, tz, () =>
+                    toast.success("Calendar reminders downloaded — open the file to add them."),
+                  )
+                }
+              >
+                <CalendarPlus className="mr-1.5 h-4 w-4" aria-hidden /> Add reminders to calendar
+              </Button>
+            </div>
           )}
         </div>
         {deadlines.parsed ? (
