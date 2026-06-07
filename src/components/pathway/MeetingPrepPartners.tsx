@@ -188,41 +188,145 @@ export function MeetingPrepPartners({
   );
 }
 
+type DeadlineStep = { label: string; detail: string; when: string; date: Date };
+
 function computeDeadlines(meetingDate: string | null): {
   parsed: boolean;
-  steps: { label: string; detail: string; when: string }[];
+  steps: DeadlineStep[];
 } {
   if (!meetingDate) return { parsed: false, steps: [] };
   const d = new Date(meetingDate);
   if (Number.isNaN(d.getTime())) return { parsed: false, steps: [] };
-  const fmt = (offsetDays: number) => {
+  const at = (offsetDays: number) => {
     const x = new Date(d);
     x.setDate(x.getDate() - offsetDays);
-    return x.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    return x;
+  };
+  const fmt = (x: Date) =>
+    x.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const make = (offset: number, suffix: string, label: string, detail: string): DeadlineStep => {
+    const date = at(offset);
+    return { label, detail, when: `${fmt(date)} · ${suffix}`, date };
   };
   return {
     parsed: true,
     steps: [
-      {
-        label: "Request records & draft documents",
-        detail: "Ask the school for the proposed IEP draft, evaluations, and progress reports.",
-        when: `${fmt(14)} · 2 wks before`,
-      },
-      {
-        label: "Contact partner organizations",
-        detail: "Reach out to the top partner contacts below to confirm services, eligibility, and availability.",
-        when: `${fmt(7)} · 1 wk before`,
-      },
-      {
-        label: "Review with the student",
-        detail: "Walk through goals, concerns, and what they want to say in their own words.",
-        when: `${fmt(3)} · 3 days before`,
-      },
-      {
-        label: "Pack the meeting folder",
-        detail: "Print the agenda, questions, evidence list, and partner contacts. Confirm time and location.",
-        when: `${fmt(1)} · day before`,
-      },
+      make(
+        14,
+        "2 wks before",
+        "Request records & draft documents",
+        "Ask the school for the proposed IEP draft, evaluations, and progress reports.",
+      ),
+      make(
+        7,
+        "1 wk before",
+        "Contact partner organizations",
+        "Reach out to the top partner contacts to confirm services, eligibility, and availability.",
+      ),
+      make(
+        3,
+        "3 days before",
+        "Review with the student",
+        "Walk through goals, concerns, and what they want to say in their own words.",
+      ),
+      make(
+        1,
+        "day before",
+        "Pack the meeting folder",
+        "Print the agenda, questions, evidence list, and partner contacts. Confirm time and location.",
+      ),
     ],
   };
+}
+
+// ---- ICS builder -----------------------------------------------------------
+
+function pad(n: number) {
+  return n.toString().padStart(2, "0");
+}
+
+/** All-day VEVENT date in YYYYMMDD (floating, local). */
+function icsDate(d: Date) {
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+}
+
+/** UTC timestamp for DTSTAMP. */
+function icsStamp() {
+  const d = new Date();
+  return (
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +
+    `T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`
+  );
+}
+
+/** RFC 5545 line folding + minimal escaping. */
+function icsLine(name: string, value: string) {
+  const escaped = value
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+  const line = `${name}:${escaped}`;
+  if (line.length <= 73) return line;
+  const out: string[] = [];
+  let i = 0;
+  while (i < line.length) {
+    out.push((i === 0 ? "" : " ") + line.slice(i, i + 73));
+    i += 73;
+  }
+  return out.join("\r\n");
+}
+
+function buildIcs(steps: DeadlineStep[], studentId: string | null) {
+  const stamp = icsStamp();
+  const uidSeed = studentId ?? "meeting-prep";
+  const events = steps.map((s, idx) => {
+    const start = icsDate(s.date);
+    const end = new Date(s.date);
+    end.setDate(end.getDate() + 1);
+    const uid = `${uidSeed}-${idx}-${start}@transitionforward`;
+    return [
+      "BEGIN:VEVENT",
+      icsLine("UID", uid),
+      icsLine("DTSTAMP", stamp),
+      `DTSTART;VALUE=DATE:${start}`,
+      `DTEND;VALUE=DATE:${icsDate(end)}`,
+      icsLine("SUMMARY", `PPT Prep: ${s.label}`),
+      icsLine("DESCRIPTION", `${s.detail}\n\n(${s.when})`),
+      "BEGIN:VALARM",
+      "ACTION:DISPLAY",
+      icsLine("DESCRIPTION", `Reminder: ${s.label}`),
+      "TRIGGER:-P1D",
+      "END:VALARM",
+      "END:VEVENT",
+    ].join("\r\n");
+  });
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//TransitionForward//PPT Meeting Prep//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    ...events,
+    "END:VCALENDAR",
+    "",
+  ].join("\r\n");
+}
+
+function downloadIcs(
+  steps: DeadlineStep[],
+  studentId: string | null,
+  onDone?: () => void,
+) {
+  const ics = buildIcs(steps, studentId);
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ppt-meeting-prep-reminders.ics";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  onDone?.();
 }
