@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getVtimezoneBlock } from "@/lib/calendar-events";
 
 const TIMEZONES = [
   { value: "America/New_York", label: "Eastern Time" },
@@ -366,11 +367,6 @@ function icsLocal(d: Date) {
 function buildIcs(steps: DeadlineStep[], studentId: string | null, tz?: string) {
   const stamp = icsStamp();
   const uidSeed = studentId ?? "meeting-prep";
-  // Re-use the dashboard calendar's VTIMEZONE catalog for parity.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { getVtimezoneBlock } = require("@/lib/calendar-events") as {
-    getVtimezoneBlock: (tz: string) => string | null;
-  };
   const tzBlock = tz ? getVtimezoneBlock(tz) : null;
   const tzid = tzBlock ? tz! : null;
   const events = steps.map((s, idx) => {
