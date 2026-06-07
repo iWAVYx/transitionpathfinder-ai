@@ -41,6 +41,8 @@ jobs:
         run: node --test tests/calendar-rls.test.mjs
       - name: Documents + student-storage RLS regression
         run: node --test tests/documents-rls.test.mjs
+      - name: IEP upload + signed-URL access regression
+        run: node --test tests/iep-upload-signed-url.test.mjs
       - name: How to update snapshots
         if: failure()
         run: |
@@ -48,4 +50,5 @@ jobs:
           echo "If the change is intentional, regenerate the affected snapshot(s) locally with:"
           echo "  UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs"
           echo "  UPDATE_SNAPSHOTS=1 node --test tests/documents-rls.test.mjs"
+          echo "  UPDATE_SNAPSHOTS=1 node --test tests/iep-upload-signed-url.test.mjs"
           echo "Then commit tests/__snapshots__/*.snap.json and re-run."
