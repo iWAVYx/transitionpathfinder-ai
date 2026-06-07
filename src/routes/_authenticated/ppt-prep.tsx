@@ -70,7 +70,13 @@ function PptPrepPage() {
   if (agenda) {
     return (
       <SiteShell>
-        <AgendaView name={agenda.studentName} agenda={agenda.agenda} onReset={() => setAgenda(null)} />
+        <AgendaView
+          name={agenda.studentName}
+          agenda={agenda.agenda}
+          studentId={agenda.studentId}
+          meetingDate={agenda.meetingDate}
+          onReset={() => setAgenda(null)}
+        />
       </SiteShell>
     );
   }
