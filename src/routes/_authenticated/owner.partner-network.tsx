@@ -139,6 +139,9 @@ function PartnerNetworkAdminPage() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [oppsPartner, setOppsPartner] = useState<Row | null>(null);
+  const [openNewForPartner, setOpenNewForPartner] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerQ, setPickerQ] = useState("");
 
   const refresh = () => {
     setRows(null);
@@ -158,6 +161,15 @@ function PartnerNetworkAdminPage() {
       return true;
     });
   }, [rows, filter, q]);
+
+  const pickerResults = useMemo(() => {
+    const term = pickerQ.toLowerCase().trim();
+    const base = rows ?? [];
+    if (!term) return base.slice(0, 25);
+    return base
+      .filter((r) => r.organization_name.toLowerCase().includes(term))
+      .slice(0, 25);
+  }, [rows, pickerQ]);
 
   async function update(id: string, patch: Parameters<typeof setStatus>[0]["data"]) {
     setBusy(id);
@@ -190,13 +202,69 @@ function PartnerNetworkAdminPage() {
             {s}
           </button>
         ))}
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search organizations…"
-          className="ml-auto max-w-xs"
-        />
+        <div className="ml-auto flex items-center gap-2">
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search organizations…"
+            className="max-w-xs"
+          />
+          <Button size="sm" onClick={() => { setPickerOpen(true); setPickerQ(""); }}>
+            <Plus className="mr-1 h-3 w-3" /> Add opportunity
+          </Button>
+        </div>
       </div>
+
+      {pickerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-background/80 p-4 backdrop-blur-sm sm:pt-24"
+          onClick={() => setPickerOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg rounded-lg border border-border bg-background p-4 shadow-lg"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Pick a partner organization</h3>
+              <Button size="sm" variant="ghost" onClick={() => setPickerOpen(false)}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+            <Input
+              autoFocus
+              value={pickerQ}
+              onChange={(e) => setPickerQ(e.target.value)}
+              placeholder="Search…"
+            />
+            <ul className="mt-3 max-h-80 space-y-1 overflow-y-auto">
+              {pickerResults.length === 0 ? (
+                <li className="p-3 text-center text-xs text-muted-foreground">
+                  No matches.
+                </li>
+              ) : (
+                pickerResults.map((r) => (
+                  <li key={r.id}>
+                    <button
+                      onClick={() => {
+                        setPickerOpen(false);
+                        setOpenNewForPartner(true);
+                        setOppsPartner(r);
+                      }}
+                      className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-muted"
+                    >
+                      <span className="truncate">{r.organization_name}</span>
+                      <Badge variant="outline" className="text-[10px]">
+                        {r.verification_status}
+                      </Badge>
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
 
       {rows === null ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
