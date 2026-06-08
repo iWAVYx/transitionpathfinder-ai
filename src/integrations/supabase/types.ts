@@ -3680,18 +3680,21 @@ export type Database = {
       }
       user_ui_prefs: {
         Row: {
+          accessibility: Json
           created_at: string
           report_viewer: Json
           updated_at: string
           user_id: string
         }
         Insert: {
+          accessibility?: Json
           created_at?: string
           report_viewer?: Json
           updated_at?: string
           user_id: string
         }
         Update: {
+          accessibility?: Json
           created_at?: string
           report_viewer?: Json
           updated_at?: string
