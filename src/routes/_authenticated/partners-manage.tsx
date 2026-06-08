@@ -39,6 +39,7 @@ import {
   type PartnerOrg,
 } from "@/lib/partner-workspace.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
