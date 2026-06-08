@@ -1232,6 +1232,15 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ Connect to plan: push items into Actions/Calendar ============ */}
+      {!demo && (
+        <ConnectToPlan
+          report={displayReport}
+          studentId={studentId}
+          reportId={meta?.reportId}
+        />
+      )}
+
       {/* ============ Closing note (formal) ============ */}
       <section className="report-section mt-10">
         <div className="rounded-2xl border border-border/60 bg-gradient-hero p-8 sm:p-10">
