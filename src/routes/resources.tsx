@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
+import { TrustNote } from "@/components/site/TrustNote";
 import {
   BookOpen,
   Headphones,
