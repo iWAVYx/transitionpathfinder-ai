@@ -76,6 +76,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
 
         <div className="mt-6">
           <NextBestAction surface="student" />
+          <OnboardingChecklist surface="student" className="mt-4" />
         </div>
 
         <div className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
