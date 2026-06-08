@@ -40,6 +40,7 @@ const NAV: NavItem[] = [
   { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
   { to: "/owner/health", label: "System Health", icon: Activity, group: "Overview" },
   { to: "/owner/demo", label: "Demo Mode", icon: Activity, group: "Overview" },
+  { to: "/owner/testing", label: "Testing Scripts", icon: ClipboardCheck, group: "Overview" },
   { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
   { to: "/owner/activity", label: "Activity Logs", icon: History, group: "Overview" },
   { to: "/owner/iep-audit", label: "IEP Signed-URL Audit", icon: Shield, group: "Overview" },
