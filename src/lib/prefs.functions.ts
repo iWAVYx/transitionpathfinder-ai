@@ -2,12 +2,15 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export type NotificationCadence = "instant" | "daily" | "weekly";
+
 export type NotificationPrefs = {
   user_id: string;
   email_collab_invites: boolean;
   email_goal_reminders: boolean;
   email_weekly_digest: boolean;
   email_report_ready: boolean;
+  notification_cadence: NotificationCadence;
   updated_at: string;
 };
 
@@ -16,6 +19,7 @@ const PrefsInput = z.object({
   email_goal_reminders: z.boolean().optional(),
   email_weekly_digest: z.boolean().optional(),
   email_report_ready: z.boolean().optional(),
+  notification_cadence: z.enum(["instant", "daily", "weekly"]).optional(),
 });
 
 export const getNotificationPrefs = createServerFn({ method: "GET" })

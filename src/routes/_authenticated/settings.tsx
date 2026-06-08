@@ -60,12 +60,27 @@ function SettingsPage() {
   const [prefs, setPrefs] = useState<NotificationPrefs | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
-  const [cadence, setCadence] = useState<"instant" | "daily" | "weekly">("daily");
+  const [savingCadence, setSavingCadence] = useState(false);
 
   useEffect(() => {
     fetchPrefs().then(setPrefs).catch(() => toast.error("Couldn't load preferences."));
     fetchProfile().then(setProfile).catch(() => {});
   }, [fetchPrefs, fetchProfile]);
+
+  async function setCadence(value: "instant" | "daily" | "weekly") {
+    if (!prefs || prefs.notification_cadence === value) return;
+    const prev = prefs;
+    setPrefs({ ...prefs, notification_cadence: value });
+    setSavingCadence(true);
+    try {
+      await savePrefs({ data: { notification_cadence: value } });
+    } catch {
+      toast.error("Couldn't save cadence — try again.");
+      setPrefs(prev);
+    } finally {
+      setSavingCadence(false);
+    }
+  }
 
   async function toggle(key: PrefKey, value: boolean) {
     if (!prefs) return;
@@ -207,24 +222,28 @@ function SettingsPage() {
             How often should we group updates? You can change this anytime.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {(["instant", "daily", "weekly"] as const).map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setCadence(c)}
-                className={
-                  "rounded-full border px-3.5 py-1.5 text-sm transition-colors " +
-                  (cadence === c
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground")
-                }
-              >
-                {c === "instant" ? "Instant" : c === "daily" ? "Daily digest" : "Weekly digest"}
-              </button>
-            ))}
+            {(["instant", "daily", "weekly"] as const).map((c) => {
+              const active = (prefs?.notification_cadence ?? "daily") === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  disabled={!prefs || savingCadence}
+                  onClick={() => setCadence(c)}
+                  className={
+                    "rounded-full border px-3.5 py-1.5 text-sm transition-colors disabled:opacity-60 " +
+                    (active
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-muted-foreground hover:text-foreground")
+                  }
+                >
+                  {c === "instant" ? "Instant" : c === "daily" ? "Daily digest" : "Weekly digest"}
+                </button>
+              );
+            })}
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Cadence preview — wires up to email delivery shortly.
+            Controls how often we batch the email notifications you've enabled above.
           </p>
         </div>
 
