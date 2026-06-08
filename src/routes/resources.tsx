@@ -467,27 +467,27 @@ function ResourcesPage() {
               </p>
             </div>
           </div>
-          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-2" : "gap-4"}`}>
+          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-1.5" : "gap-4"}`}>
             {filteredFeaturedDb.slice(0, 6).map((r) => (
               <a
                 key={r.id}
                 href={r.url ?? "#"}
                 target={r.url ? "_blank" : undefined}
                 rel={r.url ? "noreferrer" : undefined}
-                className={`group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                className={`group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{r.resource_type}</span>
                   {r.url && <span className="rounded-full bg-muted px-2 py-0.5">External</span>}
                 </div>
-                <h3 className={`mt-3 font-display font-medium leading-snug group-hover:text-primary ${viewDensity === "compact" ? "text-base" : "text-lg"}`}>
+                <h3 className={`mt-2 font-display font-medium leading-snug group-hover:text-primary ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">{r.description}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">{r.description}</p>
                 )}
                 {r.source_name && (
-                  <p className="mt-3 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
+                  <p className="mt-2 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
                 )}
               </a>
             ))}
