@@ -19,6 +19,7 @@ import {
   removeCollaborator,
   type Collaborator,
 } from "@/lib/collaborators.functions";
+import { TrustNote } from "@/components/site/TrustNote";
 
 export function CollaboratorsPanel({ studentId }: { studentId: string }) {
   const fetchList = useServerFn(listCollaborators);
