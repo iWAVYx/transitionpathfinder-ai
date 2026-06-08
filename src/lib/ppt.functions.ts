@@ -78,10 +78,32 @@ Generate a PPT meeting prep packet. Make every question and script specific to $
         experimental_output: Output.object({ schema: AgendaSchema }),
         prompt,
       });
+      const agenda = experimental_output as PptAgenda;
+      const studentId = (report as unknown as { student_id: string | null }).student_id;
+
+      // Persist so the agenda survives reloads / device switches.
+      const { data: saved, error: saveErr } = await supabase
+        .from("ppt_meeting_preps")
+        .insert({
+          user_id: context.userId,
+          report_id: data.report_id,
+          student_id: studentId,
+          student_name: name,
+          meeting_date: data.meeting_date || null,
+          top_concerns: data.top_concerns,
+          desired_outcomes: data.desired_outcomes,
+          agenda: JSON.parse(JSON.stringify(agenda)),
+          title: `${name}${data.meeting_date ? ` · ${data.meeting_date}` : ""}`,
+        })
+        .select("id")
+        .single();
+      if (saveErr) console.error("PPT prep save failed", saveErr);
+
       return {
-        agenda: experimental_output as PptAgenda,
+        id: saved?.id ?? null,
+        agenda,
         studentName: name,
-        studentId: (report as unknown as { student_id: string | null }).student_id,
+        studentId,
         meetingDate: data.meeting_date || null,
       };
     } catch (err) {
@@ -91,6 +113,71 @@ Generate a PPT meeting prep packet. Make every question and script specific to $
       if (msg.includes("402")) throw new Error("AI usage limit reached. Please add credits to continue.");
       throw new Error("We couldn't generate the meeting prep. Please try again.");
     }
+  });
+
+export type PptPrepSummary = {
+  id: string;
+  student_name: string;
+  meeting_date: string | null;
+  created_at: string;
+};
+
+export const listPptPreps = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("ppt_meeting_preps")
+      .select("id, student_name, meeting_date, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) {
+      console.error("listPptPreps failed", error);
+      return { preps: [] as PptPrepSummary[] };
+    }
+    return { preps: (data ?? []) as PptPrepSummary[] };
+  });
+
+export const getPptPrep = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error } = await supabase
+      .from("ppt_meeting_preps")
+      .select("id, student_id, student_name, meeting_date, top_concerns, desired_outcomes, agenda, created_at")
+      .eq("id", data.id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error || !row) throw new Error("That meeting prep was not found.");
+    // Validate stored agenda shape — old/malformed rows shouldn't crash render.
+    const parsed = AgendaSchema.safeParse(row.agenda);
+    if (!parsed.success) throw new Error("That meeting prep is missing or corrupted.");
+    return {
+      id: row.id,
+      agenda: parsed.data,
+      studentName: row.student_name,
+      studentId: row.student_id,
+      meetingDate: row.meeting_date,
+      topConcerns: row.top_concerns,
+      desiredOutcomes: row.desired_outcomes,
+      createdAt: row.created_at,
+    };
+  });
+
+export const deletePptPrep = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("ppt_meeting_preps")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", userId);
+    if (error) throw new Error("Could not delete that meeting prep.");
+    return { ok: true };
   });
 
 export const getPathwayReport = createServerFn({ method: "POST" })
