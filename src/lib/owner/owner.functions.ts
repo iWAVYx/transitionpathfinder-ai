@@ -1432,14 +1432,14 @@ export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// Public-ish: invitee looks up an invitation by token (must be signed in to see details).
+// Public-ish: invitee looks up an invitation by token (must be signed in + email must match).
 export const previewAdminInvitation = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { token: string }) =>
     z.object({ token: z.string().min(16).max(128) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId, claims } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("admin_invitations")
@@ -1447,6 +1447,25 @@ export const previewAdminInvitation = createServerFn({ method: "GET" })
       .eq("token", data.token)
       .maybeSingle();
     if (!row) return { invitation: null };
+
+    // Verify signed-in user's email matches the invited email.
+    let userEmail = (claims as any)?.email
+      ? String((claims as any).email).toLowerCase()
+      : "";
+    if (!userEmail) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", userId)
+        .maybeSingle();
+      userEmail = (profile?.email ?? "").toLowerCase();
+    }
+    if (!userEmail || userEmail !== row.email.toLowerCase()) {
+      throw new Error(
+        `This invitation was sent to ${row.email}. Sign in with that email to view it.`,
+      );
+    }
+
     return {
       invitation: {
         id: row.id,
