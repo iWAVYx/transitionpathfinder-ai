@@ -133,6 +133,8 @@ export function ReportView({
   const headerRef = useRef<HTMLElement | null>(null);
   const [parallaxY, setParallaxY] = useState(0);
   const [density, setDensity] = useState<"compact" | "comfortable">("compact");
+  const fetchPrefs = useServerFn(getReportViewerPrefs);
+  const pushPrefs = useServerFn(updateReportViewerPrefs);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -143,6 +145,68 @@ export function ReportView({
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("report-density", density);
+  }, [density]);
+
+  // Listen for server-pushed density hydration.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<DensitySetDetail>).detail;
+      if (detail?.density === "compact" || detail?.density === "comfortable") {
+        setDensity(detail.density);
+      }
+    };
+    window.addEventListener(EVT_DENSITY_SET, handler as EventListener);
+    return () =>
+      window.removeEventListener(EVT_DENSITY_SET, handler as EventListener);
+  }, []);
+
+  // Configure the debounced server pusher, then hydrate once from server.
+  useEffect(() => {
+    configureReportPrefsPusher((patch) => pushPrefs({ data: patch }));
+    let cancelled = false;
+    fetchPrefs()
+      .then((prefs) => {
+        if (cancelled || !prefs) return;
+        if (prefs.density) {
+          window.dispatchEvent(
+            new CustomEvent<DensitySetDetail>(EVT_DENSITY_SET, {
+              detail: { density: prefs.density },
+            }),
+          );
+        }
+        if (typeof prefs.outline_open === "boolean") {
+          window.dispatchEvent(
+            new CustomEvent<OutlineSetDetail>(EVT_OUTLINE_SET, {
+              detail: { open: prefs.outline_open },
+            }),
+          );
+        }
+        if (Array.isArray(prefs.collapsed_blocks)) {
+          window.dispatchEvent(
+            new CustomEvent<CollapsedBlocksHydrationDetail>(
+              EVT_BLOCKS_HYDRATE,
+              { detail: { collapsedIds: prefs.collapsed_blocks } },
+            ),
+          );
+        }
+      })
+      .catch(() => {
+        /* offline / unauthenticated — localStorage cache stands */
+      });
+    return () => {
+      cancelled = true;
+      flushReportPrefs();
+    };
+  }, [fetchPrefs, pushPrefs]);
+
+  // Mirror user-driven density changes to the server (skips initial mount).
+  const densityHydrated = useRef(false);
+  useEffect(() => {
+    if (!densityHydrated.current) {
+      densityHydrated.current = true;
+      return;
+    }
+    queueReportPrefsUpdate({ density });
   }, [density]);
 
   useEffect(() => {
