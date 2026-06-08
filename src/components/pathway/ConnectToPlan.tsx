@@ -132,6 +132,11 @@ export function ConnectToPlan({
   const addEvent = useServerFn(createCalendarEvent);
   const items = useMemo(() => collectItems(report), [report]);
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const safeReportId =
+    reportId &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId)
+      ? reportId
+      : undefined;
 
   if (items.length === 0) return null;
 
