@@ -41,6 +41,7 @@ import {
 import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSuggestions";
+import { ConnectToPlan } from "@/components/pathway/ConnectToPlan";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -1229,6 +1230,15 @@ export function ReportView({
             <BulletList items={r.needs_human_review} />
           </div>
         </Block>
+      )}
+
+      {/* ============ Connect to plan: push items into Actions/Calendar ============ */}
+      {!demo && (
+        <ConnectToPlan
+          report={displayReport}
+          studentId={studentId}
+          reportId={meta?.reportId}
+        />
       )}
 
       {/* ============ Closing note (formal) ============ */}
