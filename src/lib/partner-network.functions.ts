@@ -2,6 +2,19 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function requirePlatformAdmin(supabase: any, userId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from("admin_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .in("role", ["platform_owner", "platform_admin"])
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) {
+    throw new Error("Forbidden: Platform admin access required.");
+  }
+}
+
 const OPP_TYPES = [
   "internship",
   "job_shadowing",
