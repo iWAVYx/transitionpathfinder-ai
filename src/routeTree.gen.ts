@@ -79,6 +79,7 @@ import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
 import { Route as AuthenticatedOwnerTestingRouteImport } from './routes/_authenticated/owner.testing'
+import { Route as AuthenticatedOwnerPitchRouteImport } from './routes/_authenticated/owner.pitch'
 import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
 import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authenticated/owner.resources'
@@ -477,6 +478,12 @@ const AuthenticatedOwnerTestingRoute =
     path: '/testing',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerPitchRoute =
+  AuthenticatedOwnerPitchRouteImport.update({
+    id: '/pitch',
+    path: '/pitch',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerTestimonialsRoute =
   AuthenticatedOwnerTestimonialsRouteImport.update({
     id: '/testimonials',
@@ -784,6 +791,7 @@ export interface FileRoutesByFullPath {
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/testing': typeof AuthenticatedOwnerTestingRoute
+  '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -891,6 +899,7 @@ export interface FileRoutesByTo {
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/testing': typeof AuthenticatedOwnerTestingRoute
+  '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -1001,6 +1010,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/_authenticated/owner/testing': typeof AuthenticatedOwnerTestingRoute
+  '/_authenticated/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -1111,6 +1121,7 @@ export interface FileRouteTypes {
     | '/owner/settings'
     | '/owner/testimonials'
     | '/owner/testing'
+    | '/owner/pitch'
     | '/owner/users'
     | '/owner/waitlist'
     | '/reports/$reportId'
@@ -1218,6 +1229,7 @@ export interface FileRouteTypes {
     | '/owner/settings'
     | '/owner/testimonials'
     | '/owner/testing'
+    | '/owner/pitch'
     | '/owner/users'
     | '/owner/waitlist'
     | '/reports/$reportId'
@@ -1327,6 +1339,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/settings'
     | '/_authenticated/owner/testimonials'
     | '/_authenticated/owner/testing'
+    | '/_authenticated/owner/pitch'
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
@@ -1877,6 +1890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerTestingRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/pitch': {
+      id: '/_authenticated/owner/pitch'
+      path: '/pitch'
+      fullPath: '/owner/pitch'
+      preLoaderRoute: typeof AuthenticatedOwnerPitchRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/testimonials': {
       id: '/_authenticated/owner/testimonials'
       path: '/testimonials'
@@ -2191,6 +2211,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
   AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
   AuthenticatedOwnerTestingRoute: typeof AuthenticatedOwnerTestingRoute
+  AuthenticatedOwnerPitchRoute: typeof AuthenticatedOwnerPitchRoute
   AuthenticatedOwnerUsersRoute: typeof AuthenticatedOwnerUsersRoute
   AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
@@ -2228,6 +2249,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
   AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
   AuthenticatedOwnerTestingRoute: AuthenticatedOwnerTestingRoute,
+  AuthenticatedOwnerPitchRoute: AuthenticatedOwnerPitchRoute,
   AuthenticatedOwnerUsersRoute: AuthenticatedOwnerUsersRoute,
   AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
