@@ -117,11 +117,15 @@ export const listPartners = createServerFn({ method: "GET" })
   });
 
 
-// ADMIN — full data + opportunities
+// ADMIN — full data + opportunities. Uses service-role client because
+// column-level SELECT on PII (contact_email, phone, address, outreach_*,
+// admin_notes, next_follow_up_date) is revoked from `authenticated`.
 export const listAdminPartners = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await requirePlatformAdmin(context.supabase, context.userId);
+    const { data, error } = await supabaseAdmin
       .from("partner_organizations")
       .select(ADMIN_COLS)
       .order("updated_at", { ascending: false });
@@ -133,13 +137,15 @@ export const getPartner = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => d)
   .handler(async ({ data, context }) => {
-    const { data: partner, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await requirePlatformAdmin(context.supabase, context.userId);
+    const { data: partner, error } = await supabaseAdmin
       .from("partner_organizations")
       .select(ADMIN_COLS)
       .eq("id", data.id)
       .single();
     if (error) throw error;
-    const { data: opps } = await context.supabase
+    const { data: opps } = await supabaseAdmin
       .from("partner_network_opportunities")
       .select("*")
       .eq("partner_id", data.id)
@@ -206,7 +212,9 @@ export const listOpportunitiesForPartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { partner_id: string }) => d)
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await requirePlatformAdmin(context.supabase, context.userId);
+    const { data: rows, error } = await supabaseAdmin
       .from("partner_network_opportunities")
       .select("*")
       .eq("partner_id", data.partner_id)
