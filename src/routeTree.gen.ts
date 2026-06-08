@@ -84,6 +84,7 @@ import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authenticated/owner.resources'
 import { Route as AuthenticatedOwnerResourceSourcesRouteImport } from './routes/_authenticated/owner.resource-sources'
 import { Route as AuthenticatedOwnerResourceReviewRouteImport } from './routes/_authenticated/owner.resource-review'
+import { Route as AuthenticatedOwnerPitchRouteImport } from './routes/_authenticated/owner.pitch'
 import { Route as AuthenticatedOwnerPartnerSubmissionsRouteImport } from './routes/_authenticated/owner.partner-submissions'
 import { Route as AuthenticatedOwnerPartnerOutreachRouteImport } from './routes/_authenticated/owner.partner-outreach'
 import { Route as AuthenticatedOwnerPartnerNetworkStatusRouteImport } from './routes/_authenticated/owner.partner-network-status'
@@ -506,6 +507,11 @@ const AuthenticatedOwnerResourceReviewRoute =
     path: '/resource-review',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerPitchRoute = AuthenticatedOwnerPitchRouteImport.update({
+  id: '/pitch',
+  path: '/pitch',
+  getParentRoute: () => AuthenticatedOwnerRoute,
+} as any)
 const AuthenticatedOwnerPartnerSubmissionsRoute =
   AuthenticatedOwnerPartnerSubmissionsRouteImport.update({
     id: '/partner-submissions',
@@ -771,6 +777,7 @@ export interface FileRoutesByFullPath {
   '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
@@ -877,6 +884,7 @@ export interface FileRoutesByTo {
   '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
@@ -986,6 +994,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/_authenticated/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/_authenticated/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/_authenticated/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/_authenticated/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/_authenticated/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
   '/_authenticated/owner/resources': typeof AuthenticatedOwnerResourcesRoute
@@ -1095,6 +1104,7 @@ export interface FileRouteTypes {
     | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
+    | '/owner/pitch'
     | '/owner/resource-review'
     | '/owner/resource-sources'
     | '/owner/resources'
@@ -1201,6 +1211,7 @@ export interface FileRouteTypes {
     | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
+    | '/owner/pitch'
     | '/owner/resource-review'
     | '/owner/resource-sources'
     | '/owner/resources'
@@ -1309,6 +1320,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/partner-network-status'
     | '/_authenticated/owner/partner-outreach'
     | '/_authenticated/owner/partner-submissions'
+    | '/_authenticated/owner/pitch'
     | '/_authenticated/owner/resource-review'
     | '/_authenticated/owner/resource-sources'
     | '/_authenticated/owner/resources'
@@ -1900,6 +1912,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerResourceReviewRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/pitch': {
+      id: '/_authenticated/owner/pitch'
+      path: '/pitch'
+      fullPath: '/owner/pitch'
+      preLoaderRoute: typeof AuthenticatedOwnerPitchRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/partner-submissions': {
       id: '/_authenticated/owner/partner-submissions'
       path: '/partner-submissions'
@@ -2165,6 +2184,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerPartnerNetworkStatusRoute: typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   AuthenticatedOwnerPartnerOutreachRoute: typeof AuthenticatedOwnerPartnerOutreachRoute
   AuthenticatedOwnerPartnerSubmissionsRoute: typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  AuthenticatedOwnerPitchRoute: typeof AuthenticatedOwnerPitchRoute
   AuthenticatedOwnerResourceReviewRoute: typeof AuthenticatedOwnerResourceReviewRoute
   AuthenticatedOwnerResourceSourcesRoute: typeof AuthenticatedOwnerResourceSourcesRoute
   AuthenticatedOwnerResourcesRoute: typeof AuthenticatedOwnerResourcesRoute
@@ -2200,6 +2220,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
     AuthenticatedOwnerPartnerOutreachRoute,
   AuthenticatedOwnerPartnerSubmissionsRoute:
     AuthenticatedOwnerPartnerSubmissionsRoute,
+  AuthenticatedOwnerPitchRoute: AuthenticatedOwnerPitchRoute,
   AuthenticatedOwnerResourceReviewRoute: AuthenticatedOwnerResourceReviewRoute,
   AuthenticatedOwnerResourceSourcesRoute:
     AuthenticatedOwnerResourceSourcesRoute,
