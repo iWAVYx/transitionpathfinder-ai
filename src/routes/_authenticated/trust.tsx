@@ -15,6 +15,7 @@ import {
   revokeConsent,
   type TrustStudentSummary,
 } from "@/lib/trust.functions";
+import { TrustNote } from "@/components/site/TrustNote";
 
 export const Route = createFileRoute("/_authenticated/trust")({
   head: () => ({ meta: [{ title: "Trust & Consent — TransitionForward" }] }),
