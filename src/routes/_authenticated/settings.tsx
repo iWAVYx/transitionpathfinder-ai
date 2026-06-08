@@ -27,7 +27,9 @@ type PrefKey =
   | "email_collab_invites"
   | "email_goal_reminders"
   | "email_weekly_digest"
-  | "email_report_ready";
+  | "email_report_ready"
+  | "in_app_enabled"
+  | "sms_enabled";
 
 const PREF_LABELS: { key: PrefKey; title: string; desc: string }[] = [
   {
