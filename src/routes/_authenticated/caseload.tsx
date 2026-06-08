@@ -113,6 +113,7 @@ function CaseloadPage() {
 
         <div className="mt-6">
           <NextBestAction surface="educator" />
+          <OnboardingChecklist surface="educator" className="mt-4" />
         </div>
 
 
