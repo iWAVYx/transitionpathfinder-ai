@@ -30,37 +30,6 @@ export const FEED_KINDS = [
 ] as const;
 export type FeedKind = (typeof FEED_KINDS)[number];
 
-const EmitInput = z.object({
-  student_id: z.string().uuid(),
-  kind: z.enum(FEED_KINDS),
-  title: z.string().min(1).max(240),
-  body: z.string().max(2000).optional(),
-  ref_table: z.string().max(80).optional(),
-  ref_id: z.string().uuid().optional(),
-  payload: z.record(z.string(), z.any()).optional(),
-});
-
-export const emitFeedEvent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => EmitInput.parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { error } = await supabase.from("feed_events").insert({
-      student_id: data.student_id,
-      actor_id: userId,
-      kind: data.kind,
-      title: data.title,
-      body: data.body ?? null,
-      ref_table: data.ref_table ?? null,
-      ref_id: data.ref_id ?? null,
-      payload: (data.payload ?? {}) as any,
-    });
-    if (error) {
-      console.error("emitFeedEvent failed", error);
-      throw new Error("Could not record event.");
-    }
-    return { ok: true };
-  });
 
 export const listFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
