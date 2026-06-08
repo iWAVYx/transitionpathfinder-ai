@@ -19,6 +19,7 @@ import {
   removeCollaborator,
   type Collaborator,
 } from "@/lib/collaborators.functions";
+import { TrustNote } from "@/components/site/TrustNote";
 
 export function CollaboratorsPanel({ studentId }: { studentId: string }) {
   const fetchList = useServerFn(listCollaborators);
@@ -85,6 +86,8 @@ export function CollaboratorsPanel({ studentId }: { studentId: string }) {
         </div>
         <Users className="h-5 w-5 text-muted-foreground" />
       </div>
+
+      <TrustNote variant="sharing" className="mt-4" />
 
       <form
         onSubmit={handleInvite}

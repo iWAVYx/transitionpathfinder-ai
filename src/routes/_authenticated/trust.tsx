@@ -15,6 +15,7 @@ import {
   revokeConsent,
   type TrustStudentSummary,
 } from "@/lib/trust.functions";
+import { TrustNote } from "@/components/site/TrustNote";
 
 export const Route = createFileRoute("/_authenticated/trust")({
   head: () => ({ meta: [{ title: "Trust & Consent — TransitionForward" }] }),
@@ -90,6 +91,10 @@ function TrustPage() {
             and how AI is used on this data. You can revoke access at any time.
           </p>
         </header>
+
+        <TrustNote variant="consent" display="banner" />
+        <TrustNote variant="admin-scope" display="banner" />
+
 
         {/* AI policy card */}
         <section className="rounded-xl border bg-card p-6 space-y-3">

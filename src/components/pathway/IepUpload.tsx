@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
 import iepImage from "@/assets/iep-upload.jpg";
+import { TrustNote } from "@/components/site/TrustNote";
 
 type Props = {
   onExtracted: (extract: IepExtract) => void;
@@ -140,7 +141,8 @@ export function IepUpload({ onExtracted }: Props) {
             </div>
           )}
 
-          <p className="mt-4 text-xs italic text-muted-foreground">
+          <TrustNote variant="document" className="mt-4" />
+          <p className="mt-3 text-xs italic text-muted-foreground">
             Privacy: please remove last names or other identifying details before uploading. We do not
             store the file — only the structured fields you choose to save.
           </p>

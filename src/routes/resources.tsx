@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
+import { TrustNote } from "@/components/site/TrustNote";
 import {
   BookOpen,
   Headphones,
@@ -387,7 +388,9 @@ function ResourcesPage() {
                 )}
               </button>
             </div>
+            <TrustNote variant="resources" className="mt-6 max-w-xl" />
           </div>
+
           <div className="relative">
             <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
             <img

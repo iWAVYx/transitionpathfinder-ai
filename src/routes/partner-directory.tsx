@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { listPublicPartners } from "@/lib/partner-network.functions";
+import { TrustNote } from "@/components/site/TrustNote";
 
 export const Route = createFileRoute("/partner-directory")({
   head: () => ({
@@ -132,6 +133,8 @@ function PartnerDirectoryPage() {
             employer leads — verified partners and community resources for transition planning across
             Connecticut.
           </p>
+          <TrustNote variant="partners" className="mt-5 max-w-3xl" />
+
           <div className="mt-6 flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[240px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
