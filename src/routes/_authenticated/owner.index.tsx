@@ -24,6 +24,7 @@ import {
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
