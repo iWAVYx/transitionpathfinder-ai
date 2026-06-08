@@ -953,7 +953,7 @@ function BrowseTab(props: {
               Editors' picks
             </p>
           </div>
-          <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
             {featured.map((r) => (
               <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
             ))}
@@ -973,7 +973,7 @@ function BrowseTab(props: {
                 {grouped[fmt]?.length} resources
               </p>
             </div>
-            <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+            <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
               {grouped[fmt]!.map((r) => (
                 <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
               ))}
@@ -1064,7 +1064,7 @@ function RecommendedTab({
           body="Once a student has goals, interests, and a grade level, the library can suggest videos, agencies, and worksheets that match."
         />
       ) : (
-        <div className={`mt-10 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+        <div className={`mt-10 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
           {recs.map((r) => (
             <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
           ))}
@@ -1131,7 +1131,7 @@ function SavedTab({
                   · {byCollection[c].length}
                 </span>
               </h3>
-              <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+              <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
                 {byCollection[c].map((r) => (
                   <ResourceCard
                     key={r.id}
