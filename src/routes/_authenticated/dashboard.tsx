@@ -333,6 +333,7 @@ function DashboardPage() {
 
         <div className="mt-4">
           <NextBestAction surface="family" />
+          <OnboardingChecklist surface="family" className="mt-4" />
         </div>
 
         {/* Header band */}
