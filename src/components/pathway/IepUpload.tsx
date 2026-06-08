@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
 import iepImage from "@/assets/iep-upload.jpg";
+import { TrustNote } from "@/components/site/TrustNote";
 
 type Props = {
   onExtracted: (extract: IepExtract) => void;
