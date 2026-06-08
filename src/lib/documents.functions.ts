@@ -120,17 +120,97 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+
+    // Look up the document. RLS on `documents` returns no row if the caller
+    // has lost access to the student — we use that as the revoked-access
+    // signal and raise an alert before refusing.
     const { data: row, error } = await supabase
       .from("documents")
-      .select("storage_path")
+      .select("id, storage_path, student_id, doc_type, title")
       .eq("id", data.id)
       .maybeSingle();
-    if (error || !row) throw new Error("Document not found.");
+
+    if (error || !row) {
+      // Confirm document exists (admin-elevated) so we only alert on revoked
+      // access, not on truly missing/invalid ids.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: probe } = await supabaseAdmin
+        .from("documents")
+        .select("id, student_id, doc_type")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (probe) {
+        const { data: actor } = await supabaseAdmin
+          .from("profiles")
+          .select("email")
+          .eq("id", userId)
+          .maybeSingle();
+        await supabaseAdmin.from("iep_access_alerts").insert({
+          actor_id: userId,
+          actor_email: actor?.email ?? null,
+          student_id: probe.student_id,
+          document_id: probe.id,
+          reason: "revoked_access_signed_url_attempt",
+          metadata: { doc_type: probe.doc_type, action: "mint" },
+        });
+        await supabaseAdmin.from("audit_log").insert({
+          actor_id: userId,
+          actor_email: actor?.email ?? null,
+          action: "document.signed_url.denied",
+          entity_type: "document",
+          entity_id: probe.id,
+          student_id: probe.student_id,
+          metadata: { reason: "revoked_access", doc_type: probe.doc_type },
+        });
+        console.warn("[iep-alert] revoked-access signed URL attempt", {
+          actor: userId,
+          student: probe.student_id,
+          document: probe.id,
+        });
+      }
+      throw new Error("Document not found.");
+    }
+
     const { data: signed, error: signErr } = await supabase.storage
       .from("student-documents")
       .createSignedUrl(row.storage_path, 300);
     if (signErr || !signed) throw new Error("Could not generate link.");
+
+    // Resolve the caller's effective role on this student for the audit row.
+    let role: "owner" | "editor" | "viewer" | "admin" | "other" = "other";
+    const [{ data: ownerRow }, { data: collabRow }, { data: adminRow }] = await Promise.all([
+      supabase.from("students").select("id").eq("id", row.student_id).eq("owner_id", userId).maybeSingle(),
+      supabase
+        .from("student_collaborators")
+        .select("role")
+        .eq("student_id", row.student_id)
+        .eq("user_id", userId)
+        .eq("status", "accepted")
+        .maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
+    ]);
+    if (ownerRow) role = "owner";
+    else if (collabRow?.role === "editor") role = "editor";
+    else if (collabRow?.role === "viewer") role = "viewer";
+    else if (adminRow) role = "admin";
+
+    // Audit (best-effort) — actor_id = auth.uid() satisfies RLS insert policy.
+    await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.signed_url.mint",
+      entity_type: "document",
+      entity_id: row.id,
+      student_id: row.student_id,
+      metadata: {
+        doc_type: row.doc_type,
+        title: row.title,
+        role,
+        ttl_seconds: 300,
+        storage_path: row.storage_path,
+      },
+    });
+
     return { url: signed.signedUrl };
   });
 
