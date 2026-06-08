@@ -348,7 +348,7 @@ function ResourcesPage() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
+        <div className="mx-auto grid max-w-[88rem] items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               The Resource Library
@@ -405,7 +405,7 @@ function ResourcesPage() {
       </section>
 
       {/* CATEGORY GRID */}
-      <section className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[88rem] px-4 pb-6 sm:px-6 lg:px-8">
         <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
           Ten Core Categories
         </h2>
@@ -453,7 +453,7 @@ function ResourcesPage() {
 
       {/* FEATURED RESOURCES (curated picks from DB) */}
       {filteredFeaturedDb.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[88rem] px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
@@ -467,27 +467,27 @@ function ResourcesPage() {
               </p>
             </div>
           </div>
-          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-2" : "gap-4"}`}>
+          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-1.5" : "gap-4"}`}>
             {filteredFeaturedDb.slice(0, 6).map((r) => (
               <a
                 key={r.id}
                 href={r.url ?? "#"}
                 target={r.url ? "_blank" : undefined}
                 rel={r.url ? "noreferrer" : undefined}
-                className={`group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                className={`group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{r.resource_type}</span>
                   {r.url && <span className="rounded-full bg-muted px-2 py-0.5">External</span>}
                 </div>
-                <h3 className={`mt-3 font-display font-medium leading-snug group-hover:text-primary ${viewDensity === "compact" ? "text-base" : "text-lg"}`}>
+                <h3 className={`mt-2 font-display font-medium leading-snug group-hover:text-primary ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">{r.description}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">{r.description}</p>
                 )}
                 {r.source_name && (
-                  <p className="mt-3 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
+                  <p className="mt-2 text-[11px] text-muted-foreground">Source: {r.source_name}</p>
                 )}
               </a>
             ))}
@@ -497,7 +497,7 @@ function ResourcesPage() {
 
       {/* VERIFIED LIBRARY (live from DB) */}
       {filteredDbResources.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[88rem] px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -514,12 +514,12 @@ function ResourcesPage() {
               {filteredDbResources.length} verified
             </span>
           </div>
-          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-2" : "gap-4"}`}>
+          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-1.5" : "gap-4"}`}>
             {filteredDbResources.slice(0, 6).map((r) => (
               <article
                 key={r.id}
-                className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
                   </span>
@@ -535,28 +535,28 @@ function ResourcesPage() {
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
 
-                <h3 className={`mt-3 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-base" : "text-lg"}`}>
+                <h3 className={`mt-2 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                     {r.description}
                   </p>
                 )}
-                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
+                <div className="mt-auto flex items-center justify-between pt-3 text-[11px] text-muted-foreground">
                   <span className="truncate">
                     {r.source_name ? `Source: ${r.source_name}` : r.location_scope}
                   </span>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleToggleSaveDb(r.id)}
                       aria-label={savedIds.has(r.id) ? "Unsave" : "Save"}
                       className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-primary"
                     >
                       {savedIds.has(r.id) ? (
-                        <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
+                        <BookmarkCheck className="h-3 w-3 text-primary" />
                       ) : (
-                        <Bookmark className="h-3.5 w-3.5" />
+                        <Bookmark className="h-3 w-3" />
                       )}
                       {savedIds.has(r.id) ? "Saved" : "Save"}
                     </button>
@@ -572,7 +572,7 @@ function ResourcesPage() {
                     )}
                   </div>
                 </div>
-                <div className="mt-3 flex justify-end">
+                <div className="mt-2 flex justify-end">
                   <AddToPathwayButton title={r.title} description={r.description} link={r.url} />
                 </div>
 
@@ -620,7 +620,7 @@ function ResourcesPage() {
 
       {/* BROWSE BY SOURCE LIBRARY */}
       {sourceLibs.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[88rem] px-4 pt-12 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -637,10 +637,10 @@ function ResourcesPage() {
               {sourceLibs.length} sources
             </span>
           </div>
-          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-2" : "gap-4"}`}>
+          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-1.5" : "gap-4"}`}>
             {sourceLibs.map((s) => (
-              <article key={s.id} className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+              <article key={s.id} className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {s.source_type.replace(/_/g, " ")}
                   </span>
@@ -649,14 +649,14 @@ function ResourcesPage() {
                     <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   )}
                 </div>
-                <h3 className={`mt-3 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-base" : "text-lg"}`}>{s.source_name}</h3>
+                <h3 className={`mt-2 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>{s.source_name}</h3>
                 {s.organization_name && (
                   <p className="mt-1 text-xs text-muted-foreground">{s.organization_name}</p>
                 )}
                 {s.description && (
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">{s.description}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">{s.description}</p>
                 )}
-                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
+                <div className="mt-auto flex items-center justify-between pt-3 text-[11px] text-muted-foreground">
                   <span>{s.resource_count} curated</span>
                   {s.source_url && (
                     <a href={s.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">
@@ -673,7 +673,7 @@ function ResourcesPage() {
       {/* GLOBAL SEARCH */}
       <section
         data-testid="resources-sticky-search"
-        className="sticky top-16 z-40 mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8"
+        className="sticky top-16 z-40 mx-auto max-w-[88rem] px-4 pt-4 sm:px-6 lg:px-8"
       >
         <div className="rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md">
           <div className="relative">
@@ -711,7 +711,7 @@ function ResourcesPage() {
 
       {/* TAB BAR */}
 
-      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[88rem] px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border">
           <div className="flex flex-wrap items-center gap-2">
             {(
@@ -782,7 +782,7 @@ function ResourcesPage() {
       )}
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[88rem] px-4 pb-24 sm:px-6 lg:px-8">
         <div className="mt-8 overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
             Connect Resources to a Real Plan.
@@ -840,7 +840,7 @@ function BrowseTab(props: {
   }, [visible]);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       {/* Filter bar */}
       <div
         data-testid="resources-sticky-filters"
@@ -953,7 +953,7 @@ function BrowseTab(props: {
               Editors' picks
             </p>
           </div>
-          <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
             {featured.map((r) => (
               <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
             ))}
@@ -973,7 +973,7 @@ function BrowseTab(props: {
                 {grouped[fmt]?.length} resources
               </p>
             </div>
-            <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+            <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
               {grouped[fmt]!.map((r) => (
                 <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
               ))}
@@ -1019,7 +1019,7 @@ function RecommendedTab({
   }, []);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       <div className="mt-8 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
@@ -1064,7 +1064,7 @@ function RecommendedTab({
           body="Once a student has goals, interests, and a grade level, the library can suggest videos, agencies, and worksheets that match."
         />
       ) : (
-        <div className={`mt-10 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+        <div className={`mt-10 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
           {recs.map((r) => (
             <ResourceCard key={r.id} resource={r} saved={!!saved[r.id]} onSave={() => toggleSave(r.id)} compact={density === "compact"} />
           ))}
@@ -1101,7 +1101,7 @@ function SavedTab({
   }, [resources, saved]);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display text-3xl font-medium tracking-tight">
@@ -1131,7 +1131,7 @@ function SavedTab({
                   · {byCollection[c].length}
                 </span>
               </h3>
-              <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-4" : "gap-6"}`}>
+              <div className={`grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${density === "compact" ? "gap-1.5" : "gap-6"}`}>
                 {byCollection[c].map((r) => (
                   <ResourceCard
                     key={r.id}
@@ -1355,8 +1355,8 @@ function ResourceCard({
           />
         </div>
       )}
-      <div className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}>
-        <div className="flex flex-wrap items-center gap-2">
+      <div className={`flex flex-1 flex-col ${compact ? "p-3" : "p-5"}`}>
+        <div className={`flex flex-wrap items-center ${compact ? "gap-1" : "gap-2"}`}>
           <Badge tone="primary">{fmt.label}</Badge>
           <Badge tone="muted">External</Badge>
           {r.location === "connecticut" ? (
@@ -1364,21 +1364,21 @@ function ResourceCard({
           ) : (
             <Badge tone="muted">{LOCATION_LABEL[r.location]}</Badge>
           )}
-          {r.audiences.slice(0, compact ? 2 : 3).map((a) => (
+          {r.audiences.slice(0, compact ? 1 : 3).map((a) => (
             <Badge key={a} tone="muted">
               {AUDIENCE_META[a]}
             </Badge>
           ))}
         </div>
 
-        <p className={`mt-2 font-semibold uppercase tracking-[0.16em] text-muted-foreground ${compact ? "text-[11px]" : "text-xs"}`}>
+        <p className={`mt-1.5 font-semibold uppercase tracking-[0.16em] text-muted-foreground ${compact ? "text-[10px]" : "text-xs"}`}>
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
         </p>
-        <h3 className={`mt-1 font-display font-medium leading-snug tracking-tight ${compact ? "text-base" : "text-lg"}`}>
+        <h3 className={`mt-0.5 font-display font-medium leading-snug tracking-tight ${compact ? "text-sm" : "text-lg"}`}>
           {toTitleCase(r.title)}
         </h3>
-        <p className={`mt-1.5 leading-relaxed text-muted-foreground ${compact ? "text-sm line-clamp-2" : "text-sm line-clamp-3"}`}>
+        <p className={`mt-1 leading-relaxed text-muted-foreground ${compact ? "text-xs line-clamp-2" : "text-sm line-clamp-3"}`}>
           {r.description}
         </p>
         {!compact && r.whyItHelps && (
@@ -1386,17 +1386,17 @@ function ResourceCard({
             <span className="font-semibold">Why it helps:</span> {r.whyItHelps}
           </p>
         )}
-        <div className={`mt-2 flex flex-wrap ${compact ? "gap-1.5" : "gap-2"}`}>
-          {r.topics.slice(0, compact ? 3 : 5).map((t) => (
+        <div className={`mt-1.5 flex flex-wrap ${compact ? "gap-1" : "gap-2"}`}>
+          {r.topics.slice(0, compact ? 2 : 5).map((t) => (
             <span
               key={t}
-              className={`rounded-full bg-secondary/60 font-medium text-foreground/70 ${compact ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}
+              className={`rounded-full bg-secondary/60 font-medium text-foreground/70 ${compact ? "px-2 py-[1px] text-[10px]" : "px-3 py-1 text-xs"}`}
             >
               {TOPIC_META[t].label}
             </span>
           ))}
         </div>
-        <div className={`flex items-center gap-3 text-muted-foreground ${compact ? "mt-3 text-[11px]" : "mt-4 text-xs"}`}>
+        <div className={`flex items-center gap-3 text-muted-foreground ${compact ? "mt-2 text-[10px]" : "mt-4 text-xs"}`}>
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {r.estimatedTime}
           </span>
@@ -1420,13 +1420,13 @@ function ResourceCard({
           </div>
         )}
 
-        <div className={`mt-auto flex flex-wrap items-center gap-2 ${compact ? "pt-4" : "pt-5"}`}>
+        <div className={`mt-auto flex flex-wrap items-center gap-1.5 ${compact ? "pt-3" : "pt-5"}`}>
           {r.link ? (
             <a
               href={r.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              className={`inline-flex items-center gap-1.5 rounded-full bg-primary font-semibold text-primary-foreground shadow-soft hover:shadow-lift ${compact ? "px-3 py-1.5 text-[11px]" : "px-4 py-2 text-xs"}`}
             >
               {fmt.verb} <ExternalLink className="h-3 w-3" />
             </a>
@@ -1434,21 +1434,21 @@ function ResourceCard({
           <button
             onClick={onSave}
             aria-label={saved ? "Remove from saved" : "Save"}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full border font-semibold transition ${
               saved
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-background hover:bg-muted"
-            }`}
+            } ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
           >
-            {saved ? <BookmarkCheck className="h-3.5 w-3.5" /> : <Bookmark className="h-3.5 w-3.5" />}
+            {saved ? <BookmarkCheck className="h-3 w-3" /> : <Bookmark className="h-3 w-3" />}
             {saved ? "Saved" : "Save"}
           </button>
           <button
             type="button"
             onClick={onShare}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+            className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-background font-semibold hover:bg-muted ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
           >
-            <Share2 className="h-3.5 w-3.5" /> Share
+            <Share2 className="h-3 w-3" /> Share
           </button>
           <AddToPathwayButton title={r.title} description={r.description} link={r.link} />
         </div>
