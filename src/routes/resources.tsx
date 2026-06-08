@@ -1386,17 +1386,17 @@ function ResourceCard({
             <span className="font-semibold">Why it helps:</span> {r.whyItHelps}
           </p>
         )}
-        <div className={`mt-2 flex flex-wrap ${compact ? "gap-1.5" : "gap-2"}`}>
-          {r.topics.slice(0, compact ? 3 : 5).map((t) => (
+        <div className={`mt-1.5 flex flex-wrap ${compact ? "gap-1" : "gap-2"}`}>
+          {r.topics.slice(0, compact ? 2 : 5).map((t) => (
             <span
               key={t}
-              className={`rounded-full bg-secondary/60 font-medium text-foreground/70 ${compact ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}
+              className={`rounded-full bg-secondary/60 font-medium text-foreground/70 ${compact ? "px-2 py-[1px] text-[10px]" : "px-3 py-1 text-xs"}`}
             >
               {TOPIC_META[t].label}
             </span>
           ))}
         </div>
-        <div className={`flex items-center gap-3 text-muted-foreground ${compact ? "mt-3 text-[11px]" : "mt-4 text-xs"}`}>
+        <div className={`flex items-center gap-3 text-muted-foreground ${compact ? "mt-2 text-[10px]" : "mt-4 text-xs"}`}>
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {r.estimatedTime}
           </span>
