@@ -119,10 +119,10 @@ function TestimonialsPage() {
                 </div>
                 <div className="flex shrink-0 flex-col gap-1">
                   <Button size="sm" variant="ghost" onClick={() => setDraft(t as Draft)}>Edit</Button>
-                  <Button size="icon" variant="ghost" onClick={async () => {
+                  <Button size="icon" variant="ghost" aria-label="Delete testimonial" onClick={async () => {
                     if (confirm("Delete?")) { await del({ data: { id: t.id } }); refresh(); }
                   }}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                   </Button>
                 </div>
               </div>

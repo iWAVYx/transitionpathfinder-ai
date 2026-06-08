@@ -107,8 +107,8 @@ function FaqsPage() {
                 </div>
                 <div className="flex shrink-0 gap-1">
                   <Button size="sm" variant="ghost" onClick={() => setDraft(f)}>Edit</Button>
-                  <Button size="icon" variant="ghost" onClick={() => onDelete(f.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                  <Button size="icon" variant="ghost" aria-label="Delete FAQ" onClick={() => onDelete(f.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                   </Button>
                 </div>
               </div>

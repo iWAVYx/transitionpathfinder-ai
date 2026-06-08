@@ -297,13 +297,13 @@ function WaitlistDetailDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      <div className="flex-1 bg-foreground/30" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Waitlist entry">
+      <button type="button" aria-label="Close panel" className="flex-1 bg-foreground/30" onClick={onClose} />
       <aside className="flex w-full max-w-xl flex-col overflow-y-auto bg-background shadow-2xl">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="font-display text-lg font-medium">Waitlist entry</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-            <X className="h-5 w-5" />
+          <button type="button" aria-label="Close panel" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </header>
         {loading || !entry ? (

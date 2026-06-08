@@ -139,7 +139,7 @@ function BlogPage() {
                     {p.status === "published" ? "Unpublish" : "Publish"}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => setDraft(p as Draft)}>Edit</Button>
-                  <Button size="icon" variant="ghost" onClick={async () => {
+                  <Button size="icon" variant="ghost" aria-label={`Delete post: ${p.title}`} onClick={async () => {
                     if (confirm(`Delete "${p.title}"? This cannot be undone.`)) {
                       try {
                         await del({ data: { id: p.id } });
@@ -150,7 +150,7 @@ function BlogPage() {
                       }
                     }
                   }}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                   </Button>
                 </div>
               </li>
