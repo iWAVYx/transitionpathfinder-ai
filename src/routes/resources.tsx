@@ -637,10 +637,10 @@ function ResourcesPage() {
               {sourceLibs.length} sources
             </span>
           </div>
-          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-2" : "gap-4"}`}>
+          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-1.5" : "gap-4"}`}>
             {sourceLibs.map((s) => (
-              <article key={s.id} className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+              <article key={s.id} className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {s.source_type.replace(/_/g, " ")}
                   </span>
@@ -649,14 +649,14 @@ function ResourcesPage() {
                     <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
                   )}
                 </div>
-                <h3 className={`mt-3 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-base" : "text-lg"}`}>{s.source_name}</h3>
+                <h3 className={`mt-2 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>{s.source_name}</h3>
                 {s.organization_name && (
                   <p className="mt-1 text-xs text-muted-foreground">{s.organization_name}</p>
                 )}
                 {s.description && (
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">{s.description}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">{s.description}</p>
                 )}
-                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
+                <div className="mt-auto flex items-center justify-between pt-3 text-[11px] text-muted-foreground">
                   <span>{s.resource_count} curated</span>
                   {s.source_url && (
                     <a href={s.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">
