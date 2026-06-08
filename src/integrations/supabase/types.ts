@@ -1260,6 +1260,42 @@ export type Database = {
           },
         ]
       }
+      in_app_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link: string | null
+          read_at: string | null
+          student_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link?: string | null
+          read_at?: string | null
+          student_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read_at?: string | null
+          student_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       media_assets: {
         Row: {
           alt_text: string | null
@@ -1604,7 +1640,11 @@ export type Database = {
           email_goal_reminders: boolean
           email_report_ready: boolean
           email_weekly_digest: boolean
+          in_app_enabled: boolean
           notification_cadence: string
+          sms_enabled: boolean
+          sms_phone_e164: string | null
+          sms_verified_at: string | null
           updated_at: string
           user_id: string
         }
@@ -1613,7 +1653,11 @@ export type Database = {
           email_goal_reminders?: boolean
           email_report_ready?: boolean
           email_weekly_digest?: boolean
+          in_app_enabled?: boolean
           notification_cadence?: string
+          sms_enabled?: boolean
+          sms_phone_e164?: string | null
+          sms_verified_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1622,7 +1666,11 @@ export type Database = {
           email_goal_reminders?: boolean
           email_report_ready?: boolean
           email_weekly_digest?: boolean
+          in_app_enabled?: boolean
           notification_cadence?: string
+          sms_enabled?: boolean
+          sms_phone_e164?: string | null
+          sms_verified_at?: string | null
           updated_at?: string
           user_id?: string
         }
