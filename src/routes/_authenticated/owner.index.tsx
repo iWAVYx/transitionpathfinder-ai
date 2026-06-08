@@ -100,6 +100,7 @@ function OwnerDashboardPage() {
       ) : (
         <div className="space-y-6">
           <NextBestAction surface="admin" />
+          <OnboardingChecklist surface="admin" />
 
           {/* Site status banner */}
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background p-4">
