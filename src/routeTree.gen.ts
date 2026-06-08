@@ -95,6 +95,7 @@ import { Route as AuthenticatedOwnerIepAuditRouteImport } from './routes/_authen
 import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenticated/owner.health'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
+import { Route as AuthenticatedOwnerDemoRouteImport } from './routes/_authenticated/owner.demo'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
 import { Route as AuthenticatedOwnerBroadcastsRouteImport } from './routes/_authenticated/owner.broadcasts'
@@ -568,6 +569,11 @@ const AuthenticatedOwnerEmailsRoute =
     path: '/emails',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerDemoRoute = AuthenticatedOwnerDemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => AuthenticatedOwnerRoute,
+} as any)
 const AuthenticatedOwnerContentRoute =
   AuthenticatedOwnerContentRouteImport.update({
     id: '/content',
@@ -745,6 +751,7 @@ export interface FileRoutesByFullPath {
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
@@ -849,6 +856,7 @@ export interface FileRoutesByTo {
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
@@ -956,6 +964,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/_authenticated/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/health': typeof AuthenticatedOwnerHealthRoute
@@ -1063,6 +1072,7 @@ export interface FileRouteTypes {
     | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
+    | '/owner/demo'
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
@@ -1167,6 +1177,7 @@ export interface FileRouteTypes {
     | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
+    | '/owner/demo'
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
@@ -1273,6 +1284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/broadcasts'
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
+    | '/_authenticated/owner/demo'
     | '/_authenticated/owner/emails'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/health'
@@ -1952,6 +1964,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerEmailsRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/demo': {
+      id: '/_authenticated/owner/demo'
+      path: '/demo'
+      fullPath: '/owner/demo'
+      preLoaderRoute: typeof AuthenticatedOwnerDemoRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/content': {
       id: '/_authenticated/owner/content'
       path: '/content'
@@ -2113,6 +2132,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerBroadcastsRoute: typeof AuthenticatedOwnerBroadcastsRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
+  AuthenticatedOwnerDemoRoute: typeof AuthenticatedOwnerDemoRoute
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerHealthRoute: typeof AuthenticatedOwnerHealthRoute
@@ -2143,6 +2163,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerBroadcastsRoute: AuthenticatedOwnerBroadcastsRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
+  AuthenticatedOwnerDemoRoute: AuthenticatedOwnerDemoRoute,
   AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerHealthRoute: AuthenticatedOwnerHealthRoute,

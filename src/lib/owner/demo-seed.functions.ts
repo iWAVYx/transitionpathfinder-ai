@@ -124,12 +124,7 @@ export const listDemoAccounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    await assertPlatformAdmin(supabase as Parameters<typeof assertPlatformAdmin>[0], userId);
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const admin = supabaseAdmin as unknown as AdminClient;
-
-    const { data: list, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    await assertPlatformAdmin(supabase as unknown as Parameters<typeof assertPlatformAdmin>[0], userId);
     if (error) throw new Error(error.message);
     const byEmail = new Map(list.users.map((u) => [(u.email ?? "").toLowerCase(), u.id]));
     return {
