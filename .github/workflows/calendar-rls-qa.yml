@@ -15,6 +15,7 @@ on:
       - "tests/iep-upload-signed-url.test.mjs"
       - "tests/iep-signed-url-expiry.test.mjs"
       - "tests/iep-signed-url-revocation.test.mjs"
+      - "tests/iep-signed-url-revocation-live.test.mjs"
       - "tests/__snapshots__/calendar-rls-*.snap.json"
       - "tests/__snapshots__/documents-rls-*.snap.json"
       - "tests/__snapshots__/iep-upload-signed-url.snap.json"
