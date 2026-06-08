@@ -1355,7 +1355,7 @@ function ResourceCard({
           />
         </div>
       )}
-      <div className={`flex flex-1 flex-col ${compact ? "p-4" : "p-5"}`}>
+      <div className={`flex flex-1 flex-col ${compact ? "p-3" : "p-5"}`}>
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{fmt.label}</Badge>
           <Badge tone="muted">External</Badge>
