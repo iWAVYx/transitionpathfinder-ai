@@ -1420,13 +1420,13 @@ function ResourceCard({
           </div>
         )}
 
-        <div className={`mt-auto flex flex-wrap items-center gap-2 ${compact ? "pt-4" : "pt-5"}`}>
+        <div className={`mt-auto flex flex-wrap items-center gap-1.5 ${compact ? "pt-3" : "pt-5"}`}>
           {r.link ? (
             <a
               href={r.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              className={`inline-flex items-center gap-1.5 rounded-full bg-primary font-semibold text-primary-foreground shadow-soft hover:shadow-lift ${compact ? "px-3 py-1.5 text-[11px]" : "px-4 py-2 text-xs"}`}
             >
               {fmt.verb} <ExternalLink className="h-3 w-3" />
             </a>
@@ -1434,21 +1434,21 @@ function ResourceCard({
           <button
             onClick={onSave}
             aria-label={saved ? "Remove from saved" : "Save"}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full border font-semibold transition ${
               saved
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-background hover:bg-muted"
-            }`}
+            } ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
           >
-            {saved ? <BookmarkCheck className="h-3.5 w-3.5" /> : <Bookmark className="h-3.5 w-3.5" />}
+            {saved ? <BookmarkCheck className="h-3 w-3" /> : <Bookmark className="h-3 w-3" />}
             {saved ? "Saved" : "Save"}
           </button>
           <button
             type="button"
             onClick={onShare}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+            className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-background font-semibold hover:bg-muted ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
           >
-            <Share2 className="h-3.5 w-3.5" /> Share
+            <Share2 className="h-3 w-3" /> Share
           </button>
           <AddToPathwayButton title={r.title} description={r.description} link={r.link} />
         </div>
