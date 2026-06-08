@@ -91,6 +91,7 @@ import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_a
 import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
 import { Route as AuthenticatedOwnerImportAuditRouteImport } from './routes/_authenticated/owner.import-audit'
+import { Route as AuthenticatedOwnerIepAuditRouteImport } from './routes/_authenticated/owner.iep-audit'
 import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenticated/owner.health'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
@@ -544,6 +545,12 @@ const AuthenticatedOwnerImportAuditRoute =
     path: '/import-audit',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerIepAuditRoute =
+  AuthenticatedOwnerIepAuditRouteImport.update({
+    id: '/iep-audit',
+    path: '/iep-audit',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerHealthRoute =
   AuthenticatedOwnerHealthRouteImport.update({
     id: '/health',
@@ -741,6 +748,7 @@ export interface FileRoutesByFullPath {
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
+  '/owner/iep-audit': typeof AuthenticatedOwnerIepAuditRoute
   '/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
@@ -844,6 +852,7 @@ export interface FileRoutesByTo {
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
+  '/owner/iep-audit': typeof AuthenticatedOwnerIepAuditRoute
   '/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
@@ -950,6 +959,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/health': typeof AuthenticatedOwnerHealthRoute
+  '/_authenticated/owner/iep-audit': typeof AuthenticatedOwnerIepAuditRoute
   '/_authenticated/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
@@ -1056,6 +1066,7 @@ export interface FileRouteTypes {
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
+    | '/owner/iep-audit'
     | '/owner/import-audit'
     | '/owner/media'
     | '/owner/opportunities'
@@ -1159,6 +1170,7 @@ export interface FileRouteTypes {
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/health'
+    | '/owner/iep-audit'
     | '/owner/import-audit'
     | '/owner/media'
     | '/owner/opportunities'
@@ -1264,6 +1276,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/emails'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/health'
+    | '/_authenticated/owner/iep-audit'
     | '/_authenticated/owner/import-audit'
     | '/_authenticated/owner/media'
     | '/_authenticated/owner/opportunities'
@@ -1911,6 +1924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerImportAuditRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/iep-audit': {
+      id: '/_authenticated/owner/iep-audit'
+      path: '/iep-audit'
+      fullPath: '/owner/iep-audit'
+      preLoaderRoute: typeof AuthenticatedOwnerIepAuditRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/health': {
       id: '/_authenticated/owner/health'
       path: '/health'
@@ -2096,6 +2116,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerHealthRoute: typeof AuthenticatedOwnerHealthRoute
+  AuthenticatedOwnerIepAuditRoute: typeof AuthenticatedOwnerIepAuditRoute
   AuthenticatedOwnerImportAuditRoute: typeof AuthenticatedOwnerImportAuditRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
   AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
@@ -2125,6 +2146,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerHealthRoute: AuthenticatedOwnerHealthRoute,
+  AuthenticatedOwnerIepAuditRoute: AuthenticatedOwnerIepAuditRoute,
   AuthenticatedOwnerImportAuditRoute: AuthenticatedOwnerImportAuditRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
   AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
