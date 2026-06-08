@@ -14,6 +14,7 @@ import { SmoothScroll } from "@/components/effects/SmoothScroll";
 import { ScrollToTop } from "@/components/site/ScrollToTop";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { DemoBanner } from "@/components/site/DemoBanner";
 
 
 import appCss from "../styles.css?url";
@@ -200,6 +201,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        <DemoBanner />
         <SmoothScroll />
         <ScrollToTop />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
