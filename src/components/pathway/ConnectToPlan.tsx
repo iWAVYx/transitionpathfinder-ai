@@ -154,7 +154,7 @@ export function ConnectToPlan({
           category: item.category,
           priority: "medium",
           due_date: todayPlus(item.dueOffsetDays),
-          pathway_report_id: reportId,
+          pathway_report_id: safeReportId,
         },
       });
       setStatuses((s) => ({ ...s, [item.id]: "added-action" }));
@@ -178,7 +178,7 @@ export function ConnectToPlan({
           event_type: "Pathway Report Review",
           status: "scheduled",
           student_id: studentId,
-          related_pathway_report_id: reportId,
+          related_pathway_report_id: safeReportId,
           all_day: true,
         },
       });
