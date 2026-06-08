@@ -90,18 +90,16 @@ type AdminClient = {
   };
 };
 
-async function assertPlatformAdmin(
-  supabase: { from: (t: string) => { select: (c: string) => { eq: (c: string, v: string) => { maybeSingle: () => Promise<{ data: unknown }> } } } },
-  userId: string,
-) {
-  const { data: adminRow } = await supabase.from("admin_roles").select("role").eq("user_id", userId).maybeSingle();
+async function assertPlatformAdmin(supabase: unknown, userId: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = supabase as any;
+  const { data: adminRow } = await sb.from("admin_roles").select("role").eq("user_id", userId).maybeSingle();
   if (adminRow) return;
-  const { data: legacy } = await supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle();
+  const { data: legacy } = await sb.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
   if (!legacy) throw new Error("Forbidden — platform admin only");
 }
 
 async function ensureAuthUser(admin: AdminClient, email: string, password: string): Promise<string> {
-  // Try to find existing
   const { data: list, error: listErr } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (listErr) throw new Error(listErr.message);
   const existing = list.users.find((u) => (u.email ?? "").toLowerCase() === email.toLowerCase());
@@ -124,15 +122,20 @@ export const listDemoAccounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    await assertPlatformAdmin(supabase as unknown as Parameters<typeof assertPlatformAdmin>[0], userId);
+    await assertPlatformAdmin(supabase, userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const admin = supabaseAdmin as unknown as AdminClient;
+
+    const { data: list, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
     if (error) throw new Error(error.message);
-    const byEmail = new Map(list.users.map((u) => [(u.email ?? "").toLowerCase(), u.id]));
+    const byEmail = new Map<string, string>(list.users.map((u) => [(u.email ?? "").toLowerCase(), u.id]));
     return {
       accounts: DEMO_ACCOUNTS.map((a) => ({
         ...a,
-        password: "", // never return passwords in list
+        password: "",
         user_id: byEmail.get(a.email.toLowerCase()) ?? null,
-      })),
+      })) as DemoAccount[],
     };
   });
 
@@ -140,7 +143,7 @@ export const seedDemoData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    await assertPlatformAdmin(supabase as Parameters<typeof assertPlatformAdmin>[0], userId);
+    await assertPlatformAdmin(supabase, userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as unknown as AdminClient;
