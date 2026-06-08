@@ -1356,7 +1356,7 @@ function ResourceCard({
         </div>
       )}
       <div className={`flex flex-1 flex-col ${compact ? "p-3" : "p-5"}`}>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={`flex flex-wrap items-center ${compact ? "gap-1" : "gap-2"}`}>
           <Badge tone="primary">{fmt.label}</Badge>
           <Badge tone="muted">External</Badge>
           {r.location === "connecticut" ? (
@@ -1364,21 +1364,21 @@ function ResourceCard({
           ) : (
             <Badge tone="muted">{LOCATION_LABEL[r.location]}</Badge>
           )}
-          {r.audiences.slice(0, compact ? 2 : 3).map((a) => (
+          {r.audiences.slice(0, compact ? 1 : 3).map((a) => (
             <Badge key={a} tone="muted">
               {AUDIENCE_META[a]}
             </Badge>
           ))}
         </div>
 
-        <p className={`mt-2 font-semibold uppercase tracking-[0.16em] text-muted-foreground ${compact ? "text-[11px]" : "text-xs"}`}>
+        <p className={`mt-1.5 font-semibold uppercase tracking-[0.16em] text-muted-foreground ${compact ? "text-[10px]" : "text-xs"}`}>
           {r.source}
           {r.author ? ` · ${r.author}` : ""}
         </p>
-        <h3 className={`mt-1 font-display font-medium leading-snug tracking-tight ${compact ? "text-base" : "text-lg"}`}>
+        <h3 className={`mt-0.5 font-display font-medium leading-snug tracking-tight ${compact ? "text-sm" : "text-lg"}`}>
           {toTitleCase(r.title)}
         </h3>
-        <p className={`mt-1.5 leading-relaxed text-muted-foreground ${compact ? "text-sm line-clamp-2" : "text-sm line-clamp-3"}`}>
+        <p className={`mt-1 leading-relaxed text-muted-foreground ${compact ? "text-xs line-clamp-2" : "text-sm line-clamp-3"}`}>
           {r.description}
         </p>
         {!compact && r.whyItHelps && (
