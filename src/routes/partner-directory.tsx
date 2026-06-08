@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { listPublicPartners } from "@/lib/partner-network.functions";
+import { TrustNote } from "@/components/site/TrustNote";
 
 export const Route = createFileRoute("/partner-directory")({
   head: () => ({
