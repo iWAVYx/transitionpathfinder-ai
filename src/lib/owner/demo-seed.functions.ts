@@ -279,7 +279,7 @@ export const resetDemoData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    await assertPlatformAdmin(supabase as Parameters<typeof assertPlatformAdmin>[0], userId);
+    await assertPlatformAdmin(supabase, userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as unknown as AdminClient;
