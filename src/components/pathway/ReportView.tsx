@@ -322,30 +322,49 @@ export function ReportView({
     <section
       className={cn(
         "report-root mx-auto px-4 py-10 sm:px-6 lg:px-8",
-        density === "compact" ? "report-compact max-w-7xl" : "max-w-6xl",
+        density === "compact" ? "report-compact max-w-[92rem]" : "max-w-6xl",
       )}
     >
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
         @media (min-width: 640px) {
-          .report-compact { font-size: 0.94rem; }
+          .report-compact { font-size: 0.875rem; }
           .report-compact .font-display { letter-spacing: -0.01em; }
-          .report-compact h1 { font-size: 1.875rem; line-height: 2.25rem; }
-          .report-compact h2 { font-size: 1.375rem; line-height: 1.85rem; }
-          .report-compact h3 { font-size: 1.125rem; line-height: 1.6rem; }
-          .report-compact h4 { font-size: 1rem; line-height: 1.4rem; }
-          .report-compact .p-5 { padding: 0.875rem; }
-          .report-compact .p-6 { padding: 1rem; }
-          .report-compact .p-8 { padding: 1.25rem; }
-          .report-compact .sm\\:p-8 { padding: 1.25rem; }
-          .report-compact .sm\\:p-10 { padding: 1.5rem; }
-          .report-compact .py-10 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-          .report-compact .sm\\:py-12 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
-          .report-compact .mt-10 { margin-top: 1.5rem; }
-          .report-compact .mt-8 { margin-top: 1.25rem; }
-          .report-compact .gap-4 { gap: 0.75rem; }
-          .report-compact .gap-6 { gap: 1rem; }
-          .report-compact .gap-x-8 { column-gap: 1.25rem; }
+          .report-compact h1 { font-size: 1.6rem; line-height: 2rem; }
+          .report-compact h2 { font-size: 1.25rem; line-height: 1.65rem; }
+          .report-compact h3 { font-size: 1.05rem; line-height: 1.45rem; }
+          .report-compact h4 { font-size: 0.925rem; line-height: 1.35rem; }
+          .report-compact .p-3 { padding: 0.625rem; }
+          .report-compact .p-4 { padding: 0.75rem; }
+          .report-compact .p-5 { padding: 0.625rem; }
+          .report-compact .p-6 { padding: 0.875rem; }
+          .report-compact .p-8 { padding: 1rem; }
+          .report-compact .px-6 { padding-left: 1rem; padding-right: 1rem; }
+          .report-compact .py-6 { padding-top: 1rem; padding-bottom: 1rem; }
+          .report-compact .px-8 { padding-left: 1.25rem; padding-right: 1.25rem; }
+          .report-compact .sm\\:p-8 { padding: 1rem; }
+          .report-compact .sm\\:p-10 { padding: 1.25rem; }
+          .report-compact .py-10 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+          .report-compact .sm\\:py-12 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+          .report-compact .mt-3 { margin-top: 0.5rem; }
+          .report-compact .mt-4 { margin-top: 0.625rem; }
+          .report-compact .mt-5 { margin-top: 0.75rem; }
+          .report-compact .mt-6 { margin-top: 0.875rem; }
+          .report-compact .mt-8 { margin-top: 1rem; }
+          .report-compact .mt-10 { margin-top: 1.25rem; }
+          .report-compact .mb-4 { margin-bottom: 0.625rem; }
+          .report-compact .gap-2 { gap: 0.375rem; }
+          .report-compact .gap-3 { gap: 0.5rem; }
+          .report-compact .gap-4 { gap: 0.625rem; }
+          .report-compact .gap-6 { gap: 0.875rem; }
+          .report-compact .gap-x-8 { column-gap: 1rem; }
+          .report-compact .gap-y-5 { row-gap: 0.875rem; }
+          .report-compact .space-y-1\\.5 > * + * { margin-top: 0.375rem; }
+          .report-compact .space-y-2 > * + * { margin-top: 0.375rem; }
+          .report-compact .space-y-3 > * + * { margin-top: 0.5rem; }
+          .report-compact .rounded-3xl { border-radius: 1rem; }
+          .report-compact .rounded-2xl { border-radius: 0.875rem; }
+          .report-compact .rounded-xl { border-radius: 0.625rem; }
         }
       `}</style>
 
