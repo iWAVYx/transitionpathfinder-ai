@@ -1649,12 +1649,14 @@ function Block({
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ open: boolean }>).detail;
       if (!detail) return;
-      setCollapsed(!detail.open);
+      const nextCollapsed = !detail.open;
+      setCollapsed(nextCollapsed);
       try {
         window.localStorage.setItem(blockStorageKey(id), detail.open ? "0" : "1");
       } catch {
         /* ignore */
       }
+      setBlockCollapsed(id, nextCollapsed);
     };
     window.addEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
     const openHandler = (e: Event) => {
@@ -1666,11 +1668,25 @@ function Block({
       } catch {
         /* ignore */
       }
+      setBlockCollapsed(id, false);
     };
     window.addEventListener("report-block-open", openHandler as EventListener);
+    const hydrateHandler = (e: Event) => {
+      const detail = (e as CustomEvent<CollapsedBlocksHydrationDetail>).detail;
+      if (!detail || !Array.isArray(detail.collapsedIds)) return;
+      const shouldCollapse = detail.collapsedIds.includes(id);
+      setCollapsed(shouldCollapse);
+      try {
+        window.localStorage.setItem(blockStorageKey(id), shouldCollapse ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener(EVT_BLOCKS_HYDRATE, hydrateHandler as EventListener);
     return () => {
       window.removeEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
       window.removeEventListener("report-block-open", openHandler as EventListener);
+      window.removeEventListener(EVT_BLOCKS_HYDRATE, hydrateHandler as EventListener);
     };
   }, [id]);
 
@@ -1683,6 +1699,7 @@ function Block({
         } catch {
           /* ignore */
         }
+        setBlockCollapsed(id, next);
       }
       return next;
     });
