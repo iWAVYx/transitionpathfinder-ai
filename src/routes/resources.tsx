@@ -348,7 +348,7 @@ function ResourcesPage() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-70" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
+        <div className="mx-auto grid max-w-[88rem] items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               The Resource Library
@@ -405,7 +405,7 @@ function ResourcesPage() {
       </section>
 
       {/* CATEGORY GRID */}
-      <section className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[88rem] px-4 pb-6 sm:px-6 lg:px-8">
         <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
           Ten Core Categories
         </h2>
