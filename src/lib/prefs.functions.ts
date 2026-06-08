@@ -11,6 +11,10 @@ export type NotificationPrefs = {
   email_weekly_digest: boolean;
   email_report_ready: boolean;
   notification_cadence: NotificationCadence;
+  in_app_enabled: boolean;
+  sms_enabled: boolean;
+  sms_phone_e164: string | null;
+  sms_verified_at: string | null;
   updated_at: string;
 };
 
@@ -20,6 +24,9 @@ const PrefsInput = z.object({
   email_weekly_digest: z.boolean().optional(),
   email_report_ready: z.boolean().optional(),
   notification_cadence: z.enum(["instant", "daily", "weekly"]).optional(),
+  in_app_enabled: z.boolean().optional(),
+  // sms_enabled can be toggled OFF here; turning ON requires phone verification via sms.functions.ts.
+  sms_enabled: z.boolean().optional(),
 });
 
 export const getNotificationPrefs = createServerFn({ method: "GET" })
