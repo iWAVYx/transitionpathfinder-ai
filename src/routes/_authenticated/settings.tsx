@@ -9,6 +9,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { ChannelsCard } from "@/components/settings/ChannelsCard";
 import { useAuth } from "@/hooks/use-auth";
 import {
   getNotificationPrefs,
