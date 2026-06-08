@@ -116,20 +116,6 @@ export const listPartnersForBrowse = createServerFn({ method: "GET" })
     return { partners: (data ?? []) as Partial<PartnerRow>[] };
   });
 
-// SIGNED-IN — full directory
-export const listPartners = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("partner_organizations")
-      .select(PUBLIC_COLS + ",partnership_status,outreach_status")
-      .order("is_featured", { ascending: false })
-      .order("organization_name", { ascending: true });
-    if (error) throw error;
-    return { partners: (data ?? []) as unknown as PartnerRow[] };
-  });
-
-
 // ADMIN — full data + opportunities. Uses service-role client because
 // column-level SELECT on PII (contact_email, phone, address, outreach_*,
 // admin_notes, next_follow_up_date) is revoked from `authenticated`.
@@ -146,25 +132,7 @@ export const listAdminPartners = createServerFn({ method: "GET" })
     return { partners: data ?? [] };
   });
 
-export const getPartner = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
-  .handler(async ({ data, context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await requirePlatformAdmin(context.supabase, context.userId);
-    const { data: partner, error } = await supabaseAdmin
-      .from("partner_organizations")
-      .select(ADMIN_COLS)
-      .eq("id", data.id)
-      .single();
-    if (error) throw error;
-    const { data: opps } = await supabaseAdmin
-      .from("partner_network_opportunities")
-      .select("*")
-      .eq("partner_id", data.id)
-      .order("opportunity_title");
-    return { partner, opportunities: opps ?? [] };
-  });
+
 
 export const setPartnerStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
