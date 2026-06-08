@@ -514,12 +514,12 @@ function ResourcesPage() {
               {filteredDbResources.length} verified
             </span>
           </div>
-          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-2" : "gap-4"}`}>
+          <div className={`mt-5 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${viewDensity === "compact" ? "gap-1.5" : "gap-4"}`}>
             {filteredDbResources.slice(0, 6).map((r) => (
               <article
                 key={r.id}
-                className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-4" : "p-5"}`}>
-                <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                className={`flex flex-col rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
                     {r.resource_type}
                   </span>
@@ -535,28 +535,28 @@ function ResourcesPage() {
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
 
-                <h3 className={`mt-3 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-base" : "text-lg"}`}>
+                <h3 className={`mt-2 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>
                   {r.title}
                 </h3>
                 {r.description && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                     {r.description}
                   </p>
                 )}
-                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
+                <div className="mt-auto flex items-center justify-between pt-3 text-[11px] text-muted-foreground">
                   <span className="truncate">
                     {r.source_name ? `Source: ${r.source_name}` : r.location_scope}
                   </span>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleToggleSaveDb(r.id)}
                       aria-label={savedIds.has(r.id) ? "Unsave" : "Save"}
                       className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-primary"
                     >
                       {savedIds.has(r.id) ? (
-                        <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
+                        <BookmarkCheck className="h-3 w-3 text-primary" />
                       ) : (
-                        <Bookmark className="h-3.5 w-3.5" />
+                        <Bookmark className="h-3 w-3" />
                       )}
                       {savedIds.has(r.id) ? "Saved" : "Save"}
                     </button>
@@ -572,7 +572,7 @@ function ResourcesPage() {
                     )}
                   </div>
                 </div>
-                <div className="mt-3 flex justify-end">
+                <div className="mt-2 flex justify-end">
                   <AddToPathwayButton title={r.title} description={r.description} link={r.url} />
                 </div>
 
