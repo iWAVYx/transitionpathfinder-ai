@@ -1213,6 +1213,53 @@ export type Database = {
           },
         ]
       }
+      iep_access_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          document_id: string | null
+          id: string
+          metadata: Json | null
+          reason: string
+          student_id: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          metadata?: Json | null
+          reason: string
+          student_id?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          metadata?: Json | null
+          reason?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_access_alerts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_assets: {
         Row: {
           alt_text: string | null
