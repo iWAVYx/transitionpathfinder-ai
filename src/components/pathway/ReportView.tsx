@@ -184,6 +184,7 @@ export function ReportView({
           );
         }
         if (Array.isArray(prefs.collapsed_blocks)) {
+          resetCollapsedBlocks(prefs.collapsed_blocks);
           window.dispatchEvent(
             new CustomEvent<CollapsedBlocksHydrationDetail>(
               EVT_BLOCKS_HYDRATE,
