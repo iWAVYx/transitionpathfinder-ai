@@ -259,43 +259,7 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
 
 /* ---------- Action item CRUD ---------- */
 
-export const createActionItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z
-      .object({
-        student_id: z.string().uuid(),
-        title: z.string().trim().min(1).max(200),
-        description: z.string().trim().max(2000).optional(),
-        category: z
-          .enum(["family", "student", "teacher", "school", "partner"])
-          .default("family"),
-        priority: z.enum(["low", "medium", "high"]).default("medium"),
-        due_date: z
-          .string()
-          .regex(/^\d{4}-\d{2}-\d{2}$/)
-          .optional(),
-        related_goal_area: z.string().trim().max(80).optional(),
-        pathway_report_id: z.string().uuid().optional(),
-      })
-      .parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { error } = await supabase.from("action_items").insert({
-      student_id: data.student_id,
-      created_by_user_id: userId,
-      title: data.title,
-      description: data.description ?? null,
-      category: data.category,
-      priority: data.priority,
-      due_date: data.due_date ?? null,
-      related_goal_area: data.related_goal_area ?? null,
-      pathway_report_id: data.pathway_report_id ?? null,
-    });
-    if (error) throw new Error("Could not create action item.");
-    return { ok: true };
-  });
+
 
 export const setActionItemStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -361,42 +325,6 @@ export const revokeConsent = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/* ---------- Update extended student profile ---------- */
-
-export const updateStudentProfile = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z
-      .object({
-        id: z.string().uuid(),
-        preferred_name: z.string().trim().max(80).nullable().optional(),
-        expected_graduation_year: z
-          .number()
-          .int()
-          .min(2024)
-          .max(2040)
-          .nullable()
-          .optional(),
-        strengths_summary: z.string().trim().max(2000).nullable().optional(),
-        interests_summary: z.string().trim().max(2000).nullable().optional(),
-        support_needs_summary: z.string().trim().max(2000).nullable().optional(),
-        family_priorities: z.string().trim().max(2000).nullable().optional(),
-        student_voice_statement: z.string().trim().max(2000).nullable().optional(),
-        current_transition_status: z.string().trim().max(200).nullable().optional(),
-        readiness_level: z
-          .enum(["emerging", "developing", "progressing", "ready"])
-          .nullable()
-          .optional(),
-      })
-      .parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { id, ...rest } = data;
-    const { error } = await supabase.from("students").update(rest).eq("id", id);
-    if (error) throw new Error("Could not update profile.");
-    return { ok: true };
-  });
 
 /* ---------- DEMO STUDENT SEEDER ---------- */
 

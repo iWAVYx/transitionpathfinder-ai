@@ -166,28 +166,6 @@ export const getPartner = createServerFn({ method: "GET" })
     return { partner, opportunities: opps ?? [] };
   });
 
-export const upsertPartner = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id?: string; values: Record<string, unknown> }) => d)
-  .handler(async ({ data, context }) => {
-    const payload = { ...data.values, updated_at: new Date().toISOString() };
-    if (data.id) {
-      const { error } = await context.supabase
-        .from("partner_organizations")
-        .update(payload as never)
-        .eq("id", data.id);
-      if (error) throw error;
-      return { id: data.id };
-    }
-    const { data: row, error } = await context.supabase
-      .from("partner_organizations")
-      .insert({ ...payload, created_by: context.userId } as never)
-      .select("id")
-      .single();
-    if (error) throw error;
-    return { id: (row as { id: string }).id };
-  });
-
 export const setPartnerStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
@@ -209,17 +187,6 @@ export const setPartnerStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const deletePartner = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("partner_organizations")
-      .delete()
-      .eq("id", data.id);
-    if (error) throw error;
-    return { ok: true };
-  });
 
 export const listOpportunitiesForPartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -323,31 +290,3 @@ export const deleteOpportunity = createServerFn({ method: "POST" })
 
 
 
-export const savePartnerForStudent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (d: { student_id: string; partner_id?: string; opportunity_id?: string; notes?: string }) => d,
-  )
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("student_saved_partners").insert({
-      student_id: data.student_id,
-      partner_id: data.partner_id ?? null,
-      opportunity_id: data.opportunity_id ?? null,
-      saved_by_user_id: context.userId,
-      notes: data.notes ?? null,
-    });
-    if (error) throw error;
-    return { ok: true };
-  });
-
-export const listSavedPartnersForStudent = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { student_id: string }) => d)
-  .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from("student_saved_partners")
-      .select("*, partner:partner_organizations(*), opportunity:partner_network_opportunities(*)")
-      .eq("student_id", data.student_id);
-    if (error) throw error;
-    return { saved: rows ?? [] };
-  });
