@@ -42,6 +42,22 @@ import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSuggestions";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  getReportViewerPrefs,
+  updateReportViewerPrefs,
+} from "@/lib/ui-prefs.functions";
+import {
+  EVT_BLOCKS_HYDRATE,
+  EVT_DENSITY_SET,
+  EVT_OUTLINE_SET,
+  configureReportPrefsPusher,
+  flushReportPrefs,
+  queueReportPrefsUpdate,
+  type CollapsedBlocksHydrationDetail,
+  type DensitySetDetail,
+  type OutlineSetDetail,
+} from "@/lib/report-view-prefs";
 
 import { toTitleCase } from "@/lib/title-case";
 
