@@ -2533,6 +2533,7 @@ export type Database = {
           first_name: string | null
           full_name: string | null
           id: string
+          is_demo: boolean
           language: string
           last_name: string | null
           onboarding_answers: Json
@@ -2549,6 +2550,7 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id: string
+          is_demo?: boolean
           language?: string
           last_name?: string | null
           onboarding_answers?: Json
@@ -2565,6 +2567,7 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id?: string
+          is_demo?: boolean
           language?: string
           last_name?: string | null
           onboarding_answers?: Json
@@ -3511,6 +3514,7 @@ export type Database = {
           grade_band: string | null
           id: string
           interests_summary: string | null
+          is_demo: boolean
           last_name: string | null
           notes: string | null
           organization_id: string | null
@@ -3537,6 +3541,7 @@ export type Database = {
           grade_band?: string | null
           id?: string
           interests_summary?: string | null
+          is_demo?: boolean
           last_name?: string | null
           notes?: string | null
           organization_id?: string | null
@@ -3563,6 +3568,7 @@ export type Database = {
           grade_band?: string | null
           id?: string
           interests_summary?: string | null
+          is_demo?: boolean
           last_name?: string | null
           notes?: string | null
           organization_id?: string | null
@@ -3648,6 +3654,60 @@ export type Database = {
         }
         Relationships: []
       }
+      system_health_checks: {
+        Row: {
+          action_needed: string | null
+          backend_table: string | null
+          category: string
+          created_at: string
+          id: string
+          key: string
+          label: string
+          last_checked_at: string | null
+          last_checked_by: string | null
+          notes: string | null
+          priority: string
+          route: string | null
+          sort_order: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          action_needed?: string | null
+          backend_table?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          key: string
+          label: string
+          last_checked_at?: string | null
+          last_checked_by?: string | null
+          notes?: string | null
+          priority?: string
+          route?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          action_needed?: string | null
+          backend_table?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string
+          last_checked_at?: string | null
+          last_checked_by?: string | null
+          notes?: string | null
+          priority?: string
+          route?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           author_name: string
@@ -3689,6 +3749,51 @@ export type Database = {
           quote?: string
           rating?: number | null
           role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testing_script_runs: {
+        Row: {
+          assigned_follow_up: string | null
+          completed: boolean
+          created_at: string
+          id: string
+          issue_found: string | null
+          notes: string | null
+          passed: boolean | null
+          priority: string | null
+          run_by: string | null
+          script_key: string
+          step_key: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_follow_up?: string | null
+          completed?: boolean
+          created_at?: string
+          id?: string
+          issue_found?: string | null
+          notes?: string | null
+          passed?: boolean | null
+          priority?: string | null
+          run_by?: string | null
+          script_key: string
+          step_key: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_follow_up?: string | null
+          completed?: boolean
+          created_at?: string
+          id?: string
+          issue_found?: string | null
+          notes?: string | null
+          passed?: boolean | null
+          priority?: string | null
+          run_by?: string | null
+          script_key?: string
+          step_key?: string
           updated_at?: string
         }
         Relationships: []
