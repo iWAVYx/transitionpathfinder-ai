@@ -39,6 +39,7 @@ import {
   type PartnerOrg,
 } from "@/lib/partner-workspace.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
@@ -202,6 +203,7 @@ function PartnerManagePage() {
 
         <div className="mt-6">
           <NextBestAction surface="partner" />
+          <OnboardingChecklist surface="partner" className="mt-4" />
         </div>
 
         <header className="mt-6 flex flex-wrap items-end justify-between gap-4">

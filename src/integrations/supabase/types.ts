@@ -3888,6 +3888,7 @@ export type Database = {
         Row: {
           accessibility: Json
           created_at: string
+          onboarding: Json
           report_viewer: Json
           updated_at: string
           user_id: string
@@ -3895,6 +3896,7 @@ export type Database = {
         Insert: {
           accessibility?: Json
           created_at?: string
+          onboarding?: Json
           report_viewer?: Json
           updated_at?: string
           user_id: string
@@ -3902,6 +3904,7 @@ export type Database = {
         Update: {
           accessibility?: Json
           created_at?: string
+          onboarding?: Json
           report_viewer?: Json
           updated_at?: string
           user_id?: string

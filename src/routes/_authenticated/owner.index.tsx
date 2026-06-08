@@ -24,6 +24,7 @@ import {
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
@@ -99,6 +100,7 @@ function OwnerDashboardPage() {
       ) : (
         <div className="space-y-6">
           <NextBestAction surface="admin" />
+          <OnboardingChecklist surface="admin" />
 
           {/* Site status banner */}
           <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background p-4">
