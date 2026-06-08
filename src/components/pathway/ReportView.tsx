@@ -42,6 +42,24 @@ import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSuggestions";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  getReportViewerPrefs,
+  updateReportViewerPrefs,
+} from "@/lib/ui-prefs.functions";
+import {
+  EVT_BLOCKS_HYDRATE,
+  EVT_DENSITY_SET,
+  EVT_OUTLINE_SET,
+  configureReportPrefsPusher,
+  flushReportPrefs,
+  queueReportPrefsUpdate,
+  resetCollapsedBlocks,
+  setBlockCollapsed,
+  type CollapsedBlocksHydrationDetail,
+  type DensitySetDetail,
+  type OutlineSetDetail,
+} from "@/lib/report-view-prefs";
 
 import { toTitleCase } from "@/lib/title-case";
 
@@ -117,6 +135,8 @@ export function ReportView({
   const headerRef = useRef<HTMLElement | null>(null);
   const [parallaxY, setParallaxY] = useState(0);
   const [density, setDensity] = useState<"compact" | "comfortable">("compact");
+  const fetchPrefs = useServerFn(getReportViewerPrefs);
+  const pushPrefs = useServerFn(updateReportViewerPrefs);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -127,6 +147,69 @@ export function ReportView({
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("report-density", density);
+  }, [density]);
+
+  // Listen for server-pushed density hydration.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<DensitySetDetail>).detail;
+      if (detail?.density === "compact" || detail?.density === "comfortable") {
+        setDensity(detail.density);
+      }
+    };
+    window.addEventListener(EVT_DENSITY_SET, handler as EventListener);
+    return () =>
+      window.removeEventListener(EVT_DENSITY_SET, handler as EventListener);
+  }, []);
+
+  // Configure the debounced server pusher, then hydrate once from server.
+  useEffect(() => {
+    configureReportPrefsPusher((patch) => pushPrefs({ data: patch }));
+    let cancelled = false;
+    fetchPrefs()
+      .then((prefs) => {
+        if (cancelled || !prefs) return;
+        if (prefs.density) {
+          window.dispatchEvent(
+            new CustomEvent<DensitySetDetail>(EVT_DENSITY_SET, {
+              detail: { density: prefs.density },
+            }),
+          );
+        }
+        if (typeof prefs.outline_open === "boolean") {
+          window.dispatchEvent(
+            new CustomEvent<OutlineSetDetail>(EVT_OUTLINE_SET, {
+              detail: { open: prefs.outline_open },
+            }),
+          );
+        }
+        if (Array.isArray(prefs.collapsed_blocks)) {
+          resetCollapsedBlocks(prefs.collapsed_blocks);
+          window.dispatchEvent(
+            new CustomEvent<CollapsedBlocksHydrationDetail>(
+              EVT_BLOCKS_HYDRATE,
+              { detail: { collapsedIds: prefs.collapsed_blocks } },
+            ),
+          );
+        }
+      })
+      .catch(() => {
+        /* offline / unauthenticated — localStorage cache stands */
+      });
+    return () => {
+      cancelled = true;
+      flushReportPrefs();
+    };
+  }, [fetchPrefs, pushPrefs]);
+
+  // Mirror user-driven density changes to the server (skips initial mount).
+  const densityHydrated = useRef(false);
+  useEffect(() => {
+    if (!densityHydrated.current) {
+      densityHydrated.current = true;
+      return;
+    }
+    queueReportPrefsUpdate({ density });
   }, [density]);
 
   useEffect(() => {
@@ -1569,12 +1652,14 @@ function Block({
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ open: boolean }>).detail;
       if (!detail) return;
-      setCollapsed(!detail.open);
+      const nextCollapsed = !detail.open;
+      setCollapsed(nextCollapsed);
       try {
         window.localStorage.setItem(blockStorageKey(id), detail.open ? "0" : "1");
       } catch {
         /* ignore */
       }
+      setBlockCollapsed(id, nextCollapsed);
     };
     window.addEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
     const openHandler = (e: Event) => {
@@ -1586,11 +1671,25 @@ function Block({
       } catch {
         /* ignore */
       }
+      setBlockCollapsed(id, false);
     };
     window.addEventListener("report-block-open", openHandler as EventListener);
+    const hydrateHandler = (e: Event) => {
+      const detail = (e as CustomEvent<CollapsedBlocksHydrationDetail>).detail;
+      if (!detail || !Array.isArray(detail.collapsedIds)) return;
+      const shouldCollapse = detail.collapsedIds.includes(id);
+      setCollapsed(shouldCollapse);
+      try {
+        window.localStorage.setItem(blockStorageKey(id), shouldCollapse ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener(EVT_BLOCKS_HYDRATE, hydrateHandler as EventListener);
     return () => {
       window.removeEventListener(BLOCK_TOGGLE_EVENT, handler as EventListener);
       window.removeEventListener("report-block-open", openHandler as EventListener);
+      window.removeEventListener(EVT_BLOCKS_HYDRATE, hydrateHandler as EventListener);
     };
   }, [id]);
 
@@ -1603,6 +1702,7 @@ function Block({
         } catch {
           /* ignore */
         }
+        setBlockCollapsed(id, next);
       }
       return next;
     });
@@ -1875,10 +1975,26 @@ function ReportTOC({
     const stored = window.localStorage.getItem("report-outline-open");
     if (stored === "0") setOpen(false);
   }, []);
+  const outlineHydrated = useRef(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("report-outline-open", open ? "1" : "0");
+    if (!outlineHydrated.current) {
+      outlineHydrated.current = true;
+      return;
+    }
+    queueReportPrefsUpdate({ outline_open: open });
   }, [open]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<OutlineSetDetail>).detail;
+      if (typeof detail?.open === "boolean") setOpen(detail.open);
+    };
+    window.addEventListener(EVT_OUTLINE_SET, handler as EventListener);
+    return () =>
+      window.removeEventListener(EVT_OUTLINE_SET, handler as EventListener);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") return;
