@@ -183,6 +183,7 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    void import("@/lib/dev/hmr-diagnostics").then((m) => m.installHmrDiagnostics());
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       router.invalidate();
       queryClient.invalidateQueries();
