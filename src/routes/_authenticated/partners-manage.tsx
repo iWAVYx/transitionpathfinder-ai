@@ -203,6 +203,7 @@ function PartnerManagePage() {
 
         <div className="mt-6">
           <NextBestAction surface="partner" />
+          <OnboardingChecklist surface="partner" className="mt-4" />
         </div>
 
         <header className="mt-6 flex flex-wrap items-end justify-between gap-4">
