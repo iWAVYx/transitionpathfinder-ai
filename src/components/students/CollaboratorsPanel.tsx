@@ -87,6 +87,8 @@ export function CollaboratorsPanel({ studentId }: { studentId: string }) {
         <Users className="h-5 w-5 text-muted-foreground" />
       </div>
 
+      <TrustNote variant="sharing" className="mt-4" />
+
       <form
         onSubmit={handleInvite}
         className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border bg-background p-3"
