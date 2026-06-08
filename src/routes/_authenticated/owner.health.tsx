@@ -19,6 +19,7 @@ import {
   type HealthCheck,
   type HealthStatus,
 } from "@/lib/owner/system-health.functions";
+import { ManualChecklistSection } from "@/components/owner/SystemHealthChecklist";
 
 export const Route = createFileRoute("/_authenticated/owner/health")({
   head: () => ({ meta: [{ title: "System Health — Admin Hub" }] }),
@@ -253,6 +254,8 @@ function SystemHealthPage() {
               </section>
             ),
           )}
+
+          <ManualChecklistSection />
         </div>
       )}
     </OwnerShell>
