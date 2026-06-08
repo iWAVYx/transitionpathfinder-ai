@@ -171,7 +171,17 @@ export const upsertTestingStep = createServerFn({ method: "POST" })
       ) ?? false;
     if (!valid) throw new Error("Unknown script or step");
 
-    const patch: Record<string, unknown> = {
+    const patch: {
+      script_key: string;
+      step_key: string;
+      run_by: string;
+      completed?: boolean;
+      passed?: boolean | null;
+      issue_found?: string | null;
+      notes?: string | null;
+      priority?: Priority;
+      assigned_follow_up?: string | null;
+    } = {
       script_key: data.script_key,
       step_key: data.step_key,
       run_by: userId,
