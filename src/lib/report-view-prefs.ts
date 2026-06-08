@@ -20,6 +20,18 @@ export const EVT_OUTLINE_SET = "report-outline-set";
 let pending: ReportViewerPrefs = {};
 let timer: ReturnType<typeof setTimeout> | null = null;
 let pusher: ((patch: ReportViewerPrefs) => Promise<unknown>) | null = null;
+const collapsedSet = new Set<string>();
+
+export function resetCollapsedBlocks(ids: string[]) {
+  collapsedSet.clear();
+  for (const id of ids) collapsedSet.add(id);
+}
+
+export function setBlockCollapsed(id: string, collapsed: boolean) {
+  if (collapsed) collapsedSet.add(id);
+  else collapsedSet.delete(id);
+  queueReportPrefsUpdate({ collapsed_blocks: Array.from(collapsedSet) });
+}
 
 export function configureReportPrefsPusher(
   fn: (patch: ReportViewerPrefs) => Promise<unknown>,
