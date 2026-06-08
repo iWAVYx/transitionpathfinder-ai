@@ -56,6 +56,19 @@ export const updateNotificationPrefs = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => PrefsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Guard: turning SMS on requires a verified phone on file.
+    if (data.sms_enabled === true) {
+      const { data: existing } = await supabase
+        .from("notification_prefs")
+        .select("sms_phone_e164, sms_verified_at")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!existing?.sms_phone_e164 || !existing?.sms_verified_at) {
+        throw new Error("Verify your phone number before turning on text alerts.");
+      }
+    }
+
     const { error } = await supabase
       .from("notification_prefs")
       .upsert({ user_id: userId, ...data }, { onConflict: "user_id" });
