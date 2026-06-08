@@ -1604,6 +1604,7 @@ export type Database = {
           email_goal_reminders: boolean
           email_report_ready: boolean
           email_weekly_digest: boolean
+          notification_cadence: string
           updated_at: string
           user_id: string
         }
@@ -1612,6 +1613,7 @@ export type Database = {
           email_goal_reminders?: boolean
           email_report_ready?: boolean
           email_weekly_digest?: boolean
+          notification_cadence?: string
           updated_at?: string
           user_id: string
         }
@@ -1620,6 +1622,7 @@ export type Database = {
           email_goal_reminders?: boolean
           email_report_ready?: boolean
           email_weekly_digest?: boolean
+          notification_cadence?: string
           updated_at?: string
           user_id?: string
         }
