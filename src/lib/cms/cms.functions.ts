@@ -324,16 +324,6 @@ export const adminDeleteFaq = createServerFn({ method: "POST" })
 
 // ---------- Testimonials ----------
 
-export const getPublishedTestimonials = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("testimonials")
-      .select("*")
-      .eq("is_published", true)
-      .order("position");
-    return { testimonials: (data ?? []) as Testimonial[] };
-  });
 
 export const adminListTestimonials = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

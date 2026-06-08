@@ -118,18 +118,6 @@ export const createStudent = createServerFn({ method: "POST" })
     return row as Student;
   });
 
-export const updateStudent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z.object({ id: z.string().uuid() }).merge(StudentInput.partial()).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { id, ...rest } = data;
-    const { error } = await supabase.from("students").update(rest).eq("id", id);
-    if (error) throw new Error("Could not update student.");
-    return { ok: true };
-  });
 
 export const deleteStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

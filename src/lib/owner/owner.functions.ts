@@ -746,68 +746,6 @@ export const ownerSaveResource = createServerFn({ method: "POST" })
     }
   });
 
-export const ownerSetResourcePublishedStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z
-      .object({
-        id: z.string().uuid(),
-        published_status: z.enum(RESOURCE_PUBLISHED_STATUSES),
-      })
-      .parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    await requirePlatformAdmin(supabase, userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, any> = {
-      published_status: data.published_status,
-      reviewed_by_user_id: userId,
-      reviewed_at: new Date().toISOString(),
-    };
-    if (data.published_status === "published" || data.published_status === "featured" || data.published_status === "approved") {
-      patch.verified_status = "verified";
-    }
-    const { error } = await supabaseAdmin.from("resources").update(patch as never).eq("id", data.id);
-    if (error) throw new Error(error.message);
-    await logActivity(supabase, userId, "resource_status_changed", "resource", data.id, { published_status: data.published_status });
-    return { ok: true };
-  });
-
-export const ownerSetResourceFeatured = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z.object({ id: z.string().uuid(), featured: z.boolean() }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    await requirePlatformAdmin(supabase, userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("resources")
-      .update({ featured: data.featured } as never)
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    await logActivity(supabase, userId, data.featured ? "resource_featured" : "resource_unfeatured", "resource", data.id);
-    return { ok: true };
-  });
-
-export const ownerMarkResourceLinkChecked = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z.object({ id: z.string().uuid(), link_status: z.enum(["ok", "broken", "unknown"]) }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    await requirePlatformAdmin(supabase, userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("resources")
-      .update({ link_status: data.link_status, link_checked_at: new Date().toISOString() } as never)
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
 
 export const ownerDeleteResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
