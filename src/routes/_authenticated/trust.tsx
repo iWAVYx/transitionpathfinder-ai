@@ -91,6 +91,10 @@ function TrustPage() {
           </p>
         </header>
 
+        <TrustNote variant="consent" display="banner" />
+        <TrustNote variant="admin-scope" display="banner" />
+
+
         {/* AI policy card */}
         <section className="rounded-xl border bg-card p-6 space-y-3">
           <div className="flex items-center gap-2">
