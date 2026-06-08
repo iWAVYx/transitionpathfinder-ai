@@ -1975,10 +1975,26 @@ function ReportTOC({
     const stored = window.localStorage.getItem("report-outline-open");
     if (stored === "0") setOpen(false);
   }, []);
+  const outlineHydrated = useRef(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("report-outline-open", open ? "1" : "0");
+    if (!outlineHydrated.current) {
+      outlineHydrated.current = true;
+      return;
+    }
+    queueReportPrefsUpdate({ outline_open: open });
   }, [open]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<OutlineSetDetail>).detail;
+      if (typeof detail?.open === "boolean") setOpen(detail.open);
+    };
+    window.addEventListener(EVT_OUTLINE_SET, handler as EventListener);
+    return () =>
+      window.removeEventListener(EVT_OUTLINE_SET, handler as EventListener);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") return;
