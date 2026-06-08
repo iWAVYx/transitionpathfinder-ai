@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CalendarHeart, Sparkles } from "lucide-react";
+import { CalendarHeart, Sparkles, Trash2, History } from "lucide-react";
+import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -18,35 +19,91 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { listMyReports } from "@/lib/pathway.functions";
-import { createPptPrep, type PptAgenda } from "@/lib/ppt.functions";
+import {
+  createPptPrep,
+  getPptPrep,
+  listPptPreps,
+  deletePptPrep,
+  type PptAgenda,
+  type PptPrepSummary,
+} from "@/lib/ppt.functions";
 import { MeetingPrepPartners } from "@/components/pathway/MeetingPrepPartners";
 
 import { toTitleCase } from "@/lib/title-case";
+
+const SearchSchema = z.object({
+  id: z.string().uuid().optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/ppt-prep")({
   head: () => ({ meta: [{ title: "PPT Meeting Prep — TransitionForward" }] }),
+  validateSearch: (s) => SearchSchema.parse(s),
   component: () => (<RoleGuard path="/ppt-prep"><PptPrepPage /></RoleGuard>),
 });
 
 type ReportSummary = { id: string; student_first_name: string; grade_band: string | null; created_at: string };
 
+type LoadedAgenda = {
+  id: string | null;
+  agenda: PptAgenda;
+  studentName: string;
+  studentId: string | null;
+  meetingDate: string | null;
+};
+
 function PptPrepPage() {
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+
   const list = useServerFn(listMyReports);
   const prep = useServerFn(createPptPrep);
+  const loadPrep = useServerFn(getPptPrep);
+  const listPreps = useServerFn(listPptPreps);
+  const removePrep = useServerFn(deletePptPrep);
 
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [savedPreps, setSavedPreps] = useState<PptPrepSummary[]>([]);
   const [reportId, setReportId] = useState<string>("");
   const [meetingDate, setMeetingDate] = useState("");
   const [topConcerns, setTopConcerns] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [agenda, setAgenda] = useState<{ agenda: PptAgenda; studentName: string; studentId: string | null; meetingDate: string | null } | null>(null);
+  const [agenda, setAgenda] = useState<LoadedAgenda | null>(null);
+  const [hydrating, setHydrating] = useState(false);
 
   useEffect(() => {
     list()
       .then((r) => setReports(r.reports))
       .finally(() => setLoadingReports(false));
-  }, [list]);
+    listPreps()
+      .then((r) => setSavedPreps(r.preps))
+      .catch(() => {});
+  }, [list, listPreps]);
+
+  // Hydrate saved prep from ?id= search param
+  useEffect(() => {
+    if (!search.id) {
+      setAgenda(null);
+      return;
+    }
+    setHydrating(true);
+    loadPrep({ data: { id: search.id } })
+      .then((row) =>
+        setAgenda({
+          id: row.id,
+          agenda: row.agenda,
+          studentName: row.studentName,
+          studentId: row.studentId,
+          meetingDate: row.meetingDate,
+        }),
+      )
+      .catch((e) => {
+        toast.error(e instanceof Error ? e.message : "Couldn't load that meeting prep.");
+        navigate({ to: "/ppt-prep", search: {} });
+      })
+      .finally(() => setHydrating(false));
+  }, [search.id, loadPrep, navigate]);
 
   const onGenerate = async () => {
     if (!reportId) {
@@ -58,7 +115,20 @@ function PptPrepPage() {
       const res = await prep({
         data: { report_id: reportId, meeting_date: meetingDate, top_concerns: topConcerns, desired_outcomes: desiredOutcomes },
       });
-      setAgenda(res);
+      // Refresh saved list so the new one appears when they come back.
+      listPreps().then((r) => setSavedPreps(r.preps)).catch(() => {});
+      if (res.id) {
+        // Navigate to the canonical URL so reload/share works.
+        navigate({ to: "/ppt-prep", search: { id: res.id } });
+      } else {
+        setAgenda({
+          id: null,
+          agenda: res.agenda,
+          studentName: res.studentName,
+          studentId: res.studentId,
+          meetingDate: res.meetingDate,
+        });
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
@@ -66,6 +136,33 @@ function PptPrepPage() {
       setGenerating(false);
     }
   };
+
+  const onReset = () => {
+    setAgenda(null);
+    navigate({ to: "/ppt-prep", search: {} });
+  };
+
+  const onDeleteSaved = async (id: string) => {
+    if (!confirm("Delete this saved meeting prep? This can't be undone.")) return;
+    try {
+      await removePrep({ data: { id } });
+      setSavedPreps((prev) => prev.filter((p) => p.id !== id));
+      if (agenda?.id === id) onReset();
+      toast.success("Deleted.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Couldn't delete.");
+    }
+  };
+
+  if (hydrating) {
+    return (
+      <SiteShell>
+        <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+          <p className="text-sm text-muted-foreground">Loading your meeting prep…</p>
+        </section>
+      </SiteShell>
+    );
+  }
 
   if (agenda) {
     return (
@@ -75,7 +172,7 @@ function PptPrepPage() {
           agenda={agenda.agenda}
           studentId={agenda.studentId}
           meetingDate={agenda.meetingDate}
-          onReset={() => setAgenda(null)}
+          onReset={onReset}
         />
       </SiteShell>
     );
@@ -107,6 +204,45 @@ function PptPrepPage() {
             questions to ask, and language you can use when things get tense.
           </p>
         </InfoBox>
+
+        {savedPreps.length > 0 && (
+          <div className="mt-8 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
+            <div className="flex items-center gap-2">
+              <History className="h-4 w-4 text-primary" />
+              <h2 className="font-display text-lg">Your saved meeting preps</h2>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Pick up where you left off — these are saved to your account.
+            </p>
+            <ul className="mt-4 divide-y divide-border">
+              {savedPreps.map((p) => (
+                <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                  <Link
+                    to="/ppt-prep"
+                    search={{ id: p.id }}
+                    className="min-w-0 flex-1 text-sm hover:text-primary"
+                  >
+                    <span className="font-medium">{toTitleCase(p.student_name || "Untitled")}</span>
+                    {p.meeting_date && (
+                      <span className="text-muted-foreground"> · {p.meeting_date}</span>
+                    )}
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      Saved {new Date(p.created_at).toLocaleDateString()}
+                    </span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteSaved(p.id)}
+                    className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    aria-label="Delete saved prep"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {!loadingReports && reports.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
@@ -171,7 +307,7 @@ function PptPrepPage() {
             {generating ? "Drafting your meeting prep…" : "Generate meeting prep"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            Generation takes 15–30 seconds. You stay in charge — edit, print, or skip anything.
+            Generation takes 15–30 seconds. We'll save it to your account so you can come back anytime.
           </p>
         </div>
         )}
