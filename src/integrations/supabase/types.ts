@@ -2472,6 +2472,59 @@ export type Database = {
           },
         ]
       }
+      ppt_meeting_preps: {
+        Row: {
+          agenda: Json
+          created_at: string
+          desired_outcomes: string
+          id: string
+          meeting_date: string | null
+          report_id: string | null
+          student_id: string | null
+          student_name: string
+          title: string | null
+          top_concerns: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agenda: Json
+          created_at?: string
+          desired_outcomes?: string
+          id?: string
+          meeting_date?: string | null
+          report_id?: string | null
+          student_id?: string | null
+          student_name?: string
+          title?: string | null
+          top_concerns?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agenda?: Json
+          created_at?: string
+          desired_outcomes?: string
+          id?: string
+          meeting_date?: string | null
+          report_id?: string | null
+          student_id?: string | null
+          student_name?: string
+          title?: string | null
+          top_concerns?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ppt_meeting_preps_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "pathway_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
