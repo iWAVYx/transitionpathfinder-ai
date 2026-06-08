@@ -453,7 +453,7 @@ function ResourcesPage() {
 
       {/* FEATURED RESOURCES (curated picks from DB) */}
       {filteredFeaturedDb.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[88rem] px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
@@ -497,7 +497,7 @@ function ResourcesPage() {
 
       {/* VERIFIED LIBRARY (live from DB) */}
       {filteredDbResources.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[88rem] px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -620,7 +620,7 @@ function ResourcesPage() {
 
       {/* BROWSE BY SOURCE LIBRARY */}
       {sourceLibs.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[88rem] px-4 pt-12 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -673,7 +673,7 @@ function ResourcesPage() {
       {/* GLOBAL SEARCH */}
       <section
         data-testid="resources-sticky-search"
-        className="sticky top-16 z-40 mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8"
+        className="sticky top-16 z-40 mx-auto max-w-[88rem] px-4 pt-4 sm:px-6 lg:px-8"
       >
         <div className="rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md">
           <div className="relative">
@@ -711,7 +711,7 @@ function ResourcesPage() {
 
       {/* TAB BAR */}
 
-      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[88rem] px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border">
           <div className="flex flex-wrap items-center gap-2">
             {(
@@ -782,7 +782,7 @@ function ResourcesPage() {
       )}
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[88rem] px-4 pb-24 sm:px-6 lg:px-8">
         <div className="mt-8 overflow-hidden rounded-3xl bg-gradient-hero p-10 shadow-soft sm:p-14">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
             Connect Resources to a Real Plan.
@@ -840,7 +840,7 @@ function BrowseTab(props: {
   }, [visible]);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       {/* Filter bar */}
       <div
         data-testid="resources-sticky-filters"
@@ -1019,7 +1019,7 @@ function RecommendedTab({
   }, []);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       <div className="mt-8 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
@@ -1101,7 +1101,7 @@ function SavedTab({
   }, [resources, saved]);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display text-3xl font-medium tracking-tight">
