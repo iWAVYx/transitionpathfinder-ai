@@ -54,6 +54,8 @@ import {
   configureReportPrefsPusher,
   flushReportPrefs,
   queueReportPrefsUpdate,
+  resetCollapsedBlocks,
+  setBlockCollapsed,
   type CollapsedBlocksHydrationDetail,
   type DensitySetDetail,
   type OutlineSetDetail,
