@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Accessibility, Check, Globe, Minus, Moon, Plus, RotateCcw } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Popover,
   PopoverContent,
@@ -18,6 +19,12 @@ import {
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { LOCALES, type LocaleCode } from "@/lib/i18n/config";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  getAccessibilityPrefs,
+  updateAccessibilityPrefs,
+  type AccessibilityPrefs,
+} from "@/lib/ui-prefs.functions";
 
 type FontSize = "normal" | "large" | "xlarge";
 const DARK_KEY = "a11y:dark-mode";
@@ -54,14 +61,32 @@ export function AccessibilityControls() {
   const [dark, setDark] = useState(false);
   const [open, setOpen] = useState(false);
   const { locale, setLocale } = useLanguage();
+  const { user } = useAuth();
+  const fetchPrefs = useServerFn(getAccessibilityPrefs);
+  const savePrefs = useServerFn(updateAccessibilityPrefs);
 
-  // Hydrate from storage on mount
+  // Debounced server-sync pusher
+  const pending = useRef<AccessibilityPrefs>({});
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queueSync = (patch: AccessibilityPrefs) => {
+    if (!user) return;
+    pending.current = { ...pending.current, ...patch };
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      const payload = pending.current;
+      pending.current = {};
+      void savePrefs({ data: payload }).catch(() => {
+        /* best-effort; localStorage still holds the value */
+      });
+    }, 500);
+  };
+
+  // Hydrate from localStorage first (fast paint)
   useEffect(() => {
     try {
       const savedFont = (localStorage.getItem(FONT_KEY) as FontSize | null) ?? "normal";
       const savedContrast = localStorage.getItem(CONTRAST_KEY) === "1";
-      const savedDarkRaw = localStorage.getItem(DARK_KEY);
-      const savedDark = savedDarkRaw === "1";
+      const savedDark = localStorage.getItem(DARK_KEY) === "1";
       setFont(savedFont);
       setContrast(savedContrast);
       setDark(savedDark);
@@ -73,34 +98,56 @@ export function AccessibilityControls() {
     }
   }, []);
 
+  // Hydrate from server when signed in — server wins, falls through to localStorage cache
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fetchPrefs()
+      .then((p) => {
+        if (cancelled || !p) return;
+        if (p.font_size) {
+          setFont(p.font_size);
+          applyFont(p.font_size);
+          try { localStorage.setItem(FONT_KEY, p.font_size); } catch { /* ignore */ }
+        }
+        if (typeof p.high_contrast === "boolean") {
+          setContrast(p.high_contrast);
+          applyContrast(p.high_contrast);
+          try { localStorage.setItem(CONTRAST_KEY, p.high_contrast ? "1" : "0"); } catch { /* ignore */ }
+        }
+        if (typeof p.dark_mode === "boolean") {
+          setDark(p.dark_mode);
+          applyDark(p.dark_mode);
+          try { localStorage.setItem(DARK_KEY, p.dark_mode ? "1" : "0"); } catch { /* ignore */ }
+        }
+      })
+      .catch(() => {
+        /* offline / unauthorized — keep localStorage values */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, fetchPrefs]);
+
   const updateFont = (next: FontSize) => {
     setFont(next);
     applyFont(next);
-    try {
-      localStorage.setItem(FONT_KEY, next);
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem(FONT_KEY, next); } catch { /* ignore */ }
+    queueSync({ font_size: next });
   };
 
   const updateContrast = (next: boolean) => {
     setContrast(next);
     applyContrast(next);
-    try {
-      localStorage.setItem(CONTRAST_KEY, next ? "1" : "0");
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem(CONTRAST_KEY, next ? "1" : "0"); } catch { /* ignore */ }
+    queueSync({ high_contrast: next });
   };
 
   const updateDark = (next: boolean) => {
     setDark(next);
     applyDark(next);
-    try {
-      localStorage.setItem(DARK_KEY, next ? "1" : "0");
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem(DARK_KEY, next ? "1" : "0"); } catch { /* ignore */ }
+    queueSync({ dark_mode: next });
   };
 
   const reset = () => {
