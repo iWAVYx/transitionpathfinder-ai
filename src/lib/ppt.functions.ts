@@ -92,7 +92,7 @@ Generate a PPT meeting prep packet. Make every question and script specific to $
           meeting_date: data.meeting_date || null,
           top_concerns: data.top_concerns,
           desired_outcomes: data.desired_outcomes,
-          agenda: agenda as unknown as Record<string, unknown>,
+          agenda: JSON.parse(JSON.stringify(agenda)),
           title: `${name}${data.meeting_date ? ` · ${data.meeting_date}` : ""}`,
         })
         .select("id")
