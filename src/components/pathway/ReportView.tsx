@@ -41,6 +41,7 @@ import {
 import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { AiAssistPanel } from "@/components/pathway/AiAssistPanel";
 import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSuggestions";
+import { ConnectToPlan } from "@/components/pathway/ConnectToPlan";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import {
