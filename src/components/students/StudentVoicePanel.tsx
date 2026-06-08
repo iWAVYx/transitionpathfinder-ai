@@ -8,6 +8,7 @@ import {
   type StudentVoiceResponse,
 } from "@/lib/student-voice.functions";
 import { STUDENT_VOICE_PROMPTS } from "@/lib/student-voice-prompts";
+import { TrustNote } from "@/components/site/TrustNote";
 
 type Props = { studentId: string };
 
