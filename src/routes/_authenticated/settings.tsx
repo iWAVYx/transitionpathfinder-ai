@@ -9,6 +9,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { ChannelsCard } from "@/components/settings/ChannelsCard";
 import { useAuth } from "@/hooks/use-auth";
 import {
   getNotificationPrefs,
@@ -26,7 +27,9 @@ type PrefKey =
   | "email_collab_invites"
   | "email_goal_reminders"
   | "email_weekly_digest"
-  | "email_report_ready";
+  | "email_report_ready"
+  | "in_app_enabled"
+  | "sms_enabled";
 
 const PREF_LABELS: { key: PrefKey; title: string; desc: string }[] = [
   {
@@ -169,48 +172,13 @@ function SettingsPage() {
           )}
         </div>
 
-        {/* Channels (scaffold) */}
-        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
-          <div className="flex items-center gap-2">
-            <Smartphone className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-lg">Channels</h2>
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Pick how we reach you. Email is on by default — text and in-app are rolling out soon.
-          </p>
-          <ul className="mt-4 divide-y divide-border">
-            <li className="flex items-start justify-between gap-4 py-4">
-              <div className="flex items-start gap-3">
-                <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Email</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Always on for important account events.</p>
-                </div>
-              </div>
-              <Switch checked disabled />
-            </li>
-            <li className="flex items-start justify-between gap-4 py-4">
-              <div className="flex items-start gap-3">
-                <MessageSquare className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Text (SMS)</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Coming soon — meeting reminders and urgent updates.</p>
-                </div>
-              </div>
-              <Switch disabled />
-            </li>
-            <li className="flex items-start justify-between gap-4 py-4">
-              <div className="flex items-start gap-3">
-                <Bell className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">In-app</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Coming soon — see updates the next time you sign in.</p>
-                </div>
-              </div>
-              <Switch disabled />
-            </li>
-          </ul>
-        </div>
+        {/* Channels */}
+        <ChannelsCard
+          prefs={prefs}
+          onTogglePref={(key, v) => toggle(key, v)}
+          saving={saving}
+        />
+
 
         {/* Cadence (scaffold) */}
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
