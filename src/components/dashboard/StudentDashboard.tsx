@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 
 type Props = {
