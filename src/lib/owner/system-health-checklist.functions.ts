@@ -19,33 +19,45 @@ export type SystemHealthChecklistItem = {
   sort_order: number;
 };
 
-async function assertAdmin(supabase: ReturnType<typeof unwrap>, userId: string) {
-  const { data, error } = await supabase
-    .from("admin_roles")
+type AnySupabase = {
+  from: (table: string) => {
+    select: (cols: string) => {
+      order?: (col: string, opts: { ascending: boolean }) => Promise<{ data: unknown; error: { message: string } | null }>;
+      eq?: (col: string, val: string) => {
+        eq?: (col: string, val: string) => { maybeSingle: () => Promise<{ data: unknown; error: { message: string } | null }> };
+        maybeSingle: () => Promise<{ data: unknown; error: { message: string } | null }>;
+      };
+    };
+    update: (patch: Record<string, unknown>) => {
+      eq: (col: string, val: string) => {
+        select: (cols: string) => { single: () => Promise<{ data: unknown; error: { message: string } | null }> };
+      };
+    };
+  };
+};
+
+async function assertAdmin(supabase: AnySupabase, userId: string) {
+  const adminRolesQ = supabase.from("admin_roles").select("role").eq?.("user_id", userId);
+  const adminRow = await adminRolesQ?.maybeSingle();
+  if (adminRow?.data) return;
+  const legacy = await supabase
+    .from("user_roles")
     .select("role")
-    .eq("user_id", userId)
+    .eq?.("user_id", userId)
+    .eq?.("role", "admin")
     .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) {
-    // fall back to legacy app_role admin
-    const { data: r } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
-    if (!r) throw new Error("Forbidden");
-  }
-}
-// helper to keep TS happy
-function unwrap<T>(x: T): T {
-  return x;
+  if (!legacy?.data) throw new Error("Forbidden");
 }
 
 export const listSystemHealthChecklist = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    await assertAdmin(supabase, userId);
-    const { data, error } = await supabase
+    await assertAdmin(supabase as unknown as AnySupabase, userId);
+    const { data, error } = await (supabase as unknown as AnySupabase)
       .from("system_health_checks")
       .select("*")
-      .order("sort_order", { ascending: true });
+      .order!("sort_order", { ascending: true });
     if (error) throw new Error(error.message);
     return { items: (data ?? []) as SystemHealthChecklistItem[] };
   });
@@ -61,7 +73,7 @@ export const updateSystemHealthChecklistItem = createServerFn({ method: "POST" }
   }) => input)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    await assertAdmin(supabase, userId);
+    await assertAdmin(supabase as unknown as AnySupabase, userId);
     const patch: Record<string, unknown> = {
       last_checked_at: new Date().toISOString(),
       last_checked_by: userId,
@@ -70,7 +82,7 @@ export const updateSystemHealthChecklistItem = createServerFn({ method: "POST" }
     if (data.notes !== undefined) patch.notes = data.notes;
     if (data.priority !== undefined) patch.priority = data.priority;
     if (data.action_needed !== undefined) patch.action_needed = data.action_needed;
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await (supabase as unknown as AnySupabase)
       .from("system_health_checks")
       .update(patch)
       .eq("id", data.id)
