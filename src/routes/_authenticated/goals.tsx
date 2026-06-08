@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Target, Sparkles } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -211,6 +212,7 @@ function GoalList({
   }, [reportId, loadStatuses]);
 
   const setStatus = (id: string, next: Status) => {
+    const previous = statuses[id] ?? "not-started";
     setStatuses((prev) => {
       const updated = { ...prev, [id]: next };
       try {
@@ -221,7 +223,16 @@ function GoalList({
       return updated;
     });
     saveStatus({ data: { reportId, itemId: id, status: next } }).catch(() => {
-      /* swallow — local cache holds the value; surfaced on next load */
+      toast.error("Couldn't save — reverted. Try again.");
+      setStatuses((prev) => {
+        const reverted = { ...prev, [id]: previous };
+        try {
+          localStorage.setItem(storageKey(reportId), JSON.stringify(reverted));
+        } catch {
+          /* ignore */
+        }
+        return reverted;
+      });
     });
   };
 
