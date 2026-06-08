@@ -1,0 +1,1 @@
+ALTER TABLE public.user_ui_prefs ADD COLUMN IF NOT EXISTS accessibility JSONB NOT NULL DEFAULT '{}'::jsonb;
