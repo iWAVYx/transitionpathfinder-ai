@@ -184,7 +184,7 @@ export function AccessibilityControls() {
         <div>
           <h2 className="text-base font-semibold text-foreground">Accessibility</h2>
           <p className="text-xs text-muted-foreground">
-            Adjust text size, contrast, and language. Your choices are saved on this device.
+            Adjust text size, contrast, and language. When signed in, your choices follow you across devices.
           </p>
         </div>
 
