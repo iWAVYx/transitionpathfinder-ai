@@ -89,6 +89,7 @@ export function StudentVoicePanel({ studentId }: Props) {
           )}
         </ul>
       )}
+      <TrustNote variant="student-voice" display="inline" className="mt-4" />
     </section>
   );
 }
