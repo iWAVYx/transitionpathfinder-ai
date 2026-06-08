@@ -44,6 +44,7 @@ import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
