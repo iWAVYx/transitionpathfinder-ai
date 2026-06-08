@@ -37,6 +37,7 @@ import {
   type CaseloadStudent,
 } from "@/lib/caseload.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 
 export const Route = createFileRoute("/_authenticated/caseload")({
