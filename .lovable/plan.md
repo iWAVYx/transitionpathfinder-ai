@@ -1,68 +1,93 @@
 
-# Partner Network Expansion — Implementation Plan
+# TransitionForward — Operational & Demo Readiness Pass
 
-This is a large, multi-layer build. I want to confirm scope and sequencing before touching code, because doing it all in one pass risks destabilizing the existing structure you explicitly asked me to preserve (role system, dashboards, Admin Hub, website layout).
+A non-disruptive polish pass. No redesign, no new product surfaces, no changes to navigation, role system, dashboards, Admin Hub, Resource Library, Partner Network, Calendar, Pathway Report, or signed-in flows. Everything below either (a) lives inside the existing Admin Hub, (b) is additive guidance overlaid on existing screens, or (c) is QA scripting and seed data.
 
-## Current state (what I'll build on, not replace)
+Because the scope is very large, I'm proposing **8 phases delivered sequentially**, each shippable on its own. You can approve all 8 or pick the order.
 
-- `src/routes/partners.tsx` — public marketing page (kept as-is, will link to new public directory)
-- `src/routes/_authenticated/partners-manage.tsx` — existing partner mgmt (will extend)
-- `src/lib/partner-workspace.functions.ts` — existing partner serverFns (will extend)
-- `src/lib/resource-recommender.functions.ts` + `resources-db.functions.ts` — existing recommender (will hook opportunities in)
-- Owner Hub routes under `src/routes/_authenticated/owner.*` — will add `owner.partner-network.tsx` and `owner.opportunities.tsx` (latter already exists; will extend)
+---
 
-## Proposed phasing
+## Phase 1 — Demo Readiness System
 
-I recommend shipping this in 4 phases rather than one mega-commit. Each phase is independently testable and won't break the live app.
+**Goal:** every major role can be demoed reliably from a clean state.
 
-### Phase 1 — Data model + seed (foundation)
-Migration adds/extends two tables:
+- Add a `demo` flag/label on profiles + students; demo data never mixes with real records (filtered out of analytics, waitlist, partner submissions, admin follow-ups).
+- Seed script (`scripts/seed-demo.ts`, idempotent) that creates one demo account per role with realistic, connected data:
+  - Demo Parent/Guardian, Student, Educator/Case Manager, School Admin, District Admin, Partner Org, Platform Admin.
+  - One shared "Demo Student" wired across Pathway Report, Student Voice, readiness scores, saved resources, opportunity matches, action items, meeting prep, calendar, sharing/consent.
+- Admin Hub → new "Demo Mode" panel: list of demo accounts, copy-login links, "Reset demo data" button (re-runs seed), and a visible "DEMO DATA" banner on any session signed in as a demo user.
+- Public-facing "Explore Demo" entry on the home page CTA area (non-destructive, reuses existing styling).
 
-- `partner_organizations`
-  - All fields you listed: org_name, partner_type (enum), description, website_url, contact_email, phone, address, city, county, state, service_area, audience_served[], age_range, disability_focus[], pathway_categories[], services_offered[], opportunity_types[], virtual_or_in_person, transportation_notes, eligibility_notes, referral_process, source_url, verification_status (enum), partnership_status (enum), outreach_status (enum), admin_notes, last_reviewed_at, next_review_due_at, is_public, is_featured, collection_tags[], timestamps
-- `partner_opportunities`
-  - opportunity_title, partner_id (FK), opportunity_type (enum), description, location, county, pathway_category, age_range, eligibility, support_level, schedule, cost_or_funding_notes, application_url, contact_email, next_step, status, timestamps
-- Enums: `partner_type`, `verification_status` (verified/potential/needs_review/pending_approval/featured/archived), `outreach_status` (not_contacted/researching/outreach_needed/contacted/in_conversation/approved/declined/follow_up/archived), `opportunity_type`
-- Junction table `student_saved_partners` (student_id, partner_id or opportunity_id, saved_by, notes) — for signed-in saves and pathway attachment
-- RLS:
-  - Public SELECT on `partner_organizations` WHERE `is_public = true AND verification_status IN ('verified','featured','potential')` via a server fn (no `TO anon` policy — use `supabaseAdmin` in a public serverFn with column projection)
-  - Authenticated SELECT on full directory
-  - Platform admin (`is_platform_admin`) full CRUD
-  - `student_saved_partners` scoped via `can_access_student`
-- Seed migration inserts ~80+ CT organizations across the collections you listed, each tagged with appropriate status (Verified for state agencies; Potential Partner / Needs Review / Outreach Needed for everything else), collection tags, and pathway categories. Inclusive employer leads get a "Potential Opportunity Lead" framing flag.
+## Phase 2 — System Health Dashboard (Admin Hub)
 
-### Phase 2 — Public Partner Directory
-- New route `src/routes/partner-directory.tsx` (public, SSR, own SEO head)
-- Search + filters: category, county, pathway, audience, opportunity type
-- Featured section, separate "Community Resources & Leads" section for unverified
-- Status badges with careful public labels: "Verified Partner", "Community Resource", "Potential Opportunity Lead", "Needs Verification"
-- "Suggest a partner" + "Become a partner" CTAs (reuse existing `PartnerApplyForm`)
-- Disclaimer footer: "Listings are provided to support transition planning…"
+**Goal:** one screen to confirm the platform is safe to demo.
 
-### Phase 3 — Signed-in matching + saves
-- Extend `resource-recommender.functions.ts` to also surface partner opportunities scored against student interests, pathway goals, grade, county, support needs
-- Surface matches in: `RecommendedResourcesPanel`, `ReportView` (Pathway Report), `ActionItemsPanel` (create action item from opportunity), `meetings.$meetingId` prep
-- Match card shows: why it fits, which goal it supports, next step, verification badge, Save / Add to Pathway / Add to Meeting Prep / Create Action Item
+- New route under existing Admin Hub: `/admin/system-health` (no nav restructure — added to existing Admin sidebar).
+- Tracks every item you listed (auth, role onboarding, each role dashboard, Pathway Report, Student Voice, Resource Library, Partner Directory, opportunity matches, action items, meeting prep, calendar, waitlist, contact forms, partner submissions, admin content editing, site settings, Supabase connection, persistence, RLS, mobile, demo mode).
+- Per-row columns: **Status** (Working / Needs Attention / Not Connected / Coming Soon), Last checked, Notes, Route, Backend table, Priority, Action needed.
+- Automated probes where cheap (server-fn pings: auth session, DB select, RLS canary read, storage head). Manual override for everything else (admin-editable status + note).
+- Backed by new table `system_health_checks` (admin-only RLS, GRANTs included).
 
-### Phase 4 — Platform Admin Partner Manager
-- New owner route `src/routes/_authenticated/owner.partner-network.tsx` (under existing OwnerShell — no nav restructure)
-- Table view with admin filters (status, type, county, pathway, audience, opp type, last reviewed, outreach needed)
-- Drawer for: add/edit/archive partner, verify/feature, approve submissions, outreach notes + next follow-up date, add/edit opportunities, publish toggle
-- All CRUD via `partner-network.functions.ts` serverFns gated by `is_platform_admin`
+## Phase 3 — First-10-Minutes Guidance
 
-## Technical notes (for the record)
+**Goal:** every new signup knows what to do without a founder explanation.
 
-- All server logic via `createServerFn`, never edge functions
-- Public reads through a serverFn that uses `supabaseAdmin` with explicit column projection (never broad `TO anon` policies — per project security memory)
-- Student-scoped saves use `can_access_student` (per project security memory)
-- No changes to existing role system, dashboards, OwnerShell nav structure, or website layout
-- Existing `partners-manage.tsx` left intact; the new owner page is the admin power tool
+- Reusable `<NextBestAction />` card component (no new design system — uses existing tokens) rendered on each role dashboard.
+- Role-specific "next step" engine driven by existing data: if no student → "Add your first student"; if student but no Voice → "Complete Student Voice"; etc.
+- Empty-state copy upgrades on each dashboard answering: *What do I do first? What's required vs optional? What's my next best action?*
+- Per-role checklists exactly matching your spec (Parent, Student, Educator/CM, School Admin, District Admin, Partner, Platform Admin). Dismissible, persisted in `user_ui_prefs`.
 
-## What I need from you before I start
+## Phase 4 — Tighten Feature Connections
 
-This is roughly 2–3 days of focused work compressed into one session. Two questions:
+**Goal:** make the platform feel integrated. Pure wiring + cross-links, no new pages.
 
-1. **Phasing**: ship Phase 1+2 first (data + public directory) and follow up with 3+4, or commit to all four in one go? I strongly recommend phased.
-2. **Seed data canonical**: I will seed every org you named with plausible defaults (website URLs from public sources where I'm confident, status defaults as you specified, county/tags inferred). Anything I'm not confident about (specific contact emails, phone numbers) I'll leave null rather than guess. OK?
+For each hub (Pathway Report, Resource Library, Partner Network, Calendar, Action Items, Meeting Prep, Admin Hub), audit the screen and add the missing inbound/outbound links exactly as you listed. Examples:
+- Pathway Report → "Add to Calendar", "Create Action Item", "Open Meeting Prep", "Matching Opportunities", "Recommended Resources", "Share / Download".
+- Calendar event detail → links back to the source (action item, meeting prep, opportunity deadline, admin follow-up).
+- Action item detail → source Pathway Report section + linked resource/opportunity/meeting prep + calendar due date.
+- Admin Hub left rail confirms presence of: waitlist, contact, users, resources, source libraries, partner directory, partner submissions, outreach tracker, site content, system health, support requests, analytics.
 
-Once you confirm, I'll start with the Phase 1 migration.
+Delivered as small PRs per hub so we can verify each without breaking the others.
+
+## Phase 5 — Role-by-Role Testing Scripts (in Admin Hub)
+
+- New Admin Hub sub-page `/admin/testing-scripts`.
+- Ships the exact scripts you wrote (Parent, Educator/CM, School Admin, District Admin, Partner, Platform Admin) as structured steps.
+- Per-step checkboxes: completed, passed, issue found, notes, priority, assigned follow-up. Persisted in new `testing_script_runs` table (admin-only RLS).
+- "Export run as markdown" for sharing with testers.
+
+## Phase 6 — Trust, Privacy & Sharing Language
+
+- Audit pass on student profile, Pathway Report, Resource Library, Partner Network, sharing dialogs, consent screens, AI-generated sections.
+- Add plain-language explainers: who sees what, what's private vs shared, what AI processes, revoking access, document protection, Platform Admin vs school/district scope.
+- Standard AI disclaimer rendered next to every AI-generated output:
+  *"AI recommendations are supportive planning tools and do not replace professional judgment, school team decisions, legal advice, or official IEP/PPT determinations."*
+- Centralized as a `<TrustNote variant="..." />` component so copy stays consistent.
+
+## Phase 7 — Pitch & Demo Page (Admin Hub)
+
+- New Admin Hub sub-page `/admin/pitch` (admin-only).
+- Renders the one-sentence pitch, problem, solution, audiences, core features, demo flow walkthrough, feature explainers (Pathway Report, Resource Library, Partner Network, Calendar/Action Items, Admin Hub), talking points per audience, and screenshot placeholders.
+- Includes the core message verbatim.
+- Static content first; editable later if you want it CMS-backed.
+
+## Phase 8 — Backend Persistence + Mobile/Responsive QA
+
+- Automated persistence smoke suite (`tests/persistence.spec.ts`) covering every action you listed: signup, onboarding, role save, add student, connections, Student Voice, Pathway Report, saved resources, saved partners/opportunities, action items, meeting prep, calendar events, waitlist, contact, partner submissions, admin edits, system-health notes, testing-script notes. Each test: save → refresh → assert → logout/login → re-assert.
+- Mobile QA pass at 375/414/768/1024 across: demo mode, dashboards, System Health, testing scripts, Pathway Report, calendar, resource library, partner network, admin hub, forms, modals, tables. Fix only responsive regressions found — no visual redesign. Tables collapse to cards, sidebars collapse, calendar falls back to agenda/list on small screens.
+- Final acceptance checklist (your list) run end-to-end and reported back.
+
+---
+
+## Technical Notes
+
+- All new tables (`system_health_checks`, `testing_script_runs`, demo flags) ship with RLS enabled, `has_role('admin')` policies, and explicit `GRANT`s.
+- Demo accounts get a `is_demo BOOLEAN` flag on `profiles`; all list queries (waitlist, contact, partner submissions, admin analytics) filter `is_demo = false` by default with a "show demo" toggle for the admin.
+- "Reset demo data" runs server-side via `createServerFn` + `supabaseAdmin`, scoped to rows where `is_demo = true`.
+- No changes to: routing structure, color tokens, typography, root layout, auth gate, role system, existing dashboards' information architecture.
+
+---
+
+## How I'd like to proceed
+
+Phases are independent. I suggest shipping **Phase 1 (Demo) + Phase 2 (System Health) first** — they unlock everything else and give you something you can show this week. Reply with which phases to start, or "all, in order" and I'll begin with Phase 1.
