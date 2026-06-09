@@ -96,10 +96,22 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "/" },
       { property: "og:image", content: heroImg },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [
+      { rel: "canonical", href: "/" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      {
+        rel: "preload",
+        as: "image",
+        href: heroImg,
+        imagesrcset: heroSrcSet,
+        imagesizes: "100vw",
+        fetchpriority: "high",
+      },
+    ],
   }),
   component: HomePage,
 });
+
 
 const HERO_DEFAULTS = {
   eyebrow: "Transition planning, made human",
