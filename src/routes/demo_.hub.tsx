@@ -149,8 +149,10 @@ function DemoHubPage() {
               <p className="mt-1 text-sm text-muted-foreground">{bundle.headline}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm">
-                <Upload className="h-4 w-4" /> Upload document
+              <Button asChild variant="outline" size="sm">
+                <Link to="/demo/calendar" search={{ s }}>
+                  <Calendar className="h-4 w-4" /> Open Calendar
+                </Link>
               </Button>
               <Button size="sm" asChild>
                 <Link to="/demo/report" search={{ s }}>
