@@ -6,6 +6,7 @@ import {
   Users,
   BookOpen,
   CalendarRange,
+  CalendarDays,
   ArrowLeft,
   ArrowRight,
   ShieldCheck,
@@ -22,6 +23,7 @@ export const DEMO_STEPS = [
   { id: "report", to: "/demo/report", label: "Pathway Report", icon: FileText },
   { id: "meeting", to: "/demo/meeting", label: "Meeting Prep", icon: Users },
   { id: "resources", to: "/demo/resources", label: "Resource Matches", icon: BookOpen },
+  { id: "calendar", to: "/demo/calendar", label: "Calendar", icon: CalendarDays },
   { id: "plan", to: "/demo/plan", label: "30-Day Plan", icon: CalendarRange },
 ] as const;
 
