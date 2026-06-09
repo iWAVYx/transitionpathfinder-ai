@@ -63,9 +63,15 @@ export const Route = createFileRoute("/platform")({
           "One platform, four perspectives. See what families, students, educators, and admins actually do inside TransitionForward.",
       },
       { property: "og:url", content: "/platform" },
+      { property: "og:image", content: platformHero },
     ],
-    links: [{ rel: "canonical", href: "/platform" }],
+    links: [
+      { rel: "canonical", href: "/platform" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: platformHero, imagesrcset: platformHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+    ],
   }),
+
   component: PlatformPage,
 });
 
