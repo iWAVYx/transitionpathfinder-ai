@@ -19,8 +19,11 @@ import {
   Download,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos } from "@/lib/photos";
+import { photos, photoSrcSet } from "@/lib/photos";
+const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
+const heroSrcSet = photoSrcSet(HERO_ID);
+
 const studentImg = photos.homeStudent;
 const studentPhotoImg = photos.homeStudentPhoto;
 const familyImg = photos.homeFamily;
@@ -93,10 +96,22 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "/" },
       { property: "og:image", content: heroImg },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [
+      { rel: "canonical", href: "/" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      {
+        rel: "preload",
+        as: "image",
+        href: heroImg,
+        imagesrcset: heroSrcSet,
+        imagesizes: "100vw",
+        fetchpriority: "high",
+      },
+    ],
   }),
   component: HomePage,
 });
+
 
 const HERO_DEFAULTS = {
   eyebrow: "Transition planning, made human",
@@ -131,12 +146,16 @@ function HomePage() {
       <section className="relative isolate -mt-px overflow-hidden">
         <ParallaxImage
           src={heroImg}
+          srcSet={heroSrcSet}
+          sizes="100vw"
+          eager
           alt="A young person walking a tree-lined path at golden hour"
           width={1920}
           height={1080}
           speed={0.45}
           className="absolute inset-0 -z-10 h-full w-full"
         />
+
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 

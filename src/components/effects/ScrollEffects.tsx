@@ -176,6 +176,9 @@ export function ParallaxImage({
   speed = 0.35,
   width,
   height,
+  eager = false,
+  sizes,
+  srcSet,
 }: {
   src: string;
   alt: string;
@@ -184,6 +187,9 @@ export function ParallaxImage({
   speed?: number;
   width?: number;
   height?: number;
+  eager?: boolean;
+  sizes?: string;
+  srcSet?: string;
 }) {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
   const translate = (progress - 0.5) * speed * 100; // % of overflow
@@ -191,10 +197,15 @@ export function ParallaxImage({
     <div ref={ref} className={cn("relative overflow-hidden", className)}>
       <img
         src={src}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         width={width}
         height={height}
-        loading="lazy"
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        // @ts-expect-error fetchPriority is valid HTML, types lag
+        fetchpriority={eager ? "high" : "auto"}
         className={cn("absolute inset-0 h-[120%] w-full -top-[10%] object-cover", imgClassName)}
         style={{
           transform: `translate3d(0, ${translate.toFixed(2)}%, 0)`,
@@ -204,6 +215,7 @@ export function ParallaxImage({
     </div>
   );
 }
+
 
 /* ---------------- StickyScrollStory ----------------
  * Tall section: caption column is sticky while the right column scrolls past.
