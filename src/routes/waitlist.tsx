@@ -171,7 +171,9 @@ function WaitlistPage() {
           if (attempts++ < 20) requestAnimationFrame(tryScroll);
           return;
         }
-        const headerOffset = 72;
+        // Sticky header on this site is ~64px; pad extra so the focused
+        // field is comfortably below it (not clipped or visually merged).
+        const headerOffset = 96;
         const lenis = window.__lenis;
         if (lenis && !prefersReduced) {
           lenis.scrollTo(el, { offset: -headerOffset });
@@ -183,12 +185,43 @@ function WaitlistPage() {
             behavior: prefersReduced ? "auto" : "smooth",
           });
         }
-        // Move focus to the first focusable field without re-scrolling.
+        // Move focus to the first focusable field. Use preventScroll so
+        // the browser doesn't jump past our smooth-scrolled position,
+        // then nudge into view if it ended up under the sticky header.
         window.setTimeout(() => {
           const firstField = el.querySelector<HTMLElement>(
             'input, select, textarea, button, [tabindex]:not([tabindex="-1"])',
           );
-          firstField?.focus({ preventScroll: true });
+          if (!firstField) return;
+          // Briefly highlight the focus ring so it is unmistakable on landing.
+          firstField.classList.add(
+            "ring-2",
+            "ring-primary",
+            "ring-offset-2",
+            "ring-offset-background",
+          );
+          firstField.focus({ preventScroll: true });
+          const rect = firstField.getBoundingClientRect();
+          if (rect.top < headerOffset) {
+            const correction =
+              window.scrollY + rect.top - headerOffset;
+            if (lenis && !prefersReduced) {
+              lenis.scrollTo(correction);
+            } else {
+              window.scrollTo({
+                top: correction,
+                behavior: prefersReduced ? "auto" : "smooth",
+              });
+            }
+          }
+          window.setTimeout(() => {
+            firstField.classList.remove(
+              "ring-2",
+              "ring-primary",
+              "ring-offset-2",
+              "ring-offset-background",
+            );
+          }, 1800);
         }, prefersReduced ? 0 : 600);
       };
       requestAnimationFrame(tryScroll);
