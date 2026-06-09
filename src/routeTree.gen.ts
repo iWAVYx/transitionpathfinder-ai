@@ -78,6 +78,7 @@ import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
+import { Route as AuthenticatedOwnerTestingScriptsRouteImport } from './routes/_authenticated/owner.testing-scripts'
 import { Route as AuthenticatedOwnerTestingRouteImport } from './routes/_authenticated/owner.testing'
 import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
@@ -85,16 +86,21 @@ import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authe
 import { Route as AuthenticatedOwnerResourceSourcesRouteImport } from './routes/_authenticated/owner.resource-sources'
 import { Route as AuthenticatedOwnerResourceReviewRouteImport } from './routes/_authenticated/owner.resource-review'
 import { Route as AuthenticatedOwnerPitchRouteImport } from './routes/_authenticated/owner.pitch'
+import { Route as AuthenticatedOwnerPilotPackagesRouteImport } from './routes/_authenticated/owner.pilot-packages'
 import { Route as AuthenticatedOwnerPartnerSubmissionsRouteImport } from './routes/_authenticated/owner.partner-submissions'
 import { Route as AuthenticatedOwnerPartnerOutreachRouteImport } from './routes/_authenticated/owner.partner-outreach'
 import { Route as AuthenticatedOwnerPartnerNetworkStatusRouteImport } from './routes/_authenticated/owner.partner-network-status'
 import { Route as AuthenticatedOwnerPartnerNetworkRouteImport } from './routes/_authenticated/owner.partner-network'
+import { Route as AuthenticatedOwnerOutreachRouteImport } from './routes/_authenticated/owner.outreach'
 import { Route as AuthenticatedOwnerOrganizationsRouteImport } from './routes/_authenticated/owner.organizations'
 import { Route as AuthenticatedOwnerOpportunitiesRouteImport } from './routes/_authenticated/owner.opportunities'
 import { Route as AuthenticatedOwnerMediaRouteImport } from './routes/_authenticated/owner.media'
+import { Route as AuthenticatedOwnerLaunchRouteImport } from './routes/_authenticated/owner.launch'
+import { Route as AuthenticatedOwnerIssuesRouteImport } from './routes/_authenticated/owner.issues'
 import { Route as AuthenticatedOwnerImportAuditRouteImport } from './routes/_authenticated/owner.import-audit'
 import { Route as AuthenticatedOwnerIepAuditRouteImport } from './routes/_authenticated/owner.iep-audit'
 import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenticated/owner.health'
+import { Route as AuthenticatedOwnerFeedbackRouteImport } from './routes/_authenticated/owner.feedback'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
 import { Route as AuthenticatedOwnerDemoRouteImport } from './routes/_authenticated/owner.demo'
@@ -102,6 +108,7 @@ import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authent
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
 import { Route as AuthenticatedOwnerBroadcastsRouteImport } from './routes/_authenticated/owner.broadcasts'
 import { Route as AuthenticatedOwnerBlogRouteImport } from './routes/_authenticated/owner.blog'
+import { Route as AuthenticatedOwnerBetaTestersRouteImport } from './routes/_authenticated/owner.beta-testers'
 import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenticated/owner.admins'
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
@@ -471,6 +478,12 @@ const AuthenticatedOwnerUsersRoute = AuthenticatedOwnerUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerTestingScriptsRoute =
+  AuthenticatedOwnerTestingScriptsRouteImport.update({
+    id: '/testing-scripts',
+    path: '/testing-scripts',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerTestingRoute =
   AuthenticatedOwnerTestingRouteImport.update({
     id: '/testing',
@@ -512,6 +525,12 @@ const AuthenticatedOwnerPitchRoute = AuthenticatedOwnerPitchRouteImport.update({
   path: '/pitch',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerPilotPackagesRoute =
+  AuthenticatedOwnerPilotPackagesRouteImport.update({
+    id: '/pilot-packages',
+    path: '/pilot-packages',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerPartnerSubmissionsRoute =
   AuthenticatedOwnerPartnerSubmissionsRouteImport.update({
     id: '/partner-submissions',
@@ -536,6 +555,12 @@ const AuthenticatedOwnerPartnerNetworkRoute =
     path: '/partner-network',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerOutreachRoute =
+  AuthenticatedOwnerOutreachRouteImport.update({
+    id: '/outreach',
+    path: '/outreach',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerOrganizationsRoute =
   AuthenticatedOwnerOrganizationsRouteImport.update({
     id: '/organizations',
@@ -553,6 +578,18 @@ const AuthenticatedOwnerMediaRoute = AuthenticatedOwnerMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerLaunchRoute =
+  AuthenticatedOwnerLaunchRouteImport.update({
+    id: '/launch',
+    path: '/launch',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
+const AuthenticatedOwnerIssuesRoute =
+  AuthenticatedOwnerIssuesRouteImport.update({
+    id: '/issues',
+    path: '/issues',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerImportAuditRoute =
   AuthenticatedOwnerImportAuditRouteImport.update({
     id: '/import-audit',
@@ -569,6 +606,12 @@ const AuthenticatedOwnerHealthRoute =
   AuthenticatedOwnerHealthRouteImport.update({
     id: '/health',
     path: '/health',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
+const AuthenticatedOwnerFeedbackRoute =
+  AuthenticatedOwnerFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
 const AuthenticatedOwnerFaqsRoute = AuthenticatedOwnerFaqsRouteImport.update({
@@ -610,6 +653,12 @@ const AuthenticatedOwnerBlogRoute = AuthenticatedOwnerBlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerBetaTestersRoute =
+  AuthenticatedOwnerBetaTestersRouteImport.update({
+    id: '/beta-testers',
+    path: '/beta-testers',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerAnalyticsRoute =
   AuthenticatedOwnerAnalyticsRouteImport.update({
     id: '/analytics',
@@ -760,6 +809,7 @@ export interface FileRoutesByFullPath {
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/owner/beta-testers': typeof AuthenticatedOwnerBetaTestersRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
@@ -767,16 +817,21 @@ export interface FileRoutesByFullPath {
   '/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/owner/feedback': typeof AuthenticatedOwnerFeedbackRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/owner/iep-audit': typeof AuthenticatedOwnerIepAuditRoute
   '/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
+  '/owner/issues': typeof AuthenticatedOwnerIssuesRoute
+  '/owner/launch': typeof AuthenticatedOwnerLaunchRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
+  '/owner/outreach': typeof AuthenticatedOwnerOutreachRoute
   '/owner/partner-network': typeof AuthenticatedOwnerPartnerNetworkRoute
   '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/owner/pilot-packages': typeof AuthenticatedOwnerPilotPackagesRoute
   '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
@@ -784,6 +839,7 @@ export interface FileRoutesByFullPath {
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/testing': typeof AuthenticatedOwnerTestingRoute
+  '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -867,6 +923,7 @@ export interface FileRoutesByTo {
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/owner/beta-testers': typeof AuthenticatedOwnerBetaTestersRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
@@ -874,16 +931,21 @@ export interface FileRoutesByTo {
   '/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/owner/feedback': typeof AuthenticatedOwnerFeedbackRoute
   '/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/owner/iep-audit': typeof AuthenticatedOwnerIepAuditRoute
   '/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
+  '/owner/issues': typeof AuthenticatedOwnerIssuesRoute
+  '/owner/launch': typeof AuthenticatedOwnerLaunchRoute
   '/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
+  '/owner/outreach': typeof AuthenticatedOwnerOutreachRoute
   '/owner/partner-network': typeof AuthenticatedOwnerPartnerNetworkRoute
   '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/owner/pilot-packages': typeof AuthenticatedOwnerPilotPackagesRoute
   '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
@@ -891,6 +953,7 @@ export interface FileRoutesByTo {
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/testing': typeof AuthenticatedOwnerTestingRoute
+  '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -977,6 +1040,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/_authenticated/owner/admins': typeof AuthenticatedOwnerAdminsRoute
   '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/_authenticated/owner/beta-testers': typeof AuthenticatedOwnerBetaTestersRoute
   '/_authenticated/owner/blog': typeof AuthenticatedOwnerBlogRoute
   '/_authenticated/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
@@ -984,16 +1048,21 @@ export interface FileRoutesById {
   '/_authenticated/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
+  '/_authenticated/owner/feedback': typeof AuthenticatedOwnerFeedbackRoute
   '/_authenticated/owner/health': typeof AuthenticatedOwnerHealthRoute
   '/_authenticated/owner/iep-audit': typeof AuthenticatedOwnerIepAuditRoute
   '/_authenticated/owner/import-audit': typeof AuthenticatedOwnerImportAuditRoute
+  '/_authenticated/owner/issues': typeof AuthenticatedOwnerIssuesRoute
+  '/_authenticated/owner/launch': typeof AuthenticatedOwnerLaunchRoute
   '/_authenticated/owner/media': typeof AuthenticatedOwnerMediaRoute
   '/_authenticated/owner/opportunities': typeof AuthenticatedOwnerOpportunitiesRoute
   '/_authenticated/owner/organizations': typeof AuthenticatedOwnerOrganizationsRoute
+  '/_authenticated/owner/outreach': typeof AuthenticatedOwnerOutreachRoute
   '/_authenticated/owner/partner-network': typeof AuthenticatedOwnerPartnerNetworkRoute
   '/_authenticated/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/_authenticated/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/_authenticated/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/_authenticated/owner/pilot-packages': typeof AuthenticatedOwnerPilotPackagesRoute
   '/_authenticated/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/_authenticated/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
   '/_authenticated/owner/resource-sources': typeof AuthenticatedOwnerResourceSourcesRoute
@@ -1001,6 +1070,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
   '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/_authenticated/owner/testing': typeof AuthenticatedOwnerTestingRoute
+  '/_authenticated/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -1087,6 +1157,7 @@ export interface FileRouteTypes {
     | '/owner/activity'
     | '/owner/admins'
     | '/owner/analytics'
+    | '/owner/beta-testers'
     | '/owner/blog'
     | '/owner/broadcasts'
     | '/owner/contacts'
@@ -1094,16 +1165,21 @@ export interface FileRouteTypes {
     | '/owner/demo'
     | '/owner/emails'
     | '/owner/faqs'
+    | '/owner/feedback'
     | '/owner/health'
     | '/owner/iep-audit'
     | '/owner/import-audit'
+    | '/owner/issues'
+    | '/owner/launch'
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
+    | '/owner/outreach'
     | '/owner/partner-network'
     | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
+    | '/owner/pilot-packages'
     | '/owner/pitch'
     | '/owner/resource-review'
     | '/owner/resource-sources'
@@ -1111,6 +1187,7 @@ export interface FileRouteTypes {
     | '/owner/settings'
     | '/owner/testimonials'
     | '/owner/testing'
+    | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
     | '/reports/$reportId'
@@ -1194,6 +1271,7 @@ export interface FileRouteTypes {
     | '/owner/activity'
     | '/owner/admins'
     | '/owner/analytics'
+    | '/owner/beta-testers'
     | '/owner/blog'
     | '/owner/broadcasts'
     | '/owner/contacts'
@@ -1201,16 +1279,21 @@ export interface FileRouteTypes {
     | '/owner/demo'
     | '/owner/emails'
     | '/owner/faqs'
+    | '/owner/feedback'
     | '/owner/health'
     | '/owner/iep-audit'
     | '/owner/import-audit'
+    | '/owner/issues'
+    | '/owner/launch'
     | '/owner/media'
     | '/owner/opportunities'
     | '/owner/organizations'
+    | '/owner/outreach'
     | '/owner/partner-network'
     | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
+    | '/owner/pilot-packages'
     | '/owner/pitch'
     | '/owner/resource-review'
     | '/owner/resource-sources'
@@ -1218,6 +1301,7 @@ export interface FileRouteTypes {
     | '/owner/settings'
     | '/owner/testimonials'
     | '/owner/testing'
+    | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
     | '/reports/$reportId'
@@ -1303,6 +1387,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/activity'
     | '/_authenticated/owner/admins'
     | '/_authenticated/owner/analytics'
+    | '/_authenticated/owner/beta-testers'
     | '/_authenticated/owner/blog'
     | '/_authenticated/owner/broadcasts'
     | '/_authenticated/owner/contacts'
@@ -1310,16 +1395,21 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/demo'
     | '/_authenticated/owner/emails'
     | '/_authenticated/owner/faqs'
+    | '/_authenticated/owner/feedback'
     | '/_authenticated/owner/health'
     | '/_authenticated/owner/iep-audit'
     | '/_authenticated/owner/import-audit'
+    | '/_authenticated/owner/issues'
+    | '/_authenticated/owner/launch'
     | '/_authenticated/owner/media'
     | '/_authenticated/owner/opportunities'
     | '/_authenticated/owner/organizations'
+    | '/_authenticated/owner/outreach'
     | '/_authenticated/owner/partner-network'
     | '/_authenticated/owner/partner-network-status'
     | '/_authenticated/owner/partner-outreach'
     | '/_authenticated/owner/partner-submissions'
+    | '/_authenticated/owner/pilot-packages'
     | '/_authenticated/owner/pitch'
     | '/_authenticated/owner/resource-review'
     | '/_authenticated/owner/resource-sources'
@@ -1327,6 +1417,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/settings'
     | '/_authenticated/owner/testimonials'
     | '/_authenticated/owner/testing'
+    | '/_authenticated/owner/testing-scripts'
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/reports/$reportId'
@@ -1870,6 +1961,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerUsersRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/testing-scripts': {
+      id: '/_authenticated/owner/testing-scripts'
+      path: '/testing-scripts'
+      fullPath: '/owner/testing-scripts'
+      preLoaderRoute: typeof AuthenticatedOwnerTestingScriptsRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/testing': {
       id: '/_authenticated/owner/testing'
       path: '/testing'
@@ -1919,6 +2017,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerPitchRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/pilot-packages': {
+      id: '/_authenticated/owner/pilot-packages'
+      path: '/pilot-packages'
+      fullPath: '/owner/pilot-packages'
+      preLoaderRoute: typeof AuthenticatedOwnerPilotPackagesRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/partner-submissions': {
       id: '/_authenticated/owner/partner-submissions'
       path: '/partner-submissions'
@@ -1947,6 +2052,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerPartnerNetworkRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/outreach': {
+      id: '/_authenticated/owner/outreach'
+      path: '/outreach'
+      fullPath: '/owner/outreach'
+      preLoaderRoute: typeof AuthenticatedOwnerOutreachRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/organizations': {
       id: '/_authenticated/owner/organizations'
       path: '/organizations'
@@ -1968,6 +2080,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerMediaRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/launch': {
+      id: '/_authenticated/owner/launch'
+      path: '/launch'
+      fullPath: '/owner/launch'
+      preLoaderRoute: typeof AuthenticatedOwnerLaunchRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
+    '/_authenticated/owner/issues': {
+      id: '/_authenticated/owner/issues'
+      path: '/issues'
+      fullPath: '/owner/issues'
+      preLoaderRoute: typeof AuthenticatedOwnerIssuesRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/import-audit': {
       id: '/_authenticated/owner/import-audit'
       path: '/import-audit'
@@ -1987,6 +2113,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/owner/health'
       preLoaderRoute: typeof AuthenticatedOwnerHealthRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
+    '/_authenticated/owner/feedback': {
+      id: '/_authenticated/owner/feedback'
+      path: '/feedback'
+      fullPath: '/owner/feedback'
+      preLoaderRoute: typeof AuthenticatedOwnerFeedbackRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
     '/_authenticated/owner/faqs': {
@@ -2036,6 +2169,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/owner/blog'
       preLoaderRoute: typeof AuthenticatedOwnerBlogRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
+    '/_authenticated/owner/beta-testers': {
+      id: '/_authenticated/owner/beta-testers'
+      path: '/beta-testers'
+      fullPath: '/owner/beta-testers'
+      preLoaderRoute: typeof AuthenticatedOwnerBetaTestersRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
     '/_authenticated/owner/analytics': {
@@ -2167,6 +2307,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerActivityRoute: typeof AuthenticatedOwnerActivityRoute
   AuthenticatedOwnerAdminsRoute: typeof AuthenticatedOwnerAdminsRoute
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
+  AuthenticatedOwnerBetaTestersRoute: typeof AuthenticatedOwnerBetaTestersRoute
   AuthenticatedOwnerBlogRoute: typeof AuthenticatedOwnerBlogRoute
   AuthenticatedOwnerBroadcastsRoute: typeof AuthenticatedOwnerBroadcastsRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
@@ -2174,16 +2315,21 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerDemoRoute: typeof AuthenticatedOwnerDemoRoute
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
+  AuthenticatedOwnerFeedbackRoute: typeof AuthenticatedOwnerFeedbackRoute
   AuthenticatedOwnerHealthRoute: typeof AuthenticatedOwnerHealthRoute
   AuthenticatedOwnerIepAuditRoute: typeof AuthenticatedOwnerIepAuditRoute
   AuthenticatedOwnerImportAuditRoute: typeof AuthenticatedOwnerImportAuditRoute
+  AuthenticatedOwnerIssuesRoute: typeof AuthenticatedOwnerIssuesRoute
+  AuthenticatedOwnerLaunchRoute: typeof AuthenticatedOwnerLaunchRoute
   AuthenticatedOwnerMediaRoute: typeof AuthenticatedOwnerMediaRoute
   AuthenticatedOwnerOpportunitiesRoute: typeof AuthenticatedOwnerOpportunitiesRoute
   AuthenticatedOwnerOrganizationsRoute: typeof AuthenticatedOwnerOrganizationsRoute
+  AuthenticatedOwnerOutreachRoute: typeof AuthenticatedOwnerOutreachRoute
   AuthenticatedOwnerPartnerNetworkRoute: typeof AuthenticatedOwnerPartnerNetworkRoute
   AuthenticatedOwnerPartnerNetworkStatusRoute: typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   AuthenticatedOwnerPartnerOutreachRoute: typeof AuthenticatedOwnerPartnerOutreachRoute
   AuthenticatedOwnerPartnerSubmissionsRoute: typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  AuthenticatedOwnerPilotPackagesRoute: typeof AuthenticatedOwnerPilotPackagesRoute
   AuthenticatedOwnerPitchRoute: typeof AuthenticatedOwnerPitchRoute
   AuthenticatedOwnerResourceReviewRoute: typeof AuthenticatedOwnerResourceReviewRoute
   AuthenticatedOwnerResourceSourcesRoute: typeof AuthenticatedOwnerResourceSourcesRoute
@@ -2191,6 +2337,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
   AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
   AuthenticatedOwnerTestingRoute: typeof AuthenticatedOwnerTestingRoute
+  AuthenticatedOwnerTestingScriptsRoute: typeof AuthenticatedOwnerTestingScriptsRoute
   AuthenticatedOwnerUsersRoute: typeof AuthenticatedOwnerUsersRoute
   AuthenticatedOwnerWaitlistRoute: typeof AuthenticatedOwnerWaitlistRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
@@ -2200,6 +2347,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerActivityRoute: AuthenticatedOwnerActivityRoute,
   AuthenticatedOwnerAdminsRoute: AuthenticatedOwnerAdminsRoute,
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
+  AuthenticatedOwnerBetaTestersRoute: AuthenticatedOwnerBetaTestersRoute,
   AuthenticatedOwnerBlogRoute: AuthenticatedOwnerBlogRoute,
   AuthenticatedOwnerBroadcastsRoute: AuthenticatedOwnerBroadcastsRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
@@ -2207,12 +2355,16 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerDemoRoute: AuthenticatedOwnerDemoRoute,
   AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
+  AuthenticatedOwnerFeedbackRoute: AuthenticatedOwnerFeedbackRoute,
   AuthenticatedOwnerHealthRoute: AuthenticatedOwnerHealthRoute,
   AuthenticatedOwnerIepAuditRoute: AuthenticatedOwnerIepAuditRoute,
   AuthenticatedOwnerImportAuditRoute: AuthenticatedOwnerImportAuditRoute,
+  AuthenticatedOwnerIssuesRoute: AuthenticatedOwnerIssuesRoute,
+  AuthenticatedOwnerLaunchRoute: AuthenticatedOwnerLaunchRoute,
   AuthenticatedOwnerMediaRoute: AuthenticatedOwnerMediaRoute,
   AuthenticatedOwnerOpportunitiesRoute: AuthenticatedOwnerOpportunitiesRoute,
   AuthenticatedOwnerOrganizationsRoute: AuthenticatedOwnerOrganizationsRoute,
+  AuthenticatedOwnerOutreachRoute: AuthenticatedOwnerOutreachRoute,
   AuthenticatedOwnerPartnerNetworkRoute: AuthenticatedOwnerPartnerNetworkRoute,
   AuthenticatedOwnerPartnerNetworkStatusRoute:
     AuthenticatedOwnerPartnerNetworkStatusRoute,
@@ -2220,6 +2372,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
     AuthenticatedOwnerPartnerOutreachRoute,
   AuthenticatedOwnerPartnerSubmissionsRoute:
     AuthenticatedOwnerPartnerSubmissionsRoute,
+  AuthenticatedOwnerPilotPackagesRoute: AuthenticatedOwnerPilotPackagesRoute,
   AuthenticatedOwnerPitchRoute: AuthenticatedOwnerPitchRoute,
   AuthenticatedOwnerResourceReviewRoute: AuthenticatedOwnerResourceReviewRoute,
   AuthenticatedOwnerResourceSourcesRoute:
@@ -2228,6 +2381,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
   AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
   AuthenticatedOwnerTestingRoute: AuthenticatedOwnerTestingRoute,
+  AuthenticatedOwnerTestingScriptsRoute: AuthenticatedOwnerTestingScriptsRoute,
   AuthenticatedOwnerUsersRoute: AuthenticatedOwnerUsersRoute,
   AuthenticatedOwnerWaitlistRoute: AuthenticatedOwnerWaitlistRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
