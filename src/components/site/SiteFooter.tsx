@@ -86,7 +86,11 @@ export function SiteFooter() {
       <div className="border-t border-border/60 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} TransitionForward. Made with care in Connecticut.</p>
-          <p className="italic">One Platform. One Plan. Forward Together.</p>
+          <p className="italic">
+            <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
+            <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
+            <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
+          </p>
         </div>
       </div>
     </footer>

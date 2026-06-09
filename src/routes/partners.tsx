@@ -517,7 +517,9 @@ function PartnersPage() {
         </div>
 
         <p className="mx-auto mt-10 max-w-xl text-center font-display text-xl italic text-foreground/70">
-          {toTitleCase("One Platform. One Plan. Forward Together.")}
+          <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
+          <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
+          <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
         </p>
       </section>
     </SiteShell>
