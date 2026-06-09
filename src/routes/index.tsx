@@ -545,12 +545,12 @@ function HomePage() {
             aspect="aspect-[4/3]"
           />
           <FeatureShot
-            image={layerConnectImg}
-            srcSet={layerConnectSrcSet}
+            image={connectShot.url}
             label="Connect"
-            alt="Connect resources interface matching interests to local programs"
+            alt="Two trainees framing interior walls during a construction skills program"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
             aspect="aspect-[4/3]"
+            objectPosition="50% 40%"
           />
         </div>
 
