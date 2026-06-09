@@ -116,6 +116,7 @@ export function ReportView({
   demo = false,
   meta,
   studentId,
+  extendedPlans,
 }: {
   name: string;
   report: PathwayReport;
@@ -128,6 +129,7 @@ export function ReportView({
   demo?: boolean;
   meta?: ReportMeta;
   studentId?: string;
+  extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
