@@ -183,6 +183,8 @@ const CHAPTERS = [
     ],
     pullQuote: "Everyone wanted the student to move forward. No one had the map.",
     img: pathCollege,
+    imgSrcSet: pathCollegeSrcSet,
+
     tone: "from-peach-soft to-background",
   },
   {
