@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitFeedback } from "@/lib/validation/validation.functions";
+import { track } from "@/lib/analytics-events";
 
 const TYPES = [
   ["bug", "Bug Report"],
