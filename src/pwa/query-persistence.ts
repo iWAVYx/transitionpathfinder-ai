@@ -4,12 +4,14 @@
 
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import type { QueryClient } from "@tanstack/react-query";
+
 
 const CACHE_KEY = "tf-query-cache-v1";
 const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
-export function setupQueryPersistence(queryClient: QueryClient): void {
+// Loose typing: workspace pulls in two query-core copies, so the imported
+// QueryClient type is not interchangeable. The shape is identical at runtime.
+export function setupQueryPersistence(queryClient: unknown): void {
   if (typeof window === "undefined") return;
   if (typeof window.localStorage === "undefined") return;
 
@@ -21,7 +23,8 @@ export function setupQueryPersistence(queryClient: QueryClient): void {
     });
 
     persistQueryClient({
-      queryClient,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      queryClient: queryClient as any,
       persister,
       maxAge: MAX_AGE_MS,
       buster: "v1",
