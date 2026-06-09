@@ -26,6 +26,16 @@ function ReportsPage() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortKey>("newest");
   const [filter, setFilter] = useState<"all" | "linked" | "unlinked">("all");
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    try {
+      const v = typeof window !== "undefined" ? localStorage.getItem("tf.viewDensity") : null;
+      return v === "comfortable" ? "comfortable" : "compact";
+    } catch { return "compact"; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("tf.viewDensity", density); } catch { /* ignore */ }
+  }, [density]);
+  const compact = density === "compact";
 
   useEffect(() => {
     list()
