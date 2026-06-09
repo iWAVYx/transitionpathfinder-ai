@@ -384,9 +384,9 @@ function DemoResourcesPage() {
         </div>
 
         {/* Results */}
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className={`mt-6 grid ${compact ? "gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "gap-4 md:grid-cols-2"}`}>
           {matched.map((r) => (
-            <ResourceCard key={r.id} r={r} />
+            <ResourceCard key={r.id} r={r} compact={compact} />
           ))}
           {matched.length === 0 && (
             <div className="col-span-full rounded-3xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
