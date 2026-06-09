@@ -45,14 +45,24 @@ import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
+import { RoleGuard } from "@/components/RoleGuard";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [{ title: "Your dashboard — TransitionForward" }],
   }),
-  component: DashboardPage,
+  component: DashboardPageGuarded,
 });
+
+function DashboardPageGuarded() {
+  return (
+    <RoleGuard path="/dashboard" allow={["family", "student", "educator", "admin"]}>
+      <DashboardPage />
+    </RoleGuard>
+  );
+}
 
 type StudentLite = { id: string; first_name: string; last_name: string | null };
 
@@ -332,6 +342,7 @@ function DashboardPage() {
         </div>
 
         <div className="mt-4">
+          <InvitesInbox />
           <NextBestAction surface="family" />
           <OnboardingChecklist surface="family" className="mt-4" />
         </div>

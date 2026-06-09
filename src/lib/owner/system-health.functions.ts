@@ -440,7 +440,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
       // Inbound forms / public surfaces
       { key: "waitlist", label: "Waitlist Entries", table: "waitlist", category: "ops" },
       { key: "contact_forms", label: "Contact Form Submissions", table: "contact_submissions", category: "ops" },
-      { key: "partner_submissions", label: "Partner Submissions", table: "partner_opportunities", category: "ops" },
+      { key: "partner_submissions", label: "Partner Submissions", table: "partner_submissions", category: "ops" },
       { key: "partner_directory", label: "Partner Directory", table: "organizations", category: "ops" },
 
       // Experience

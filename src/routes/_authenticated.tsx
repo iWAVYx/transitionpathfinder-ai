@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getProfile } from "@/lib/profile.functions";
+import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   // Client-only gate: Supabase stores the session in localStorage, which the server
@@ -44,6 +45,7 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const loadProfile = useServerFn(getProfile);
+  const loadAdminRoles = useServerFn(getMyAdminRoles);
   const [checkedOnboarding, setCheckedOnboarding] = useState(false);
 
   // Client-side fallback: catch session expiry mid-session.
@@ -70,9 +72,21 @@ function AuthenticatedLayout() {
     }
     let cancelled = false;
     loadProfile()
-      .then((p) => {
+      .then(async (p) => {
         if (cancelled) return;
         if (!p.onboarding_completed) {
+          // Platform admins (admin_roles entry) bypass /onboarding and land on /owner.
+          try {
+            const admin = await loadAdminRoles();
+            if (cancelled) return;
+            if (admin?.isPlatformAdmin) {
+              navigate({ to: "/owner", replace: true });
+              setCheckedOnboarding(true);
+              return;
+            }
+          } catch {
+            /* fall through to onboarding */
+          }
           navigate({ to: "/onboarding", replace: true });
         }
         setCheckedOnboarding(true);
