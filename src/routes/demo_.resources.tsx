@@ -280,6 +280,16 @@ function DemoResourcesPage() {
   const [active, setActive] = useState<CategoryId>("all");
   const [q, setQ] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    try {
+      const v = typeof window !== "undefined" ? localStorage.getItem("tf.viewDensity") : null;
+      return v === "comfortable" ? "comfortable" : "compact";
+    } catch { return "compact"; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("tf.viewDensity", density); } catch { /* ignore */ }
+  }, [density]);
+  const compact = density === "compact";
 
   const matched = useMemo(() => {
     return RESOURCES.filter((r) => {
