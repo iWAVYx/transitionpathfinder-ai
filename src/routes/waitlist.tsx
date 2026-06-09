@@ -228,6 +228,58 @@ function WaitlistPage() {
     }
   }, []);
 
+  // Recompute clearance on resize / orientationchange while a role is
+  // selected. Layout shifts (mobile rotation, browser-chrome show/hide,
+  // dynamic viewport units) can push the first field back under the sticky
+  // header even after the initial deep-link jump — re-correct silently.
+  useEffect(() => {
+    if (!selected || done) return;
+    if (typeof window === "undefined") return;
+
+    const prefersReduced =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const headerOffset = 96;
+    let raf = 0;
+
+    const recompute = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const form = document.getElementById("waitlist-form");
+        if (!form) return;
+        const active = document.activeElement as HTMLElement | null;
+        const target =
+          active && form.contains(active)
+            ? active
+            : form.querySelector<HTMLElement>(
+                'input, select, textarea, button, [tabindex]:not([tabindex="-1"])',
+              );
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        if (rect.top >= headerOffset && rect.bottom <= window.innerHeight) {
+          return; // already visible and clear of header
+        }
+        const correction = window.scrollY + rect.top - headerOffset;
+        const lenis = window.__lenis;
+        if (lenis && !prefersReduced) {
+          lenis.scrollTo(correction);
+        } else {
+          window.scrollTo({
+            top: correction,
+            behavior: prefersReduced ? "auto" : "smooth",
+          });
+        }
+      });
+    };
+
+    window.addEventListener("resize", recompute);
+    window.addEventListener("orientationchange", recompute);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", recompute);
+      window.removeEventListener("orientationchange", recompute);
+    };
+  }, [selected, done]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(Schema),
     defaultValues: {
