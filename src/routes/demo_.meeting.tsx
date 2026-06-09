@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
+import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
 
 export const Route = createFileRoute("/demo_/meeting")({
   validateSearch: validateStudentSearch,
