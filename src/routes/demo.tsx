@@ -80,6 +80,13 @@ const STEPS = [
   },
   {
     n: "6",
+    icon: <CalendarDays className="h-5 w-5" />,
+    title: "Calendar",
+    body: "One shared Calendar for families and educators — meetings, deadlines, tours, and weekly action steps.",
+    to: "/demo/calendar" as const,
+  },
+  {
+    n: "7",
     icon: <CalendarRange className="h-5 w-5" />,
     title: "30-Day Plan",
     body: "One focused, doable step per week — small enough to do, big enough to matter.",
