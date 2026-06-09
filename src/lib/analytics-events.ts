@@ -44,7 +44,7 @@ export function track(eventType: AnalyticsEventType, metadata?: TrackMetadata) {
         user_id: userId,
         user_role: userRole,
         page,
-        metadata: metadata ?? null,
+        metadata: (metadata ?? null) as never,
       });
     } catch {
       // swallow — analytics must never break a user flow
