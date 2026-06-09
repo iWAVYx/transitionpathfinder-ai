@@ -149,12 +149,20 @@ const HERO_DEFAULTS = {
 function HomePage() {
   const fetchSection = useServerFn(getPageSection);
   const [hero, setHero] = useState(HERO_DEFAULTS);
+  const [careerImage, setCareerImage] = useState<string>(constructionTrainingShot.url);
   useEffect(() => {
     let cancelled = false;
     fetchSection({ data: { page_key: "home", section_key: "hero" } })
       .then((r: any) => {
         if (cancelled || !r?.content) return;
         setHero({ ...HERO_DEFAULTS, ...r.content });
+      })
+      .catch(() => {});
+    fetchSection({ data: { page_key: "home", section_key: "pathway_images" } })
+      .then((r: any) => {
+        if (cancelled) return;
+        const url = r?.content?.career_url;
+        if (typeof url === "string" && url.length > 0) setCareerImage(url);
       })
       .catch(() => {});
     return () => {
@@ -625,7 +633,7 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-2 md:col-span-2"
-            image={constructionTrainingShot.url}
+            image={careerImage}
             sizes="(min-width: 768px) 17vw, 100vw"
             sticker={stickerCareer}
             label="Career & Employment"
