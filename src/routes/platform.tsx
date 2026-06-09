@@ -276,12 +276,16 @@ function PlatformPage() {
               <Parallax speed={-0.15}>
                 <ParallaxImage
                   src={platformHero}
+                  srcSet={platformHeroSrcSet}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  eager
                   alt="Isometric illustration of three stacked translucent layers: filing cabinets, a constellation of connections, and a sunlit neighborhood map"
                   width={1600}
                   height={1200}
                   speed={0.4}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
+
               </Parallax>
             </div>
           </Reveal>
