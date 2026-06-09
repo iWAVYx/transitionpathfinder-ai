@@ -24,6 +24,7 @@ import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 import pptPlanningShot from "@/assets/ppt-planning-desk.png.asset.json";
 import studentPhoneMapShot from "@/assets/student-phone-map.png.asset.json";
 import culinaryTrainingShot from "@/assets/culinary-training.png.asset.json";
+import studentsCohortShot from "@/assets/students-cohort.jpg.asset.json";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
@@ -849,14 +850,14 @@ function HomePage() {
       {/* CTA — full-bleed road image */}
       <section className="relative isolate overflow-hidden">
         <ParallaxImage
-          src={roadImg}
-          srcSet={roadSrcSet}
+          src={studentsCohortShot.url}
           sizes="100vw"
-          alt="A winding road through fields at sunset"
+          alt="A diverse group of students and an educator smiling together on a campus walkway"
           width={1920}
-          height={1080}
+          height={1280}
           speed={0.5}
           className="absolute inset-0 -z-10 h-full w-full"
+          imgClassName="object-[70%_35%] sm:object-[center_30%]"
         />
 
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
