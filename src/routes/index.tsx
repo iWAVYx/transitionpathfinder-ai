@@ -19,8 +19,11 @@ import {
   Download,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos } from "@/lib/photos";
+import { photos, photoSrcSet } from "@/lib/photos";
+const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
+const heroSrcSet = photoSrcSet(HERO_ID);
+
 const studentImg = photos.homeStudent;
 const studentPhotoImg = photos.homeStudentPhoto;
 const familyImg = photos.homeFamily;
