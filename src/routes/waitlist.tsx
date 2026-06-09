@@ -221,6 +221,28 @@ function WaitlistPage() {
             </div>
           )}
 
+          {!done && !current && (
+            <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                Private &amp; encrypted
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                Built in Connecticut
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                No spam — ever
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                You can leave anytime
+              </span>
+            </div>
+          )}
+
+
           {!done && current && (
             <div className="mt-10 grid gap-6 md:grid-cols-5">
               <aside className="rounded-3xl border bg-card p-6 shadow-soft md:col-span-2">
