@@ -597,6 +597,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
             image={pathCollege}
+            srcSet={pathCollegeSrcSet}
+            sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerCollege}
             label="College"
             caption="Two- and four-year programs, with the right supports in place."
@@ -606,6 +608,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-6"
             image={pathTechnical}
+            srcSet={pathTechnicalSrcSet}
+            sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerTechnical}
             label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
@@ -614,6 +618,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-2"
             image={pathCareer}
+            srcSet={pathCareerSrcSet}
+            sizes="(min-width: 768px) 17vw, 100vw"
             sticker={stickerCareer}
             label="Career & Employment"
             caption="Job training, internships, BRS."
@@ -623,6 +629,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathLifeskills}
+            srcSet={pathLifeskillsSrcSet}
+            sizes="(min-width: 768px) 17vw, 50vw"
             sticker={stickerLifeskills}
             label="Life Skills"
             caption="Cooking, transit, money, daily independence."
@@ -632,12 +640,15 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathProgress}
+            srcSet={pathProgressSrcSet}
+            sizes="(min-width: 768px) 17vw, 50vw"
             sticker={stickerProgress}
             label="Progress Tracked"
             caption="Small wins, gently celebrated."
             compact
             pathwayId="progress"
           />
+
         </div>
       </section>
 
