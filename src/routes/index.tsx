@@ -1114,7 +1114,7 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
             alt=""
             loading="lazy"
             decoding="async"
-            className="h-[60vmin] w-[90vmin] max-w-[1100px] object-contain opacity-[0.14] mix-blend-multiply sm:h-[68vmin] sm:w-[88vmin] lg:h-[78vmin] lg:w-[82vmin] dark:opacity-25 dark:invert dark:mix-blend-screen"
+            className="h-[60vmin] w-[90vmin] max-w-[1100px] object-contain opacity-[0.32] mix-blend-multiply sm:h-[68vmin] sm:w-[88vmin] lg:h-[78vmin] lg:w-[82vmin] dark:opacity-40 dark:invert dark:mix-blend-screen"
             style={{
               maskImage:
                 "radial-gradient(ellipse at center, black 55%, transparent 92%)",
