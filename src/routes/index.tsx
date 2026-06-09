@@ -306,12 +306,15 @@ function HomePage() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
               <ParallaxImage
                 src={studentPhotoImg}
+                srcSet={studentPhotoSrcSet}
+                sizes="(min-width: 1024px) 42vw, 100vw"
                 alt="A student writing in a notebook by a sunlit window"
                 width={1080}
                 height={1600}
                 speed={0.35}
                 className="absolute inset-0 h-full w-full"
               />
+
               <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-background/85 p-5 backdrop-blur">
                 <p className="font-display text-lg italic leading-snug text-foreground">
                   "I want to know what's next — in words I actually understand."
