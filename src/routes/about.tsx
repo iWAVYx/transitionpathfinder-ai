@@ -67,7 +67,7 @@ function AboutHero() {
   return (
     <section ref={ref} className="relative isolate -mt-px h-[80svh] min-h-[420px] overflow-hidden sm:h-[75svh] sm:min-h-[480px]">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
-        <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
+        <img src={aboutHero} srcSet={aboutHeroSrcSet} sizes="100vw" alt="Students walking toward an open doorway of light" fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
       </motion.div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/50 to-background/20" />
       <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-12 sm:px-6 sm:pb-20 lg:px-8">
