@@ -409,3 +409,45 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 ) {
   text-transform: none;
 }
+
+/* ---------------------------------------------------------------------------
+   CT map watermark — automatic contrast safeguards
+   ---------------------------------------------------------------------------
+   The Connecticut map illustration sits behind the "what we're trying to
+   change" outcome cards. The scrim above already keeps base contrast safe,
+   but these rules guarantee the watermark NEVER reduces readability when
+   the user has explicit accessibility preferences set or the OS forces
+   higher-contrast rendering.
+
+   - prefers-contrast: more  → fade the image and strengthen the scrim
+   - prefers-reduced-transparency → drop the blend mode + scrim to solid
+   - forced-colors: active (Windows High Contrast) → hide the image entirely
+   - .high-contrast (our in-app a11y toggle) → same as prefers-contrast: more
+--------------------------------------------------------------------------- */
+.ct-watermark-img {
+  transition: opacity 200ms ease;
+}
+
+@media (prefers-contrast: more) {
+  .ct-watermark-img { opacity: 0.06 !important; }
+  .ct-watermark-scrim {
+    background: color-mix(in oklab, var(--background) 78%, transparent) !important;
+  }
+}
+
+.high-contrast .ct-watermark-img { opacity: 0.05 !important; }
+.high-contrast .ct-watermark-scrim {
+  background: color-mix(in oklab, var(--background) 82%, transparent) !important;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ct-watermark-img { mix-blend-mode: normal !important; opacity: 0.08 !important; }
+  .ct-watermark-scrim {
+    background: var(--background) !important;
+    opacity: 0.7;
+  }
+}
+
+@media (forced-colors: active) {
+  .ct-watermark { display: none !important; }
+}
