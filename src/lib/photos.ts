@@ -7,6 +7,16 @@ const base = "https://images.unsplash.com";
 const u = (id: string, w = 1600) =>
   `${base}/${id}?auto=format&fit=crop&w=${w}&q=80`;
 
+/**
+ * Build a responsive srcset string for an Unsplash photo id.
+ * Lets the browser pick the smallest variant that fits the viewport,
+ * cutting wasted bytes on phones/tablets vs always shipping the 1600w.
+ */
+export const photoSrcSet = (id: string, widths: number[] = [640, 960, 1280, 1600, 1920]) =>
+  widths.map((w) => `${u(id, w)} ${w}w`).join(", ");
+
+
+
 export const photos = {
   // ── Home / hero moments ───────────────────────────────────────────────
   // Teen student looking forward — transition-planning energy
