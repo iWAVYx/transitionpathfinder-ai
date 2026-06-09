@@ -23,6 +23,8 @@ const supportLinks = [
   { to: "/educators", label: "For Educators" },
   { to: "/help", label: "Help & Contact" },
   { to: "/privacy", label: "Privacy" },
+  { to: "/trust-and-safety", label: "Trust & Safety" },
+  { to: "/terms", label: "Terms of Use" },
 ] as const;
 
 export function SiteFooter() {
