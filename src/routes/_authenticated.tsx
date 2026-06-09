@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getProfile } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 
 export const Route = createFileRoute("/_authenticated")({
   // Client-only gate: Supabase stores the session in localStorage, which the server
@@ -118,6 +119,7 @@ function AuthenticatedLayout() {
   return (
     <div className="signed-in-shell">
       <Outlet />
+      <FeedbackButton />
     </div>
   );
 }
