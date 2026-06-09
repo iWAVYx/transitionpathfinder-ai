@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -97,6 +98,44 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
       student_id: data.student_id,
       metadata: { email: data.email, role: data.role },
     });
+
+    // Send branded invite email (best-effort; never block the invite on email failure).
+    try {
+      const req = getRequest();
+      const origin = new URL(req.url).origin;
+      const authHeader = getRequestHeader("Authorization") ?? "";
+
+      const [{ data: inviter }, { data: student }] = await Promise.all([
+        supabase.from("profiles").select("full_name, first_name").eq("id", userId).maybeSingle(),
+        supabase.from("students").select("first_name, last_name").eq("id", data.student_id).maybeSingle(),
+      ]);
+      const inviterName =
+        (inviter?.full_name as string | null)?.trim() ||
+        (inviter?.first_name as string | null)?.trim() ||
+        "A TransitionForward user";
+      const studentName =
+        [student?.first_name, student?.last_name].filter(Boolean).join(" ").trim() ||
+        "a student";
+
+      await fetch(`${origin}/lovable/email/transactional/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: authHeader },
+        body: JSON.stringify({
+          templateName: "collaborator-invitation",
+          recipientEmail: data.email,
+          idempotencyKey: `collab-invite-${row.id}`,
+          templateData: {
+            inviterName,
+            studentName,
+            roleLabel: data.role === "editor" ? "Editor" : "Viewer",
+            acceptUrl: `${origin}/dashboard`,
+            siteName: "TransitionForward",
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("collaborator invite email failed", err);
+    }
 
     return row as Collaborator;
   });
