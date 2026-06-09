@@ -19,6 +19,8 @@ on:
       - "tests/__snapshots__/calendar-rls-*.snap.json"
       - "tests/__snapshots__/documents-rls-*.snap.json"
       - "tests/__snapshots__/iep-upload-signed-url.snap.json"
+      - "tests/rls-demo-isolation.test.mjs"
+      - "src/lib/owner/demo-seed.functions.ts"
       - ".github/workflows/calendar-rls-qa.yml"
   push:
     branches: [main]
@@ -58,6 +60,11 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node --test tests/iep-signed-url-revocation-live.test.mjs
+      - name: Demo isolation RLS regression (is_demo rows)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: node --test tests/rls-demo-isolation.test.mjs
       - name: How to update snapshots
         if: failure()
         run: |
