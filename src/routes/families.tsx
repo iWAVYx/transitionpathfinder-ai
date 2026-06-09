@@ -48,9 +48,15 @@ export const Route = createFileRoute("/families")({
       { property: "og:title", content: "For Families | TransitionForward" },
       { property: "og:description", content: "Plain Language Transition Planning for Connecticut Families." },
       { property: "og:url", content: "/families" },
+      { property: "og:image", content: familiesHero },
     ],
-    links: [{ rel: "canonical", href: "/families" }],
+    links: [
+      { rel: "canonical", href: "/families" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: familiesHero, imagesrcset: familiesHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+    ],
     scripts: [
+
       {
         type: "application/ld+json",
         children: JSON.stringify({
