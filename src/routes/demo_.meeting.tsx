@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
+import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
 
 export const Route = createFileRoute("/demo_/meeting")({
   validateSearch: validateStudentSearch,
@@ -104,6 +105,16 @@ function DemoMeetingPage() {
               ))}
             </ol>
           </div>
+        </div>
+
+        {/* Mini calendar — preview of the shared schedule */}
+        <div className="mt-8">
+          <DemoCalendarPreview
+            student={s}
+            title="On the shared calendar"
+            subtitle="What the family and care team will see in the days around this meeting."
+            limit={4}
+          />
         </div>
 
         {/* Two-column grids */}

@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getDemoStudent } from "@/lib/demo-data";
 import { toTitleCase } from "@/lib/title-case";
+import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
 
 export const Route = createFileRoute("/demo_/hub")({
   validateSearch: validateStudentSearch,
@@ -267,19 +268,13 @@ function DemoHubPage() {
 
           {/* Side column */}
           <aside className="space-y-6">
-            <Panel icon={<Calendar className="h-5 w-5" />} title="Upcoming">
-              <ul className="space-y-3">
-                {upcoming.map((u) => (
-                  <li key={u.title + u.date} className="rounded-2xl border border-border/60 bg-background p-3">
-                    <p className="text-sm font-medium">{u.title}</p>
-                    <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-primary">
-                      {u.date}
-                    </p>
-                    <p className="mt-1 text-xs leading-snug text-muted-foreground">{u.body}</p>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
+            <DemoCalendarPreview
+              student={s}
+              title="Upcoming"
+              subtitle={`From ${student.first_name}'s Pathway Report, Meeting Prep, and care-team adds.`}
+              limit={4}
+            />
+
 
             <Panel icon={<Users className="h-5 w-5" />} title="Care team">
               <ul className="space-y-3">
