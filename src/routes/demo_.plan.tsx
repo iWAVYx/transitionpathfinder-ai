@@ -141,7 +141,7 @@ function DemoPlanPage() {
               You've seen the full TransitionForward flow
             </p>
             <p className="mt-1 font-display text-2xl">
-              Hub → Intake → Report → Meeting Prep → Resources → Plan.
+              Hub → Intake → Report → Meeting Prep → Resources → Calendar → Plan.
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Ready to build one for a real student?
