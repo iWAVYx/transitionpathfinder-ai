@@ -81,7 +81,7 @@ export function DemoStepBar({ current, student }: Props) {
         </div>
 
         {/* Step rail */}
-        <nav aria-label="Demo walkthrough steps" className="scrollbar-none -mx-1 mt-3 flex gap-1 overflow-x-auto pb-3">
+        <nav aria-label="Demo walkthrough steps" className="scrollbar-none -mx-1 mt-3 flex justify-center gap-1 overflow-x-auto pb-3">
           {DEMO_STEPS.map((s, i) => {
             const Icon = s.icon;
             const active = s.id === current;
