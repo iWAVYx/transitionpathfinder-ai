@@ -298,6 +298,21 @@ export const inviteSchoolTeammate = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Authorize FIRST: caller must be an active admin of the target org.
+    // This prevents account enumeration via the listUsers lookup below
+    // (distinguishable "not found" vs "already a member" error paths).
+    const { data: callerMembership } = await supabase
+      .from("organization_memberships")
+      .select("role_within_org, status")
+      .eq("organization_id", data.organization_id)
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .in("role_within_org", ["admin", "owner", "school_admin"])
+      .maybeSingle();
+    if (!callerMembership) {
+      throw new Error("Could not add teammate.");
+    }
+
     // Resolve user by email
     let invitedUserId: string | null = null;
     try {
@@ -318,9 +333,8 @@ export const inviteSchoolTeammate = createServerFn({ method: "POST" })
     }
 
     if (!invitedUserId) {
-      throw new Error(
-        "We couldn't find a TransitionForward account with that email. Ask them to sign up first.",
-      );
+      // Generic message — do not reveal whether the email is registered.
+      throw new Error("Could not add teammate.");
     }
 
     const { error } = await supabase.from("organization_memberships").insert({
