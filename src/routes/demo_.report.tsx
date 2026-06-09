@@ -12,6 +12,7 @@ import {
 import { ReportView } from "@/components/pathway/ReportView";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
+import { EXTENDED_PLANS } from "@/lib/demo-extended-plans";
 
 export const Route = createFileRoute("/demo_/report")({
   validateSearch: validateStudentSearch,
