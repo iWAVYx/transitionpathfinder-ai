@@ -34,10 +34,15 @@ export const Route = createFileRoute("/about")({
       { property: "og:url", content: "/about" },
       { property: "og:image", content: aboutHero },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [
+      { rel: "canonical", href: "/about" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: aboutHero, imagesrcset: aboutHeroSrcSet, imagesizes: "100vw", fetchpriority: "high" },
+    ],
   }),
   component: AboutPage,
 });
+
 
 function AboutPage() {
   return (
