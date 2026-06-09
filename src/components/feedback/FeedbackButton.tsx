@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitFeedback } from "@/lib/validation/validation.functions";
+import { track } from "@/lib/analytics-events";
 
 const TYPES = [
   ["bug", "Bug Report"],
@@ -63,6 +64,10 @@ export function FeedbackButton() {
           ...form,
           related_page: location.pathname,
         },
+      });
+      track("feedback_submitted", {
+        type: form.feedback_type,
+        priority: form.priority_suggestion,
       });
       toast.success("Thanks for the feedback!");
       setOpen(false);
