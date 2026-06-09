@@ -34,9 +34,14 @@ export const Route = createFileRoute("/educators")({
       { property: "og:title", content: "For Educators | TransitionForward" },
       { property: "og:description", content: "Less Paperwork, More Student Support, built for CT special educators." },
       { property: "og:url", content: "/educators" },
+      { property: "og:image", content: educatorsHero },
     ],
-    links: [{ rel: "canonical", href: "/educators" }],
-    scripts: [
+    links: [
+      { rel: "canonical", href: "/educators" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: educatorsHero, imagesrcset: educatorsHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+    ],
+
       {
         type: "application/ld+json",
         children: JSON.stringify({
