@@ -118,6 +118,7 @@ function AuthenticatedLayout() {
   return (
     <div className="signed-in-shell">
       <Outlet />
+      <FeedbackButton />
     </div>
   );
 }
