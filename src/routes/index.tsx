@@ -1491,6 +1491,8 @@ function PathwayTile({
 
 function FeatureShot({
   image,
+  srcSet,
+  sizes = "(min-width: 768px) 33vw, 100vw",
   label,
   alt,
   caption,
@@ -1498,6 +1500,8 @@ function FeatureShot({
   aspect = "aspect-[16/10]",
 }: {
   image: string;
+  srcSet?: string;
+  sizes?: string;
   label: string;
   alt?: string;
   caption: string;
@@ -1511,10 +1515,14 @@ function FeatureShot({
       <div className={`relative ${aspect} overflow-hidden`}>
         <img
           src={image}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={alt || label}
           loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
         <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
           {label}
