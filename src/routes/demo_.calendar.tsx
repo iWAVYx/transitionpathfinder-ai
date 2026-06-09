@@ -21,6 +21,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
+import {
+  type EventKind,
+  EVENT_KIND_META as KIND,
+  buildDemoCalendarEvents,
+} from "@/lib/demo-calendar";
 
 export const Route = createFileRoute("/demo_/calendar")({
   validateSearch: validateStudentSearch,
