@@ -195,7 +195,7 @@ function ReportsPage() {
                     >
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 shrink-0 text-primary" />
-                        <p className="font-display text-xl font-medium tracking-tight">
+                        <p className={`font-display font-medium tracking-tight ${compact ? "text-sm" : "text-xl"}`}>
                           {r.student_first_name}
                         </p>
                         {r.grade_band && (
