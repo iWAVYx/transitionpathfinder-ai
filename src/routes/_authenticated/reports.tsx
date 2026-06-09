@@ -3,7 +3,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, FolderOpen, Search, UserCircle2, FileText } from "lucide-react";
+import { Sparkles, FolderOpen, Search, UserCircle2, FileText, Rows3, LayoutGrid } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
