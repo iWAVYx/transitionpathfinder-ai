@@ -144,12 +144,16 @@ function FamiliesPage() {
               <Parallax speed={-0.15}>
                 <ParallaxImage
                   src={familiesHero}
+                  srcSet={familiesHeroSrcSet}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  eager
                   alt="Hand-cut paper collage of a parent holding a paper boat folded from an IEP page beside a child's drawing"
                   width={1600}
                   height={1200}
                   speed={0.4}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
+
               </Parallax>
             </div>
           </Reveal>
