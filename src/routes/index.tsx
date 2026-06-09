@@ -26,6 +26,7 @@ import studentPhoneMapShot from "@/assets/student-phone-map.png.asset.json";
 import culinaryTrainingShot from "@/assets/culinary-training.png.asset.json";
 import constructionTrainingShot from "@/assets/construction-training.png.asset.json";
 import studentsCohortShot from "@/assets/students-cohort.jpg.asset.json";
+import connectShot from "@/assets/connect-shot.png.asset.json";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
@@ -545,12 +546,12 @@ function HomePage() {
             aspect="aspect-[4/3]"
           />
           <FeatureShot
-            image={layerConnectImg}
-            srcSet={layerConnectSrcSet}
+            image={connectShot.url}
             label="Connect"
-            alt="Connect resources interface matching interests to local programs"
+            alt="Two trainees framing interior walls during a construction skills program"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
             aspect="aspect-[4/3]"
+            objectPosition="50% 40%"
           />
         </div>
 
