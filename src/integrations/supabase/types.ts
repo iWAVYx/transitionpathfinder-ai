@@ -385,6 +385,54 @@ export type Database = {
           },
         ]
       }
+      beta_testers: {
+        Row: {
+          assigned_test_script: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          invitation_status: string
+          invited_by_user_id: string | null
+          last_name: string | null
+          notes: string | null
+          organization: string | null
+          role_type: string
+          testing_status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_test_script?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          invitation_status?: string
+          invited_by_user_id?: string | null
+          last_name?: string | null
+          notes?: string | null
+          organization?: string | null
+          role_type: string
+          testing_status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_test_script?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          invitation_status?: string
+          invited_by_user_id?: string | null
+          last_name?: string | null
+          notes?: string | null
+          organization?: string | null
+          role_type?: string
+          testing_status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -889,6 +937,51 @@ export type Database = {
           },
         ]
       }
+      email_notifications: {
+        Row: {
+          body_preview: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          notification_type: string
+          recipient_email: string
+          recipient_user_id: string | null
+          related_record_id: string | null
+          related_record_type: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          body_preview?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          notification_type: string
+          recipient_email: string
+          recipient_user_id?: string | null
+          related_record_id?: string | null
+          related_record_type?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          body_preview?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          notification_type?: string
+          recipient_email?: string
+          recipient_user_id?: string | null
+          related_record_id?: string | null
+          related_record_type?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -1045,6 +1138,57 @@ export type Database = {
           ref_table?: string | null
           student_id?: string
           title?: string
+        }
+        Relationships: []
+      }
+      feedback_submissions: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string
+          feedback_type: string
+          id: string
+          linked_issue_id: string | null
+          priority_suggestion: string | null
+          related_page: string | null
+          screenshot_url: string | null
+          status: string
+          submitted_by_user_id: string | null
+          title: string
+          updated_at: string
+          user_role: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description: string
+          feedback_type: string
+          id?: string
+          linked_issue_id?: string | null
+          priority_suggestion?: string | null
+          related_page?: string | null
+          screenshot_url?: string | null
+          status?: string
+          submitted_by_user_id?: string | null
+          title: string
+          updated_at?: string
+          user_role?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string
+          feedback_type?: string
+          id?: string
+          linked_issue_id?: string | null
+          priority_suggestion?: string | null
+          related_page?: string | null
+          screenshot_url?: string | null
+          status?: string
+          submitted_by_user_id?: string | null
+          title?: string
+          updated_at?: string
+          user_role?: string | null
         }
         Relationships: []
       }
@@ -1302,6 +1446,48 @@ export type Database = {
           student_id?: string | null
           title?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      launch_checklist_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          item_title: string
+          notes: string | null
+          owner: string | null
+          priority: string | null
+          sort_order: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_title: string
+          notes?: string | null
+          owner?: string | null
+          priority?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_title?: string
+          notes?: string | null
+          owner?: string | null
+          priority?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2484,6 +2670,96 @@ export type Database = {
           },
         ]
       }
+      pilot_outreach_contacts: {
+        Row: {
+          contact_name: string
+          created_at: string
+          email: string | null
+          id: string
+          last_contacted_at: string | null
+          next_follow_up_at: string | null
+          notes: string | null
+          organization: string | null
+          outreach_status: string
+          phone: string | null
+          relationship_notes: string | null
+          role_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          next_follow_up_at?: string | null
+          notes?: string | null
+          organization?: string | null
+          outreach_status?: string
+          phone?: string | null
+          relationship_notes?: string | null
+          role_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          next_follow_up_at?: string | null
+          notes?: string | null
+          organization?: string | null
+          outreach_status?: string
+          phone?: string | null
+          relationship_notes?: string | null
+          role_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pilot_packages: {
+        Row: {
+          audience: string | null
+          created_at: string
+          description: string | null
+          id: string
+          included_features: string | null
+          notes: string | null
+          package_name: string
+          public_visible: boolean
+          sort_order: number
+          suggested_price_or_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          audience?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_features?: string | null
+          notes?: string | null
+          package_name: string
+          public_visible?: boolean
+          sort_order?: number
+          suggested_price_or_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audience?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          included_features?: string | null
+          notes?: string | null
+          package_name?: string
+          public_visible?: boolean
+          sort_order?: number
+          suggested_price_or_status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ppt_meeting_preps: {
         Row: {
           agenda: Json
@@ -2533,6 +2809,62 @@ export type Database = {
             columns: ["report_id"]
             isOneToOne: false
             referencedRelation: "pathway_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_issues: {
+        Row: {
+          admin_notes: string | null
+          affected_feature: string | null
+          affected_role: string | null
+          assigned_to: string | null
+          created_at: string
+          description: string | null
+          id: string
+          priority: string
+          related_feedback_id: string | null
+          reported_by_user_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          affected_feature?: string | null
+          affected_role?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          related_feedback_id?: string | null
+          reported_by_user_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          affected_feature?: string | null
+          affected_role?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          related_feedback_id?: string | null
+          reported_by_user_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_issues_related_feedback_id_fkey"
+            columns: ["related_feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_submissions"
             referencedColumns: ["id"]
           },
         ]
@@ -3825,6 +4157,42 @@ export type Database = {
         }
         Relationships: []
       }
+      testing_scripts: {
+        Row: {
+          active: boolean
+          checklist: Json
+          created_at: string
+          description: string | null
+          id: string
+          role_type: string
+          script_key: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          checklist?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          role_type: string
+          script_key: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          checklist?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          role_type?: string
+          script_key?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transition_profiles: {
         Row: {
           community_participation_goal: string | null
@@ -3889,6 +4257,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      usage_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          page: string | null
+          related_record_id: string | null
+          related_record_type: string | null
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page?: string | null
+          related_record_id?: string | null
+          related_record_type?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page?: string | null
+          related_record_id?: string | null
+          related_record_type?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
