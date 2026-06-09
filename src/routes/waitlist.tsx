@@ -114,6 +114,15 @@ function WaitlistPage() {
   const [selected, setSelected] = useState<RoleKey | null>(null);
   const [done, setDone] = useState(false);
   const submit = useServerFn(submitWaitlist);
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.history.back();
+    } else {
+      router.navigate({ to: "/" });
+    }
+  };
 
   // Pick up ?role= or ?audience= from URL. Each "door" on entry points like
   // /partners or /educators can route here with their audience preselected.
@@ -127,19 +136,36 @@ function WaitlistPage() {
       family: "family",
       families: "family",
       parent: "family",
+      parents: "family",
+      caregiver: "family",
       student: "student",
       students: "student",
       educator: "educator",
       educators: "educator",
       teacher: "educator",
+      teachers: "educator",
+      "case-manager": "educator",
       school: "district",
       schools: "district",
       district: "district",
+      districts: "district",
+      administrator: "district",
+      admin: "district",
+      leader: "district",
       partner: "partner",
       partners: "partner",
+      community: "partner",
     };
     const key = ALIAS[raw.toLowerCase()];
-    if (key) setSelected(key);
+    if (key) {
+      setSelected(key);
+      // Scroll the form into view so deep-links land on the right section.
+      requestAnimationFrame(() => {
+        document
+          .getElementById("waitlist-form")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }, []);
 
   const form = useForm<FormValues>({
