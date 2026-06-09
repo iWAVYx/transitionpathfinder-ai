@@ -146,12 +146,16 @@ function HomePage() {
       <section className="relative isolate -mt-px overflow-hidden">
         <ParallaxImage
           src={heroImg}
+          srcSet={heroSrcSet}
+          sizes="100vw"
+          eager
           alt="A young person walking a tree-lined path at golden hour"
           width={1920}
           height={1080}
           speed={0.45}
           className="absolute inset-0 -z-10 h-full w-full"
         />
+
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background/95 via-background/70 to-background/10" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
