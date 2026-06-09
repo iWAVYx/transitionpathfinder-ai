@@ -114,8 +114,8 @@ function DemoIndex() {
           See exactly how TransitionForward works.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Pick a fictional student and walk the full six-step product spine. No account, no setup
-          — everything you'd see on day one with a real student.
+          Pick a fictional student and walk the full seven-step product spine.
+          No account, no setup — everything you'd see on day one with a real student.
         </p>
 
         {/* Student picker */}
