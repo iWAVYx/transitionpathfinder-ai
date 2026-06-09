@@ -1118,6 +1118,7 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
           className="ct-watermark pointer-events-none absolute inset-0 m-auto flex items-center justify-center"
         >
           <img
+            ref={watermarkImgRef}
             src={ctMapAsset.url}
             alt=""
             loading="lazy"
