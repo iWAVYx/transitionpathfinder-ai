@@ -229,7 +229,7 @@ export function StickyScrollStory({
 }: {
   eyebrow?: string;
   title?: string;
-  panels: Array<{ title: string; body: string; image: string; alt: string }>;
+  panels: Array<{ title: string; body: string; image: string; alt: string; srcSet?: string; sizes?: string }>;
   className?: string;
 }) {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
