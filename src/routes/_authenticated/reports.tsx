@@ -87,8 +87,8 @@ function ReportsPage() {
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">Your library</p>
-            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">My Pathway Reports</h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            <h1 className={`mt-2 font-display font-medium tracking-tight ${compact ? "text-2xl sm:text-3xl" : "text-4xl sm:text-5xl"}`}>My Pathway Reports</h1>
+            <p className={`mt-3 max-w-xl leading-relaxed text-muted-foreground ${compact ? "text-xs" : "text-sm"}`}>
               Every report you generate is saved here. Open one to revisit it, share it, or link it to
               a student in your roster.
             </p>
