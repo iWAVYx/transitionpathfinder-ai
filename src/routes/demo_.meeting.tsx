@@ -107,6 +107,16 @@ function DemoMeetingPage() {
           </div>
         </div>
 
+        {/* Mini calendar — preview of the shared schedule */}
+        <div className="mt-8">
+          <DemoCalendarPreview
+            student={s}
+            title="On the shared calendar"
+            subtitle="What the family and care team will see in the days around this meeting."
+            limit={4}
+          />
+        </div>
+
         {/* Two-column grids */}
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <Panel icon={<HelpCircle className="h-5 w-5" />} title="Questions to ask" tone="primary">
