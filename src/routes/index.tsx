@@ -515,6 +515,7 @@ function HomePage() {
         <div className="grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={layerOrganizeImg}
+            srcSet={layerOrganizeSrcSet}
             label="Organize"
             alt="Organize dashboard interface showing student goals and assessments"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
@@ -522,6 +523,7 @@ function HomePage() {
           />
           <FeatureShot
             image={layerGenerateImg}
+            srcSet={layerGenerateSrcSet}
             label="Generate"
             alt="Generate pathway report interface with personalized recommendations"
             caption="Specialist-built formulas turn the full picture into a personalized Pathway."
@@ -529,6 +531,7 @@ function HomePage() {
           />
           <FeatureShot
             image={layerConnectImg}
+            srcSet={layerConnectSrcSet}
             label="Connect"
             alt="Connect resources interface matching interests to local programs"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
@@ -540,22 +543,26 @@ function HomePage() {
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={iepUploadImg}
+            srcSet={iepUploadSrcSet}
             label="IEP upload & summary"
             caption="Drop in the document — we read it and surface what matters in plain language."
             aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={resourcesImg}
+            srcSet={resourcesSrcSet}
             label="Resource library"
             caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
             aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={frameworkImg}
+            srcSet={frameworkSrcSet}
             label="PPT meeting prep"
             caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
             aspect="aspect-[4/3]"
           />
+
         </div>
       </section>
 
