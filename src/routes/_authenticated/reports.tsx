@@ -211,7 +211,7 @@ function ReportsPage() {
                         )}
                       </div>
                       {r.summary && (
-                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                        <p className={`mt-1.5 line-clamp-2 text-muted-foreground ${compact ? "text-xs" : "text-sm"}`}>
                           {r.summary}
                         </p>
                       )}
