@@ -21,6 +21,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
+import pptPlanningShot from "@/assets/ppt-planning-desk.png.asset.json";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
@@ -558,9 +559,9 @@ function HomePage() {
             aspect="aspect-[4/3]"
           />
           <FeatureShot
-            image={frameworkImg}
-            srcSet={frameworkSrcSet}
+            image={pptPlanningShot.url}
             label="PPT meeting prep"
+            alt="Student at desk with notebook planning for a PPT meeting"
             caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
             aspect="aspect-[4/3]"
           />
