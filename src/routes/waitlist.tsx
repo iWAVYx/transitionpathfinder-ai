@@ -159,12 +159,39 @@ function WaitlistPage() {
     const key = ALIAS[raw.toLowerCase()];
     if (key) {
       setSelected(key);
-      // Scroll the form into view so deep-links land on the right section.
-      requestAnimationFrame(() => {
-        document
-          .getElementById("waitlist-form")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      // Wait for the form to mount, then smooth-scroll (via Lenis if
+      // present so it matches sitewide easing) and move focus to the
+      // first field for keyboard / screen-reader users.
+      const prefersReduced =
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+      let attempts = 0;
+      const tryScroll = () => {
+        const el = document.getElementById("waitlist-form");
+        if (!el) {
+          if (attempts++ < 20) requestAnimationFrame(tryScroll);
+          return;
+        }
+        const headerOffset = 72;
+        const lenis = window.__lenis;
+        if (lenis && !prefersReduced) {
+          lenis.scrollTo(el, { offset: -headerOffset });
+        } else {
+          const top =
+            el.getBoundingClientRect().top + window.scrollY - headerOffset;
+          window.scrollTo({
+            top,
+            behavior: prefersReduced ? "auto" : "smooth",
+          });
+        }
+        // Move focus to the first focusable field without re-scrolling.
+        window.setTimeout(() => {
+          const firstField = el.querySelector<HTMLElement>(
+            'input, select, textarea, button, [tabindex]:not([tabindex="-1"])',
+          );
+          firstField?.focus({ preventScroll: true });
+        }, prefersReduced ? 0 : 600);
+      };
+      requestAnimationFrame(tryScroll);
     }
   }, []);
 
