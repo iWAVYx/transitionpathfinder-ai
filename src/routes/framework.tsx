@@ -3,10 +3,14 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const frameworkHero = photos.framework;
+const frameworkHeroSrcSet = srcSetFor("framework");
 const bgTopo = photos.bgTopo;
+const bgTopoSrcSet = srcSetFor("bgTopo");
 const bgSunrise = photos.bgSunrise;
+const bgSunriseSrcSet = srcSetFor("bgSunrise");
+
 import {
   Parallax,
   ParallaxImage,
