@@ -8,8 +8,11 @@ import {
   ClipboardCheck,
   Archive,
 } from "lucide-react";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const familiesHero = photos.families;
+const familiesHeroSrcSet = srcSetFor("families");
+const homeFamilySrcSet = srcSetFor("homeFamily");
+
 import {
   Parallax,
   ParallaxImage,
