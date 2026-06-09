@@ -15,6 +15,7 @@ import { ScrollToTop } from "@/components/site/ScrollToTop";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { DemoBanner } from "@/components/site/DemoBanner";
+import { registerServiceWorker } from "@/pwa/register-sw";
 
 
 import appCss from "../styles.css?url";
@@ -81,6 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#1f4f4a" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "TransitionForward" },
       { name: "google-site-verification", content: "mty7hJKViUPYrp94f2c2KJ9AF3OSH1F1Ee6TYzdshRE" },
       { title: "TransitionForward" },
       { name: "description", content: "Student-centered transition planning for Connecticut families, students, and educators." },
@@ -104,6 +109,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
     ],
     scripts: [
       {
@@ -191,6 +200,7 @@ function RootComponent() {
 
   useEffect(() => {
     void import("@/lib/dev/hmr-diagnostics").then((m) => m.installHmrDiagnostics());
+    registerServiceWorker();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       router.invalidate();
       queryClient.invalidateQueries();
