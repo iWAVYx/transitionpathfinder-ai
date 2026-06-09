@@ -166,6 +166,8 @@ const CHAPTERS = [
     ],
     pullQuote: "What now?",
     img: aboutStudent,
+    imgSrcSet: aboutStudentSrcSet,
+
     tone: "from-sky-soft to-background",
   },
   {
