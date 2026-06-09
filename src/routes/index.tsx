@@ -23,6 +23,7 @@ import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 import pptPlanningShot from "@/assets/ppt-planning-desk.png.asset.json";
 import studentPhoneMapShot from "@/assets/student-phone-map.png.asset.json";
+import culinaryTrainingShot from "@/assets/culinary-training.png.asset.json";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
@@ -612,13 +613,13 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-2 md:col-span-6"
-            image={pathTechnical}
-            srcSet={pathTechnicalSrcSet}
+            image={culinaryTrainingShot.url}
             sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerTechnical}
             label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
             pathwayId="technical-education"
+            objectPosition="50% 40%"
           />
           <PathwayTile
             className="col-span-2 md:col-span-2"
