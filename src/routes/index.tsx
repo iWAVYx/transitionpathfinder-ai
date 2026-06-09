@@ -195,8 +195,8 @@ function HomePage() {
             </p>
             <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
               {hero.headline_lead}{" "}
-              <span className="relative inline-block not-italic text-primary">
-                {hero.headline_accent}
+              <span className="relative inline-block whitespace-nowrap not-italic text-primary">
+                {hero.headline_accent.replace(/-/g, "\u2011")}
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 300 24"
@@ -212,14 +212,17 @@ function HomePage() {
                     className="text-primary/80"
                   />
                 </svg>
-              </span>{" "}
-              {hero.headline_tail}
+              </span>
+              {"\u00A0"}
+              <span className="whitespace-nowrap">{hero.headline_tail}</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
               {hero.subhead}
             </p>
             <p className="mt-5 font-display text-2xl italic text-foreground/75">
-              {hero.tagline}
+              <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
+              <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
+              <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
