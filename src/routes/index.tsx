@@ -1482,6 +1482,7 @@ function PathwayTile({
   size = "md",
   compact = false,
   pathwayId,
+  objectPosition = "center",
 }: {
   image: string;
   srcSet?: string;
@@ -1493,6 +1494,9 @@ function PathwayTile({
   size?: "md" | "lg";
   compact?: boolean;
   pathwayId: string;
+  /** Focal point for the cover crop so the subject stays in frame
+   *  as tiles reflow across breakpoints. */
+  objectPosition?: string;
 }) {
   return (
     <Link
@@ -1508,8 +1512,10 @@ function PathwayTile({
         alt=""
         loading="lazy"
         decoding="async"
+        style={{ objectPosition }}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
+
 
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
       {sticker && (
