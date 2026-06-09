@@ -33,8 +33,8 @@ type HeroContent = {
 const HERO_DEFAULTS: HeroContent = {
   eyebrow: "Transition planning, made human",
   headline_lead: "From IEP Goals to",
-  headline_accent: "real-life",
-  headline_tail: "pathways.",
+  headline_accent: "Real-Life",
+  headline_tail: "Pathways.",
   subhead:
     "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after high school — together.",
   tagline: "One Platform. One Plan. Forward Together.",
