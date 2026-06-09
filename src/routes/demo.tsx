@@ -180,18 +180,18 @@ function DemoIndex() {
           </p>
         </div>
 
-        {/* 6-step spine */}
+        {/* 7-step spine */}
         <div className="mt-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             The seven-step spine
           </p>
-          <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-3 flex flex-wrap justify-center gap-4">
             {STEPS.map((step) => (
               <Link
                 key={step.title}
                 to={step.to}
                 search={{ s }}
-                className="group block rounded-3xl border bg-card p-6 shadow-soft transition-shadow hover:shadow-lift"
+                className="group block w-full rounded-3xl border bg-card p-6 shadow-soft transition-shadow hover:shadow-lift sm:flex-1 sm:min-w-[280px] sm:max-w-sm"
               >
                 <div className="flex items-center justify-between">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
