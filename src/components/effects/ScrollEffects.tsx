@@ -336,10 +336,14 @@ export function StickyScrollStory({
               >
                 <img
                   src={p.image}
+                  srcSet={p.srcSet}
+                  sizes={p.sizes ?? "(min-width: 1024px) 50vw, 100vw"}
                   alt={p.alt}
                   loading="lazy"
+                  decoding="async"
                   className="aspect-[4/3] w-full object-cover"
                 />
+
               </div>
             ))}
           </div>
