@@ -340,6 +340,24 @@ function DemoResourcesPage() {
               <Filter className="h-4 w-4" />
               {showAll ? "Showing all" : `Matched to ${profile.first_name}`}
             </Button>
+            <div className="ml-auto inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
+              <button
+                type="button"
+                onClick={() => setDensity("compact")}
+                className={`rounded px-2 py-1 text-xs ${compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                aria-pressed={compact}
+              >
+                Compact
+              </button>
+              <button
+                type="button"
+                onClick={() => setDensity("comfortable")}
+                className={`rounded px-2 py-1 text-xs ${!compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                aria-pressed={!compact}
+              >
+                Comfortable
+              </button>
+            </div>
           </div>
 
           {/* Categories */}
