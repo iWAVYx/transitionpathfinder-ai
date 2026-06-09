@@ -215,7 +215,7 @@ function ReportsPage() {
                           {r.summary}
                         </p>
                       )}
-                      <p className="mt-2 text-xs text-muted-foreground">
+                      <p className={`mt-1.5 text-muted-foreground ${compact ? "text-[11px]" : "text-xs"}`}>
                         Created{" "}
                         {new Date(r.created_at).toLocaleDateString(undefined, {
                           year: "numeric",
