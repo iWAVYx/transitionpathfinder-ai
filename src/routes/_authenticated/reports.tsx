@@ -130,9 +130,31 @@ function ReportsPage() {
               <option value="oldest">Oldest first</option>
               <option value="name">By name</option>
             </select>
-            <p className="ml-auto text-xs text-muted-foreground">
-              {filtered.length} of {rows.length}
-            </p>
+            <div className="ml-auto flex items-center gap-2">
+              <div className="inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
+                <button
+                  type="button"
+                  onClick={() => setDensity("compact")}
+                  className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={compact}
+                  aria-label="Compact view"
+                >
+                  <Rows3 className="h-3.5 w-3.5" aria-hidden /> Compact
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDensity("comfortable")}
+                  className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${!compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={!compact}
+                  aria-label="Comfortable view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" aria-hidden /> Comfortable
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {filtered.length} of {rows.length}
+              </p>
+            </div>
           </div>
         )}
 
