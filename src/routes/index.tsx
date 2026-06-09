@@ -150,7 +150,7 @@ const HERO_DEFAULTS = {
 function HomePage() {
   const fetchSection = useServerFn(getPageSection);
   const [hero, setHero] = useState(HERO_DEFAULTS);
-  const [careerImage, setCareerImage] = useState<string>(constructionTrainingShot.url);
+  const [careerImage, setCareerImage] = useState<string>(culinaryTrainingShot.url);
   useEffect(() => {
     let cancelled = false;
     fetchSection({ data: { page_key: "home", section_key: "hero" } })
@@ -624,7 +624,7 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-2 md:col-span-6"
-            image={culinaryTrainingShot.url}
+            image={constructionTrainingShot.url}
             sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerTechnical}
             label="Technical Education"
