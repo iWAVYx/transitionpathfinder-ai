@@ -19,29 +19,43 @@ import {
   Download,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos, photoSrcSet } from "@/lib/photos";
+import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
 const heroSrcSet = photoSrcSet(HERO_ID);
 
 const studentImg = photos.homeStudent;
 const studentPhotoImg = photos.homeStudentPhoto;
+const studentPhotoSrcSet = srcSetFor("homeStudentPhoto");
 const familyImg = photos.homeFamily;
 const educatorImg = photos.homeEducator;
 const pathwayImg = photos.homePathway;
 const roadImg = photos.homeRoad;
+const roadSrcSet = srcSetFor("homeRoad");
 const pathCollege = photos.pathCollege;
+const pathCollegeSrcSet = srcSetFor("pathCollege");
 const pathTechnical = photos.pathTechnical;
+const pathTechnicalSrcSet = srcSetFor("pathTechnical");
 const pathCareer = photos.pathCareer;
+const pathCareerSrcSet = srcSetFor("pathCareer");
 const pathLifeskills = photos.pathLifeskills;
+const pathLifeskillsSrcSet = srcSetFor("pathLifeskills");
 const pathProgress = photos.pathProgress;
+const pathProgressSrcSet = srcSetFor("pathProgress");
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
+const iepUploadSrcSet = srcSetFor("iepUpload");
 const layerOrganizeImg = photos.layerOrganize;
+const layerOrganizeSrcSet = srcSetFor("layerOrganize");
 const layerGenerateImg = photos.layerGenerate;
+const layerGenerateSrcSet = srcSetFor("layerGenerate");
 const layerConnectImg = photos.layerConnect;
+const layerConnectSrcSet = srcSetFor("layerConnect");
 const resourcesImg = photos.resources;
+const resourcesSrcSet = srcSetFor("resources");
 const frameworkImg = photos.framework;
+const frameworkSrcSet = srcSetFor("framework");
+
 import stickerCollege from "@/assets/sticker-college.png";
 import stickerTechnical from "@/assets/sticker-technical.png";
 import stickerCareer from "@/assets/sticker-career.png";
