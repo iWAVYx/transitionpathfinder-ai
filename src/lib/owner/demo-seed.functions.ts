@@ -305,7 +305,6 @@ export const seedDemoData = createServerFn({ method: "POST" })
       family_voice: "We want Jordan to have steady work and the support to live independently.",
       student_voice: "I want to keep learning about computers and maybe work with animals too.",
       student_id: studentId,
-      is_demo: true,
     }).select().single();
     const intakeId = (intakeIns.data as { id?: string } | null)?.id;
     let reportId: string | null = null;
