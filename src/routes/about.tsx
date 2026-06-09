@@ -4,12 +4,17 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 import { toTitleCase } from "@/lib/title-case";
 const aboutHero = photos.about;
+const aboutHeroSrcSet = srcSetFor("about");
 const aboutStudent = photos.aboutStudent;
+const aboutStudentSrcSet = srcSetFor("aboutStudent");
 const pathCollege = photos.pathCollege;
+const pathCollegeSrcSet = srcSetFor("pathCollege");
 const pathCareer = photos.pathCareer;
+const pathCareerSrcSet = srcSetFor("pathCareer");
+
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -29,10 +34,15 @@ export const Route = createFileRoute("/about")({
       { property: "og:url", content: "/about" },
       { property: "og:image", content: aboutHero },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [
+      { rel: "canonical", href: "/about" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: aboutHero, imagesrcset: aboutHeroSrcSet, imagesizes: "100vw", fetchpriority: "high" },
+    ],
   }),
   component: AboutPage,
 });
+
 
 function AboutPage() {
   return (
@@ -57,7 +67,7 @@ function AboutHero() {
   return (
     <section ref={ref} className="relative isolate -mt-px h-[80svh] min-h-[420px] overflow-hidden sm:h-[75svh] sm:min-h-[480px]">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
-        <img src={aboutHero} alt="Students walking toward an open doorway of light" className="h-full w-full object-cover" />
+        <img src={aboutHero} srcSet={aboutHeroSrcSet} sizes="100vw" alt="Students walking toward an open doorway of light" fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
       </motion.div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/50 to-background/20" />
       <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-12 sm:px-6 sm:pb-20 lg:px-8">
@@ -156,6 +166,8 @@ const CHAPTERS = [
     ],
     pullQuote: "What now?",
     img: aboutStudent,
+    imgSrcSet: aboutStudentSrcSet,
+
     tone: "from-sky-soft to-background",
   },
   {
@@ -171,6 +183,8 @@ const CHAPTERS = [
     ],
     pullQuote: "Everyone wanted the student to move forward. No one had the map.",
     img: pathCollege,
+    imgSrcSet: pathCollegeSrcSet,
+
     tone: "from-peach-soft to-background",
   },
   {
@@ -186,6 +200,8 @@ const CHAPTERS = [
     ],
     pullQuote: "AI assists. Humans decide. The student is the author.",
     img: pathCareer,
+    imgSrcSet: pathCareerSrcSet,
+
     tone: "from-sky-soft to-peach-soft/60",
   },
   {
@@ -201,6 +217,8 @@ const CHAPTERS = [
     ],
     pullQuote: "Forward, together.",
     img: aboutHero,
+    imgSrcSet: aboutHeroSrcSet,
+
     tone: "from-primary/15 to-peach-soft",
   },
 ];
@@ -299,9 +317,14 @@ function Chapter({
               <motion.img
                 style={{ scale: imgScale }}
                 src={chapter.img}
+                srcSet={chapter.imgSrcSet}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                loading="lazy"
+                decoding="async"
                 alt=""
                 className="h-full w-full object-cover sepia-[0.08] saturate-[0.95]"
               />
+
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" />
               <figcaption className="absolute bottom-3 left-4 right-4 font-display text-[10px] italic tracking-wide text-background/90 sm:bottom-4 sm:left-5 sm:right-5 sm:text-[11px]">
                 Plate {String(index + 1).padStart(2, "0")} — {chapter.eyebrow}.

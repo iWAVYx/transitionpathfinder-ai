@@ -8,8 +8,11 @@ import {
   ClipboardCheck,
   Archive,
 } from "lucide-react";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const familiesHero = photos.families;
+const familiesHeroSrcSet = srcSetFor("families");
+const homeFamilySrcSet = srcSetFor("homeFamily");
+
 import {
   Parallax,
   ParallaxImage,
@@ -45,9 +48,15 @@ export const Route = createFileRoute("/families")({
       { property: "og:title", content: "For Families | TransitionForward" },
       { property: "og:description", content: "Plain Language Transition Planning for Connecticut Families." },
       { property: "og:url", content: "/families" },
+      { property: "og:image", content: familiesHero },
     ],
-    links: [{ rel: "canonical", href: "/families" }],
+    links: [
+      { rel: "canonical", href: "/families" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: familiesHero, imagesrcset: familiesHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+    ],
     scripts: [
+
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -135,12 +144,16 @@ function FamiliesPage() {
               <Parallax speed={-0.15}>
                 <ParallaxImage
                   src={familiesHero}
+                  srcSet={familiesHeroSrcSet}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  eager
                   alt="Hand-cut paper collage of a parent holding a paper boat folded from an IEP page beside a child's drawing"
                   width={1600}
                   height={1200}
                   speed={0.4}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
+
               </Parallax>
             </div>
           </Reveal>
@@ -213,10 +226,14 @@ function FamiliesPage() {
             <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
               <img
                 src={photos.homeFamily}
+                srcSet={homeFamilySrcSet}
+                sizes="(min-width: 1024px) 58vw, 100vw"
                 alt="A parent and teenager looking at a laptop together"
                 loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
               />
+
             </div>
           </div>
           <div className="lg:col-span-5">

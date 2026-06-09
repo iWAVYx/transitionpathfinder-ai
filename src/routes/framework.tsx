@@ -3,10 +3,14 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const frameworkHero = photos.framework;
+const frameworkHeroSrcSet = srcSetFor("framework");
 const bgTopo = photos.bgTopo;
+const bgTopoSrcSet = srcSetFor("bgTopo");
 const bgSunrise = photos.bgSunrise;
+const bgSunriseSrcSet = srcSetFor("bgSunrise");
+
 import {
   Parallax,
   ParallaxImage,
@@ -51,8 +55,14 @@ export const Route = createFileRoute("/framework")({
           "Grade 9 to graduation: settle in, try things on, begin to choose, hand off with confidence.",
       },
       { property: "og:url", content: "/framework" },
+      { property: "og:image", content: frameworkHero },
     ],
-    links: [{ rel: "canonical", href: "/framework" }],
+    links: [
+      { rel: "canonical", href: "/framework" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: frameworkHero, imagesrcset: frameworkHeroSrcSet, imagesizes: "100vw", fetchpriority: "high" },
+    ],
+
   }),
   component: FrameworkPage,
 });
@@ -157,7 +167,11 @@ function FrameworkPage() {
         {/* warm sunrise wash, top */}
         <img
           src={bgSunrise}
+          srcSet={bgSunriseSrcSet}
+          sizes="100vw"
           alt=""
+          loading="lazy"
+          decoding="async"
           width={1920}
           height={1080}
           className="absolute inset-x-0 top-0 h-[70vh] w-full object-cover opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]"
@@ -165,7 +179,11 @@ function FrameworkPage() {
         {/* topographic line texture, mid-page drifting right */}
         <img
           src={bgTopo}
+          srcSet={bgTopoSrcSet}
+          sizes="120vw"
           alt=""
+          loading="lazy"
+          decoding="async"
           width={1920}
           height={1280}
           className="absolute -right-[15%] top-[30%] h-[90vh] w-[120%] object-cover opacity-25 mix-blend-multiply [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
@@ -173,11 +191,16 @@ function FrameworkPage() {
         {/* second sunrise glow, bottom, flipped */}
         <img
           src={bgSunrise}
+          srcSet={bgSunriseSrcSet}
+          sizes="100vw"
           alt=""
+          loading="lazy"
+          decoding="async"
           width={1920}
           height={1080}
           className="absolute inset-x-0 bottom-0 h-[60vh] w-full -scale-y-100 object-cover opacity-40 [mask-image:linear-gradient(to_bottom,transparent,black)]"
         />
+
         {/* color veil to keep contrast for text */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background/55" />
       </div>
@@ -240,12 +263,16 @@ function FrameworkPage() {
               <Parallax speed={-0.18}>
                 <ParallaxImage
                   src={frameworkHero}
+                  srcSet={frameworkHeroSrcSet}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  eager
                   alt="A winding path through a sunlit meadow at golden hour"
                   width={1600}
                   height={1200}
                   speed={0.5}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
+
               </Parallax>
             </div>
           </Reveal>

@@ -8,11 +8,13 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const educatorsHero = photos.educators;
+const educatorsHeroSrcSet = srcSetFor("educators");
 const frameworkImg = photos.framework;
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
+
 import {
   Parallax,
   ParallaxImage,
@@ -32,10 +34,16 @@ export const Route = createFileRoute("/educators")({
       { property: "og:title", content: "For Educators | TransitionForward" },
       { property: "og:description", content: "Less Paperwork, More Student Support, built for CT special educators." },
       { property: "og:url", content: "/educators" },
+      { property: "og:image", content: educatorsHero },
     ],
-    links: [{ rel: "canonical", href: "/educators" }],
+    links: [
+      { rel: "canonical", href: "/educators" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: educatorsHero, imagesrcset: educatorsHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+    ],
     scripts: [
       {
+
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
@@ -131,10 +139,14 @@ function EducatorsPage() {
               </Parallax>
               <ParallaxImage
                 src={educatorsHero}
+                srcSet={educatorsHeroSrcSet}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                eager
                 alt="Illustrated teacher desk at golden hour with a constellation of sticky notes wired to a glowing lightbulb"
                 width={1600}
                 height={1200}
                 speed={0.3}
+
                 className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
               />
             </div>

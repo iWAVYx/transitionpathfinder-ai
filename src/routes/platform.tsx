@@ -15,8 +15,10 @@ import {
   Heart,
   ArrowRight,
 } from "lucide-react";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const platformHero = photos.platform;
+const platformHeroSrcSet = srcSetFor("platform");
+
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { Badge } from "@/components/ui/badge";
 import { DEMO_STUDENT } from "@/lib/demo-data";
@@ -61,9 +63,15 @@ export const Route = createFileRoute("/platform")({
           "One platform, four perspectives. See what families, students, educators, and admins actually do inside TransitionForward.",
       },
       { property: "og:url", content: "/platform" },
+      { property: "og:image", content: platformHero },
     ],
-    links: [{ rel: "canonical", href: "/platform" }],
+    links: [
+      { rel: "canonical", href: "/platform" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: platformHero, imagesrcset: platformHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+    ],
   }),
+
   component: PlatformPage,
 });
 
@@ -268,12 +276,16 @@ function PlatformPage() {
               <Parallax speed={-0.15}>
                 <ParallaxImage
                   src={platformHero}
+                  srcSet={platformHeroSrcSet}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  eager
                   alt="Isometric illustration of three stacked translucent layers: filing cabinets, a constellation of connections, and a sunlit neighborhood map"
                   width={1600}
                   height={1200}
                   speed={0.4}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
+
               </Parallax>
             </div>
           </Reveal>
