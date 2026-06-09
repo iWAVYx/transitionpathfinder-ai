@@ -263,12 +263,16 @@ function FrameworkPage() {
               <Parallax speed={-0.18}>
                 <ParallaxImage
                   src={frameworkHero}
+                  srcSet={frameworkHeroSrcSet}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  eager
                   alt="A winding path through a sunlit meadow at golden hour"
                   width={1600}
                   height={1200}
                   speed={0.5}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
+
               </Parallax>
             </div>
           </Reveal>
