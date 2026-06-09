@@ -27,7 +27,7 @@ export const Route = createFileRoute("/demo")({
       {
         name: "description",
         content:
-          "Walk a fictional student through every step of TransitionForward — Hub, Intake, Pathway Report, Meeting Prep, Resources, and a 30-Day Plan.",
+          "Walk a fictional student through every step of TransitionForward — Hub, Intake, Pathway Report, Meeting Prep, Resources, shared Calendar, and a 30-Day Plan.",
       },
       { property: "og:title", content: "See a live demo — TransitionForward" },
       {
