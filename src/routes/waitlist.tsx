@@ -208,6 +208,15 @@ function WaitlistPage() {
           className="pointer-events-none absolute -bottom-32 -left-10 -z-10 h-72 w-72 rounded-full bg-accent/30 blur-3xl"
         />
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/80 backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Back
+            </button>
+          </div>
           <header className="text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               <HeartHandshake className="h-3.5 w-3.5" /> Come walk with us
