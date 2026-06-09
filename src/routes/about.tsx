@@ -217,6 +217,8 @@ const CHAPTERS = [
     ],
     pullQuote: "Forward, together.",
     img: aboutHero,
+    imgSrcSet: aboutHeroSrcSet,
+
     tone: "from-primary/15 to-peach-soft",
   },
 ];
