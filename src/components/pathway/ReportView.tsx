@@ -141,13 +141,16 @@ export function ReportView({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("report-density");
+    const stored = window.localStorage.getItem("tf.reportDensity");
     if (stored === "compact" || stored === "comfortable") setDensity(stored);
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem("report-density", density);
+    window.localStorage.setItem("tf.reportDensity", density);
+    window.dispatchEvent(
+      new CustomEvent<DensitySetDetail>(EVT_DENSITY_SET, { detail: { density } }),
+    );
   }, [density]);
 
   // Listen for server-pushed density hydration.
