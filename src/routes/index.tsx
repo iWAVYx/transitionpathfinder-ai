@@ -1114,12 +1114,12 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
             alt=""
             loading="lazy"
             decoding="async"
-            className="h-[60vmin] w-[90vmin] max-w-[1100px] object-contain opacity-[0.32] mix-blend-multiply sm:h-[68vmin] sm:w-[88vmin] lg:h-[78vmin] lg:w-[82vmin] dark:opacity-40 dark:invert dark:mix-blend-screen"
+            className="h-[92vmin] w-[98vmin] max-w-none object-contain opacity-[0.28] mix-blend-multiply sm:h-[95vmin] sm:w-[96vmin] lg:h-[98vmin] lg:w-[94vmin] dark:opacity-35 dark:invert dark:mix-blend-screen"
             style={{
               maskImage:
-                "radial-gradient(ellipse at center, black 55%, transparent 92%)",
+                "radial-gradient(ellipse at center, black 72%, transparent 96%)",
               WebkitMaskImage:
-                "radial-gradient(ellipse at center, black 55%, transparent 92%)",
+                "radial-gradient(ellipse at center, black 72%, transparent 96%)",
             }}
           />
         </div>
