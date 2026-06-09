@@ -1569,6 +1569,7 @@ function FeatureShot({
   caption,
   className = "",
   aspect = "aspect-[16/10]",
+  objectPosition = "center",
 }: {
   image: string;
   srcSet?: string;
@@ -1578,6 +1579,9 @@ function FeatureShot({
   caption: string;
   className?: string;
   aspect?: string;
+  /** CSS object-position. Lets the photo's focal point stay in frame
+   *  across breakpoints as the aspect-ratio crop tightens/loosens. */
+  objectPosition?: string;
 }) {
   return (
     <figure
@@ -1591,6 +1595,7 @@ function FeatureShot({
           alt={alt || label}
           loading="lazy"
           decoding="async"
+          style={{ objectPosition }}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
