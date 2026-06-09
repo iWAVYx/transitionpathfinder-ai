@@ -1104,17 +1104,19 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
   return (
     <div ref={sectionRef} className="relative" style={{ height: `${stops * 130}vh` }}>
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
-        {/* CT illustrated backdrop — hand-drawn map of Connecticut, blended into the page so it reads as a soft watermark behind the cards. */}
+        {/* CT illustrated backdrop — hand-drawn map of Connecticut, blended into the page so it reads as a soft watermark behind the cards.
+            Wrapped in `ct-watermark` so accessibility prefs (forced colors, prefers-contrast: more, prefers-reduced-transparency)
+            automatically suppress or dim the image whenever it would risk reducing text contrast. See `ct-watermark` rules in styles.css. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 m-auto flex items-center justify-center"
+          className="ct-watermark pointer-events-none absolute inset-0 m-auto flex items-center justify-center"
         >
           <img
             src={ctMapAsset.url}
             alt=""
             loading="lazy"
             decoding="async"
-            className="h-[140vmin] w-[150vmin] max-w-none object-contain opacity-[0.18] mix-blend-multiply sm:h-[150vmin] sm:w-[150vmin] lg:h-[160vmin] lg:w-[160vmin] dark:opacity-25 dark:invert dark:mix-blend-screen"
+            className="ct-watermark-img h-[140vmin] w-[150vmin] max-w-none object-contain opacity-[0.18] mix-blend-multiply sm:h-[150vmin] sm:w-[150vmin] lg:h-[160vmin] lg:w-[160vmin] dark:opacity-25 dark:invert dark:mix-blend-screen"
             style={{
               maskImage:
                 "radial-gradient(ellipse at center, black 82%, transparent 100%)",
@@ -1122,7 +1124,16 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
                 "radial-gradient(ellipse at center, black 82%, transparent 100%)",
             }}
           />
-
+          {/* Contrast scrim — a theme-matched veil that sits between the watermark and the cards/text.
+              Keeps effective luminance close to the section's background so text always meets WCAG AA contrast,
+              regardless of which part of the map sits behind a given card. */}
+          <div
+            className="ct-watermark-scrim pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, color-mix(in oklab, var(--background) 35%, transparent) 0%, color-mix(in oklab, var(--background) 60%, transparent) 55%, color-mix(in oklab, var(--background) 85%, transparent) 100%)",
+            }}
+          />
         </div>
         {/* Map backdrop grid */}
         <div
