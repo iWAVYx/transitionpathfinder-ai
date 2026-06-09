@@ -229,7 +229,7 @@ export function StickyScrollStory({
 }: {
   eyebrow?: string;
   title?: string;
-  panels: Array<{ title: string; body: string; image: string; alt: string }>;
+  panels: Array<{ title: string; body: string; image: string; alt: string; srcSet?: string; sizes?: string }>;
   className?: string;
 }) {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
@@ -261,10 +261,14 @@ export function StickyScrollStory({
               <div className="overflow-hidden rounded-[1.75rem] shadow-lift">
                 <img
                   src={p.image}
+                  srcSet={p.srcSet}
+                  sizes={p.sizes ?? "(min-width: 1024px) 50vw, 100vw"}
                   alt={p.alt}
                   loading="lazy"
+                  decoding="async"
                   className="aspect-[4/3] w-full object-cover"
                 />
+
               </div>
               <div>
                 <h3 className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
@@ -332,10 +336,14 @@ export function StickyScrollStory({
               >
                 <img
                   src={p.image}
+                  srcSet={p.srcSet}
+                  sizes={p.sizes ?? "(min-width: 1024px) 50vw, 100vw"}
                   alt={p.alt}
                   loading="lazy"
+                  decoding="async"
                   className="aspect-[4/3] w-full object-cover"
                 />
+
               </div>
             ))}
           </div>

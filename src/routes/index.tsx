@@ -19,29 +19,43 @@ import {
   Download,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos, photoSrcSet } from "@/lib/photos";
+import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
 const heroSrcSet = photoSrcSet(HERO_ID);
 
 const studentImg = photos.homeStudent;
 const studentPhotoImg = photos.homeStudentPhoto;
+const studentPhotoSrcSet = srcSetFor("homeStudentPhoto");
 const familyImg = photos.homeFamily;
 const educatorImg = photos.homeEducator;
 const pathwayImg = photos.homePathway;
 const roadImg = photos.homeRoad;
+const roadSrcSet = srcSetFor("homeRoad");
 const pathCollege = photos.pathCollege;
+const pathCollegeSrcSet = srcSetFor("pathCollege");
 const pathTechnical = photos.pathTechnical;
+const pathTechnicalSrcSet = srcSetFor("pathTechnical");
 const pathCareer = photos.pathCareer;
+const pathCareerSrcSet = srcSetFor("pathCareer");
 const pathLifeskills = photos.pathLifeskills;
+const pathLifeskillsSrcSet = srcSetFor("pathLifeskills");
 const pathProgress = photos.pathProgress;
+const pathProgressSrcSet = srcSetFor("pathProgress");
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
+const iepUploadSrcSet = srcSetFor("iepUpload");
 const layerOrganizeImg = photos.layerOrganize;
+const layerOrganizeSrcSet = srcSetFor("layerOrganize");
 const layerGenerateImg = photos.layerGenerate;
+const layerGenerateSrcSet = srcSetFor("layerGenerate");
 const layerConnectImg = photos.layerConnect;
+const layerConnectSrcSet = srcSetFor("layerConnect");
 const resourcesImg = photos.resources;
+const resourcesSrcSet = srcSetFor("resources");
 const frameworkImg = photos.framework;
+const frameworkSrcSet = srcSetFor("framework");
+
 import stickerCollege from "@/assets/sticker-college.png";
 import stickerTechnical from "@/assets/sticker-technical.png";
 import stickerCareer from "@/assets/sticker-career.png";
@@ -292,12 +306,15 @@ function HomePage() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
               <ParallaxImage
                 src={studentPhotoImg}
+                srcSet={studentPhotoSrcSet}
+                sizes="(min-width: 1024px) 42vw, 100vw"
                 alt="A student writing in a notebook by a sunlit window"
                 width={1080}
                 height={1600}
                 speed={0.35}
                 className="absolute inset-0 h-full w-full"
               />
+
               <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-background/85 p-5 backdrop-blur">
                 <p className="font-display text-lg italic leading-snug text-foreground">
                   "I want to know what's next — in words I actually understand."
@@ -498,6 +515,7 @@ function HomePage() {
         <div className="grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={layerOrganizeImg}
+            srcSet={layerOrganizeSrcSet}
             label="Organize"
             alt="Organize dashboard interface showing student goals and assessments"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
@@ -505,6 +523,7 @@ function HomePage() {
           />
           <FeatureShot
             image={layerGenerateImg}
+            srcSet={layerGenerateSrcSet}
             label="Generate"
             alt="Generate pathway report interface with personalized recommendations"
             caption="Specialist-built formulas turn the full picture into a personalized Pathway."
@@ -512,6 +531,7 @@ function HomePage() {
           />
           <FeatureShot
             image={layerConnectImg}
+            srcSet={layerConnectSrcSet}
             label="Connect"
             alt="Connect resources interface matching interests to local programs"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
@@ -523,22 +543,26 @@ function HomePage() {
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={iepUploadImg}
+            srcSet={iepUploadSrcSet}
             label="IEP upload & summary"
             caption="Drop in the document — we read it and surface what matters in plain language."
             aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={resourcesImg}
+            srcSet={resourcesSrcSet}
             label="Resource library"
             caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
             aspect="aspect-[4/3]"
           />
           <FeatureShot
             image={frameworkImg}
+            srcSet={frameworkSrcSet}
             label="PPT meeting prep"
             caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
             aspect="aspect-[4/3]"
           />
+
         </div>
       </section>
 
@@ -573,6 +597,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 row-span-2 md:col-span-6 md:row-span-2"
             image={pathCollege}
+            srcSet={pathCollegeSrcSet}
+            sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerCollege}
             label="College"
             caption="Two- and four-year programs, with the right supports in place."
@@ -582,6 +608,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-6"
             image={pathTechnical}
+            srcSet={pathTechnicalSrcSet}
+            sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerTechnical}
             label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
@@ -590,6 +618,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-2 md:col-span-2"
             image={pathCareer}
+            srcSet={pathCareerSrcSet}
+            sizes="(min-width: 768px) 17vw, 100vw"
             sticker={stickerCareer}
             label="Career & Employment"
             caption="Job training, internships, BRS."
@@ -599,6 +629,8 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathLifeskills}
+            srcSet={pathLifeskillsSrcSet}
+            sizes="(min-width: 768px) 17vw, 50vw"
             sticker={stickerLifeskills}
             label="Life Skills"
             caption="Cooking, transit, money, daily independence."
@@ -608,12 +640,15 @@ function HomePage() {
           <PathwayTile
             className="col-span-1 md:col-span-2"
             image={pathProgress}
+            srcSet={pathProgressSrcSet}
+            sizes="(min-width: 768px) 17vw, 50vw"
             sticker={stickerProgress}
             label="Progress Tracked"
             caption="Small wins, gently celebrated."
             compact
             pathwayId="progress"
           />
+
         </div>
       </section>
 
@@ -809,12 +844,15 @@ function HomePage() {
       <section className="relative isolate overflow-hidden">
         <ParallaxImage
           src={roadImg}
+          srcSet={roadSrcSet}
+          sizes="100vw"
           alt="A winding road through fields at sunset"
           width={1920}
           height={1080}
           speed={0.5}
           className="absolute inset-0 -z-10 h-full w-full"
         />
+
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
         <FloatingShape className="pointer-events-none absolute right-10 top-10 z-0 hidden h-20 w-20 text-background/70 md:block" delay={0.4} duration={18}>
           <PaperPlane className="h-full w-full" />
@@ -1321,12 +1359,16 @@ function TrustPillar({
 
 function AudiencePhoto({
   image,
+  srcSet,
+  sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
   alt,
   title,
   body,
   cta,
 }: {
   image: string;
+  srcSet?: string;
+  sizes?: string;
   alt: string;
   title: string;
   body: string;
@@ -1339,11 +1381,15 @@ function AudiencePhoto({
     >
       <img
         src={image}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         loading="lazy"
+        decoding="async"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
+
       <div className="absolute inset-x-0 bottom-0 p-7 text-background">
         <h3 className="font-display text-3xl font-medium tracking-tight">
           {toTitleCase(title)}
@@ -1409,6 +1455,8 @@ function ResourcePreviewCard({
 
 function PathwayTile({
   image,
+  srcSet,
+  sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
   sticker,
   label,
   caption,
@@ -1418,6 +1466,8 @@ function PathwayTile({
   pathwayId,
 }: {
   image: string;
+  srcSet?: string;
+  sizes?: string;
   sticker?: string;
   label: string;
   caption: string;
@@ -1435,10 +1485,14 @@ function PathwayTile({
     >
       <img
         src={image}
+        srcSet={srcSet}
+        sizes={sizes}
         alt=""
         loading="lazy"
+        decoding="async"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
+
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
       {sticker && (
         <img
@@ -1491,6 +1545,8 @@ function PathwayTile({
 
 function FeatureShot({
   image,
+  srcSet,
+  sizes = "(min-width: 768px) 33vw, 100vw",
   label,
   alt,
   caption,
@@ -1498,6 +1554,8 @@ function FeatureShot({
   aspect = "aspect-[16/10]",
 }: {
   image: string;
+  srcSet?: string;
+  sizes?: string;
   label: string;
   alt?: string;
   caption: string;
@@ -1511,10 +1569,14 @@ function FeatureShot({
       <div className={`relative ${aspect} overflow-hidden`}>
         <img
           src={image}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={alt || label}
           loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
         <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
           {label}
