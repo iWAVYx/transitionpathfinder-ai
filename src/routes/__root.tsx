@@ -200,6 +200,7 @@ function RootComponent() {
 
   useEffect(() => {
     void import("@/lib/dev/hmr-diagnostics").then((m) => m.installHmrDiagnostics());
+    registerServiceWorker();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       router.invalidate();
       queryClient.invalidateQueries();
