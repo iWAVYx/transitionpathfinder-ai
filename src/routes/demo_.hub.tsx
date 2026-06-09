@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  Bookmark,
+  Building2,
+  Mail,
+
   Sparkles,
   Target,
   FileText,
