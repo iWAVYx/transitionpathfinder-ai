@@ -41,8 +41,9 @@ export const Route = createFileRoute("/educators")({
       { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
       { rel: "preload", as: "image", href: educatorsHero, imagesrcset: educatorsHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
     ],
-
+    scripts: [
       {
+
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
