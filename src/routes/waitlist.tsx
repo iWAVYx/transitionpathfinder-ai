@@ -172,19 +172,31 @@ function WaitlistPage() {
     <SiteShell>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 right-0 -z-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-32 -left-10 -z-10 h-72 w-72 rounded-full bg-accent/30 blur-3xl"
+        />
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
           <header className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              Come walk with us
-            </p>
-            <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <HeartHandshake className="h-3.5 w-3.5" /> Come walk with us
+            </span>
+            <h1 className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
               You don't have to figure this out alone.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               Pick the door that fits you best. We're opening separate seats for families,
               students, educators, school leaders, and partner organizations.
             </p>
+            <p className="mx-auto mt-3 max-w-xl text-xs text-muted-foreground/80">
+              A real person on our Connecticut team reads every submission — usually within two school days.
+            </p>
           </header>
+
 
           {!done && !current && (
             <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:[&>*]:col-span-2 lg:[&>*:nth-child(4)]:col-start-2 lg:[&>*:nth-child(5)]:col-start-4">
