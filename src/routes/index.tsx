@@ -1114,14 +1114,15 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
             alt=""
             loading="lazy"
             decoding="async"
-            className="h-[92vmin] w-[98vmin] max-w-none object-contain opacity-[0.28] mix-blend-multiply sm:h-[95vmin] sm:w-[96vmin] lg:h-[98vmin] lg:w-[94vmin] dark:opacity-35 dark:invert dark:mix-blend-screen"
+            className="h-[140vmin] w-[150vmin] max-w-none object-contain opacity-[0.18] mix-blend-multiply sm:h-[150vmin] sm:w-[150vmin] lg:h-[160vmin] lg:w-[160vmin] dark:opacity-25 dark:invert dark:mix-blend-screen"
             style={{
               maskImage:
-                "radial-gradient(ellipse at center, black 72%, transparent 96%)",
+                "radial-gradient(ellipse at center, black 82%, transparent 100%)",
               WebkitMaskImage:
-                "radial-gradient(ellipse at center, black 72%, transparent 96%)",
+                "radial-gradient(ellipse at center, black 82%, transparent 100%)",
             }}
           />
+
         </div>
         {/* Map backdrop grid */}
         <div
