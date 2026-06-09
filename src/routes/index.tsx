@@ -322,14 +322,13 @@ function HomePage() {
           <Reveal className="lg:col-span-5" y={36}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
               <ParallaxImage
-                src={studentPhotoImg}
-                srcSet={studentPhotoSrcSet}
+                src={whyWeBuiltThisShot.url}
                 sizes="(min-width: 1024px) 42vw, 100vw"
-                alt="A student writing in a notebook by a sunlit window"
-                width={1080}
-                height={1600}
+                alt="A student raising a hand in a bright classroom discussion"
+                width={1400}
+                height={933}
                 speed={0.35}
-                className="absolute inset-0 h-full w-full"
+                className="absolute inset-0 h-full w-full object-cover"
               />
 
               <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-background/85 p-5 backdrop-blur">
