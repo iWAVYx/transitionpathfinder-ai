@@ -613,13 +613,13 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-2 md:col-span-6"
-            image={pathTechnical}
-            srcSet={pathTechnicalSrcSet}
+            image={culinaryTrainingShot.url}
             sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerTechnical}
             label="Technical Education"
             caption="Hands-on trades, certificates, and apprenticeships."
             pathwayId="technical-education"
+            objectPosition="50% 40%"
           />
           <PathwayTile
             className="col-span-2 md:col-span-2"
