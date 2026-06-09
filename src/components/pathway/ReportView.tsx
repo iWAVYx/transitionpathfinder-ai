@@ -1224,19 +1224,9 @@ export function ReportView({
         </Block>
       )}
 
-      {/* ============ 30-Day Plan (always) ============ */}
-      <Block id="sec-thirty-day" title="A Gentle 30-Day Plan" icon={<Calendar className="h-5 w-5" />}>
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {r.thirty_day_plan.map((w) => (
-            <li key={w.week} className="rounded-2xl border border-border/60 bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Week {w.week}
-              </p>
-              <p className="mt-1 text-sm text-foreground">{w.action}</p>
-            </li>
-          ))}
-        </ol>
-      </Block>
+      {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
+      <PlanBlock report={r} extendedPlans={extendedPlans} />
+
 
       {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
       {audience === "educator" && !r.teacher_action_plan && (
