@@ -26,6 +26,7 @@ import studentPhoneMapShot from "@/assets/student-phone-map.png.asset.json";
 import culinaryTrainingShot from "@/assets/culinary-training.png.asset.json";
 import constructionTrainingShot from "@/assets/construction-training.png.asset.json";
 import studentsCohortShot from "@/assets/students-cohort.jpg.asset.json";
+import connectShot from "@/assets/connect-shot.png.asset.json";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
