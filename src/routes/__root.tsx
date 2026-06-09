@@ -82,6 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#1f4f4a" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "TransitionForward" },
       { name: "google-site-verification", content: "mty7hJKViUPYrp94f2c2KJ9AF3OSH1F1Ee6TYzdshRE" },
       { title: "TransitionForward" },
       { name: "description", content: "Student-centered transition planning for Connecticut families, students, and educators." },
