@@ -168,7 +168,7 @@ function FrameworkPage() {
         <img
           src={bgSunrise}
           srcSet={bgSunriseSrcSet}
-          sizes="100vw"
+          sizes="960px"
           alt=""
           loading="lazy"
           decoding="async"
@@ -180,7 +180,7 @@ function FrameworkPage() {
         <img
           src={bgTopo}
           srcSet={bgTopoSrcSet}
-          sizes="120vw"
+          sizes="960px"
           alt=""
           loading="lazy"
           decoding="async"
@@ -192,7 +192,7 @@ function FrameworkPage() {
         <img
           src={bgSunrise}
           srcSet={bgSunriseSrcSet}
-          sizes="100vw"
+          sizes="960px"
           alt=""
           loading="lazy"
           decoding="async"
