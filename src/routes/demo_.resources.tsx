@@ -401,25 +401,25 @@ function DemoResourcesPage() {
   );
 }
 
-function ResourceCard({ r }: { r: Resource }) {
+function ResourceCard({ r, compact = false }: { r: Resource; compact?: boolean }) {
   return (
-    <article className="rounded-3xl border bg-card p-5 shadow-soft transition-shadow hover:shadow-lift sm:p-6">
+    <article className={`rounded-3xl border bg-card shadow-soft transition-shadow hover:shadow-lift ${compact ? "p-3" : "p-5 sm:p-6"}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
             {r.format}
           </Badge>
-          <h3 className="mt-2 font-display text-lg leading-snug">{r.title}</h3>
+          <h3 className={`mt-1.5 font-display leading-snug ${compact ? "text-sm" : "text-lg"}`}>{r.title}</h3>
         </div>
         <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
       </div>
-      <dl className="mt-4 space-y-3 text-sm">
+      <dl className={`text-sm ${compact ? "mt-2 space-y-1.5" : "mt-4 space-y-3"}`}>
         <Row label="What it is" value={r.what_it_is} />
         <Row label="Who it helps" value={r.who_it_helps} />
         <Row label="Why it matters" value={r.why_it_matters} />
         <Row label="How to use it" value={r.how_to_use} />
       </dl>
-      <p className="mt-4 text-[11px] text-muted-foreground">Source · {r.source}</p>
+      <p className={`text-[11px] text-muted-foreground ${compact ? "mt-2" : "mt-4"}`}>Source · {r.source}</p>
     </article>
   );
 }
