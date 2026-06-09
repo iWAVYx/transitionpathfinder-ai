@@ -177,7 +177,7 @@ function ReportDetailPage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto ${wrapWidth} px-4 pt-8 sm:px-6 lg:px-8">
+      <div className={`mx-auto ${wrapWidth} px-4 pt-8 sm:px-6 lg:px-8`}>
         <Breadcrumbs
           trail={[
             { label: "Reports", to: "/reports" },
@@ -187,7 +187,7 @@ function ReportDetailPage() {
       </div>
 
       {showWelcome && (
-        <div className="no-print mx-auto mt-6 ${wrapWidth} px-4 sm:px-6 lg:px-8">
+        <div className={`no-print mx-auto mt-6 ${wrapWidth} px-4 sm:px-6 lg:px-8`}>
           <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-8">
             <button
               type="button"
@@ -262,7 +262,7 @@ function ReportDetailPage() {
       />
 
       {/* Link to student */}
-      <section className="no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8">
+      <section className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft">
           <UserCircle2 className="h-5 w-5 text-primary" />
           <div className="min-w-0 flex-1">
@@ -296,7 +296,7 @@ function ReportDetailPage() {
       </section>
 
       {/* Share panel */}
-      <section id="share-panel" className="no-print mx-auto ${wrapWidth} px-4 pb-14 sm:px-6 lg:px-8 scroll-mt-24">
+      <section id="share-panel" className={`no-print mx-auto ${wrapWidth} px-4 pb-14 sm:px-6 lg:px-8 scroll-mt-24`}>
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
