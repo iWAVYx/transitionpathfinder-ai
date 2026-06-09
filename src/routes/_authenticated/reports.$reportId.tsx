@@ -67,6 +67,21 @@ function ReportDetailPage() {
   const [busy, setBusy] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    try {
+      const v = typeof window !== "undefined" ? localStorage.getItem("tf.reportDensity") : null;
+      return v === "comfortable" ? "comfortable" : "compact";
+    } catch { return "compact"; }
+  });
+  useEffect(() => {
+    function onSet(e: Event) {
+      const detail = (e as CustomEvent<{ density: "compact" | "comfortable" }>).detail;
+      if (detail?.density === "compact" || detail?.density === "comfortable") setDensity(detail.density);
+    }
+    window.addEventListener("report-density-set", onSet as EventListener);
+    return () => window.removeEventListener("report-density-set", onSet as EventListener);
+  }, []);
+  const wrapWidth = density === "compact" ? "max-w-[92rem]" : "max-w-4xl";
 
   useEffect(() => {
     fetchReport({ data: { id: reportId } })
