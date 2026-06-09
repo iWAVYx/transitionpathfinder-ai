@@ -8,11 +8,13 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 const educatorsHero = photos.educators;
+const educatorsHeroSrcSet = srcSetFor("educators");
 const frameworkImg = photos.framework;
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
+
 import {
   Parallax,
   ParallaxImage,
