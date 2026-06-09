@@ -200,6 +200,8 @@ const CHAPTERS = [
     ],
     pullQuote: "AI assists. Humans decide. The student is the author.",
     img: pathCareer,
+    imgSrcSet: pathCareerSrcSet,
+
     tone: "from-sky-soft to-peach-soft/60",
   },
   {
