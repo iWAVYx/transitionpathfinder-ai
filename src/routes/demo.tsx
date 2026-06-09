@@ -183,7 +183,7 @@ function DemoIndex() {
         {/* 6-step spine */}
         <div className="mt-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            The six-step spine
+            The seven-step spine
           </p>
           <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {STEPS.map((step) => (
