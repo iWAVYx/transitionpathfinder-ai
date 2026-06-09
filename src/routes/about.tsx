@@ -70,7 +70,7 @@ function AboutHero() {
         <img src={aboutHero} srcSet={aboutHeroSrcSet} sizes="100vw" alt="Students walking toward an open doorway of light" fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
       </motion.div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/50 to-background/20" />
-      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-12 sm:px-6 sm:pb-20 lg:px-8">
+      <motion.div style={{ y: textY }} className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-6 pb-12 sm:px-8 sm:pb-20 lg:px-10">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
