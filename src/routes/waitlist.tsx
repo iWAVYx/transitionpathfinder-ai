@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -12,6 +12,7 @@ import {
   Building2,
   Briefcase,
   ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -113,6 +114,15 @@ function WaitlistPage() {
   const [selected, setSelected] = useState<RoleKey | null>(null);
   const [done, setDone] = useState(false);
   const submit = useServerFn(submitWaitlist);
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.history.back();
+    } else {
+      router.navigate({ to: "/" });
+    }
+  };
 
   // Pick up ?role= or ?audience= from URL. Each "door" on entry points like
   // /partners or /educators can route here with their audience preselected.
@@ -126,19 +136,36 @@ function WaitlistPage() {
       family: "family",
       families: "family",
       parent: "family",
+      parents: "family",
+      caregiver: "family",
       student: "student",
       students: "student",
       educator: "educator",
       educators: "educator",
       teacher: "educator",
+      teachers: "educator",
+      "case-manager": "educator",
       school: "district",
       schools: "district",
       district: "district",
+      districts: "district",
+      administrator: "district",
+      admin: "district",
+      leader: "district",
       partner: "partner",
       partners: "partner",
+      community: "partner",
     };
     const key = ALIAS[raw.toLowerCase()];
-    if (key) setSelected(key);
+    if (key) {
+      setSelected(key);
+      // Scroll the form into view so deep-links land on the right section.
+      requestAnimationFrame(() => {
+        document
+          .getElementById("waitlist-form")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }, []);
 
   const form = useForm<FormValues>({
@@ -181,6 +208,15 @@ function WaitlistPage() {
           className="pointer-events-none absolute -bottom-32 -left-10 -z-10 h-72 w-72 rounded-full bg-accent/30 blur-3xl"
         />
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/80 backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Back
+            </button>
+          </div>
           <header className="text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               <HeartHandshake className="h-3.5 w-3.5" /> Come walk with us
@@ -244,7 +280,7 @@ function WaitlistPage() {
 
 
           {!done && current && (
-            <div className="mt-10 grid gap-6 md:grid-cols-5">
+            <div id="waitlist-form" className="mt-10 grid scroll-mt-24 gap-6 md:grid-cols-5">
               <aside className="rounded-3xl border bg-card p-6 shadow-soft md:col-span-2">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
                   {current.icon}

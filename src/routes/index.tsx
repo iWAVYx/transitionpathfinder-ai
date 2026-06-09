@@ -456,7 +456,7 @@ function HomePage() {
               body="A coordinated view across students, teams, and transition outcomes."
               cta="Request a School Demo"
               to="/waitlist"
-              search={{ role: "administrator" }}
+              search={{ role: "district" }}
               tone="muted"
             />
             <RoleCard
