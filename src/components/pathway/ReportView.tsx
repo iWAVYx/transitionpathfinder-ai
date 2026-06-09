@@ -2138,10 +2138,10 @@ function ReportTOC({
     <nav
       aria-label="Report outline"
       className={cn(
-        "no-print pointer-events-none fixed right-4 top-32 z-20 hidden lg:block",
+        "no-print pointer-events-none fixed right-4 top-24 z-20 hidden lg:block",
       )}
     >
-      <div className="pointer-events-auto flex w-64 flex-col rounded-2xl border border-border/60 bg-card/95 shadow-soft backdrop-blur">
+      <div className="pointer-events-auto flex max-h-[calc(100vh-7rem)] w-64 flex-col rounded-2xl border border-border/60 bg-card/95 shadow-soft backdrop-blur">
         <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
             Report Outline
@@ -2202,7 +2202,7 @@ function ReportTOC({
               role="listbox"
               aria-label="Report sections"
               aria-activedescendant={activeDescendantId}
-              className="max-h-[calc(100vh-18rem)] space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
+              className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
             >
               {filteredItems.map((it, i) => {
                 const isActive = activeId === it.id;

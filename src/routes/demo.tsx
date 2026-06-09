@@ -7,6 +7,7 @@ import {
   Users,
   BookOpen,
   CalendarRange,
+  CalendarDays,
   ShieldCheck,
   ArrowRight,
 } from "lucide-react";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/demo")({
       {
         name: "description",
         content:
-          "Walk a fictional student through every step of TransitionForward — Hub, Intake, Pathway Report, Meeting Prep, Resources, and a 30-Day Plan.",
+          "Walk a fictional student through every step of TransitionForward — Hub, Intake, Pathway Report, Meeting Prep, Resources, shared Calendar, and a 30-Day Plan.",
       },
       { property: "og:title", content: "See a live demo — TransitionForward" },
       {
@@ -79,6 +80,13 @@ const STEPS = [
   },
   {
     n: "6",
+    icon: <CalendarDays className="h-5 w-5" />,
+    title: "Calendar",
+    body: "One shared Calendar for families and educators — meetings, deadlines, tours, and weekly action steps.",
+    to: "/demo/calendar" as const,
+  },
+  {
+    n: "7",
     icon: <CalendarRange className="h-5 w-5" />,
     title: "30-Day Plan",
     body: "One focused, doable step per week — small enough to do, big enough to matter.",
@@ -106,8 +114,8 @@ function DemoIndex() {
           See exactly how TransitionForward works.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Pick a fictional student and walk the full six-step product spine. No account, no setup
-          — everything you'd see on day one with a real student.
+          Pick a fictional student and walk the full seven-step product spine.
+          No account, no setup — everything you'd see on day one with a real student.
         </p>
 
         {/* Student picker */}
@@ -175,7 +183,7 @@ function DemoIndex() {
         {/* 6-step spine */}
         <div className="mt-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            The six-step spine
+            The seven-step spine
           </p>
           <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {STEPS.map((step) => (

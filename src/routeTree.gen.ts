@@ -43,6 +43,7 @@ import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
 import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
+import { Route as DemoCalendarRouteImport } from './routes/demo_.calendar'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
@@ -293,6 +294,11 @@ const DemoIntakeRoute = DemoIntakeRouteImport.update({
 const DemoHubRoute = DemoHubRouteImport.update({
   id: '/demo_/hub',
   path: '/demo/hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoCalendarRoute = DemoCalendarRouteImport.update({
+  id: '/demo_/calendar',
+  path: '/demo/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
@@ -804,6 +810,7 @@ export interface FileRoutesByFullPath {
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/calendar': typeof DemoCalendarRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
@@ -920,6 +927,7 @@ export interface FileRoutesByTo {
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/calendar': typeof DemoCalendarRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
@@ -1039,6 +1047,7 @@ export interface FileRoutesById {
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo_/calendar': typeof DemoCalendarRoute
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
   '/demo_/meeting': typeof DemoMeetingRoute
@@ -1158,6 +1167,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
+    | '/demo/calendar'
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
@@ -1274,6 +1284,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
+    | '/demo/calendar'
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
@@ -1392,6 +1403,7 @@ export interface FileRouteTypes {
     | '/_authenticated/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
+    | '/demo_/calendar'
     | '/demo_/hub'
     | '/demo_/intake'
     | '/demo_/meeting'
@@ -1485,6 +1497,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   WaitlistRoute: typeof WaitlistRoute
   AdminInviteTokenRoute: typeof AdminInviteTokenRoute
+  DemoCalendarRoute: typeof DemoCalendarRoute
   DemoHubRoute: typeof DemoHubRoute
   DemoIntakeRoute: typeof DemoIntakeRoute
   DemoMeetingRoute: typeof DemoMeetingRoute
@@ -1740,6 +1753,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/hub'
       fullPath: '/demo/hub'
       preLoaderRoute: typeof DemoHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/calendar': {
+      id: '/demo_/calendar'
+      path: '/demo/calendar'
+      fullPath: '/demo/calendar'
+      preLoaderRoute: typeof DemoCalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
@@ -2577,6 +2597,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   WaitlistRoute: WaitlistRoute,
   AdminInviteTokenRoute: AdminInviteTokenRoute,
+  DemoCalendarRoute: DemoCalendarRoute,
   DemoHubRoute: DemoHubRoute,
   DemoIntakeRoute: DemoIntakeRoute,
   DemoMeetingRoute: DemoMeetingRoute,
