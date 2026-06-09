@@ -7,6 +7,7 @@ import {
   Users,
   BookOpen,
   CalendarRange,
+  CalendarDays,
   ShieldCheck,
   ArrowRight,
 } from "lucide-react";
