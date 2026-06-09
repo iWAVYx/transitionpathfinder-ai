@@ -167,7 +167,11 @@ function FrameworkPage() {
         {/* warm sunrise wash, top */}
         <img
           src={bgSunrise}
+          srcSet={bgSunriseSrcSet}
+          sizes="100vw"
           alt=""
+          loading="lazy"
+          decoding="async"
           width={1920}
           height={1080}
           className="absolute inset-x-0 top-0 h-[70vh] w-full object-cover opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]"
@@ -175,7 +179,11 @@ function FrameworkPage() {
         {/* topographic line texture, mid-page drifting right */}
         <img
           src={bgTopo}
+          srcSet={bgTopoSrcSet}
+          sizes="120vw"
           alt=""
+          loading="lazy"
+          decoding="async"
           width={1920}
           height={1280}
           className="absolute -right-[15%] top-[30%] h-[90vh] w-[120%] object-cover opacity-25 mix-blend-multiply [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
@@ -183,11 +191,16 @@ function FrameworkPage() {
         {/* second sunrise glow, bottom, flipped */}
         <img
           src={bgSunrise}
+          srcSet={bgSunriseSrcSet}
+          sizes="100vw"
           alt=""
+          loading="lazy"
+          decoding="async"
           width={1920}
           height={1080}
           className="absolute inset-x-0 bottom-0 h-[60vh] w-full -scale-y-100 object-cover opacity-40 [mask-image:linear-gradient(to_bottom,transparent,black)]"
         />
+
         {/* color veil to keep contrast for text */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background/55" />
       </div>
