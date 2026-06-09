@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  Bookmark,
+  Building2,
+  Mail,
+
   Sparkles,
   Target,
   FileText,
@@ -294,6 +298,43 @@ function DemoHubPage() {
               <Button variant="outline" size="sm" className="mt-4 w-full">
                 Invite a team member
               </Button>
+            </Panel>
+
+            <Panel icon={<Mail className="h-5 w-5" />} title="Invites">
+              <div className="rounded-2xl border border-border/60 bg-background p-3">
+                <p className="text-sm font-medium">coach@{student.first_name.toLowerCase()}-team.demo</p>
+                <p className="text-xs text-muted-foreground">Viewer · Pending</p>
+                <div className="mt-2 flex gap-2">
+                  <Button variant="outline" size="sm" disabled>Accept</Button>
+                  <Button variant="ghost" size="sm" disabled>Decline</Button>
+                </div>
+              </div>
+            </Panel>
+
+            <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved resources">
+              <ul className="space-y-2 text-sm">
+                <li className="rounded-2xl border border-border/60 bg-background p-3">
+                  <p className="font-medium">Transition Planning 101</p>
+                  <p className="text-xs text-muted-foreground">Matches {student.first_name}'s interests.</p>
+                </li>
+                <li className="rounded-2xl border border-border/60 bg-background p-3">
+                  <p className="font-medium">Self-Advocacy Workbook</p>
+                  <p className="text-xs text-muted-foreground">Supports the self-advocacy growth area.</p>
+                </li>
+              </ul>
+            </Panel>
+
+            <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended partners">
+              <ul className="space-y-2 text-sm">
+                <li className="rounded-2xl border border-border/60 bg-background p-3">
+                  <p className="font-medium">The Kennedy Collective</p>
+                  <p className="text-xs text-muted-foreground">Reached out — waiting on intake call.</p>
+                </li>
+                <li className="rounded-2xl border border-border/60 bg-background p-3">
+                  <p className="font-medium">BRS Regional Offices</p>
+                  <p className="text-xs text-muted-foreground">Bookmarked for summer planning.</p>
+                </li>
+              </ul>
             </Panel>
 
             <Panel icon={<Clock className="h-5 w-5" />} title="Recent activity">

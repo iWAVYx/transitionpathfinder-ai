@@ -23,6 +23,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          is_demo: boolean
           pathway_report_id: string | null
           priority: string
           related_goal_area: string | null
@@ -39,6 +40,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          is_demo?: boolean
           pathway_report_id?: string | null
           priority?: string
           related_goal_area?: string | null
@@ -55,6 +57,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          is_demo?: boolean
           pathway_report_id?: string | null
           priority?: string
           related_goal_area?: string | null
@@ -450,6 +453,7 @@ export type Database = {
           event_date: string
           event_type: string
           id: string
+          is_demo: boolean
           location: string | null
           meeting_link: string | null
           owner_user_id: string
@@ -479,6 +483,7 @@ export type Database = {
           event_date: string
           event_type?: string
           id?: string
+          is_demo?: boolean
           location?: string | null
           meeting_link?: string | null
           owner_user_id: string
@@ -508,6 +513,7 @@ export type Database = {
           event_date?: string
           event_type?: string
           id?: string
+          is_demo?: boolean
           location?: string | null
           meeting_link?: string | null
           owner_user_id?: string
@@ -1167,6 +1173,7 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          is_demo: boolean
           measurable_criteria: string | null
           position: number
           status: string
@@ -1181,6 +1188,7 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          is_demo?: boolean
           measurable_criteria?: string | null
           position?: number
           status?: string
@@ -1195,6 +1203,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          is_demo?: boolean
           measurable_criteria?: string | null
           position?: number
           status?: string
@@ -2385,6 +2394,7 @@ export type Database = {
           id: string
           iep_transition_translator: Json | null
           intake_id: string
+          is_demo: boolean
           meeting_prep_summary: Json | null
           missing_information: Json | null
           model: string
@@ -2412,6 +2422,7 @@ export type Database = {
           id?: string
           iep_transition_translator?: Json | null
           intake_id: string
+          is_demo?: boolean
           meeting_prep_summary?: Json | null
           missing_information?: Json | null
           model: string
@@ -2439,6 +2450,7 @@ export type Database = {
           id?: string
           iep_transition_translator?: Json | null
           intake_id?: string
+          is_demo?: boolean
           meeting_prep_summary?: Json | null
           missing_information?: Json | null
           model?: string
@@ -2585,6 +2597,7 @@ export type Database = {
           created_at: string
           evidence: string | null
           id: string
+          is_demo: boolean
           level_label: string | null
           recommendation: string | null
           score: number | null
@@ -2597,6 +2610,7 @@ export type Database = {
           created_at?: string
           evidence?: string | null
           id?: string
+          is_demo?: boolean
           level_label?: string | null
           recommendation?: string | null
           score?: number | null
@@ -2609,6 +2623,7 @@ export type Database = {
           created_at?: string
           evidence?: string | null
           id?: string
+          is_demo?: boolean
           level_label?: string | null
           recommendation?: string | null
           score?: number | null
@@ -3000,6 +3015,7 @@ export type Database = {
           id: string
           invited_by: string
           invited_email: string
+          is_demo: boolean
           role: string
           status: string
           student_id: string
@@ -3011,6 +3027,7 @@ export type Database = {
           id?: string
           invited_by: string
           invited_email: string
+          is_demo?: boolean
           role?: string
           status?: string
           student_id: string
@@ -3022,6 +3039,7 @@ export type Database = {
           id?: string
           invited_by?: string
           invited_email?: string
+          is_demo?: boolean
           role?: string
           status?: string
           student_id?: string
@@ -3269,6 +3287,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_demo: boolean
           pathway_report_id: string | null
           priority_level: string
           reason_recommended: string | null
@@ -3281,6 +3300,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_demo?: boolean
           pathway_report_id?: string | null
           priority_level?: string
           reason_recommended?: string | null
@@ -3293,6 +3313,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_demo?: boolean
           pathway_report_id?: string | null
           priority_level?: string
           reason_recommended?: string | null
@@ -3330,6 +3351,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_demo: boolean
           notes: string | null
           opportunity_id: string | null
           partner_id: string | null
@@ -3341,6 +3363,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_demo?: boolean
           notes?: string | null
           opportunity_id?: string | null
           partner_id?: string | null
@@ -3352,6 +3375,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_demo?: boolean
           notes?: string | null
           opportunity_id?: string | null
           partner_id?: string | null
@@ -3475,6 +3499,7 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
+          is_demo: boolean
           prompt_key: string
           response_text: string
           student_id: string
@@ -3485,6 +3510,7 @@ export type Database = {
           created_at?: string
           created_by: string
           id?: string
+          is_demo?: boolean
           prompt_key: string
           response_text?: string
           student_id: string
@@ -3495,6 +3521,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           id?: string
+          is_demo?: boolean
           prompt_key?: string
           response_text?: string
           student_id?: string
