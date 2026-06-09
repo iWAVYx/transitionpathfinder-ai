@@ -826,12 +826,15 @@ function HomePage() {
       <section className="relative isolate overflow-hidden">
         <ParallaxImage
           src={roadImg}
+          srcSet={roadSrcSet}
+          sizes="100vw"
           alt="A winding road through fields at sunset"
           width={1920}
           height={1080}
           speed={0.5}
           className="absolute inset-0 -z-10 h-full w-full"
         />
+
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-foreground/85 via-foreground/65 to-foreground/30" />
         <FloatingShape className="pointer-events-none absolute right-10 top-10 z-0 hidden h-20 w-20 text-background/70 md:block" delay={0.4} duration={18}>
           <PaperPlane className="h-full w-full" />
