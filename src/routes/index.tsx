@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
+import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
 const heroSrcSet = photoSrcSet(HERO_ID);
@@ -1103,29 +1104,25 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
   return (
     <div ref={sectionRef} className="relative" style={{ height: `${stops * 130}vh` }}>
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
-        {/* CT outline backdrop — soft sketched silhouette of Connecticut */}
-        <svg
+        {/* CT illustrated backdrop — hand-drawn map of Connecticut, blended into the page so it reads as a soft watermark behind the cards. */}
+        <div
           aria-hidden
-          viewBox="0 0 400 260"
-          preserveAspectRatio="xMidYMid meet"
-          className="pointer-events-none absolute inset-0 m-auto h-[78vmin] w-[78vmin] text-primary/15"
+          className="pointer-events-none absolute inset-0 m-auto flex items-center justify-center"
         >
-          <path
-            d="M22 92 L70 70 L132 56 L198 48 L266 54 L322 70 L368 92 L378 118 L372 142 L348 168 L320 184 L290 192 L268 188 L260 210 L246 224 L222 218 L210 200 L186 204 L164 196 L138 200 L112 192 L88 178 L66 158 L44 138 L30 116 Z"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            strokeLinejoin="round"
-            strokeDasharray="3 4"
+          <img
+            src={ctMapAsset.url}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-[60vmin] w-[90vmin] max-w-[1100px] object-contain opacity-[0.14] mix-blend-multiply sm:h-[68vmin] sm:w-[88vmin] lg:h-[78vmin] lg:w-[82vmin] dark:opacity-25 dark:invert dark:mix-blend-screen"
+            style={{
+              maskImage:
+                "radial-gradient(ellipse at center, black 55%, transparent 92%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse at center, black 55%, transparent 92%)",
+            }}
           />
-          <path
-            d="M22 92 L70 70 L132 56 L198 48 L266 54 L322 70 L368 92"
-            fill="none"
-            stroke="currentColor"
-            strokeOpacity="0.7"
-            strokeWidth="0.8"
-          />
-        </svg>
+        </div>
         {/* Map backdrop grid */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.25]"
