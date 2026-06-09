@@ -55,8 +55,14 @@ export const Route = createFileRoute("/framework")({
           "Grade 9 to graduation: settle in, try things on, begin to choose, hand off with confidence.",
       },
       { property: "og:url", content: "/framework" },
+      { property: "og:image", content: frameworkHero },
     ],
-    links: [{ rel: "canonical", href: "/framework" }],
+    links: [
+      { rel: "canonical", href: "/framework" },
+      { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
+      { rel: "preload", as: "image", href: frameworkHero, imagesrcset: frameworkHeroSrcSet, imagesizes: "100vw", fetchpriority: "high" },
+    ],
+
   }),
   component: FrameworkPage,
 });
