@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarRange,
   CheckCircle2,
-  Circle,
   Sparkles,
   ArrowRight,
   Download,
@@ -15,19 +15,27 @@ import {
   DemoStepFooter,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
+import {
+  EXTENDED_PLANS,
+  HORIZON_META,
+  type PlanHorizon,
+} from "@/lib/demo-extended-plans";
+import {
+  PlanHorizonTabs,
+  RichPlanStepCard,
+} from "@/components/pathway/PlanHorizon";
 
 export const Route = createFileRoute("/demo_/plan")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "30-Day Action Plan — TransitionForward demo" },
+      { title: "30 / 60 / 90-Day Action Plan — TransitionForward demo" },
       {
         name: "description",
         content:
-          "See the 30-day action plan TransitionForward generates from the Pathway Report — one focused step per week.",
+          "Switch between 30, 60, and 90-day action plans TransitionForward generates from the Pathway Report — comprehensive, week-by-week, with owners and outcomes.",
       },
       { property: "og:url", content: "/demo/plan" },
     ],
@@ -40,8 +48,19 @@ function DemoPlanPage() {
   const { s } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile, report } = bundle;
-  const plan = report.thirty_day_plan;
   const familyPlan = report.family_action_plan;
+
+  const studentKey = bundle.id;
+  const plans = EXTENDED_PLANS[studentKey];
+  const [horizon, setHorizon] = useState<PlanHorizon>("thirty");
+  const steps = plans[horizon];
+  const meta = HORIZON_META[horizon];
+
+  const counts: Record<PlanHorizon, number> = {
+    thirty: plans.thirty.length,
+    sixty: plans.sixty.length,
+    ninety: plans.ninety.length,
+  };
 
   return (
     <SiteShell>
@@ -53,15 +72,12 @@ function DemoPlanPage() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                30-Day Action Plan
+                {meta.label}
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {profile.first_name}'s next four weeks
+                {profile.first_name}'s next {meta.days} days
               </h1>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                One real step per week — small enough to actually do, big enough to move the
-                pathway forward.
-              </p>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{meta.tagline}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">
@@ -72,48 +88,20 @@ function DemoPlanPage() {
               </Button>
             </div>
           </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
+            <p className="text-xs text-muted-foreground">
+              Each step has an owner, a time estimate, and what success looks like.
+            </p>
+          </div>
         </div>
 
         {/* Weekly timeline */}
-        <div className="mt-8 relative">
-          {/* connecting line */}
-          <div className="absolute left-[27px] top-2 bottom-2 hidden w-px bg-gradient-to-b from-primary via-primary/50 to-transparent sm:block" />
+        <div className="mt-8">
           <ol className="space-y-4">
-            {plan.map((step, i) => (
-              <li
-                key={step.week}
-                className="relative flex gap-4 rounded-3xl border bg-card p-5 shadow-soft sm:p-6"
-              >
-                <div className="flex flex-col items-center">
-                  <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
-                    <div className="text-center leading-tight">
-                      <div className="text-[9px] font-semibold uppercase tracking-wider opacity-80">
-                        Week
-                      </div>
-                      <div className="font-display text-xl">{step.week}</div>
-                    </div>
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                    {weekLabel(i)}
-                  </Badge>
-                  <p className="mt-2 font-display text-lg leading-snug text-foreground">
-                    {step.action}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                    <Chip>Owner: family + case manager</Chip>
-                    <Chip>≈ 30 min</Chip>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  aria-label="Mark complete (demo)"
-                  className="self-start text-muted-foreground hover:text-primary"
-                >
-                  <Circle className="h-5 w-5" />
-                </button>
-              </li>
+            {steps.map((step) => (
+              <RichPlanStepCard key={`${horizon}-${step.week}`} step={step} />
             ))}
           </ol>
         </div>
@@ -162,18 +150,6 @@ function DemoPlanPage() {
         <DemoStepFooter current="plan" student={s} />
       </section>
     </SiteShell>
-  );
-}
-
-function weekLabel(i: number) {
-  return ["Read & align", "Reach out", "Visit & explore", "Show up prepared"][i] ?? "Step";
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground/70">
-      {children}
-    </span>
   );
 }
 

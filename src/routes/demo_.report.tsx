@@ -12,6 +12,7 @@ import {
 import { ReportView } from "@/components/pathway/ReportView";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
+import { EXTENDED_PLANS } from "@/lib/demo-extended-plans";
 
 export const Route = createFileRoute("/demo_/report")({
   validateSearch: validateStudentSearch,
@@ -160,6 +161,7 @@ function DemoReportPage() {
         name={student.first_name}
         report={report}
         demo
+        extendedPlans={EXTENDED_PLANS[bundle.id]}
         meta={{
           reportId,
           preparedFor: `${student.full_name} · ${student.grade} · ${student.school}`,
@@ -169,6 +171,7 @@ function DemoReportPage() {
           confidentiality: `Confidential — for ${student.first_name}, family, and authorized ${student.school} team members`,
         }}
       />
+
 
       <section className="mx-auto max-w-[92rem] px-4 pb-6 sm:px-6 lg:px-8">
         <DemoStepFooter current="report" student={s} />

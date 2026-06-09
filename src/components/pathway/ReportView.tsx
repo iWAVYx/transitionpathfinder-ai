@@ -63,6 +63,8 @@ import {
 } from "@/lib/report-view-prefs";
 
 import { toTitleCase } from "@/lib/title-case";
+import { HORIZON_META, type PlanHorizon } from "@/lib/demo-extended-plans";
+import { PlanHorizonTabs, RichPlanStepCard, SimpleWeekCard } from "@/components/pathway/PlanHorizon";
 
 type Audience = "family" | "educator";
 
@@ -116,6 +118,7 @@ export function ReportView({
   demo = false,
   meta,
   studentId,
+  extendedPlans,
 }: {
   name: string;
   report: PathwayReport;
@@ -128,6 +131,7 @@ export function ReportView({
   demo?: boolean;
   meta?: ReportMeta;
   studentId?: string;
+  extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
@@ -1220,19 +1224,9 @@ export function ReportView({
         </Block>
       )}
 
-      {/* ============ 30-Day Plan (always) ============ */}
-      <Block id="sec-thirty-day" title="A Gentle 30-Day Plan" icon={<Calendar className="h-5 w-5" />}>
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {r.thirty_day_plan.map((w) => (
-            <li key={w.week} className="rounded-2xl border border-border/60 bg-card p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Week {w.week}
-              </p>
-              <p className="mt-1 text-sm text-foreground">{w.action}</p>
-            </li>
-          ))}
-        </ol>
-      </Block>
+      {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
+      <PlanBlock report={r} extendedPlans={extendedPlans} />
+
 
       {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
       {audience === "educator" && !r.teacher_action_plan && (
@@ -2251,4 +2245,49 @@ function ReportTOC({
     </nav>
   );
 }
+
+function PlanBlock({
+  report,
+  extendedPlans,
+}: {
+  report: PathwayReport;
+  extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
+}) {
+  const [horizon, setHorizon] = useState<PlanHorizon>("thirty");
+  const meta = HORIZON_META[horizon];
+
+  if (!extendedPlans) {
+    return (
+      <Block id="sec-thirty-day" title="A Gentle 30-Day Plan" icon={<Calendar className="h-5 w-5" />}>
+        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {report.thirty_day_plan.map((w) => (
+            <SimpleWeekCard key={w.week} week={w.week} action={w.action} />
+          ))}
+        </ol>
+      </Block>
+    );
+  }
+
+  const steps = extendedPlans[horizon];
+  const counts: Record<PlanHorizon, number> = {
+    thirty: extendedPlans.thirty.length,
+    sixty: extendedPlans.sixty.length,
+    ninety: extendedPlans.ninety.length,
+  };
+
+  return (
+    <Block id="sec-thirty-day" title="A Gentle Action Plan" icon={<Calendar className="h-5 w-5" />}>
+      <div className="flex flex-wrap items-center gap-3">
+        <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
+        <p className="text-xs text-muted-foreground">{meta.tagline}</p>
+      </div>
+      <ol className="mt-5 space-y-4">
+        {steps.map((step) => (
+          <RichPlanStepCard key={`${horizon}-${step.week}`} step={step} />
+        ))}
+      </ol>
+    </Block>
+  );
+}
+
 
