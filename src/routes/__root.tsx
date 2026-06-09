@@ -15,6 +15,7 @@ import { ScrollToTop } from "@/components/site/ScrollToTop";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { DemoBanner } from "@/components/site/DemoBanner";
+import { registerServiceWorker } from "@/pwa/register-sw";
 
 
 import appCss from "../styles.css?url";
