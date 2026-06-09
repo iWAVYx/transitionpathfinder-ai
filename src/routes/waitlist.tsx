@@ -280,7 +280,7 @@ function WaitlistPage() {
 
 
           {!done && current && (
-            <div className="mt-10 grid gap-6 md:grid-cols-5">
+            <div id="waitlist-form" className="mt-10 grid scroll-mt-24 gap-6 md:grid-cols-5">
               <aside className="rounded-3xl border bg-card p-6 shadow-soft md:col-span-2">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
                   {current.icon}
