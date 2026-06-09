@@ -4,12 +4,17 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Sparkles, HeartHandshake, Compass, Users, BookOpen } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { photos } from "@/lib/photos";
+import { photos, srcSetFor } from "@/lib/photos";
 import { toTitleCase } from "@/lib/title-case";
 const aboutHero = photos.about;
+const aboutHeroSrcSet = srcSetFor("about");
 const aboutStudent = photos.aboutStudent;
+const aboutStudentSrcSet = srcSetFor("aboutStudent");
 const pathCollege = photos.pathCollege;
+const pathCollegeSrcSet = srcSetFor("pathCollege");
 const pathCareer = photos.pathCareer;
+const pathCareerSrcSet = srcSetFor("pathCareer");
+
 
 export const Route = createFileRoute("/about")({
   head: () => ({
