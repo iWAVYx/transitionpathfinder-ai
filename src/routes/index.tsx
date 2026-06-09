@@ -1037,6 +1037,11 @@ function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title:
 
 function ImpactMap({ items }: { items: ImpactItem[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const watermarkImgRef = useRef<HTMLImageElement>(null);
+
+  // Log + report whenever accessibility prefs cause the CT map watermark
+  // to be hidden or dimmed by the safeguard CSS rules.
+  useEffect(() => observeWatermarkSafeguards(watermarkImgRef.current), []);
   const [active, setActive] = useState<number>(-1);
   const stops = items.length + 1; // overview + each card
 
