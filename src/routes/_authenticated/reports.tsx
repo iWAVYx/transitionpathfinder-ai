@@ -181,11 +181,11 @@ function ReportsPage() {
             </p>
           )}
           {filtered.length > 0 && (
-            <ul className="grid gap-3">
+            <ul className={`grid ${compact ? "gap-1.5 sm:grid-cols-2 lg:grid-cols-3" : "gap-3"}`}>
               {filtered.map((r) => (
                 <li
                   key={r.id}
-                  className="group rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
+                  className={`group rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${compact ? "p-3" : "p-5"}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <Link
