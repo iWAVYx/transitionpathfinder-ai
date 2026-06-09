@@ -317,9 +317,14 @@ function Chapter({
               <motion.img
                 style={{ scale: imgScale }}
                 src={chapter.img}
+                srcSet={chapter.imgSrcSet}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                loading="lazy"
+                decoding="async"
                 alt=""
                 className="h-full w-full object-cover sepia-[0.08] saturate-[0.95]"
               />
+
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" />
               <figcaption className="absolute bottom-3 left-4 right-4 font-display text-[10px] italic tracking-wide text-background/90 sm:bottom-4 sm:left-5 sm:right-5 sm:text-[11px]">
                 Plate {String(index + 1).padStart(2, "0")} — {chapter.eyebrow}.
