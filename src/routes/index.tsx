@@ -633,14 +633,14 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-1 md:col-span-2"
-            image={pathLifeskills}
-            srcSet={pathLifeskillsSrcSet}
+            image={studentPhoneMapShot.url}
             sizes="(min-width: 768px) 17vw, 50vw"
             sticker={stickerLifeskills}
             label="Life Skills"
             caption="Cooking, transit, money, daily independence."
             compact
             pathwayId="life-skills"
+            objectPosition="60% 40%"
           />
           <PathwayTile
             className="col-span-1 md:col-span-2"
