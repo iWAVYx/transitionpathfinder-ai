@@ -21,6 +21,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
+import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
 const heroSrcSet = photoSrcSet(HERO_ID);
@@ -1036,6 +1037,11 @@ function ImpactCard({ icon: Icon, title, body }: { icon: typeof Sparkles; title:
 
 function ImpactMap({ items }: { items: ImpactItem[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const watermarkImgRef = useRef<HTMLImageElement>(null);
+
+  // Log + report whenever accessibility prefs cause the CT map watermark
+  // to be hidden or dimmed by the safeguard CSS rules.
+  useEffect(() => observeWatermarkSafeguards(watermarkImgRef.current), []);
   const [active, setActive] = useState<number>(-1);
   const stops = items.length + 1; // overview + each card
 
@@ -1112,6 +1118,7 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
           className="ct-watermark pointer-events-none absolute inset-0 m-auto flex items-center justify-center"
         >
           <img
+            ref={watermarkImgRef}
             src={ctMapAsset.url}
             alt=""
             loading="lazy"
