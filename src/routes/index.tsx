@@ -78,17 +78,17 @@ import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TransitionForward — From IEP goals to real-life pathways" },
+      { title: "TransitionForward — From IEP Goals to Real-Life Pathways." },
       {
         name: "description",
         content:
           "TransitionForward helps students with disabilities, families, and educators plan life after high school — all in one platform.",
       },
-      { property: "og:title", content: "TransitionForward — From IEP goals to real-life pathways" },
+      { property: "og:title", content: "TransitionForward — From IEP Goals to Real-Life Pathways." },
       {
         property: "og:description",
         content:
-          "One platform. One plan. Forward together. Expert-built Pathway planning for Connecticut families, students, and educators.",
+          "One Platform. One Plan. Forward Together. Expert-built Pathway planning for Connecticut families, students, and educators.",
       },
       { property: "og:url", content: "/" },
       { property: "og:image", content: heroImg },
@@ -100,12 +100,12 @@ export const Route = createFileRoute("/")({
 
 const HERO_DEFAULTS = {
   eyebrow: "Transition planning, made human",
-  headline_lead: "From IEP goals to",
+  headline_lead: "From IEP Goals to",
   headline_accent: "real-life",
   headline_tail: "pathways.",
   subhead:
     "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after high school — together.",
-  tagline: "One platform. One plan. Forward together.",
+  tagline: "One Platform. One Plan. Forward Together.",
   cta_primary_label: "Join the waitlist",
   cta_secondary_label: "Try the live demo",
 };

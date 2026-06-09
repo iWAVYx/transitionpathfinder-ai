@@ -60,7 +60,7 @@ export function SiteFooter() {
             </span>
           </Link>
           <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
-            From IEP goals to real-life pathways. One platform for the students,
+            From IEP Goals to Real-Life Pathways. One platform for the students,
             families, and educators walking the long road of transition together.
           </p>
           <p className="mt-4 max-w-md text-xs leading-relaxed text-muted-foreground/80">
@@ -86,7 +86,7 @@ export function SiteFooter() {
       <div className="border-t border-border/60 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} TransitionForward. Made with care in Connecticut.</p>
-          <p className="italic">One platform. One plan. Forward together.</p>
+          <p className="italic">One Platform. One Plan. Forward Together.</p>
         </div>
       </div>
     </footer>
