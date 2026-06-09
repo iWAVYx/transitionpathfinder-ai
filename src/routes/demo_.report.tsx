@@ -67,7 +67,7 @@ function DemoReportPage() {
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
-          className="mx-auto max-w-5xl px-4 pb-16 pt-12 sm:px-6 lg:px-8"
+          className="mx-auto max-w-[92rem] px-4 pb-10 pt-8 sm:px-6 lg:px-8"
         >
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -170,7 +170,7 @@ function DemoReportPage() {
         }}
       />
 
-      <section className="mx-auto max-w-5xl px-4 pb-6 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-[92rem] px-4 pb-6 sm:px-6 lg:px-8">
         <DemoStepFooter current="report" student={s} />
       </section>
     </SiteShell>

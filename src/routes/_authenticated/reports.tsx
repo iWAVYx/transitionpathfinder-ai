@@ -3,7 +3,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, FolderOpen, Search, UserCircle2, FileText } from "lucide-react";
+import { Sparkles, FolderOpen, Search, UserCircle2, FileText, Rows3, LayoutGrid } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -26,6 +26,16 @@ function ReportsPage() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortKey>("newest");
   const [filter, setFilter] = useState<"all" | "linked" | "unlinked">("all");
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    try {
+      const v = typeof window !== "undefined" ? localStorage.getItem("tf.viewDensity") : null;
+      return v === "comfortable" ? "comfortable" : "compact";
+    } catch { return "compact"; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("tf.viewDensity", density); } catch { /* ignore */ }
+  }, [density]);
+  const compact = density === "compact";
 
   useEffect(() => {
     list()
@@ -72,13 +82,13 @@ function ReportsPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <section className={`mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "max-w-[88rem] py-6 lg:py-8" : "max-w-5xl py-10 lg:py-14"}`}>
         <Breadcrumbs trail={[{ label: "My Pathway Reports" }]} />
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">Your library</p>
-            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">My Pathway Reports</h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            <h1 className={`mt-2 font-display font-medium tracking-tight ${compact ? "text-2xl sm:text-3xl" : "text-4xl sm:text-5xl"}`}>My Pathway Reports</h1>
+            <p className={`mt-3 max-w-xl leading-relaxed text-muted-foreground ${compact ? "text-xs" : "text-sm"}`}>
               Every report you generate is saved here. Open one to revisit it, share it, or link it to
               a student in your roster.
             </p>
@@ -120,9 +130,31 @@ function ReportsPage() {
               <option value="oldest">Oldest first</option>
               <option value="name">By name</option>
             </select>
-            <p className="ml-auto text-xs text-muted-foreground">
-              {filtered.length} of {rows.length}
-            </p>
+            <div className="ml-auto flex items-center gap-2">
+              <div className="inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
+                <button
+                  type="button"
+                  onClick={() => setDensity("compact")}
+                  className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={compact}
+                  aria-label="Compact view"
+                >
+                  <Rows3 className="h-3.5 w-3.5" aria-hidden /> Compact
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDensity("comfortable")}
+                  className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${!compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={!compact}
+                  aria-label="Comfortable view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" aria-hidden /> Comfortable
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {filtered.length} of {rows.length}
+              </p>
+            </div>
           </div>
         )}
 
@@ -149,11 +181,11 @@ function ReportsPage() {
             </p>
           )}
           {filtered.length > 0 && (
-            <ul className="grid gap-3">
+            <ul className={`grid ${compact ? "gap-1.5 sm:grid-cols-2 lg:grid-cols-3" : "gap-3"}`}>
               {filtered.map((r) => (
                 <li
                   key={r.id}
-                  className="group rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-lift"
+                  className={`group rounded-2xl border border-border/60 bg-card shadow-soft transition-shadow hover:shadow-lift ${compact ? "p-3" : "p-5"}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <Link
@@ -163,7 +195,7 @@ function ReportsPage() {
                     >
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 shrink-0 text-primary" />
-                        <p className="font-display text-xl font-medium tracking-tight">
+                        <p className={`font-display font-medium tracking-tight ${compact ? "text-sm" : "text-xl"}`}>
                           {r.student_first_name}
                         </p>
                         {r.grade_band && (
@@ -179,11 +211,11 @@ function ReportsPage() {
                         )}
                       </div>
                       {r.summary && (
-                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                        <p className={`mt-1.5 line-clamp-2 text-muted-foreground ${compact ? "text-xs" : "text-sm"}`}>
                           {r.summary}
                         </p>
                       )}
-                      <p className="mt-2 text-xs text-muted-foreground">
+                      <p className={`mt-1.5 text-muted-foreground ${compact ? "text-[11px]" : "text-xs"}`}>
                         Created{" "}
                         {new Date(r.created_at).toLocaleDateString(undefined, {
                           year: "numeric",

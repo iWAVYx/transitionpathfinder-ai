@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   BookOpen,
@@ -280,6 +280,16 @@ function DemoResourcesPage() {
   const [active, setActive] = useState<CategoryId>("all");
   const [q, setQ] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    try {
+      const v = typeof window !== "undefined" ? localStorage.getItem("tf.viewDensity") : null;
+      return v === "comfortable" ? "comfortable" : "compact";
+    } catch { return "compact"; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("tf.viewDensity", density); } catch { /* ignore */ }
+  }, [density]);
+  const compact = density === "compact";
 
   const matched = useMemo(() => {
     return RESOURCES.filter((r) => {
@@ -298,7 +308,7 @@ function DemoResourcesPage() {
     <SiteShell>
       <DemoStepBar current="resources" student={s} />
 
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className={`mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "max-w-[88rem] py-6" : "max-w-6xl py-10"}`}>
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
             Resource Hub
@@ -330,6 +340,24 @@ function DemoResourcesPage() {
               <Filter className="h-4 w-4" />
               {showAll ? "Showing all" : `Matched to ${profile.first_name}`}
             </Button>
+            <div className="ml-auto inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
+              <button
+                type="button"
+                onClick={() => setDensity("compact")}
+                className={`rounded px-2 py-1 text-xs ${compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                aria-pressed={compact}
+              >
+                Compact
+              </button>
+              <button
+                type="button"
+                onClick={() => setDensity("comfortable")}
+                className={`rounded px-2 py-1 text-xs ${!compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                aria-pressed={!compact}
+              >
+                Comfortable
+              </button>
+            </div>
           </div>
 
           {/* Categories */}
@@ -356,9 +384,9 @@ function DemoResourcesPage() {
         </div>
 
         {/* Results */}
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className={`mt-6 grid ${compact ? "gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "gap-4 md:grid-cols-2"}`}>
           {matched.map((r) => (
-            <ResourceCard key={r.id} r={r} />
+            <ResourceCard key={r.id} r={r} compact={compact} />
           ))}
           {matched.length === 0 && (
             <div className="col-span-full rounded-3xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
@@ -373,25 +401,25 @@ function DemoResourcesPage() {
   );
 }
 
-function ResourceCard({ r }: { r: Resource }) {
+function ResourceCard({ r, compact = false }: { r: Resource; compact?: boolean }) {
   return (
-    <article className="rounded-3xl border bg-card p-5 shadow-soft transition-shadow hover:shadow-lift sm:p-6">
+    <article className={`rounded-3xl border bg-card shadow-soft transition-shadow hover:shadow-lift ${compact ? "p-3" : "p-5 sm:p-6"}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
             {r.format}
           </Badge>
-          <h3 className="mt-2 font-display text-lg leading-snug">{r.title}</h3>
+          <h3 className={`mt-1.5 font-display leading-snug ${compact ? "text-sm" : "text-lg"}`}>{r.title}</h3>
         </div>
         <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
       </div>
-      <dl className="mt-4 space-y-3 text-sm">
+      <dl className={`text-sm ${compact ? "mt-2 space-y-1.5" : "mt-4 space-y-3"}`}>
         <Row label="What it is" value={r.what_it_is} />
         <Row label="Who it helps" value={r.who_it_helps} />
         <Row label="Why it matters" value={r.why_it_matters} />
         <Row label="How to use it" value={r.how_to_use} />
       </dl>
-      <p className="mt-4 text-[11px] text-muted-foreground">Source · {r.source}</p>
+      <p className={`text-[11px] text-muted-foreground ${compact ? "mt-2" : "mt-4"}`}>Source · {r.source}</p>
     </article>
   );
 }
