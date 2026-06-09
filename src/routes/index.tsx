@@ -1321,12 +1321,16 @@ function TrustPillar({
 
 function AudiencePhoto({
   image,
+  srcSet,
+  sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
   alt,
   title,
   body,
   cta,
 }: {
   image: string;
+  srcSet?: string;
+  sizes?: string;
   alt: string;
   title: string;
   body: string;
@@ -1339,11 +1343,15 @@ function AudiencePhoto({
     >
       <img
         src={image}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         loading="lazy"
+        decoding="async"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
+
       <div className="absolute inset-x-0 bottom-0 p-7 text-background">
         <h3 className="font-display text-3xl font-medium tracking-tight">
           {toTitleCase(title)}
