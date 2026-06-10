@@ -99,22 +99,31 @@ function DemoHubPage() {
 
   const activity = [
     {
-      icon: <FileText className="h-4 w-4" />,
+      icon: <FileText className="h-3.5 w-3.5" />,
       text: "Pathway Report generated and shared with case manager",
       when: "2 days ago",
     },
-    { icon: <Upload className="h-4 w-4" />, text: "Document uploaded", when: "5 days ago" },
+    { icon: <Upload className="h-3.5 w-3.5" />, text: "Document uploaded", when: "5 days ago" },
     {
-      icon: <MessageSquare className="h-4 w-4" />,
+      icon: <MessageSquare className="h-3.5 w-3.5" />,
       text: `${student.case_manager} added a note about an upcoming placement`,
       when: "1 week ago",
     },
     {
-      icon: <Target className="h-4 w-4" />,
+      icon: <Target className="h-3.5 w-3.5" />,
       text: "Goal progress updated",
       when: "2 weeks ago",
     },
   ];
+
+  const avgGoalProgress = goals.length
+    ? Math.round(goals.reduce((s, g) => s + g.progress, 0) / goals.length)
+    : 0;
+  const readinessLevel = report.student_snapshot?.readiness_level ?? "developing";
+  const readinessPct =
+    readinessLevel === "ready" ? 85 : readinessLevel === "emerging" ? 25 : 55;
+
+
 
 
   return (
