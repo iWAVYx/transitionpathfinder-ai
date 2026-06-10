@@ -49,7 +49,7 @@ export function DemoStepBar({ current, student }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="gap-1">
-              <Sparkles className="h-3 w-3" /> Demo · step {idx + 1} of {DEMO_STEPS.length}
+              <Sparkles className="h-3 w-3" /> Demo workspace
             </Badge>
             <Badge variant="outline" className="gap-1">
               <ShieldCheck className="h-3 w-3" /> Fictional student · no real data
