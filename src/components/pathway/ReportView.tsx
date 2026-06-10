@@ -63,8 +63,8 @@ import {
 } from "@/lib/report-view-prefs";
 
 import { toTitleCase } from "@/lib/title-case";
-import { HORIZON_META, type PlanHorizon } from "@/lib/demo-extended-plans";
-import { PlanHorizonTabs, RichPlanStepCard, SimpleWeekCard } from "@/components/pathway/PlanHorizon";
+import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
+import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
 
 type Audience = "family" | "educator";
 
