@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Target, UserRound, Trophy } from "lucide-react";
+import { CheckCircle2, Clock, Target, UserRound, Trophy, Users, GraduationCap, Gauge } from "lucide-react";
 import type { RichPlanStep, PlanHorizon } from "@/lib/demo-extended-plans";
 import { HORIZON_META } from "@/lib/demo-extended-plans";
 import { cn } from "@/lib/utils";
