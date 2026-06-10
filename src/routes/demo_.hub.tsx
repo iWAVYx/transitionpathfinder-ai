@@ -372,25 +372,72 @@ function StatTile({
   value,
   hint,
   icon,
+  progress,
 }: {
   label: string;
   value: string;
   hint: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  progress?: number;
 }) {
   return (
     <div className="rounded-2xl border border-border/60 bg-background p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          {label}
-        </p>
-        <span className="text-primary">{icon}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {label}
+          </p>
+          <p className="mt-2 font-display text-xl">{value}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
+        </div>
+        {typeof progress === "number" ? (
+          <RingProgress value={progress} />
+        ) : (
+          <span className="text-primary">{icon}</span>
+        )}
       </div>
-      <p className="mt-2 font-display text-xl">{value}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }
+
+function RingProgress({ value, size = 44 }: { value: number; size?: number }) {
+  const stroke = 4;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(100, value));
+  const offset = c - (clamped / 100) * c;
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="currentColor"
+          strokeWidth={stroke}
+          fill="none"
+          className="text-muted"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="currentColor"
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="text-primary transition-all duration-500"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-primary">
+        {clamped}%
+      </span>
+    </div>
+  );
+}
+
 
 function Panel({
   icon,
