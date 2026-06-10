@@ -53,8 +53,8 @@ const pathLifeskillsSrcSet = srcSetFor("pathLifeskills");
 const pathProgress = photos.pathProgress;
 const pathProgressSrcSet = srcSetFor("pathProgress");
 const dashboardImg = photos.dashboard;
-const iepUploadImg = photos.iepUpload;
-const iepUploadSrcSet = srcSetFor("iepUpload");
+import iepUploadAsset from "@/assets/iep-upload-buried.png.asset.json";
+const iepUploadImg = iepUploadAsset.url;
 const layerOrganizeImg = photos.layerOrganize;
 const layerOrganizeSrcSet = srcSetFor("layerOrganize");
 const layerGenerateImg = photos.layerGenerate;
@@ -560,7 +560,6 @@ function HomePage() {
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={iepUploadImg}
-            srcSet={iepUploadSrcSet}
             label="IEP upload & summary"
             caption="Drop in the document — we read it and surface what matters in plain language."
             aspect="aspect-[4/3]"
