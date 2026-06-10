@@ -161,20 +161,22 @@ function DemoHubPage() {
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Active goals" value={String(goals.length)} hint="2 in progress" icon={<Target className="h-4 w-4" />} />
+            <StatTile
+              label="Active goals"
+              value={String(goals.length)}
+              hint={`${avgGoalProgress}% avg progress`}
+              progress={avgGoalProgress}
+            />
             <StatTile label="Documents" value={String(documents.length)} hint="IEP up to date" icon={<FileText className="h-4 w-4" />} />
             <StatTile
               label="Overall readiness"
-              value={
-                report.student_snapshot?.readiness_level
-                  ? toTitleCase(report.student_snapshot.readiness_level)
-                  : "Developing"
-              }
+              value={toTitleCase(readinessLevel)}
               hint="Trending up"
-              icon={<Sparkles className="h-4 w-4" />}
+              progress={readinessPct}
             />
-            <StatTile label="Privacy" value="Family-controlled" hint="3 collaborators" icon={<Lock className="h-4 w-4" />} />
+            <StatTile label="Privacy" value="Family-led" hint="3 collaborators" icon={<Lock className="h-4 w-4" />} />
           </div>
+
 
           <div className="mt-6 flex flex-wrap gap-2">
             {(report.student_snapshot?.primary_interests ?? []).slice(0, 4).map((interest) => (
