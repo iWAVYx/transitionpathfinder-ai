@@ -560,7 +560,6 @@ function HomePage() {
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={iepUploadImg}
-            srcSet={iepUploadSrcSet}
             label="IEP upload & summary"
             caption="Drop in the document — we read it and surface what matters in plain language."
             aspect="aspect-[4/3]"
