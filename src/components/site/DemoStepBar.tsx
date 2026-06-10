@@ -82,10 +82,9 @@ export function DemoStepBar({ current, student }: Props) {
 
         {/* Step rail */}
         <nav aria-label="Demo walkthrough steps" className="no-scrollbar -mx-1 mt-3 flex flex-nowrap justify-start lg:justify-center gap-1 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-3 px-1 sm:px-0">
-          {DEMO_STEPS.map((s, i) => {
+          {DEMO_STEPS.map((s) => {
             const Icon = s.icon;
             const active = s.id === current;
-            const done = i < idx;
             return (
               <Link
                 key={s.id}
@@ -94,22 +93,9 @@ export function DemoStepBar({ current, student }: Props) {
                 className={`group inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors snap-start ${
                   active
                     ? "border-primary bg-primary text-primary-foreground"
-                    : done
-                      ? "border-primary/40 bg-primary/10 text-foreground"
-                      : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                    : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <span
-                  className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] ${
-                    active
-                      ? "bg-primary-foreground/20"
-                      : done
-                        ? "bg-primary/15"
-                        : "bg-muted"
-                  }`}
-                >
-                  {i + 1}
-                </span>
                 <Icon className="h-3.5 w-3.5" />
                 <span className="whitespace-nowrap">{s.label}</span>
               </Link>
