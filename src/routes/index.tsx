@@ -53,16 +53,16 @@ const pathLifeskillsSrcSet = srcSetFor("pathLifeskills");
 const pathProgress = photos.pathProgress;
 const pathProgressSrcSet = srcSetFor("pathProgress");
 const dashboardImg = photos.dashboard;
-import iepUploadAsset from "@/assets/iep-upload-buried.png.asset.json";
-const iepUploadImg = iepUploadAsset.url;
+import iepUploadBuriedAsset from "@/assets/iep-upload-buried.png.asset.json";
+import womanHoldingIepAsset from "@/assets/woman-holding-iep.png.asset.json";
+const iepUploadImg = womanHoldingIepAsset.url;
 const layerOrganizeImg = photos.layerOrganize;
 const layerOrganizeSrcSet = srcSetFor("layerOrganize");
 const layerGenerateImg = photos.layerGenerate;
 const layerGenerateSrcSet = srcSetFor("layerGenerate");
 const layerConnectImg = photos.layerConnect;
 const layerConnectSrcSet = srcSetFor("layerConnect");
-const resourcesImg = photos.resources;
-const resourcesSrcSet = srcSetFor("resources");
+const resourcesImg = iepUploadBuriedAsset.url;
 const frameworkImg = photos.framework;
 const frameworkSrcSet = srcSetFor("framework");
 
@@ -566,7 +566,6 @@ function HomePage() {
           />
           <FeatureShot
             image={resourcesImg}
-            srcSet={resourcesSrcSet}
             label="Resource library"
             caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
             aspect="aspect-[4/3]"
