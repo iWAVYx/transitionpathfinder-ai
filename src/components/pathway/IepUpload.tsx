@@ -150,7 +150,7 @@ export function IepUpload({ onExtracted }: Props) {
 
         <div className="relative hidden min-h-[220px] bg-gradient-warm md:block">
           <img
-            src={iepImage}
+            src={iepImage.url}
             alt=""
             aria-hidden
             loading="lazy"
