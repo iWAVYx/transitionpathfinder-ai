@@ -398,17 +398,34 @@ function DemoHubPage() {
                     aria-hidden
                     className="absolute left-[13px] top-2 bottom-2 w-px bg-border/70"
                   />
-                  {activity.map((a, i) => (
-                    <li key={i} className="relative flex gap-3 pl-9">
-                      <span className="absolute left-0 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-card">
-                        {a.icon}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm text-foreground/85">{a.text}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
-                      </div>
-                    </li>
-                  ))}
+                  {activity.map((a, i) => {
+                    const style = a.milestone ? milestoneStyles[a.milestone.kind] : null;
+                    return (
+                      <li key={i} className="relative flex gap-3 pl-9">
+                        <span
+                          className={`absolute left-0 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full ring-4 ring-card ${
+                            style ? `${style.bg} ${style.ring}` : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          {a.icon}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-sm text-foreground/85">{a.text}</p>
+                          <div className="mt-1 flex flex-wrap items-center gap-2">
+                            <p className="text-xs text-muted-foreground">{a.when}</p>
+                            {style && a.milestone && (
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${style.pill}`}
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {style.label} · {a.milestone.goal}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ol>
               </div>
             </section>
