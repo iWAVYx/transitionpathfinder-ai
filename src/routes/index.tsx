@@ -28,7 +28,7 @@ import constructionTrainingShot from "@/assets/construction-training.png.asset.j
 
 import whyWeBuiltThisShot from "@/assets/why-we-built-this.jpg.asset.json";
 import studentsCohortShot from "@/assets/students-cohort.jpg.asset.json";
-import connectShot from "@/assets/connect-shot.png.asset.json";
+import connectShot from "@/assets/construction-final.png.asset.json";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
