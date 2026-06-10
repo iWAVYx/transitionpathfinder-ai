@@ -1837,7 +1837,7 @@ function DocumentContents({
   if (hasLinkedStudent) items.push({ id: "sec-partner-suggestions", label: "Partner Suggestions" });
   if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to Explore" });
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress Timeline" });
-  items.push({ id: "sec-thirty-day", label: "A Gentle 30-Day Plan" });
+  items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
 
   return (
