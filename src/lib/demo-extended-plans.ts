@@ -6,6 +6,12 @@
  * family or case manager can actually run it.
  */
 
+export type ReadinessMetric = {
+  category: string;
+  level: "emerging" | "developing" | "progressing" | "ready";
+  metric: string;
+};
+
 export type RichPlanStep = {
   week: number;
   focus: string;
@@ -14,6 +20,9 @@ export type RichPlanStep = {
   time: string;
   details: string[];
   outcome: string;
+  familyActions?: string[];
+  teacherActions?: string[];
+  readiness?: ReadinessMetric;
 };
 
 export type ExtendedPlans = {
