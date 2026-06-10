@@ -2256,27 +2256,20 @@ function PlanBlock({
   const [horizon, setHorizon] = useState<PlanHorizon>("thirty");
   const meta = HORIZON_META[horizon];
 
-  if (!extendedPlans) {
-    return (
-      <Block id="sec-thirty-day" title="A Gentle 30-Day Plan" icon={<Calendar className="h-5 w-5" />}>
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {report.thirty_day_plan.map((w) => (
-            <SimpleWeekCard key={w.week} week={w.week} action={w.action} />
-          ))}
-        </ol>
-      </Block>
-    );
-  }
+  // Always render a rich 30/60/90 view. If no curated plan was provided
+  // (signed-in / real reports), synthesize one from the report itself so
+  // each horizon reflects this student's actual goals and action plan.
+  const plans = extendedPlans ?? buildExtendedPlansFromReport(report);
 
-  const steps = extendedPlans[horizon];
+  const steps = plans[horizon];
   const counts: Record<PlanHorizon, number> = {
-    thirty: extendedPlans.thirty.length,
-    sixty: extendedPlans.sixty.length,
-    ninety: extendedPlans.ninety.length,
+    thirty: plans.thirty.length,
+    sixty: plans.sixty.length,
+    ninety: plans.ninety.length,
   };
 
   return (
-    <Block id="sec-thirty-day" title="A Gentle Action Plan" icon={<Calendar className="h-5 w-5" />}>
+    <Block id="sec-thirty-day" title="30 / 60 / 90-Day Action Plan" icon={<Calendar className="h-5 w-5" />}>
       <div className="flex flex-wrap items-center gap-3">
         <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
         <p className="text-xs text-muted-foreground">{meta.tagline}</p>
