@@ -123,8 +123,6 @@ export function DemoStepFooter({ current, student }: FooterProps) {
       <div className="text-xs text-muted-foreground">
         Walking with{" "}
         <span className="font-medium text-foreground">{bundle.profile.first_name}</span>
-        {" · "}
-        Step {idx + 1} of {DEMO_STEPS.length}
       </div>
       <div className="flex gap-2">
         {prev ? (
