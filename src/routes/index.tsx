@@ -56,8 +56,8 @@ const dashboardImg = photos.dashboard;
 import iepUploadBuriedAsset from "@/assets/iep-upload-buried.png.asset.json";
 import womanHoldingIepAsset from "@/assets/woman-holding-iep.png.asset.json";
 const iepUploadImg = womanHoldingIepAsset.url;
-const layerOrganizeImg = photos.layerOrganize;
-const layerOrganizeSrcSet = srcSetFor("layerOrganize");
+import glassesPaperworkAsset from "@/assets/glasses-on-paperwork.png.asset.json";
+const layerOrganizeImg = glassesPaperworkAsset.url;
 const layerGenerateImg = photos.layerGenerate;
 const layerGenerateSrcSet = srcSetFor("layerGenerate");
 const layerConnectImg = photos.layerConnect;
@@ -532,7 +532,6 @@ function HomePage() {
         <div className="grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={layerOrganizeImg}
-            srcSet={layerOrganizeSrcSet}
             label="Organize"
             alt="Organize dashboard interface showing student goals and assessments"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
