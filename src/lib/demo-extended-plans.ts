@@ -412,3 +412,256 @@ export const HORIZON_META: Record<PlanHorizon, { label: string; days: number; ta
     tagline: "A full quarter: real-world exposure, travel training, and the next-quarter handoff.",
   },
 };
+
+/* ============================================================
+ * Synthesizer — turn any PathwayReport into a rich 30/60/90 plan.
+ * Used in signed-in mode where we don't have hand-authored extended
+ * plans. Pulls from thirty_day_plan, family_action_plan, teacher_action_plan
+ * and readiness_scorecard so each horizon actually reflects the report.
+ * ============================================================ */
+
+type ReportLike = {
+  thirty_day_plan?: Array<{ week: number; action: string }>;
+  family_action_plan?: {
+    this_week?: string[];
+    this_month?: string[];
+    before_next_meeting?: string[];
+    this_school_year?: string[];
+    before_graduation?: string[];
+  } | null;
+  teacher_action_plan?: {
+    goal_updates?: string[];
+    progress_monitoring?: string[];
+    family_communication?: string[];
+  } | null;
+  readiness_scorecard?: Array<{
+    category: string;
+    level?: string;
+    growth_activity?: string;
+    suggested_goal?: string;
+    what_it_means?: string;
+  }> | null;
+  family_questions_for_ppt?: string[];
+};
+
+const OWNERS = {
+  family: "Family + student",
+  familySolo: "Family",
+  team: "Family + case manager",
+  student: "Student (with family coaching)",
+} as const;
+
+function pickFrom<T>(arr: T[] | undefined | null, i: number, fallback: T): T {
+  if (!arr || arr.length === 0) return fallback;
+  return arr[i % arr.length];
+}
+
+function buildStep(
+  week: number,
+  focus: string,
+  action: string,
+  owner: string,
+  time: string,
+  details: string[],
+  outcome: string,
+): RichPlanStep {
+  const filled = details.filter(Boolean);
+  while (filled.length < 3) {
+    filled.push("Note what worked and what to adjust before next week's step.");
+  }
+  return { week, focus, action, owner, time, details: filled.slice(0, 4), outcome };
+}
+
+export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans {
+  const baseWeeks = (report.thirty_day_plan ?? []).slice(0, 4);
+  const family = report.family_action_plan ?? {};
+  const teacher = report.teacher_action_plan ?? {};
+  const scorecard = (report.readiness_scorecard ?? []).slice(0, 6);
+  const pptQuestions = report.family_questions_for_ppt ?? [];
+
+  /* ---- 30 days: one rich step per thirty_day_plan week ---- */
+  const focusByWeek = [
+    "Align as a family",
+    "Open the school conversation",
+    "Take a first real-world step",
+    "Show up prepared",
+  ];
+  const ownerByWeek = [OWNERS.family, OWNERS.familySolo, OWNERS.family, OWNERS.team];
+  const timeByWeek = ["≈ 45 min", "≈ 20 min", "≈ 60–90 min", "≈ 60 min"];
+
+  const thirty: RichPlanStep[] = baseWeeks.map((w, i) =>
+    buildStep(
+      w.week,
+      focusByWeek[i] ?? `Week ${w.week} focus`,
+      w.action,
+      ownerByWeek[i] ?? OWNERS.family,
+      timeByWeek[i] ?? "≈ 45 min",
+      [
+        pickFrom(family.this_week, i, "Sit down together at a calm time so the conversation isn't rushed."),
+        pickFrom(pptQuestions, i, "Write down one question to bring to the next IEP team meeting."),
+        scorecard[i]?.growth_activity ?? "Connect this step to one strength named in the report.",
+        "Capture a short note or photo so progress shows up in the next IEP review.",
+      ],
+      i === 3
+        ? "The student walks into the next meeting with their family aligned and a written ask."
+        : `By the end of week ${w.week}, the family has finished this step and knows what comes next.`,
+    ),
+  );
+
+  // Pad if thirty_day_plan was short.
+  while (thirty.length < 4) {
+    const idx = thirty.length;
+    thirty.push(
+      buildStep(
+        idx + 1,
+        "First-month follow-through",
+        pickFrom(family.this_week, idx, "Pick one small action from the report and complete it this week."),
+        OWNERS.family,
+        "≈ 30 min",
+        [
+          "Choose a low-pressure time to do this together.",
+          pickFrom(family.this_month, idx, "Tie this step to one goal from the report."),
+          "Write down what worked so the next step is easier.",
+        ],
+        "Momentum keeps building into month two.",
+      ),
+    );
+  }
+
+  /* ---- 60 days: 30-day plan + 4 month-two weeks ---- */
+  const monthTwoSources = [
+    ...(family.this_month ?? []),
+    ...(family.before_next_meeting ?? []),
+  ];
+
+  const sixty: RichPlanStep[] = [
+    ...thirty,
+    buildStep(
+      5,
+      "Skill-build in a real setting",
+      pickFrom(monthTwoSources, 0, "Start one weekly hands-on routine tied to the student's top interest."),
+      OWNERS.family,
+      "≈ 60 min / week",
+      [
+        scorecard[0]?.growth_activity ?? "Pick an activity that mirrors the work the student wants to do.",
+        "Same day, same time each week — predictability is the support.",
+        "Keep a 3-line photo or note journal of what was easy and what was hard.",
+        pickFrom(teacher.family_communication, 0, "Share one update with the case manager so the school sees the work."),
+      ],
+      "The student has a weekly anchor activity they can talk about in interviews and IEP meetings.",
+    ),
+    buildStep(
+      6,
+      "Self-advocacy in practice",
+      scorecard.find((s) => /self.?advocacy|communication/i.test(s.category))?.growth_activity ??
+        pickFrom(monthTwoSources, 1, "Practice asking for one accommodation the student actually needs."),
+      OWNERS.student,
+      "≈ 30 min",
+      [
+        "Pick a low-stakes setting first — ordering at a café, asking a librarian for help.",
+        "Use an I-statement: 'I learn best when ___. Could you ___?'",
+        "Role-play it once at home before the real ask.",
+        "Celebrate the attempt, not the outcome.",
+      ],
+      "The student has spoken up for what they need once in the real world, on their own.",
+    ),
+    buildStep(
+      7,
+      "Agency & eligibility groundwork",
+      pickFrom(monthTwoSources, 2, "Begin the state agency / DDS / BRS eligibility paperwork."),
+      OWNERS.familySolo,
+      "≈ 60 min",
+      [
+        "Call the regional office and ask which forms must be started before age 18.",
+        "Gather the documents listed in the Resources section (eval, school records).",
+        "Put every deadline directly into the shared Calendar with reminders.",
+        "Forward confirmation emails to the case manager for the file.",
+      ],
+      "The agency clock is running and the family knows exactly what's due next.",
+    ),
+    buildStep(
+      8,
+      "Tighten the IEP goal",
+      pickFrom(teacher.goal_updates, 0, "Send the case manager 2 concrete edits to a current IEP goal."),
+      OWNERS.team,
+      "≈ 30 min",
+      [
+        "Re-read the current goal aloud — does the student understand it? If not, it's too vague.",
+        "Add a measurable number (how many times per week, in what setting).",
+        pickFrom(teacher.progress_monitoring, 0, "Specify how progress will be tracked (data sheet, weekly check-in, photo evidence)."),
+        "Send the suggested wording in writing so it lands in the IEP draft.",
+      ],
+      "The next IEP draft has a goal the student can actually see themselves meeting.",
+    ),
+  ];
+
+  /* ---- 90 days: 60-day plan + 4 month-three weeks ---- */
+  const longHorizonSources = [
+    ...(family.this_school_year ?? []),
+    ...(family.before_graduation ?? []),
+  ];
+
+  const ninety: RichPlanStep[] = [
+    ...sixty,
+    buildStep(
+      9,
+      "Try a second real setting",
+      scorecard[1]?.growth_activity ??
+        pickFrom(longHorizonSources, 0, "Visit one more work or training environment in the student's interest area."),
+      OWNERS.family,
+      "≈ 90 min",
+      [
+        "Pick something different from the week-3 setting so the student can compare.",
+        "Ask the same questions as last time — comparison is the learning.",
+        "Notice sensory load (light, sound, smell) and write down what worked.",
+        "Add a third setting to a 'maybe later' list.",
+      ],
+      "The student can compare two real settings and explain which they prefer and why.",
+    ),
+    buildStep(
+      10,
+      "Independence step",
+      scorecard.find((s) => /transport|independent|daily|community/i.test(s.category))?.growth_activity ??
+        pickFrom(longHorizonSources, 1, "Take one short public-transit trip together along a real route the student might use."),
+      OWNERS.family,
+      "≈ 60 min",
+      [
+        "Pre-load the route on the student's phone.",
+        "Do the full trip together — go, transfer, return. Narrate the cues out loud.",
+        "Take a photo of each landmark stop for a visual route guide.",
+        "Debrief: what felt safe, what was confusing, what we'd do differently.",
+      ],
+      "The student has completed one real independence task with support and has a guide for next time.",
+    ),
+    buildStep(
+      11,
+      "Bring it back to school",
+      pickFrom(teacher.family_communication, 1, "Share progress photos and notes with the IEP team."),
+      OWNERS.familySolo,
+      "≈ 20 min",
+      [
+        "Email a 4-bullet update: settings tried, weekly routine, independence step, self-advocacy moment.",
+        "Ask for it to be filed as 'parent input' for the next IEP review.",
+        pickFrom(teacher.goal_updates, 1, "Request that any new transition goal be formally added if it isn't already."),
+        "Confirm agency / Pre-ETS enrollment status in the same email.",
+      ],
+      "Real-world progress is now part of the student's official school record.",
+    ),
+    buildStep(
+      12,
+      "Plan the next 90 days",
+      pickFrom(longHorizonSources, 2, "Sit down as a family and choose the next 3 priorities."),
+      OWNERS.team,
+      "≈ 45 min",
+      [
+        "Re-read the Pathway Report — what's already done, what's still open?",
+        "Pick exactly 3 priorities for the next quarter (a job shadow, agency submission, summer plan).",
+        "Put each priority on the Calendar with an owner and a first step.",
+        "Schedule a 15-minute family check-in two weeks out to keep momentum.",
+      ],
+      "The family ends the quarter with a clear, written plan for the next one.",
+    ),
+  ];
+
+  return { thirty, sixty, ninety };
+}
