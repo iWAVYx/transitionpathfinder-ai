@@ -18,13 +18,13 @@ import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
 
 export const DEMO_STEPS = [
-  { id: "hub", to: "/demo/hub", label: "Student Hub", icon: LayoutDashboard },
   { id: "intake", to: "/demo/intake", label: "Intake", icon: ClipboardList },
   { id: "report", to: "/demo/report", label: "Pathway Report", icon: FileText },
   { id: "meeting", to: "/demo/meeting", label: "Meeting Prep", icon: Users },
   { id: "resources", to: "/demo/resources", label: "Resource Matches", icon: BookOpen },
   { id: "calendar", to: "/demo/calendar", label: "Calendar", icon: CalendarDays },
   { id: "plan", to: "/demo/plan", label: "30-Day Plan", icon: CalendarRange },
+  { id: "hub", to: "/demo/hub", label: "Student Hub", icon: LayoutDashboard },
 ] as const;
 
 export type DemoStepId = (typeof DEMO_STEPS)[number]["id"];
