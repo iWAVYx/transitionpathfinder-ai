@@ -1985,7 +1985,7 @@ function ReportTOC({
   if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "PPT Prep" });
   if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities" });
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
-  items.push({ id: "sec-thirty-day", label: "30-Day Plan" });
+  items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Human Review" });
   void audience;
 
