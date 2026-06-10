@@ -22,7 +22,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 import pptPlanningShot from "@/assets/ppt-planning-desk.png.asset.json";
-import studentPhoneMapShot from "@/assets/student-phone-map.png.asset.json";
+import studentPhoneMapShot from "@/assets/gps-walking.png.asset.json";
 import culinaryTrainingShot from "@/assets/baking-in-kitchen.png.asset.json";
 import constructionTrainingShot from "@/assets/cutting-wood-final.png.asset.json";
 
