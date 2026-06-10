@@ -566,7 +566,6 @@ function HomePage() {
           />
           <FeatureShot
             image={resourcesImg}
-            srcSet={resourcesSrcSet}
             label="Resource library"
             caption="Curated CT-specific guides, videos, and worksheets matched to each pathway."
             aspect="aspect-[4/3]"
