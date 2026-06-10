@@ -192,161 +192,173 @@ function DemoHubPage() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
           {/* Main column */}
-          <div className="space-y-6">
-            {/* Goals */}
-            <Panel
-              icon={<Target className="h-5 w-5" />}
-              title="Transition goals"
-              action={<span className="text-xs text-muted-foreground">From the Pathway Report</span>}
-            >
-              <ul className="divide-y divide-border/60">
-                {goals.map((g) => (
-                  <li key={g.title} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-display text-base">{g.title}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">{g.area}</p>
+          <div className="space-y-10">
+            <section className="space-y-5">
+              <SectionHeader label="The Plan" />
+
+              <Panel
+                icon={<Target className="h-5 w-5" />}
+                title="Transition goals"
+                action={<span className="text-xs text-muted-foreground">From the Pathway Report</span>}
+              >
+                <ul className="divide-y divide-border/60">
+                  {goals.map((g) => (
+                    <li key={g.title} className="py-4 first:pt-0 last:pb-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-display text-base">{g.title}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{g.area}</p>
+                        </div>
+                        <StatusPill status={g.status} />
                       </div>
-                      <StatusPill status={g.status} />
-                    </div>
-                    <Progress value={g.progress} className="mt-3 h-2" />
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground/80">Next:</span> {g.next}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-
-            {/* Documents */}
-            <Panel
-              icon={<FileText className="h-5 w-5" />}
-              title="Documents"
-              action={
-                <Button variant="ghost" size="sm">
-                  <Upload className="h-4 w-4" /> Upload
-                </Button>
-              }
-            >
-              <ul className="divide-y divide-border/60">
-                {documents.map((d) => (
-                  <li key={d.name} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{d.name}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {d.type} · {d.date} · {d.size}
+                      <Progress value={g.progress} className="mt-3 h-2" />
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground/80">Next:</span> {g.next}
                       </p>
-                    </div>
-                    <Button variant="ghost" size="sm" className="shrink-0">
-                      <Download className="h-3.5 w-3.5" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
 
-            {/* This week */}
-            <Panel
-              icon={<Sparkles className="h-5 w-5" />}
-              title="This week"
-              action={<span className="text-xs text-muted-foreground">From {student.first_name}'s plan</span>}
-            >
-              <ol className="space-y-3">
-                {(report.family_action_plan?.this_week ?? []).map((step, i) => (
-                  <li key={step} className="flex gap-3 rounded-2xl border border-border/60 bg-background p-4">
-                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                      {i + 1}
-                    </span>
-                    <p className="text-sm text-foreground/85">{step}</p>
-                  </li>
-                ))}
-              </ol>
-            </Panel>
+              <div className="grid gap-6 sm:grid-cols-2">
+                <Panel
+                  icon={<FileText className="h-5 w-5" />}
+                  title="Documents"
+                  action={
+                    <Button variant="ghost" size="sm">
+                      <Upload className="h-4 w-4" /> Upload
+                    </Button>
+                  }
+                >
+                  <ul className="divide-y divide-border/60">
+                    {documents.map((d) => (
+                      <li key={d.name} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{d.name}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            {d.type} · {d.date}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="sm" className="shrink-0">
+                          <Download className="h-3.5 w-3.5" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </Panel>
+
+                <Panel
+                  icon={<Sparkles className="h-5 w-5" />}
+                  title="This week"
+                  action={<span className="text-xs text-muted-foreground">{student.first_name}'s plan</span>}
+                >
+                  <ol className="space-y-3">
+                    {(report.family_action_plan?.this_week ?? []).map((step, i) => (
+                      <li key={step} className="flex gap-3">
+                        <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          {i + 1}
+                        </span>
+                        <p className="text-sm text-foreground/85">{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </Panel>
+              </div>
+            </section>
+
+            <section className="space-y-5">
+              <SectionHeader label="Resources" />
+              <div className="grid gap-6 sm:grid-cols-2">
+                <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved resources">
+                  <ul className="space-y-3 text-sm">
+                    <li className="rounded-2xl border border-border/60 bg-background p-3">
+                      <p className="font-medium">Transition Planning 101</p>
+                      <p className="text-xs text-muted-foreground">Matches {student.first_name}'s interests.</p>
+                    </li>
+                    <li className="rounded-2xl border border-border/60 bg-background p-3">
+                      <p className="font-medium">Self-Advocacy Workbook</p>
+                      <p className="text-xs text-muted-foreground">Supports the self-advocacy growth area.</p>
+                    </li>
+                  </ul>
+                </Panel>
+
+                <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended partners">
+                  <ul className="space-y-3 text-sm">
+                    <li className="rounded-2xl border border-border/60 bg-background p-3">
+                      <p className="font-medium">The Kennedy Collective</p>
+                      <p className="text-xs text-muted-foreground">Reached out — waiting on intake call.</p>
+                    </li>
+                    <li className="rounded-2xl border border-border/60 bg-background p-3">
+                      <p className="font-medium">BRS Regional Offices</p>
+                      <p className="text-xs text-muted-foreground">Bookmarked for summer planning.</p>
+                    </li>
+                  </ul>
+                </Panel>
+              </div>
+            </section>
           </div>
 
           {/* Side column */}
-          <aside className="space-y-6">
-            <DemoCalendarPreview
-              student={s}
-              title="Upcoming"
-              subtitle={`From ${student.first_name}'s Pathway Report, Meeting Prep, and care-team adds.`}
-              limit={4}
-            />
+          <aside className="space-y-10">
+            <section className="space-y-5">
+              <SectionHeader label="Schedule" align="start" />
+              <DemoCalendarPreview
+                student={s}
+                title="Upcoming"
+                subtitle={`From ${student.first_name}'s Pathway Report and care-team adds.`}
+                limit={4}
+              />
+            </section>
 
+            <section className="space-y-5">
+              <SectionHeader label="People" align="start" />
+              <Panel icon={<Users className="h-5 w-5" />} title="Care team">
+                <ul className="space-y-3">
+                  {collaborators.map((c) => (
+                    <li key={c.name} className="flex items-center gap-3">
+                      <span
+                        className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold ${c.color}`}
+                      >
+                        {c.initials}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{c.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">{c.role}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="outline" size="sm" className="mt-4 w-full">
+                  Invite a team member
+                </Button>
+              </Panel>
 
-            <Panel icon={<Users className="h-5 w-5" />} title="Care team">
-              <ul className="space-y-3">
-                {collaborators.map((c) => (
-                  <li key={c.name} className="flex items-center gap-3">
-                    <span
-                      className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold ${c.color}`}
-                    >
-                      {c.initials}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{c.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{c.role}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <Button variant="outline" size="sm" className="mt-4 w-full">
-                Invite a team member
-              </Button>
-            </Panel>
-
-            <Panel icon={<Mail className="h-5 w-5" />} title="Invites">
-              <div className="rounded-2xl border border-border/60 bg-background p-3">
-                <p className="text-sm font-medium">coach@{student.first_name.toLowerCase()}-team.demo</p>
-                <p className="text-xs text-muted-foreground">Viewer · Pending</p>
-                <div className="mt-2 flex gap-2">
-                  <Button variant="outline" size="sm" disabled>Accept</Button>
-                  <Button variant="ghost" size="sm" disabled>Decline</Button>
+              <Panel icon={<Mail className="h-5 w-5" />} title="Invites">
+                <div className="rounded-2xl border border-border/60 bg-background p-3">
+                  <p className="text-sm font-medium">coach@{student.first_name.toLowerCase()}-team.demo</p>
+                  <p className="text-xs text-muted-foreground">Viewer · Pending</p>
+                  <div className="mt-2 flex gap-2">
+                    <Button variant="outline" size="sm" disabled>Accept</Button>
+                    <Button variant="ghost" size="sm" disabled>Decline</Button>
+                  </div>
                 </div>
-              </div>
-            </Panel>
+              </Panel>
+            </section>
 
-            <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved resources">
-              <ul className="space-y-2 text-sm">
-                <li className="rounded-2xl border border-border/60 bg-background p-3">
-                  <p className="font-medium">Transition Planning 101</p>
-                  <p className="text-xs text-muted-foreground">Matches {student.first_name}'s interests.</p>
-                </li>
-                <li className="rounded-2xl border border-border/60 bg-background p-3">
-                  <p className="font-medium">Self-Advocacy Workbook</p>
-                  <p className="text-xs text-muted-foreground">Supports the self-advocacy growth area.</p>
-                </li>
-              </ul>
-            </Panel>
-
-            <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended partners">
-              <ul className="space-y-2 text-sm">
-                <li className="rounded-2xl border border-border/60 bg-background p-3">
-                  <p className="font-medium">The Kennedy Collective</p>
-                  <p className="text-xs text-muted-foreground">Reached out — waiting on intake call.</p>
-                </li>
-                <li className="rounded-2xl border border-border/60 bg-background p-3">
-                  <p className="font-medium">BRS Regional Offices</p>
-                  <p className="text-xs text-muted-foreground">Bookmarked for summer planning.</p>
-                </li>
-              </ul>
-            </Panel>
-
-            <Panel icon={<Clock className="h-5 w-5" />} title="Recent activity">
-              <ul className="space-y-3">
+            <section className="space-y-5">
+              <SectionHeader label="Activity" align="start" />
+              <ul className="space-y-4">
                 {activity.map((a, i) => (
-                  <li key={i} className="flex gap-3 text-sm">
-                    <span className="mt-0.5 text-primary">{a.icon}</span>
-                    <div className="min-w-0">
-                      <p className="text-foreground/85">{a.text}</p>
-                      <p className="text-xs text-muted-foreground">{a.when}</p>
-                    </div>
+                  <li key={i} className="relative border-l border-border/70 pl-5">
+                    <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-primary" />
+                    <p className="text-sm text-foreground/85">{a.text}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
                   </li>
                 ))}
               </ul>
-            </Panel>
+            </section>
           </aside>
         </div>
 
