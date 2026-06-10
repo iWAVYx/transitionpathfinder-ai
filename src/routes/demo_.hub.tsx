@@ -99,22 +99,31 @@ function DemoHubPage() {
 
   const activity = [
     {
-      icon: <FileText className="h-4 w-4" />,
+      icon: <FileText className="h-3.5 w-3.5" />,
       text: "Pathway Report generated and shared with case manager",
       when: "2 days ago",
     },
-    { icon: <Upload className="h-4 w-4" />, text: "Document uploaded", when: "5 days ago" },
+    { icon: <Upload className="h-3.5 w-3.5" />, text: "Document uploaded", when: "5 days ago" },
     {
-      icon: <MessageSquare className="h-4 w-4" />,
+      icon: <MessageSquare className="h-3.5 w-3.5" />,
       text: `${student.case_manager} added a note about an upcoming placement`,
       when: "1 week ago",
     },
     {
-      icon: <Target className="h-4 w-4" />,
+      icon: <Target className="h-3.5 w-3.5" />,
       text: "Goal progress updated",
       when: "2 weeks ago",
     },
   ];
+
+  const avgGoalProgress = goals.length
+    ? Math.round(goals.reduce((s, g) => s + g.progress, 0) / goals.length)
+    : 0;
+  const readinessLevel = report.student_snapshot?.readiness_level ?? "developing";
+  const readinessPct =
+    readinessLevel === "ready" ? 85 : readinessLevel === "emerging" ? 25 : 55;
+
+
 
 
   return (
@@ -152,20 +161,22 @@ function DemoHubPage() {
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Active goals" value={String(goals.length)} hint="2 in progress" icon={<Target className="h-4 w-4" />} />
+            <StatTile
+              label="Active goals"
+              value={String(goals.length)}
+              hint={`${avgGoalProgress}% avg progress`}
+              progress={avgGoalProgress}
+            />
             <StatTile label="Documents" value={String(documents.length)} hint="IEP up to date" icon={<FileText className="h-4 w-4" />} />
             <StatTile
               label="Overall readiness"
-              value={
-                report.student_snapshot?.readiness_level
-                  ? toTitleCase(report.student_snapshot.readiness_level)
-                  : "Developing"
-              }
+              value={toTitleCase(readinessLevel)}
               hint="Trending up"
-              icon={<Sparkles className="h-4 w-4" />}
+              progress={readinessPct}
             />
-            <StatTile label="Privacy" value="Family-controlled" hint="3 collaborators" icon={<Lock className="h-4 w-4" />} />
+            <StatTile label="Privacy" value="Family-led" hint="3 collaborators" icon={<Lock className="h-4 w-4" />} />
           </div>
+
 
           <div className="mt-6 flex flex-wrap gap-2">
             {(report.student_snapshot?.primary_interests ?? []).slice(0, 4).map((interest) => (
@@ -337,16 +348,27 @@ function DemoHubPage() {
 
             <section className="space-y-5">
               <SectionHeader label="Activity" align="start" />
-              <ul className="space-y-4">
-                {activity.map((a, i) => (
-                  <li key={i} className="relative border-l border-border/70 pl-5">
-                    <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-primary" />
-                    <p className="text-sm text-foreground/85">{a.text}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
-                  </li>
-                ))}
-              </ul>
+              <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
+                <ol className="relative space-y-5">
+                  <span
+                    aria-hidden
+                    className="absolute left-[13px] top-2 bottom-2 w-px bg-border/70"
+                  />
+                  {activity.map((a, i) => (
+                    <li key={i} className="relative flex gap-3 pl-9">
+                      <span className="absolute left-0 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-card">
+                        {a.icon}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm text-foreground/85">{a.text}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </section>
+
           </aside>
         </div>
 
@@ -361,25 +383,72 @@ function StatTile({
   value,
   hint,
   icon,
+  progress,
 }: {
   label: string;
   value: string;
   hint: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  progress?: number;
 }) {
   return (
     <div className="rounded-2xl border border-border/60 bg-background p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          {label}
-        </p>
-        <span className="text-primary">{icon}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {label}
+          </p>
+          <p className="mt-2 font-display text-xl">{value}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
+        </div>
+        {typeof progress === "number" ? (
+          <RingProgress value={progress} />
+        ) : (
+          <span className="text-primary">{icon}</span>
+        )}
       </div>
-      <p className="mt-2 font-display text-xl">{value}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }
+
+function RingProgress({ value, size = 44 }: { value: number; size?: number }) {
+  const stroke = 4;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(100, value));
+  const offset = c - (clamped / 100) * c;
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="currentColor"
+          strokeWidth={stroke}
+          fill="none"
+          className="text-muted"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="currentColor"
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="text-primary transition-all duration-500"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-primary">
+        {clamped}%
+      </span>
+    </div>
+  );
+}
+
 
 function Panel({
   icon,
