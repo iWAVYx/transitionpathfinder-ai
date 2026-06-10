@@ -441,7 +441,13 @@ type ReportLike = {
   teacher_action_plan?: {
     goal_updates?: string[];
     progress_monitoring?: string[];
+    assessments_to_run?: string[];
+    classroom_activities?: string[];
     family_communication?: string[];
+    student_conference_questions?: string[];
+    service_connections?: string[];
+    accommodations?: string[];
+    work_based_learning?: string[];
   } | null;
   readiness_scorecard?: Array<{
     category: string;
