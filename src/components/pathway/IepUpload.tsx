@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
-import iepImage from "@/assets/iep-upload.jpg";
+import iepImage from "@/assets/iep-upload-buried.png.asset.json";
 import { TrustNote } from "@/components/site/TrustNote";
 
 type Props = {
