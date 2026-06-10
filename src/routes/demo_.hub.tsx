@@ -348,16 +348,27 @@ function DemoHubPage() {
 
             <section className="space-y-5">
               <SectionHeader label="Activity" align="start" />
-              <ul className="space-y-4">
-                {activity.map((a, i) => (
-                  <li key={i} className="relative border-l border-border/70 pl-5">
-                    <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-primary" />
-                    <p className="text-sm text-foreground/85">{a.text}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
-                  </li>
-                ))}
-              </ul>
+              <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
+                <ol className="relative space-y-5">
+                  <span
+                    aria-hidden
+                    className="absolute left-[13px] top-2 bottom-2 w-px bg-border/70"
+                  />
+                  {activity.map((a, i) => (
+                    <li key={i} className="relative flex gap-3 pl-9">
+                      <span className="absolute left-0 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-card">
+                        {a.icon}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm text-foreground/85">{a.text}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </section>
+
           </aside>
         </div>
 
