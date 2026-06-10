@@ -419,3 +419,22 @@ function StatusPill({ status }: { status: "complete" | "in-progress" | "upcoming
     </span>
   );
 }
+
+function SectionHeader({ label, align = "center" }: { label: string; align?: "center" | "start" }) {
+  if (align === "start") {
+    return (
+      <h2 className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+        {label}
+      </h2>
+    );
+  }
+  return (
+    <div className="flex items-center gap-4">
+      <div className="h-px flex-grow bg-border/70" />
+      <h2 className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+        {label}
+      </h2>
+      <div className="h-px flex-grow bg-border/70" />
+    </div>
+  );
+}
