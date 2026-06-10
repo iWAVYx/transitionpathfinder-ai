@@ -97,11 +97,33 @@ function DemoHubPage() {
     },
   ];
 
-  const activity = [
+  type ActivityItem = {
+    icon: React.ReactNode;
+    text: string;
+    when: string;
+    milestone?: {
+      kind: "planned" | "in-progress" | "completed";
+      goal: string;
+    };
+  };
+
+  const activity: ActivityItem[] = [
+    {
+      icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+      text: `Milestone reached on "${goals[0]?.title ?? "transition goal"}"`,
+      when: "Yesterday",
+      milestone: { kind: "completed", goal: goals[0]?.area ?? "Goal" },
+    },
     {
       icon: <FileText className="h-3.5 w-3.5" />,
       text: "Pathway Report generated and shared with case manager",
       when: "2 days ago",
+    },
+    {
+      icon: <Target className="h-3.5 w-3.5" />,
+      text: `Step in progress on "${goals[1]?.title ?? "next goal"}"`,
+      when: "4 days ago",
+      milestone: { kind: "in-progress", goal: goals[1]?.area ?? "Goal" },
     },
     { icon: <Upload className="h-3.5 w-3.5" />, text: "Document uploaded", when: "5 days ago" },
     {
@@ -110,11 +132,33 @@ function DemoHubPage() {
       when: "1 week ago",
     },
     {
-      icon: <Target className="h-3.5 w-3.5" />,
-      text: "Goal progress updated",
+      icon: <Circle className="h-3.5 w-3.5" />,
+      text: `Step planned on "${goals[2]?.title ?? "upcoming goal"}"`,
       when: "2 weeks ago",
+      milestone: { kind: "planned", goal: goals[2]?.area ?? "Goal" },
     },
   ];
+
+  const milestoneStyles = {
+    planned: {
+      ring: "ring-muted-foreground/20",
+      bg: "bg-muted text-muted-foreground",
+      label: "Planned",
+      pill: "bg-muted text-muted-foreground",
+    },
+    "in-progress": {
+      ring: "ring-primary/20",
+      bg: "bg-primary/15 text-primary",
+      label: "In progress",
+      pill: "bg-primary/15 text-primary",
+    },
+    completed: {
+      ring: "ring-emerald-500/20",
+      bg: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+      label: "Completed",
+      pill: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    },
+  } as const;
 
   const avgGoalProgress = goals.length
     ? Math.round(goals.reduce((s, g) => s + g.progress, 0) / goals.length)
