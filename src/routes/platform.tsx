@@ -15,9 +15,9 @@ import {
   Heart,
   ArrowRight,
 } from "lucide-react";
-import { photos, srcSetFor } from "@/lib/photos";
-const platformHero = photos.platform;
-const platformHeroSrcSet = srcSetFor("platform");
+import platformHeroAsset from "@/assets/platform-hero-student-laptop.png.asset.json";
+const platformHero = platformHeroAsset.url;
+const platformHeroSrcSet = undefined as unknown as string;
 
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { Badge } from "@/components/ui/badge";
