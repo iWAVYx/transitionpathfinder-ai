@@ -81,8 +81,8 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
         </div>
       </div>
 
-      {(step.familyActions?.length || step.teacherActions?.length || step.readiness) && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {(step.familyActions?.length || step.teacherActions?.length) && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {step.familyActions && step.familyActions.length > 0 && (
             <ActionList
               title="Family actions"
@@ -99,12 +99,18 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
               items={step.teacherActions}
             />
           )}
-          {step.readiness && <ReadinessTile readiness={step.readiness} />}
+        </div>
+      )}
+
+      {step.readiness && (
+        <div className="mt-3">
+          <ReadinessTile readiness={step.readiness} />
         </div>
       )}
     </li>
   );
 }
+
 
 function ActionList({
   title,
