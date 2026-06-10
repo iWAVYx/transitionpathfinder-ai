@@ -532,7 +532,6 @@ function HomePage() {
         <div className="grid gap-3 md:grid-cols-3">
           <FeatureShot
             image={layerOrganizeImg}
-            srcSet={layerOrganizeSrcSet}
             label="Organize"
             alt="Organize dashboard interface showing student goals and assessments"
             caption="Student voice, assessments, IEP goals, and PPT notes — held together year over year."
