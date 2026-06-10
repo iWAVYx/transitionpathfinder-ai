@@ -18,13 +18,13 @@ import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
 
 export const DEMO_STEPS = [
-  { id: "hub", to: "/demo/hub", label: "Student Hub", icon: LayoutDashboard },
   { id: "intake", to: "/demo/intake", label: "Intake", icon: ClipboardList },
   { id: "report", to: "/demo/report", label: "Pathway Report", icon: FileText },
   { id: "meeting", to: "/demo/meeting", label: "Meeting Prep", icon: Users },
   { id: "resources", to: "/demo/resources", label: "Resource Matches", icon: BookOpen },
   { id: "calendar", to: "/demo/calendar", label: "Calendar", icon: CalendarDays },
   { id: "plan", to: "/demo/plan", label: "30-Day Plan", icon: CalendarRange },
+  { id: "hub", to: "/demo/hub", label: "Student Hub", icon: LayoutDashboard },
 ] as const;
 
 export type DemoStepId = (typeof DEMO_STEPS)[number]["id"];
@@ -49,7 +49,7 @@ export function DemoStepBar({ current, student }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="gap-1">
-              <Sparkles className="h-3 w-3" /> Demo · step {idx + 1} of {DEMO_STEPS.length}
+              <Sparkles className="h-3 w-3" /> Demo workspace
             </Badge>
             <Badge variant="outline" className="gap-1">
               <ShieldCheck className="h-3 w-3" /> Fictional student · no real data
@@ -82,10 +82,9 @@ export function DemoStepBar({ current, student }: Props) {
 
         {/* Step rail */}
         <nav aria-label="Demo walkthrough steps" className="no-scrollbar -mx-1 mt-3 flex flex-nowrap justify-start lg:justify-center gap-1 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-3 px-1 sm:px-0">
-          {DEMO_STEPS.map((s, i) => {
+          {DEMO_STEPS.map((s) => {
             const Icon = s.icon;
             const active = s.id === current;
-            const done = i < idx;
             return (
               <Link
                 key={s.id}
@@ -94,22 +93,9 @@ export function DemoStepBar({ current, student }: Props) {
                 className={`group inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors snap-start ${
                   active
                     ? "border-primary bg-primary text-primary-foreground"
-                    : done
-                      ? "border-primary/40 bg-primary/10 text-foreground"
-                      : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                    : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <span
-                  className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] ${
-                    active
-                      ? "bg-primary-foreground/20"
-                      : done
-                        ? "bg-primary/15"
-                        : "bg-muted"
-                  }`}
-                >
-                  {i + 1}
-                </span>
                 <Icon className="h-3.5 w-3.5" />
                 <span className="whitespace-nowrap">{s.label}</span>
               </Link>
@@ -137,8 +123,6 @@ export function DemoStepFooter({ current, student }: FooterProps) {
       <div className="text-xs text-muted-foreground">
         Walking with{" "}
         <span className="font-medium text-foreground">{bundle.profile.first_name}</span>
-        {" · "}
-        Step {idx + 1} of {DEMO_STEPS.length}
       </div>
       <div className="flex gap-2">
         {prev ? (
