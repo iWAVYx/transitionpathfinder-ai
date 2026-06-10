@@ -80,7 +80,102 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
           <p className="mt-1">{step.outcome}</p>
         </div>
       </div>
+
+      {(step.familyActions?.length || step.teacherActions?.length || step.readiness) && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {step.familyActions && step.familyActions.length > 0 && (
+            <ActionList
+              title="Family actions"
+              icon={<Users className="h-3 w-3" />}
+              tone="primary"
+              items={step.familyActions}
+            />
+          )}
+          {step.teacherActions && step.teacherActions.length > 0 && (
+            <ActionList
+              title="Teacher / case manager actions"
+              icon={<GraduationCap className="h-3 w-3" />}
+              tone="amber"
+              items={step.teacherActions}
+            />
+          )}
+          {step.readiness && <ReadinessTile readiness={step.readiness} />}
+        </div>
+      )}
     </li>
+  );
+}
+
+function ActionList({
+  title,
+  icon,
+  items,
+  tone,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: string[];
+  tone: "primary" | "amber";
+}) {
+  const headerCls =
+    tone === "primary"
+      ? "text-primary"
+      : "text-amber-700 dark:text-amber-300";
+  const borderCls =
+    tone === "primary"
+      ? "border-primary/25 bg-primary/[0.04]"
+      : "border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/10";
+  return (
+    <div className={`rounded-2xl border ${borderCls} p-3`}>
+      <p className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${headerCls}`}>
+        {icon}
+        {title}
+      </p>
+      <ul className="mt-2 space-y-1.5">
+        {items.map((i) => (
+          <li key={i} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/85">
+            <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-current opacity-50" />
+            {i}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ReadinessTile({
+  readiness,
+}: {
+  readiness: { category: string; level: "emerging" | "developing" | "progressing" | "ready"; metric: string };
+}) {
+  const pct =
+    readiness.level === "ready"
+      ? 90
+      : readiness.level === "progressing"
+        ? 70
+        : readiness.level === "developing"
+          ? 45
+          : 20;
+  const levelLabel =
+    readiness.level.charAt(0).toUpperCase() + readiness.level.slice(1);
+  return (
+    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-3 text-foreground/85 dark:bg-emerald-950/10">
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">
+        <Gauge className="h-3 w-3" /> Readiness metric
+      </p>
+      <p className="mt-2 text-xs font-medium">{readiness.category}</p>
+      <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+        <span>{levelLabel}</span>
+        <span>{pct}%</span>
+      </div>
+      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-emerald-500/15">
+        <div
+          className="h-full rounded-full bg-emerald-500 transition-all"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="mt-2 text-[11px] leading-relaxed">{readiness.metric}</p>
+    </div>
   );
 }
 
