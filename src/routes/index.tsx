@@ -58,8 +58,8 @@ import womanHoldingIepAsset from "@/assets/woman-holding-iep.png.asset.json";
 const iepUploadImg = womanHoldingIepAsset.url;
 import glassesPaperworkAsset from "@/assets/glasses-on-paperwork.png.asset.json";
 const layerOrganizeImg = glassesPaperworkAsset.url;
-const layerGenerateImg = photos.layerGenerate;
-const layerGenerateSrcSet = srcSetFor("layerGenerate");
+import stickyNotesFinalAsset from "@/assets/sticky-notes-final.png.asset.json";
+const layerGenerateImg = stickyNotesFinalAsset.url;
 const layerConnectImg = photos.layerConnect;
 const layerConnectSrcSet = srcSetFor("layerConnect");
 const resourcesImg = iepUploadBuriedAsset.url;
@@ -539,7 +539,6 @@ function HomePage() {
           />
           <FeatureShot
             image={layerGenerateImg}
-            srcSet={layerGenerateSrcSet}
             label="Generate"
             alt="Generate pathway report interface with personalized recommendations"
             caption="Specialist-built formulas turn the full picture into a personalized Pathway."
