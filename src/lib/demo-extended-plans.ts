@@ -6,6 +6,12 @@
  * family or case manager can actually run it.
  */
 
+export type ReadinessMetric = {
+  category: string;
+  level: "emerging" | "developing" | "progressing" | "ready";
+  metric: string;
+};
+
 export type RichPlanStep = {
   week: number;
   focus: string;
@@ -14,6 +20,9 @@ export type RichPlanStep = {
   time: string;
   details: string[];
   outcome: string;
+  familyActions?: string[];
+  teacherActions?: string[];
+  readiness?: ReadinessMetric;
 };
 
 export type ExtendedPlans = {
@@ -432,7 +441,13 @@ type ReportLike = {
   teacher_action_plan?: {
     goal_updates?: string[];
     progress_monitoring?: string[];
+    assessments_to_run?: string[];
+    classroom_activities?: string[];
     family_communication?: string[];
+    student_conference_questions?: string[];
+    service_connections?: string[];
+    accommodations?: string[];
+    work_based_learning?: string[];
   } | null;
   readiness_scorecard?: Array<{
     category: string;
@@ -476,10 +491,97 @@ export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans 
   const baseWeeks = (report.thirty_day_plan ?? []).slice(0, 4);
   const family = report.family_action_plan ?? {};
   const teacher = report.teacher_action_plan ?? {};
-  const scorecard = (report.readiness_scorecard ?? []).slice(0, 6);
+  const scorecardRaw = report.readiness_scorecard ?? [];
   const pptQuestions = report.family_questions_for_ppt ?? [];
 
-  /* ---- 30 days: one rich step per thirty_day_plan week ---- */
+  const normalizeLevel = (lvl?: string): ReadinessMetric["level"] => {
+    if (lvl === "ready" || lvl === "progressing" || lvl === "developing" || lvl === "emerging") {
+      return lvl;
+    }
+    return "developing";
+  };
+
+  const scorecard = scorecardRaw.map((s) => ({
+    category: s.category,
+    level: normalizeLevel(s.level),
+    metric:
+      s.suggested_goal ||
+      s.growth_activity ||
+      s.what_it_means ||
+      `Track weekly evidence in ${s.category.toLowerCase()}.`,
+    growth_activity: s.growth_activity,
+  }));
+
+  /** Build a 2-3 item family checklist scoped to the right horizon bucket. */
+  const familyFor = (horizon: "thirty" | "sixty" | "ninety", week: number): string[] => {
+    const bucket =
+      horizon === "thirty"
+        ? family.this_week ?? []
+        : horizon === "sixty"
+          ? [...(family.this_month ?? []), ...(family.before_next_meeting ?? [])]
+          : [...(family.this_school_year ?? []), ...(family.before_graduation ?? [])];
+    if (bucket.length === 0) {
+      return [
+        "Pick a calm time to do this together — no distractions.",
+        "Capture one note or photo for the next IEP review.",
+      ];
+    }
+    const idx = (week - 1) % bucket.length;
+    return [bucket[idx], bucket[(idx + 1) % bucket.length]].filter(
+      (v, i, a) => v && a.indexOf(v) === i,
+    );
+  };
+
+  /** Build a 2-3 item teacher checklist scoped to the right horizon. */
+  const teacherFor = (horizon: "thirty" | "sixty" | "ninety", week: number): string[] => {
+    const bucket =
+      horizon === "thirty"
+        ? [
+            ...(teacher.goal_updates ?? []),
+            ...(teacher.classroom_activities ?? []),
+            ...(teacher.student_conference_questions ?? []),
+          ]
+        : horizon === "sixty"
+          ? [
+              ...(teacher.progress_monitoring ?? []),
+              ...(teacher.assessments_to_run ?? []),
+              ...(teacher.family_communication ?? []),
+              ...(teacher.accommodations ?? []),
+            ]
+          : [
+              ...(teacher.service_connections ?? []),
+              ...(teacher.work_based_learning ?? []),
+              ...(teacher.family_communication ?? []),
+            ];
+    if (bucket.length === 0) {
+      return [
+        "Confirm the IEP team is tracking this step in progress monitoring notes.",
+        "File a one-line update so the next review captures the work.",
+      ];
+    }
+    const idx = (week - 1) % bucket.length;
+    return [bucket[idx], bucket[(idx + 1) % bucket.length]].filter(
+      (v, i, a) => v && a.indexOf(v) === i,
+    );
+  };
+
+  const readinessFor = (week: number): ReadinessMetric | undefined => {
+    if (scorecard.length === 0) return undefined;
+    const s = scorecard[(week - 1) % scorecard.length];
+    return { category: s.category, level: s.level, metric: s.metric };
+  };
+
+  const attach = (
+    step: RichPlanStep,
+    horizon: "thirty" | "sixty" | "ninety",
+  ): RichPlanStep => ({
+    ...step,
+    familyActions: familyFor(horizon, step.week),
+    teacherActions: teacherFor(horizon, step.week),
+    readiness: readinessFor(step.week),
+  });
+
+  /* ---- 30 days ---- */
   const focusByWeek = [
     "Align as a family",
     "Open the school conversation",
@@ -489,7 +591,7 @@ export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans 
   const ownerByWeek = [OWNERS.family, OWNERS.familySolo, OWNERS.family, OWNERS.team];
   const timeByWeek = ["≈ 45 min", "≈ 20 min", "≈ 60–90 min", "≈ 60 min"];
 
-  const thirty: RichPlanStep[] = baseWeeks.map((w, i) =>
+  const thirtyBase: RichPlanStep[] = baseWeeks.map((w, i) =>
     buildStep(
       w.week,
       focusByWeek[i] ?? `Week ${w.week} focus`,
@@ -508,10 +610,9 @@ export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans 
     ),
   );
 
-  // Pad if thirty_day_plan was short.
-  while (thirty.length < 4) {
-    const idx = thirty.length;
-    thirty.push(
+  while (thirtyBase.length < 4) {
+    const idx = thirtyBase.length;
+    thirtyBase.push(
       buildStep(
         idx + 1,
         "First-month follow-through",
@@ -528,14 +629,15 @@ export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans 
     );
   }
 
+  const thirty = thirtyBase.map((s) => attach(s, "thirty"));
+
   /* ---- 60 days: 30-day plan + 4 month-two weeks ---- */
   const monthTwoSources = [
     ...(family.this_month ?? []),
     ...(family.before_next_meeting ?? []),
   ];
 
-  const sixty: RichPlanStep[] = [
-    ...thirty,
+  const sixtyAdditions: RichPlanStep[] = [
     buildStep(
       5,
       "Skill-build in a real setting",
@@ -595,14 +697,15 @@ export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans 
     ),
   ];
 
+  const sixty = [...thirty, ...sixtyAdditions.map((s) => attach(s, "sixty"))];
+
   /* ---- 90 days: 60-day plan + 4 month-three weeks ---- */
   const longHorizonSources = [
     ...(family.this_school_year ?? []),
     ...(family.before_graduation ?? []),
   ];
 
-  const ninety: RichPlanStep[] = [
-    ...sixty,
+  const ninetyAdditions: RichPlanStep[] = [
     buildStep(
       9,
       "Try a second real setting",
@@ -662,6 +765,8 @@ export function buildExtendedPlansFromReport(report: ReportLike): ExtendedPlans 
       "The family ends the quarter with a clear, written plan for the next one.",
     ),
   ];
+
+  const ninety = [...sixty, ...ninetyAdditions.map((s) => attach(s, "ninety"))];
 
   return { thirty, sixty, ninety };
 }
