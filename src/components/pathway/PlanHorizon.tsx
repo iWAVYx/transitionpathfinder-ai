@@ -165,25 +165,39 @@ function ReadinessTile({
   const levelLabel =
     readiness.level.charAt(0).toUpperCase() + readiness.level.slice(1);
   return (
-    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-3 text-foreground/85 dark:bg-emerald-950/10">
-      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">
-        <Gauge className="h-3 w-3" /> Readiness metric
+    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-4 text-foreground/85 dark:bg-emerald-950/10">
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+        <Gauge className="h-3 w-3" /> Readiness for this step
       </p>
-      <p className="mt-2 text-xs font-medium">{readiness.category}</p>
-      <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
-        <span>{levelLabel}</span>
-        <span>{pct}%</span>
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Category</p>
+          <p className="mt-1 text-sm font-medium text-foreground">{readiness.category}</p>
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Level</p>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              {levelLabel}
+            </span>
+            <span className="text-xs text-muted-foreground">{pct}%</span>
+          </div>
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-emerald-500/15">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Measurable goal</p>
+          <p className="mt-1 text-xs leading-relaxed text-foreground/85">{readiness.metric}</p>
+        </div>
       </div>
-      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-emerald-500/15">
-        <div
-          className="h-full rounded-full bg-emerald-500 transition-all"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <p className="mt-2 text-[11px] leading-relaxed">{readiness.metric}</p>
     </div>
   );
 }
+
 
 export function SimpleWeekCard({ week, action }: { week: number; action: string }) {
   return (
