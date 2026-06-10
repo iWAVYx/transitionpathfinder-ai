@@ -50,7 +50,7 @@ const pathCareer = photos.pathCareer;
 const pathCareerSrcSet = srcSetFor("pathCareer");
 const pathLifeskills = photos.pathLifeskills;
 const pathLifeskillsSrcSet = srcSetFor("pathLifeskills");
-import progressTrackedAsset from "@/assets/progress-tracked.png.asset.json";
+import progressTrackedAsset from "@/assets/bookmark-progress.png.asset.json";
 const pathProgress = progressTrackedAsset.url;
 const pathProgressSrcSet = undefined;
 const dashboardImg = photos.dashboard;
