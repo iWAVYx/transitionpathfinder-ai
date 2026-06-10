@@ -50,7 +50,7 @@ export const Route = createFileRoute("/demo_/hub")({
 function DemoHubPage() {
   const { s } = Route.useSearch();
   const bundle = getDemoStudent(s);
-  const { profile: student, report, nextMeetingDate } = bundle;
+  const { profile: student, report } = bundle;
 
   const goals = (report.readiness_scorecard ?? []).slice(0, 4).map((g, i) => ({
     title: g.suggested_goal ?? g.growth_activity ?? g.category,
