@@ -25,6 +25,7 @@ import pptPlanningShot from "@/assets/ppt-planning-desk.png.asset.json";
 import studentPhoneMapShot from "@/assets/student-phone-map.png.asset.json";
 import culinaryTrainingShot from "@/assets/culinary-training.png.asset.json";
 import constructionTrainingShot from "@/assets/construction-training.png.asset.json";
+import glassesOnPaperwork from "@/assets/glasses-on-paperwork.png.asset.json";
 import whyWeBuiltThisShot from "@/assets/why-we-built-this.jpg.asset.json";
 import studentsCohortShot from "@/assets/students-cohort.jpg.asset.json";
 import connectShot from "@/assets/connect-shot.png.asset.json";
