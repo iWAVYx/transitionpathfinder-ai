@@ -116,18 +116,6 @@ function DemoHubPage() {
     },
   ];
 
-  const upcoming = [
-    {
-      title: "PPT meeting",
-      date: nextMeetingDate,
-      body: `Bring the Pathway Report and ${student.first_name}'s questions.`,
-    },
-    ...report.thirty_day_plan.slice(0, 2).map((p) => ({
-      title: `Week ${p.week}`,
-      date: "Next 30 days",
-      body: p.action,
-    })),
-  ];
 
   return (
     <SiteShell>
