@@ -28,6 +28,7 @@ import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
 import { RecommendedResourcesPanel } from "@/components/students/RecommendedResourcesPanel";
 import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartnersPanel";
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
+import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
@@ -223,6 +224,8 @@ function StudentDetailPage() {
             <StatTile icon={<Compass className="h-4 w-4" />} label="Pathway" value="In progress" small />
             <StatTile icon={<UsersIcon className="h-4 w-4" />} label="Privacy" value="Invite-only" small />
           </div>
+
+          <ProfileCompleteness student={student} goals={goals} docs={docs} />
         </header>
 
         {/* HUB CARDS */}
