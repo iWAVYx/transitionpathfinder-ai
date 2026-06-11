@@ -53,10 +53,8 @@ import { createStudentActionItem } from "@/lib/action-items.functions";
 import { toast } from "sonner";
 import { ListPlus } from "lucide-react";
 
-import { photos } from "@/lib/photos";
 import resourcesHeroAsset from "@/assets/student-reading-library.png.asset.json";
 const resourcesHero = resourcesHeroAsset.url;
-void photos;
 import {
   RESOURCES,
   TOPIC_META,
