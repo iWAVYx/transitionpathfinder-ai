@@ -9,8 +9,9 @@ import {
   FileDown,
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
-const educatorsHero = photos.educators;
-const educatorsHeroSrcSet = srcSetFor("educators");
+import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
+const educatorsHero = stressedTeacherAsset.url;
+const educatorsHeroSrcSet = undefined as unknown as string;
 const frameworkImg = photos.framework;
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
