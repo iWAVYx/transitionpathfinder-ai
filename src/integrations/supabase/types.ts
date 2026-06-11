@@ -800,6 +800,72 @@ export type Database = {
         }
         Relationships: []
       }
+      document_extractions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_id: string
+          id: string
+          missing_information: string[]
+          raw_extract: Json
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          sections: Json
+          status: Database["public"]["Enums"]["document_extraction_status"]
+          student_id: string
+          suggested_questions: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          id?: string
+          missing_information?: string[]
+          raw_extract?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          sections?: Json
+          status?: Database["public"]["Enums"]["document_extraction_status"]
+          student_id: string
+          suggested_questions?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          id?: string
+          missing_information?: string[]
+          raw_extract?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          sections?: Json
+          status?: Database["public"]["Enums"]["document_extraction_status"]
+          student_id?: string
+          suggested_questions?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_extractions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: true
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_extractions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_permissions: {
         Row: {
           created_at: string
@@ -4609,6 +4675,11 @@ export type Database = {
         | "school_admin"
         | "partner"
         | "district_admin"
+      document_extraction_status:
+        | "pending"
+        | "needs_review"
+        | "in_review"
+        | "complete"
       document_permission_level:
         | "none"
         | "view_summary"
@@ -4819,6 +4890,12 @@ export const Constants = {
         "school_admin",
         "partner",
         "district_admin",
+      ],
+      document_extraction_status: [
+        "pending",
+        "needs_review",
+        "in_review",
+        "complete",
       ],
       document_permission_level: [
         "none",
