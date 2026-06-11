@@ -221,7 +221,7 @@ export function PartnerApplyForm() {
         <p className="text-xs text-muted-foreground">
           We never share your contact info publicly without your written approval.
         </p>
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full sm:w-auto">
           {form.formState.isSubmitting ? "Submitting…" : "Apply to the Partner Pathway Network"}
           <ArrowRight className="ml-1.5 h-4 w-4" />
         </Button>

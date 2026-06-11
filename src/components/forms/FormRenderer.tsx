@@ -48,11 +48,20 @@ export function FormRenderer({
         <Field key={f.id} field={f} value={values[f.id]} onChange={(v) => setVal(f.id, v)} />
       ))}
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <div className="flex flex-wrap gap-3 border-t pt-6">
-        <Button onClick={() => submit("completed")} disabled={saving}>
+      <div className="flex flex-col-reverse gap-2 border-t pt-6 sm:flex-row sm:flex-wrap sm:gap-3">
+        <Button
+          onClick={() => submit("completed")}
+          disabled={saving}
+          className="w-full sm:w-auto"
+        >
           {saving ? "Saving…" : "Mark complete"}
         </Button>
-        <Button variant="outline" onClick={() => submit("draft")} disabled={saving}>
+        <Button
+          variant="outline"
+          onClick={() => submit("draft")}
+          disabled={saving}
+          className="w-full sm:w-auto"
+        >
           Save draft
         </Button>
       </div>
@@ -80,7 +89,7 @@ function Field({
       <label className="block">
         {baseLabel}
         <input
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg border bg-background px-3 py-2.5 text-base sm:py-2 sm:text-sm"
           value={(value as string) ?? ""}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -93,7 +102,7 @@ function Field({
         {baseLabel}
         <textarea
           rows={4}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg border bg-background px-3 py-2.5 text-base sm:py-2 sm:text-sm"
           value={(value as string) ?? ""}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -171,7 +180,7 @@ function Field({
               type="button"
               onClick={() => onChange(n)}
               className={cn(
-                "h-10 w-10 rounded-full border text-sm font-semibold",
+                "h-11 w-11 rounded-full border text-sm font-semibold",
                 cur === n
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground",
