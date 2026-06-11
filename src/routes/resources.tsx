@@ -395,7 +395,7 @@ function ResourcesPage() {
             <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
             <img
               src={resourcesHero}
-              alt="Illustrated reading nook with shelves of glowing tablet covers, a velvet armchair, and headphones"
+              alt="Student reading a book between library shelves"
               width={1600}
               height={1100}
               className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
