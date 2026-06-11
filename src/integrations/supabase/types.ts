@@ -800,6 +800,60 @@ export type Database = {
         }
         Relationships: []
       }
+      document_permissions: {
+        Row: {
+          created_at: string
+          document_id: string
+          granted_by: string
+          id: string
+          notes: string | null
+          permission_level: Database["public"]["Enums"]["document_permission_level"]
+          role_type: string | null
+          student_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          granted_by: string
+          id?: string
+          notes?: string | null
+          permission_level?: Database["public"]["Enums"]["document_permission_level"]
+          role_type?: string | null
+          student_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          granted_by?: string
+          id?: string
+          notes?: string | null
+          permission_level?: Database["public"]["Enums"]["document_permission_level"]
+          role_type?: string | null
+          student_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_permissions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_permissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_summaries: {
         Row: {
           ai_model_used: string | null
@@ -871,15 +925,20 @@ export type Database = {
       }
       documents: {
         Row: {
+          consent_acknowledged_at: string | null
           created_at: string
           doc_type: string
           document_category: string
+          effective_date: string | null
           file_name: string | null
           file_type: string | null
           file_url: string | null
           id: string
+          meeting_date: string | null
           mime_type: string | null
           parsed_summary: Json | null
+          review_date: string | null
+          school_year: string | null
           size_bytes: number | null
           status: string
           storage_path: string
@@ -890,15 +949,20 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          consent_acknowledged_at?: string | null
           created_at?: string
           doc_type?: string
           document_category?: string
+          effective_date?: string | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
           id?: string
+          meeting_date?: string | null
           mime_type?: string | null
           parsed_summary?: Json | null
+          review_date?: string | null
+          school_year?: string | null
           size_bytes?: number | null
           status?: string
           storage_path: string
@@ -909,15 +973,20 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          consent_acknowledged_at?: string | null
           created_at?: string
           doc_type?: string
           document_category?: string
+          effective_date?: string | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
           id?: string
+          meeting_date?: string | null
           mime_type?: string | null
           parsed_summary?: Json | null
+          review_date?: string | null
+          school_year?: string | null
           size_bytes?: number | null
           status?: string
           storage_path?: string
@@ -4454,6 +4523,10 @@ export type Database = {
         Args: { _student_id: string; _user_id: string }
         Returns: boolean
       }
+      can_view_document: {
+        Args: { _document_id: string; _user_id: string }
+        Returns: boolean
+      }
       claim_admin_if_unclaimed: { Args: never; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -4536,6 +4609,12 @@ export type Database = {
         | "school_admin"
         | "partner"
         | "district_admin"
+      document_permission_level:
+        | "none"
+        | "view_summary"
+        | "view_document"
+        | "edit_metadata"
+        | "manage"
       partner_opportunity_type:
         | "internship"
         | "job_shadowing"
@@ -4740,6 +4819,13 @@ export const Constants = {
         "school_admin",
         "partner",
         "district_admin",
+      ],
+      document_permission_level: [
+        "none",
+        "view_summary",
+        "view_document",
+        "edit_metadata",
+        "manage",
       ],
       partner_opportunity_type: [
         "internship",
