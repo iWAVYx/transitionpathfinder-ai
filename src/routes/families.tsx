@@ -7,6 +7,10 @@ import {
   MapPin,
   ClipboardCheck,
   Archive,
+  CalendarClock,
+  Users,
+  BellRing,
+  NotebookPen,
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
 import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
@@ -242,9 +246,26 @@ function FamiliesPage() {
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
               Assessments, goals, resources, and your own notes — all connected, all in one place. No more digging through folders or wondering what happened last year. It grows with your child, year after year.
             </p>
+            <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+              {[
+                { Icon: CalendarClock, t: "A Living Timeline", b: "Watch milestones stack up across grades, summers, and PPT cycles in one quiet scroll." },
+                { Icon: Users, t: "Invite Their Circle", b: "Loop in a grandparent, sibling, or trusted advocate so nobody is left translating alone." },
+                { Icon: BellRing, t: "Gentle Nudges", b: "Soft reminders for paperwork windows, evaluation deadlines, and birthdays that change eligibility." },
+                { Icon: NotebookPen, t: "A Private Sketchpad", b: "Jot down a worry at 11pm, a small win on the bus ride, a question for next Tuesday — kept just for you." },
+              ].map(({ Icon, t, b }) => (
+                <li key={t} className="rounded-2xl border border-border/60 bg-card/70 p-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <h4 className="mt-3 font-display text-base font-medium tracking-tight">{t}</h4>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{b}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
+
 
     </SiteShell>
   );
