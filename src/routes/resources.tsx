@@ -186,7 +186,9 @@ const TOPIC_ICON: Record<ResourceTopic, typeof Compass> = {
 // ───────────────────────── Page
 
 function ResourcesPage() {
+  const isMobile = useIsMobile();
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
