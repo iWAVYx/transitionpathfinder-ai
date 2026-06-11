@@ -189,11 +189,26 @@ function ResourcesPage() {
   const isMobile = useIsMobile();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchToggleRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
   const [liveMessage, setLiveMessage] = useState("");
   const hasAnnounced = useRef(false);
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setSearchOpen(false);
+      searchToggleRef.current?.focus();
+    }
+  };
 
   const [viewDensity, setViewDensity] = useState<"compact" | "comfortable">(() => {
     try {
@@ -683,21 +698,23 @@ function ResourcesPage() {
         <div className="rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-soft backdrop-blur-md">
           {/* Mobile toggle */}
           <button
+            ref={searchToggleRef}
             type="button"
             onClick={() => setSearchOpen((v) => !v)}
             className="flex w-full items-center justify-between rounded-xl px-3 py-2 sm:hidden"
             aria-expanded={searchOpen}
             aria-controls="resources-search-input"
+            aria-label="Toggle search"
             data-testid="resources-search-toggle"
           >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Search className="h-4 w-4" />
+              <Search className="h-4 w-4" aria-hidden="true" />
               <span className="truncate">{query ? query : "Search resources"}</span>
             </div>
             {searchOpen ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             )}
           </button>
 
@@ -709,10 +726,12 @@ function ResourcesPage() {
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
+                ref={searchInputRef}
                 type="search"
                 aria-label="Search resources"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search videos, podcasts, books, worksheets, agencies…"
                 className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
