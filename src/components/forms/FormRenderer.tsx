@@ -180,7 +180,7 @@ function Field({
               type="button"
               onClick={() => onChange(n)}
               className={cn(
-                "h-10 w-10 rounded-full border text-sm font-semibold",
+                "h-11 w-11 rounded-full border text-sm font-semibold",
                 cur === n
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground",
