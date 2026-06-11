@@ -53,8 +53,8 @@ import { createStudentActionItem } from "@/lib/action-items.functions";
 import { toast } from "sonner";
 import { ListPlus } from "lucide-react";
 
-import { photos } from "@/lib/photos";
-const resourcesHero = photos.resources;
+import resourcesHeroAsset from "@/assets/student-reading-library.png.asset.json";
+const resourcesHero = resourcesHeroAsset.url;
 import {
   RESOURCES,
   TOPIC_META,
@@ -395,7 +395,7 @@ function ResourcesPage() {
             <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
             <img
               src={resourcesHero}
-              alt="Illustrated reading nook with shelves of glowing tablet covers, a velvet armchair, and headphones"
+              alt="Student reading a book between library shelves"
               width={1600}
               height={1100}
               className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift"
