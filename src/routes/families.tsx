@@ -226,13 +226,12 @@ function FamiliesPage() {
           <div className="lg:col-span-7">
             <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] shadow-lift">
               <img
-                src={photos.homeFamily}
-                srcSet={homeFamilySrcSet}
+                src={homeFamilyImage}
                 sizes="(min-width: 1024px) 58vw, 100vw"
-                alt="A parent and teenager looking at a laptop together"
+                alt="A father, son, and mother walking together along a tree-lined path, smiling"
                 loading="lazy"
                 decoding="async"
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
               />
 
             </div>
