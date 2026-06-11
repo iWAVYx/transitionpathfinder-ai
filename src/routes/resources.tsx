@@ -673,31 +673,31 @@ function ResourcesPage() {
       {/* GLOBAL SEARCH */}
       <section
         data-testid="resources-sticky-search"
-        className="sticky top-16 z-40 mx-auto max-w-[88rem] px-4 pt-4 sm:px-6 lg:px-8"
+        className="sticky top-16 z-40 mx-auto max-w-[88rem] px-4 pt-2 sm:px-6 lg:px-8"
       >
-        <div className="rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md">
+        <div className="rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-soft backdrop-blur-md">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               aria-label="Search resources"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search videos, podcasts, books, worksheets, agencies…"
-              className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-10 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 aria-label="Clear search"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
           {query && (
-            <p className="mt-2 px-2 text-xs text-muted-foreground">
+            <p className="mt-1 px-2 text-[11px] text-muted-foreground">
               Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
             </p>
           )}
@@ -844,7 +844,7 @@ function BrowseTab(props: {
       {/* Filter bar */}
       <div
         data-testid="resources-sticky-filters"
-        className="sticky top-36 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4"
+        className="sticky top-28 z-30 mt-4 rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md sm:p-3"
       >
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
