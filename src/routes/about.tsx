@@ -84,7 +84,7 @@ function AboutHero() {
           <br />
           <Word text="the kids who never " d={0.3} />
           <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">
-            <Word text="got the playbook." d={0.5} />
+            <Word text="&nbsp;got the playbook." d={0.5} />
           </span>
         </h1>
       </motion.div>
