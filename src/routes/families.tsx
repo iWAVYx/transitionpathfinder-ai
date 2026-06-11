@@ -7,10 +7,6 @@ import {
   MapPin,
   ClipboardCheck,
   Archive,
-  CalendarClock,
-  Users,
-  BellRing,
-  NotebookPen,
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
 import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
