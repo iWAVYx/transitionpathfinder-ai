@@ -228,7 +228,7 @@ export function StickyScrollStory({
   className,
 }: {
   eyebrow?: string;
-  title?: string;
+  title?: React.ReactNode;
   panels: Array<{ title: string; body: string; image: string; alt: string; srcSet?: string; sizes?: string }>;
   className?: string;
 }) {
