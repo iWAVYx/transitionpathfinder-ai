@@ -54,7 +54,9 @@ import { toast } from "sonner";
 import { ListPlus } from "lucide-react";
 
 import { photos } from "@/lib/photos";
-const resourcesHero = photos.resources;
+import resourcesHeroAsset from "@/assets/student-reading-library.png.asset.json";
+const resourcesHero = resourcesHeroAsset.url;
+void photos;
 import {
   RESOURCES,
   TOPIC_META,
