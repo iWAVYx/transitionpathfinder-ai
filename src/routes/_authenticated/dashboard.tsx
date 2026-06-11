@@ -425,13 +425,13 @@ function DashboardPage() {
           </div>
 
           {/* Pathway Report Panel */}
-          <div className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
+          <div className="mt-6 rounded-3xl border bg-gradient-hero p-5 shadow-soft sm:p-6 lg:p-8">
+            <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
+              <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                   Pathway Report
                 </p>
-                <h2 className="mt-1 font-display text-3xl font-medium tracking-tight">
+                <h2 className="mt-1 font-display text-2xl font-medium tracking-tight sm:text-3xl">
                   {snap.latestReport ? "Latest report" : "No report yet"}
                 </h2>
                 {snap.latestReport && (
