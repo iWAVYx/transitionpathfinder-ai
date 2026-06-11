@@ -9,9 +9,10 @@ import {
   Archive,
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
+import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
 const familiesHero = photos.families;
 const familiesHeroSrcSet = srcSetFor("families");
-const homeFamilySrcSet = srcSetFor("homeFamily");
+const homeFamilyImage = familyWalkingAsset.url;
 
 import {
   Parallax,
