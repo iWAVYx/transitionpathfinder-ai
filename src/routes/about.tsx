@@ -97,7 +97,10 @@ function Phrase({ text, startDelay = 0 }: { text: string; startDelay?: number })
   return (
     <>
       {words.map((w, i) => (
-        <Word key={i} text={w} d={startDelay + i * 0.06} />
+        <span key={i}>
+          {i > 0 && " "}
+          <Word text={w} d={startDelay + i * 0.06} />
+        </span>
       ))}
     </>
   );
@@ -114,10 +117,10 @@ function Word({ text, d = 0 }: { text: string; d?: number }) {
       >
         {text}
       </motion.span>
-      {" "}
     </span>
   );
 }
+
 
 
 /* ------------------- MANIFESTO ------------------- */
