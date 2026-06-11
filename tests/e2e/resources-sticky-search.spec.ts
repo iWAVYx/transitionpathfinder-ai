@@ -63,6 +63,8 @@ for (const vp of VIEWPORTS) {
       // Allow the browser to settle layout after scroll.
       await page.waitForTimeout(150);
 
+      await openSearchIfCollapsed(page, vp.width);
+
       const search = await boxOf(page, "resources-sticky-search");
       const filters = await boxOf(page, "resources-sticky-filters");
 
