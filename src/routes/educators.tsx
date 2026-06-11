@@ -206,7 +206,7 @@ function EducatorsPage() {
         />
         <StickyScrollStory
           eyebrow="A week in the platform"
-          title="Scroll through your week."
+          title={<>Scroll Through <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">Your Week</span>.</>}
           panels={storyPanels}
         />
       </section>
