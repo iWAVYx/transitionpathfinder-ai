@@ -698,21 +698,23 @@ function ResourcesPage() {
         <div className="rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-soft backdrop-blur-md">
           {/* Mobile toggle */}
           <button
+            ref={searchToggleRef}
             type="button"
             onClick={() => setSearchOpen((v) => !v)}
             className="flex w-full items-center justify-between rounded-xl px-3 py-2 sm:hidden"
             aria-expanded={searchOpen}
             aria-controls="resources-search-input"
+            aria-label="Toggle search"
             data-testid="resources-search-toggle"
           >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Search className="h-4 w-4" />
+              <Search className="h-4 w-4" aria-hidden="true" />
               <span className="truncate">{query ? query : "Search resources"}</span>
             </div>
             {searchOpen ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             )}
           </button>
 
