@@ -40,7 +40,7 @@ function SharedReportPage() {
   if (state.kind === "loading") {
     return (
       <SiteShell>
-        <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
           <p className="text-sm text-muted-foreground">Opening the shared report…</p>
         </section>
       </SiteShell>

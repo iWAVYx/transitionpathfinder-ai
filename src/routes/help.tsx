@@ -550,7 +550,7 @@ function ContactSection() {
 
   return (
     <section id="contact" className="border-t bg-muted/20 scroll-mt-20">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <header className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Still have questions?

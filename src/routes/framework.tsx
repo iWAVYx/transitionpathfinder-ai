@@ -301,7 +301,7 @@ function FrameworkPage() {
       </section>
 
       {/* Mission line */}
-      <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <TextScrollFill
           className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
           text={toTitleCase("Transition is not a senior-year scramble — it's a four-year story told one grade at a time.")}
@@ -315,7 +315,7 @@ function FrameworkPage() {
         <Sparkle className="absolute left-[40%] bottom-20 -z-10 h-5 w-5 text-primary/20" />
         <ArrowDoodle className="absolute right-[6%] bottom-24 -z-10 hidden h-24 w-32 text-primary/25 lg:block" />
 
-        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
           <div className="mb-12 max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               The Manifesto
@@ -366,7 +366,7 @@ function FrameworkPage() {
         <BookDoodle className="absolute left-[8%] bottom-16 -z-10 hidden h-24 w-28 text-primary/20 lg:block" />
         <Starburst className="absolute right-[20%] bottom-24 -z-10 h-14 w-14 text-primary/25" />
 
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               The Six Threads
@@ -432,7 +432,7 @@ function FrameworkPage() {
         <Sparkle className="absolute left-[35%] top-24 -z-10 h-6 w-6 text-primary/30" />
         <DotField className="absolute -right-10 bottom-10 -z-10 h-56 w-56 text-primary/10" />
 
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               The Four-Year Arc

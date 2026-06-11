@@ -51,7 +51,7 @@ function DemoMeetingPage() {
     <SiteShell>
       <DemoStepBar current="meeting" student={s} />
 
-      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header */}
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">

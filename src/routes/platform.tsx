@@ -317,7 +317,7 @@ function PlatformPage() {
       </section>
 
       {/* Text-fill mission */}
-      <section className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <CompassRose className="absolute left-2 top-6 hidden h-20 w-20 text-primary/25 lg:block" />
         <Starburst className="absolute right-2 top-6 hidden h-16 w-16 text-secondary-foreground/30 lg:block" />
         <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>

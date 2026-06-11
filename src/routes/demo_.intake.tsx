@@ -99,7 +99,7 @@ function DemoIntakePage() {
     <SiteShell>
       <DemoStepBar current="intake" student={s} />
 
-      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1">
             <Sparkles className="h-3 w-3" /> Step 2 · Intake

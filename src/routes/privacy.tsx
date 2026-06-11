@@ -119,7 +119,7 @@ function PrivacyPage() {
       </section>
 
       {/* Six promises */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
           Our six promises
         </h2>
@@ -162,7 +162,7 @@ function PrivacyPage() {
       </section>
 
       {/* Your rights */}
-      <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
           Your rights in one paragraph.
         </h2>

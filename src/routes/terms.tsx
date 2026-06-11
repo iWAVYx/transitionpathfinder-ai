@@ -26,7 +26,7 @@ export const Route = createFileRoute("/terms")({
 function TermsPage() {
   return (
     <SiteShell>
-      <article className="mx-auto max-w-3xl space-y-10 px-4 py-16 sm:px-6 lg:px-8">
+      <article className="mx-auto max-w-3xl space-y-10 px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <header className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Last updated: June 2026 · Pilot release
