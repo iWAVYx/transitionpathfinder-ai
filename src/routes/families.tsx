@@ -11,8 +11,9 @@ import {
 import { photos, srcSetFor } from "@/lib/photos";
 import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
 import momDaughterHomeworkAsset from "@/assets/mom-daughter-homework.png.asset.json";
+void photos; void srcSetFor;
 const familiesHero = momDaughterHomeworkAsset.url;
-const familiesHeroSrcSet = undefined as unknown as string;
+const familiesHeroSrcSet: string | undefined = undefined;
 const homeFamilyImage = familyWalkingAsset.url;
 
 import {
