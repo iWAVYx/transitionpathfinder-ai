@@ -11,8 +11,9 @@ import {
 import { photos } from "@/lib/photos";
 import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
 import happyTeacherMorningAsset from "@/assets/happy-teacher-morning.png.asset.json";
+import calendarMeetingAsset from "@/assets/calendar-meeting.png.asset.json";
 const educatorsHero = stressedTeacherAsset.url;
-const frameworkImg = photos.framework;
+const frameworkImg = calendarMeetingAsset.url;
 const dashboardImg = happyTeacherMorningAsset.url;
 const iepUploadImg = photos.iepUpload;
 
