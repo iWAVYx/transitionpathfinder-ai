@@ -10,9 +10,10 @@ import {
 } from "lucide-react";
 import { photos } from "@/lib/photos";
 import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
+import happyTeacherMorningAsset from "@/assets/happy-teacher-morning.png.asset.json";
 const educatorsHero = stressedTeacherAsset.url;
 const frameworkImg = photos.framework;
-const dashboardImg = photos.dashboard;
+const dashboardImg = happyTeacherMorningAsset.url;
 const iepUploadImg = photos.iepUpload;
 
 import {
