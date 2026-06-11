@@ -240,7 +240,7 @@ function PartnerManagePage() {
         </header>
 
         <Tabs defaultValue="opportunities" className="mt-6">
-          <TabsList>
+          <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
             <TabsTrigger value="opportunities">
               <Briefcase className="mr-1.5 h-3.5 w-3.5" /> Opportunities
             </TabsTrigger>
