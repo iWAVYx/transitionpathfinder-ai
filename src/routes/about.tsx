@@ -79,7 +79,7 @@ function AboutHero() {
         >
           Our Story
         </motion.p>
-        <h1 className="mt-4 max-w-4xl font-display text-[1.85rem] font-medium leading-[1.15] tracking-tight text-foreground sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
+        <h1 className="mt-4 max-w-4xl font-display text-[clamp(1.6rem,7vw,1.95rem)] font-medium leading-[1.15] tracking-tight text-foreground [text-wrap:balance] [hyphens:auto] [overflow-wrap:break-word] sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
           <Phrase text="We built this for" startDelay={0.1} />
           <br />
           <Phrase text="&nbsp;the kids who never" startDelay={0.3} />{" "}
