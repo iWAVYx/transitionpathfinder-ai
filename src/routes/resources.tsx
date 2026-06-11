@@ -844,7 +844,7 @@ function BrowseTab(props: {
       {/* Filter bar */}
       <div
         data-testid="resources-sticky-filters"
-        className="sticky top-36 z-30 mt-6 rounded-2xl border border-border/60 bg-background/95 p-3 shadow-soft backdrop-blur-md sm:p-4"
+        className="sticky top-28 z-30 mt-4 rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md sm:p-3"
       >
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
