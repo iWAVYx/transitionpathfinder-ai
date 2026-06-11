@@ -333,7 +333,7 @@ function DashboardPage() {
   const s = snap.student;
   return (
     <SiteShell>
-      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard" }]} />
 
         <div className="mt-4">
@@ -371,15 +371,15 @@ function DashboardPage() {
       {s && (
         <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Student Profile Card */}
-          <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 font-display text-2xl font-medium text-primary ring-1 ring-primary/20">
+          <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6 lg:p-8">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 font-display text-xl font-medium text-primary ring-1 ring-primary/20 sm:h-16 sm:w-16 sm:text-2xl">
                   {s.first_name[0]}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Student</p>
-                  <h2 className="mt-1 font-display text-3xl font-medium tracking-tight">
+                  <h2 className="mt-1 truncate font-display text-2xl font-medium tracking-tight sm:text-3xl">
                     {s.preferred_name ?? s.first_name} {s.last_name ?? ""}
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -397,9 +397,10 @@ function DashboardPage() {
               <Link
                 to="/students/$studentId"
                 params={{ studentId: s.id }}
-                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                className="shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
               >
-                Open student hub →
+                <span className="hidden sm:inline">Open student hub →</span>
+                <span className="sm:hidden">Open →</span>
               </Link>
             </div>
 
@@ -424,13 +425,13 @@ function DashboardPage() {
           </div>
 
           {/* Pathway Report Panel */}
-          <div className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
+          <div className="mt-6 rounded-3xl border bg-gradient-hero p-5 shadow-soft sm:p-6 lg:p-8">
+            <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
+              <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                   Pathway Report
                 </p>
-                <h2 className="mt-1 font-display text-3xl font-medium tracking-tight">
+                <h2 className="mt-1 font-display text-2xl font-medium tracking-tight sm:text-3xl">
                   {snap.latestReport ? "Latest report" : "No report yet"}
                 </h2>
                 {snap.latestReport && (

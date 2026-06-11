@@ -193,7 +193,7 @@ function PartnerManagePage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs
           trail={[
             { label: "Dashboard", to: "/dashboard" },
@@ -206,23 +206,23 @@ function PartnerManagePage() {
           <OnboardingChecklist surface="partner" className="mt-4" />
         </div>
 
-        <header className="mt-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+        <header className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:justify-between">
+          <div className="col-span-2 min-w-0 sm:col-span-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               Partner / Agency
             </p>
-            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+            <h1 className="mt-1.5 truncate font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
               {org.name}
             </h1>
-            <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <p className="mt-1 inline-flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <VerifiedPill status={org.verified_status} />
-              {[org.city, org.state].filter(Boolean).join(", ") || "Location not set"}
+              <span className="truncate">{[org.city, org.state].filter(Boolean).join(", ") || "Location not set"}</span>
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="col-span-2 flex gap-2 sm:col-span-1 sm:justify-end">
             {ws.orgs.length > 1 && (
               <Select value={orgId} onValueChange={(v) => reload(v)}>
-                <SelectTrigger className="w-64">
+                <SelectTrigger className="w-full sm:w-64">
                   <SelectValue placeholder="Organization" />
                 </SelectTrigger>
                 <SelectContent>
@@ -240,7 +240,7 @@ function PartnerManagePage() {
         </header>
 
         <Tabs defaultValue="opportunities" className="mt-6">
-          <TabsList>
+          <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
             <TabsTrigger value="opportunities">
               <Briefcase className="mr-1.5 h-3.5 w-3.5" /> Opportunities
             </TabsTrigger>
