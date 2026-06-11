@@ -157,16 +157,51 @@ export const getNextBestAction = createServerFn({ method: "POST" })
     }
 
     if (surface === "educator") {
-      const { count: studentsCount } = await supabase
+      const { data: caseload } = await supabase
         .from("student_collaborators")
-        .select("student_id", { count: "exact", head: true })
+        .select("student_id")
         .eq("user_id", userId)
         .eq("status", "accepted");
 
-      if (!studentsCount || studentsCount === 0) {
+      const ids = (caseload ?? []).map((r) => r.student_id as string);
+      if (ids.length === 0) {
         return {
           headline: "Build your caseload",
-          body: "Connect to students by accepting invites from families or adding students you support.",
+          body: "Connect to students by accepting invites from families or adding students you support as a case manager.",
+          ctaLabel: "Open caseload",
+          ctaHref: "/caseload",
+          tone: "primary",
+        };
+      }
+
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("student_id")
+        .in("student_id", ids);
+      const studentsWithDocs = new Set((docs ?? []).map((d) => d.student_id as string));
+      const missingDocs = ids.filter((id) => !studentsWithDocs.has(id));
+
+      if (missingDocs.length > 0) {
+        return {
+          headline: `${missingDocs.length} ${missingDocs.length === 1 ? "student is" : "students are"} missing an IEP`,
+          body: "Upload the current IEP or transition plan so the Pathway Report has the right foundation.",
+          ctaLabel: "Open caseload",
+          ctaHref: "/caseload",
+          tone: "warning",
+        };
+      }
+
+      const { data: reports } = await supabase
+        .from("pathway_reports")
+        .select("student_id")
+        .in("student_id", ids);
+      const studentsWithReports = new Set((reports ?? []).map((r) => r.student_id as string));
+      const missingReports = ids.filter((id) => !studentsWithReports.has(id));
+
+      if (missingReports.length > 0) {
+        return {
+          headline: `Generate ${missingReports.length} Pathway ${missingReports.length === 1 ? "Report" : "Reports"}`,
+          body: "Turn IEP information and student voice into a clear transition plan for each student.",
           ctaLabel: "Open caseload",
           ctaHref: "/caseload",
           tone: "primary",
@@ -174,18 +209,18 @@ export const getNextBestAction = createServerFn({ method: "POST" })
       }
 
       return {
-        headline: "Review students missing transition data",
-        body: "Check who still needs profile updates, an IEP on file, or a generated Pathway Report.",
-        ctaLabel: "Open caseload",
-        ctaHref: "/caseload",
-        tone: "primary",
+        headline: "Assign follow-up action items",
+        body: "Your caseload has Pathway Reports — keep momentum by assigning the next concrete actions.",
+        ctaLabel: "Open action items",
+        ctaHref: "/goals",
+        tone: "success",
       };
     }
 
     if (surface === "school_admin") {
       return {
-        headline: "Review school transition planning status",
-        body: "See which students still need completed profiles, uploaded documents, or generated Pathway Reports.",
+        headline: "Review students missing reports",
+        body: "Check case manager progress and identify students still needing a completed Pathway Report.",
         ctaLabel: "Open school overview",
         ctaHref: "/school/overview",
         tone: "primary",
@@ -194,8 +229,8 @@ export const getNextBestAction = createServerFn({ method: "POST" })
 
     if (surface === "district_admin") {
       return {
-        headline: "Review schools with low completion",
-        body: "Identify which schools need additional implementation support based on Pathway Report adoption.",
+        headline: "Review school-by-school implementation",
+        body: "Track transition readiness trends and identify schools that need additional support.",
         ctaLabel: "Open district reports",
         ctaHref: "/district/reports",
         tone: "primary",
