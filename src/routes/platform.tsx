@@ -15,7 +15,7 @@ import {
   Heart,
   ArrowRight,
 } from "lucide-react";
-import platformHeroAsset from "@/assets/platform-hero-student-laptop.png.asset.json";
+import platformHeroAsset from "@/assets/piecing-puzzle.png.asset.json";
 const platformHero = platformHeroAsset.url;
 const platformHeroSrcSet = undefined as unknown as string;
 
