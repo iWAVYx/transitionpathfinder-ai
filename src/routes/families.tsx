@@ -244,9 +244,6 @@ function FamiliesPage() {
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
               Inside you'll find a living timeline of milestones across grades and PPT cycles, space to invite grandparents or trusted advocates, soft reminders for paperwork windows and deadlines, and a private sketchpad for late-night worries and small wins — kept just for you.
             </p>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Inside you'll find a living timeline of milestones across grades and PPT cycles, space to invite grandparents or trusted advocates, soft reminders for paperwork windows and deadlines, and a private sketchpad for late-night worries and small wins — kept just for you.
-            </p>
           </div>
         </div>
       </section>
