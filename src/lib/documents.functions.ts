@@ -16,9 +16,29 @@ export type DocumentRow = {
   mime_type: string | null;
   size_bytes: number | null;
   parsed_summary: Json | null;
+  visibility: string | null;
+  school_year: string | null;
+  meeting_date: string | null;
+  effective_date: string | null;
+  review_date: string | null;
+  consent_acknowledged_at: string | null;
   created_at: string;
   updated_at: string;
 };
+
+export type DocumentPermissionRow = {
+  id: string;
+  document_id: string;
+  student_id: string;
+  user_id: string | null;
+  role_type: string | null;
+  permission_level: "none" | "view_summary" | "view_document" | "edit_metadata" | "manage";
+  granted_by: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 
 export const listDocuments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
