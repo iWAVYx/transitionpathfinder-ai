@@ -82,7 +82,7 @@ function AboutHero() {
         <h1 className="mt-4 max-w-4xl font-display text-[1.85rem] font-medium leading-[1.15] tracking-tight text-foreground sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
           <Phrase text="We built this for" startDelay={0.1} />
           <br />
-          <Phrase text="the kids who never" startDelay={0.3} />{" "}
+          <Phrase text="&nbsp;the kids who never" startDelay={0.3} />{" "}
           <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">
             <Phrase text="got the playbook." startDelay={0.5} />
           </span>
