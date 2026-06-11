@@ -449,7 +449,7 @@ function PlatformPage() {
 
 
       {/* Tool library */}
-      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Parallax speed={0.18} className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center">
           <div className="h-80 w-80 rounded-full bg-gradient-sky opacity-25 blur-3xl" />
         </Parallax>
@@ -457,7 +457,7 @@ function PlatformPage() {
           <div className="h-56 w-56 rounded-full bg-peach-soft opacity-50 blur-3xl" />
         </Parallax>
 
-        <div className="mx-auto mb-10 max-w-2xl text-center">
+        <div className="mx-auto mb-6 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             The Full Toolkit
           </p>
@@ -469,7 +469,7 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-4xl auto-rows-fr justify-center gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto grid max-w-4xl auto-rows-fr justify-center gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
             <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
               <ToolCard {...f} />
