@@ -139,7 +139,7 @@ function EducatorsPage() {
               </Parallax>
               <ParallaxImage
                 src={educatorsHero}
-                srcSet={educatorsHeroSrcSet}
+                
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 eager
                 alt="Illustrated teacher desk at golden hour with a constellation of sticky notes wired to a glowing lightbulb"
