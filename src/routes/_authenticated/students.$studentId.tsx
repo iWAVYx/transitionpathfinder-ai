@@ -98,39 +98,6 @@ function StudentDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
 
-  async function handleUpload(file: File) {
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error("File is too large (20MB max).");
-      return;
-    }
-    setUploading(true);
-    try {
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
-      const path = `${studentId}/${Date.now()}-${safeName}`;
-      const { error: upErr } = await supabase.storage
-        .from("student-documents")
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) throw upErr;
-      await register({
-        data: {
-          student_id: studentId,
-          title: file.name.slice(0, 200),
-          storage_path: path,
-          mime_type: file.type || undefined,
-          size_bytes: file.size,
-          doc_type: "iep",
-        },
-      });
-      toast.success("Document uploaded.");
-      await reload();
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  }
 
   async function handleDownload(doc: DocumentRow) {
     try {
