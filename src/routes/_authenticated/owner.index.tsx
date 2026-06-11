@@ -25,42 +25,13 @@ import {
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { StatGrid, StatCard } from "@/components/layout/StatGrid";
+import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
   component: OwnerDashboardPage,
 });
-
-function MetricCard({
-  label,
-  value,
-  delta,
-  icon: Icon,
-  accent = "text-primary",
-}: {
-  label: string;
-  value: number | string;
-  delta?: string;
-  icon: typeof Users;
-  accent?: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-background p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {label}
-          </p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
-          {delta && <p className="mt-1 text-xs text-muted-foreground">{delta}</p>}
-        </div>
-        <div className={"rounded-md bg-muted p-2 " + accent}>
-          <Icon className="h-4 w-4" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
@@ -98,12 +69,12 @@ function OwnerDashboardPage() {
       ) : !metrics ? (
         <p className="text-sm text-muted-foreground">No metrics available.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 sm:space-y-8">
           <NextBestAction surface="admin" />
           <OnboardingChecklist surface="admin" />
 
-          {/* Site status banner */}
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background p-4">
+          {/* Site status banner — pills wrap cleanly on mobile */}
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background p-3 sm:p-4">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Site status
             </span>
@@ -116,111 +87,113 @@ function OwnerDashboardPage() {
             <Badge variant="outline">{metrics.siteStatus.launchStatus.replace(/_/g, " ")}</Badge>
           </div>
 
-          {/* Metrics grid */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard
+          {/* Primary KPIs */}
+          <StatGrid cols={4}>
+            <StatCard
               label="Total users"
               value={metrics.totalUsers}
-              delta={`+${metrics.newUsersThisWeek} this week`}
-              icon={Users}
+              hint={`+${metrics.newUsersThisWeek} this week`}
+              icon={<Users className="h-3.5 w-3.5" />}
             />
-            <MetricCard
+            <StatCard
               label="Waitlist entries"
               value={metrics.totalWaitlist}
-              delta={`${metrics.newWaitlist} new`}
-              icon={ClipboardList}
+              hint={`${metrics.newWaitlist} new`}
+              icon={<ClipboardList className="h-3.5 w-3.5" />}
             />
-            <MetricCard
-              label="Contact submissions"
+            <StatCard
+              label="Contacts"
               value={metrics.totalContacts}
-              delta={`${metrics.newContacts} new`}
-              icon={Mail}
+              hint={`${metrics.newContacts} new`}
+              icon={<Mail className="h-3.5 w-3.5" />}
             />
-            <MetricCard
+            <StatCard
               label="Resources"
               value={resourceCounts?.published ?? 0}
-              delta={`${resourceCounts?.drafts ?? 0} unpublished`}
-              icon={BookOpen}
+              hint={`${resourceCounts?.drafts ?? 0} drafts`}
+              icon={<BookOpen className="h-3.5 w-3.5" />}
             />
-          </div>
+          </StatGrid>
 
-          {/* Resource library health */}
+          {/* Resource library health — only renders when there's something to act on */}
           {reviewCounts && (reviewCounts.resourcesNeedingReview + reviewCounts.brokenLinks + reviewCounts.sourcesNeedingReview > 0) && (
-            <section>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <section className="space-y-3 sm:space-y-4">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Resource library health
               </h2>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Link to="/owner/resource-review" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
+                <Link to="/owner/resource-review" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources needing review</p>
-                  <p className="mt-2 text-2xl font-semibold">{reviewCounts.resourcesNeedingReview}</p>
+                  <p className="mt-2 font-display text-2xl">{reviewCounts.resourcesNeedingReview}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Open review queue →</p>
                 </Link>
-                <Link to="/owner/resource-review" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                <Link to="/owner/resource-review" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken links</p>
-                  <p className={`mt-2 text-2xl font-semibold ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
+                  <p className={`mt-2 font-display text-2xl ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Resolve in queue →</p>
                 </Link>
-                <Link to="/owner/resource-sources" className="rounded-lg border border-border bg-background p-4 hover:bg-muted transition-colors">
+                <Link to="/owner/resource-sources" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source libraries to review</p>
-                  <p className="mt-2 text-2xl font-semibold">{reviewCounts.sourcesNeedingReview}</p>
+                  <p className="mt-2 font-display text-2xl">{reviewCounts.sourcesNeedingReview}</p>
                 </Link>
               </div>
             </section>
           )}
 
-          {/* Quick actions */}
-          <section>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Quick actions
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="default" size="sm">
+          {/* Quick actions — secondary, collapsed on mobile to reduce density */}
+          <CollapsibleSection
+            title="Quick actions"
+            description="Jump into common admin tasks."
+            icon={<SettingsIcon className="h-4 w-4 text-muted-foreground" />}
+            defaultOpen={false}
+          >
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <Button asChild variant="default" size="sm" className="w-full justify-start">
                 <Link to="/owner/waitlist">
                   <ClipboardList className="mr-1.5 h-3.5 w-3.5" /> View waitlist
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/contacts">
                   <Mail className="mr-1.5 h-3.5 w-3.5" /> Review contacts
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/resources">
                   <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Manage resources
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/content">
                   <FileText className="mr-1.5 h-3.5 w-3.5" /> Edit site content
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/analytics">
                   <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> View analytics
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/admins">
                   <Users className="mr-1.5 h-3.5 w-3.5" /> Manage admins
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/settings">
                   <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site settings
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/activity">
                   <Building2 className="mr-1.5 h-3.5 w-3.5" /> Partners ({metrics.partnerInquiries})
                 </Link>
               </Button>
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Recent activity */}
-          <section>
-            <div className="mb-3 flex items-center justify-between">
+          <section className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Recent admin activity
               </h2>
@@ -228,13 +201,13 @@ function OwnerDashboardPage() {
                 View all →
               </Link>
             </div>
-            <div className="overflow-hidden rounded-lg border border-border bg-background">
+            <div className="overflow-hidden rounded-2xl border border-border bg-background">
               {metrics.recentActivity.length === 0 ? (
                 <p className="p-4 text-sm text-muted-foreground">No activity yet.</p>
               ) : (
                 <ul className="divide-y divide-border">
                   {metrics.recentActivity.slice(0, 10).map((a) => (
-                    <li key={a.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                    <li key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm">
                       <Activity className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                       <span className="font-medium">{a.action_type.replace(/_/g, " ")}</span>
                       {a.target_type && (
@@ -257,3 +230,4 @@ function OwnerDashboardPage() {
     </OwnerShell>
   );
 }
+
