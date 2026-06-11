@@ -1,14 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   FileText,
-  Upload,
-  Trash2,
-  Download,
-  Sparkles,
-  Loader2,
   Target,
   Users as UsersIcon,
   Compass,
@@ -20,6 +15,10 @@ import {
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import {
+  FamilyDocumentUpload,
+  StandardDocActions,
+} from "@/components/students/FamilyDocumentUpload";
 import { Button } from "@/components/ui/button";
 import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
 import { GoalsEditor } from "@/components/students/GoalsEditor";
@@ -29,11 +28,9 @@ import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
 import { RecommendedResourcesPanel } from "@/components/students/RecommendedResourcesPanel";
 import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartnersPanel";
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
-import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
-  registerDocument,
   deleteDocument,
   getDocumentSignedUrl,
   extractGoalsFromText,
@@ -69,7 +66,6 @@ function StudentDetailPage() {
   const fetchStudent = useServerFn(getStudent);
   const fetchDocs = useServerFn(listDocuments);
   const fetchGoals = useServerFn(listGoals);
-  const register = useServerFn(registerDocument);
   const remove = useServerFn(deleteDocument);
   const sign = useServerFn(getDocumentSignedUrl);
   const extractGoals = useServerFn(extractGoalsFromText);
@@ -78,11 +74,9 @@ function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [uploading, setUploading] = useState(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   async function reload() {
     const [s, d, g] = await Promise.all([
@@ -100,39 +94,6 @@ function StudentDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
 
-  async function handleUpload(file: File) {
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error("File is too large (20MB max).");
-      return;
-    }
-    setUploading(true);
-    try {
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
-      const path = `${studentId}/${Date.now()}-${safeName}`;
-      const { error: upErr } = await supabase.storage
-        .from("student-documents")
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) throw upErr;
-      await register({
-        data: {
-          student_id: studentId,
-          title: file.name.slice(0, 200),
-          storage_path: path,
-          mime_type: file.type || undefined,
-          size_bytes: file.size,
-          doc_type: "iep",
-        },
-      });
-      toast.success("Document uploaded.");
-      await reload();
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  }
 
   async function handleDownload(doc: DocumentRow) {
     try {
@@ -294,87 +255,22 @@ function StudentDetailPage() {
 
 
         {/* DOCUMENTS */}
-        <div className="mt-10 rounded-2xl border bg-card p-6 shadow-soft">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="font-display text-2xl">Documents</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Store IEPs, evaluations, and transition plans privately. Only you and people you
-                invite can see them.
-              </p>
-            </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-shadow hover:shadow-lift disabled:opacity-50">
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf,.txt,.doc,.docx,application/pdf,text/plain"
-                className="hidden"
-                disabled={uploading}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleUpload(f);
-                }}
+        <div className="mt-10">
+          <FamilyDocumentUpload
+            studentId={studentId}
+            studentFirstName={student?.first_name ?? null}
+            docs={docs}
+            onChange={reload}
+            renderRowActions={(d) => (
+              <StandardDocActions
+                doc={d}
+                parsing={parsing}
+                onExtract={handleParse}
+                onDownload={handleDownload}
+                onDelete={handleDelete}
               />
-              {uploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Uploading…
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4" /> Upload document
-                </>
-              )}
-            </label>
-          </div>
-
-          <ul className="mt-5 divide-y rounded-xl border">
-            {docs.length === 0 ? (
-              <li className="p-6 text-center text-sm text-muted-foreground">
-                No documents yet. Upload an IEP to extract goals automatically.
-              </li>
-            ) : (
-              docs.map((d) => (
-                <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{d.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {(d.size_bytes ?? 0) > 0
-                          ? `${Math.round((d.size_bytes ?? 0) / 1024)} KB · `
-                          : ""}
-                        {new Date(d.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleParse(d)}
-                      disabled={parsing === d.id}
-                    >
-                      {parsing === d.id ? (
-                        <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading…
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-3.5 w-3.5" /> Extract goals
-                        </>
-                      )}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleDownload(d)}>
-                      <Download className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleDelete(d)}>
-                      <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                    </Button>
-                  </div>
-                </li>
-              ))
             )}
-          </ul>
+          />
         </div>
 
         {/* PROPOSED GOALS */}
