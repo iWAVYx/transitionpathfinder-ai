@@ -102,7 +102,7 @@ function Field({
         {baseLabel}
         <textarea
           rows={4}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg border bg-background px-3 py-2.5 text-base sm:py-2 sm:text-sm"
           value={(value as string) ?? ""}
           onChange={(e) => onChange(e.target.value)}
         />
