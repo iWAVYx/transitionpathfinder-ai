@@ -8,6 +8,7 @@ import {
   HeartHandshake,
   Sparkles,
   MapPin,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Star,
   Compass,
 } from "lucide-react";
