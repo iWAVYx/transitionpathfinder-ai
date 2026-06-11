@@ -8,7 +8,7 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
+import stressedTeacherAsset from "@/assets/red-head-teacher-stressed.png.asset.json";
 import happyTeacherMorningAsset from "@/assets/happy-teacher-morning.png.asset.json";
 import calendarMeetingAsset from "@/assets/calendar-meeting.png.asset.json";
 import iepBinderAsset from "@/assets/iep-binder.png.asset.json";
