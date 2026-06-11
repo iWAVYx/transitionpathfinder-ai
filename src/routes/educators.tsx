@@ -8,6 +8,7 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
+import { photos } from "@/lib/photos";
 import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
 const educatorsHero = stressedTeacherAsset.url;
 const frameworkImg = photos.framework;
