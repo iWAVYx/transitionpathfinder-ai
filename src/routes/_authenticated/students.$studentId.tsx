@@ -17,6 +17,10 @@ import {
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import {
+  FamilyDocumentUpload,
+  StandardDocActions,
+} from "@/components/students/FamilyDocumentUpload";
 import { Button } from "@/components/ui/button";
 import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
 import { GoalsEditor } from "@/components/students/GoalsEditor";
