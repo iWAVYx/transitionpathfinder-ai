@@ -319,7 +319,14 @@ function PartnersPage() {
             <div className="relative">
               <CornerArc className="pointer-events-none absolute -left-6 -top-6 -z-10 h-40 w-40 text-primary/40" />
               <Parallax speed={0.18}>
-                <PartnerNetworkVisual />
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-foreground/10 shadow-lift">
+                  <img
+                    src={partnersHero.url}
+                    alt="Two people shaking hands in front of a school — a symbol of partnership"
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: "center 45%" }}
+                  />
+                </div>
               </Parallax>
               <svg
                 aria-hidden
