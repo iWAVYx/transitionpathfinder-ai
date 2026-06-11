@@ -47,6 +47,7 @@ import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
 import { RoleGuard } from "@/components/RoleGuard";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -344,6 +345,7 @@ function DashboardPage() {
         <div className="mt-4">
           <InvitesInbox />
           <NextBestAction surface="family" />
+          <JourneyStrip surface="family" className="mt-4" />
           <OnboardingChecklist surface="family" className="mt-4" />
         </div>
 

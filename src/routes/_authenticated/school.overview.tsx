@@ -4,6 +4,7 @@ import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight } from "lu
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { Button } from "@/components/ui/button";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { GradeBandBreakdown } from "@/components/dashboard/GradeBandBreakdown";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
@@ -31,7 +32,7 @@ function SchoolOverviewPage() {
         // then org info / recent students, then secondary breakdown (collapsed
         // on mobile to reduce density).
         <div className="space-y-6 sm:space-y-8">
-          <NextBestAction surface="school_admin" />
+          <NextBestAction surface="school_admin" /><div className="mt-4"><JourneyStrip surface="school_admin" /></div>
           <OnboardingChecklist surface="school_admin" />
 
           <StatGrid cols={4}>
