@@ -182,9 +182,9 @@ function ReviewPage() {
     <SiteShell>
       <div className="container mx-auto max-w-4xl px-4 py-6 space-y-6">
         <Breadcrumbs
-          items={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Documents", href: "/documents" },
+          trail={[
+            { label: "Dashboard", to: "/dashboard" },
+            { label: "Documents", to: "/documents" },
             { label: "Review IEP" },
           ]}
         />
