@@ -12,7 +12,7 @@ import {
   Compass,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import partnersHero from "@/assets/partners-hero.jpg";
+import partnersHero from "@/assets/handshake.png.asset.json";
 import {
   CursorField,
   Magnetic,
