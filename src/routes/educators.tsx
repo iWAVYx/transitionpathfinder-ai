@@ -8,10 +8,8 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import { photos, srcSetFor } from "@/lib/photos";
 import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
 const educatorsHero = stressedTeacherAsset.url;
-const educatorsHeroSrcSet = undefined as unknown as string;
 const frameworkImg = photos.framework;
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
