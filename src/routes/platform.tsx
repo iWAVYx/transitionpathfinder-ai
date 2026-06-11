@@ -469,7 +469,7 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-5xl auto-rows-fr justify-center gap-1.5 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl auto-rows-fr justify-center gap-1.5 grid-cols-2 md:grid-cols-3">
           {features.map((f, i) => (
             <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
               <ToolCard {...f} />
