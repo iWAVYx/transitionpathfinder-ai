@@ -4,9 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   FileText,
-  Upload,
-  Trash2,
-  Download,
   Sparkles,
   Loader2,
   Target,
