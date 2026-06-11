@@ -65,7 +65,7 @@ function AboutHero() {
   const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
   return (
-    <section ref={ref} className="relative isolate -mt-px h-[88svh] min-h-[520px] overflow-hidden sm:h-[78svh] sm:min-h-[480px]">
+    <section ref={ref} className="relative isolate -mt-px min-h-[88svh] overflow-hidden sm:min-h-[78svh]">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
         <img src={aboutHero} srcSet={aboutHeroSrcSet} sizes="100vw" alt="Students walking toward an open doorway of light" fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
       </motion.div>
@@ -79,7 +79,7 @@ function AboutHero() {
         >
           Our Story
         </motion.p>
-        <h1 className="mt-4 max-w-4xl font-display text-[1.85rem] font-medium leading-[1.15] tracking-tight text-foreground sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
+        <h1 className="mt-4 max-w-4xl font-display text-[clamp(1.6rem,7vw,1.95rem)] font-medium leading-[1.15] tracking-tight text-foreground [text-wrap:balance] [hyphens:auto] [overflow-wrap:break-word] sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
           <Phrase text="We built this for" startDelay={0.1} />
           <br />
           <Phrase text="&nbsp;the kids who never" startDelay={0.3} />{" "}
@@ -108,7 +108,7 @@ function Phrase({ text, startDelay = 0 }: { text: string; startDelay?: number })
 
 function Word({ text, d = 0 }: { text: string; d?: number }) {
   return (
-    <span className="inline-block overflow-hidden pb-1 align-bottom">
+    <span className="inline-block overflow-hidden pb-[0.18em] align-bottom leading-[1.15]">
       <motion.span
         initial={{ y: "100%" }}
         animate={{ y: "0%" }}
