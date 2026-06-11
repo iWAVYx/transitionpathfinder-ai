@@ -182,7 +182,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         transformStyle: "preserve-3d",
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
-      className="group relative flex aspect-square h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-soft hover:shadow-lift"
+      className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-soft hover:shadow-lift"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -190,6 +190,11 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
           background:
             "radial-gradient(220px circle at var(--mx,50%) var(--my,50%), hsl(var(--primary) / 0.18), transparent 60%)",
         }}
+      />
+      {/* Oversized corner logo fills empty space */}
+      <Icon
+        className="pointer-events-none absolute -bottom-6 -right-6 h-32 w-32 text-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/15"
+        aria-hidden
       />
       <div className="relative flex items-start justify-between">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
