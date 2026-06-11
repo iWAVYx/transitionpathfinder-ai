@@ -103,6 +103,8 @@ for (const vp of VIEWPORTS) {
       await page.evaluate(() => window.scrollTo(0, 1500));
       await page.waitForTimeout(150);
 
+      await openSearchIfCollapsed(page, vp.width);
+
       const input = page
         .getByTestId("resources-sticky-search")
         .getByPlaceholder(/Search videos, podcasts/i);
