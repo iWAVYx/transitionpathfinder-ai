@@ -224,6 +224,8 @@ function StudentDetailPage() {
             <StatTile icon={<Compass className="h-4 w-4" />} label="Pathway" value="In progress" small />
             <StatTile icon={<UsersIcon className="h-4 w-4" />} label="Privacy" value="Invite-only" small />
           </div>
+
+          <ProfileCompleteness student={student} goals={goals} docs={docs} />
         </header>
 
         {/* HUB CARDS */}
