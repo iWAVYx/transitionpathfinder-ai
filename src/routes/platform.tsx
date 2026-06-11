@@ -182,7 +182,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         transformStyle: "preserve-3d",
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
-      className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-4 shadow-soft hover:shadow-lift"
+      className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-3 shadow-soft hover:shadow-lift"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -193,11 +193,11 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
       />
       {/* Oversized corner logo fills empty space */}
       <Icon
-        className="pointer-events-none absolute -bottom-6 -right-6 h-32 w-32 text-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/15"
+        className="pointer-events-none absolute -bottom-4 -right-4 h-24 w-24 text-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/15"
         aria-hidden
       />
       <div className="relative flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex flex-wrap justify-end gap-1">
@@ -211,11 +211,11 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
           ))}
         </div>
       </div>
-      <div className="relative mt-2 flex flex-col gap-1">
+      <div className="relative mt-1.5 flex flex-col gap-0.5">
         <h3 className="font-display text-xl font-medium leading-snug tracking-tight">
           {toTitleCase(title)}
         </h3>
-        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-4">
+        <p className="text-sm leading-snug text-muted-foreground line-clamp-4">
           {body}
         </p>
       </div>
@@ -449,7 +449,7 @@ function PlatformPage() {
 
 
       {/* Tool library */}
-      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Parallax speed={0.18} className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center">
           <div className="h-80 w-80 rounded-full bg-gradient-sky opacity-25 blur-3xl" />
         </Parallax>
@@ -457,19 +457,19 @@ function PlatformPage() {
           <div className="h-56 w-56 rounded-full bg-peach-soft opacity-50 blur-3xl" />
         </Parallax>
 
-        <div className="mx-auto mb-6 max-w-2xl text-center">
+        <div className="mx-auto mb-5 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             The Full Toolkit
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
             Nine Tools, One Connected Pathway.
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
             Every tool below is tagged with who uses it most. Nothing lives in a silo.
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-4xl auto-rows-fr justify-center gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl auto-rows-fr justify-center gap-1.5 sm:grid-cols-2 md:grid-cols-3">
           {features.map((f, i) => (
             <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
               <ToolCard {...f} />
