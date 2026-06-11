@@ -48,11 +48,20 @@ export function FormRenderer({
         <Field key={f.id} field={f} value={values[f.id]} onChange={(v) => setVal(f.id, v)} />
       ))}
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <div className="flex flex-wrap gap-3 border-t pt-6">
-        <Button onClick={() => submit("completed")} disabled={saving}>
+      <div className="flex flex-col-reverse gap-2 border-t pt-6 sm:flex-row sm:flex-wrap sm:gap-3">
+        <Button
+          onClick={() => submit("completed")}
+          disabled={saving}
+          className="w-full sm:w-auto"
+        >
           {saving ? "Saving…" : "Mark complete"}
         </Button>
-        <Button variant="outline" onClick={() => submit("draft")} disabled={saving}>
+        <Button
+          variant="outline"
+          onClick={() => submit("draft")}
+          disabled={saving}
+          className="w-full sm:w-auto"
+        >
           Save draft
         </Button>
       </div>
