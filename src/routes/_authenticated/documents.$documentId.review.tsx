@@ -75,7 +75,7 @@ function ReviewPage() {
     (async () => {
       try {
         const res = await fnGet({ data: { document_id: documentId } });
-        setExtraction(res.extraction as Extraction);
+        setExtraction(res.extraction as unknown as Extraction);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Could not load extraction.");
       } finally {
@@ -106,7 +106,7 @@ function ReviewPage() {
     setRunning(true);
     try {
       const res = await fnRun({ data: { document_id: documentId, text: pastedText } });
-      setExtraction(res.extraction as Extraction);
+      setExtraction(res.extraction as unknown as Extraction);
       toast.success("Draft extracted — review each section below.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Extraction failed.");
