@@ -4,7 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   FileText,
-  Sparkles,
   Target,
   Users as UsersIcon,
   Compass,
