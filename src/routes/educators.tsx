@@ -173,7 +173,7 @@ function EducatorsPage() {
       </section>
 
       {/* FEATURE CARDS with staggered reveal */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <Reveal className="mx-auto mb-12 max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             What you get
@@ -212,7 +212,7 @@ function EducatorsPage() {
       </section>
 
       {/* TEXT SCROLL FILL — a mission line that lights up */}
-      <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <TextScrollFill
           className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
           text="You went into teaching to change lives — not to write the same transition goal seven times. We hold the paperwork so you can hold the room."

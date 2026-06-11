@@ -44,7 +44,7 @@ function ResetPasswordPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-md px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-md px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <h1 className="font-display text-3xl">Choose a New Password</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Use something memorable — and not one you've used on another site.

@@ -89,7 +89,7 @@ function LoginPage() {
           className="pointer-events-none absolute -bottom-32 -left-20 -z-10 h-80 w-80 rounded-full bg-accent/30 blur-3xl"
         />
 
-        <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
           <div className="grid w-full max-w-5xl gap-6 md:grid-cols-5">
             <aside className="relative overflow-hidden rounded-3xl border border-border/40 bg-card/70 p-8 shadow-soft backdrop-blur-sm md:col-span-2 md:p-10">
               <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">

@@ -359,7 +359,7 @@ function PartnersPage() {
       </CursorField>
 
       {/* ============ THE PARTNER NETWORK ============ */}
-      <section className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         {/* Decorative SVG in section blank space */}
         <FloatingShape
           className="pointer-events-none absolute right-[2%] top-10 hidden text-sky/40 lg:block"
@@ -469,7 +469,7 @@ function PartnersPage() {
       </section>
 
       {/* ============ CTA — OPEN COMPOSITION ============ */}
-      <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-14 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <FloatingShape
           className="pointer-events-none absolute left-[4%] top-16 hidden text-primary/25 lg:block"
           duration={26}
