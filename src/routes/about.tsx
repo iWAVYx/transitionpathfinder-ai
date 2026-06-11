@@ -108,7 +108,7 @@ function Phrase({ text, startDelay = 0 }: { text: string; startDelay?: number })
 
 function Word({ text, d = 0 }: { text: string; d?: number }) {
   return (
-    <span className="inline-block overflow-hidden pb-1 align-bottom">
+    <span className="inline-block overflow-hidden pb-[0.18em] align-bottom leading-[1.15]">
       <motion.span
         initial={{ y: "100%" }}
         animate={{ y: "0%" }}
