@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   FileText,
   Sparkles,
-  Loader2,
   Target,
   Users as UsersIcon,
   Compass,
@@ -79,11 +78,9 @@ function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [uploading, setUploading] = useState(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   async function reload() {
     const [s, d, g] = await Promise.all([
