@@ -249,7 +249,7 @@ export function StickyScrollStory({
           )}
           {title && (
             <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-              {toTitleCase(title)}
+              {typeof title === "string" ? toTitleCase(title) : title}
             </h2>
           )}
         </div>
@@ -292,7 +292,7 @@ export function StickyScrollStory({
             )}
             {title && (
               <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-                {toTitleCase(title)}
+                {typeof title === "string" ? toTitleCase(title) : title}
               </h2>
             )}
             <div className="relative mt-6 min-h-[14rem]">
