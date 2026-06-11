@@ -16,7 +16,9 @@ import {
   Download,
   Trash2,
   Users as UsersIcon,
+  ListChecks,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -472,6 +474,13 @@ export function StandardDocActions({
               <Sparkles className="h-3.5 w-3.5" /> Extract goals
             </>
           )}
+        </Button>
+      ) : null}
+      {doc.doc_type === "iep" || doc.doc_type === "transition-plan" ? (
+        <Button size="sm" variant="ghost" asChild title="Review section by section">
+          <Link to="/documents/$documentId/review" params={{ documentId: doc.id }}>
+            <ListChecks className="h-3.5 w-3.5" /> Review
+          </Link>
         </Button>
       ) : null}
       <Button

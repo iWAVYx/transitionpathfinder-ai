@@ -126,6 +126,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as AuthenticatedDocumentsDocumentIdReviewRouteImport } from './routes/_authenticated/documents.$documentId.review'
 
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
@@ -758,6 +759,12 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDocumentsDocumentIdReviewRoute =
+  AuthenticatedDocumentsDocumentIdReviewRouteImport.update({
+    id: '/$documentId/review',
+    path: '/$documentId/review',
+    getParentRoute: () => AuthenticatedDocumentsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -789,7 +796,7 @@ export interface FileRoutesByFullPath {
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
-  '/documents': typeof AuthenticatedDocumentsRoute
+  '/documents': typeof AuthenticatedDocumentsRouteWithChildren
   '/feed': typeof AuthenticatedFeedRoute
   '/forms': typeof AuthenticatedFormsRouteWithChildren
   '/goals': typeof AuthenticatedGoalsRoute
@@ -871,6 +878,7 @@ export interface FileRoutesByFullPath {
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
+  '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -907,7 +915,7 @@ export interface FileRoutesByTo {
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
-  '/documents': typeof AuthenticatedDocumentsRoute
+  '/documents': typeof AuthenticatedDocumentsRouteWithChildren
   '/feed': typeof AuthenticatedFeedRoute
   '/forms': typeof AuthenticatedFormsRouteWithChildren
   '/goals': typeof AuthenticatedGoalsRoute
@@ -988,6 +996,7 @@ export interface FileRoutesByTo {
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
+  '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1026,7 +1035,7 @@ export interface FileRoutesById {
   '/_authenticated/caseload': typeof AuthenticatedCaseloadRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/demo-mode': typeof AuthenticatedDemoModeRoute
-  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRouteWithChildren
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/forms': typeof AuthenticatedFormsRouteWithChildren
   '/_authenticated/goals': typeof AuthenticatedGoalsRoute
@@ -1108,6 +1117,7 @@ export interface FileRoutesById {
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
+  '/_authenticated/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1228,6 +1238,7 @@ export interface FileRouteTypes {
     | '/students/$studentId'
     | '/lovable/email/suppression'
     | '/owner/'
+    | '/documents/$documentId/review'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1345,6 +1356,7 @@ export interface FileRouteTypes {
     | '/students/$studentId'
     | '/lovable/email/suppression'
     | '/owner'
+    | '/documents/$documentId/review'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1464,6 +1476,7 @@ export interface FileRouteTypes {
     | '/_authenticated/students/$studentId'
     | '/lovable/email/suppression'
     | '/_authenticated/owner/'
+    | '/_authenticated/documents/$documentId/review'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -2336,8 +2349,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/documents/$documentId/review': {
+      id: '/_authenticated/documents/$documentId/review'
+      path: '/$documentId/review'
+      fullPath: '/documents/$documentId/review'
+      preLoaderRoute: typeof AuthenticatedDocumentsDocumentIdReviewRouteImport
+      parentRoute: typeof AuthenticatedDocumentsRoute
+    }
   }
 }
+
+interface AuthenticatedDocumentsRouteChildren {
+  AuthenticatedDocumentsDocumentIdReviewRoute: typeof AuthenticatedDocumentsDocumentIdReviewRoute
+}
+
+const AuthenticatedDocumentsRouteChildren: AuthenticatedDocumentsRouteChildren =
+  {
+    AuthenticatedDocumentsDocumentIdReviewRoute:
+      AuthenticatedDocumentsDocumentIdReviewRoute,
+  }
+
+const AuthenticatedDocumentsRouteWithChildren =
+  AuthenticatedDocumentsRoute._addFileChildren(
+    AuthenticatedDocumentsRouteChildren,
+  )
 
 interface AuthenticatedFormsRouteChildren {
   AuthenticatedFormsSlugRoute: typeof AuthenticatedFormsSlugRoute
@@ -2481,7 +2516,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCaseloadRoute: typeof AuthenticatedCaseloadRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDemoModeRoute: typeof AuthenticatedDemoModeRoute
-  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRouteWithChildren
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedFormsRoute: typeof AuthenticatedFormsRouteWithChildren
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
@@ -2517,7 +2552,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCaseloadRoute: AuthenticatedCaseloadRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDemoModeRoute: AuthenticatedDemoModeRoute,
-  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRouteWithChildren,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedFormsRoute: AuthenticatedFormsRouteWithChildren,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
