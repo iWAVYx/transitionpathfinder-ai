@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
 import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
-const familiesHero = photos.families;
-const familiesHeroSrcSet = srcSetFor("families");
+import momDaughterHomeworkAsset from "@/assets/mom-daughter-homework.png.asset.json";
+void photos; void srcSetFor;
+const familiesHero = momDaughterHomeworkAsset.url;
+const familiesHeroSrcSet: string | undefined = undefined;
 const homeFamilyImage = familyWalkingAsset.url;
 
 import {
