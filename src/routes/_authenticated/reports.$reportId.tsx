@@ -177,7 +177,7 @@ function ReportDetailPage() {
 
   return (
     <SiteShell>
-      <div className={`mx-auto ${wrapWidth} px-4 pt-8 sm:px-6 lg:px-8`}>
+      <div className={`mx-auto ${wrapWidth} px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10`}>
         <Breadcrumbs
           trail={[
             { label: "Reports", to: "/reports" },

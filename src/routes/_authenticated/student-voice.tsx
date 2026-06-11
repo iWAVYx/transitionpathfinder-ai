@@ -122,9 +122,9 @@ function StudentVoicePage() {
   if (students.length === 0 && !loading) {
     return (
       <SiteShell>
-        <div className="mx-auto max-w-3xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl px-4 pb-20 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
           <Breadcrumbs trail={[{ label: "Student Voice" }]} />
-          <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
+          <h1 className="mt-6 font-display text-3xl font-medium tracking-tight sm:text-4xl">
             Student Voice
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
@@ -138,7 +138,7 @@ function StudentVoicePage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto max-w-3xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 pb-20 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Student Voice" }]} />
 
         <div className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
@@ -146,7 +146,7 @@ function StudentVoicePage() {
             <MessageSquareQuote className="h-4 w-4" />
             In their own words
           </div>
-          <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">
+          <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
             Student Voice
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
