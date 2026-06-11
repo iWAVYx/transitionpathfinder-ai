@@ -70,7 +70,7 @@ export const getOrCreateExtraction = createServerFn({ method: "POST" })
         document_id: doc.id,
         student_id: doc.student_id,
         status: "pending",
-        sections: emptySections() as unknown as Record<string, unknown>,
+        sections: emptySections() as any,
         created_by: userId,
       })
       .select("*")
@@ -107,8 +107,8 @@ export const runExtractionFromText = createServerFn({ method: "POST" })
         {
           document_id: doc.id,
           student_id: doc.student_id,
-          raw_extract: extract as unknown as Record<string, unknown>,
-          sections: sections as unknown as Record<string, unknown>,
+          raw_extract: extract as any,
+          sections: sections as any,
           status: "needs_review",
           created_by: userId,
         },
@@ -159,7 +159,7 @@ export const updateExtractionSection = createServerFn({ method: "POST" })
 
     const { error: upErr } = await supabase
       .from("document_extractions")
-      .update({ sections: sections as unknown as Record<string, unknown>, status: "in_review" })
+      .update({ sections: sections as any, status: "in_review" })
       .eq("id", data.extraction_id);
     if (upErr) throw new Error("Could not update section.");
     return { ok: true };
@@ -177,7 +177,7 @@ export const updateExtractionMeta = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: any = {};
     if (data.missing_information) patch.missing_information = data.missing_information;
     if (data.suggested_questions) patch.suggested_questions = data.suggested_questions;
     if (data.review_notes !== undefined) patch.review_notes = data.review_notes;
@@ -211,8 +211,8 @@ export const applyAcceptedExtraction = createServerFn({ method: "POST" })
     };
 
     // Map accepted sections into students + transition_profiles fields.
-    const studentPatch: Record<string, unknown> = {};
-    const tp: Record<string, unknown> = {};
+    const studentPatch: any = {};
+    const tp: any = {};
 
     const firstName = accepted("student_first_name");
     if (firstName) studentPatch.first_name = firstName;
