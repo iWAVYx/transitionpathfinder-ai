@@ -39,6 +39,11 @@ import {
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatGrid, StatCard } from "@/components/layout/StatGrid";
+import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
+
 
 export const Route = createFileRoute("/_authenticated/caseload")({
   head: () => ({ meta: [{ title: "Caseload — TransitionForward" }] }),
@@ -96,109 +101,109 @@ function CaseloadPage() {
   return (
     <SiteShell>
       <RoleGuard path="/caseload">
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <PageContainer>
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
 
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl md:text-4xl">Your Caseload</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Students you own or have been invited to support as an Educator / Case Manager.
-            </p>
-          </div>
-          <Button asChild>
-            <Link to="/students"><Plus className="h-4 w-4" /> Add Student</Link>
-          </Button>
-        </div>
-
-        <div className="mt-6">
-          <NextBestAction surface="educator" />
-          <OnboardingChecklist surface="educator" className="mt-4" />
-        </div>
-
-
-
-        {/* Summary cards */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <SummaryCard icon={<Users className="h-4 w-4" />} label="Students" value={summary.total} />
-          <SummaryCard icon={<ClipboardList className="h-4 w-4" />} label="Open Action Items" value={summary.open} />
-          <SummaryCard icon={<FileText className="h-4 w-4" />} label="Missing Pathway Report" value={summary.missingReport} />
-        </div>
-
-        {/* Team calendar — aggregates events across every student on the caseload */}
-        <div className="mt-6">
-          <DashboardCalendar
-            title="Team calendar"
-            subtitle="Meetings, action items, and team-shared events across your caseload."
-            studentOptions={rows.map((r) => ({
-              id: r.id,
-              name: `${r.first_name}${r.last_name ? ` ${r.last_name}` : ""}`,
-            }))}
+        <div className="mt-4 space-y-6 sm:space-y-8">
+          <PageHeader
+            title="Your Caseload"
+            description="Students you own or have been invited to support as an Educator / Case Manager."
+            action={
+              <Button asChild className="w-full sm:w-auto">
+                <Link to="/students"><Plus className="h-4 w-4" /> Add Student</Link>
+              </Button>
+            }
           />
-        </div>
 
-
-
-        {/* Filters */}
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 min-w-[220px]">
-            <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search students or schools"
-              className="pl-8"
-            />
+          {/* Primary: Next best action + onboarding */}
+          <div className="space-y-4">
+            <NextBestAction surface="educator" />
+            <OnboardingChecklist surface="educator" />
           </div>
-          <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-            <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Students</SelectItem>
-              <SelectItem value="needs-attention">Open Action Items</SelectItem>
-              <SelectItem value="no-report">No Pathway Report</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
-        {/* Table */}
-        <div className="mt-4 rounded-2xl border bg-card shadow-soft">
-          {loading ? (
-            <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
+          {/* Summary KPIs */}
+          <StatGrid cols={3}>
+            <StatCard icon={<Users className="h-3.5 w-3.5" />} label="Students" value={summary.total} />
+            <StatCard
+              icon={<ClipboardList className="h-3.5 w-3.5" />}
+              label="Open Action Items"
+              value={summary.open}
+              tone={summary.open > 0 ? "warn" : "default"}
+            />
+            <StatCard
+              icon={<FileText className="h-3.5 w-3.5" />}
+              label="Missing Pathway Report"
+              value={summary.missingReport}
+              tone={summary.missingReport > 0 ? "warn" : "default"}
+            />
+          </StatGrid>
+
+          {/* Secondary: team calendar — collapsed on mobile to reduce density */}
+          <CollapsibleSection
+            title="Team calendar"
+            description="Meetings, action items, and team-shared events across your caseload."
+            icon={<ClipboardList className="h-4 w-4 text-muted-foreground" />}
+          >
+            <DashboardCalendar
+              title="Team calendar"
+              subtitle="Meetings, action items, and team-shared events across your caseload."
+              studentOptions={rows.map((r) => ({
+                id: r.id,
+                name: `${r.first_name}${r.last_name ? ` ${r.last_name}` : ""}`,
+              }))}
+            />
+          </CollapsibleSection>
+
+          {/* Filters */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="relative min-w-0 flex-1 sm:min-w-[220px]">
+              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search students or schools"
+                className="pl-8"
+              />
             </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState hasAny={rows.length > 0} />
-          ) : (
-            <ul className="divide-y">
-              {filtered.map((r) => (
-                <CaseloadRow
-                  key={r.id}
-                  row={r}
-                  expanded={expandedId === r.id}
-                  onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
-                  onChanged={reload}
-                />
-              ))}
-            </ul>
-          )}
+            <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+              <SelectTrigger className="w-full sm:w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Students</SelectItem>
+                <SelectItem value="needs-attention">Open Action Items</SelectItem>
+                <SelectItem value="no-report">No Pathway Report</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Caseload list */}
+          <div className="rounded-2xl border bg-card shadow-soft">
+            {loading ? (
+              <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
+              </div>
+            ) : filtered.length === 0 ? (
+              <EmptyState hasAny={rows.length > 0} />
+            ) : (
+              <ul className="divide-y">
+                {filtered.map((r) => (
+                  <CaseloadRow
+                    key={r.id}
+                    row={r}
+                    expanded={expandedId === r.id}
+                    onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                    onChanged={reload}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-      </section>
+      </PageContainer>
       </RoleGuard>
     </SiteShell>
   );
 }
 
-function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border bg-card p-4 shadow-soft">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-        {icon}
-        {label}
-      </div>
-      <p className="mt-2 font-display text-2xl">{value}</p>
-    </div>
-  );
-}
 
 function EmptyState({ hasAny }: { hasAny: boolean }) {
   return (
