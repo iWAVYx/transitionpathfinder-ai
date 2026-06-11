@@ -15,11 +15,13 @@ import {
   Sparkles,
   Download,
   Trash2,
+  Users as UsersIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -34,8 +36,10 @@ import {
 } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { registerDocument, type DocumentRow } from "@/lib/documents.functions";
+import { DocumentPermissionsDialog } from "./DocumentPermissionsDialog";
 
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
+
 
 type DocType = "iep" | "evaluation" | "transition-plan" | "other";
 
@@ -106,10 +110,21 @@ export function FamilyDocumentUpload({
   const [busy, setBusy] = useState(false);
   const [docType, setDocType] = useState<DocType>("iep");
   const [title, setTitle] = useState("");
+  const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
+  const [schoolYear, setSchoolYear] = useState("");
+  const [meetingDate, setMeetingDate] = useState("");
+  const [reviewDate, setReviewDate] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   async function upload(file: File) {
     if (file.size > MAX_BYTES) {
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
+      return;
+    }
+    if (!consent) {
+      setPendingFile(file);
+      toast.error("Please confirm the privacy notice below before uploading.");
       return;
     }
     setBusy(true);
@@ -128,10 +143,19 @@ export function FamilyDocumentUpload({
           mime_type: file.type || undefined,
           size_bytes: file.size,
           doc_type: docType,
+          visibility,
+          school_year: schoolYear.trim() || undefined,
+          meeting_date: meetingDate || undefined,
+          review_date: reviewDate || undefined,
+          consent_acknowledged: true,
         },
       });
-      toast.success("Document uploaded. Only you and people you invite can see it.");
+      toast.success("Document uploaded. Only people you've granted access can see it.");
       setTitle("");
+      setSchoolYear("");
+      setMeetingDate("");
+      setReviewDate("");
+      setPendingFile(null);
       await onChange();
     } catch (err) {
       console.error(err);
@@ -141,6 +165,7 @@ export function FamilyDocumentUpload({
       if (fileRef.current) fileRef.current.value = "";
     }
   }
+
 
   const activeType = DOC_TYPES.find((t) => t.value === docType)!;
   const firstName = studentFirstName ?? "your student";
@@ -240,6 +265,87 @@ export function FamilyDocumentUpload({
           </div>
         </div>
 
+        {/* Optional metadata */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <Label htmlFor="doc-year" className="mb-1.5 inline-block text-xs">
+              School year (optional)
+            </Label>
+            <Input
+              id="doc-year"
+              value={schoolYear}
+              onChange={(e) => setSchoolYear(e.target.value.slice(0, 20))}
+              placeholder="e.g. 2026-27"
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-meeting" className="mb-1.5 inline-block text-xs">
+              Meeting date (optional)
+            </Label>
+            <Input
+              id="doc-meeting"
+              type="date"
+              value={meetingDate}
+              onChange={(e) => setMeetingDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-review" className="mb-1.5 inline-block text-xs">
+              Next review (optional)
+            </Label>
+            <Input
+              id="doc-review"
+              type="date"
+              value={reviewDate}
+              onChange={(e) => setReviewDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="doc-visibility" className="mb-1.5 inline-block">
+            Who should see this?
+          </Label>
+          <Select value={visibility} onValueChange={(v) => setVisibility(v as typeof visibility)}>
+            <SelectTrigger id="doc-visibility">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="private">Just me</SelectItem>
+              <SelectItem value="family">Family only</SelectItem>
+              <SelectItem value="student">{firstName} and family</SelectItem>
+              <SelectItem value="team">{firstName}'s full team (default)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            You can grant individual people access at any time from the file row's
+            <strong> Manage access</strong> button. Partners are never given IEPs.
+          </p>
+        </div>
+
+        {/* Consent / privacy block */}
+        <label className="flex items-start gap-2.5 rounded-xl border border-amber-200/70 bg-amber-50/50 p-3 text-xs leading-relaxed text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+          <Checkbox
+            checked={consent}
+            onCheckedChange={(v) => {
+              const next = v === true;
+              setConsent(next);
+              if (next && pendingFile) {
+                const f = pendingFile;
+                setPendingFile(null);
+                upload(f);
+              }
+            }}
+            className="mt-0.5"
+            aria-label="Acknowledge privacy notice"
+          />
+          <span>
+            I'm authorized to upload this document for {firstName}. I understand it will
+            be stored privately, shared only with people I grant access to, and every download
+            is recorded in an audit trail.
+          </span>
+        </label>
+
         <label
           className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background p-6 text-center transition-colors sm:p-8 ${
             busy ? "opacity-60" : "cursor-pointer hover:border-primary/60 hover:bg-primary/[0.03]"
@@ -280,6 +386,7 @@ export function FamilyDocumentUpload({
           download to an audit trail you can review.
         </p>
       </div>
+
 
       {/* File list */}
       <div className="border-t">
@@ -346,6 +453,7 @@ export function StandardDocActions({
   onDownload: (doc: DocumentRow) => void;
   onDelete: (doc: DocumentRow) => void;
 }) {
+  const [permsOpen, setPermsOpen] = useState(false);
   return (
     <>
       {doc.doc_type === "iep" || doc.doc_type === "transition-plan" ? (
@@ -366,12 +474,27 @@ export function StandardDocActions({
           )}
         </Button>
       ) : null}
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setPermsOpen(true)}
+        aria-label="Manage access"
+        title="Manage access"
+      >
+        <UsersIcon className="h-3.5 w-3.5" />
+      </Button>
       <Button size="sm" variant="ghost" onClick={() => onDownload(doc)} aria-label="Download">
         <Download className="h-3.5 w-3.5" />
       </Button>
       <Button size="sm" variant="ghost" onClick={() => onDelete(doc)} aria-label="Delete">
         <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
       </Button>
+      <DocumentPermissionsDialog
+        open={permsOpen}
+        onOpenChange={setPermsOpen}
+        document={doc}
+      />
     </>
   );
 }
+
