@@ -29,11 +29,9 @@ import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
 import { RecommendedResourcesPanel } from "@/components/students/RecommendedResourcesPanel";
 import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartnersPanel";
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
-import { supabase } from "@/integrations/supabase/client";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
-  registerDocument,
   deleteDocument,
   getDocumentSignedUrl,
   extractGoalsFromText,
@@ -69,7 +67,6 @@ function StudentDetailPage() {
   const fetchStudent = useServerFn(getStudent);
   const fetchDocs = useServerFn(listDocuments);
   const fetchGoals = useServerFn(listGoals);
-  const register = useServerFn(registerDocument);
   const remove = useServerFn(deleteDocument);
   const sign = useServerFn(getDocumentSignedUrl);
   const extractGoals = useServerFn(extractGoalsFromText);
