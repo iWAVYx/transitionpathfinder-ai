@@ -39,7 +39,7 @@ export const Route = createFileRoute("/educators")({
     links: [
       { rel: "canonical", href: "/educators" },
       { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
-      { rel: "preload", as: "image", href: educatorsHero, imagesrcset: educatorsHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+      { rel: "preload", as: "image", href: educatorsHero, fetchpriority: "high" },
     ],
     scripts: [
       {
