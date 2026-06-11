@@ -413,8 +413,8 @@ function WaitlistPage() {
                 className="space-y-5 rounded-3xl border bg-card p-6 shadow-soft md:col-span-3 md:p-8"
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Full name" error={form.formState.errors.full_name?.message}>
-                    <Input {...form.register("full_name")} placeholder="Your name" />
+                  <Field label="Your Name" error={form.formState.errors.full_name?.message}>
+                    <Input {...form.register("full_name")} placeholder="Your Name" />
                   </Field>
                   <Field label="Email" error={form.formState.errors.email?.message}>
                     <Input

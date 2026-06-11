@@ -186,7 +186,7 @@ function PartnerSubmissionsPage() {
                   {selected.contact_name} · {selected.contact_email}
                   {selected.contact_phone ? ` · ${selected.contact_phone}` : ""}
                 </Field>
-                <Field label="Organization type">{selected.organization_type ?? "—"}</Field>
+                <Field label="Organization Type">{selected.organization_type ?? "—"}</Field>
                 <Field label="Website">
                   {selected.website_url ? (
                     <a
