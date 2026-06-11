@@ -681,31 +681,57 @@ function ResourcesPage() {
         className="sticky top-16 z-40 mx-auto max-w-[88rem] px-4 pt-2 sm:px-6 lg:px-8"
       >
         <div className="rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-soft backdrop-blur-md">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="search"
-              aria-label="Search resources"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search videos, podcasts, books, worksheets, agencies…"
-              className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
+          {/* Mobile toggle */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen((v) => !v)}
+            className="flex w-full items-center justify-between rounded-xl px-3 py-2 sm:hidden"
+            aria-expanded={searchOpen}
+            aria-controls="resources-search-input"
+            data-testid="resources-search-toggle"
+          >
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Search className="h-4 w-4" />
+              <span className="truncate">{query ? query : "Search resources"}</span>
+            </div>
+            {searchOpen ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {/* Search input — always visible on desktop, toggled on mobile */}
+          <div
+            id="resources-search-input"
+            className={`${searchOpen ? "block" : "hidden"} sm:block`}
+          >
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                aria-label="Search resources"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search videos, podcasts, books, worksheets, agencies…"
+                className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
             {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Clear search"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+              <p className="mt-1 px-2 text-[11px] text-muted-foreground">
+                Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
+              </p>
             )}
           </div>
-          {query && (
-            <p className="mt-1 px-2 text-[11px] text-muted-foreground">
-              Searching across {filteredFeaturedDb.length + filteredDbResources.length + visible.length} resources
-            </p>
-          )}
         </div>
       </section>
 
