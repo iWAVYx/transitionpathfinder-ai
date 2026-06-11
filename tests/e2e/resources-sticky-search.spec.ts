@@ -39,6 +39,16 @@ async function gotoResources(page: Page) {
   await page.getByTestId("resources-sticky-search").waitFor();
 }
 
+async function openSearchIfCollapsed(page: Page, width: number) {
+  // On mobile (< sm = 640px) the search input starts collapsed
+  if (width < 640) {
+    const toggle = page.getByTestId("resources-search-toggle");
+    if (await toggle.isVisible().catch(() => false)) {
+      await toggle.click();
+    }
+  }
+}
+
 for (const vp of VIEWPORTS) {
   test.describe(`sticky search @ ${vp.label} (${vp.width}x${vp.height})`, () => {
     test.use({ viewport: { width: vp.width, height: vp.height } });
@@ -52,6 +62,8 @@ for (const vp of VIEWPORTS) {
       await page.evaluate(() => window.scrollTo(0, 1500));
       // Allow the browser to settle layout after scroll.
       await page.waitForTimeout(150);
+
+      await openSearchIfCollapsed(page, vp.width);
 
       const search = await boxOf(page, "resources-sticky-search");
       const filters = await boxOf(page, "resources-sticky-filters");
@@ -90,6 +102,8 @@ for (const vp of VIEWPORTS) {
       await gotoResources(page);
       await page.evaluate(() => window.scrollTo(0, 1500));
       await page.waitForTimeout(150);
+
+      await openSearchIfCollapsed(page, vp.width);
 
       const input = page
         .getByTestId("resources-sticky-search")
