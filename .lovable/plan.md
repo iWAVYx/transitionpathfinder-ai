@@ -1,77 +1,94 @@
-# TransitionForward Responsive Polish — Phase 1
 
-You asked for a platform-wide responsive UI polish. That's ~30+ pages and can't safely land in one batch. Here's a phased plan. **This plan covers Phase 1 only.** Phases 2–5 are listed so you can see the runway; I'll re-plan each one before starting.
+# TransitionForward A-to-Z Service Logic Pass
 
-## Phase 1 (this plan) — Shared tokens + 6 signed-in dashboards
+This is a large, multi-area pass. To avoid breaking the existing platform, I'll ship it in **6 sequenced phases**, each independently shippable and verifiable. No redesign — only filling gaps, wiring the journey end-to-end, and adding the missing permission/extraction layer.
 
-Scope: tokens-first, then re-flow every role's dashboard for mobile and tablet, applying moderate density reduction (accordion-collapse secondary sections, table→card on mobile). No structural feature changes, no nav model changes, no backend.
+I'll check in between phases so you can redirect if needed.
 
-### 1. Shared layout/spacing primitives
+---
 
-Add small composable building blocks the dashboards (and later, every page) will use. New files only — no edits to existing tokens, no breaking changes.
+## Phase 1 — Journey clarity & role-based Next Best Actions
 
-- `src/components/layout/PageContainer.tsx` — responsive container: `mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8`.
-- `src/components/layout/PageHeader.tsx` — title + optional eyebrow + description + primary action slot. Truncates on mobile; stacks action below title under `sm`.
-- `src/components/layout/Section.tsx` — `<section>` with consistent vertical rhythm (`space-y-3 sm:space-y-4`) and optional heading row.
-- `src/components/layout/StatGrid.tsx` — KPI/stat card grid (`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4`); each stat capped in height so dashboards don't sprawl on mobile.
-- `src/components/layout/ResponsiveTable.tsx` — renders a real `<table>` at `md+` and a stacked card list under `md`. Takes columns + rows config so any admin/caseload table can swap in.
-- `src/components/layout/CollapsibleSection.tsx` — wraps shadcn `Collapsible`. On mobile defaults to collapsed for "secondary" sections; on `lg+` always-open.
+Goal: Make the full A-to-Z flow legible from every dashboard without changing layouts.
 
-Spacing rules these encode (your "spacing system"):
-- Page padding: `px-4 sm:px-6 lg:px-8`, vertical `py-6 sm:py-8 lg:py-10`.
-- Section gap: `space-y-6 sm:space-y-8`.
-- Card padding: `p-4 sm:p-5 lg:p-6`.
-- Grid gaps: `gap-3 sm:gap-4 lg:gap-6`.
-- Min tap target on icon buttons: `min-h-11 min-w-11`.
+- Audit `NextBestAction` + `getNextBestAction` server fn and expand the rule set per role (student, family, educator/case manager, school_admin, district_admin, partner, platform admin) to match the 13-step "Next Best Action" matrix in the brief.
+- Add a one-time, dismissible **"How TransitionForward works"** journey strip (7 steps: Sign in → Student → Upload IEP → Review → Voice/Family/Educator inputs → Pathway Report → Act & meet) on each role dashboard. Reuses existing card components.
+- Tighten empty states on Students, Documents, Reports, Calendar, Action Items, Meetings to point to the next step in the journey.
+- Verify "Educator / Case Manager" wording is consistent (sweep for "Educator" → "Educator / Case Manager" in role labels, onboarding copy, NBAs).
+- Confirm Platform Admin vs School Admin vs District Admin are never collapsed in copy or routing.
 
-### 2. Dashboard polish (apply tokens, reduce density)
+## Phase 2 — Student profile as the hub (fill gaps only)
 
-For each of the 6 role dashboards, same recipe:
+Goal: Make the student profile clearly the center, without restructuring the page.
 
-1. Wrap in `PageContainer` + `PageHeader` (consistent title/description/CTA).
-2. Re-order content into the hierarchy you specified:
-   Welcome → **Next Best Action** → primary work area → upcoming dates/action items → resources → secondary tools.
-3. Mobile: collapse "secondary tools" + "resources/recommendations" into `CollapsibleSection` (closed by default, open on `lg+`).
-4. Stat/KPI rows → `StatGrid` (2-up on mobile, 3-up on sm, 4-up on lg). Cap card heights so they don't stretch.
-5. Quick-action button rows: stack to full-width `flex-col gap-2` under `sm`, switch to `flex-wrap` at `sm+`. Max 2 visible primary CTAs on mobile; rest move into an overflow menu.
-6. Any data tables → `ResponsiveTable` (table on `md+`, cards under `md`).
+- Audit `students.$studentId.tsx` against the brief's Basic / Transition / Services / Voice / Documents sections. Add the missing fields to `student_profiles` / `transition_profiles` (independent living, community participation, self-advocacy, transportation, daily living, agency connections) via migration only if not already there.
+- Add a compact **Profile Completeness** chip on the student page header (uses existing data — no new infra).
+- Surface "Create student" entry from the empty-state of every relevant dashboard.
 
-Files touched:
-- `src/routes/_authenticated/dashboard.tsx` (student/parent — 1061 lines; biggest density problem)
-- `src/routes/_authenticated/caseload.tsx` (educator/case manager)
-- `src/routes/_authenticated/school.overview.tsx` (school admin)
-- `src/routes/_authenticated/district.overview.tsx` (district admin)
-- `src/routes/_authenticated/owner.index.tsx` (platform admin hub landing)
-- Partner org dashboard — locate file during build (likely `partners-manage.tsx` or similar).
-- Shared dashboard components in `src/components/dashboard/*` get padding/sizing normalized to match the new tokens.
+## Phase 3 — IEP upload & document permissions (core)
 
-### 3. Verification
+Goal: Make IEP upload a first-class, multi-entry workflow with real permissions.
 
-After each dashboard, view at 375×812 (mobile), 820×1180 (tablet), and 1440×900 (desktop) via the preview tool. Check:
-- no horizontal scroll
-- tap targets ≥ 44×44 for primary actions
-- header doesn't overlap content
-- collapse defaults match spec (secondary closed on mobile, open on desktop)
-- typography hierarchy reads top-to-bottom
+- Generalize the existing `FamilyDocumentUpload` into a shared **`DocumentUploadFlow`** with the 6-step model (Select student → Upload → Type → Details → Privacy notice → Save). Keep the family variant as a thin wrapper.
+- Add entry points: Onboarding, Student profile, Documents tab, Pathway Report setup, Meeting Prep, Family dashboard, Educator dashboard. Each entry passes a pre-selected student where applicable.
+- Migration: `document_permissions` table (id, document_id, student_id, user_id NULLABLE, role_type NULLABLE, permission_level enum [`none`,`view_summary`,`view_document`,`edit_metadata`,`manage`], granted_by, timestamps) with proper GRANTs + RLS scoped through `can_access_student` and a new `can_view_document(_user_id, _document_id)` security-definer fn.
+- Update document list/download server fns to enforce `can_view_document`. Partner role is hard-blocked from IEPs and student docs at the RLS layer (already true via `can_access_student`; double-check and add a regression test).
+- Add document-detail fields if missing: `document_type` (already exists per code), `school_year`, `meeting_date`, `effective_date`, `review_date`, `visibility` (`private` / `team` / `family` / `student`), `consent_acknowledged_at`.
+- Add the privacy/consent reminder copy as a required checkbox in the flow.
 
-## Phases 2–5 (future passes, not in this PR)
+## Phase 4 — Guided IEP review & extraction
 
-- **Phase 2** — Core app tools: Pathway Report, Calendar, Resource Library, Partner Network, Action Items, Meeting Prep.
-- **Phase 3** — Admin Hub deep clean (System Health, Partner Manager, Resource Manager, all `owner.*` tables → `ResponsiveTable`).
-- **Phase 4** — Signed-out public site: Home, Platform, Framework, Resources, Partner Directory, About, Help, Waitlist, Auth.
-- **Phase 5** — Forms pass: onboarding, add-student, profile, waitlist, contact, partner submission, calendar event, action item, meeting prep, admin forms. Apply consistent label/error/spacing patterns and section splits.
+Goal: Turn the existing one-shot extractor into a section-by-section review surface that can feed the Pathway Report.
 
-## Out of scope (won't touch)
+- Migration: `document_extractions` table per the brief (status enum, per-section extracted fields, `missing_information`, `review_notes`, reviewer, timestamps). GRANT + RLS via `can_access_student`.
+- Reuse `extractFromIep` to populate a `document_extractions` row with `status = needs_review`.
+- New route segment on the student page (or a `documents/$documentId/review` modal route under `_authenticated`) with section cards: Student Info, School Info, Transition Goals, Services, Accommodations, Strengths, Needs, Meeting Dates, Missing Information, Suggested Questions. Each card: Accept / Edit / Reject / Uncertain + notes.
+- Only Accepted sections write through to `student_profiles` / `transition_profiles` and become eligible inputs for Pathway Report generation.
+- Add the trust copy verbatim where extraction is shown.
 
-- Role system, RLS, server functions, schema.
-- Navigation model (no new bottom-nav — you chose Moderate, not Aggressive).
-- Component logic, data flows, feature behavior.
-- Color palette and typefaces (already on-brand: Sky & Peach + Cormorant/Karla).
+## Phase 5 — Pathway Report wiring & Meeting Prep linkage
 
-## Risks
+Goal: Ensure the Pathway Report visibly draws from all the right sources, and Meeting Prep connects back.
 
-- `dashboard.tsx` is 1061 lines and likely branches on role; I'll read it fully before editing and keep diffs minimal.
-- Collapsible-by-default on mobile changes what users see first — secondary sections only, never the Next Best Action or primary work area.
-- If a dashboard has a custom shell, I'll keep it and just normalize spacing instead of forcing `PageContainer`.
+- Audit `pathway.functions.ts` `generateReport`/`saveReport` inputs and confirm all 21 sections from the brief are represented (most are — fill any gaps as additive fields in `pathway_reports.content` JSON; no destructive schema change).
+- Source badges on the report sections ("From IEP", "From Student Voice", "From Family input", "From Educator input") so users can see what fed each section. Pure UI on `ReportView`.
+- Migration: `pathway_report_versions` (id, report_id, version_number, content snapshot, created_by, created_at) + a version-bump on `saveReport`. List previous versions on the report page.
+- Meeting Prep: ensure `ppt_meeting_preps` pulls latest Pathway Report summary, missing-info list, and student voice. Add a "Documents to review" picker that lists the student's documents respecting `can_view_document`.
 
-Approve to proceed with Phase 1, or tell me to adjust (e.g. "skip the table→card refactor for now", "do owner hub first", "smaller scope — just student + educator dashboards").
+## Phase 6 — Cross-cutting glue, privacy copy, audit
+
+Goal: Final tightening so the journey is consistent and safe.
+
+- Add the standard privacy/AI-disclaimer block (reuses `AIDisclaimer`/`TrustNote`) to: IEP upload, IEP review, Pathway Report top, Resource recommendations, Partner matches.
+- Action item creation: ensure "Create action item" buttons exist on Pathway Report sections, Resource cards, Partner cards, Meeting notes (most exist — fill the gaps).
+- Calendar: confirm IEP review_date / partner deadlines / action item due dates / meeting dates all surface in `calendar_events`. Add a server-fn helper to backfill missing event rows when those dates are set.
+- Audit log: log document views, document permission grants, and IEP extraction reviews into existing `audit_log`.
+- Acceptance sweep against the 22-point checklist; produce a short pass/fail table in `docs/atoz-acceptance.md`.
+
+---
+
+## Out of scope (explicitly not touched)
+
+- No visual redesign, no branding changes, no public marketing page restructuring.
+- No changes to Admin Hub, Resource Library, Partner Network, Calendar, Action Items, or Pathway Report **structure** — only additive fields, source badges, version history, and wiring.
+- No new auth providers, no role renames.
+- PDF export for the Pathway Report stays where it is (brief says "eventually downloadable").
+
+---
+
+## Technical notes (for reviewers)
+
+- All new tables: `CREATE TABLE` → `GRANT` (authenticated + service_role; no anon) → `ENABLE RLS` → policies through `can_access_student` / `can_view_document` security-definer fns. Privilege escalation guard: never `GRANT UPDATE` on `user_roles`.
+- All new server fns: `createServerFn` with `requireSupabaseAuth`; admin client only when explicitly authorized (e.g. permission grants by owner).
+- All file edits are additive or surgical — no big rewrites of existing routes.
+- After each phase I'll verify build + targeted checks (RLS regression tests for document_permissions, role-guard matrix for new entry points).
+
+---
+
+## What I need from you before starting
+
+1. **Approve the phased approach** (or tell me to collapse/reorder phases).
+2. **Phase 3 permission_level granularity** — the brief lists 5 levels (`none`, `view_summary`, `view_document`, `edit_metadata`, `manage`). OK to ship all 5, or do you want to start with just `view_summary` / `view_document` / `manage` and add the rest later?
+3. **Phase 4 review UI** — prefer (a) inline section cards on the student page, or (b) a dedicated `/documents/$id/review` route? I'd recommend (b) for focus.
+
+Once you answer, I'll start Phase 1.
