@@ -180,7 +180,7 @@ function PptPrepPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs trail={[{ label: "PPT Meeting Prep" }]} />
         <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
