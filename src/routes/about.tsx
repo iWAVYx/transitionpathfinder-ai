@@ -79,16 +79,27 @@ function AboutHero() {
         >
           Our Story
         </motion.p>
-        <h1 className="mt-4 max-w-4xl font-display text-[2.1rem] font-medium leading-[1.15] tracking-tight text-foreground sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
-          <Word text="We built this for" d={0.1} />
+        <h1 className="mt-4 max-w-4xl font-display text-[1.85rem] font-medium leading-[1.15] tracking-tight text-foreground sm:mt-5 sm:text-6xl sm:leading-[1.05] md:text-7xl lg:text-8xl">
+          <Phrase text="We built this for" startDelay={0.1} />
           <br />
-          <Word text="the kids who never " d={0.3} />
+          <Phrase text="the kids who never" startDelay={0.3} />{" "}
           <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">
-            <Word text="&nbsp;got the playbook." d={0.5} />
+            <Phrase text="got the playbook." startDelay={0.5} />
           </span>
         </h1>
       </motion.div>
     </section>
+  );
+}
+
+function Phrase({ text, startDelay = 0 }: { text: string; startDelay?: number }) {
+  const words = text.split(" ");
+  return (
+    <>
+      {words.map((w, i) => (
+        <Word key={i} text={w} d={startDelay + i * 0.06} />
+      ))}
+    </>
   );
 }
 
@@ -103,9 +114,11 @@ function Word({ text, d = 0 }: { text: string; d?: number }) {
       >
         {text}
       </motion.span>
+      {" "}
     </span>
   );
 }
+
 
 /* ------------------- MANIFESTO ------------------- */
 function Manifesto() {
