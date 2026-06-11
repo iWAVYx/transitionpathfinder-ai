@@ -238,9 +238,9 @@ function FamiliesPage() {
           </div>
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Family portal</p>
-            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">Plain-Language Translation.</h3>
+            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">One Place for Everything That Matters.</h3>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Transition goals explained — what they mean, why they matter, what to ask next. Track progress, find the right resources, and walk into PPT meetings prepared.
+              Assessments, goals, resources, and your own notes — all connected, all in one place. No more digging through folders or wondering what happened last year. It grows with your child, year after year.
             </p>
           </div>
         </div>
