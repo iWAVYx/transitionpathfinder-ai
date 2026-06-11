@@ -8,9 +8,9 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import { photos, srcSetFor } from "@/lib/photos";
-const educatorsHero = photos.educators;
-const educatorsHeroSrcSet = srcSetFor("educators");
+import { photos } from "@/lib/photos";
+import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
+const educatorsHero = stressedTeacherAsset.url;
 const frameworkImg = photos.framework;
 const dashboardImg = photos.dashboard;
 const iepUploadImg = photos.iepUpload;
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/educators")({
     links: [
       { rel: "canonical", href: "/educators" },
       { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
-      { rel: "preload", as: "image", href: educatorsHero, imagesrcset: educatorsHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+      { rel: "preload", as: "image", href: educatorsHero, fetchpriority: "high" },
     ],
     scripts: [
       {
@@ -139,7 +139,7 @@ function EducatorsPage() {
               </Parallax>
               <ParallaxImage
                 src={educatorsHero}
-                srcSet={educatorsHeroSrcSet}
+                
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 eager
                 alt="Illustrated teacher desk at golden hour with a constellation of sticky notes wired to a glowing lightbulb"
