@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { GradeBandBreakdown } from "@/components/dashboard/GradeBandBreakdown";
+import { StatGrid, StatCard } from "@/components/layout/StatGrid";
+import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
@@ -25,42 +27,47 @@ function SchoolOverviewPage() {
       onSwitchOrg={(id) => reload(id)}
     >
       {(org, d) => (
-        <div className="space-y-6">
+        // PRIMARY → SECONDARY hierarchy: Next Best Action first, then KPIs,
+        // then org info / recent students, then secondary breakdown (collapsed
+        // on mobile to reduce density).
+        <div className="space-y-6 sm:space-y-8">
           <NextBestAction surface="school_admin" />
           <OnboardingChecklist surface="school_admin" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Metric label="Active Staff" value={d.metrics.active_members} icon={<Users className="h-3.5 w-3.5" />} />
-            <Metric label="Pending Invites" value={d.metrics.pending_members} icon={<Mail className="h-3.5 w-3.5" />} />
-            <Metric label="Students" value={d.metrics.students_count} icon={<GraduationCap className="h-3.5 w-3.5" />} />
-            <Metric label="Pathway Reports" value={d.metrics.reports_count} icon={<FileText className="h-3.5 w-3.5" />} />
-          </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="rounded-2xl border bg-card p-5 shadow-soft lg:col-span-2">
-              <h2 className="font-display text-lg">{org.name}</h2>
+          <StatGrid cols={4}>
+            <StatCard label="Active Staff" value={d.metrics.active_members} icon={<Users className="h-3.5 w-3.5" />} />
+            <StatCard label="Pending Invites" value={d.metrics.pending_members} icon={<Mail className="h-3.5 w-3.5" />} />
+            <StatCard label="Students" value={d.metrics.students_count} icon={<GraduationCap className="h-3.5 w-3.5" />} />
+            <StatCard label="Pathway Reports" value={d.metrics.reports_count} icon={<FileText className="h-3.5 w-3.5" />} />
+          </StatGrid>
+
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+            <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:col-span-2 lg:p-6">
+              <h2 className="font-display text-lg sm:text-xl">{org.name}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {[org.type, org.city, org.state].filter(Boolean).join(" · ") || "No location on file"}
                 {" · "}
                 <span className="capitalize">{org.verified_status}</span>
               </p>
-              <p className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-3 text-sm text-muted-foreground">
                 Use the tabs above to manage your team, review pathway reports, and track
                 implementation across your students.
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button asChild size="sm" variant="outline">
+              {/* Quick actions — wrap, full-width on mobile to avoid cramped rows */}
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                   <Link to="/school/team"><Users className="h-4 w-4" /> Manage Team</Link>
                 </Button>
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                   <Link to="/school/reports"><FileText className="h-4 w-4" /> View Reports</Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="w-full sm:w-auto">
                   <Link to="/school/implementation">Implementation <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-card p-5 shadow-soft">
+            <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:p-6">
               <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                 <FolderOpen className="h-3.5 w-3.5" /> Recent Students
               </div>
@@ -71,11 +78,11 @@ function SchoolOverviewPage() {
               ) : (
                 <ul className="mt-3 space-y-2 text-sm">
                   {d.students.slice(0, 6).map((s) => (
-                    <li key={s.id} className="flex items-center justify-between">
-                      <span className="truncate">
+                    <li key={s.id} className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 truncate">
                         {s.preferred_name ?? s.first_name ?? "Student"}
                       </span>
-                      <span className="text-xs text-muted-foreground">{s.grade_band ?? "—"}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{s.grade_band ?? "—"}</span>
                     </li>
                   ))}
                 </ul>
@@ -83,20 +90,17 @@ function SchoolOverviewPage() {
             </div>
           </div>
 
-          <GradeBandBreakdown students={d.students} />
+          {/* Secondary: grade-band breakdown collapses on mobile, always open on lg+ */}
+          <CollapsibleSection
+            title="Grade Band Breakdown"
+            description="Distribution of students across transition phases."
+            icon={<GraduationCap className="h-4 w-4 text-muted-foreground" />}
+          >
+            <GradeBandBreakdown students={d.students} />
+          </CollapsibleSection>
         </div>
       )}
     </SchoolPageShell>
   );
 }
 
-function Metric({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border bg-card p-4 shadow-soft">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-        {icon} {label}
-      </div>
-      <p className="mt-2 font-display text-2xl">{value}</p>
-    </div>
-  );
-}
