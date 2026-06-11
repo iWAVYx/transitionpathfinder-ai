@@ -198,7 +198,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
       />
       <div className="relative flex items-start justify-between">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
-          <Icon className="h-4.5 w-4.5" />
+          <Icon className="h-5 w-5" />
         </div>
         <div className="flex flex-wrap justify-end gap-1">
           {tags.map((t) => (
