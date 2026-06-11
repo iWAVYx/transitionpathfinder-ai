@@ -110,10 +110,21 @@ export function FamilyDocumentUpload({
   const [busy, setBusy] = useState(false);
   const [docType, setDocType] = useState<DocType>("iep");
   const [title, setTitle] = useState("");
+  const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
+  const [schoolYear, setSchoolYear] = useState("");
+  const [meetingDate, setMeetingDate] = useState("");
+  const [reviewDate, setReviewDate] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   async function upload(file: File) {
     if (file.size > MAX_BYTES) {
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
+      return;
+    }
+    if (!consent) {
+      setPendingFile(file);
+      toast.error("Please confirm the privacy notice below before uploading.");
       return;
     }
     setBusy(true);
@@ -132,10 +143,19 @@ export function FamilyDocumentUpload({
           mime_type: file.type || undefined,
           size_bytes: file.size,
           doc_type: docType,
+          visibility,
+          school_year: schoolYear.trim() || undefined,
+          meeting_date: meetingDate || undefined,
+          review_date: reviewDate || undefined,
+          consent_acknowledged: true,
         },
       });
-      toast.success("Document uploaded. Only you and people you invite can see it.");
+      toast.success("Document uploaded. Only people you've granted access can see it.");
       setTitle("");
+      setSchoolYear("");
+      setMeetingDate("");
+      setReviewDate("");
+      setPendingFile(null);
       await onChange();
     } catch (err) {
       console.error(err);
@@ -145,6 +165,7 @@ export function FamilyDocumentUpload({
       if (fileRef.current) fileRef.current.value = "";
     }
   }
+
 
   const activeType = DOC_TYPES.find((t) => t.value === docType)!;
   const firstName = studentFirstName ?? "your student";
