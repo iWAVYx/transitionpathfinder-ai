@@ -39,6 +39,7 @@ import {
   type PartnerOrg,
 } from "@/lib/partner-workspace.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 
@@ -202,7 +203,7 @@ function PartnerManagePage() {
         />
 
         <div className="mt-6">
-          <NextBestAction surface="partner" />
+          <NextBestAction surface="partner" /><div className="mt-4"><JourneyStrip surface="partner" /></div>
           <OnboardingChecklist surface="partner" className="mt-4" />
         </div>
 

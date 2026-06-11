@@ -37,6 +37,7 @@ import {
   type CaseloadStudent,
 } from "@/lib/caseload.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -117,7 +118,7 @@ function CaseloadPage() {
 
           {/* Primary: Next best action + onboarding */}
           <div className="space-y-4">
-            <NextBestAction surface="educator" />
+            <NextBestAction surface="educator" /><div className="mt-4"><JourneyStrip surface="educator" /></div>
             <OnboardingChecklist surface="educator" />
           </div>
 

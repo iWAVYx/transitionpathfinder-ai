@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 
@@ -75,7 +76,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
         <Breadcrumbs trail={[{ label: "My plan" }]} />
 
         <div className="mt-6">
-          <NextBestAction surface="student" />
+          <NextBestAction surface="student" /><div className="mt-4"><JourneyStrip surface="student" /></div>
           <OnboardingChecklist surface="student" className="mt-4" />
         </div>
 

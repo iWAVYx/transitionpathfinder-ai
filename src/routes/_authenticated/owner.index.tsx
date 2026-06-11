@@ -24,6 +24,7 @@ import {
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
@@ -70,7 +71,7 @@ function OwnerDashboardPage() {
         <p className="text-sm text-muted-foreground">No metrics available.</p>
       ) : (
         <div className="space-y-6 sm:space-y-8">
-          <NextBestAction surface="admin" />
+          <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
           <OnboardingChecklist surface="admin" />
 
           {/* Site status banner — pills wrap cleanly on mobile */}

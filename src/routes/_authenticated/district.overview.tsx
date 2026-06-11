@@ -16,6 +16,7 @@ import {
 } from "@/components/district/DistrictPageShell";
 import { Button } from "@/components/ui/button";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
+import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
@@ -41,7 +42,7 @@ function DistrictOverviewPage() {
     >
       {(district, d) => (
         <div className="space-y-6 sm:space-y-8">
-          <NextBestAction surface="district_admin" />
+          <NextBestAction surface="district_admin" /><div className="mt-4"><JourneyStrip surface="district_admin" /></div>
           <OnboardingChecklist surface="district_admin" />
 
           <StatGrid cols={4}>
