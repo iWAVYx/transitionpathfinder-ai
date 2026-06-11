@@ -189,11 +189,26 @@ function ResourcesPage() {
   const isMobile = useIsMobile();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchToggleRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<"browse" | "saved" | "recommended">("browse");
   const { saved, toggle, remove } = useSaved();
   const [liveMessage, setLiveMessage] = useState("");
   const hasAnnounced = useRef(false);
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setSearchOpen(false);
+      searchToggleRef.current?.focus();
+    }
+  };
 
   const [viewDensity, setViewDensity] = useState<"compact" | "comfortable">(() => {
     try {
