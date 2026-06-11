@@ -67,6 +67,12 @@ export const registerDocument = createServerFn({ method: "POST" })
       mime_type: z.string().trim().max(120).optional(),
       size_bytes: z.number().int().nonnegative().optional(),
       doc_type: z.enum(["iep", "evaluation", "transition-plan", "other"]).default("iep"),
+      visibility: z.enum(["private", "team", "family", "student"]).default("team"),
+      school_year: z.string().trim().max(20).optional(),
+      meeting_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      review_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      consent_acknowledged: z.boolean().default(false),
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -81,6 +87,12 @@ export const registerDocument = createServerFn({ method: "POST" })
         mime_type: data.mime_type ?? null,
         size_bytes: data.size_bytes ?? null,
         doc_type: data.doc_type,
+        visibility: data.visibility,
+        school_year: data.school_year ?? null,
+        meeting_date: data.meeting_date ?? null,
+        effective_date: data.effective_date ?? null,
+        review_date: data.review_date ?? null,
+        consent_acknowledged_at: data.consent_acknowledged ? new Date().toISOString() : null,
       })
       .select("*")
       .single();
@@ -111,11 +123,17 @@ export const registerDocument = createServerFn({ method: "POST" })
       entity_type: "document",
       entity_id: row.id,
       student_id: data.student_id,
-      metadata: { title: data.title, doc_type: data.doc_type },
+      metadata: {
+        title: data.title,
+        doc_type: data.doc_type,
+        visibility: data.visibility,
+        consent: data.consent_acknowledged,
+      },
     });
 
     return row as DocumentRow;
   });
+
 
 
 export const deleteDocument = createServerFn({ method: "POST" })
