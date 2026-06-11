@@ -12,7 +12,7 @@ import {
   Compass,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import partnersHero from "@/assets/partners-hero.jpg";
+import partnersHero from "@/assets/handshake.png.asset.json";
 import {
   CursorField,
   Magnetic,
@@ -41,8 +41,8 @@ export const Route = createFileRoute("/partners")({
           "Real places, real people, real next steps. A trusted directory of Connecticut partners arriving with the pilot.",
       },
       { property: "og:url", content: "/partners" },
-      { property: "og:image", content: partnersHero },
-      { property: "twitter:image", content: partnersHero },
+      { property: "og:image", content: partnersHero.url },
+      { property: "twitter:image", content: partnersHero.url },
     ],
     links: [{ rel: "canonical", href: "/partners" }],
   }),
@@ -319,7 +319,14 @@ function PartnersPage() {
             <div className="relative">
               <CornerArc className="pointer-events-none absolute -left-6 -top-6 -z-10 h-40 w-40 text-primary/40" />
               <Parallax speed={0.18}>
-                <PartnerNetworkVisual />
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-foreground/10 shadow-lift">
+                  <img
+                    src={partnersHero.url}
+                    alt="Two people shaking hands in front of a school — a symbol of partnership"
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: "center 45%" }}
+                  />
+                </div>
               </Parallax>
               <svg
                 aria-hidden
