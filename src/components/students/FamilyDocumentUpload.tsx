@@ -265,6 +265,87 @@ export function FamilyDocumentUpload({
           </div>
         </div>
 
+        {/* Optional metadata */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <Label htmlFor="doc-year" className="mb-1.5 inline-block text-xs">
+              School year (optional)
+            </Label>
+            <Input
+              id="doc-year"
+              value={schoolYear}
+              onChange={(e) => setSchoolYear(e.target.value.slice(0, 20))}
+              placeholder="e.g. 2026-27"
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-meeting" className="mb-1.5 inline-block text-xs">
+              Meeting date (optional)
+            </Label>
+            <Input
+              id="doc-meeting"
+              type="date"
+              value={meetingDate}
+              onChange={(e) => setMeetingDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-review" className="mb-1.5 inline-block text-xs">
+              Next review (optional)
+            </Label>
+            <Input
+              id="doc-review"
+              type="date"
+              value={reviewDate}
+              onChange={(e) => setReviewDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="doc-visibility" className="mb-1.5 inline-block">
+            Who should see this?
+          </Label>
+          <Select value={visibility} onValueChange={(v) => setVisibility(v as typeof visibility)}>
+            <SelectTrigger id="doc-visibility">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="private">Just me</SelectItem>
+              <SelectItem value="family">Family only</SelectItem>
+              <SelectItem value="student">{firstName} and family</SelectItem>
+              <SelectItem value="team">{firstName}'s full team (default)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            You can grant individual people access at any time from the file row's
+            <strong> Manage access</strong> button. Partners are never given IEPs.
+          </p>
+        </div>
+
+        {/* Consent / privacy block */}
+        <label className="flex items-start gap-2.5 rounded-xl border border-amber-200/70 bg-amber-50/50 p-3 text-xs leading-relaxed text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+          <Checkbox
+            checked={consent}
+            onCheckedChange={(v) => {
+              const next = v === true;
+              setConsent(next);
+              if (next && pendingFile) {
+                const f = pendingFile;
+                setPendingFile(null);
+                upload(f);
+              }
+            }}
+            className="mt-0.5"
+            aria-label="Acknowledge privacy notice"
+          />
+          <span>
+            I'm authorized to upload this document for {firstName}. I understand it will
+            be stored privately, shared only with people I grant access to, and every download
+            is recorded in an audit trail.
+          </span>
+        </label>
+
         <label
           className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background p-6 text-center transition-colors sm:p-8 ${
             busy ? "opacity-60" : "cursor-pointer hover:border-primary/60 hover:bg-primary/[0.03]"
@@ -305,6 +386,7 @@ export function FamilyDocumentUpload({
           download to an audit trail you can review.
         </p>
       </div>
+
 
       {/* File list */}
       <div className="border-t">
