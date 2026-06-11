@@ -8,14 +8,14 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import { photos } from "@/lib/photos";
 import stressedTeacherAsset from "@/assets/stressed-teacher.png.asset.json";
 import happyTeacherMorningAsset from "@/assets/happy-teacher-morning.png.asset.json";
 import calendarMeetingAsset from "@/assets/calendar-meeting.png.asset.json";
+import iepBinderAsset from "@/assets/iep-binder.png.asset.json";
 const educatorsHero = stressedTeacherAsset.url;
 const frameworkImg = calendarMeetingAsset.url;
 const dashboardImg = happyTeacherMorningAsset.url;
-const iepUploadImg = photos.iepUpload;
+const iepUploadImg = iepBinderAsset.url;
 
 import {
   Parallax,
