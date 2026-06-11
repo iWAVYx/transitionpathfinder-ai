@@ -38,10 +38,10 @@ function InsightsPage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Insights" }]} />
       </div>
-      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">District Insights</p>
         <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
           See How Transition Planning Is Moving.

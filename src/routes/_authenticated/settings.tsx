@@ -115,12 +115,12 @@ function SettingsPage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto max-w-3xl px-4 pt-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Settings" }]} />
       </div>
-      <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Your account</p>
-        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">Settings</h1>
+        <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Settings</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Choose how we keep in touch and review the basics of your account.
         </p>

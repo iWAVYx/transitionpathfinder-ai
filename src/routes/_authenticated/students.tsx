@@ -81,14 +81,14 @@ function StudentsPage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Students" }]} />
       </div>
-      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Your hub</p>
-            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">Students</h1>
+            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Students</h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Every report, goal, and uploaded document is organized by student. Add a student to
               keep their plan in one place — and to share securely with educators when ready.
