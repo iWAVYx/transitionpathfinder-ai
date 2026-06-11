@@ -134,7 +134,7 @@ export function PartnerApplyForm() {
         </span>
         <div>
           <h3 id="partner-apply-heading" className="font-display text-xl font-medium">
-            Apply to the partner directory
+            Apply to the Partner Pathway Network
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Tell us about your program. We'll follow up to vet, photograph, and write your
@@ -144,10 +144,10 @@ export function PartnerApplyForm() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Your name" error={form.formState.errors.contact_name?.message}>
+        <Field label="Your Name" error={form.formState.errors.contact_name?.message}>
           <Input {...form.register("contact_name")} placeholder="First and last name" maxLength={200} />
         </Field>
-        <Field label="Work email" error={form.formState.errors.email?.message}>
+        <Field label="Work Email" error={form.formState.errors.email?.message}>
           <Input
             type="email"
             {...form.register("email")}
@@ -165,13 +165,13 @@ export function PartnerApplyForm() {
             maxLength={200}
           />
         </Field>
-        <Field label="Region you serve" error={form.formState.errors.region?.message}>
+        <Field label="Region You Serve" error={form.formState.errors.region?.message}>
           <Input {...form.register("region")} placeholder="e.g. Hartford County, CT" maxLength={200} />
         </Field>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Organization type">
+        <Field label="Organization Type">
           <Select
             defaultValue="community-org"
             onValueChange={(v) => form.setValue("org_type", v as FormValues["org_type"])}
@@ -222,7 +222,7 @@ export function PartnerApplyForm() {
           We never share your contact info publicly without your written approval.
         </p>
         <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Submitting…" : "Apply to the directory"}
+          {form.formState.isSubmitting ? "Submitting…" : "Apply to the Partner Pathway Network"}
           <ArrowRight className="ml-1.5 h-4 w-4" />
         </Button>
       </div>

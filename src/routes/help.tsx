@@ -597,7 +597,7 @@ function ContactSection() {
             className="mt-10 grid gap-5 scroll-mt-24 rounded-3xl border bg-card p-6 shadow-soft md:p-8"
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Your name" error={form.formState.errors.full_name?.message}>
+              <Field label="Your Name" error={form.formState.errors.full_name?.message}>
                 <Input {...form.register("full_name")} placeholder="First and last name" maxLength={200} />
               </Field>
               <Field label="Email" error={form.formState.errors.email?.message}>
