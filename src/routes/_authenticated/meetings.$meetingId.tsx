@@ -12,6 +12,7 @@ import { getStudent } from "@/lib/students.functions";
 import {
   getMeeting,
   updateMeeting,
+  completeMeeting,
   addAgendaItem,
   addQuestion,
   addActionItem,
