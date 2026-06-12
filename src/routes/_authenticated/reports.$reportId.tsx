@@ -134,6 +134,25 @@ function ReportDetailPage() {
     }
   }
 
+  async function handleRegenerate() {
+    setRegenBusy(true);
+    try {
+      const res = await regenerate({ data: { report_id: reportId } });
+      const fresh = await fetchReport({ data: { id: reportId } });
+      setState({ kind: "ok", name: fresh.student_first_name, report: fresh.report, studentId: fresh.student_id });
+      toast.success(`Regenerated (v${res.version_number}). ${res.change_summary}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not regenerate.");
+    } finally {
+      setRegenBusy(false);
+    }
+  }
+
+  function setAudience(a: V2Audience) {
+    navigate({ to: "/reports/$reportId", params: { reportId }, search: { ...search, audience: a } });
+  }
+
+
   async function generate(audience: "family" | "educator") {
     setBusy(true);
     try {
