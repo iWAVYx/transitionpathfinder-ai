@@ -280,13 +280,14 @@ function StudentDetailPage() {
             studentFirstName={student?.first_name ?? null}
             docs={docs}
             onChange={reload}
+            canEdit={canEdit}
             renderRowActions={(d) => (
               <StandardDocActions
                 doc={d}
                 parsing={parsing}
                 onExtract={handleParse}
                 onDownload={handleDownload}
-                onDelete={handleDelete}
+                onDelete={canEdit ? handleDelete : undefined}
               />
             )}
           />
