@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import {
   EXTRACTION_SECTION_KEYS,
   getOrCreateExtraction,
@@ -24,6 +25,7 @@ import {
   type ExtractionSection,
   type SectionReviewState,
 } from "@/lib/extractions.functions";
+import { logDocumentView } from "@/lib/documents.functions";
 
 export const Route = createFileRoute("/_authenticated/documents/$documentId/review")({
   component: ReviewPage,
