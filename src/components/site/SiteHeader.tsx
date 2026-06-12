@@ -217,8 +217,9 @@ export function SiteHeader() {
       }
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <Link
+        <SmartLink
           to="/"
+          reload
           className="group flex shrink-0 items-center gap-2 whitespace-nowrap"
           onClick={() => setOpen(false)}
         >
@@ -237,7 +238,7 @@ export function SiteHeader() {
           <span className="font-display text-lg font-semibold tracking-tight">
             TransitionForward
           </span>
-        </Link>
+        </SmartLink>
 
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 lg:flex">
