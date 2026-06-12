@@ -290,6 +290,45 @@ function ReportDetailPage() {
         }
       />
 
+      {/* Audience selector for the v2 spine */}
+      <div className={`no-print mx-auto mt-4 ${wrapWidth} px-4 sm:px-6 lg:px-8`}>
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-3 shadow-soft">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            View this report as
+          </span>
+          {(["student", "family", "educator"] as const).map((a) => (
+            <Button
+              key={a}
+              size="sm"
+              variant={audience === a ? "default" : "outline"}
+              onClick={() => setAudience(a)}
+              className="capitalize"
+            >
+              {a}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* v2 additive sections — only render once the report has been regenerated into v2 */}
+      {isV2(state.report) && (
+        <ReportV2Sections
+          content={state.report}
+          audience={audience}
+          studentName={state.name}
+        />
+      )}
+
+      {/* Regenerate CTA */}
+      <div className="no-print">
+        <RegenerateBanner
+          onRegenerate={handleRegenerate}
+          busy={regenBusy}
+          canRegenerate={!!state.studentId}
+        />
+      </div>
+
+
       {/* Link to student */}
       <section className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft">
