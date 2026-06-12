@@ -29,9 +29,18 @@ import {
   Sunrise,
   ChevronRight,
   BookOpen,
+  Play,
+  PenLine,
+  UserRound,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { photos } from "@/lib/photos";
 import { cn } from "@/lib/utils";
 
@@ -161,6 +170,141 @@ function SideNav() {
   );
 }
 
+/* ---------------------------------------------------------------- founder letter / video */
+
+const FOUNDER_VIDEO_URL = (import.meta.env.VITE_FOUNDER_VIDEO_URL as string | undefined) ?? "";
+
+const FOUNDER_LETTER = [
+  "I started in business strategy. I went back for a Master of Arts in Teaching, K–12 Special Education, because I wanted to do work that actually touched a life.",
+  "What I found in PPT meetings and IEP binders broke my heart and clarified my purpose. Families were doing everything right and still leaving the table holding paper instead of a pathway.",
+  "TransitionForward is the tool I wished I had for my own caseload — built to make the next right step obvious, and to treat every family with the respect they deserve.",
+];
+
+function FounderLetter() {
+  const [open, setOpen] = useState(false);
+  const reduced = useReducedMotion();
+  const hasVideo = Boolean(FOUNDER_VIDEO_URL);
+
+  return (
+    <>
+      <div className="mx-auto mt-12 max-w-2xl">
+        <motion.button
+          type="button"
+          onClick={() => setOpen(true)}
+          whileHover={reduced ? undefined : { y: -3 }}
+          transition={{ type: "spring", stiffness: 220, damping: 18 }}
+          className="group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-background/80 p-3 text-left shadow-lg backdrop-blur transition-all duration-500 hover:border-primary/50 hover:shadow-2xl sm:gap-5 sm:p-4"
+          aria-label={hasVideo ? "Play the founder video" : "Read the founder letter"}
+        >
+          {/* Poster thumbnail */}
+          <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-primary/20 via-accent/15 to-muted sm:w-40">
+            <img
+              src={aboutHero}
+              alt=""
+              className="h-full w-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-110"
+              style={{ objectPosition: "center 35%" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-accent/20" />
+            {/* Play badge */}
+            <div className="absolute inset-0 grid place-items-center">
+              <motion.span
+                aria-hidden
+                className="grid h-11 w-11 place-items-center rounded-full bg-background/90 text-primary shadow-xl backdrop-blur"
+                animate={
+                  reduced
+                    ? undefined
+                    : { boxShadow: ["0 0 0 0 color-mix(in oklab, var(--primary) 40%, transparent)", "0 0 0 12px transparent"] }
+                }
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+              >
+                {hasVideo ? <Play className="ml-0.5 h-5 w-5 fill-current" /> : <PenLine className="h-5 w-5" />}
+              </motion.span>
+            </div>
+          </div>
+
+          {/* Text */}
+          <div className="min-w-0 flex-1 pr-2">
+            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-primary">
+              {hasVideo ? "Watch · 90 Seconds" : "A Note From The Founder"}
+            </p>
+            <p className="mt-1 font-serif text-base leading-snug tracking-tight text-foreground sm:text-lg">
+              "Students Deserve A Clear Path Forward."
+            </p>
+            <p className="mt-1 hidden text-xs text-muted-foreground sm:block">
+              {hasVideo ? "A short letter to families, educators, and students." : "Click to read the founder's letter."}
+            </p>
+          </div>
+
+          {/* Trailing chevron */}
+          <ChevronRight className="mr-1 h-5 w-5 shrink-0 text-muted-foreground transition-all duration-500 group-hover:translate-x-1 group-hover:text-primary" />
+
+          {/* Hover sheen */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          />
+        </motion.button>
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl gap-0 overflow-hidden p-0 sm:max-w-3xl">
+          <DialogTitle className="sr-only">
+            {hasVideo ? "Founder Video" : "A Letter From The Founder"}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            A personal note from the founder of TransitionForward.
+          </DialogDescription>
+
+          {hasVideo ? (
+            <div className="aspect-video w-full bg-black">
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <video
+                src={FOUNDER_VIDEO_URL}
+                controls
+                autoPlay
+                playsInline
+                className="h-full w-full"
+              />
+            </div>
+          ) : (
+            <div className="relative bg-gradient-to-br from-primary/[0.06] via-background to-accent/[0.06] p-8 sm:p-10">
+              <div className="flex items-center gap-3">
+                <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
+                  <UserRound className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-serif text-lg leading-tight tracking-tight text-foreground">
+                    A Letter From The Founder
+                  </p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Connecticut Special Educator
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 space-y-4 font-serif text-base leading-relaxed text-foreground/85 sm:text-lg">
+                {FOUNDER_LETTER.map((p, i) => (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 + i * 0.12 }}
+                  >
+                    {p}
+                  </motion.p>
+                ))}
+              </div>
+              <p className="mt-6 font-serif text-sm italic text-muted-foreground">
+                — The Founder, TransitionForward
+              </p>
+            </div>
+          )}
+
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 /* ---------------------------------------------------------------- hero */
 
 function Hero() {
@@ -268,6 +412,10 @@ function Hero() {
               <a href="#journey">See The Journey</a>
             </Button>
           </div>
+        </Reveal>
+
+        <Reveal delay={0.6}>
+          <FounderLetter />
         </Reveal>
       </div>
 
