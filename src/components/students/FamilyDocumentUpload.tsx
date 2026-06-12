@@ -338,8 +338,58 @@ export function FamilyDocumentUpload({
               value={reviewDate}
               onChange={(e) => setReviewDate(e.target.value)}
             />
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <Label htmlFor="doc-annual" className="mb-1.5 inline-block text-xs">
+              Annual review date (optional)
+            </Label>
+            <Input
+              id="doc-annual"
+              type="date"
+              value={annualReviewDate}
+              onChange={(e) => setAnnualReviewDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-reeval" className="mb-1.5 inline-block text-xs">
+              Reevaluation date (optional)
+            </Label>
+            <Input
+              id="doc-reeval"
+              type="date"
+              value={reevaluationDate}
+              onChange={(e) => setReevaluationDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-source" className="mb-1.5 inline-block text-xs">
+              Source (optional)
+            </Label>
+            <Input
+              id="doc-source"
+              value={source}
+              onChange={(e) => setSource(e.target.value.slice(0, 200))}
+              placeholder="e.g. School district, private eval"
+              maxLength={200}
+            />
           </div>
         </div>
+
+        <div>
+          <Label htmlFor="doc-notes" className="mb-1.5 inline-block text-xs">
+            Notes (optional)
+          </Label>
+          <Input
+            id="doc-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value.slice(0, 2000))}
+            placeholder="Anything the team should know about this file"
+            maxLength={2000}
+          />
+        </div>
+
 
         <div>
           <Label htmlFor="doc-visibility" className="mb-1.5 inline-block">
