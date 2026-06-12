@@ -483,7 +483,7 @@ export function StandardDocActions({
   const [permsOpen, setPermsOpen] = useState(false);
   return (
     <>
-      {doc.doc_type === "iep" || doc.doc_type === "transition-plan" ? (
+      {["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
         <Button
           size="sm"
           variant="outline"
