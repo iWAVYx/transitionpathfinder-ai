@@ -485,14 +485,14 @@ export function SiteHeader() {
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">
               {user ? (
                 <div className="space-y-2">
-                  <Link
+                  <SmartLink
                     to="/pathway"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
                   >
                     <Sparkles className="h-4 w-4" />
                     Create a Pathway Report
-                  </Link>
+                  </SmartLink>
                   <button
                     type="button"
                     onClick={() => {
@@ -507,22 +507,22 @@ export function SiteHeader() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Link
+                  <SmartLink
                     to="/waitlist"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
                   >
                     <Sparkles className="h-4 w-4" />
                     Join the Waitlist
-                  </Link>
-                  <Link
+                  </SmartLink>
+                  <SmartLink
                     to="/login"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground"
                   >
                     <LogIn className="h-4 w-4" />
                     Sign In
-                  </Link>
+                  </SmartLink>
                 </div>
               )}
             </div>
