@@ -289,31 +289,43 @@ function FounderStory() {
 
           {/* Story */}
           <Reveal delay={0.1}>
-            <SectionEyebrow>Why I Built This</SectionEyebrow>
+            <SectionEyebrow>Founder–Market Fit</SectionEyebrow>
             <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
-              A CT Educator <br />
-              <span className="text-primary">Building a Bridge</span> for Every Student.
+              Built From the <br />
+              <span className="text-primary">Inside</span> of This Work.
             </h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-                I came to teaching after an MBA, then completed my MAT in
-                Special Education K–12 and a full student teaching year across{" "}
+                Transition Forward is deeply connected to my personal,
+                academic, and professional journey. My path into special
+                education wasn't an accident — it was shaped by business
+                training, classroom experience, community awareness, and a
+                growing understanding that students receiving special education
+                services need more than systems that document their needs.{" "}
+                <span className="font-semibold text-foreground">
+                  They need systems that help them move forward.
+                </span>
+              </p>
+              <p>
+                Before entering the classroom, I completed my{" "}
+                <span className="font-semibold text-foreground">MBA</span> —
+                learning systems, operations, strategy, data, user experience,
+                and how organizations solve real problems. Then I completed my{" "}
+                <span className="font-semibold text-foreground">
+                  MAT in Special Education K–12
+                </span>{" "}
+                with a full student teaching year across{" "}
                 <span className="font-semibold text-foreground">
                   New Haven and Hamden Public Schools
                 </span>
                 .
               </p>
               <p>
-                I watched students, families, teachers, and school teams carry
-                the weight of transition planning — scattered IEPs, missed
-                opportunities, and unanswered questions.
-              </p>
-              <p>
-                Transition Forward connects{" "}
-                <span className="font-semibold text-foreground">
-                  strategy, service, systems, and humanity
-                </span>{" "}
-                into one student-centered platform.
+                As a Black male special educator from Connecticut, this work is
+                also personal. Many students — especially from historically
+                underserved communities — need adults and systems that see more
+                than their paperwork: their ability, their voice, their
+                interests, their family context, and their future.
               </p>
             </div>
 
@@ -321,7 +333,7 @@ function FounderStory() {
               onClick={() => setOpen((o) => !o)}
               className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
             >
-              {open ? "Hide" : "Read"} the Full Founder Story
+              {open ? "Hide" : "Read"} the Full Founder–Market Fit
               <ChevronDown
                 className={cn(
                   "h-4 w-4 transition-transform",
@@ -335,16 +347,62 @@ function FounderStory() {
               transition={{ duration: 0.4 }}
               className="overflow-hidden"
             >
-              <p className="mt-4 border-l-2 border-primary/40 pl-4 text-sm leading-relaxed text-muted-foreground">
-                Transition planning shouldn't be a binder you can't open or a
-                meeting you can't follow. After years inside Connecticut
-                classrooms, I saw families translating jargon at the kitchen
-                table, educators copy-pasting goals between systems, and
-                students whose voices never made it into the plan. Transition
-                Forward exists so every IEP becomes a real, navigable map — and
-                every student gets a future worth planning for.
-              </p>
+              <div className="mt-4 space-y-4 border-l-2 border-primary/40 pl-4 text-sm leading-relaxed text-muted-foreground">
+                <p>
+                  Throughout my student teaching, I worked with students who
+                  were creative, funny, capable, thoughtful, and full of
+                  potential — even when the systems around them didn't always
+                  make their next steps feel clear. I also saw the weight
+                  educators and case managers carry every day: planning
+                  lessons, supporting IEP goals, tracking progress, preparing
+                  for meetings, communicating with families, managing
+                  documents, and trying to make sure students aren't only
+                  passing classes, but preparing for life after high school.
+                </p>
+                <p>
+                  My time in New Haven and Hamden helped me understand that
+                  transition planning is not just a compliance requirement. It
+                  is one of the most important parts of special education
+                  because it asks a powerful question:{" "}
+                  <span className="font-semibold text-foreground">
+                    what kind of future is this student being prepared for?
+                  </span>
+                </p>
+                <p>
+                  In classrooms and meetings, I saw families who care deeply
+                  but don't always have the language, tools, or clarity to
+                  navigate the process. I saw students with goals written into
+                  their plans who still needed help understanding what those
+                  goals meant in real life. I saw educators who knew what
+                  students needed but didn't have one clear system to connect
+                  documents, goals, resources, action steps, and opportunities.
+                </p>
+                <p className="font-semibold text-foreground">
+                  That is the gap Transition Forward is built to address.
+                </p>
+                <p>
+                  Transition Forward combines my business background with my
+                  special education training. My MBA helps me think about the
+                  platform as a scalable, sustainable, user-centered service.
+                  My MAT and student teaching keep it grounded in the real
+                  needs of students, families, teachers, case managers,
+                  schools, and districts.
+                </p>
+                <p>
+                  This is not just a technology idea to me. It is a response to
+                  what I have seen — built to help students feel seen, families
+                  feel less overwhelmed, educators turn their work into clearer
+                  action, schools and districts understand where students are
+                  in the process, and community partners become part of the
+                  pathway. Most importantly, it is built to help students
+                  receiving special education services move from{" "}
+                  <span className="font-semibold text-foreground">
+                    paperwork to possibility.
+                  </span>
+                </p>
+              </div>
             </motion.div>
+
           </Reveal>
         </div>
       </div>
