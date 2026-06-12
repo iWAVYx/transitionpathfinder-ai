@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
@@ -14,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
+import { SmartLink } from "./SmartLink";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
@@ -215,8 +215,9 @@ export function SiteHeader() {
       }
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <Link
+        <SmartLink
           to="/"
+          reload
           className="group flex shrink-0 items-center gap-2 whitespace-nowrap"
           onClick={() => setOpen(false)}
         >
@@ -235,7 +236,7 @@ export function SiteHeader() {
           <span className="font-display text-lg font-semibold tracking-tight">
             TransitionForward
           </span>
-        </Link>
+        </SmartLink>
 
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 lg:flex">
@@ -247,7 +248,7 @@ export function SiteHeader() {
               <DropdownMenuContent align="start" className="max-h-[min(70vh,32rem)] min-w-64 overflow-y-auto p-2">
                 {group.items.map((item) => (
                   <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
-                    <Link
+                    <SmartLink
                       to={item.to}
                       className="flex flex-col items-start gap-0.5 rounded-lg px-3 py-2"
                     >
@@ -255,21 +256,21 @@ export function SiteHeader() {
                       {item.desc && (
                         <span className="text-xs text-primary/75">{toTitleCase(item.desc)}</span>
                       )}
-                    </Link>
+                    </SmartLink>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
           ))}
           {navSingles.map((item) => (
-            <Link
+            <SmartLink
               key={item.to}
               to={item.to}
               className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5"
               activeProps={{ className: "text-foreground bg-muted" }}
             >
               {item.label}
-            </Link>
+            </SmartLink>
           ))}
         </nav>
 
@@ -278,20 +279,20 @@ export function SiteHeader() {
             <>
               <NotificationsBell userId={user.id} />
 
-              <Link
+              <SmartLink
                 to="/dashboard"
                 className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-2.5"
               >
                 Dashboard
-              </Link>
+              </SmartLink>
 
               {isPlatformAdmin && (
-                <Link
+                <SmartLink
                   to="/owner"
                   className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/15 lg:px-2.5"
                 >
                   <Shield className="h-3.5 w-3.5" /> Admin Hub
-                </Link>
+                </SmartLink>
               )}
 
               <DropdownMenu>
@@ -307,9 +308,9 @@ export function SiteHeader() {
                       </DropdownMenuLabel>
                       {group.items.map((item) => (
                         <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
-                          <Link to={item.to} className="rounded-md px-2 py-1.5 text-sm">
+                          <SmartLink to={item.to} className="rounded-md px-2 py-1.5 text-sm">
                             {item.label}
-                          </Link>
+                          </SmartLink>
                         </DropdownMenuItem>
                       ))}
                     </div>
@@ -329,18 +330,18 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              <Link
+              <SmartLink
                 to="/login"
                 className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-3"
               >
                 Sign In
-              </Link>
-              <Link
+              </SmartLink>
+              <SmartLink
                 to="/waitlist"
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift lg:px-3.5"
               >
                 Join the Waitlist
-              </Link>
+              </SmartLink>
             </>
           )}
         </div>
@@ -360,8 +361,9 @@ export function SiteHeader() {
             className="flex w-[88%] max-w-sm flex-col gap-0 p-0 sm:max-w-sm"
           >
             <div className="border-b border-border/60 px-5 py-4">
-              <Link
+              <SmartLink
                 to="/"
+                reload
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2"
               >
@@ -374,7 +376,7 @@ export function SiteHeader() {
                 <span className="font-display text-base font-semibold tracking-tight">
                   TransitionForward
                 </span>
-              </Link>
+              </SmartLink>
             </div>
 
             <div className="flex-1 overflow-y-auto px-3 py-4">
@@ -390,7 +392,7 @@ export function SiteHeader() {
                     </summary>
                     <div className="ml-2 mt-0.5 flex flex-col gap-0.5 border-l border-border/60 pl-2">
                       {group.items.map((item) => (
-                        <Link
+                        <SmartLink
                           key={item.to}
                           to={item.to}
                           onClick={() => setOpen(false)}
@@ -398,13 +400,13 @@ export function SiteHeader() {
                           activeProps={{ className: "text-foreground bg-muted" }}
                         >
                           {item.label}
-                        </Link>
+                        </SmartLink>
                       ))}
                     </div>
                   </details>
                 ))}
                 {navSingles.map((item) => (
-                  <Link
+                  <SmartLink
                     key={item.to}
                     to={item.to}
                     onClick={() => setOpen(false)}
@@ -412,16 +414,16 @@ export function SiteHeader() {
                     activeProps={{ className: "text-foreground bg-muted" }}
                   >
                     {item.label}
-                  </Link>
+                  </SmartLink>
                 ))}
-                <Link
+                <SmartLink
                   to="/privacy"
                   onClick={() => setOpen(false)}
                   className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                   activeProps={{ className: "text-foreground bg-muted" }}
                 >
                   Privacy
-                </Link>
+                </SmartLink>
               </nav>
 
 
@@ -431,7 +433,7 @@ export function SiteHeader() {
                     Your Workspace
                   </p>
                   <nav className="flex flex-col gap-0.5">
-                    <Link
+                    <SmartLink
                       to="/dashboard"
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -439,16 +441,16 @@ export function SiteHeader() {
                     >
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
-                    </Link>
+                    </SmartLink>
                     {isPlatformAdmin && (
-                      <Link
+                      <SmartLink
                         to="/owner"
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
                       >
                         <Shield className="h-4 w-4" />
                         Admin Hub
-                      </Link>
+                      </SmartLink>
                     )}
                   </nav>
                   {visibleUserGroups.map((group) => (
@@ -459,7 +461,7 @@ export function SiteHeader() {
                       </summary>
                       <div className="ml-2 mt-0.5 flex flex-col gap-0.5 border-l border-border/60 pl-2">
                         {group.items.map((item) => (
-                          <Link
+                          <SmartLink
                             key={item.to}
                             to={item.to}
                             onClick={() => setOpen(false)}
@@ -467,7 +469,7 @@ export function SiteHeader() {
                             activeProps={{ className: "text-foreground bg-muted" }}
                           >
                             {item.label}
-                          </Link>
+                          </SmartLink>
                         ))}
                       </div>
                     </details>
@@ -481,14 +483,14 @@ export function SiteHeader() {
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">
               {user ? (
                 <div className="space-y-2">
-                  <Link
+                  <SmartLink
                     to="/pathway"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
                   >
                     <Sparkles className="h-4 w-4" />
                     Create a Pathway Report
-                  </Link>
+                  </SmartLink>
                   <button
                     type="button"
                     onClick={() => {
@@ -503,22 +505,22 @@ export function SiteHeader() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Link
+                  <SmartLink
                     to="/waitlist"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
                   >
                     <Sparkles className="h-4 w-4" />
                     Join the Waitlist
-                  </Link>
-                  <Link
+                  </SmartLink>
+                  <SmartLink
                     to="/login"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground"
                   >
                     <LogIn className="h-4 w-4" />
                     Sign In
-                  </Link>
+                  </SmartLink>
                 </div>
               )}
             </div>
