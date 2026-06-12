@@ -79,13 +79,15 @@ function ReviewPage() {
       try {
         const res = await fnGet({ data: { document_id: documentId } });
         setExtraction(res.extraction as unknown as Extraction);
+        // Best-effort audit log; never block the page.
+        fnLogView({ data: { document_id: documentId, context: "extraction_review" } }).catch(() => {});
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Could not load extraction.");
       } finally {
         setLoading(false);
       }
     })();
-  }, [documentId, fnGet]);
+  }, [documentId, fnGet, fnLogView]);
 
   const sections = useMemo(() => {
     const s = extraction?.sections ?? ({} as Record<string, ExtractionSection>);
