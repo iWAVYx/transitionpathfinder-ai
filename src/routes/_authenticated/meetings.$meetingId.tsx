@@ -180,13 +180,17 @@ function MeetingDetailPage() {
             {meeting.status === "upcoming" && (
               <Button
                 onClick={async () => {
-                  await update({ data: { id: meeting.id, status: "completed" } });
-                  toast.success("Marked as completed.");
+                  const res = await complete({ data: { id: meeting.id } });
+                  toast.success(
+                    res.promoted > 0
+                      ? `Meeting completed. ${res.promoted} follow-up${res.promoted === 1 ? "" : "s"} added to action items.`
+                      : "Meeting completed.",
+                  );
                   reload();
                 }}
               >
                 <CheckSquare className="h-4 w-4" />
-                Mark completed
+                Complete & promote follow-ups
               </Button>
             )}
           </div>
