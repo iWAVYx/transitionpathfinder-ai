@@ -69,7 +69,7 @@ test("nav breakpoint (xl) is >= user-controls breakpoint (lg) — no overlap win
   // render together on narrow desktops and overlap. Encode the invariant.
   const BREAKPOINTS = { sm: 640, md: 768, lg: 1024, xl: 1280, "2xl": 1536 };
   const navBp = SRC.match(
-    /<nav\s+className="[^"]*\b(sm|md|lg|xl|2xl):flex\b/,
+    /<nav\b[^>]*className="[^"]*\b(sm|md|lg|xl|2xl):flex\b/,
   )?.[1];
   const ctrlBp = SRC.match(
     /className="hidden[^"]*\b(sm|md|lg|xl|2xl):flex\b[^"]*"[\s\S]{0,200}NotificationsBell/,
