@@ -30,7 +30,6 @@ import {
   ChevronRight,
   BookOpen,
   Play,
-  PlayIcon as Play,
   PenLine,
   UserRound,
 } from "lucide-react";
