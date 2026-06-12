@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_entitlements: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          grants_family_access: boolean
+          grants_partner_access: boolean
+          grants_student_access: boolean
+          id: string
+          max_schools: number | null
+          max_staff: number | null
+          max_students: number | null
+          notes: string | null
+          organization_id: string
+          plan_type: string
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          grants_family_access?: boolean
+          grants_partner_access?: boolean
+          grants_student_access?: boolean
+          id?: string
+          max_schools?: number | null
+          max_staff?: number | null
+          max_students?: number | null
+          notes?: string | null
+          organization_id: string
+          plan_type: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          grants_family_access?: boolean
+          grants_partner_access?: boolean
+          grants_student_access?: boolean
+          id?: string
+          max_schools?: number | null
+          max_staff?: number | null
+          max_students?: number | null
+          notes?: string | null
+          organization_id?: string
+          plan_type?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_entitlements_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       action_items: {
         Row: {
           assigned_to_user_id: string | null
@@ -1596,6 +1658,78 @@ export type Database = {
         }
         Relationships: []
       }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invitation_type: string
+          invited_by_user_id: string
+          invited_role: string
+          message: string | null
+          organization_id: string | null
+          revoked_at: string | null
+          status: string
+          student_profile_id: string | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invitation_type: string
+          invited_by_user_id: string
+          invited_role: string
+          message?: string | null
+          organization_id?: string | null
+          revoked_at?: string | null
+          status?: string
+          student_profile_id?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invitation_type?: string
+          invited_by_user_id?: string
+          invited_role?: string
+          message?: string | null
+          organization_id?: string | null
+          revoked_at?: string | null
+          status?: string
+          student_profile_id?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_student_profile_id_fkey"
+            columns: ["student_profile_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       launch_checklist_items: {
         Row: {
           category: string
@@ -2081,6 +2215,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          invited_by: string | null
+          membership_status: string
           organization_id: string
           role_within_org: string
           status: string
@@ -2090,6 +2226,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          invited_by?: string | null
+          membership_status?: string
           organization_id: string
           role_within_org?: string
           status?: string
@@ -2099,6 +2237,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          invited_by?: string | null
+          membership_status?: string
           organization_id?: string
           role_within_org?: string
           status?: string
@@ -2118,6 +2258,8 @@ export type Database = {
       organizations: {
         Row: {
           address: string | null
+          billing_owner_user_id: string | null
+          billing_plan: string | null
           city: string | null
           contact_email: string | null
           created_at: string
@@ -2125,6 +2267,7 @@ export type Database = {
           name: string
           parent_organization_id: string | null
           state: string | null
+          status: string
           type: string
           updated_at: string
           verified_status: string
@@ -2132,6 +2275,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          billing_owner_user_id?: string | null
+          billing_plan?: string | null
           city?: string | null
           contact_email?: string | null
           created_at?: string
@@ -2139,6 +2284,7 @@ export type Database = {
           name: string
           parent_organization_id?: string | null
           state?: string | null
+          status?: string
           type?: string
           updated_at?: string
           verified_status?: string
@@ -2146,6 +2292,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          billing_owner_user_id?: string | null
+          billing_plan?: string | null
           city?: string | null
           contact_email?: string | null
           created_at?: string
@@ -2153,6 +2301,7 @@ export type Database = {
           name?: string
           parent_organization_id?: string | null
           state?: string | null
+          status?: string
           type?: string
           updated_at?: string
           verified_status?: string
@@ -3071,6 +3220,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           avatar_url: string | null
           created_at: string
           email: string | null
@@ -3085,9 +3235,11 @@ export type Database = {
           organization_id: string | null
           phone: string | null
           primary_role: string | null
+          selected_plan: string | null
           updated_at: string
         }
         Insert: {
+          account_status?: string
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -3102,9 +3254,11 @@ export type Database = {
           organization_id?: string | null
           phone?: string | null
           primary_role?: string | null
+          selected_plan?: string | null
           updated_at?: string
         }
         Update: {
+          account_status?: string
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -3119,6 +3273,7 @@ export type Database = {
           organization_id?: string | null
           phone?: string | null
           primary_role?: string | null
+          selected_plan?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -3864,6 +4019,47 @@ export type Database = {
           },
           {
             foreignKeyName: "student_partner_connections_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_relationships: {
+        Row: {
+          consent_status: string
+          created_at: string
+          id: string
+          permission_level: string
+          related_user_id: string
+          relationship_type: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          consent_status?: string
+          created_at?: string
+          id?: string
+          permission_level?: string
+          related_user_id: string
+          relationship_type: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          consent_status?: string
+          created_at?: string
+          id?: string
+          permission_level?: string
+          related_user_id?: string
+          relationship_type?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_relationships_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
@@ -4628,19 +4824,27 @@ export type Database = {
           city: string | null
           consent_to_contact: boolean
           created_at: string
+          district_name: string | null
           email: string
           first_name: string | null
           full_name: string
           id: string
+          intended_use: string | null
           interest_area: string | null
           last_name: string | null
           organization: string | null
+          organization_name: string | null
+          organization_type: string | null
           reason: string | null
+          referral_source: string | null
+          requested_role: string | null
           role: string
+          school_name: string | null
           source: string | null
           source_page: string | null
           state: string | null
           status: string
+          student_connection_interest: string | null
           student_grade_band: string | null
           updated_at: string
         }
@@ -4649,19 +4853,27 @@ export type Database = {
           city?: string | null
           consent_to_contact?: boolean
           created_at?: string
+          district_name?: string | null
           email: string
           first_name?: string | null
           full_name: string
           id?: string
+          intended_use?: string | null
           interest_area?: string | null
           last_name?: string | null
           organization?: string | null
+          organization_name?: string | null
+          organization_type?: string | null
           reason?: string | null
+          referral_source?: string | null
+          requested_role?: string | null
           role: string
+          school_name?: string | null
           source?: string | null
           source_page?: string | null
           state?: string | null
           status?: string
+          student_connection_interest?: string | null
           student_grade_band?: string | null
           updated_at?: string
         }
@@ -4670,19 +4882,27 @@ export type Database = {
           city?: string | null
           consent_to_contact?: boolean
           created_at?: string
+          district_name?: string | null
           email?: string
           first_name?: string | null
           full_name?: string
           id?: string
+          intended_use?: string | null
           interest_area?: string | null
           last_name?: string | null
           organization?: string | null
+          organization_name?: string | null
+          organization_type?: string | null
           reason?: string | null
+          referral_source?: string | null
+          requested_role?: string | null
           role?: string
+          school_name?: string | null
           source?: string | null
           source_page?: string | null
           state?: string | null
           status?: string
+          student_connection_interest?: string | null
           student_grade_band?: string | null
           updated_at?: string
         }
@@ -4743,9 +4963,26 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      effective_entitlement_for_user: {
+        Args: { _user_id: string }
+        Returns: {
+          ends_at: string
+          grants_family_access: boolean
+          grants_partner_access: boolean
+          grants_student_access: boolean
+          organization_id: string
+          plan_type: string
+          status: string
+          via_district: boolean
+        }[]
+      }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      has_active_entitlement: {
+        Args: { _org_id: string; _plan_kind?: string }
+        Returns: boolean
       }
       has_admin_role: {
         Args: {
@@ -4802,6 +5039,10 @@ export type Database = {
         }[]
       }
       track_share_view: { Args: { _token: string }; Returns: undefined }
+      user_has_feature: {
+        Args: { _feature: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       admin_role:
