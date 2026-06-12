@@ -230,9 +230,10 @@ function StudentDetailPage() {
           <RightsStatusCard studentId={studentId} />
           <CtTransitionPrompts
             dateOfBirth={student?.date_of_birth ?? null}
-            age={student?.age ?? null}
+            age={null}
             gradeBand={student?.grade_band ?? null}
           />
+
 
 
         </header>
