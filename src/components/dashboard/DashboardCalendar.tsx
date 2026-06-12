@@ -126,6 +126,13 @@ function kindStyles(kind: TeamCalendarEvent["kind"]) {
         icon: <Users className="h-3 w-3" aria-hidden />,
         label: "Team",
       };
+    case "deadline":
+      return {
+        dot: "bg-rose-500",
+        chip: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20",
+        icon: <CalendarClock className="h-3 w-3" aria-hidden />,
+        label: "Deadline",
+      };
     case "personal":
     default:
       return {
