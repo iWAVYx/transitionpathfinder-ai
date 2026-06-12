@@ -211,7 +211,7 @@ function ReviewPage() {
         </div>
 
         <TrustNote variant="document" />
-        <AIDisclaimer compact />
+        <AIDisclaimer />
 
 
         {loading ? (
