@@ -363,8 +363,9 @@ export function SiteHeader() {
             className="flex w-[88%] max-w-sm flex-col gap-0 p-0 sm:max-w-sm"
           >
             <div className="border-b border-border/60 px-5 py-4">
-              <Link
+              <SmartLink
                 to="/"
+                reload
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2"
               >
@@ -377,7 +378,7 @@ export function SiteHeader() {
                 <span className="font-display text-base font-semibold tracking-tight">
                   TransitionForward
                 </span>
-              </Link>
+              </SmartLink>
             </div>
 
             <div className="flex-1 overflow-y-auto px-3 py-4">
