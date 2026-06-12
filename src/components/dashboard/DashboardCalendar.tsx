@@ -341,6 +341,7 @@ export function DashboardCalendar({
               <SelectItem value="meeting" className="text-xs">Meetings</SelectItem>
               <SelectItem value="prep" className="text-xs">Prep</SelectItem>
               <SelectItem value="action" className="text-xs">Action items</SelectItem>
+              <SelectItem value="deadline" className="text-xs">Deadlines</SelectItem>
               <SelectItem value="team" className="text-xs">Team events</SelectItem>
               <SelectItem value="personal" className="text-xs">Personal</SelectItem>
             </SelectContent>
