@@ -3,6 +3,14 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import {
+  PathwayReportV2,
+  computeDeterministicGaps,
+  diffInputsForChangeSummary,
+  isV2,
+  type InputsUsed,
+} from "./pathway-v2";
+
 
 const IntakeSchema = z.object({
   submitter_role: z.enum(["family", "student", "educator"]),
