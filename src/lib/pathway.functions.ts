@@ -597,15 +597,29 @@ export const updateReportContent = createServerFn({ method: "POST" })
       ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
 
     // Snapshot the CURRENT content as the new version row before overwriting.
+    // For v2 → v2 transitions, auto-fill change_summary from the input manifest diff
+    // when the caller didn't provide one.
+    let summary = data.change_summary || null;
+    if (!summary) {
+      const prevContent = (current as { content: unknown }).content;
+      if (isV2(prevContent) && isV2(data.content)) {
+        const prevInputs =
+          (prevContent as { inputs_used?: InputsUsed }).inputs_used;
+        const nextInputs =
+          (data.content as { inputs_used?: InputsUsed }).inputs_used;
+        if (nextInputs) summary = diffInputsForChangeSummary(prevInputs, nextInputs);
+      }
+    }
     const { error: vErr } = await supabase
       .from("pathway_report_versions")
       .insert({
         report_id: data.report_id,
         version_number: nextVersion,
         content: JSON.parse(JSON.stringify((current as { content: unknown }).content ?? {})),
-        change_summary: data.change_summary || null,
+        change_summary: summary,
         created_by: userId,
       });
+
     if (vErr) {
       console.error("version snapshot failed", vErr);
       throw new Error("Could not save a version snapshot.");
