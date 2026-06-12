@@ -34,7 +34,7 @@ export type CalendarStatus =
 
 export type TeamCalendarEvent = {
   id: string;
-  kind: "action" | "meeting" | "prep" | "team" | "personal";
+  kind: "action" | "meeting" | "prep" | "team" | "personal" | "deadline";
   event_type: string;
   title: string;
   detail: string;
