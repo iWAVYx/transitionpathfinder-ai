@@ -66,6 +66,7 @@ function ReviewPage() {
   const fnSection = useServerFn(updateExtractionSection);
   const fnMeta = useServerFn(updateExtractionMeta);
   const fnApply = useServerFn(applyAcceptedExtraction);
+  const fnLogView = useServerFn(logDocumentView);
 
   const [loading, setLoading] = useState(true);
   const [extraction, setExtraction] = useState<Extraction | null>(null);
