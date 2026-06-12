@@ -3348,6 +3348,53 @@ export type Database = {
           },
         ]
       }
+      rights_transfer_status: {
+        Row: {
+          created_at: string
+          current_status: string
+          decision_making_notes: string | null
+          id: string
+          legal_representative_notes: string | null
+          reviewed_by_user_id: string | null
+          student_authorized_parent_access: boolean
+          student_id: string
+          transfer_notice_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_status: string
+          decision_making_notes?: string | null
+          id?: string
+          legal_representative_notes?: string | null
+          reviewed_by_user_id?: string | null
+          student_authorized_parent_access?: boolean
+          student_id: string
+          transfer_notice_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_status?: string
+          decision_making_notes?: string | null
+          id?: string
+          legal_representative_notes?: string | null
+          reviewed_by_user_id?: string | null
+          student_authorized_parent_access?: boolean
+          student_id?: string
+          transfer_notice_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rights_transfer_status_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_resources: {
         Row: {
           collection_name: string | null
@@ -4055,11 +4102,13 @@ export type Database = {
           preferred_name: string | null
           primary_disability_category: string | null
           readiness_level: string | null
+          rights_status: string
           school: string | null
           strengths_summary: string | null
           student_user_id: string | null
           student_voice_statement: string | null
           support_needs_summary: string | null
+          transfer_notice_acknowledged_at: string | null
           updated_at: string
         }
         Insert: {
@@ -4082,11 +4131,13 @@ export type Database = {
           preferred_name?: string | null
           primary_disability_category?: string | null
           readiness_level?: string | null
+          rights_status?: string
           school?: string | null
           strengths_summary?: string | null
           student_user_id?: string | null
           student_voice_statement?: string | null
           support_needs_summary?: string | null
+          transfer_notice_acknowledged_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -4109,11 +4160,13 @@ export type Database = {
           preferred_name?: string | null
           primary_disability_category?: string | null
           readiness_level?: string | null
+          rights_status?: string
           school?: string | null
           strengths_summary?: string | null
           student_user_id?: string | null
           student_voice_statement?: string | null
           support_needs_summary?: string | null
+          transfer_notice_acknowledged_at?: string | null
           updated_at?: string
         }
         Relationships: [
