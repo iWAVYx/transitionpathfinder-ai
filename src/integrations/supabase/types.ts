@@ -1694,6 +1694,7 @@ export type Database = {
           due_date: string | null
           id: string
           meeting_id: string
+          promoted_action_item_id: string | null
           status: string
           title: string
           updated_at: string
@@ -1705,6 +1706,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           meeting_id: string
+          promoted_action_item_id?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -1716,6 +1718,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           meeting_id?: string
+          promoted_action_item_id?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -1855,10 +1858,13 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          decisions: string | null
+          documents_to_update: string | null
           family_concerns: string | null
           id: string
           kind: string
           location: string | null
+          next_meeting_date: string | null
           scheduled_at: string | null
           status: string
           student_id: string
@@ -1871,10 +1877,13 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by: string
+          decisions?: string | null
+          documents_to_update?: string | null
           family_concerns?: string | null
           id?: string
           kind?: string
           location?: string | null
+          next_meeting_date?: string | null
           scheduled_at?: string | null
           status?: string
           student_id: string
@@ -1887,10 +1896,13 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          decisions?: string | null
+          documents_to_update?: string | null
           family_concerns?: string | null
           id?: string
           kind?: string
           location?: string | null
+          next_meeting_date?: string | null
           scheduled_at?: string | null
           status?: string
           student_id?: string
@@ -2764,6 +2776,7 @@ export type Database = {
           human_review_status: string
           id: string
           iep_transition_translator: Json | null
+          inputs_stale_at: string | null
           intake_id: string
           is_demo: boolean
           meeting_prep_summary: Json | null
@@ -2792,6 +2805,7 @@ export type Database = {
           human_review_status?: string
           id?: string
           iep_transition_translator?: Json | null
+          inputs_stale_at?: string | null
           intake_id: string
           is_demo?: boolean
           meeting_prep_summary?: Json | null
@@ -2820,6 +2834,7 @@ export type Database = {
           human_review_status?: string
           id?: string
           iep_transition_translator?: Json | null
+          inputs_stale_at?: string | null
           intake_id?: string
           is_demo?: boolean
           meeting_prep_summary?: Json | null
@@ -3411,6 +3426,7 @@ export type Database = {
         Row: {
           collection_name: string | null
           created_at: string
+          follow_up_date: string | null
           id: string
           notes: string | null
           resource_id: string
@@ -3419,6 +3435,7 @@ export type Database = {
         Insert: {
           collection_name?: string | null
           created_at?: string
+          follow_up_date?: string | null
           id?: string
           notes?: string | null
           resource_id: string
@@ -3427,6 +3444,7 @@ export type Database = {
         Update: {
           collection_name?: string | null
           created_at?: string
+          follow_up_date?: string | null
           id?: string
           notes?: string | null
           resource_id?: string
@@ -4103,7 +4121,10 @@ export type Database = {
           family_priorities: string | null
           first_name: string
           grade_band: string | null
+          graduation_target_date: string | null
           id: string
+          iep_annual_review_date: string | null
+          iep_reevaluation_date: string | null
           interests_summary: string | null
           is_demo: boolean
           last_name: string | null
@@ -4132,7 +4153,10 @@ export type Database = {
           family_priorities?: string | null
           first_name: string
           grade_band?: string | null
+          graduation_target_date?: string | null
           id?: string
+          iep_annual_review_date?: string | null
+          iep_reevaluation_date?: string | null
           interests_summary?: string | null
           is_demo?: boolean
           last_name?: string | null
@@ -4161,7 +4185,10 @@ export type Database = {
           family_priorities?: string | null
           first_name?: string
           grade_band?: string | null
+          graduation_target_date?: string | null
           id?: string
+          iep_annual_review_date?: string | null
+          iep_reevaluation_date?: string | null
           interests_summary?: string | null
           is_demo?: boolean
           last_name?: string | null

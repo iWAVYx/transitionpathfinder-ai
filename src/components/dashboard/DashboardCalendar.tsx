@@ -126,6 +126,13 @@ function kindStyles(kind: TeamCalendarEvent["kind"]) {
         icon: <Users className="h-3 w-3" aria-hidden />,
         label: "Team",
       };
+    case "deadline":
+      return {
+        dot: "bg-rose-500",
+        chip: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20",
+        icon: <CalendarClock className="h-3 w-3" aria-hidden />,
+        label: "Deadline",
+      };
     case "personal":
     default:
       return {
@@ -334,6 +341,7 @@ export function DashboardCalendar({
               <SelectItem value="meeting" className="text-xs">Meetings</SelectItem>
               <SelectItem value="prep" className="text-xs">Prep</SelectItem>
               <SelectItem value="action" className="text-xs">Action items</SelectItem>
+              <SelectItem value="deadline" className="text-xs">Deadlines</SelectItem>
               <SelectItem value="team" className="text-xs">Team events</SelectItem>
               <SelectItem value="personal" className="text-xs">Personal</SelectItem>
             </SelectContent>

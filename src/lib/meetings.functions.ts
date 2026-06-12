@@ -18,6 +18,9 @@ export type Meeting = {
   family_concerns: string | null;
   teacher_notes: string | null;
   summary: string | null;
+  decisions: string | null;
+  documents_to_update: string | null;
+  next_meeting_date: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -169,6 +172,9 @@ export const updateMeeting = createServerFn({ method: "POST" })
         family_concerns: z.string().max(4000).optional(),
         teacher_notes: z.string().max(4000).optional(),
         summary: z.string().max(8000).optional(),
+        decisions: z.string().max(4000).optional(),
+        documents_to_update: z.string().max(4000).optional(),
+        next_meeting_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
         status: z.enum(["upcoming", "completed", "cancelled"]).optional(),
         scheduled_at: z.string().datetime().optional(),
         location: z.string().max(200).optional(),
@@ -182,6 +188,97 @@ export const updateMeeting = createServerFn({ method: "POST" })
     const { error } = await supabase.from("meetings").update(rest).eq("id", id);
     if (error) throw new Error("Could not update meeting.");
     return { ok: true };
+  });
+
+/**
+ * Mark a meeting complete AND promote its meeting_action_items into the
+ * student-level `action_items` table so follow-ups show up on the dashboard,
+ * the calendar (via due_date), and the student's profile. Also writes a
+ * `meeting.completed` feed event so the activity stream reflects it.
+ */
+export const completeMeeting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        summary: z.string().max(8000).optional(),
+        decisions: z.string().max(4000).optional(),
+        documents_to_update: z.string().max(4000).optional(),
+        next_meeting_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { id, ...rest } = data;
+
+    const { data: meeting, error: mErr } = await supabase
+      .from("meetings")
+      .update({ ...rest, status: "completed" })
+      .eq("id", id)
+      .select("id, student_id, title, kind")
+      .single();
+    if (mErr || !meeting) throw new Error("Could not complete meeting.");
+
+    // Find meeting follow-ups that haven't been promoted yet.
+    const { data: pending } = await supabase
+      .from("meeting_action_items")
+      .select("id, title, assignee_role, due_date, status")
+      .eq("meeting_id", id)
+      .is("promoted_action_item_id", null);
+
+    let promoted = 0;
+    for (const row of (pending ?? []) as Array<{
+      id: string;
+      title: string;
+      assignee_role: string | null;
+      due_date: string | null;
+      status: string;
+    }>) {
+      const category =
+        row.assignee_role === "family" || row.assignee_role === "parent"
+          ? "family"
+          : row.assignee_role === "student"
+            ? "student"
+            : row.assignee_role === "educator" || row.assignee_role === "teacher"
+              ? "educator"
+              : row.assignee_role === "school"
+                ? "school"
+                : "team";
+      const { data: created, error: insErr } = await supabase
+        .from("action_items")
+        .insert({
+          student_id: (meeting as { student_id: string }).student_id,
+          title: row.title,
+          description: `From meeting: ${meeting.title}`,
+          category,
+          priority: "medium",
+          status: row.status === "done" ? "completed" : "not_started",
+          due_date: row.due_date,
+          created_by_user_id: userId,
+        })
+        .select("id")
+        .single();
+      if (insErr || !created) continue;
+      await supabase
+        .from("meeting_action_items")
+        .update({ promoted_action_item_id: created.id })
+        .eq("id", row.id);
+      promoted += 1;
+    }
+
+    await supabase.from("feed_events").insert({
+      student_id: (meeting as { student_id: string }).student_id,
+      actor_id: userId,
+      kind: "meeting.completed",
+      title: `Meeting completed: ${meeting.title}`,
+      body: promoted > 0 ? `${promoted} follow-up action item${promoted === 1 ? "" : "s"} added.` : null,
+      ref_table: "meetings",
+      ref_id: id,
+    });
+
+    return { ok: true, promoted };
   });
 
 export const addAgendaItem = createServerFn({ method: "POST" })
