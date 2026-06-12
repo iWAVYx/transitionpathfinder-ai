@@ -1,75 +1,110 @@
-## Goal
-Make the Pathway Report feel like the platform's primary deliverable: 21-section spine, every recommendation traceable to a source, three distinct rendered reports (Student / Family / Educator), and version history that preserves audit value across regenerations.
+## TransitionForward — Account, Access, and Entitlement Architecture
 
-## Approach: additive-now, restructure-on-regenerate
-- Extend the Zod schema in `src/lib/pathway.functions.ts` with new optional fields. Existing reports keep rendering through a back-compat shim in `ReportView.tsx`.
-- Newly generated reports populate the full 21-section spine with rationale metadata.
-- Snapshot the old `content` into `pathway_report_versions` before any overwrite (already wired by `updatePathwayReportContent`) so regeneration is non-destructive.
+This is a large, cross-cutting pass touching schema, server functions, signup, onboarding, dashboards, and a Platform Admin console. I want to align on scope and sequencing before I write any code, because several pieces (`organizations`, `organization_memberships`, `waitlist`, `admin_invitations`, `profiles`, `student_collaborators`, `user_roles`) already exist and need to be **adapted**, not duplicated.
 
-## Schema additions (`PathwayReport`)
-- `iep_summary`: `{ source_doc_ids[], present_levels, transition_goals[], accommodations[], services[], plan_dates }`
-- `recommendations` blocks split into four pillars:
-  - `postsecondary_education` / `employment_pathway` / `independent_living` / `community_participation`
-  - each item: `{ title, summary, why, sources[], next_action, owner_role, discuss_at_next_meeting, related_goal_id? }`
-- `resource_matches[]`: `{ resource_id, title, url, why, sources[], action, owner_role }` — sourced from `saved_resources` + `student_resource_recommendations`
-- `partner_matches[]`: same shape, sourced from `student_opportunity_matches` + `student_saved_partners`
-- `missing_information[]`: `{ topic, why_it_matters, how_to_collect, owner_role, blocking_for_section }`
-- `student_action_plan` (peer to family / educator plans), all three time-horizoned 30 / 90 / 6mo / 1yr
-- `time_horizons`: `{ thirty_day[], ninety_day[], six_month[], one_year[] }` as a top-level cross-cutting block (in addition to per-plan horizons)
-- `audience_messages`: `{ student: SectionCopy, family: SectionCopy, educator: SectionCopy }` — short audience-specific paragraph per section id
-- `inputs_used`: `{ profile, student_voice_keys[], iep_doc_ids[], readiness_at, goal_ids[], action_item_ids[], meeting_prep_ids[], saved_resource_ids[], partner_match_ids[] }` — single source-of-truth manifest
+### Guiding principles
 
-Citation type:
-```
-Source = { kind: 'profile'|'student_voice'|'iep_doc'|'goal'|'readiness'|'action_item'|'meeting_prep'|'saved_resource'|'partner_match', id?: string, label: string }
-```
+- **Adapt existing tables** rather than create parallel ones. Same row, more columns.
+- **Roles stay in `user_roles`** (never on `profiles`) — per project security memory.
+- **Access = role + org membership + student relationship + active entitlement + consent**, evaluated by SECURITY DEFINER functions. RLS continues to enforce per-student scoping via `can_access_student` / `can_edit_student`.
+- **Partner accounts are hard-walled** out of student PII at the policy layer, not just the UI.
+- **Compliance copy**: planning/organization/preparation language only — never legal/IEP authority claims.
+- No disruption to current navigation, dashboards, branding, Resource Library, Partner Network, Pathway Report, Calendar.
 
-## Generation pipeline (`generatePathwayReport`)
-1. Fetch student profile, intake, transition_profile, strengths_needs, goals, readiness_scores, student_voice_responses, documents (latest IEP + extractions), saved_resources, student_resource_recommendations, student_opportunity_matches, student_saved_partners, action_items, ppt_meeting_preps.
-2. Pass a structured `context` (not just free-text) to the LLM with explicit source IDs so the model returns citations.
-3. Strict JSON validation; on partial failure, fall back to per-section retries instead of nuking the whole report.
-4. Build `missing_information[]` deterministically from absent inputs (e.g., no IEP doc → "IEP not yet uploaded" gap).
+---
 
-## Three distinct rendered reports
-- New route param: `/_authenticated/reports/$reportId?audience=student|family|educator` (already wired via `report-view-prefs`; promote from prefs to URL search param so links are shareable).
-- `ReportView` reads `audience` and renders the matching section set + tone:
-  - Student view: snapshot, Student Voice (first-person), strengths, four pillar recs (plain language), student action plan, meeting prep questions student can ask, 30/90/6mo/1yr addressed to "you".
-  - Family view: all sections, family action plan emphasized, rights-status reminder.
-  - Educator view: full clinical detail, IEP summary, readiness scorecard, planning gaps, educator action plan, citation chips visible by default.
-- Share tokens (`share_tokens.audience`) already keyed by audience — extend `resolve_share_token` consumer to honor the new section set.
+### Phase 1 — Schema migration (one migration, reviewed before run)
 
-## UI changes (`ReportView.tsx`)
-- Add `SourceChips` component that renders `sources[]` as inline pills with a tooltip ("Student Voice: 'I want to work with animals'"). Educator audience: open; Family: collapsed; Student: hidden.
-- Add `RecommendationCard` with collapsible "Why / What informed this / Next action / Owner / Discuss at next meeting?" block.
-- Add `PlanningGapsBlock` rendering `missing_information[]` with one-click "Add to next meeting prep" that writes to `meeting_prep_items`.
-- Add `ResourceMatchesBlock` + `PartnerMatchesBlock` that read from report content (no extra fetch) but link out to live `/resources/$id` and partner pages.
-- Update `buildReportToc` and `buildStudentToc` to emit the 21-section ordering; legacy reports get the legacy TOC.
+Adapt existing tables:
 
-## Version history
-- `pathway_report_versions` already exists. Add: `change_summary` populated automatically from a diff of `inputs_used` (e.g., "Added IEP upload; 3 new readiness scores; Student Voice updated").
-- Add a "Compare with previous version" affordance in `ReportVersionsPanel` — side-by-side section list with changed-section badges; full diff is out of scope.
+- `organizations`: add `status` (`waitlist|pilot|active|inactive|archived`), `billing_plan`, `billing_owner_user_id`. Extend `type` check to include `family` and `platform_internal`. Keep `parent_organization_id` for school→district.
+- `profiles`: add `account_status` (`waitlist|invited|active|demo|suspended`), `selected_plan`. Keep `primary_role`, `organization_id`, `is_demo`.
+- `organization_memberships`: add `membership_status` (`pending|active|suspended|removed`), `invited_by`. Keep existing `role_within_org`, `status`.
+- `waitlist`: add `requested_role`, `organization_name`, `organization_type`, `district_name`, `school_name`, `student_connection_interest`, `intended_use`, `referral_source`. (Existing `role`, `organization`, `reason` become aliases / backfilled.)
+- `admin_invitations` → repurpose into a **general `invitations`** table by adding `invited_role` (text), `organization_id`, `student_profile_id`, `invitation_type` (`connect_to_student|join_school|join_district|join_partner_org|platform_admin_invite`), `status`. Keep the existing platform-admin flow working.
 
-## Files to change
-- `src/lib/pathway.functions.ts` — schema, generation context, version diff
-- `src/components/pathway/ReportView.tsx` — new blocks, audience routing, source chips
-- `src/components/pathway/ReportVersionsPanel.tsx` — change_summary surfacing
-- `src/routes/_authenticated/reports.$reportId.tsx` — `audience` search param + `validateSearch`
-- `src/lib/report-view-prefs.ts` — keep as fallback, prefer URL param
-- New: `src/components/pathway/RecommendationCard.tsx`, `SourceChips.tsx`, `PlanningGapsBlock.tsx`
-- Migration: add `change_summary` text column to `pathway_report_versions` if not present; no other schema changes (everything else lives in `content jsonb`)
+New tables:
 
-## Back-compat
-- Every new schema field is `.optional()`.
-- `ReportView` checks `report.schema_version ?? 1`. Legacy renders unchanged. New renders use the 21-section spine.
-- Old share tokens keep working — audience already encoded.
+- `student_relationships` — `student_id`, `related_user_id`, `relationship_type`, `permission_level`, `consent_status`. Complements `student_collaborators` (which stays for editor/viewer doc access). This one models the **human relationship + consent**, not document ACLs.
+- `access_entitlements` — `organization_id`, `plan_type`, `status`, `starts_at`, `ends_at`, `max_schools|students|staff`, `grants_family_access`, `grants_student_access`, `grants_partner_access`.
 
-## Out of scope
-- No redesign of dashboards, navigation, or auth.
-- No new tables besides the one optional column on `pathway_report_versions`.
-- No edge functions; generation stays in `createServerFn` + Lovable AI Gateway.
-- Full text diff between versions (only section-level changed badges + input manifest diff).
+Helper functions (SECURITY DEFINER):
 
-## Risks
-- LLM JSON drift across 21 sections — mitigated by per-section retry and strict Zod.
-- Larger `content` payloads — still well under Postgres jsonb limits; render is paginated by collapsibles.
-- Old reports look thinner than new ones — surfaced via a "Regenerate to use latest format" CTA, never auto-overwrite.
+- `has_active_entitlement(_org_id, _kind)`
+- `effective_entitlement_for_user(_user_id)` — walks user → memberships → org → parent district → entitlement.
+- `user_has_feature(_user_id, _feature)` — used by UI and RLS.
+- Update `can_access_student` / `can_edit_student` to also accept active `student_relationships` rows with appropriate `permission_level` and `consent_status='approved'`.
+
+GRANTs and RLS on every new/changed table per project conventions. No `UPDATE` on `user_roles` (privilege-escalation rule). No broad `TO anon` on PII.
+
+---
+
+### Phase 2 — Server functions (`createServerFn`, `requireSupabaseAuth`)
+
+Grouped files under `src/lib/`:
+
+- `signup.functions.ts` — `submitWaitlist` (extend existing), `startSignup`, `chooseRole`, `completeBasicInfo`.
+- `invitations.functions.ts` — `createInvitation`, `acceptInvitation`, `revokeInvitation`, `listMyInvitations`.
+- `organizations.functions.ts` — `searchSchools`, `searchDistricts`, `requestOrgAccess`, `approveOrgMembership`.
+- `relationships.functions.ts` — `requestStudentConnection`, `respondToConnectionRequest`, `setConsent`.
+- `entitlements.functions.ts` — `getMyEntitlement`, `listOrgEntitlements`, `setEntitlement` (admin), `cascadeDistrictAccess`.
+- `admin/waitlist.functions.ts` — list/filter, convert to invitation, archive.
+- `admin/organizations.functions.ts` — CRUD + status transitions.
+- `admin/subscriptions.functions.ts` — entitlement management.
+
+Every privileged fn double-checks `is_platform_admin` or `has_role` after `requireSupabaseAuth`.
+
+---
+
+### Phase 3 — Frontend flows
+
+- `/signup` (or extend `/onboarding`): role selector → basic info → role-specific questions → resolution screen (self-serve / waitlist / request-access / accept-invitation).
+- Role-specific connection screens: student↔parent, student↔educator, educator↔school, admin↔district, partner org.
+- `/invite/$token` acceptance screen (generalize existing `/admin-invite/$token`).
+- "Access pending", "Included through your district", "Available through family early access" staged dashboard states — drop-in components, no broken buttons.
+- Reusable components: `<RoleSelector>`, `<SchoolDistrictPicker>`, `<StudentConnectionStep>`, `<AccessPendingCard>`, `<EntitlementBadge>`.
+
+Platform Admin console under `/owner`:
+
+- Waitlist manager (filter, convert→invitation, notes — partly exists, extended)
+- Invitation manager
+- Organization manager (districts, schools, hierarchy, status)
+- Subscription / entitlement manager
+- Role approval queue
+- System status (reuse existing SystemHealthChecklist)
+
+---
+
+### Phase 4 — Access gating & dashboard adapters
+
+- `useEntitlement()` hook reads `getMyEntitlement` and exposes `{ plan, features, isPilot, isWaitlist, viaDistrict }`.
+- Update `RoleGuard` to also consider entitlement, not just role.
+- Each role dashboard renders a staged empty state when no active entitlement (no broken CTAs).
+- Partner dashboards explicitly hide any student-scoped widgets; corresponding RLS denies them regardless.
+
+---
+
+### Phase 5 — Verification
+
+Server-side test scripts under `tests/`:
+
+1. Student signs up → invites parent + educator → rows land in `invitations` + `student_relationships(pending)`.
+2. Parent signs up → connects to student → consent gated.
+3. Educator requests school access → pending membership → admin approves.
+4. District admin creates/connects schools → child org rows.
+5. Platform admin converts waitlist → invitation → accepted → active profile.
+6. District `access_entitlements` row cascades to school members via `effective_entitlement_for_user`.
+7. Partner role cannot SELECT `students`, `documents`, or `pathway_reports` (RLS matrix test).
+8. Refresh persistence (already covered by existing persistence-smoke harness; extend).
+9. Empty/loading/success/error snapshot on each dashboard.
+
+---
+
+### Questions before I start
+
+1. **Scope of this single turn.** This is realistically 4–6 turns of work. Do you want me to ship it in phases (Phase 1 schema first, then return for approval; then Phase 2; etc.), or one big push with the migration up front and frontend in the same turn?
+2. **Schema reuse.** OK to extend `admin_invitations` into the general `invitations` table (additive columns + new type values), rather than creating a second table? Same question for keeping `student_collaborators` (doc ACL) alongside new `student_relationships` (human/consent).
+3. **Billing.** Should `access_entitlements` be wired now as a data-only model (no payment provider, admin sets rows manually for pilots), or do you want Stripe/Paddle hooked up in this pass too?
+4. **Partner data wall.** Confirm partners get **zero** read access to `students`, `documents`, `pathway_reports`, `goals`, `meetings`, even when a student "saves" their opportunity (currently `student_saved_partners` exists). I'll harden RLS to match.
+
+Once you answer, I'll start with the Phase 1 migration.
