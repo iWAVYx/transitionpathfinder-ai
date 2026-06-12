@@ -141,6 +141,10 @@ export function FamilyDocumentUpload({
   const [schoolYear, setSchoolYear] = useState("");
   const [meetingDate, setMeetingDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
+  const [annualReviewDate, setAnnualReviewDate] = useState("");
+  const [reevaluationDate, setReevaluationDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [source, setSource] = useState("");
   const [consent, setConsent] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
