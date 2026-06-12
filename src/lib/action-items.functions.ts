@@ -93,7 +93,7 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const patch: {
       status?: string;
       priority?: string;
@@ -108,6 +108,34 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
     if (data.description !== undefined) patch.description = data.description;
     const { error } = await supabase.from("action_items").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
+
+    // When an action item is completed, ripple into the activity feed and
+    // flag any linked Pathway Report as stale so users see "refresh" prompts.
+    if (data.status === "completed") {
+      const { data: row } = await supabase
+        .from("action_items")
+        .select("id, student_id, title, pathway_report_id")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (row) {
+        await supabase.from("feed_events").insert({
+          student_id: (row as { student_id: string }).student_id,
+          actor_id: userId,
+          kind: "action_item.completed",
+          title: `Action completed: ${(row as { title: string }).title}`,
+          body: null,
+          ref_table: "action_items",
+          ref_id: data.id,
+        });
+        const reportId = (row as { pathway_report_id: string | null }).pathway_report_id;
+        if (reportId) {
+          await supabase
+            .from("pathway_reports")
+            .update({ inputs_stale_at: new Date().toISOString() })
+            .eq("id", reportId);
+        }
+      }
+    }
     return { ok: true };
   });
 
