@@ -2703,6 +2703,44 @@ export type Database = {
           },
         ]
       }
+      pathway_report_versions: {
+        Row: {
+          change_summary: string | null
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          report_id: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          report_id: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          report_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathway_report_versions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "pathway_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pathway_reports: {
         Row: {
           ai_confidence_level: string | null
