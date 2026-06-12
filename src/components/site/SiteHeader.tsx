@@ -435,7 +435,7 @@ export function SiteHeader() {
                     Your Workspace
                   </p>
                   <nav className="flex flex-col gap-0.5">
-                    <Link
+                    <SmartLink
                       to="/dashboard"
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -443,16 +443,16 @@ export function SiteHeader() {
                     >
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
-                    </Link>
+                    </SmartLink>
                     {isPlatformAdmin && (
-                      <Link
+                      <SmartLink
                         to="/owner"
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
                       >
                         <Shield className="h-4 w-4" />
                         Admin Hub
-                      </Link>
+                      </SmartLink>
                     )}
                   </nav>
                   {visibleUserGroups.map((group) => (
