@@ -4245,13 +4245,16 @@ export type Database = {
           backend_table: string | null
           category: string
           created_at: string
+          fail_criteria: string | null
           id: string
           key: string
           label: string
           last_checked_at: string | null
           last_checked_by: string | null
           notes: string | null
+          pass_criteria: string | null
           priority: string
+          reference: string | null
           route: string | null
           sort_order: number
           status: string
@@ -4262,13 +4265,16 @@ export type Database = {
           backend_table?: string | null
           category?: string
           created_at?: string
+          fail_criteria?: string | null
           id?: string
           key: string
           label: string
           last_checked_at?: string | null
           last_checked_by?: string | null
           notes?: string | null
+          pass_criteria?: string | null
           priority?: string
+          reference?: string | null
           route?: string | null
           sort_order?: number
           status?: string
@@ -4279,13 +4285,16 @@ export type Database = {
           backend_table?: string | null
           category?: string
           created_at?: string
+          fail_criteria?: string | null
           id?: string
           key?: string
           label?: string
           last_checked_at?: string | null
           last_checked_by?: string | null
           notes?: string | null
+          pass_criteria?: string | null
           priority?: string
+          reference?: string | null
           route?: string | null
           sort_order?: number
           status?: string
