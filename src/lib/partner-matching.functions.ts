@@ -222,10 +222,10 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
         }
       }
 
-      // County / district proximity
-      if (student.county && p.county && student.county.toLowerCase() === String(p.county).toLowerCase()) {
-        score += 8;
-        reasons.push(`Serves ${p.county} County`);
+      // School / district name proximity (free-text match)
+      if (student.school && p.county && student.school.toLowerCase().includes(String(p.county).toLowerCase())) {
+        score += 6;
+        reasons.push(`Local to ${p.county} County`);
       }
 
       // Transition band relevance
