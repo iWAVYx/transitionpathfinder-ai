@@ -338,7 +338,9 @@ export function FamilyDocumentUpload({
               value={reviewDate}
               onChange={(e) => setReviewDate(e.target.value)}
             />
+          </div>
         </div>
+
 
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
