@@ -306,6 +306,167 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
           }
         }
       }
+
+      // Statutory + planning deadlines pulled from the student record:
+      // annual IEP review, triennial reevaluation, graduation target.
+      const { data: studentDates } = await supabase
+        .from("students")
+        .select(
+          "id, iep_annual_review_date, iep_reevaluation_date, graduation_target_date",
+        )
+        .in("id", ids);
+      for (const s of (studentDates ?? []) as Array<{
+        id: string;
+        iep_annual_review_date: string | null;
+        iep_reevaluation_date: string | null;
+        graduation_target_date: string | null;
+      }>) {
+        const pushDeadline = (
+          dateStr: string | null,
+          kindSuffix: string,
+          event_type: string,
+          title: string,
+          detail: string,
+        ) => {
+          if (!dateStr) return;
+          const iso = dateStr.slice(0, 10);
+          if (iso < fromIso || iso > toIso) return;
+          events.push({
+            id: `deadline-${kindSuffix}-${s.id}`,
+            kind: "deadline",
+            event_type,
+            title,
+            detail,
+            event_date: iso,
+            start_time: null,
+            end_time: null,
+            all_day: true,
+            location: null,
+            meeting_link: null,
+            color_label: null,
+            visibility: null,
+            event_status: null,
+            related_organization_id: null,
+            related_pathway_report_id: null,
+            related_action_item_id: null,
+            related_meeting_id: null,
+            student_id: s.id,
+            student_name: nameById.get(s.id) ?? null,
+            owner_user_id: null,
+            owner_name: null,
+            priority: null,
+            status: null,
+            is_mine: false,
+          });
+        };
+        pushDeadline(
+          s.iep_annual_review_date,
+          "iep-review",
+          "Document Due Date",
+          "IEP annual review due",
+          "Annual IEP review deadline. Schedule the PPT meeting at least 10 days in advance.",
+        );
+        pushDeadline(
+          s.iep_reevaluation_date,
+          "iep-reeval",
+          "Document Due Date",
+          "Reevaluation due",
+          "Triennial reevaluation deadline. Consents and evaluations need to be in place by this date.",
+        );
+        pushDeadline(
+          s.graduation_target_date,
+          "graduation",
+          "Program Date",
+          "Graduation / exit milestone",
+          "Target graduation date. Confirm final transition steps, adult services, and documentation.",
+        );
+      }
+
+      // Surface "next meeting date" set on completed meetings as a deadline
+      // so post-meeting follow-through doesn't get lost.
+      const { data: nextMeetings } = await supabase
+        .from("meetings")
+        .select("id, student_id, title, next_meeting_date")
+        .in("student_id", ids)
+        .not("next_meeting_date", "is", null)
+        .gte("next_meeting_date", fromIso)
+        .lte("next_meeting_date", toIso);
+      for (const nm of (nextMeetings ?? []) as Array<{
+        id: string;
+        student_id: string;
+        title: string;
+        next_meeting_date: string;
+      }>) {
+        events.push({
+          id: `nextmeeting-${nm.id}`,
+          kind: "deadline",
+          event_type: "PPT / IEP Meeting",
+          title: `Schedule next meeting (${nm.title})`,
+          detail: "A next meeting date was captured. Confirm it's on the official calendar.",
+          event_date: nm.next_meeting_date.slice(0, 10),
+          start_time: null,
+          end_time: null,
+          all_day: true,
+          location: null,
+          meeting_link: null,
+          color_label: null,
+          visibility: null,
+          event_status: null,
+          related_organization_id: null,
+          related_pathway_report_id: null,
+          related_action_item_id: null,
+          related_meeting_id: nm.id,
+          student_id: nm.student_id,
+          student_name: nameById.get(nm.student_id) ?? null,
+          owner_user_id: null,
+          owner_name: null,
+          priority: null,
+          status: null,
+          is_mine: false,
+        });
+      }
+    }
+
+    // Resource follow-ups the caller saved with a follow_up_date.
+    const { data: savedFollowups } = await supabase
+      .from("saved_resources")
+      .select("id, follow_up_date, resource:resources(id,title)")
+      .eq("user_id", userId)
+      .not("follow_up_date", "is", null)
+      .gte("follow_up_date", fromIso)
+      .lte("follow_up_date", toIso);
+    for (const sr of (savedFollowups ?? []) as Array<{
+      id: string;
+      follow_up_date: string;
+      resource: { id: string; title: string } | null;
+    }>) {
+      events.push({
+        id: `resource-followup-${sr.id}`,
+        kind: "deadline",
+        event_type: "Resource Follow-Up",
+        title: `Follow up: ${sr.resource?.title ?? "saved resource"}`,
+        detail: "Revisit this saved resource and decide on next steps.",
+        event_date: sr.follow_up_date.slice(0, 10),
+        start_time: null,
+        end_time: null,
+        all_day: true,
+        location: null,
+        meeting_link: null,
+        color_label: null,
+        visibility: null,
+        event_status: null,
+        related_organization_id: null,
+        related_pathway_report_id: null,
+        related_action_item_id: null,
+        related_meeting_id: null,
+        student_id: null,
+        student_name: null,
+        owner_user_id: userId,
+        owner_name: "You",
+        priority: null,
+        status: null,
+        is_mine: true,
+      });
     }
 
     // Custom calendar_events visible to the caller (RLS handles visibility tiers).
