@@ -75,6 +75,8 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n\n");
 
+    const eventType =
+      data.source_kind === "resource" ? "Resource Follow-Up" : "Partner Outreach Follow-Up";
     const { error } = await supabase.from("calendar_events").insert({
       owner_user_id: userId,
       student_id: data.student_id,
@@ -82,7 +84,7 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
       detail,
       event_date: eventDate,
       visibility: "private",
-      event_type: "follow_up",
+      event_type: eventType,
       status: "scheduled",
       all_day: true,
       source_type: "manual",
