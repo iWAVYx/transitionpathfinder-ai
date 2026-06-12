@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import {
   EXTRACTION_SECTION_KEYS,
   getOrCreateExtraction,
@@ -24,6 +25,7 @@ import {
   type ExtractionSection,
   type SectionReviewState,
 } from "@/lib/extractions.functions";
+import { logDocumentView } from "@/lib/documents.functions";
 
 export const Route = createFileRoute("/_authenticated/documents/$documentId/review")({
   component: ReviewPage,
@@ -64,6 +66,7 @@ function ReviewPage() {
   const fnSection = useServerFn(updateExtractionSection);
   const fnMeta = useServerFn(updateExtractionMeta);
   const fnApply = useServerFn(applyAcceptedExtraction);
+  const fnLogView = useServerFn(logDocumentView);
 
   const [loading, setLoading] = useState(true);
   const [extraction, setExtraction] = useState<Extraction | null>(null);
@@ -76,13 +79,15 @@ function ReviewPage() {
       try {
         const res = await fnGet({ data: { document_id: documentId } });
         setExtraction(res.extraction as unknown as Extraction);
+        // Best-effort audit log; never block the page.
+        fnLogView({ data: { document_id: documentId, context: "extraction_review" } }).catch(() => {});
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Could not load extraction.");
       } finally {
         setLoading(false);
       }
     })();
-  }, [documentId, fnGet]);
+  }, [documentId, fnGet, fnLogView]);
 
   const sections = useMemo(() => {
     const s = extraction?.sections ?? ({} as Record<string, ExtractionSection>);
@@ -206,6 +211,8 @@ function ReviewPage() {
         </div>
 
         <TrustNote variant="document" />
+        <AIDisclaimer />
+
 
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
