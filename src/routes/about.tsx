@@ -979,7 +979,7 @@ function FinalCTA() {
           <Reveal>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-white/90 backdrop-blur">
               <Sparkles className="h-3 w-3 text-amber-300" />
-              The Bridge Forward
+              THE TRANSITION FORWARD
             </div>
             <h2 className="mt-5 font-display text-4xl font-black leading-tight sm:text-5xl md:text-6xl">
               Help Build the Future of <br />
@@ -989,8 +989,8 @@ function FinalCTA() {
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-base text-white/80 sm:text-lg">
               Join Transition Forward as we build a clearer bridge between
-              students, families, educators, schools, districts, and real-world
-              opportunities.
+              Students, Families, Educators, Schools, Districts, and Real-World
+              Opportunities.
             </p>
           </Reveal>
 
