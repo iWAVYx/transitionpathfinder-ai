@@ -261,28 +261,120 @@ export const getNextBestAction = createServerFn({ method: "POST" })
     }
 
     if (surface === "admin") {
-      const [{ count: waitlist }, { count: contacts }] = await Promise.all([
-        supabase.from("waitlist").select("id", { count: "exact", head: true }),
+      const [
+        { count: healthFail },
+        { count: feedbackNew },
+        { count: partnerPending },
+        { count: issuesOpen },
+        { count: supportOpen },
+        { count: contactsNew },
+        { count: waitlistNew },
+      ] = await Promise.all([
+        supabase
+          .from("system_health_checks")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "needs_attention"),
+        supabase
+          .from("feedback_submissions")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "new"),
+        supabase
+          .from("partner_submissions")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabase
+          .from("product_issues")
+          .select("id", { count: "exact", head: true })
+          .not("status", "in", "(closed,resolved,wont_fix)"),
+        supabase
+          .from("support_requests")
+          .select("id", { count: "exact", head: true })
+          .in("status", ["open", "new"]),
         supabase
           .from("contact_submissions")
           .select("id", { count: "exact", head: true })
           .eq("status", "new"),
+        supabase
+          .from("waitlist")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "new"),
       ]);
-      const total = (waitlist ?? 0) + (contacts ?? 0);
-      if (total > 0) {
+
+      if ((healthFail ?? 0) > 0) {
+        const n = healthFail!;
         return {
-          headline: `${total} new ${total === 1 ? "item" : "items"} to review`,
-          body: `${waitlist ?? 0} waitlist entries and ${contacts ?? 0} new contact submissions are waiting for triage.`,
-          ctaLabel: "Open Admin Hub",
-          ctaHref: "/admin",
+          headline: `${n} system health ${n === 1 ? "check needs" : "checks need"} attention`,
+          body: "Resolve failing checks before they impact users. Review and update the status of each item.",
+          ctaLabel: "Open System Health",
+          ctaHref: "/owner/health",
           tone: "warning",
+        };
+      }
+      if ((partnerPending ?? 0) > 0) {
+        const n = partnerPending!;
+        return {
+          headline: `${n} partner ${n === 1 ? "submission" : "submissions"} awaiting review`,
+          body: "New partner applications are pending approval to join the Partner Network.",
+          ctaLabel: "Review submissions",
+          ctaHref: "/owner/partner-submissions",
+          tone: "warning",
+        };
+      }
+      if ((feedbackNew ?? 0) > 0) {
+        const n = feedbackNew!;
+        return {
+          headline: `${n} new ${n === 1 ? "piece" : "pieces"} of user feedback`,
+          body: "Triage user-reported bugs, ideas, and questions to keep the product improving.",
+          ctaLabel: "Open Feedback",
+          ctaHref: "/owner/feedback",
+          tone: "primary",
+        };
+      }
+      if ((issuesOpen ?? 0) > 0) {
+        const n = issuesOpen!;
+        return {
+          headline: `${n} open product ${n === 1 ? "issue" : "issues"}`,
+          body: "Move open issues toward resolution so the launch checklist stays on track.",
+          ctaLabel: "Open Issues",
+          ctaHref: "/owner/issues",
+          tone: "warning",
+        };
+      }
+      if ((supportOpen ?? 0) > 0) {
+        const n = supportOpen!;
+        return {
+          headline: `${n} open support ${n === 1 ? "request" : "requests"}`,
+          body: "Respond to users waiting for help so no one is left stuck.",
+          ctaLabel: "Open Contacts",
+          ctaHref: "/owner/contacts",
+          tone: "warning",
+        };
+      }
+      if ((contactsNew ?? 0) > 0) {
+        const n = contactsNew!;
+        return {
+          headline: `${n} new contact ${n === 1 ? "submission" : "submissions"}`,
+          body: "Reply to inbound questions from families, educators, and partners.",
+          ctaLabel: "Open Contacts",
+          ctaHref: "/owner/contacts",
+          tone: "primary",
+        };
+      }
+      if ((waitlistNew ?? 0) > 0) {
+        const n = waitlistNew!;
+        return {
+          headline: `${n} new waitlist ${n === 1 ? "entry" : "entries"}`,
+          body: "Review and qualify new sign-ups so they can be moved into pilots or onboarded.",
+          ctaLabel: "Open Waitlist",
+          ctaHref: "/owner/waitlist",
+          tone: "primary",
         };
       }
       return {
         headline: "Inbox is clear",
-        body: "No new waitlist entries or contact submissions. Review analytics, resources, and recent activity.",
-        ctaLabel: "Open Admin Hub",
-        ctaHref: "/admin",
+        body: "No pending submissions, feedback, or health issues. Review analytics or content updates.",
+        ctaLabel: "Open Owner Hub",
+        ctaHref: "/owner",
         tone: "success",
       };
     }
