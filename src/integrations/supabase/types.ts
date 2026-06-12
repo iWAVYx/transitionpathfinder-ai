@@ -3275,6 +3275,7 @@ export type Database = {
           grade_range: string | null
           id: string
           image_url: string | null
+          last_reviewed_at: string | null
           link_checked_at: string | null
           link_status: string
           location_scope: string
@@ -3284,6 +3285,7 @@ export type Database = {
           reading_level: string | null
           resource_type: string
           review_notes: string | null
+          review_status: string
           reviewed_at: string | null
           reviewed_by_user_id: string | null
           role_relevance: string[]
@@ -3310,6 +3312,7 @@ export type Database = {
           grade_range?: string | null
           id?: string
           image_url?: string | null
+          last_reviewed_at?: string | null
           link_checked_at?: string | null
           link_status?: string
           location_scope?: string
@@ -3319,6 +3322,7 @@ export type Database = {
           reading_level?: string | null
           resource_type: string
           review_notes?: string | null
+          review_status?: string
           reviewed_at?: string | null
           reviewed_by_user_id?: string | null
           role_relevance?: string[]
@@ -3345,6 +3349,7 @@ export type Database = {
           grade_range?: string | null
           id?: string
           image_url?: string | null
+          last_reviewed_at?: string | null
           link_checked_at?: string | null
           link_status?: string
           location_scope?: string
@@ -3354,6 +3359,7 @@ export type Database = {
           reading_level?: string | null
           resource_type?: string
           review_notes?: string | null
+          review_status?: string
           reviewed_at?: string | null
           reviewed_by_user_id?: string | null
           role_relevance?: string[]
@@ -4886,6 +4892,8 @@ export type Database = {
         | "pending_approval"
         | "featured"
         | "archived"
+        | "community_resource"
+        | "outdated"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5108,6 +5116,8 @@ export const Constants = {
         "pending_approval",
         "featured",
         "archived",
+        "community_resource",
+        "outdated",
       ],
     },
   },
