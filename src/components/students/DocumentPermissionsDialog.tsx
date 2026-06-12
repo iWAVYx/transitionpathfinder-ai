@@ -107,6 +107,8 @@ export function DocumentPermissionsDialog({ open, onOpenChange, document }: Prop
     }
   }
 
+  const isSensitiveDoc = document.doc_type === "iep" || document.doc_type === "transition-plan";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
@@ -117,6 +119,18 @@ export function DocumentPermissionsDialog({ open, onOpenChange, document }: Prop
             people access by email. Every grant and revoke is recorded in the audit trail.
           </DialogDescription>
         </DialogHeader>
+
+        {isSensitiveDoc && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
+            <p className="font-semibold">This document may contain sensitive student information.</p>
+            <p className="mt-1">
+              Only share with people who need to support this student's planning. Partner
+              organizations cannot be granted access to IEPs or transition plans — share
+              opportunities with them through a referral instead.
+            </p>
+          </div>
+        )}
+
 
         <div className="space-y-3 rounded-xl border bg-muted/30 p-3">
           <div className="grid gap-2 sm:grid-cols-[1fr,auto]">
