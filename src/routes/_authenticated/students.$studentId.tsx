@@ -30,6 +30,7 @@ import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartn
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
 import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
 import { RightsStatusCard } from "@/components/students/RightsStatusCard";
+import { CtTransitionPrompts } from "@/components/students/CtTransitionPrompts";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
