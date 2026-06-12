@@ -606,9 +606,11 @@ export function StandardDocActions({
       <Button size="sm" variant="ghost" onClick={() => onDownload(doc)} aria-label="Download">
         <Download className="h-3.5 w-3.5" />
       </Button>
-      <Button size="sm" variant="ghost" onClick={() => onDelete(doc)} aria-label="Delete">
-        <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-      </Button>
+      {onDelete && (
+        <Button size="sm" variant="ghost" onClick={() => onDelete(doc)} aria-label="Delete">
+          <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+        </Button>
+      )}
       <DocumentPermissionsDialog
         open={permsOpen}
         onOpenChange={setPermsOpen}
