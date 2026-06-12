@@ -20,6 +20,7 @@ import { z } from "zod";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
+import { ReportVersionsPanel } from "@/components/pathway/ReportVersionsPanel";
 import { Button } from "@/components/ui/button";
 import {
   getReport,
@@ -295,8 +296,14 @@ function ReportDetailPage() {
         </div>
       </section>
 
+      {/* Version history */}
+      <section className={`mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
+        <ReportVersionsPanel reportId={reportId} currentContent={state.report} />
+      </section>
+
       {/* Share panel */}
       <section id="share-panel" className={`no-print mx-auto ${wrapWidth} px-4 pb-14 sm:px-6 lg:px-8 scroll-mt-24`}>
+
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

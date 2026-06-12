@@ -536,3 +536,159 @@ export const deleteReport = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// ============================================================
+// Phase 5 — Version history & meeting-prep linkage
+// ============================================================
+
+export type ReportVersionRow = {
+  id: string;
+  version_number: number;
+  change_summary: string | null;
+  created_at: string;
+  created_by: string | null;
+};
+
+/**
+ * Update a saved Pathway Report's content and snapshot the previous
+ * content into pathway_report_versions. Only the report owner can update.
+ */
+export const updateReportContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        report_id: z.string().uuid(),
+        content: z.unknown(),
+        change_summary: z.string().trim().max(500).optional().default(""),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: current, error: curErr } = await supabase
+      .from("pathway_reports")
+      .select("id, user_id, content")
+      .eq("id", data.report_id)
+      .maybeSingle();
+    if (curErr || !current) throw new Error("Report not found.");
+    if ((current as { user_id: string }).user_id !== userId) {
+      throw new Error("You don't have permission to edit this report.");
+    }
+
+    // Compute next version number from existing snapshots.
+    const { data: maxRow } = await supabase
+      .from("pathway_report_versions")
+      .select("version_number")
+      .eq("report_id", data.report_id)
+      .order("version_number", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextVersion =
+      ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
+
+    // Snapshot the CURRENT content as the new version row before overwriting.
+    const { error: vErr } = await supabase
+      .from("pathway_report_versions")
+      .insert({
+        report_id: data.report_id,
+        version_number: nextVersion,
+        content: JSON.parse(JSON.stringify((current as { content: unknown }).content ?? {})),
+        change_summary: data.change_summary || null,
+        created_by: userId,
+      });
+    if (vErr) {
+      console.error("version snapshot failed", vErr);
+      throw new Error("Could not save a version snapshot.");
+    }
+
+    const { error: upErr } = await supabase
+      .from("pathway_reports")
+      .update({ content: JSON.parse(JSON.stringify(data.content)) })
+      .eq("id", data.report_id);
+    if (upErr) {
+      console.error("report content update failed", upErr);
+      throw new Error("Could not save the report.");
+    }
+
+    return { ok: true, version_number: nextVersion };
+  });
+
+export const listReportVersions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ report_id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: rows, error } = await supabase
+      .from("pathway_report_versions")
+      .select("id, version_number, change_summary, created_at, created_by")
+      .eq("report_id", data.report_id)
+      .order("version_number", { ascending: false })
+      .limit(50);
+    if (error) {
+      console.error("listReportVersions failed", error);
+      return { versions: [] as ReportVersionRow[] };
+    }
+    return { versions: (rows ?? []) as ReportVersionRow[] };
+  });
+
+export const getReportVersion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ version_id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: row, error } = await supabase
+      .from("pathway_report_versions")
+      .select("id, report_id, version_number, content, created_at, change_summary")
+      .eq("id", data.version_id)
+      .maybeSingle();
+    if (error || !row) throw new Error("Version not found.");
+    return {
+      id: row.id,
+      report_id: (row as { report_id: string }).report_id,
+      version_number: (row as { version_number: number }).version_number,
+      created_at: (row as { created_at: string }).created_at,
+      change_summary: (row as { change_summary: string | null }).change_summary,
+      content: (row as { content: unknown }).content as PathwayReport,
+    };
+  });
+
+/**
+ * Latest Pathway Report linked to a given student (RLS scopes to owner).
+ * Used by Meeting Prep to surface the freshest report for a student.
+ */
+export const getLatestReportForStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ student_id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: row, error } = await supabase
+      .from("pathway_reports")
+      .select("id, created_at, content")
+      .eq("student_id", data.student_id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.error("getLatestReportForStudent failed", error);
+      return { report: null };
+    }
+    if (!row) return { report: null };
+    const r = row as { id: string; created_at: string; content: unknown };
+    const content = r.content as Partial<PathwayReport> | null;
+    return {
+      report: {
+        id: r.id,
+        created_at: r.created_at,
+        summary: content?.summary ?? null,
+      },
+    };
+  });
+
