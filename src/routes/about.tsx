@@ -300,14 +300,6 @@ function FounderLetter() {
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label="Close"
-            className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-background/80 text-muted-foreground backdrop-blur transition-colors hover:bg-background hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </DialogContent>
       </Dialog>
     </>
