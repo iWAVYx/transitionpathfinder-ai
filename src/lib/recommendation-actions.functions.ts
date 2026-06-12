@@ -99,14 +99,14 @@ export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST
     const { supabase } = context;
 
     // Find the next upcoming meeting for this student
-    const today = new Date().toISOString().slice(0, 10);
+    const nowIso = new Date().toISOString();
     const { data: meetings, error: mErr } = await supabase
       .from("meetings")
-      .select("id, meeting_date, status")
+      .select("id, scheduled_at, status")
       .eq("student_id", data.student_id)
-      .gte("meeting_date", today)
+      .gte("scheduled_at", nowIso)
       .neq("status", "completed")
-      .order("meeting_date", { ascending: true })
+      .order("scheduled_at", { ascending: true })
       .limit(1);
     if (mErr) throw new Error(mErr.message);
 
