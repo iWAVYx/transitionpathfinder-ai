@@ -228,6 +228,12 @@ function StudentDetailPage() {
 
           <ProfileCompleteness student={student} goals={goals} docs={docs} />
           <RightsStatusCard studentId={studentId} />
+          <CtTransitionPrompts
+            dateOfBirth={student?.date_of_birth ?? null}
+            age={student?.age ?? null}
+            gradeBand={student?.grade_band ?? null}
+          />
+
 
         </header>
 
