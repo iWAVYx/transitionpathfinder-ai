@@ -33,6 +33,7 @@ type Level = DocumentPermissionRow["permission_level"];
 const LEVEL_LABEL: Record<Level, string> = {
   none: "No access",
   view_summary: "View AI summary only",
+  view_student_friendly_summary: "View student-friendly summary",
   view_document: "View full document",
   edit_metadata: "View + edit document details",
   manage: "Manage (view, edit, share)",
