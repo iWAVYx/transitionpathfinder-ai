@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import {
   getReport,
   linkReportToStudent,
+  regeneratePathwayReport,
   type PathwayReport,
 } from "@/lib/pathway.functions";
 import {
@@ -35,11 +36,15 @@ import {
   type ShareTokenRow,
   type Student,
 } from "@/lib/students.functions";
+import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
+import { isV2 } from "@/lib/pathway-v2";
 
 const SearchSchema = z.object({
   welcome: z.coerce.number().optional(),
   print: z.coerce.number().optional(),
+  audience: z.enum(["student", "family", "educator"]).optional(),
 });
+
 
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
   head: () => ({ meta: [{ title: "Pathway Report — TransitionForward" }] }),
@@ -57,7 +62,11 @@ function ReportDetailPage() {
   const revoke = useServerFn(revokeShareToken);
   const fetchStudents = useServerFn(listStudents);
   const linkStudent = useServerFn(linkReportToStudent);
+  const regenerate = useServerFn(regeneratePathwayReport);
   const navigate = useNavigate();
+  const audience: V2Audience = search.audience ?? "family";
+  const [regenBusy, setRegenBusy] = useState(false);
+
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
@@ -124,6 +133,25 @@ function ReportDetailPage() {
       setLinking(false);
     }
   }
+
+  async function handleRegenerate() {
+    setRegenBusy(true);
+    try {
+      const res = await regenerate({ data: { report_id: reportId } });
+      const fresh = await fetchReport({ data: { id: reportId } });
+      setState({ kind: "ok", name: fresh.student_first_name, report: fresh.report, studentId: fresh.student_id });
+      toast.success(`Regenerated (v${res.version_number}). ${res.change_summary}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not regenerate.");
+    } finally {
+      setRegenBusy(false);
+    }
+  }
+
+  function setAudience(a: V2Audience) {
+    navigate({ to: "/reports/$reportId", params: { reportId }, search: { ...search, audience: a } });
+  }
+
 
   async function generate(audience: "family" | "educator") {
     setBusy(true);
@@ -261,6 +289,45 @@ function ReportDetailPage() {
             : undefined
         }
       />
+
+      {/* Audience selector for the v2 spine */}
+      <div className={`no-print mx-auto mt-4 ${wrapWidth} px-4 sm:px-6 lg:px-8`}>
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-3 shadow-soft">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            View this report as
+          </span>
+          {(["student", "family", "educator"] as const).map((a) => (
+            <Button
+              key={a}
+              size="sm"
+              variant={audience === a ? "default" : "outline"}
+              onClick={() => setAudience(a)}
+              className="capitalize"
+            >
+              {a}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* v2 additive sections — only render once the report has been regenerated into v2 */}
+      {isV2(state.report) && (
+        <ReportV2Sections
+          content={state.report}
+          audience={audience}
+          studentName={state.name}
+        />
+      )}
+
+      {/* Regenerate CTA */}
+      <div className="no-print">
+        <RegenerateBanner
+          onRegenerate={handleRegenerate}
+          busy={regenBusy}
+          canRegenerate={!!state.studentId}
+        />
+      </div>
+
 
       {/* Link to student */}
       <section className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>

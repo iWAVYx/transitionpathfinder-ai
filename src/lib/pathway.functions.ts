@@ -3,6 +3,14 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import {
+  PathwayReportV2,
+  computeDeterministicGaps,
+  diffInputsForChangeSummary,
+  isV2,
+  type InputsUsed,
+} from "./pathway-v2";
+
 
 const IntakeSchema = z.object({
   submitter_role: z.enum(["family", "student", "educator"]),
@@ -589,15 +597,29 @@ export const updateReportContent = createServerFn({ method: "POST" })
       ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
 
     // Snapshot the CURRENT content as the new version row before overwriting.
+    // For v2 → v2 transitions, auto-fill change_summary from the input manifest diff
+    // when the caller didn't provide one.
+    let summary = data.change_summary || null;
+    if (!summary) {
+      const prevContent = (current as { content: unknown }).content;
+      if (isV2(prevContent) && isV2(data.content)) {
+        const prevInputs =
+          (prevContent as { inputs_used?: InputsUsed }).inputs_used;
+        const nextInputs =
+          (data.content as { inputs_used?: InputsUsed }).inputs_used;
+        if (nextInputs) summary = diffInputsForChangeSummary(prevInputs, nextInputs);
+      }
+    }
     const { error: vErr } = await supabase
       .from("pathway_report_versions")
       .insert({
         report_id: data.report_id,
         version_number: nextVersion,
         content: JSON.parse(JSON.stringify((current as { content: unknown }).content ?? {})),
-        change_summary: data.change_summary || null,
+        change_summary: summary,
         created_by: userId,
       });
+
     if (vErr) {
       console.error("version snapshot failed", vErr);
       throw new Error("Could not save a version snapshot.");
@@ -689,6 +711,294 @@ export const getLatestReportForStudent = createServerFn({ method: "POST" })
         created_at: r.created_at,
         summary: content?.summary ?? null,
       },
+    };
+  });
+
+// ============================================================
+// Pathway Report v2 — regenerate from a linked student's full data
+// ============================================================
+
+const REGEN_MODEL = "google/gemini-2.5-pro";
+
+type V2Ctx = {
+  student: {
+    id: string;
+    first_name: string;
+    last_name: string | null;
+    grade_band: string | null;
+    interests: string[] | null;
+    strengths: string[] | null;
+    needs: string[] | null;
+  };
+  intake: Record<string, unknown> | null;
+  voice: Array<{ prompt_key: string; response_text: string }>;
+  goals: Array<{ id: string; area: string | null; goal_text: string | null; status: string | null }>;
+  readiness: Array<{ category: string; score: number | null; updated_at: string | null }>;
+  iep_docs: Array<{ id: string; doc_type: string; title: string | null; created_at: string }>;
+  iep_extractions: Array<{ id: string; document_id: string; goals_identified: unknown; accommodations: unknown }>;
+  saved_resources: Array<{ id: string; resource_id: string; title: string | null }>;
+  resource_recs: Array<{ id: string; resource_id: string; reason: string | null }>;
+  partner_matches: Array<{ id: string; opportunity_id: string | null; status: string | null }>;
+  saved_partners: Array<{ id: string; partner_id: string | null; opportunity_id: string | null }>;
+  action_items: Array<{ id: string; title: string; status: string | null }>;
+  meeting_preps: Array<{ id: string; created_at: string; topics: unknown }>;
+};
+
+function buildV2Prompt(ctx: V2Ctx): string {
+  const s = ctx.student;
+  const safe = (v: unknown) => (v === null || v === undefined ? "(none)" : JSON.stringify(v).slice(0, 1600));
+  return `You are TransitionForward, generating the v2 Pathway Report — the platform's flagship deliverable.
+
+Voice: warm, plain-language, 7th-grade reading level, never clinical, never generic. Honor the student's voice above all.
+
+Generate the v2 additive sections ONLY. Schema is enforced. EVERY recommendation must include:
+- title, summary, why, sources[], next_action, owner_role, discuss_at_next_meeting (boolean).
+- sources[] must cite the actual inputs below using { kind, id?, label }. Use kind values: profile, student_voice, iep_doc, iep_extraction, goal, readiness, action_item, meeting_prep, saved_resource, partner_match, family_priority, educator_input.
+- If you cannot cite a real input, do NOT invent the recommendation.
+- timeframe is optional but encouraged ('30_day' | '90_day' | '6_month' | '1_year').
+
+Provide between 2 and 5 recommendations in EACH of the four pillars:
+- postsecondary_education_recs
+- employment_pathway_recs
+- independent_living_recs
+- community_participation_recs
+
+For audience_messages, write a short paragraph (1-3 sentences) per section per audience that frames what that section means for THAT reader. Use second person for student ('you'), third for educator ('the team').
+
+For action plans (student / family / educator), populate Horizons with 1-4 concrete items per timeframe (30/90 day, 6 month, 1 year). Be specific. Address the student plan to the student in 'you' voice.
+
+For meeting_prep_questions, provide 5-12 questions to bring to the next PPT/IEP. Tag each with for_audience ('student' | 'family' | 'educator' | 'team').
+
+For iep_plan_summary: ONLY populate if iep_extractions has real data. Otherwise omit. plain_language per goal is required.
+
+cross_cutting_horizons summarizes the most important moves overall.
+
+inputs_used: reflect the manifest you actually drew from. Do NOT fabricate IDs.
+
+STUDENT
+First name: ${s.first_name}
+Grade band: ${s.grade_band ?? "(unknown)"}
+Interests (profile): ${safe(s.interests)}
+Strengths (profile): ${safe(s.strengths)}
+Needs (profile): ${safe(s.needs)}
+
+STUDENT VOICE (the student's own words)
+${ctx.voice.length === 0 ? "(no responses on file)" : ctx.voice.map((v) => `- [${v.prompt_key}] ${v.response_text}`).join("\n")}
+
+TRANSITION GOALS (from profile)
+${ctx.goals.length === 0 ? "(no goals on file)" : ctx.goals.map((g) => `- [id:${g.id}] [${g.area ?? "—"}] ${g.goal_text ?? ""} (status: ${g.status ?? "—"})`).join("\n")}
+
+READINESS SCORES
+${ctx.readiness.length === 0 ? "(no readiness scores)" : ctx.readiness.map((r) => `- ${r.category}: ${r.score ?? "—"} (updated ${r.updated_at ?? "?"})`).join("\n")}
+
+IEP DOCUMENTS ON FILE
+${ctx.iep_docs.length === 0 ? "(none)" : ctx.iep_docs.map((d) => `- [id:${d.id}] ${d.doc_type}: ${d.title ?? "(untitled)"} (uploaded ${d.created_at})`).join("\n")}
+
+IEP EXTRACTIONS (AI-parsed; verify before formal use)
+${ctx.iep_extractions.length === 0 ? "(none)" : ctx.iep_extractions.map((e) => `- [id:${e.id}] doc:${e.document_id} goals:${safe(e.goals_identified)} accommodations:${safe(e.accommodations)}`).join("\n")}
+
+INTAKE (last submitted)
+${safe(ctx.intake)}
+
+SAVED RESOURCES
+${ctx.saved_resources.length === 0 ? "(none)" : ctx.saved_resources.map((r) => `- [id:${r.id}] resource:${r.resource_id} ${r.title ?? ""}`).join("\n")}
+
+RESOURCE RECOMMENDATIONS (already on file)
+${ctx.resource_recs.length === 0 ? "(none)" : ctx.resource_recs.map((r) => `- [id:${r.id}] resource:${r.resource_id} reason:${r.reason ?? ""}`).join("\n")}
+
+PARTNER / OPPORTUNITY MATCHES
+${ctx.partner_matches.length === 0 ? "(none)" : ctx.partner_matches.map((m) => `- [id:${m.id}] opportunity:${m.opportunity_id ?? "—"} status:${m.status ?? "—"}`).join("\n")}
+
+SAVED PARTNERS
+${ctx.saved_partners.length === 0 ? "(none)" : ctx.saved_partners.map((m) => `- [id:${m.id}] partner:${m.partner_id ?? "—"} opportunity:${m.opportunity_id ?? "—"}`).join("\n")}
+
+OPEN ACTION ITEMS
+${ctx.action_items.length === 0 ? "(none)" : ctx.action_items.map((a) => `- [id:${a.id}] ${a.title} (${a.status ?? "open"})`).join("\n")}
+
+MEETING PREP HISTORY (most recent first)
+${ctx.meeting_preps.length === 0 ? "(none)" : ctx.meeting_preps.map((m) => `- [id:${m.id}] ${m.created_at} topics:${safe(m.topics)}`).join("\n")}
+
+Return ONLY the v2 schema JSON.`;
+}
+
+export const regeneratePathwayReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ report_id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("AI service is not configured.");
+    const { supabase, userId } = context;
+
+    // Load report + verify ownership + linked student
+    const { data: report, error: rErr } = await supabase
+      .from("pathway_reports")
+      .select("id, user_id, student_id, content, intake_id")
+      .eq("id", data.report_id)
+      .maybeSingle();
+    if (rErr || !report) throw new Error("Report not found.");
+    const rep = report as {
+      id: string;
+      user_id: string;
+      student_id: string | null;
+      content: unknown;
+      intake_id: string | null;
+    };
+    if (rep.user_id !== userId) throw new Error("You don't have permission to regenerate this report.");
+    if (!rep.student_id)
+      throw new Error("Link this report to a student first — then regenerate to pull their full profile.");
+
+    // Gather inputs (RLS scopes everything to the caller; failures are tolerated per-table)
+    const [
+      studentRes,
+      intakeRes,
+      voiceRes,
+      goalsRes,
+      readinessRes,
+      docsRes,
+      extractionsRes,
+      savedResRes,
+      resRecsRes,
+      partnerMatchesRes,
+      savedPartnersRes,
+      actionsRes,
+      prepsRes,
+    ] = await Promise.all([
+      supabase.from("students").select("id, first_name, last_name, grade_band, interests, strengths, needs").eq("id", rep.student_id).maybeSingle(),
+      rep.intake_id
+        ? supabase.from("student_intakes").select("*").eq("id", rep.intake_id).maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      supabase.from("student_voice_responses").select("prompt_key, response_text").eq("student_id", rep.student_id),
+      supabase.from("goals").select("id, area, goal_text, status").eq("student_id", rep.student_id).limit(40),
+      supabase.from("readiness_scores").select("category, score, updated_at").eq("student_id", rep.student_id).limit(40),
+      supabase.from("documents").select("id, doc_type, title, created_at").eq("student_id", rep.student_id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("document_extractions").select("id, document_id, goals_identified, accommodations").eq("student_id", rep.student_id).limit(20),
+      supabase.from("saved_resources").select("id, resource_id").eq("user_id", userId).limit(60),
+      supabase.from("student_resource_recommendations").select("id, resource_id, reason").eq("student_id", rep.student_id).limit(40),
+      supabase.from("student_opportunity_matches").select("id, opportunity_id, status").eq("student_id", rep.student_id).limit(40),
+      supabase.from("student_saved_partners").select("id, partner_id, opportunity_id").eq("student_id", rep.student_id).limit(40),
+      supabase.from("action_items").select("id, title, status").eq("student_id", rep.student_id).limit(40),
+      supabase.from("ppt_meeting_preps").select("id, created_at").eq("student_id", rep.student_id).order("created_at", { ascending: false }).limit(10),
+    ]);
+
+    const student = studentRes.data as V2Ctx["student"] | null;
+    if (!student) throw new Error("Couldn't load the linked student.");
+
+    const ctx: V2Ctx = {
+      student: { ...student, interests: (student.interests as unknown as string[] | null) ?? null, strengths: (student.strengths as unknown as string[] | null) ?? null, needs: (student.needs as unknown as string[] | null) ?? null },
+      intake: (intakeRes.data as Record<string, unknown> | null) ?? null,
+      voice: ((voiceRes.data as Array<{ prompt_key: string; response_text: string }> | null) ?? []),
+      goals: ((goalsRes.data as Array<{ id: string; area: string | null; goal_text: string | null; status: string | null }> | null) ?? []),
+      readiness: ((readinessRes.data as Array<{ category: string; score: number | null; updated_at: string | null }> | null) ?? []),
+      iep_docs: ((docsRes.data as Array<{ id: string; doc_type: string; title: string | null; created_at: string }> | null) ?? []).filter((d) => /iep|transition/i.test(d.doc_type ?? "")),
+      iep_extractions: ((extractionsRes.data as Array<{ id: string; document_id: string; goals_identified: unknown; accommodations: unknown }> | null) ?? []),
+      saved_resources: ((savedResRes.data as Array<{ id: string; resource_id: string }> | null) ?? []).map((r) => ({ ...r, title: null })),
+      resource_recs: ((resRecsRes.data as Array<{ id: string; resource_id: string; reason: string | null }> | null) ?? []),
+      partner_matches: ((partnerMatchesRes.data as Array<{ id: string; opportunity_id: string | null; status: string | null }> | null) ?? []),
+      saved_partners: ((savedPartnersRes.data as Array<{ id: string; partner_id: string | null; opportunity_id: string | null }> | null) ?? []),
+      action_items: ((actionsRes.data as Array<{ id: string; title: string; status: string | null }> | null) ?? []),
+      meeting_preps: ((prepsRes.data as Array<{ id: string; created_at: string }> | null) ?? []).map((p) => ({ ...p, topics: null })),
+    };
+
+    // Build the deterministic input manifest BEFORE we ask the AI.
+    const inputs_used: InputsUsed = {
+      profile: true,
+      intake: !!ctx.intake,
+      student_voice_keys: ctx.voice.map((v) => v.prompt_key),
+      iep_doc_ids: ctx.iep_docs.map((d) => d.id),
+      iep_extraction_ids: ctx.iep_extractions.map((e) => e.id),
+      goal_ids: ctx.goals.map((g) => g.id),
+      readiness_at: ctx.readiness[0]?.updated_at ?? undefined,
+      readiness_category_count: ctx.readiness.length,
+      action_item_ids: ctx.action_items.map((a) => a.id),
+      meeting_prep_ids: ctx.meeting_preps.map((m) => m.id),
+      saved_resource_ids: ctx.saved_resources.map((r) => r.id),
+      partner_match_ids: ctx.partner_matches.map((m) => m.id),
+      generated_at: new Date().toISOString(),
+    };
+
+    // Ask the AI for the v2 spine
+    const gateway = createLovableAiGatewayProvider(apiKey);
+    let v2: z.infer<typeof PathwayReportV2>;
+    try {
+      const { experimental_output } = await generateText({
+        model: gateway(REGEN_MODEL),
+        experimental_output: Output.object({ schema: PathwayReportV2 }),
+        prompt: buildV2Prompt(ctx),
+      });
+      v2 = experimental_output as z.infer<typeof PathwayReportV2>;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("v2 regeneration failed", msg);
+      if (msg.includes("429")) throw new Error("The AI is busy right now. Please try again in a moment.");
+      if (msg.includes("402")) throw new Error("AI usage limit reached. Please add credits to continue.");
+      throw new Error("We couldn't regenerate the report. Please try again.");
+    }
+
+    // Merge deterministic gaps with any AI-suggested gaps (dedupe by topic).
+    const determined = computeDeterministicGaps(inputs_used);
+    const aiGaps = v2.missing_information_v2 ?? [];
+    const seen = new Set(aiGaps.map((g) => g.topic.toLowerCase()));
+    const mergedGaps = [...aiGaps, ...determined.filter((g) => !seen.has(g.topic.toLowerCase()))];
+
+    // Build the next content payload: keep legacy v1 fields, graft v2 on top.
+    const prevContent =
+      typeof rep.content === "object" && rep.content !== null
+        ? (rep.content as Record<string, unknown>)
+        : {};
+    const nextContent: Record<string, unknown> = {
+      ...prevContent,
+      ...v2,
+      schema_version: 2,
+      missing_information_v2: mergedGaps,
+      inputs_used,
+    };
+
+    // Snapshot + overwrite via updateReportContent path (manual to avoid round-trip).
+    const { data: maxRow } = await supabase
+      .from("pathway_report_versions")
+      .select("version_number")
+      .eq("report_id", rep.id)
+      .order("version_number", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextVersion =
+      ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
+
+    const prevInputs = isV2(prevContent)
+      ? (prevContent as { inputs_used?: InputsUsed }).inputs_used
+      : undefined;
+    const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
+
+    const { error: vErr } = await supabase
+      .from("pathway_report_versions")
+      .insert({
+        report_id: rep.id,
+        version_number: nextVersion,
+        content: JSON.parse(JSON.stringify(prevContent)),
+        change_summary,
+        created_by: userId,
+      });
+    if (vErr) {
+      console.error("regen version snapshot failed", vErr);
+      throw new Error("Could not save a version snapshot.");
+    }
+
+    const { error: upErr } = await supabase
+      .from("pathway_reports")
+      .update({ content: JSON.parse(JSON.stringify(nextContent)) })
+      .eq("id", rep.id);
+    if (upErr) {
+      console.error("regen content write failed", upErr);
+      throw new Error("Could not save the regenerated report.");
+    }
+
+    return {
+      ok: true as const,
+      version_number: nextVersion,
+      change_summary,
+      gaps_count: mergedGaps.length,
     };
   });
 
