@@ -4774,6 +4774,7 @@ export type Database = {
       document_permission_level:
         | "none"
         | "view_summary"
+        | "view_student_friendly_summary"
         | "view_document"
         | "edit_metadata"
         | "manage"
@@ -4991,6 +4992,7 @@ export const Constants = {
       document_permission_level: [
         "none",
         "view_summary",
+        "view_student_friendly_summary",
         "view_document",
         "edit_metadata",
         "manage",

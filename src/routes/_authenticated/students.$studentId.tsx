@@ -30,6 +30,8 @@ import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartn
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
 import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
 import { RightsStatusCard } from "@/components/students/RightsStatusCard";
+import { CtTransitionPrompts } from "@/components/students/CtTransitionPrompts";
+import { AuditTrailPanel } from "@/components/students/AuditTrailPanel";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
@@ -228,6 +230,13 @@ function StudentDetailPage() {
 
           <ProfileCompleteness student={student} goals={goals} docs={docs} />
           <RightsStatusCard studentId={studentId} />
+          <CtTransitionPrompts
+            dateOfBirth={student?.date_of_birth ?? null}
+            age={null}
+            gradeBand={student?.grade_band ?? null}
+          />
+
+
 
         </header>
 
@@ -364,6 +373,8 @@ function StudentDetailPage() {
         <div className="mt-6">
           <CollaboratorsPanel studentId={studentId} />
         </div>
+
+        <AuditTrailPanel studentId={studentId} />
       </section>
     </SiteShell>
   );

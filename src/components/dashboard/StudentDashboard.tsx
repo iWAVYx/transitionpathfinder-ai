@@ -20,6 +20,7 @@ import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
 
 type Props = {
   firstName: string;
@@ -216,6 +217,11 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
         {/* Calendar — your meetings, prep steps, and team events */}
         <div className="mt-6">
           <DashboardCalendar studentId={s.id} compact title="Your calendar" />
+        </div>
+
+        {/* IEP summary in plain language */}
+        <div className="mt-6">
+          <MyIepSummaryCard studentId={s.id} />
         </div>
 
 
