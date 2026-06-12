@@ -56,6 +56,27 @@ export const getStudent = createServerFn({ method: "POST" })
     return row as Student;
   });
 
+/**
+ * Returns whether the current user can edit the given student (owner,
+ * editor-collaborator, or platform admin). Mirrors the SQL `can_edit_student`
+ * helper used by RLS, letting the UI hide write affordances for viewers.
+ */
+export const canEditStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error } = await supabase.rpc("can_edit_student", {
+      _user_id: userId,
+      _student_id: data.student_id,
+    });
+    if (error) {
+      console.error("canEditStudent failed", error);
+      return { canEdit: false };
+    }
+    return { canEdit: !!row };
+  });
+
 export const createStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => StudentInput.parse(i))

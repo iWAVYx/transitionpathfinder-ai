@@ -32,7 +32,7 @@ import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
 import { RightsStatusCard } from "@/components/students/RightsStatusCard";
 import { CtTransitionPrompts } from "@/components/students/CtTransitionPrompts";
 import { AuditTrailPanel } from "@/components/students/AuditTrailPanel";
-import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
+import { getStudent, listGoals, canEditStudent, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
   deleteDocument,
@@ -70,6 +70,7 @@ function StudentDetailPage() {
   const fetchStudent = useServerFn(getStudent);
   const fetchDocs = useServerFn(listDocuments);
   const fetchGoals = useServerFn(listGoals);
+  const fetchCanEdit = useServerFn(canEditStudent);
   const remove = useServerFn(deleteDocument);
   const sign = useServerFn(getDocumentSignedUrl);
   const extractGoals = useServerFn(extractGoalsFromText);
@@ -78,19 +79,22 @@ function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [canEdit, setCanEdit] = useState<boolean>(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function reload() {
-    const [s, d, g] = await Promise.all([
+    const [s, d, g, e] = await Promise.all([
       fetchStudent({ data: { id: studentId } }).catch(() => null),
       fetchDocs({ data: { student_id: studentId } }).catch(() => ({ documents: [] })),
       fetchGoals({ data: { student_id: studentId } }).catch(() => ({ goals: [] })),
+      fetchCanEdit({ data: { student_id: studentId } }).catch(() => ({ canEdit: false })),
     ]);
     setStudent(s);
     setDocs(d.documents);
     setGoals(g.goals);
+    setCanEdit(e.canEdit);
   }
 
   useEffect(() => {
@@ -276,13 +280,14 @@ function StudentDetailPage() {
             studentFirstName={student?.first_name ?? null}
             docs={docs}
             onChange={reload}
+            canEdit={canEdit}
             renderRowActions={(d) => (
               <StandardDocActions
                 doc={d}
                 parsing={parsing}
                 onExtract={handleParse}
                 onDownload={handleDownload}
-                onDelete={handleDelete}
+                onDelete={canEdit ? handleDelete : undefined}
               />
             )}
           />
