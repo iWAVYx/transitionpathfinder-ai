@@ -594,7 +594,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
       .insert({
         report_id: data.report_id,
         version_number: nextVersion,
-        content: (current as { content: unknown }).content as object,
+        content: JSON.parse(JSON.stringify((current as { content: unknown }).content ?? {})),
         change_summary: data.change_summary || null,
         created_by: userId,
       });
