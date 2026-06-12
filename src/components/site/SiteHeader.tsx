@@ -281,20 +281,20 @@ export function SiteHeader() {
             <>
               <NotificationsBell userId={user.id} />
 
-              <Link
+              <SmartLink
                 to="/dashboard"
                 className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-2.5"
               >
                 Dashboard
-              </Link>
+              </SmartLink>
 
               {isPlatformAdmin && (
-                <Link
+                <SmartLink
                   to="/owner"
                   className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/15 lg:px-2.5"
                 >
                   <Shield className="h-3.5 w-3.5" /> Admin Hub
-                </Link>
+                </SmartLink>
               )}
 
               <DropdownMenu>
