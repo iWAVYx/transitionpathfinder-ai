@@ -62,7 +62,11 @@ function ReportDetailPage() {
   const revoke = useServerFn(revokeShareToken);
   const fetchStudents = useServerFn(listStudents);
   const linkStudent = useServerFn(linkReportToStudent);
+  const regenerate = useServerFn(regeneratePathwayReport);
   const navigate = useNavigate();
+  const audience: V2Audience = search.audience ?? "family";
+  const [regenBusy, setRegenBusy] = useState(false);
+
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
