@@ -874,7 +874,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       supabase.from("readiness_scores").select("category, score, updated_at").eq("student_id", rep.student_id).limit(40),
       supabase.from("documents").select("id, doc_type, title, created_at").eq("student_id", rep.student_id).order("created_at", { ascending: false }).limit(20),
       supabase.from("document_extractions").select("id, document_id, goals_identified, accommodations").eq("student_id", rep.student_id).limit(20),
-      supabase.from("saved_resources").select("id, resource_id").eq("student_id", rep.student_id).limit(60),
+      supabase.from("saved_resources").select("id, resource_id").eq("user_id", userId).limit(60),
       supabase.from("student_resource_recommendations").select("id, resource_id, reason").eq("student_id", rep.student_id).limit(40),
       supabase.from("student_opportunity_matches").select("id, opportunity_id, status").eq("student_id", rep.student_id).limit(40),
       supabase.from("student_saved_partners").select("id, partner_id, opportunity_id").eq("student_id", rep.student_id).limit(40),
