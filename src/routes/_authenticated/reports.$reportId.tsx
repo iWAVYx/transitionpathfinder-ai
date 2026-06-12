@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import {
   getReport,
   linkReportToStudent,
+  regeneratePathwayReport,
   type PathwayReport,
 } from "@/lib/pathway.functions";
 import {
@@ -35,11 +36,15 @@ import {
   type ShareTokenRow,
   type Student,
 } from "@/lib/students.functions";
+import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
+import { isV2 } from "@/lib/pathway-v2";
 
 const SearchSchema = z.object({
   welcome: z.coerce.number().optional(),
   print: z.coerce.number().optional(),
+  audience: z.enum(["student", "family", "educator"]).optional(),
 });
+
 
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
   head: () => ({ meta: [{ title: "Pathway Report — TransitionForward" }] }),
