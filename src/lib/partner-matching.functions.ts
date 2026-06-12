@@ -108,7 +108,7 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
     }
 
     const voiceText = (voice ?? []).map((v: any) => v.response_text ?? "").join(" ");
-    const age = student.age ?? ageFromDob(student.dob);
+    const age = student.age ?? ageFromDob(student.date_of_birth);
     const band = transitionBand(age, student.grade_band);
 
     const { data: partners, error: e2 } = await context.supabase
