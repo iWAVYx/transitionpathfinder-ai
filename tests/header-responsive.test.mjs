@@ -83,7 +83,64 @@ test("nav breakpoint (xl) is >= user-controls breakpoint (lg) — no overlap win
   );
 });
 
-// ---------- 2. Width-budget snapshot per viewport ----------
+// ---------- 2. Hamburger vs. full nav behavior per breakpoint ----------
+
+const BREAKPOINTS = { sm: 640, md: 768, lg: 1024, xl: 1280, "2xl": 1536 };
+
+function shouldShowHamburger(width) {
+  return width < BREAKPOINTS.xl; // xl:hidden
+}
+
+function shouldShowUserControls(width) {
+  return width >= BREAKPOINTS.lg; // lg:flex
+}
+
+function shouldShowMarketingNav(width) {
+  return width >= BREAKPOINTS.xl; // xl:flex
+}
+
+const BEHAVIOR_VIEWPORTS = [
+  { label: "mobile-portrait", width: 375 },
+  { label: "mobile-landscape", width: 640 },
+  { label: "tablet-portrait", width: 768 },
+  { label: "compact-tablet", width: 900 },
+  { label: "tablet-landscape", width: 1024 },
+  { label: "small-desktop-gap", width: 1200 },
+  { label: "small-desktop", width: 1280 },
+  { label: "desktop", width: 1440 },
+  { label: "large-desktop", width: 1920 },
+];
+
+for (const vp of BEHAVIOR_VIEWPORTS) {
+  test(`hamburger visibility at ${vp.label} (${vp.width}px)`, () => {
+    const expected = shouldShowHamburger(vp.width);
+    assert.strictEqual(
+      shouldShowHamburger(vp.width),
+      expected,
+      `at ${vp.width}px hamburger should ${expected ? "be visible" : "be hidden"}`,
+    );
+  });
+
+  test(`user controls visibility at ${vp.label} (${vp.width}px)`, () => {
+    const expected = shouldShowUserControls(vp.width);
+    assert.strictEqual(
+      shouldShowUserControls(vp.width),
+      expected,
+      `at ${vp.width}px user controls should ${expected ? "be visible" : "be hidden"}`,
+    );
+  });
+
+  test(`marketing nav visibility at ${vp.label} (${vp.width}px)`, () => {
+    const expected = shouldShowMarketingNav(vp.width);
+    assert.strictEqual(
+      shouldShowMarketingNav(vp.width),
+      expected,
+      `at ${vp.width}px marketing nav should ${expected ? "be visible" : "be hidden"}`,
+    );
+  });
+}
+
+// ---------- 3. Width-budget snapshot per viewport ----------
 
 /**
  * Measured pixel widths of each header item when signed in.
@@ -146,7 +203,9 @@ const COMMON_VIEWPORTS = [
   { label: "mobile-portrait", width: 375 },
   { label: "mobile-landscape", width: 640 },
   { label: "tablet-portrait", width: 768 },
+  { label: "compact-tablet", width: 900 },
   { label: "tablet-landscape", width: 1024 },
+  { label: "small-desktop-gap", width: 1200 },
   { label: "small-desktop", width: 1280 },
   { label: "desktop", width: 1440 },
   { label: "large-desktop", width: 1920 },
