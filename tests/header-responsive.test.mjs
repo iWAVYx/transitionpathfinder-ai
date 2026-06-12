@@ -38,7 +38,7 @@ test("marketing nav is only visible at >=xl (1280px) so user controls have room"
   // <nav className="hidden ... xl:flex">
   assert.match(
     SRC,
-    /<nav\s+className="[^"]*\bhidden\b[^"]*\bxl:flex\b[^"]*"/,
+    /<nav\b[^>]*className="[^"]*\bhidden\b[^"]*\bxl:flex\b[^"]*"/,
     "marketing <nav> must use `hidden xl:flex` to keep room for the user " +
       "controls (bell, dashboard, more, sign out) on lg screens",
   );
