@@ -18,6 +18,9 @@ export type Meeting = {
   family_concerns: string | null;
   teacher_notes: string | null;
   summary: string | null;
+  decisions: string | null;
+  documents_to_update: string | null;
+  next_meeting_date: string | null;
   created_at: string;
   updated_at: string;
 };
