@@ -176,6 +176,27 @@ export function ManualChecklistSection() {
                           <span>Checked {new Date(item.last_checked_at).toLocaleString()}</span>
                         )}
                       </div>
+                      {(item.pass_criteria || item.fail_criteria || item.reference) && (
+                        <div className="mt-2 space-y-1 rounded-md border border-border/60 bg-muted/30 p-2 text-xs">
+                          {item.pass_criteria && (
+                            <p>
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-300">Pass:</span>{" "}
+                              <span className="text-muted-foreground">{item.pass_criteria}</span>
+                            </p>
+                          )}
+                          {item.fail_criteria && (
+                            <p>
+                              <span className="font-semibold text-rose-700 dark:text-rose-300">Fail:</span>{" "}
+                              <span className="text-muted-foreground">{item.fail_criteria}</span>
+                            </p>
+                          )}
+                          {item.reference && (
+                            <p className="text-[11px] text-muted-foreground/80">
+                              <span className="font-semibold">Ref:</span> {item.reference}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <select

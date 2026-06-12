@@ -17,6 +17,9 @@ export type SystemHealthChecklistItem = {
   action_needed: string | null;
   last_checked_at: string | null;
   sort_order: number;
+  pass_criteria: string | null;
+  fail_criteria: string | null;
+  reference: string | null;
 };
 
 type AnySupabase = {
