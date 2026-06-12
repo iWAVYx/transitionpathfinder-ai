@@ -135,7 +135,7 @@ export function FamilyDocumentUpload({
   const register = useServerFn(registerDocument);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [docType, setDocType] = useState<DocType>("iep");
+  const [docType, setDocType] = useState<DocType>("current-iep");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
   const [schoolYear, setSchoolYear] = useState("");
