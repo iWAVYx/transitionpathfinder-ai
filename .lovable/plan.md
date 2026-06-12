@@ -1,84 +1,75 @@
+## Goal
+Make the Pathway Report feel like the platform's primary deliverable: 21-section spine, every recommendation traceable to a source, three distinct rendered reports (Student / Family / Educator), and version history that preserves audit value across regenerations.
 
-# TransitionForward — Compliance-Aware Service Flow Pass
+## Approach: additive-now, restructure-on-regenerate
+- Extend the Zod schema in `src/lib/pathway.functions.ts` with new optional fields. Existing reports keep rendering through a back-compat shim in `ReportView.tsx`.
+- Newly generated reports populate the full 21-section spine with rationale metadata.
+- Snapshot the old `content` into `pathway_report_versions` before any overwrite (already wired by `updatePathwayReportContent`) so regeneration is non-destructive.
 
-Builds on the just-completed A-to-Z pass (Phases 1–6). No redesign, no role renames, no structural changes to Admin Hub, Resource Library, Partner Network, Calendar, Action Items, Meeting Prep, Pathway Report, or public marketing pages. Five additive phases, each independently shippable and verifiable. I'll check in between phases.
+## Schema additions (`PathwayReport`)
+- `iep_summary`: `{ source_doc_ids[], present_levels, transition_goals[], accommodations[], services[], plan_dates }`
+- `recommendations` blocks split into four pillars:
+  - `postsecondary_education` / `employment_pathway` / `independent_living` / `community_participation`
+  - each item: `{ title, summary, why, sources[], next_action, owner_role, discuss_at_next_meeting, related_goal_id? }`
+- `resource_matches[]`: `{ resource_id, title, url, why, sources[], action, owner_role }` — sourced from `saved_resources` + `student_resource_recommendations`
+- `partner_matches[]`: same shape, sourced from `student_opportunity_matches` + `student_saved_partners`
+- `missing_information[]`: `{ topic, why_it_matters, how_to_collect, owner_role, blocking_for_section }`
+- `student_action_plan` (peer to family / educator plans), all three time-horizoned 30 / 90 / 6mo / 1yr
+- `time_horizons`: `{ thirty_day[], ninety_day[], six_month[], one_year[] }` as a top-level cross-cutting block (in addition to per-plan horizons)
+- `audience_messages`: `{ student: SectionCopy, family: SectionCopy, educator: SectionCopy }` — short audience-specific paragraph per section id
+- `inputs_used`: `{ profile, student_voice_keys[], iep_doc_ids[], readiness_at, goal_ids[], action_item_ids[], meeting_prep_ids[], saved_resource_ids[], partner_match_ids[] }` — single source-of-truth manifest
 
----
+Citation type:
+```
+Source = { kind: 'profile'|'student_voice'|'iep_doc'|'goal'|'readiness'|'action_item'|'meeting_prep'|'saved_resource'|'partner_match', id?: string, label: string }
+```
 
-## Phase A — Rights status & Transfer-of-Rights tracking
+## Generation pipeline (`generatePathwayReport`)
+1. Fetch student profile, intake, transition_profile, strengths_needs, goals, readiness_scores, student_voice_responses, documents (latest IEP + extractions), saved_resources, student_resource_recommendations, student_opportunity_matches, student_saved_partners, action_items, ppt_meeting_preps.
+2. Pass a structured `context` (not just free-text) to the LLM with explicit source IDs so the model returns citations.
+3. Strict JSON validation; on partial failure, fall back to per-section retries instead of nuking the whole report.
+4. Build `missing_information[]` deterministically from absent inputs (e.g., no IEP doc → "IEP not yet uploaded" gap).
 
-Goal: Encode IDEA's age-18 transfer of rights so the platform can reason about who controls sharing for each student.
+## Three distinct rendered reports
+- New route param: `/_authenticated/reports/$reportId?audience=student|family|educator` (already wired via `report-view-prefs`; promote from prefs to URL search param so links are shareable).
+- `ReportView` reads `audience` and renders the matching section set + tone:
+  - Student view: snapshot, Student Voice (first-person), strengths, four pillar recs (plain language), student action plan, meeting prep questions student can ask, 30/90/6mo/1yr addressed to "you".
+  - Family view: all sections, family action plan emphasized, rights-status reminder.
+  - Educator view: full clinical detail, IEP summary, readiness scorecard, planning gaps, educator action plan, citation chips visible by default.
+- Share tokens (`share_tokens.audience`) already keyed by audience — extend `resolve_share_token` consumer to honor the new section set.
 
-- Migration: add `rights_status` enum to `students` (`under_18_parent_rights_active`, `approaching_transfer_of_rights`, `rights_transferred_to_student`, `student_shared_decision_making`, `parent_guardian_authorized_by_student`, `legal_representative_or_conservator`, `unknown_needs_review`) defaulting to `unknown_needs_review`, plus `transfer_notice_acknowledged_at`.
-- Migration: new `rights_transfer_status` table (id, student_id, current_status, transfer_notice_date, student_authorized_parent_access, decision_making_notes, legal_representative_notes, reviewed_by_user_id, timestamps) with RLS scoped through `can_access_student` and an authorize-by-edit check via `can_edit_student`.
-- Server fns: `getRightsStatus`, `setRightsStatus` (logs to `audit_log` and writes a `consent_records` row when access is authorized by a student post-18).
-- UI: `RightsStatusCard` on the student profile header, just above existing `ProfileCompleteness`. Shows current status, last reviewed date, and a one-click "Review now" dialog with the seven options + free-text notes. Includes the explicit "this is not legal advice — check district guidance" disclaimer.
-- Reminders: when current age ≥ 17 (derived from DOB on `students`), surface a dismissible advisory on the dashboard via `NextBestAction` rule extension (no schema change).
+## UI changes (`ReportView.tsx`)
+- Add `SourceChips` component that renders `sources[]` as inline pills with a tooltip ("Student Voice: 'I want to work with animals'"). Educator audience: open; Family: collapsed; Student: hidden.
+- Add `RecommendationCard` with collapsible "Why / What informed this / Next action / Owner / Discuss at next meeting?" block.
+- Add `PlanningGapsBlock` rendering `missing_information[]` with one-click "Add to next meeting prep" that writes to `meeting_prep_items`.
+- Add `ResourceMatchesBlock` + `PartnerMatchesBlock` that read from report content (no extra fetch) but link out to live `/resources/$id` and partner pages.
+- Update `buildReportToc` and `buildStudentToc` to emit the 21-section ordering; legacy reports get the legacy TOC.
 
-## Phase B — Student-facing access (the student is not excluded)
+## Version history
+- `pathway_report_versions` already exists. Add: `change_summary` populated automatically from a diff of `inputs_used` (e.g., "Added IEP upload; 3 new readiness scores; Student Voice updated").
+- Add a "Compare with previous version" affordance in `ReportVersionsPanel` — side-by-side section list with changed-section badges; full diff is out of scope.
 
-Goal: Give the student role a real surface for their own transition information.
+## Files to change
+- `src/lib/pathway.functions.ts` — schema, generation context, version diff
+- `src/components/pathway/ReportView.tsx` — new blocks, audience routing, source chips
+- `src/components/pathway/ReportVersionsPanel.tsx` — change_summary surfacing
+- `src/routes/_authenticated/reports.$reportId.tsx` — `audience` search param + `validateSearch`
+- `src/lib/report-view-prefs.ts` — keep as fallback, prefer URL param
+- New: `src/components/pathway/RecommendationCard.tsx`, `SourceChips.tsx`, `PlanningGapsBlock.tsx`
+- Migration: add `change_summary` text column to `pathway_report_versions` if not present; no other schema changes (everything else lives in `content jsonb`)
 
-- Add `view_student_friendly_summary` to the existing `permission_level` enum on `document_permissions` (migration). Update `can_view_document` to still gate full document text behind `view_document` or higher, but allow a separate "student-friendly summary" path.
-- Server fn `getStudentFriendlyDocumentSummary` that returns a plain-language synthesis built from the already-stored extraction sections (no new AI calls — reuse `document_extractions.sections`). Falls back to "Your team is still preparing this summary" when extraction isn't complete.
-- New panel `StudentPathwayPanel` on the student dashboard (`/dashboard` when role = student): renders the student's transition goals, accommodations in plain language, Student Voice responses, latest Pathway Report student sections, action items assigned to the student, and meeting-prep questions written for the student. Pure composition over existing data; no new tables.
-- Document list on the student surface: every document the student is connected to is listed. If permission is only `view_student_friendly_summary`, show a "View student summary" button (opens the panel) and a clear "Ask your team for the full document" CTA instead of hiding the row.
-- Default rule on student-self-owned profiles (post-18 with `rights_transferred_to_student`): student gets `view_document` on their own IEPs unless explicitly overridden.
+## Back-compat
+- Every new schema field is `.optional()`.
+- `ReportView` checks `report.schema_version ?? 1`. Legacy renders unchanged. New renders use the 21-section spine.
+- Old share tokens keep working — audience already encoded.
 
-## Phase C — Parent / guardian access controls & consent records
+## Out of scope
+- No redesign of dashboards, navigation, or auth.
+- No new tables besides the one optional column on `pathway_report_versions`.
+- No edge functions; generation stays in `createServerFn` + Lovable AI Gateway.
+- Full text diff between versions (only section-level changed badges + input manifest diff).
 
-Goal: Make parent access explicit, revocable, and tied to rights status — without removing existing family functionality.
-
-- Migration: ensure `consent_records` has the columns we need (student_id, granted_by_user_id, granted_to_user_id, scope text[], basis enum [`parent_rights`, `student_authorization`, `legal_representative`, `school_authorization`], effective_at, revoked_at, notes). Extend if missing; otherwise reuse.
-- Server fns: `recordConsent`, `revokeConsent`, `listConsentsForStudent` — all `requireSupabaseAuth` + `can_edit_student` (or self-as-student post-18). Every grant/revoke writes to `audit_log`.
-- UI: extend `CollaboratorsPanel` (or sibling panel) with a "Family & guardian access" section. Shows current parent/guardian rows from `student_guardians` and overlays consent status from `consent_records`. After `rights_transferred_to_student`, the student (or owner) must explicitly toggle "Authorize continued parent/guardian access" before the parent retains view rights — the toggle creates/revokes a `consent_records` row.
-- Copy: add the FERPA-aware reminder block verbatim ("This document may contain sensitive student information…") on every grant action.
-
-## Phase D — CT age-based prompts, partner privacy hardening, compliance copy
-
-Goal: Make the platform visibly Connecticut-aware and tighten the partner-vs-student-record boundary.
-
-- Age helper `lib/transition-age.ts`: derive `currentAge` from `students.date_of_birth` and map to `early` / `age_14` / `age_16` / `age_17` / `age_18_plus` / `exit_year` bands. Drives a small `CtTransitionPrompts` strip on the student profile (under Rights status) with the band-specific message from the brief. No new tables.
-- Extend `getNextBestAction` rules with age-banded advisories for student/family/educator surfaces (e.g. "Start work-based learning conversations" at 16+; "Prepare for transfer of rights" at 17).
-- Partner privacy hardening:
-  - Audit existing partner-facing server fns (`partner-*.functions.ts`) and confirm none expose IEP rows, document storage paths, signed URLs, or transition_profiles. Add a regression test snapshot `tests/partner-pii-isolation.test.mjs` that asserts a partner-role JWT cannot select from `documents`, `document_extractions`, `transition_profiles`, `student_voice_responses`.
-  - Add explicit "Partner organizations cannot view IEPs or private student documents…" notice on the partner directory empty state and on the document permissions dialog when a partner audience is even considered (gray-out the partner option for IEP/transition-plan document types).
-- Standardize disclaimer copy: a tiny `lib/legal-copy.ts` exporting `PRIVACY_UPLOAD`, `AI_REVIEW`, `PARTNER_PRIVACY`, `NOT_LEGAL_ADVICE`, `NOT_OFFICIAL_IEP` strings, and replace the existing scattered phrasings with imports so future audits are single-source.
-
-## Phase E — Audit log surfacing, Platform Admin compliance checklist, acceptance pass
-
-Goal: Make the existing audit log usable, give Platform Admin a real compliance pulse, and close out the criteria.
-
-- Server fn `listStudentAuditTrail(student_id, limit)` filtered to actions on that student's documents/permissions/extractions, scoped through `can_edit_student`. Surface in a collapsed `AuditTrailPanel` on the student profile.
-- Extend `SystemHealthChecklist` (exists in `src/components/owner/`) with a Compliance & Trust section covering the 12-item checklist from the brief. Each item is a derived check (e.g. "Transfer of rights tracked" = at least one row in `rights_transfer_status`; "AI disclaimer active" = constant-true after Phase D; "Partner privacy restrictions active" = regression test snapshot present). Pure read; no schema changes.
-- Wire `logDocumentView` (already shipped) into the document download/view paths that don't yet call it, so the audit trail isn't empty.
-- Update `docs/atoz-acceptance.md` with the compliance criteria from the brief and check each one off with a one-line evidence pointer.
-
----
-
-## Out of scope (explicitly not touched)
-
-- No visual redesign, no role renames, no public marketing page restructuring.
-- No new auth providers, no changes to Admin Hub / Resource Library / Partner Network / Calendar / Action Items / Pathway Report **structure**.
-- Native PDF export of Pathway Reports stays where it is.
-- No legal-advice text — every disclaimer points to district/official guidance.
-
----
-
-## Technical notes (for reviewers)
-
-- All new tables: `CREATE TABLE` → `GRANT` (authenticated + service_role; no anon) → `ENABLE RLS` → policies through `can_access_student` / `can_edit_student` / `can_view_document`. Never `GRANT UPDATE` on `user_roles`.
-- Enum extensions (`permission_level`, `rights_status`) ship as `ALTER TYPE … ADD VALUE` in their own migration so they're commit-safe.
-- All new server fns: `createServerFn` + `requireSupabaseAuth`. Admin client only when a server-side identity resolution is required (e.g. resolving an email to a user id for consent grants — already the pattern in Phase 3).
-- Reuses existing `document_extractions`, `consent_records`, `audit_log`, `student_guardians`, `transition_profiles` rather than duplicating.
-- Each phase ends with a build verify; Phases A/B/C/D also run targeted RLS regression tests.
-
----
-
-## What I need from you before starting
-
-1. **Approve the 5-phase order** (A → B → C → D → E) or tell me to reshuffle.
-2. **Phase B default for post-18 students**: OK to auto-grant the self-owned student `view_document` on their own IEPs once `rights_transferred_to_student` is set, or do you want it to stay opt-in?
-3. **Phase D partner audience for IEP docs**: hard-disable in the UI (recommended), or allow with a forced consent record + extra warning?
-
-Once you answer, I'll start Phase A.
+## Risks
+- LLM JSON drift across 21 sections — mitigated by per-section retry and strict Zod.
+- Larger `content` payloads — still well under Postgres jsonb limits; render is paginated by collapsibles.
+- Old reports look thinner than new ones — surfaced via a "Regenerate to use latest format" CTA, never auto-overwrite.
