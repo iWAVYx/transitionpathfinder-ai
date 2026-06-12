@@ -114,7 +114,7 @@ test("persistence: goals", skipIf, async () => {
       student_id: studentId,
       created_by: user.id,
       title: `Goal ${Date.now()}`,
-      area: "employment",
+      category: "employment",
     })
     .select("id")
     .single();
@@ -130,7 +130,7 @@ test("persistence: action_items", skipIf, async () => {
     .from("action_items")
     .insert({
       student_id: studentId,
-      created_by: user.id,
+      created_by_user_id: user.id,
       title: `Action ${Date.now()}`,
     })
     .select("id")
@@ -147,9 +147,9 @@ test("persistence: calendar_events", skipIf, async () => {
     .from("calendar_events")
     .insert({
       student_id: studentId,
-      created_by: user.id,
+      owner_user_id: user.id,
       title: `Event ${Date.now()}`,
-      starts_at: new Date(Date.now() + 86400000).toISOString(),
+      event_date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
     })
     .select("id")
     .single();
