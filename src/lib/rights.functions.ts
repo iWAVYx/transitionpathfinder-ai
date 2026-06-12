@@ -157,7 +157,7 @@ export const setRightsStatus = createServerFn({ method: "POST" })
             .from("documents")
             .select("id")
             .eq("student_id", data.student_id)
-            .in("doc_type", ["iep", "transition-plan"]);
+            .in("doc_type", ["iep", "current-iep", "previous-iep", "transition-plan"]);
           for (const d of docs ?? []) {
             await supabase
               .from("document_permissions")

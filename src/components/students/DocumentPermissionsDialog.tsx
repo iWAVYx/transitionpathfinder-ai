@@ -107,7 +107,7 @@ export function DocumentPermissionsDialog({ open, onOpenChange, document }: Prop
     }
   }
 
-  const isSensitiveDoc = document.doc_type === "iep" || document.doc_type === "transition-plan";
+  const isSensitiveDoc = ["iep", "current-iep", "previous-iep", "transition-plan"].includes(document.doc_type);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -43,14 +43,33 @@ import { DocumentPermissionsDialog } from "./DocumentPermissionsDialog";
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 
 
-type DocType = "iep" | "evaluation" | "transition-plan" | "other";
+type DocType =
+  | "current-iep"
+  | "previous-iep"
+  | "transition-plan"
+  | "evaluation"
+  | "progress-report"
+  | "meeting-notes"
+  | "other";
 
 const DOC_TYPES: { value: DocType; label: string; icon: React.ReactNode; help: string }[] = [
   {
-    value: "iep",
-    label: "IEP (current or most recent)",
+    value: "current-iep",
+    label: "Current IEP",
     icon: <GraduationCap className="h-4 w-4" />,
-    help: "Full PDF preferred. We focus on the transition pages and post-secondary goals.",
+    help: "The IEP currently in effect. We focus on the transition pages and post-secondary goals.",
+  },
+  {
+    value: "previous-iep",
+    label: "Previous IEP",
+    icon: <GraduationCap className="h-4 w-4" />,
+    help: "An earlier IEP — useful for tracking progress over time.",
+  },
+  {
+    value: "transition-plan",
+    label: "Transition plan / SOP",
+    icon: <Compass className="h-4 w-4" />,
+    help: "Summary of Performance (SOP), Section 504 plan, or any transition planning doc.",
   },
   {
     value: "evaluation",
@@ -59,10 +78,16 @@ const DOC_TYPES: { value: DocType; label: string; icon: React.ReactNode; help: s
     help: "Psych-ed, OT/PT, speech, vocational, or other school-team evaluations.",
   },
   {
-    value: "transition-plan",
-    label: "Transition plan or summary",
-    icon: <Compass className="h-4 w-4" />,
-    help: "Summary of Performance (SOP), Section 504 plan, or any transition planning doc.",
+    value: "progress-report",
+    label: "Progress report",
+    icon: <ListChecks className="h-4 w-4" />,
+    help: "Quarterly or annual progress on IEP goals.",
+  },
+  {
+    value: "meeting-notes",
+    label: "Meeting notes",
+    icon: <UsersIcon className="h-4 w-4" />,
+    help: "PPT / IEP meeting notes, parent input, or follow-ups.",
   },
   {
     value: "other",
@@ -110,12 +135,16 @@ export function FamilyDocumentUpload({
   const register = useServerFn(registerDocument);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [docType, setDocType] = useState<DocType>("iep");
+  const [docType, setDocType] = useState<DocType>("current-iep");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
   const [schoolYear, setSchoolYear] = useState("");
   const [meetingDate, setMeetingDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
+  const [annualReviewDate, setAnnualReviewDate] = useState("");
+  const [reevaluationDate, setReevaluationDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [source, setSource] = useState("");
   const [consent, setConsent] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
@@ -149,6 +178,10 @@ export function FamilyDocumentUpload({
           school_year: schoolYear.trim() || undefined,
           meeting_date: meetingDate || undefined,
           review_date: reviewDate || undefined,
+          annual_review_date: annualReviewDate || undefined,
+          reevaluation_date: reevaluationDate || undefined,
+          notes: notes.trim() || undefined,
+          source: source.trim() || undefined,
           consent_acknowledged: true,
         },
       });
@@ -157,6 +190,10 @@ export function FamilyDocumentUpload({
       setSchoolYear("");
       setMeetingDate("");
       setReviewDate("");
+      setAnnualReviewDate("");
+      setReevaluationDate("");
+      setNotes("");
+      setSource("");
       setPendingFile(null);
       await onChange();
     } catch (err) {
@@ -303,6 +340,58 @@ export function FamilyDocumentUpload({
             />
           </div>
         </div>
+
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <Label htmlFor="doc-annual" className="mb-1.5 inline-block text-xs">
+              Annual review date (optional)
+            </Label>
+            <Input
+              id="doc-annual"
+              type="date"
+              value={annualReviewDate}
+              onChange={(e) => setAnnualReviewDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-reeval" className="mb-1.5 inline-block text-xs">
+              Reevaluation date (optional)
+            </Label>
+            <Input
+              id="doc-reeval"
+              type="date"
+              value={reevaluationDate}
+              onChange={(e) => setReevaluationDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="doc-source" className="mb-1.5 inline-block text-xs">
+              Source (optional)
+            </Label>
+            <Input
+              id="doc-source"
+              value={source}
+              onChange={(e) => setSource(e.target.value.slice(0, 200))}
+              placeholder="e.g. School district, private eval"
+              maxLength={200}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="doc-notes" className="mb-1.5 inline-block text-xs">
+            Notes (optional)
+          </Label>
+          <Input
+            id="doc-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value.slice(0, 2000))}
+            placeholder="Anything the team should know about this file"
+            maxLength={2000}
+          />
+        </div>
+
 
         <div>
           <Label htmlFor="doc-visibility" className="mb-1.5 inline-block">
@@ -458,7 +547,7 @@ export function StandardDocActions({
   const [permsOpen, setPermsOpen] = useState(false);
   return (
     <>
-      {doc.doc_type === "iep" || doc.doc_type === "transition-plan" ? (
+      {["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
         <Button
           size="sm"
           variant="outline"
@@ -476,7 +565,7 @@ export function StandardDocActions({
           )}
         </Button>
       ) : null}
-      {doc.doc_type === "iep" || doc.doc_type === "transition-plan" ? (
+      {["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
         <Button size="sm" variant="ghost" asChild title="Review section by section">
           <Link to="/documents/$documentId/review" params={{ documentId: doc.id }}>
             <ListChecks className="h-3.5 w-3.5" /> Review
