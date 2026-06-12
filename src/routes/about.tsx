@@ -30,9 +30,9 @@ import {
   ChevronRight,
   BookOpen,
   Play,
+  PlayIcon as Play,
   PenLine,
   UserRound,
-  X,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
