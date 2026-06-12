@@ -226,6 +226,8 @@ function StudentDetailPage() {
           </div>
 
           <ProfileCompleteness student={student} goals={goals} docs={docs} />
+          <RightsStatusCard studentId={studentId} />
+
         </header>
 
         {/* HUB CARDS */}
