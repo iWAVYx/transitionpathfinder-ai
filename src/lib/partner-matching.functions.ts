@@ -53,14 +53,14 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
     const { data: studentRaw, error: e1 } = await context.supabase
       .from("students")
       .select(
-        "id, age, dob, grade_band, interests_summary, strengths_summary, support_needs_summary, family_priorities, primary_disability_category, current_transition_status, readiness_level, county",
+        "id, age, date_of_birth, grade_band, interests_summary, strengths_summary, support_needs_summary, family_priorities, primary_disability_category, current_transition_status, readiness_level, school",
       )
       .eq("id", data.student_id)
       .single();
     if (e1 || !studentRaw) throw e1 ?? new Error("Student not found");
-    const student = studentRaw as {
+    const student = studentRaw as unknown as {
       age: number | null;
-      dob: string | null;
+      date_of_birth: string | null;
       grade_band: string | null;
       interests_summary: string | null;
       strengths_summary: string | null;
@@ -69,7 +69,7 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
       primary_disability_category: string | null;
       current_transition_status: string | null;
       readiness_level: string | null;
-      county: string | null;
+      school: string | null;
     };
 
     // Enrich with goals, readiness gap, and student voice — all server-side.
