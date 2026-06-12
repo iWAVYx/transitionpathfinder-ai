@@ -366,11 +366,11 @@ function AgendaView({
       </Block>
 
       <Block title="Questions to ask">
-        <BulletList items={agenda.questions_to_ask} />
+        <BulletList items={agenda.questions_to_ask} studentId={studentId} category="family" />
       </Block>
 
       <Block title="What to bring as evidence">
-        <BulletList items={agenda.evidence_to_bring} />
+        <BulletList items={agenda.evidence_to_bring} studentId={studentId} category="team" />
       </Block>
 
       <Block title="Language that works">
