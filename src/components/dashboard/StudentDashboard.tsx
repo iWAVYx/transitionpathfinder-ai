@@ -20,6 +20,7 @@ import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
 
 type Props = {
   firstName: string;
