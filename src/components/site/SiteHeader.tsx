@@ -310,9 +310,9 @@ export function SiteHeader() {
                       </DropdownMenuLabel>
                       {group.items.map((item) => (
                         <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
-                          <Link to={item.to} className="rounded-md px-2 py-1.5 text-sm">
+                          <SmartLink to={item.to} className="rounded-md px-2 py-1.5 text-sm">
                             {item.label}
-                          </Link>
+                          </SmartLink>
                         </DropdownMenuItem>
                       ))}
                     </div>
