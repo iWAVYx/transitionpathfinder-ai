@@ -234,6 +234,19 @@ export function FamilyDocumentUpload({
         </div>
       </div>
 
+      {!canEdit && (
+        <div className="flex items-start gap-2.5 border-b bg-amber-50/60 px-5 py-3 text-xs leading-relaxed text-amber-900 dark:bg-amber-950/30 dark:text-amber-200 sm:px-6">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            <strong>View only.</strong> You can read and download {firstName}'s documents, but
+            you don't have edit access on this student. Ask the family or the case manager to
+            grant you <em>editor</em> access if you need to upload, replace, or delete files.
+          </p>
+        </div>
+      )}
+
+      {canEdit && (
+      <>
       {/* Guidance */}
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 border-b bg-muted/30 px-5 py-3 text-left text-sm font-medium hover:bg-muted/50 sm:px-6">
