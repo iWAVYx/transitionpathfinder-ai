@@ -120,6 +120,28 @@ export const setRightsStatus = createServerFn({ method: "POST" })
       .eq("id", data.student_id);
     if (updErr) throw new Error(updErr.message);
 
+    // 2b. If student has authorized continued parent access (post-18) or rights
+    // are explicitly held under student-authorized parent/guardian access, record
+    // a team_sharing consent so the audit trail captures the basis.
+    if (
+      data.student_authorized_parent_access ||
+      data.current_status === "parent_guardian_authorized_by_student"
+    ) {
+      try {
+        await supabase.from("consent_records").insert({
+          student_id: data.student_id,
+          consenting_user_id: userId,
+          consent_type: "team_sharing",
+          consent_status: "granted",
+          consent_text_snapshot:
+            "Student authorizes continued parent/guardian access to transition planning records under TransitionForward's family access policy. This is a planning record, not legal advice — verify with district or counsel if uncertain.",
+        });
+      } catch (e) {
+        console.warn("consent record write failed", e);
+      }
+    }
+
+
     // 3. If the student now controls their own records, auto-grant them
     // view_document on their own IEP / transition-plan documents.
     if (data.current_status === "rights_transferred_to_student") {
