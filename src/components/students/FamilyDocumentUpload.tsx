@@ -43,14 +43,33 @@ import { DocumentPermissionsDialog } from "./DocumentPermissionsDialog";
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 
 
-type DocType = "iep" | "evaluation" | "transition-plan" | "other";
+type DocType =
+  | "current-iep"
+  | "previous-iep"
+  | "transition-plan"
+  | "evaluation"
+  | "progress-report"
+  | "meeting-notes"
+  | "other";
 
 const DOC_TYPES: { value: DocType; label: string; icon: React.ReactNode; help: string }[] = [
   {
-    value: "iep",
-    label: "IEP (current or most recent)",
+    value: "current-iep",
+    label: "Current IEP",
     icon: <GraduationCap className="h-4 w-4" />,
-    help: "Full PDF preferred. We focus on the transition pages and post-secondary goals.",
+    help: "The IEP currently in effect. We focus on the transition pages and post-secondary goals.",
+  },
+  {
+    value: "previous-iep",
+    label: "Previous IEP",
+    icon: <GraduationCap className="h-4 w-4" />,
+    help: "An earlier IEP — useful for tracking progress over time.",
+  },
+  {
+    value: "transition-plan",
+    label: "Transition plan / SOP",
+    icon: <Compass className="h-4 w-4" />,
+    help: "Summary of Performance (SOP), Section 504 plan, or any transition planning doc.",
   },
   {
     value: "evaluation",
@@ -59,10 +78,16 @@ const DOC_TYPES: { value: DocType; label: string; icon: React.ReactNode; help: s
     help: "Psych-ed, OT/PT, speech, vocational, or other school-team evaluations.",
   },
   {
-    value: "transition-plan",
-    label: "Transition plan or summary",
-    icon: <Compass className="h-4 w-4" />,
-    help: "Summary of Performance (SOP), Section 504 plan, or any transition planning doc.",
+    value: "progress-report",
+    label: "Progress report",
+    icon: <ListChecks className="h-4 w-4" />,
+    help: "Quarterly or annual progress on IEP goals.",
+  },
+  {
+    value: "meeting-notes",
+    label: "Meeting notes",
+    icon: <UsersIcon className="h-4 w-4" />,
+    help: "PPT / IEP meeting notes, parent input, or follow-ups.",
   },
   {
     value: "other",
