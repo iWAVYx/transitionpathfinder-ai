@@ -250,7 +250,7 @@ export function SiteHeader() {
               <DropdownMenuContent align="start" className="max-h-[min(70vh,32rem)] min-w-64 overflow-y-auto p-2">
                 {group.items.map((item) => (
                   <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
-                    <Link
+                    <SmartLink
                       to={item.to}
                       className="flex flex-col items-start gap-0.5 rounded-lg px-3 py-2"
                     >
@@ -258,7 +258,7 @@ export function SiteHeader() {
                       {item.desc && (
                         <span className="text-xs text-primary/75">{toTitleCase(item.desc)}</span>
                       )}
-                    </Link>
+                    </SmartLink>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
