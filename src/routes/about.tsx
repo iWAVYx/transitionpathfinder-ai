@@ -29,9 +29,19 @@ import {
   Sunrise,
   ChevronRight,
   BookOpen,
+  Play,
+  PenLine,
+  UserRound,
+  X,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { photos } from "@/lib/photos";
 import { cn } from "@/lib/utils";
 
