@@ -991,6 +991,7 @@ export type Database = {
       }
       documents: {
         Row: {
+          annual_review_date: string | null
           consent_acknowledged_at: string | null
           created_at: string
           doc_type: string
@@ -1002,10 +1003,13 @@ export type Database = {
           id: string
           meeting_date: string | null
           mime_type: string | null
+          notes: string | null
           parsed_summary: Json | null
+          reevaluation_date: string | null
           review_date: string | null
           school_year: string | null
           size_bytes: number | null
+          source: string | null
           status: string
           storage_path: string
           student_id: string
@@ -1015,6 +1019,7 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          annual_review_date?: string | null
           consent_acknowledged_at?: string | null
           created_at?: string
           doc_type?: string
@@ -1026,10 +1031,13 @@ export type Database = {
           id?: string
           meeting_date?: string | null
           mime_type?: string | null
+          notes?: string | null
           parsed_summary?: Json | null
+          reevaluation_date?: string | null
           review_date?: string | null
           school_year?: string | null
           size_bytes?: number | null
+          source?: string | null
           status?: string
           storage_path: string
           student_id: string
@@ -1039,6 +1047,7 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          annual_review_date?: string | null
           consent_acknowledged_at?: string | null
           created_at?: string
           doc_type?: string
@@ -1050,10 +1059,13 @@ export type Database = {
           id?: string
           meeting_date?: string | null
           mime_type?: string | null
+          notes?: string | null
           parsed_summary?: Json | null
+          reevaluation_date?: string | null
           review_date?: string | null
           school_year?: string | null
           size_bytes?: number | null
+          source?: string | null
           status?: string
           storage_path?: string
           student_id?: string
