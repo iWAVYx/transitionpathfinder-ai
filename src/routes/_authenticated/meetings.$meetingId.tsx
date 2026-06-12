@@ -351,6 +351,65 @@ function MeetingDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Post-meeting capture */}
+        <div className="mt-8 rounded-2xl border bg-card p-5 shadow-soft">
+          <h2 className="flex items-center gap-2 font-display text-lg">
+            <CheckSquare className="h-4 w-4 text-primary" />
+            After the meeting
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Capture what happened so the team — and the Pathway Report — stay in sync. Completing
+            the meeting promotes follow-ups into student action items.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="text-sm sm:col-span-2">
+              <span className="mb-1 block font-medium">Meeting notes / summary</span>
+              <textarea
+                rows={3}
+                value={meeting.summary ?? ""}
+                onChange={(e) => setMeeting({ ...meeting, summary: e.target.value })}
+                onBlur={(e) => saveField("summary", e.target.value)}
+                placeholder="What was discussed, who attended, key context."
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">Decisions made</span>
+              <textarea
+                rows={3}
+                value={meeting.decisions ?? ""}
+                onChange={(e) => setMeeting({ ...meeting, decisions: e.target.value })}
+                onBlur={(e) => saveField("decisions", e.target.value)}
+                placeholder="Services agreed to, placement changes, accommodations confirmed."
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">Documents to update</span>
+              <textarea
+                rows={3}
+                value={meeting.documents_to_update ?? ""}
+                onChange={(e) => setMeeting({ ...meeting, documents_to_update: e.target.value })}
+                onBlur={(e) => saveField("documents_to_update", e.target.value)}
+                placeholder="e.g. IEP draft, transition plan, consent form."
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">Next meeting date</span>
+              <input
+                type="date"
+                value={meeting.next_meeting_date ?? ""}
+                onChange={(e) => saveNextMeetingDate(e.target.value)}
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              />
+              <span className="mt-1 block text-xs text-muted-foreground">
+                Shown on the calendar so nothing slips.
+              </span>
+            </label>
+          </div>
+        </div>
       </section>
 
       <style>{`
