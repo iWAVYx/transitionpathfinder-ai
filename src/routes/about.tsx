@@ -142,7 +142,7 @@ function Hero() {
             </Reveal>
             <Reveal delay={0.08}>
               <h1 className="mt-5 font-display text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-                Built From the Classroom.
+                Built from the Classroom.
                 <br />
                 <span className="bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent">
                   Designed for the Future.
