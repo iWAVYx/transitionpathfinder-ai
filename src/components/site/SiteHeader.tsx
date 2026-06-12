@@ -265,14 +265,14 @@ export function SiteHeader() {
             </DropdownMenu>
           ))}
           {navSingles.map((item) => (
-            <Link
+            <SmartLink
               key={item.to}
               to={item.to}
               className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5"
               activeProps={{ className: "text-foreground bg-muted" }}
             >
               {item.label}
-            </Link>
+            </SmartLink>
           ))}
         </nav>
 
