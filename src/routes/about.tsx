@@ -1,19 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useReducedMotion,
-  AnimatePresence,
-  useMotionValue,
-} from "motion/react";
+import { useState } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
-  ArrowUpRight,
   FileText,
-  Sparkles,
   Compass,
   Calendar,
   Users,
@@ -26,16 +16,36 @@ import {
   Target,
   ShieldCheck,
   HandHeart,
-  Megaphone,
   School,
   UserRound,
   Network,
   CheckCircle2,
   Quote,
+  ChevronDown,
+  Sparkles,
+  Route as RouteIcon,
+  Lightbulb,
+  Layers,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// Assets
+import heroImg from "@/assets/about-cinematic.jpg";
+import founderImg from "@/assets/home-educator.jpg";
+import paperworkImg from "@/assets/iep-upload.jpg";
+import classroomImg from "@/assets/educators-hero-v2.jpg";
+import familyImg from "@/assets/families-hero-v2.jpg";
+import studentImg from "@/assets/home-student-photo.jpg";
+import pathwayImg from "@/assets/pathway-hero.jpg";
+import dashboardImg from "@/assets/dashboard-hero.jpg";
+import ctMapImg from "@/assets/framework-bg-topo.jpg";
+import ctaImg from "@/assets/home-road.jpg";
+import platformImg from "@/assets/platform-hero-v2.jpg";
+import resourcesImg from "@/assets/resources-hero-v2.jpg";
+import partnersImg from "@/assets/partners-hero.jpg";
+import frameworkImg from "@/assets/framework-bg-sunrise.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -44,117 +54,44 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "From paperwork to possibility — the cinematic story of why Transition Forward CT exists, the founder's MBA-to-MAT journey, and how we turn transition planning into a clear pathway for Connecticut students.",
+          "Built from the classroom. Designed for the future. Transition Forward CT turns confusing paperwork into clear pathways for students receiving special education services.",
       },
       { property: "og:title", content: "About — Transition Forward CT" },
       {
         property: "og:description",
         content:
-          "Built from the classroom. Designed for the future. A visual founder story and mission for Transition Forward CT.",
+          "The founder story and mission behind Transition Forward CT — from MBA to MAT to a platform that moves students from paperwork to possibility.",
       },
+      { property: "og:image", content: heroImg },
+      { property: "twitter:card", content: "summary_large_image" },
+      { property: "twitter:image", content: heroImg },
     ],
   }),
   component: AboutPage,
 });
 
-/* ============================================================ */
-/* Primitives                                                    */
-/* ============================================================ */
+/* -------------------------------------------------------------------------- */
+/*  Tiny primitives                                                            */
+/* -------------------------------------------------------------------------- */
 
-function useReveal(delay = 0) {
-  const reduced = useReducedMotion();
-  return {
-    initial: reduced ? false : { opacity: 0, y: 28 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-10% 0px" },
-    transition: { duration: 0.9, ease: [0.22, 0.61, 0.36, 1] as const, delay },
-  };
-}
-
-function SectionLabel({ index, label }: { index: string; label: string }) {
-  return (
-    <motion.div
-      {...useReveal()}
-      className="mb-8 flex items-center gap-4 font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground"
-    >
-      <span className="tabular-nums">{index}</span>
-      <span className="h-px w-10 bg-foreground/30" />
-      <span>{label}</span>
-    </motion.div>
-  );
-}
-
-function Kinetic({
-  text,
-  className,
-  delay = 0,
-  stagger = 0.05,
-}: {
-  text: string;
-  className?: string;
-  delay?: number;
-  stagger?: number;
-}) {
-  const reduced = useReducedMotion();
-  if (reduced) return <span className={className}>{text}</span>;
-  return (
-    <span className={cn("inline-block", className)} aria-label={text}>
-      {text.split(" ").map((w, i) => (
-        <span
-          key={i}
-          className="inline-block overflow-hidden align-baseline pr-[0.25em]"
-        >
-          <motion.span
-            className="inline-block"
-            initial={{ y: "110%" }}
-            whileInView={{ y: "0%" }}
-            viewport={{ once: true, margin: "-10% 0px" }}
-            transition={{
-              duration: 0.9,
-              ease: [0.22, 0.61, 0.36, 1],
-              delay: delay + i * stagger,
-            }}
-          >
-            {w}
-          </motion.span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-/* Tilt card — magnetic-ish hover */
-function TiltCard({
+function Reveal({
   children,
+  delay = 0,
+  y = 24,
   className,
 }: {
   children: React.ReactNode;
+  delay?: number;
+  y?: number;
   className?: string;
 }) {
-  const reduced = useReducedMotion();
-  const ref = useRef<HTMLDivElement | null>(null);
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const sx = useSpring(rx, { stiffness: 200, damping: 18 });
-  const sy = useSpring(ry, { stiffness: 200, damping: 18 });
+  const reduce = useReducedMotion();
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={(e) => {
-        if (reduced) return;
-        const el = ref.current;
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width - 0.5;
-        const py = (e.clientY - r.top) / r.height - 0.5;
-        ry.set(px * 8);
-        rx.set(-py * 8);
-      }}
-      onMouseLeave={() => {
-        rx.set(0);
-        ry.set(0);
-      }}
-      style={{ rotateX: sx, rotateY: sy, transformStyle: "preserve-3d" }}
+      initial={reduce ? false : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 0.61, 0.36, 1] }}
       className={className}
     >
       {children}
@@ -162,1504 +99,517 @@ function TiltCard({
   );
 }
 
-/* ============================================================ */
-/* HERO — cinematic layered scene                                */
-/* ============================================================ */
-
-function Hero() {
-  const ref = useRef<HTMLElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -160]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -240]);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <section
-      ref={ref}
-      className="relative isolate overflow-hidden px-6 pb-32 pt-32 sm:px-12 lg:px-24"
-    >
-      {/* Atmospheric backdrop */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 70% 20%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 60%), radial-gradient(50% 40% at 15% 85%, color-mix(in oklab, var(--secondary) 22%, transparent), transparent 60%)",
-        }}
-      />
-      <motion.div
-        aria-hidden
-        style={{ y: y3 }}
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[120%]"
-      >
-        <GridPaper />
-      </motion.div>
-
-      <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
-        <div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="mb-8 flex items-center gap-3 font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground"
-          >
-            <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-primary" />
-            00 / The Story Behind Transition Forward CT
-          </motion.div>
-
-          <h1 className="font-display text-[clamp(2.6rem,6.5vw,5.5rem)] font-medium leading-[0.98] tracking-tight">
-            <Kinetic text="Built From" />
-            <br />
-            <Kinetic text="The Classroom." delay={0.1} />
-            <br />
-            <span className="italic text-muted-foreground">
-              <Kinetic text="Designed for" delay={0.25} />
-            </span>{" "}
-            <Kinetic text="the Future." delay={0.4} />
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 1.1 }}
-            className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl"
-          >
-            Transition Forward CT was created to help students receiving
-            special education services, families, educators, and school teams
-            move from confusing paperwork to clear, personalized pathways.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.4 }}
-            className="mt-10 flex flex-wrap items-center gap-4"
-          >
-            <Button asChild size="lg">
-              <Link to="/waitlist">
-                Join the waitlist
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="lg">
-              <Link to="/platform">Explore the platform</Link>
-            </Button>
-          </motion.div>
-        </div>
-
-        {/* Cinematic layered scene */}
-        <motion.div style={{ opacity }} className="relative mx-auto aspect-square w-full max-w-[560px]">
-          {/* glow */}
-          <div
-            aria-hidden
-            className="absolute inset-[12%] -z-10 rounded-full opacity-70 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(circle, color-mix(in oklab, var(--primary) 45%, transparent), transparent 65%)",
-            }}
-          />
-
-          {/* floating papers */}
-          <motion.div style={{ y: y2 }} className="absolute left-[4%] top-[10%] w-[42%]">
-            <PaperCard rotate={-9} title="IEP" lines={4} muted />
-          </motion.div>
-          <motion.div style={{ y: y1 }} className="absolute right-[2%] top-[4%] w-[38%]">
-            <PaperCard rotate={7} title="Notes" lines={3} muted />
-          </motion.div>
-          <motion.div style={{ y: y2 }} className="absolute left-[12%] bottom-[8%] w-[36%]">
-            <PaperCard rotate={5} title="Calendar" lines={2} icon="calendar" />
-          </motion.div>
-          <motion.div style={{ y: y1 }} className="absolute right-[6%] bottom-[12%] w-[34%]">
-            <PaperCard rotate={-6} title="Goals" lines={3} icon="target" />
-          </motion.div>
-
-          {/* central pathway report */}
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-            className="absolute left-1/2 top-1/2 w-[58%] -translate-x-1/2 -translate-y-1/2"
-          >
-            <div className="relative rounded-2xl border border-border/60 bg-card/90 p-5 shadow-2xl backdrop-blur-md">
-              <div className="mb-3 flex items-center gap-2">
-                <div className="grid h-7 w-7 place-items-center rounded-md bg-primary/15 text-primary">
-                  <Compass className="h-4 w-4" />
-                </div>
-                <div>
-                  <div className="font-display text-sm font-medium leading-none">Pathway Report</div>
-                  <div className="mt-1 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                    Personalized · CT
-                  </div>
-                </div>
-              </div>
-              <MiniBar label="Student snapshot" pct={92} />
-              <MiniBar label="Goals" pct={70} />
-              <MiniBar label="Resources" pct={84} />
-              <MiniBar label="Partners" pct={58} />
-            </div>
-            <motion.div
-              aria-hidden
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              className="absolute -inset-6 -z-10 rounded-full border border-dashed border-primary/30"
-            />
-          </motion.div>
-
-          {/* compass path */}
-          <svg
-            aria-hidden
-            viewBox="0 0 400 400"
-            className="absolute inset-0 h-full w-full"
-            fill="none"
-          >
-            <motion.path
-              d="M 30 360 C 120 280, 80 180, 200 200 S 320 120, 380 40"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="4 6"
-              className="text-primary/40"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 2.4, delay: 0.8, ease: "easeInOut" }}
-            />
-          </svg>
-        </motion.div>
-      </div>
-
-      {/* scroll cue */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="mt-20 flex items-center gap-3 font-mono text-[0.65rem] uppercase tracking-[0.32em] text-muted-foreground"
-      >
-        <span>Scroll the journey</span>
-        <motion.span
-          animate={{ x: [0, 8, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-          className="h-px w-12 bg-foreground/40"
-        />
-      </motion.div>
-    </section>
-  );
-}
-
-function GridPaper() {
-  return (
-    <svg className="h-full w-full text-foreground/[0.04]" aria-hidden>
-      <defs>
-        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#grid)" />
-    </svg>
-  );
-}
-
-function PaperCard({
-  title,
-  lines,
-  rotate,
-  muted,
-  icon,
-}: {
-  title: string;
-  lines: number;
-  rotate: number;
-  muted?: boolean;
-  icon?: "calendar" | "target";
-}) {
-  const Icon = icon === "calendar" ? Calendar : icon === "target" ? Target : FileText;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, rotate: rotate * 1.5 }}
-      animate={{ opacity: 1, y: 0, rotate }}
-      transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
-      className={cn(
-        "rounded-xl border border-border/60 p-3 shadow-xl backdrop-blur",
-        muted ? "bg-card/70" : "bg-card/90",
-      )}
-    >
-      <div className="mb-2 flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-          {title}
-        </span>
-      </div>
-      <div className="space-y-1.5">
-        {Array.from({ length: lines }).map((_, i) => (
-          <div
-            key={i}
-            className="h-1.5 rounded-full bg-foreground/10"
-            style={{ width: `${60 + ((i * 13) % 35)}%` }}
-          />
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-function MiniBar({ label, pct }: { label: string; pct: number }) {
-  return (
-    <div className="mb-2.5 last:mb-0">
-      <div className="mb-1 flex items-center justify-between font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
-        <span>{label}</span>
-        <span className="tabular-nums">{pct}%</span>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${pct}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, ease: [0.22, 0.61, 0.36, 1] }}
-          className="h-full rounded-full bg-primary"
-        />
-      </div>
+    <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
+      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+      {children}
     </div>
   );
 }
 
-/* ============================================================ */
-/* CINEMATIC QUOTE BREAK                                         */
-/* ============================================================ */
+/* -------------------------------------------------------------------------- */
+/*  HERO                                                                       */
+/* -------------------------------------------------------------------------- */
 
-function QuoteBreak({
-  text,
-  attribution,
-  variant = "default",
-}: {
-  text: string;
-  attribution?: string;
-  variant?: "default" | "warm" | "cool";
-}) {
-  const bg =
-    variant === "warm"
-      ? "radial-gradient(60% 60% at 30% 40%, color-mix(in oklab, var(--secondary) 30%, transparent), transparent 70%)"
-      : variant === "cool"
-        ? "radial-gradient(60% 60% at 70% 50%, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%)"
-        : "radial-gradient(50% 50% at 50% 50%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%)";
-
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -40]);
+function Hero() {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 600], [0, 120]);
+  const reduce = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden border-y border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <div aria-hidden className="absolute inset-0 -z-10" style={{ background: bg }} />
-      <motion.div style={{ y }} aria-hidden className="absolute right-6 top-6 text-foreground/[0.06] sm:right-12">
-        <Quote className="h-40 w-40 sm:h-56 sm:w-56" strokeWidth={1} />
-      </motion.div>
-      <motion.blockquote
-        {...useReveal()}
-        className="mx-auto max-w-5xl font-display text-[clamp(1.75rem,4.5vw,3.5rem)] font-medium leading-[1.15] tracking-tight"
+    <section className="relative isolate overflow-hidden">
+      {/* Background */}
+      <motion.div
+        style={reduce ? undefined : { y }}
+        className="absolute inset-0 -z-10"
       >
-        <Kinetic text={text} />
-      </motion.blockquote>
-      {attribution && (
-        <motion.div
-          {...useReveal(0.2)}
-          className="mt-8 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground"
-        >
-          — {attribution}
-        </motion.div>
-      )}
+        <img
+          src={heroImg}
+          alt=""
+          className="h-[120%] w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/30 to-transparent" />
+      </motion.div>
+
+      <div className="container mx-auto px-6 pb-24 pt-28 sm:pt-36 md:pb-32 md:pt-44">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          {/* Copy */}
+          <div className="max-w-2xl">
+            <Reveal>
+              <SectionEyebrow>Our Story</SectionEyebrow>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h1 className="mt-5 font-display text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+                Built From the Classroom.
+                <br />
+                <span className="bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent">
+                  Designed for the Future.
+                </span>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+                Transition Forward helps students receiving special education
+                services, families, educators, and school teams move from
+                confusing paperwork to clear, personalized pathways.
+              </p>
+            </Reveal>
+            <Reveal delay={0.28}>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild size="lg" className="group">
+                  <Link to="/platform">
+                    Explore the Platform
+                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/waitlist">Join the Waitlist</Link>
+                </Button>
+              </div>
+            </Reveal>
+            <Reveal delay={0.4}>
+              <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" /> Rooted in Connecticut
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" /> Student-centered
+                </div>
+                <div className="flex items-center gap-2">
+                  <HandHeart className="h-4 w-4 text-primary" /> Built by an educator
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          {/* Visual collage */}
+          <Reveal delay={0.2} className="relative hidden lg:block">
+            <div className="relative aspect-[4/5] w-full">
+              <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-border/60 shadow-2xl">
+                <img
+                  src={pathwayImg}
+                  alt="Student pathway planning"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-amber-500/10" />
+              </div>
+              {/* Floating Pathway Report card */}
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+                className="absolute -left-8 bottom-10 w-64 rounded-2xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur"
+              >
+                <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                  <FileText className="h-4 w-4" /> Pathway Report
+                </div>
+                <div className="mt-2 text-sm font-semibold">Maya, Grade 11</div>
+                <div className="mt-3 space-y-1.5">
+                  {["Self-Advocacy", "Workforce", "Independent Living"].map(
+                    (l, i) => (
+                      <div key={l} className="space-y-1">
+                        <div className="flex justify-between text-[10px] text-muted-foreground">
+                          <span>{l}</span>
+                          <span>{[82, 64, 73][i]}%</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${[82, 64, 73][i]}%` }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.9 + i * 0.15, duration: 1 }}
+                            className="h-full rounded-full bg-gradient-to-r from-primary to-amber-500"
+                          />
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </motion.div>
+              {/* Floating compass */}
+              <motion.div
+                initial={reduce ? false : { opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="absolute -right-6 top-8 flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card/95 shadow-xl backdrop-blur"
+              >
+                <Compass className="h-9 w-9 text-primary" />
+              </motion.div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
     </section>
   );
 }
 
-/* ============================================================ */
-/* FOUNDER JOURNEY — sticky scrollytelling timeline              */
-/* ============================================================ */
+/* -------------------------------------------------------------------------- */
+/*  FOUNDER STORY                                                              */
+/* -------------------------------------------------------------------------- */
 
-const JOURNEY = [
+function FounderStory() {
+  const [open, setOpen] = useState(false);
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-b from-background via-amber-50/30 to-background dark:via-amber-950/10">
+      <div
+        className="absolute inset-0 -z-10 opacity-[0.04]"
+        style={{
+          backgroundImage: `url(${frameworkImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="container mx-auto px-6 py-20 md:py-28">
+        <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
+          {/* Image */}
+          <Reveal>
+            <div className="relative">
+              <div className="aspect-[4/5] overflow-hidden rounded-[2rem] border border-border/60 shadow-xl">
+                <img
+                  src={founderImg}
+                  alt="Founder, special educator in Connecticut"
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
+              <div className="absolute -bottom-6 -right-4 hidden max-w-[14rem] rounded-2xl border border-border bg-card p-4 shadow-lg sm:block">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                  Founder
+                </div>
+                <div className="mt-1 text-base font-bold">
+                  CT Special Educator
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  MBA · MAT in Special Education K–12
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Story */}
+          <Reveal delay={0.1}>
+            <SectionEyebrow>Why I Built This</SectionEyebrow>
+            <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
+              A Black Connecticut educator <br />
+              <span className="text-primary">building a bridge</span> for every
+              student.
+            </h2>
+            <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
+              <p>
+                I came to teaching after an MBA, then completed my MAT in
+                Special Education K–12 and a full student teaching year across{" "}
+                <span className="font-semibold text-foreground">
+                  New Haven and Hamden Public Schools
+                </span>
+                .
+              </p>
+              <p>
+                I watched students, families, teachers, and school teams carry
+                the weight of transition planning — scattered IEPs, missed
+                opportunities, and unanswered questions.
+              </p>
+              <p>
+                Transition Forward connects{" "}
+                <span className="font-semibold text-foreground">
+                  strategy, service, systems, and humanity
+                </span>{" "}
+                into one student-centered platform.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setOpen((o) => !o)}
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+            >
+              {open ? "Hide" : "Read"} the Full Founder Story
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform",
+                  open && "rotate-180",
+                )}
+              />
+            </button>
+            <motion.div
+              initial={false}
+              animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
+              transition={{ duration: 0.4 }}
+              className="overflow-hidden"
+            >
+              <p className="mt-4 border-l-2 border-primary/40 pl-4 text-sm leading-relaxed text-muted-foreground">
+                Transition planning shouldn't be a binder you can't open or a
+                meeting you can't follow. After years inside Connecticut
+                classrooms, I saw families translating jargon at the kitchen
+                table, educators copy-pasting goals between systems, and
+                students whose voices never made it into the plan. Transition
+                Forward exists so every IEP becomes a real, navigable map — and
+                every student gets a future worth planning for.
+              </p>
+            </motion.div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  TIMELINE                                                                   */
+/* -------------------------------------------------------------------------- */
+
+const TIMELINE = [
   {
-    n: "01",
-    tag: "MBA",
-    title: "Learning Systems",
-    body: "Operations, data, sustainability, and how good systems quietly shape every user's experience.",
+    label: "MBA",
+    title: "Systems, Strategy, Sustainability",
     icon: Briefcase,
   },
   {
-    n: "02",
-    tag: "Entering Education",
-    title: "Into the Classroom",
-    body: "Trading boardrooms for hallways — the work felt closer to people, and a lot harder to measure.",
-    icon: School,
-  },
-  {
-    n: "03",
-    tag: "MAT · Special Education K–12",
-    title: "Built for Students",
-    body: "Lesson plans, IEPs, modifications — learning the craft of teaching every student as an individual.",
+    label: "MAT",
+    title: "Special Education K–12",
     icon: GraduationCap,
   },
   {
-    n: "04",
-    tag: "New Haven Public Schools",
-    title: "Community in Practice",
-    body: "Urban schools, real families, real constraints — where transition planning meets daily reality.",
-    icon: Building2,
+    label: "Student Teaching",
+    title: "New Haven & Hamden Public Schools",
+    icon: School,
   },
   {
-    n: "05",
-    tag: "Hamden Public Schools",
-    title: "Student Teaching Year",
-    body: "Inside PPTs, IEP meetings, and case management — seeing exactly where the system asks too much of too few.",
-    icon: Users,
+    label: "The Gap",
+    title: "Families & teams need clearer tools",
+    icon: Lightbulb,
   },
   {
-    n: "06",
-    tag: "The Gap",
-    title: "Seeing the Problem",
-    body: "Scattered documents. Confused families. Overloaded case managers. Disconnected resources. Students waiting.",
-    icon: FileText,
-  },
-  {
-    n: "07",
-    tag: "Building",
-    title: "Transition Forward CT",
-    body: "One profile. One plan. One report. A platform that gives families and educators back their time.",
+    label: "The Response",
+    title: "Transition Forward",
     icon: Sparkles,
   },
-  {
-    n: "08",
-    tag: "Forward",
-    title: "Paperwork to Possibility",
-    body: "A clear pathway from school to adult life — built in Connecticut, with Connecticut, for Connecticut.",
-    icon: Compass,
-  },
 ];
 
-function FounderJourney() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const pathLen = useSpring(scrollYProgress, { stiffness: 80, damping: 20 });
-
+function Timeline() {
   return (
-    <section id="journey" className="px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="01" label="The Founder Journey" />
-      <div className="mb-20 grid items-end gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <h2 className="font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-          <Kinetic text="From" /> <Kinetic text="MBA" delay={0.05} />{" "}
-          <span className="italic text-muted-foreground">
-            <Kinetic text="to" delay={0.1} />
-          </span>{" "}
-          <Kinetic text="MAT." delay={0.15} />
-        </h2>
-        <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
-          A Black male Connecticut special educator's path through strategy,
-          service, and the classroom — and why that mix made this platform
-          inevitable.
-        </p>
-      </div>
+    <section className="relative overflow-hidden py-20 md:py-28">
+      <div className="container mx-auto px-6">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>The Journey</SectionEyebrow>
+          <h2 className="mt-4 font-display text-3xl font-black sm:text-4xl md:text-5xl">
+            From MBA to MAT to Transition Forward
+          </h2>
+        </Reveal>
 
-      <div ref={ref} className="relative grid gap-12 lg:grid-cols-[120px_1fr]">
-        {/* sticky rail with drawing path */}
-        <div className="relative hidden lg:block">
-          <div className="sticky top-32 h-[60vh]">
-            <svg viewBox="0 0 60 600" className="h-full w-full" fill="none" aria-hidden>
-              <path d="M 30 0 L 30 600" stroke="currentColor" className="text-border" strokeWidth="2" />
-              <motion.path
-                d="M 30 0 L 30 600"
-                stroke="currentColor"
-                className="text-primary"
-                strokeWidth="2"
-                style={{ pathLength: pathLen }}
-              />
-              <motion.circle
-                cx="30"
-                cy="0"
-                r="6"
-                className="fill-primary"
-                style={{ cy: useTransform(pathLen, [0, 1], [0, 600]) }}
-              />
-            </svg>
-          </div>
-        </div>
+        <div className="relative mt-14">
+          {/* Animated line */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.4, ease: "easeOut" }}
+            className="absolute left-6 right-6 top-8 hidden h-0.5 origin-left rounded-full bg-gradient-to-r from-primary via-amber-500 to-orange-500 md:block"
+          />
+          {/* Vertical line for mobile */}
+          <div className="absolute bottom-0 left-6 top-0 w-0.5 bg-gradient-to-b from-primary via-amber-500 to-orange-500 md:hidden" />
 
-        <ol className="space-y-10">
-          {JOURNEY.map((j, i) => {
-            const Icon = j.icon;
-            return (
-              <motion.li
-                key={i}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-15% 0px" }}
-                transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
-              >
-                <TiltCard className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/60 p-8 shadow-sm backdrop-blur transition-colors hover:border-primary/40">
-                  <div
-                    aria-hidden
-                    className="absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
-                    style={{
-                      background:
-                        "radial-gradient(circle, color-mix(in oklab, var(--primary) 35%, transparent), transparent 65%)",
-                    }}
-                  />
-                  <div className="flex items-start justify-between gap-6">
-                    <div>
-                      <div className="mb-3 flex items-center gap-3 font-mono text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">
-                        <span className="tabular-nums">{j.n}</span>
-                        <span className="h-px w-6 bg-foreground/30" />
-                        <span>{j.tag}</span>
-                      </div>
-                      <h3 className="font-display text-[clamp(1.5rem,3vw,2.25rem)] font-medium leading-tight tracking-tight">
-                        {j.title}
-                      </h3>
-                      <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                        {j.body}
-                      </p>
+          <div className="grid gap-6 md:grid-cols-5 md:gap-4">
+            {TIMELINE.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <Reveal key={step.label} delay={i * 0.08}>
+                  <div className="relative pl-16 md:pl-0">
+                    <div className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card shadow-md md:relative md:mx-auto md:mb-5 md:h-16 md:w-16">
+                      <Icon className="h-5 w-5 text-primary md:h-7 md:w-7" />
                     </div>
-                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-border/60 bg-background/60 text-primary">
-                      <Icon className="h-6 w-6" />
+                    <div className="md:text-center">
+                      <div className="text-xs font-bold uppercase tracking-widest text-primary">
+                        {step.label}
+                      </div>
+                      <div className="mt-1 text-sm font-semibold leading-snug">
+                        {step.title}
+                      </div>
                     </div>
                   </div>
-                </TiltCard>
-              </motion.li>
-            );
-          })}
-        </ol>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ============================================================ */
-/* PAPERWORK → POSSIBILITY transformation                        */
-/* ============================================================ */
+/* -------------------------------------------------------------------------- */
+/*  PROBLEM / SOLUTION                                                         */
+/* -------------------------------------------------------------------------- */
+
+const PROBLEMS = [
+  "Transition planning feels confusing",
+  "Families need clarity, not jargon",
+  "Students need their voice heard",
+  "Educators need better tools",
+  "Resources are scattered everywhere",
+];
+
+const SOLUTIONS = [
+  { label: "Student Profile", icon: UserRound },
+  { label: "IEP Upload & Review", icon: FileText },
+  { label: "Student Voice", icon: HandHeart },
+  { label: "Pathway Report", icon: Compass },
+  { label: "Resource Library", icon: BookOpen },
+  { label: "Partner Network", icon: Network },
+  { label: "Calendar & Meeting Prep", icon: Calendar },
+];
+
+function ProblemSolution() {
+  return (
+    <section className="relative overflow-hidden py-20 md:py-28">
+      <div className="container mx-auto px-6">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+          {/* Problem */}
+          <Reveal>
+            <div className="relative h-full overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-lg">
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={paperworkImg}
+                  alt="Stack of paperwork"
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+                <div className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full bg-background/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-foreground backdrop-blur">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                  The Problem
+                </div>
+              </div>
+              <div className="p-7">
+                <h3 className="font-display text-2xl font-black sm:text-3xl">
+                  Paperwork without a path
+                </h3>
+                <ul className="mt-5 space-y-3">
+                  {PROBLEMS.map((p) => (
+                    <li key={p} className="flex items-start gap-3 text-sm">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                      <span className="text-muted-foreground">{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Solution */}
+          <Reveal delay={0.1}>
+            <div className="relative h-full overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-primary/5 via-amber-500/5 to-background shadow-lg">
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={dashboardImg}
+                  alt="Transition Forward dashboard"
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                <div className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full bg-background/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-foreground backdrop-blur">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  The Response
+                </div>
+              </div>
+              <div className="p-7">
+                <h3 className="font-display text-2xl font-black sm:text-3xl">
+                  A platform built for the plan
+                </h3>
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  {SOLUTIONS.map((s) => {
+                    const Icon = s.icon;
+                    return (
+                      <div
+                        key={s.label}
+                        className="group flex items-center gap-2 rounded-xl border border-border/60 bg-card/70 px-3 py-2.5 text-xs font-medium transition hover:border-primary/40 hover:bg-card"
+                      >
+                        <Icon className="h-4 w-4 shrink-0 text-primary" />
+                        <span>{s.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  FLOW                                                                       */
+/* -------------------------------------------------------------------------- */
 
 const FLOW = [
-  { label: "Scattered IEPs", icon: FileText, tone: "muted" },
-  { label: "Student Voice", icon: HandHeart, tone: "warm" },
-  { label: "Pathway Report", icon: Compass, tone: "primary" },
-  { label: "Resources", icon: BookOpen, tone: "primary" },
-  { label: "Partners", icon: Network, tone: "primary" },
-  { label: "Action Plan", icon: CheckCircle2, tone: "primary" },
-  { label: "Future", icon: Sparkles, tone: "glow" },
-] as const;
+  { label: "Paperwork", icon: FileText },
+  { label: "Clarity", icon: Lightbulb },
+  { label: "Pathway", icon: RouteIcon },
+  { label: "Action", icon: Target },
+  { label: "Future", icon: Sparkles },
+];
 
 function PaperworkToPossibility() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 80%", "end 30%"],
-  });
-  const draw = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
-
   return (
-    <section className="relative overflow-hidden px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="02" label="The Transformation" />
-      <h2 className="mb-16 max-w-4xl font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-        <Kinetic text="From paperwork" />
-        <br />
-        <span className="italic text-muted-foreground">
-          <Kinetic text="to possibility." delay={0.1} />
-        </span>
-      </h2>
-
-      <div ref={ref} className="relative">
-        {/* desktop horizontal flow */}
-        <div className="relative hidden lg:block">
-          <svg viewBox="0 0 1200 80" className="absolute inset-x-0 top-12 h-20 w-full" fill="none" aria-hidden>
-            <path d="M 40 60 C 240 -10, 480 90, 720 30 S 1080 60, 1160 20" stroke="currentColor" strokeWidth="2" strokeDasharray="2 6" className="text-border" />
-            <motion.path
-              d="M 40 60 C 240 -10, 480 90, 720 30 S 1080 60, 1160 20"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              className="text-primary"
-              style={{ pathLength: draw }}
-            />
-          </svg>
-          <ol className="relative grid grid-cols-7 gap-4">
-            {FLOW.map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-10% 0px" }}
-                  transition={{ duration: 0.7, delay: i * 0.1 }}
-                  className="flex flex-col items-center text-center"
-                  style={{ marginTop: i % 2 === 0 ? 0 : 40 }}
-                >
-                  <FlowNode tone={s.tone} icon={Icon} step={i + 1} />
-                  <div className="mt-4 font-mono text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground">
-                    Step {i + 1}
-                  </div>
-                  <div className="mt-1 font-display text-base font-medium">{s.label}</div>
-                </motion.li>
-              );
-            })}
-          </ol>
-        </div>
-
-        {/* mobile vertical stacked story */}
-        <ol className="space-y-4 lg:hidden">
-          {FLOW.map((s, i) => {
-            const Icon = s.icon;
-            return (
-              <motion.li
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.05 }}
-                className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur"
-              >
-                <FlowNode tone={s.tone} icon={Icon} step={i + 1} compact />
-                <div>
-                  <div className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground">
-                    Step {i + 1}
-                  </div>
-                  <div className="font-display text-base font-medium">{s.label}</div>
-                </div>
-              </motion.li>
-            );
-          })}
-        </ol>
-      </div>
-    </section>
-  );
-}
-
-function FlowNode({
-  tone,
-  icon: Icon,
-  step,
-  compact,
-}: {
-  tone: string;
-  icon: typeof FileText;
-  step: number;
-  compact?: boolean;
-}) {
-  const styles =
-    tone === "primary"
-      ? "border-primary/50 bg-primary/10 text-primary"
-      : tone === "warm"
-        ? "border-secondary/50 bg-secondary/20 text-secondary-foreground"
-        : tone === "glow"
-          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/40"
-          : "border-border bg-card text-muted-foreground";
-  return (
-    <div
-      className={cn(
-        "relative grid place-items-center rounded-2xl border-2 backdrop-blur transition-transform hover:scale-105",
-        compact ? "h-12 w-12" : "h-20 w-20",
-        styles,
-      )}
-    >
-      <Icon className={compact ? "h-5 w-5" : "h-7 w-7"} />
-      {!compact && (
-        <span className="absolute -bottom-2 -right-2 grid h-6 w-6 place-items-center rounded-full border border-border bg-background font-mono text-[0.6rem] tabular-nums">
-          {step}
-        </span>
-      )}
-    </div>
-  );
-}
-
-/* ============================================================ */
-/* ECOSYSTEM — radial orbit                                       */
-/* ============================================================ */
-
-const ORBIT = [
-  { label: "Family", icon: Heart },
-  { label: "Educator", icon: UserRound },
-  { label: "School", icon: School },
-  { label: "District", icon: Building2 },
-  { label: "Partners", icon: Network },
-  { label: "Resources", icon: BookOpen },
-  { label: "Pathway Report", icon: Compass },
-  { label: "Calendar", icon: Calendar },
-];
-
-function Ecosystem() {
-  const reduced = useReducedMotion();
-  return (
-    <section className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="03" label="The Ecosystem" />
-      <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.1fr]">
-        <div>
-          <h2 className="font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-            <Kinetic text="The student" />
-            <br />
-            <span className="italic text-muted-foreground">
-              <Kinetic text="at the center." delay={0.1} />
-            </span>
-          </h2>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Transition Forward CT pulls every adult in a student's life into
-            one shared room — with the student's voice in the middle, not the
-            margins.
-          </p>
-          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:hidden">
-            {ORBIT.map((o, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-3 py-2 backdrop-blur"
-              >
-                <o.icon className="h-4 w-4 text-primary" />
-                <span className="text-sm">{o.label}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* radial */}
-        <div className="relative mx-auto hidden aspect-square w-full max-w-[560px] lg:block">
-          <motion.div
-            aria-hidden
-            animate={reduced ? undefined : { rotate: 360 }}
-            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-8 rounded-full border border-dashed border-border"
-          />
-          <motion.div
-            aria-hidden
-            animate={reduced ? undefined : { rotate: -360 }}
-            transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-24 rounded-full border border-dashed border-border/60"
-          />
-
-          {/* center student */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="absolute left-1/2 top-1/2 grid h-32 w-32 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-primary/40 bg-card text-center shadow-2xl"
-          >
-            <div
-              aria-hidden
-              className="absolute inset-0 -z-10 rounded-full opacity-70 blur-2xl"
-              style={{
-                background:
-                  "radial-gradient(circle, color-mix(in oklab, var(--primary) 50%, transparent), transparent 60%)",
-              }}
-            />
-            <div>
-              <UserRound className="mx-auto h-7 w-7 text-primary" />
-              <div className="mt-1 font-mono text-[0.6rem] uppercase tracking-[0.22em]">
-                Student
-              </div>
-            </div>
-          </motion.div>
-
-          {/* orbit nodes */}
-          {ORBIT.map((o, i) => {
-            const angle = (i / ORBIT.length) * Math.PI * 2 - Math.PI / 2;
-            const r = 42; // %
-            const x = 50 + Math.cos(angle) * r;
-            const y = 50 + Math.sin(angle) * r;
-            const Icon = o.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.6 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 + i * 0.08 }}
-                className="absolute -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${x}%`, top: `${y}%` }}
-              >
-                <div className="group flex flex-col items-center gap-2">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl border border-border/60 bg-card/90 text-primary shadow-lg backdrop-blur transition-transform group-hover:scale-110">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                    {o.label}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-
-          {/* connecting lines */}
-          <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" aria-hidden>
-            {ORBIT.map((_, i) => {
-              const angle = (i / ORBIT.length) * Math.PI * 2 - Math.PI / 2;
-              const x = 50 + Math.cos(angle) * 42;
-              const y = 50 + Math.sin(angle) * 42;
-              return (
-                <motion.line
-                  key={i}
-                  x1="50"
-                  y1="50"
-                  x2={x}
-                  y2={y}
-                  stroke="currentColor"
-                  strokeWidth="0.2"
-                  className="text-primary/40"
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, delay: 0.4 + i * 0.06 }}
-                />
-              );
-            })}
-          </svg>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================ */
-/* BEFORE / AFTER slider                                          */
-/* ============================================================ */
-
-function BeforeAfter() {
-  const [pos, setPos] = useState(50);
-  return (
-    <section className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="04" label="Problem · Solution" />
-      <div className="mb-12 grid items-end gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <h2 className="font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-          <Kinetic text="The old way," />
-          <br />
-          <span className="italic text-muted-foreground">
-            <Kinetic text="and a new one." delay={0.1} />
-          </span>
-        </h2>
-        <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Drag the divider. See transition planning move from scattered to
-          coordinated.
-        </p>
-      </div>
-
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-20 text-white md:py-28">
       <div
-        className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-border/60 bg-card shadow-2xl"
-        onMouseMove={(e) => {
-          const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          setPos(Math.min(95, Math.max(5, ((e.clientX - r.left) / r.width) * 100)));
-        }}
-        onTouchMove={(e) => {
-          const t = e.touches[0];
-          if (!t) return;
-          const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          setPos(Math.min(95, Math.max(5, ((t.clientX - r.left) / r.width) * 100)));
-        }}
-      >
-        {/* AFTER (full) */}
-        <AfterScene />
-        {/* BEFORE (clipped) */}
-        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-          <BeforeScene />
-        </div>
-        {/* handle */}
-        <div className="absolute inset-y-0" style={{ left: `${pos}%` }}>
-          <div className="absolute inset-y-0 -ml-px w-0.5 bg-primary" />
-          <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary bg-background px-3 py-1 font-mono text-[0.65rem] uppercase tracking-[0.22em] text-primary shadow-lg">
-            Drag
-          </div>
-        </div>
-        {/* labels */}
-        <div className="absolute left-6 top-6 rounded-full bg-background/80 px-3 py-1 font-mono text-[0.6rem] uppercase tracking-[0.22em] backdrop-blur">
-          Paperwork
-        </div>
-        <div className="absolute right-6 top-6 rounded-full bg-primary px-3 py-1 font-mono text-[0.6rem] uppercase tracking-[0.22em] text-primary-foreground">
-          Pathway
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function BeforeScene() {
-  const items = [
-    { t: "IEP draft v3.docx", r: -8, x: 6, y: 18 },
-    { t: "Email — RE: meeting", r: 5, x: 28, y: 8 },
-    { t: "Sticky: call mom?", r: -3, x: 52, y: 14 },
-    { t: "Goals (last yr)", r: 7, x: 8, y: 56 },
-    { t: "PDF — transition", r: -6, x: 38, y: 62 },
-    { t: "Notes from PPT", r: 4, x: 68, y: 48 },
-    { t: "Folder: 2023–24", r: -5, x: 18, y: 78 },
-    { t: "Print: services", r: 8, x: 60, y: 76 },
-  ];
-  return (
-    <div className="absolute inset-0 bg-muted">
-      <div aria-hidden className="absolute inset-0 opacity-60">
-        <GridPaper />
-      </div>
-      {items.map((it, i) => (
-        <div
-          key={i}
-          className="absolute rounded-md border border-border/60 bg-background/90 px-3 py-2 text-xs shadow-md"
-          style={{
-            left: `${it.x}%`,
-            top: `${it.y}%`,
-            transform: `rotate(${it.r}deg)`,
-          }}
-        >
-          <FileText className="mb-1 inline h-3 w-3 text-muted-foreground" /> {it.t}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AfterScene() {
-  return (
-    <div
-      className="absolute inset-0"
-      style={{
-        background:
-          "radial-gradient(60% 50% at 50% 30%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 70%), var(--background)",
-      }}
-    >
-      <div className="grid h-full grid-cols-12 gap-4 p-8">
-        <div className="col-span-4 rounded-2xl border border-border/60 bg-card p-4 shadow-lg">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/15 text-primary">
-              <UserRound className="h-4 w-4" />
-            </div>
-            <div>
-              <div className="text-sm font-medium">Student Snapshot</div>
-              <div className="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
-                Age 17 · CT
-              </div>
-            </div>
-          </div>
-          <MiniBar label="Strengths" pct={88} />
-          <MiniBar label="Interests" pct={72} />
-          <MiniBar label="Supports" pct={65} />
-        </div>
-        <div className="col-span-8 rounded-2xl border border-border/60 bg-card p-4 shadow-lg">
-          <div className="mb-3 flex items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.22em] text-muted-foreground">
-            <Compass className="h-3.5 w-3.5 text-primary" /> Pathway Report
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { l: "Goals", v: "4 active" },
-              { l: "Resources", v: "12 matched" },
-              { l: "Partners", v: "3 nearby" },
-              { l: "Actions", v: "30-day plan" },
-              { l: "Meeting", v: "Apr 12" },
-              { l: "Voice", v: "Recorded" },
-            ].map((c, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-border/60 bg-background p-3 text-xs"
-              >
-                <div className="font-mono text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground">
-                  {c.l}
-                </div>
-                <div className="mt-1 font-display text-sm font-medium">{c.v}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="col-span-12 rounded-2xl border border-border/60 bg-card p-4 shadow-lg">
-          <div className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.22em] text-muted-foreground">
-            Calendar · next milestones
-          </div>
-          <div className="grid grid-cols-5 gap-2">
-            {["IEP Review", "Tour CCC", "Job Shadow", "DDS Intake", "Driver's Ed"].map(
-              (m, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border border-border/60 bg-background px-3 py-2 text-xs"
-                >
-                  <Calendar className="mb-1 h-3 w-3 text-primary" />
-                  {m}
-                </div>
-              ),
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ============================================================ */
-/* PATHWAY REPORT MOCKUP                                          */
-/* ============================================================ */
-
-const REPORT_SECTIONS = [
-  { label: "Student Snapshot", icon: UserRound, note: "Strengths, interests, support style." },
-  { label: "Student Voice", icon: HandHeart, note: "What the student wants from adult life." },
-  { label: "Transition Goals", icon: Target, note: "Plain-language goals, by domain." },
-  { label: "Readiness Scorecard", icon: ShieldCheck, note: "Where the plan is strong, where it needs work." },
-  { label: "Recommended Resources", icon: BookOpen, note: "CT-specific, vetted, filtered." },
-  { label: "Partner Matches", icon: Network, note: "Local programs that fit the goals." },
-  { label: "30-Day Action Plan", icon: CheckCircle2, note: "Who does what, by when." },
-  { label: "Meeting Prep Questions", icon: Megaphone, note: "Questions families can bring to the PPT." },
-];
-
-function PathwayReportMockup() {
-  return (
-    <section className="relative overflow-hidden border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="05" label="The Pathway Report" />
-      <div className="grid items-start gap-16 lg:grid-cols-[1fr_1.2fr]">
-        <div className="lg:sticky lg:top-32">
-          <h2 className="font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-            <Kinetic text="One report." />
-            <br />
-            <span className="italic text-muted-foreground">
-              <Kinetic text="One shared page." delay={0.1} />
-            </span>
-          </h2>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
-            The Pathway Report turns a stack of IEP documents into something
-            every adult in the room — and the student — can read in five
-            minutes.
-          </p>
-          <Button asChild className="mt-8" size="lg">
-            <Link to="/platform">
-              See the platform
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div
-            aria-hidden
-            className="absolute -inset-8 -z-10 rounded-3xl opacity-60 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(50% 50% at 50% 30%, color-mix(in oklab, var(--primary) 25%, transparent), transparent 70%)",
-            }}
-          />
-          <div className="rounded-3xl border border-border/60 bg-card/90 p-6 shadow-2xl backdrop-blur sm:p-8">
-            <div className="mb-6 flex items-center justify-between border-b border-border/60 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/15 text-primary">
-                  <Compass className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="font-display text-base font-medium">Pathway Report</div>
-                  <div className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground">
-                    Draft · Auto-updated
-                  </div>
-                </div>
-              </div>
-              <div className="hidden font-mono text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground sm:block">
-                v 1.2 · CT
-              </div>
-            </div>
-            <ol className="space-y-3">
-              {REPORT_SECTIONS.map((s, i) => {
-                const Icon = s.icon;
-                return (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -16 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-10% 0px" }}
-                    transition={{ duration: 0.6, delay: i * 0.08 }}
-                    className="group flex items-start gap-4 rounded-xl border border-border/40 bg-background/60 p-4 transition-colors hover:border-primary/40"
-                  >
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-muted text-primary group-hover:bg-primary/15">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="font-display text-sm font-medium">{s.label}</div>
-                        <span className="font-mono text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground">
-                          0{i + 1}
-                        </span>
-                      </div>
-                      <div className="mt-1 text-sm text-muted-foreground">{s.note}</div>
-                    </div>
-                  </motion.li>
-                );
-              })}
-            </ol>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================ */
-/* CONNECTICUT OPPORTUNITY MAP                                    */
-/* ============================================================ */
-
-const CT_PINS = [
-  { x: 22, y: 60, label: "Workforce", cat: "Employment" },
-  { x: 36, y: 48, label: "Adult Services", cat: "Services" },
-  { x: 48, y: 62, label: "Community College", cat: "Education" },
-  { x: 58, y: 38, label: "Training", cat: "Programs" },
-  { x: 70, y: 55, label: "Partner Org", cat: "Partner" },
-  { x: 82, y: 42, label: "Family Advocacy", cat: "Family" },
-  { x: 30, y: 30, label: "Independent Living", cat: "Living" },
-  { x: 64, y: 70, label: "Internship", cat: "Employment" },
-];
-
-function CTMap() {
-  const [active, setActive] = useState<number | null>(null);
-  return (
-    <section className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="06" label="Connecticut Ecosystem" />
-      <div className="mb-12 grid items-end gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <h2 className="font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-          <Kinetic text="Connecting planning" />
-          <br />
-          <span className="italic text-muted-foreground">
-            <Kinetic text="to real CT opportunity." delay={0.1} />
-          </span>
-        </h2>
-        <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Every pin is a real Connecticut program, partner, or service that
-          maps to a goal in the student's plan.
-        </p>
-      </div>
-
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-border/60 bg-card/60 backdrop-blur">
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(60% 60% at 50% 50%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 70%)",
-          }}
-        />
-        {/* stylized CT silhouette */}
-        <svg
-          viewBox="0 0 100 60"
-          className="absolute inset-0 h-full w-full"
-          preserveAspectRatio="none"
-          aria-hidden
-        >
-          <motion.path
-            d="M 10 18 L 90 12 L 92 38 L 78 44 L 70 50 L 60 46 L 50 52 L 38 50 L 28 54 L 18 50 L 12 44 Z"
-            className="fill-muted stroke-border"
-            strokeWidth="0.3"
-            initial={{ pathLength: 0, opacity: 0 }}
-            whileInView={{ pathLength: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 2 }}
-          />
-        </svg>
-
-        {CT_PINS.map((p, i) => (
-          <button
-            key={i}
-            onMouseEnter={() => setActive(i)}
-            onMouseLeave={() => setActive(null)}
-            onFocus={() => setActive(i)}
-            onBlur={() => setActive(null)}
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
-          >
-            <span className="relative grid h-4 w-4 place-items-center">
-              <span className="absolute inset-0 animate-ping rounded-full bg-primary/40" />
-              <span className="relative grid h-3 w-3 place-items-center rounded-full bg-primary shadow-lg shadow-primary/40" />
-            </span>
-            <AnimatePresence>
-              {active === i && (
-                <motion.span
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className="absolute left-1/2 top-4 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg border border-border bg-background px-3 py-1.5 text-left text-xs shadow-xl"
-                >
-                  <span className="block font-display font-medium">{p.label}</span>
-                  <span className="block font-mono text-[0.55rem] uppercase tracking-[0.22em] text-muted-foreground">
-                    {p.cat}
-                  </span>
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6 flex flex-wrap gap-2 font-mono text-[0.65rem] uppercase tracking-[0.22em] text-muted-foreground">
-        {["Employment", "Services", "Education", "Programs", "Partner", "Family", "Living"].map(
-          (c) => (
-            <span key={c} className="rounded-full border border-border bg-card px-3 py-1">
-              {c}
-            </span>
-          ),
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================ */
-/* VALUES — constellation                                         */
-/* ============================================================ */
-
-const VALUES = [
-  { word: "Student Voice", detail: "The student speaks first. Every plan starts there.", icon: HandHeart },
-  { word: "Clarity", detail: "Plain language. Real next steps. No jargon walls.", icon: Sparkles },
-  { word: "Equity", detail: "Built so every CT family — not just the loudest — gets a real plan.", icon: ShieldCheck },
-  { word: "Action", detail: "Every screen ends in something to do, not something to read.", icon: Target },
-  { word: "Collaboration", detail: "Family, educator, partner — same page, same plan.", icon: Users },
-  { word: "Dignity", detail: "Students are people, not paperwork. The product never forgets it.", icon: Heart },
-];
-
-function Values() {
-  const [active, setActive] = useState<number | null>(null);
-  return (
-    <section id="values" className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="07" label="Our Values" />
-      <h2 className="mb-16 max-w-4xl font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-        <Kinetic text="What we stand on." />
-      </h2>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {VALUES.map((v, i) => {
-          const Icon = v.icon;
-          const isActive = active === i;
-          return (
-            <motion.li
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10% 0px" }}
-              transition={{ duration: 0.7, delay: i * 0.06 }}
-              onMouseEnter={() => setActive(i)}
-              onMouseLeave={() => setActive(null)}
-            >
-              <TiltCard className="group relative h-full overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-6 backdrop-blur transition-colors hover:border-primary/40">
-                <div
-                  aria-hidden
-                  className="absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
-                  style={{
-                    background:
-                      "radial-gradient(circle, color-mix(in oklab, var(--primary) 35%, transparent), transparent 65%)",
-                  }}
-                />
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/12 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <span className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground tabular-nums">
-                    0{i + 1}
-                  </span>
-                </div>
-                <h3
-                  className={cn(
-                    "font-display text-2xl font-medium leading-tight transition-all duration-500",
-                    isActive ? "italic" : "",
-                  )}
-                >
-                  {v.word}.
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  {v.detail}
-                </p>
-              </TiltCard>
-            </motion.li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-/* ============================================================ */
-/* ROLES — interactive tabs                                       */
-/* ============================================================ */
-
-const ROLES = [
-  {
-    key: "Student",
-    icon: GraduationCap,
-    pain: "My plan is about me but never feels like mine.",
-    win: "A voice tool that records what I want, in my words.",
-    features: ["Student voice", "My pathway", "My calendar"],
-  },
-  {
-    key: "Family",
-    icon: Heart,
-    pain: "I leave PPT meetings more confused than when I arrived.",
-    win: "A plain-language report that travels home with us.",
-    features: ["Pathway Report", "Meeting prep", "Resources"],
-  },
-  {
-    key: "Educator",
-    icon: UserRound,
-    pain: "I lose hours to paperwork I'd rather spend with students.",
-    win: "One profile, one report — generated, not retyped.",
-    features: ["Profile sync", "Goals editor", "Auto-report"],
-  },
-  {
-    key: "School",
-    icon: School,
-    pain: "I can't see who's on track and who's about to fall through.",
-    win: "Building-level readiness, surfaced without spreadsheets.",
-    features: ["Readiness view", "Caseload health", "Alerts"],
-  },
-  {
-    key: "District",
-    icon: Building2,
-    pain: "Outcomes data lives in places nobody opens.",
-    win: "District-level transition outcomes, in one dashboard.",
-    features: ["Outcomes", "Equity gaps", "Reports"],
-  },
-  {
-    key: "Partner",
-    icon: Network,
-    pain: "Programs are full of seats students never hear about.",
-    win: "Targeted matches based on real student goals.",
-    features: ["Partner directory", "Match feed", "Opportunities"],
-  },
-];
-
-function Roles() {
-  const [active, setActive] = useState(0);
-  const r = ROLES[active]!;
-  const Icon = r.icon;
-  return (
-    <section className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="08" label="Built for Everyone Around the Student" />
-      <h2 className="mb-12 max-w-4xl font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-        <Kinetic text="Six chairs," />{" "}
-        <span className="italic text-muted-foreground">
-          <Kinetic text="one table." delay={0.1} />
-        </span>
-      </h2>
-
-      <div className="grid gap-10 lg:grid-cols-[280px_1fr]">
-        <ul className="flex flex-wrap gap-2 lg:flex-col">
-          {ROLES.map((role, i) => {
-            const RI = role.icon;
-            const isActive = i === active;
-            return (
-              <li key={role.key}>
-                <button
-                  onClick={() => setActive(i)}
-                  className={cn(
-                    "group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all",
-                    isActive
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border/60 bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground",
-                  )}
-                >
-                  <RI className="h-4 w-4" />
-                  <span className="font-display text-sm font-medium">{role.key}</span>
-                  {isActive && <ArrowRight className="ml-auto h-4 w-4 text-primary" />}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={r.key}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
-            className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 p-8 backdrop-blur sm:p-12"
-          >
-            <div
-              aria-hidden
-              className="absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(circle, color-mix(in oklab, var(--primary) 40%, transparent), transparent 65%)",
-              }}
-            />
-            <div className="mb-6 flex items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/15 text-primary">
-                <Icon className="h-6 w-6" />
-              </div>
-              <div className="font-mono text-[0.65rem] uppercase tracking-[0.28em] text-muted-foreground">
-                For {r.key}
-              </div>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2">
-              <div>
-                <div className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground">
-                  The Pain
-                </div>
-                <p className="mt-2 font-display text-2xl font-medium leading-tight text-muted-foreground">
-                  "{r.pain}"
-                </p>
-              </div>
-              <div>
-                <div className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-primary">
-                  The Forward
-                </div>
-                <p className="mt-2 font-display text-2xl font-medium leading-tight">
-                  {r.win}
-                </p>
-              </div>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {r.features.map((f) => (
-                <span
-                  key={f}
-                  className="rounded-full border border-border bg-background px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.22em]"
-                >
-                  {f}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================ */
-/* FOUNDER STORY CARDS                                            */
-/* ============================================================ */
-
-const FOUNDER_CARDS = [
-  { tag: "Strategy", body: "My MBA gave me systems, operations, data, and user experience.", icon: Briefcase },
-  { tag: "Service", body: "My MAT grounded that thinking in classrooms, students, and families.", icon: GraduationCap },
-  { tag: "Special Education", body: "Student teaching showed me where families and educators need support most.", icon: BookOpen },
-  { tag: "Student Voice", body: "Every plan should start with the student. The product enforces it.", icon: HandHeart },
-  { tag: "Family Clarity", body: "Plain-language reports families can actually use in the meeting.", icon: Heart },
-  { tag: "Systems Change", body: "Better tools for educators, real outcomes for students, real data for districts.", icon: Network },
-];
-
-function FounderCards() {
-  return (
-    <section className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
-      <SectionLabel index="09" label="Why This Founder, Why Now" />
-      <h2 className="mb-16 max-w-4xl font-display text-[clamp(2.25rem,5.5vw,4.5rem)] font-medium leading-[0.98] tracking-tight">
-        <Kinetic text="Strategy," />{" "}
-        <Kinetic text="service," delay={0.1} />{" "}
-        <span className="italic text-muted-foreground">
-          <Kinetic text="students." delay={0.2} />
-        </span>
-      </h2>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {FOUNDER_CARDS.map((c, i) => {
-          const Icon = c.icon;
-          return (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10% 0px" }}
-              transition={{ duration: 0.7, delay: i * 0.06 }}
-            >
-              <TiltCard className="h-full rounded-2xl border border-border/60 bg-card/60 p-6 backdrop-blur">
-                <Icon className="h-5 w-5 text-primary" />
-                <div className="mt-4 font-mono text-[0.6rem] uppercase tracking-[0.24em] text-muted-foreground">
-                  {c.tag}
-                </div>
-                <p className="mt-2 font-display text-lg font-medium leading-snug">
-                  {c.body}
-                </p>
-              </TiltCard>
-            </motion.div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================ */
-/* FINAL CTA scene                                                */
-/* ============================================================ */
-
-function Closing() {
-  const ref = useRef<HTMLElement | null>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [60, -60]);
-
-  return (
-    <section
-      ref={ref}
-      className="relative isolate overflow-hidden border-t border-border/60 px-6 py-40 sm:px-12 lg:px-24"
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10"
+        className="absolute inset-0 opacity-20"
         style={{
-          background:
-            "radial-gradient(60% 60% at 50% 30%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)",
+          backgroundImage: `url(${frameworkImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          mixBlendMode: "overlay",
         }}
       />
-      <motion.div aria-hidden style={{ y }} className="absolute inset-0 -z-10">
-        <GridPaper />
-      </motion.div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-amber-500/20" />
 
-      {/* floating product cards orbiting CTA */}
-      <div className="relative mx-auto max-w-5xl">
-        <SectionLabel index="10" label="The Invitation" />
-        <h2 className="max-w-4xl font-display text-[clamp(2.5rem,7vw,6rem)] font-medium leading-[0.95] tracking-tight">
-          <Kinetic text="Help build the" />
-          <br />
-          <span className="italic text-muted-foreground">
-            <Kinetic text="future of transition planning." delay={0.1} />
-          </span>
-        </h2>
-        <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          A clearer bridge between students, families, educators, schools,
-          districts, and real-world Connecticut opportunity.
-        </p>
+      <div className="container relative mx-auto px-6">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-white/80 backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+            The Flow
+          </div>
+          <h2 className="mt-4 font-display text-3xl font-black sm:text-4xl md:text-5xl">
+            From Paperwork to Possibility
+          </h2>
+          <p className="mt-4 text-white/70">
+            Every student moves through the same five steps — clearer, faster,
+            together.
+          </p>
+        </Reveal>
 
-        <div className="mt-12 flex flex-wrap items-center gap-3">
-          <Button asChild size="lg">
-            <Link to="/waitlist">
-              Join the waitlist
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/platform">Explore the platform</Link>
-          </Button>
-          <Button asChild variant="ghost" size="lg">
-            <Link to="/partners">
-              Partner with us
-              <ArrowUpRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" size="lg">
-            <Link to="/contact">Contact</Link>
-          </Button>
-        </div>
-
-        {/* floating product chips */}
-        <div className="mt-20 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {[
-            { l: "Pathway Report", i: Compass },
-            { l: "Student Voice", i: HandHeart },
-            { l: "Resources", i: BookOpen },
-            { l: "Partners", i: Network },
-            { l: "Actions", i: CheckCircle2 },
-            { l: "Calendar", i: Calendar },
-          ].map((c, i) => {
-            const I = c.i;
+        <div className="relative mt-14 grid gap-4 md:grid-cols-5">
+          {FLOW.map((step, i) => {
+            const Icon = step.icon;
             return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.05 }}
-                animate={{ y: [0, -6, 0] }}
-                style={{
-                  animationDelay: `${i * 0.3}s`,
-                }}
-              >
-                <motion.div
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{
-                    duration: 4 + i * 0.3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card/80 px-4 py-3 backdrop-blur"
-                >
-                  <I className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">{c.l}</span>
-                </motion.div>
-              </motion.div>
+              <Reveal key={step.label} delay={i * 0.1}>
+                <div className="group relative">
+                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-amber-400/40 hover:bg-white/10">
+                    <div className="absolute right-3 top-3 text-xs font-bold text-white/30">
+                      0{i + 1}
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-500 shadow-lg">
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="mt-4 text-lg font-bold">{step.label}</div>
+                    <div className="mt-1 text-xs text-white/60">
+                      {
+                        [
+                          "Upload the IEP and meet the student.",
+                          "Translate documents into plain language.",
+                          "Generate the personalized pathway.",
+                          "Action items, partners, meeting prep.",
+                          "College, career, independent life.",
+                        ][i]
+                      }
+                    </div>
+                  </div>
+                  {i < FLOW.length - 1 && (
+                    <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 md:block">
+                      <ArrowRight className="h-5 w-5 text-amber-400/60" />
+                    </div>
+                  )}
+                </div>
+              </Reveal>
             );
           })}
         </div>
@@ -1668,62 +618,422 @@ function Closing() {
   );
 }
 
-/* ============================================================ */
-/* Progress rail                                                  */
-/* ============================================================ */
+/* -------------------------------------------------------------------------- */
+/*  AUDIENCES                                                                  */
+/* -------------------------------------------------------------------------- */
 
-function ProgressRail() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
+const AUDIENCES = [
+  {
+    key: "students",
+    label: "Students",
+    icon: GraduationCap,
+    image: studentImg,
+    blurb: "Understand your goals, voice, supports, and next steps.",
+  },
+  {
+    key: "families",
+    label: "Families",
+    icon: Heart,
+    image: familyImg,
+    blurb: "Prepare for meetings, decode documents, and support follow-through.",
+  },
+  {
+    key: "educators",
+    label: "Educators",
+    icon: Users,
+    image: classroomImg,
+    blurb: "Organize planning, reports, resources, and action items in one place.",
+  },
+  {
+    key: "schools",
+    label: "Schools",
+    icon: School,
+    image: dashboardImg,
+    blurb: "See transition planning progress and support your teams.",
+  },
+  {
+    key: "districts",
+    label: "Districts",
+    icon: Building2,
+    image: platformImg,
+    blurb: "Track implementation, readiness trends, and resource engagement.",
+  },
+  {
+    key: "partners",
+    label: "Partners",
+    icon: Network,
+    image: partnersImg,
+    blurb: "Connect real programs, services, and opportunities to students.",
+  },
+  {
+    key: "funders",
+    label: "Funders",
+    icon: HandHeart,
+    image: resourcesImg,
+    blurb: "Support a scalable, mission-driven transition planning platform.",
+  },
+];
+
+function Audiences() {
+  const [active, setActive] = useState(AUDIENCES[0].key);
+  const current = AUDIENCES.find((a) => a.key === active) ?? AUDIENCES[0];
+  const Icon = current.icon;
+
   return (
-    <motion.div
-      style={{ scaleX, transformOrigin: "0% 50%" }}
-      className="fixed left-0 right-0 top-0 z-40 h-[2px] bg-primary"
-      aria-hidden
-    />
+    <section className="relative overflow-hidden py-20 md:py-28">
+      <div className="container mx-auto px-6">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>Built for Everyone Around the Student</SectionEyebrow>
+          <h2 className="mt-4 font-display text-3xl font-black sm:text-4xl md:text-5xl">
+            One platform. Seven points of view.
+          </h2>
+        </Reveal>
+
+        <div className="mt-12 grid gap-6 lg:grid-cols-[280px_1fr]">
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2 lg:flex-col">
+            {AUDIENCES.map((a) => {
+              const I = a.icon;
+              const isActive = a.key === active;
+              return (
+                <button
+                  key={a.key}
+                  onClick={() => setActive(a.key)}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition",
+                    isActive
+                      ? "border-primary bg-primary text-primary-foreground shadow-md"
+                      : "border-border bg-card hover:border-primary/40 hover:bg-card/80",
+                  )}
+                >
+                  <I className="h-4 w-4 shrink-0" />
+                  <span>{a.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active panel */}
+          <motion.div
+            key={current.key}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-lg"
+          >
+            <div className="grid md:grid-cols-2">
+              <div className="relative aspect-[4/3] md:aspect-auto">
+                <img
+                  src={current.image}
+                  alt={current.label}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/40" />
+              </div>
+              <div className="flex flex-col justify-center p-8 md:p-10">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-amber-500/10">
+                  <Icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mt-5 font-display text-2xl font-black sm:text-3xl">
+                  For {current.label}
+                </h3>
+                <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+                  {current.blurb}
+                </p>
+                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                  Learn more <ArrowRight className="h-4 w-4" />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
   );
 }
 
-/* ============================================================ */
-/* Page                                                           */
-/* ============================================================ */
+/* -------------------------------------------------------------------------- */
+/*  MISSION + VALUES                                                           */
+/* -------------------------------------------------------------------------- */
+
+const VALUES = [
+  { icon: HandHeart, label: "Student Voice", desc: "Students at the center, always." },
+  { icon: Lightbulb, label: "Clarity", desc: "Plain language over paperwork jargon." },
+  { icon: ShieldCheck, label: "Equity", desc: "Every student gets a real plan." },
+  { icon: Target, label: "Action", desc: "Insights that turn into next steps." },
+  { icon: Users, label: "Collaboration", desc: "Families, teams, partners aligned." },
+  { icon: Sparkles, label: "Dignity", desc: "Respect woven into every interaction." },
+];
+
+function MissionValues() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-b from-background via-primary/5 to-background py-20 md:py-28">
+      <div className="container mx-auto px-6">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+          <Reveal>
+            <SectionEyebrow>Mission</SectionEyebrow>
+            <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
+              Turn transition planning into a{" "}
+              <span className="text-primary">clear, personalized pathway.</span>
+            </h2>
+            <div className="mt-6 rounded-2xl border-l-4 border-primary bg-card/60 p-5 backdrop-blur">
+              <Quote className="h-5 w-5 text-primary" />
+              <p className="mt-2 text-base leading-relaxed text-muted-foreground">
+                Transition Forward helps students receiving special education
+                services, families, educators, and school teams turn transition
+                planning into a clear, personalized, and actionable pathway.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <SectionEyebrow>Values</SectionEyebrow>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {VALUES.map((v) => {
+                const Icon = v.icon;
+                return (
+                  <div
+                    key={v.label}
+                    className="group rounded-2xl border border-border/60 bg-card p-4 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-amber-500/10">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="mt-3 text-sm font-bold">{v.label}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {v.desc}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  PRODUCT PREVIEW                                                            */
+/* -------------------------------------------------------------------------- */
+
+const PRODUCTS = [
+  { label: "Pathway Report", icon: Compass, image: pathwayImg },
+  { label: "Student Profile", icon: UserRound, image: studentImg },
+  { label: "IEP Upload", icon: FileText, image: paperworkImg },
+  { label: "Resource Library", icon: BookOpen, image: resourcesImg },
+  { label: "Partner Network", icon: Network, image: partnersImg },
+  { label: "Calendar", icon: Calendar, image: classroomImg },
+  { label: "Action Items", icon: CheckCircle2, image: dashboardImg },
+  { label: "Meeting Prep", icon: Layers, image: familyImg },
+];
+
+function ProductPreview() {
+  return (
+    <section className="relative overflow-hidden py-20 md:py-28">
+      <div className="container mx-auto px-6">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>What's Inside</SectionEyebrow>
+          <h2 className="mt-4 font-display text-3xl font-black sm:text-4xl md:text-5xl">
+            Everything the team needs, in one place.
+          </h2>
+        </Reveal>
+
+        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          {PRODUCTS.map((p, i) => {
+            const Icon = p.icon;
+            return (
+              <Reveal key={p.label} delay={i * 0.05}>
+                <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                  <img
+                    src={p.image}
+                    alt={p.label}
+                    className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur">
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="mt-3 text-sm font-bold text-white">
+                      {p.label}
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  CT OPPORTUNITY                                                             */
+/* -------------------------------------------------------------------------- */
+
+const CT_PINS = [
+  { name: "Workforce Programs", icon: Briefcase, top: "32%", left: "28%" },
+  { name: "Adult Services", icon: HandHeart, top: "48%", left: "55%" },
+  { name: "Training Pathways", icon: GraduationCap, top: "62%", left: "38%" },
+  { name: "Community Supports", icon: Heart, top: "40%", left: "72%" },
+  { name: "Schools & Districts", icon: School, top: "70%", left: "60%" },
+];
+
+function CTOpportunity() {
+  return (
+    <section className="relative overflow-hidden py-20 md:py-28">
+      <div className="container mx-auto px-6">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <Reveal>
+            <SectionEyebrow>Connecticut First</SectionEyebrow>
+            <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
+              Rooted in Connecticut.
+              <br />
+              <span className="text-primary">Built to scale.</span>
+            </h2>
+            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+              We start where we know the families, the schools, and the
+              programs. Every pathway connects to real Connecticut workforce
+              programs, adult services, training, and community supports.
+            </p>
+            <ul className="mt-6 grid grid-cols-2 gap-3">
+              {CT_PINS.map((p) => {
+                const I = p.icon;
+                return (
+                  <li
+                    key={p.name}
+                    className="flex items-center gap-2.5 rounded-xl border border-border/60 bg-card px-3 py-2.5 text-sm font-medium"
+                  >
+                    <I className="h-4 w-4 text-primary" />
+                    {p.name}
+                  </li>
+                );
+              })}
+            </ul>
+          </Reveal>
+
+          <Reveal delay={0.15}>
+            <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] border border-border/60 shadow-xl">
+              <img
+                src={ctMapImg}
+                alt="Connecticut opportunity map"
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-amber-500/20" />
+              <div className="absolute inset-0 bg-background/40" />
+              {/* Pins */}
+              {CT_PINS.map((p, i) => (
+                <motion.div
+                  key={p.name}
+                  initial={{ scale: 0, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.12, type: "spring" }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  style={{ top: p.top, left: p.left }}
+                >
+                  <div className="relative">
+                    <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-primary/50" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-border/60 bg-background/90 px-4 py-3 backdrop-blur">
+                <div className="text-xs font-bold uppercase tracking-widest text-primary">
+                  Connecticut
+                </div>
+                <div className="text-sm font-semibold">
+                  Workforce · Schools · Services · Community
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  CTA                                                                        */
+/* -------------------------------------------------------------------------- */
+
+function FinalCTA() {
+  return (
+    <section className="relative isolate overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <img
+          src={ctaImg}
+          alt=""
+          className="h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-900/80 to-primary/60" />
+      </div>
+
+      <div className="container mx-auto px-6 py-24 text-white md:py-32">
+        <div className="mx-auto max-w-3xl text-center">
+          <Reveal>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-white/90 backdrop-blur">
+              <Sparkles className="h-3 w-3 text-amber-300" />
+              The Bridge Forward
+            </div>
+            <h2 className="mt-5 font-display text-4xl font-black leading-tight sm:text-5xl md:text-6xl">
+              Help Build the Future of <br />
+              <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300 bg-clip-text text-transparent">
+                Transition Planning.
+              </span>
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-base text-white/80 sm:text-lg">
+              Join Transition Forward as we build a clearer bridge between
+              students, families, educators, schools, districts, and real-world
+              opportunities.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="bg-white text-slate-900 hover:bg-white/90">
+                <Link to="/waitlist">Join the Waitlist</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/10 text-white backdrop-blur hover:bg-white/20 hover:text-white">
+                <Link to="/platform">Explore the Platform</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/10 text-white backdrop-blur hover:bg-white/20 hover:text-white">
+                <Link to="/partners">Partner With Us</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/10 text-white backdrop-blur hover:bg-white/20 hover:text-white">
+                <Link to="/contact">Contact Us</Link>
+              </Button>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  PAGE                                                                       */
+/* -------------------------------------------------------------------------- */
 
 function AboutPage() {
-  // Ensure top-of-page on mount
-  useEffect(() => {
-    if (typeof window !== "undefined" && !window.location.hash) {
-      window.scrollTo(0, 0);
-    }
-  }, []);
-
   return (
     <SiteShell>
-      <ProgressRail />
-      <main className="bg-background text-foreground">
-        <Hero />
-        <QuoteBreak
-          text="Students deserve more than paperwork. They deserve a clear path forward."
-          variant="cool"
-        />
-        <FounderJourney />
-        <PaperworkToPossibility />
-        <QuoteBreak
-          text="Transition planning shouldn't just document a future. It should help build one."
-          variant="warm"
-        />
-        <Ecosystem />
-        <BeforeAfter />
-        <PathwayReportMockup />
-        <CTMap />
-        <Values />
-        <Roles />
-        <FounderCards />
-        <QuoteBreak
-          text="Built from the classroom, from the meeting table, and from the belief that every student deserves to be seen."
-          attribution="Transition Forward CT"
-        />
-        <Closing />
-      </main>
+      <Hero />
+      <FounderStory />
+      <Timeline />
+      <ProblemSolution />
+      <PaperworkToPossibility />
+      <Audiences />
+      <MissionValues />
+      <ProductPreview />
+      <CTOpportunity />
+      <FinalCTA />
     </SiteShell>
   );
 }
