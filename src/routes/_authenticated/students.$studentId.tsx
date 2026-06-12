@@ -372,6 +372,8 @@ function StudentDetailPage() {
         <div className="mt-6">
           <CollaboratorsPanel studentId={studentId} />
         </div>
+
+        <AuditTrailPanel studentId={studentId} />
       </section>
     </SiteShell>
   );
