@@ -38,7 +38,7 @@ test("marketing nav is only visible at >=xl (1280px) so user controls have room"
   // <nav className="hidden ... xl:flex">
   assert.match(
     SRC,
-    /<nav\s+className="[^"]*\bhidden\b[^"]*\bxl:flex\b[^"]*"/,
+    /<nav\b[^>]*className="[^"]*\bhidden\b[^"]*\bxl:flex\b[^"]*"/,
     "marketing <nav> must use `hidden xl:flex` to keep room for the user " +
       "controls (bell, dashboard, more, sign out) on lg screens",
   );
@@ -69,7 +69,7 @@ test("nav breakpoint (xl) is >= user-controls breakpoint (lg) — no overlap win
   // render together on narrow desktops and overlap. Encode the invariant.
   const BREAKPOINTS = { sm: 640, md: 768, lg: 1024, xl: 1280, "2xl": 1536 };
   const navBp = SRC.match(
-    /<nav\s+className="[^"]*\b(sm|md|lg|xl|2xl):flex\b/,
+    /<nav\b[^>]*className="[^"]*\b(sm|md|lg|xl|2xl):flex\b/,
   )?.[1];
   const ctrlBp = SRC.match(
     /className="hidden[^"]*\b(sm|md|lg|xl|2xl):flex\b[^"]*"[\s\S]{0,200}NotificationsBell/,
