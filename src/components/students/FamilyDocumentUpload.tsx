@@ -178,6 +178,10 @@ export function FamilyDocumentUpload({
           school_year: schoolYear.trim() || undefined,
           meeting_date: meetingDate || undefined,
           review_date: reviewDate || undefined,
+          annual_review_date: annualReviewDate || undefined,
+          reevaluation_date: reevaluationDate || undefined,
+          notes: notes.trim() || undefined,
+          source: source.trim() || undefined,
           consent_acknowledged: true,
         },
       });
@@ -186,6 +190,10 @@ export function FamilyDocumentUpload({
       setSchoolYear("");
       setMeetingDate("");
       setReviewDate("");
+      setAnnualReviewDate("");
+      setReevaluationDate("");
+      setNotes("");
+      setSource("");
       setPendingFile(null);
       await onChange();
     } catch (err) {
