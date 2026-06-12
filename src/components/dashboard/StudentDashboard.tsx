@@ -218,6 +218,11 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           <DashboardCalendar studentId={s.id} compact title="Your calendar" />
         </div>
 
+        {/* IEP summary in plain language */}
+        <div className="mt-6">
+          <MyIepSummaryCard studentId={s.id} />
+        </div>
+
 
         {/* Latest report */}
         <section className="mt-6 rounded-3xl border bg-card p-6 shadow-soft">
