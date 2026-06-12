@@ -463,7 +463,7 @@ export function SiteHeader() {
                       </summary>
                       <div className="ml-2 mt-0.5 flex flex-col gap-0.5 border-l border-border/60 pl-2">
                         {group.items.map((item) => (
-                          <Link
+                          <SmartLink
                             key={item.to}
                             to={item.to}
                             onClick={() => setOpen(false)}
@@ -471,7 +471,7 @@ export function SiteHeader() {
                             activeProps={{ className: "text-foreground bg-muted" }}
                           >
                             {item.label}
-                          </Link>
+                          </SmartLink>
                         ))}
                       </div>
                     </details>
