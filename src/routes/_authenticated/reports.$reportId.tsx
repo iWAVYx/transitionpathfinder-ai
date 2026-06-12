@@ -20,6 +20,7 @@ import { z } from "zod";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
+import { ReportVersionsPanel } from "@/components/pathway/ReportVersionsPanel";
 import { Button } from "@/components/ui/button";
 import {
   getReport,
