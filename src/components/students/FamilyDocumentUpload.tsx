@@ -123,6 +123,10 @@ type Props = {
   onChange: () => void | Promise<void>;
   /** Optional row-level actions (download, extract, delete) rendered by parent. */
   renderRowActions?: (doc: DocumentRow) => React.ReactNode;
+  /** When false, the upload form is hidden and a view-only banner is shown.
+   *  Default true preserves existing call sites; the student profile passes
+   *  the real value from `canEditStudent`. */
+  canEdit?: boolean;
 };
 
 export function FamilyDocumentUpload({
@@ -131,6 +135,7 @@ export function FamilyDocumentUpload({
   docs,
   onChange,
   renderRowActions,
+  canEdit = true,
 }: Props) {
   const register = useServerFn(registerDocument);
   const fileRef = useRef<HTMLInputElement>(null);
