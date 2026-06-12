@@ -31,6 +31,7 @@ import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
 import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
 import { RightsStatusCard } from "@/components/students/RightsStatusCard";
 import { CtTransitionPrompts } from "@/components/students/CtTransitionPrompts";
+import { AuditTrailPanel } from "@/components/students/AuditTrailPanel";
 import { getStudent, listGoals, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
