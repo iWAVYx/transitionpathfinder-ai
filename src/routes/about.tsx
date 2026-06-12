@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import {
   ArrowRight,
