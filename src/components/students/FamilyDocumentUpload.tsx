@@ -564,7 +564,7 @@ export function StandardDocActions({
   parsing?: string | null;
   onExtract: (doc: DocumentRow) => void;
   onDownload: (doc: DocumentRow) => void;
-  onDelete: (doc: DocumentRow) => void;
+  onDelete?: (doc: DocumentRow) => void;
 }) {
   const [permsOpen, setPermsOpen] = useState(false);
   return (
