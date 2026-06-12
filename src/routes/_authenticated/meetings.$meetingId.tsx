@@ -32,6 +32,7 @@ function MeetingDetailPage() {
   const { meetingId } = Route.useParams();
   const get = useServerFn(getMeeting);
   const update = useServerFn(updateMeeting);
+  const complete = useServerFn(completeMeeting);
   const addAg = useServerFn(addAgendaItem);
   const addQ = useServerFn(addQuestion);
   const addAction = useServerFn(addActionItem);
