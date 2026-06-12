@@ -291,9 +291,9 @@ function FounderStory() {
           <Reveal delay={0.1}>
             <SectionEyebrow>Why I Built This</SectionEyebrow>
             <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
-              A Black Connecticut educator <br />
-              <span className="text-primary">building a bridge</span> for every
-              student.
+              A Black Connecticut Educator <br />
+              <span className="text-primary">Building a Bridge</span> for Every
+              Student.
             </h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
