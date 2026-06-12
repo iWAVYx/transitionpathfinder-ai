@@ -27,6 +27,7 @@ import {
   type PptAgenda,
   type PptPrepSummary,
 } from "@/lib/ppt.functions";
+import { createStudentActionItem } from "@/lib/action-items.functions";
 import { MeetingPrepPartners } from "@/components/pathway/MeetingPrepPartners";
 
 import { toTitleCase } from "@/lib/title-case";
