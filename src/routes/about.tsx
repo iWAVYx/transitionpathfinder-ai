@@ -480,7 +480,7 @@ function ProblemSolution() {
               </div>
               <div className="p-7">
                 <h3 className="font-display text-2xl font-black sm:text-3xl">
-                  Paperwork without a path
+                  Paperwork Without a Path
                 </h3>
                 <ul className="mt-5 space-y-3">
                   {PROBLEMS.map((p) => (
@@ -511,7 +511,7 @@ function ProblemSolution() {
               </div>
               <div className="p-7">
                 <h3 className="font-display text-2xl font-black sm:text-3xl">
-                  A platform built for the plan
+                  A Platform Built for the Plan
                 </h3>
                 <div className="mt-5 grid grid-cols-2 gap-2">
                   {SOLUTIONS.map((s) => {
@@ -685,7 +685,7 @@ function Audiences() {
         <Reveal className="mx-auto max-w-2xl text-center">
           <SectionEyebrow>Built for Everyone Around the Student</SectionEyebrow>
           <h2 className="mt-4 font-display text-3xl font-black sm:text-4xl md:text-5xl">
-            One platform. Seven points of view.
+            One Platform. Seven Points of View.
           </h2>
         </Reveal>
 
@@ -773,8 +773,8 @@ function MissionValues() {
           <Reveal>
             <SectionEyebrow>Mission</SectionEyebrow>
             <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
-              Turn transition planning into a{" "}
-              <span className="text-primary">clear, personalized pathway.</span>
+              Turn Transition Planning into a{" "}
+              <span className="text-primary">Clear, Personalized Pathway.</span>
             </h2>
             <div className="mt-6 rounded-2xl border-l-4 border-primary bg-card/60 p-5 backdrop-blur">
               <Quote className="h-5 w-5 text-primary" />
@@ -836,7 +836,7 @@ function ProductPreview() {
         <Reveal className="mx-auto max-w-2xl text-center">
           <SectionEyebrow>What's Inside</SectionEyebrow>
           <h2 className="mt-4 font-display text-3xl font-black sm:text-4xl md:text-5xl">
-            Everything the team needs, in one place.
+            Everything the Team Needs, in One Place.
           </h2>
         </Reveal>
 
@@ -892,7 +892,7 @@ function CTOpportunity() {
             <h2 className="mt-4 font-display text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
               Rooted in Connecticut.
               <br />
-              <span className="text-primary">Built to scale.</span>
+              <span className="text-primary">Built to Scale.</span>
             </h2>
             <p className="mt-6 text-base leading-relaxed text-muted-foreground">
               We start where we know the families, the schools, and the
