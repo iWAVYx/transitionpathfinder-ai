@@ -106,16 +106,17 @@ export const setRightsStatus = createServerFn({ method: "POST" })
     if (insErr) throw new Error(insErr.message);
 
     // 2. Mirror onto students.rights_status (and acknowledged_at when relevant).
-    const studentUpdate: Record<string, unknown> = { rights_status: data.current_status };
-    if (
+    const acknowledged =
       data.current_status === "rights_transferred_to_student" ||
-      data.current_status === "parent_guardian_authorized_by_student"
-    ) {
-      studentUpdate.transfer_notice_acknowledged_at = new Date().toISOString();
-    }
+      data.current_status === "parent_guardian_authorized_by_student";
     const { error: updErr } = await supabase
       .from("students")
-      .update(studentUpdate)
+      .update({
+        rights_status: data.current_status,
+        ...(acknowledged
+          ? { transfer_notice_acknowledged_at: new Date().toISOString() }
+          : {}),
+      })
       .eq("id", data.student_id);
     if (updErr) throw new Error(updErr.message);
 
@@ -125,7 +126,9 @@ export const setRightsStatus = createServerFn({ method: "POST" })
         actor_id: userId,
         student_id: data.student_id,
         action: "rights_status.updated",
-        context: {
+        entity_type: "student",
+        entity_id: data.student_id,
+        metadata: {
           status: data.current_status,
           authorized_parent_access: data.student_authorized_parent_access ?? false,
         },
