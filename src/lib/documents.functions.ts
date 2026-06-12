@@ -32,7 +32,7 @@ export type DocumentPermissionRow = {
   student_id: string;
   user_id: string | null;
   role_type: string | null;
-  permission_level: "none" | "view_summary" | "view_document" | "edit_metadata" | "manage";
+  permission_level: "none" | "view_summary" | "view_student_friendly_summary" | "view_document" | "edit_metadata" | "manage";
   granted_by: string;
   notes: string | null;
   created_at: string;
