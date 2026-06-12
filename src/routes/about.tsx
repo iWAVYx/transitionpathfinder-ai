@@ -5,1024 +5,537 @@ import {
   useScroll,
   useTransform,
   useSpring,
-  useMotionValue,
-  AnimatePresence,
   useReducedMotion,
+  AnimatePresence,
 } from "motion/react";
-import {
-  ArrowRight,
-  Quote,
-  Compass,
-  HeartHandshake,
-  Sparkles,
-  Scale,
-  MessageSquare,
-  ShieldCheck,
-  GraduationCap,
-  School,
-  Building2,
-  Network,
-  FileText,
-  Lightbulb,
-  Route as RouteIcon,
-  CheckCircle2,
-  Sunrise,
-  ChevronRight,
-  BookOpen,
-  Play,
-  PenLine,
-  UserRound,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { photos } from "@/lib/photos";
 import { cn } from "@/lib/utils";
-
-const aboutHero = photos.about;
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — The Founder Story Behind TransitionForward" },
+      { title: "About — Transition Forward CT" },
       {
         name: "description",
         content:
-          "From strategy to Connecticut classrooms — the founder story and the platform built to move every student from paperwork to possibility.",
+          "Why Transition Forward CT exists — a kinetic, typographic story about turning IEP paperwork into possibility for Connecticut families.",
       },
-      { property: "og:title", content: "About — TransitionForward" },
+      { property: "og:title", content: "About — Transition Forward CT" },
       {
         property: "og:description",
         content:
-          "A focused, cinematic founder story and the mission behind TransitionForward.",
+          "A typographic manifesto: why we built Transition Forward CT for Connecticut families and educators.",
       },
-      { property: "og:url", content: "/about" },
-      { property: "og:image", content: aboutHero },
-      { name: "twitter:image", content: aboutHero },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
   }),
   component: AboutPage,
 });
 
-/* ---------------------------------------------------------------- helpers */
+/* ------------------------------------------------------------------ */
+/* Primitives                                                          */
+/* ------------------------------------------------------------------ */
 
-function Reveal({
-  children,
+function useReveal() {
+  const reduced = useReducedMotion();
+  return {
+    initial: reduced ? false : { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-10% 0px" },
+    transition: { duration: 0.8, ease: [0.22, 0.61, 0.36, 1] as const },
+  };
+}
+
+/** Per-word reveal — typography is the hero. */
+function Kinetic({
+  text,
   className,
   delay = 0,
-  y = 24,
+  stagger = 0.06,
 }: {
-  children: React.ReactNode;
+  text: string;
   className?: string;
   delay?: number;
-  y?: number;
+  stagger?: number;
 }) {
+  const reduced = useReducedMotion();
+  const words = text.split(" ");
+  if (reduced) return <span className={className}>{text}</span>;
+  return (
+    <span className={cn("inline-block", className)} aria-label={text}>
+      {words.map((w, i) => (
+        <span key={i} className="inline-block overflow-hidden align-baseline pr-[0.25em]">
+          <motion.span
+            className="inline-block"
+            initial={{ y: "110%" }}
+            whileInView={{ y: "0%" }}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            transition={{
+              duration: 0.9,
+              ease: [0.22, 0.61, 0.36, 1],
+              delay: delay + i * stagger,
+            }}
+          >
+            {w}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function SectionLabel({ index, label }: { index: string; label: string }) {
+  const r = useReveal();
   return (
     <motion.div
-      className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 0.61, 0.36, 1] }}
+      {...r}
+      className="mb-10 flex items-center gap-4 font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground"
     >
-      {children}
+      <span className="tabular-nums">{index}</span>
+      <span className="h-px w-10 bg-foreground/30" />
+      <span>{label}</span>
     </motion.div>
   );
 }
 
-function ReadingRail() {
+/* ------------------------------------------------------------------ */
+/* Hero — kinetic manifesto                                            */
+/* ------------------------------------------------------------------ */
+
+function Hero() {
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.4 });
+  const y = useTransform(scrollYProgress, [0, 0.15], [0, -80]);
+  const opacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+
+  return (
+    <section className="relative flex min-h-[92vh] flex-col justify-center px-6 pb-32 pt-40 sm:px-12 lg:px-24">
+      <motion.div style={{ y, opacity }} className="max-w-6xl">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="mb-12 flex items-center gap-4 font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground"
+        >
+          <span className="tabular-nums">00 / About</span>
+          <span className="h-px w-16 bg-foreground/30" />
+          <span>A Manifesto</span>
+        </motion.div>
+
+        <h1 className="font-display text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.92] tracking-tight">
+          <Kinetic text="Paperwork" />
+          <br />
+          <span className="italic text-muted-foreground">
+            <Kinetic text="becomes" delay={0.15} />
+          </span>{" "}
+          <Kinetic text="possibility." delay={0.3} />
+        </h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.2 }}
+          className="mt-12 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl"
+        >
+          We built Transition Forward CT for the Connecticut families and educators
+          carrying the weight of transition planning — alone, after-hours, and
+          unsure where to start.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.6 }}
+          className="mt-12 flex flex-wrap items-center gap-4"
+        >
+          <Button asChild size="lg">
+            <Link to="/framework">
+              See the framework
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link to="/contact">Talk to us</Link>
+          </Button>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 2 }}
+        className="absolute bottom-10 left-6 right-6 flex items-end justify-between sm:left-12 sm:right-12 lg:left-24 lg:right-24"
+      >
+        <span className="font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">
+          Scroll
+        </span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="h-12 w-px bg-foreground/40"
+        />
+      </motion.div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Marquee — single rotating statement                                 */
+/* ------------------------------------------------------------------ */
+
+function Marquee() {
+  const reduced = useReducedMotion();
+  const phrase = "Built in Connecticut · For Connecticut · ";
+  const row = phrase.repeat(6);
+  return (
+    <section className="overflow-hidden border-y border-border/60 py-10">
+      <motion.div
+        className="whitespace-nowrap font-display text-[clamp(2.5rem,7vw,5.5rem)] font-medium tracking-tight"
+        animate={reduced ? undefined : { x: ["0%", "-50%"] }}
+        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+      >
+        <span className="text-muted-foreground/40">{row}</span>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* The Letter — typographic founder note                                */
+/* ------------------------------------------------------------------ */
+
+function Letter() {
+  const paragraphs = [
+    "I watched families show up to transition meetings exhausted — binders heavy, questions unanswered, the system speaking a language no one had taught them.",
+    "And I watched educators care deeply, then drown in paperwork that ate the time meant for students.",
+    "So we built a quieter way. One plan. One thread. One place where everyone — student, family, teacher, partner — can finally see the same horizon.",
+  ];
+
+  return (
+    <section id="letter" className="px-6 py-32 sm:px-12 lg:px-24">
+      <SectionLabel index="01" label="The Letter" />
+      <div className="grid gap-16 lg:grid-cols-[1fr_2fr]">
+        <motion.div {...useReveal()} className="font-mono text-sm uppercase tracking-[0.2em] text-muted-foreground">
+          From the founder
+        </motion.div>
+        <div className="max-w-3xl space-y-10">
+          {paragraphs.map((p, i) => (
+            <motion.p
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-15% 0px" }}
+              transition={{ duration: 0.9, delay: i * 0.15, ease: [0.22, 0.61, 0.36, 1] }}
+              className="font-display text-[clamp(1.5rem,3vw,2.4rem)] font-normal leading-[1.25] tracking-tight"
+            >
+              {p}
+            </motion.p>
+          ))}
+          <motion.div {...useReveal()} className="pt-6 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            — The team behind Transition Forward CT
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Counter strip — quiet stats                                         */
+/* ------------------------------------------------------------------ */
+
+function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const [n, setN] = useState(0);
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    if (reduced) {
+      setN(to);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          const start = performance.now();
+          const dur = 1600;
+          const tick = (t: number) => {
+            const p = Math.min(1, (t - start) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            setN(Math.round(to * eased));
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [to, reduced]);
+  return (
+    <span ref={ref} className="tabular-nums">
+      {n}
+      {suffix}
+    </span>
+  );
+}
+
+function Stats() {
+  const items = [
+    { n: 169, suffix: "", label: "CT towns served" },
+    { n: 22, suffix: "+", label: "Transition years, ages 14–22" },
+    { n: 1, suffix: "", label: "Plan, one source of truth" },
+  ];
+  return (
+    <section className="border-y border-border/60 px-6 py-20 sm:px-12 lg:px-24">
+      <div className="grid gap-16 sm:grid-cols-3">
+        {items.map((it, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: i * 0.1 }}
+          >
+            <div className="font-display text-[clamp(3rem,8vw,6rem)] font-medium leading-none tracking-tight">
+              <CountUp to={it.n} suffix={it.suffix} />
+            </div>
+            <div className="mt-4 font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
+              {it.label}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Chapters — sticky scroll narrative                                  */
+/* ------------------------------------------------------------------ */
+
+const CHAPTERS = [
+  {
+    n: "I",
+    title: "The Quiet Problem",
+    body: "Transition planning is fragmented across documents, agencies, and meetings. Families translate. Educators duplicate. Students wait.",
+  },
+  {
+    n: "II",
+    title: "The Single Thread",
+    body: "We stitched the timeline together. One plan that travels with the student — from 14 to 22, from school to adulthood.",
+  },
+  {
+    n: "III",
+    title: "The Shared Room",
+    body: "Families, teachers, and partners working from the same page, in plain language, with the student's voice at the center.",
+  },
+  {
+    n: "IV",
+    title: "The Forward Motion",
+    body: "Less paperwork. More possibility. A platform that gives back the hours transition planning was quietly taking.",
+  },
+];
+
+function Chapters() {
+  return (
+    <section id="journey" className="px-6 py-32 sm:px-12 lg:px-24">
+      <SectionLabel index="02" label="The Journey" />
+      <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
+        <div className="lg:sticky lg:top-32 lg:self-start">
+          <h2 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[0.95] tracking-tight">
+            <Kinetic text="Four" />
+            <br />
+            <span className="italic text-muted-foreground">
+              <Kinetic text="movements." delay={0.1} />
+            </span>
+          </h2>
+        </div>
+        <ol className="space-y-24">
+          {CHAPTERS.map((c, i) => (
+            <motion.li
+              key={i}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-15% 0px" }}
+              transition={{ duration: 0.9, ease: [0.22, 0.61, 0.36, 1] }}
+              className="grid grid-cols-[auto_1fr] gap-8 border-t border-border/60 pt-10"
+            >
+              <div className="font-display text-2xl text-muted-foreground tabular-nums">
+                {c.n}
+              </div>
+              <div>
+                <h3 className="font-display text-[clamp(1.75rem,3.5vw,2.75rem)] font-medium leading-tight tracking-tight">
+                  {c.title}
+                </h3>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  {c.body}
+                </p>
+              </div>
+            </motion.li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Values — interactive list                                           */
+/* ------------------------------------------------------------------ */
+
+const VALUES = [
+  { word: "Plain", detail: "We translate the system. No jargon, no gatekeeping." },
+  { word: "Patient", detail: "Transition is a five-year arc, not a one-meeting sprint." },
+  { word: "Private", detail: "Student data stays scoped, encrypted, and consented." },
+  { word: "Practical", detail: "Every feature ships only if it saves a real hour." },
+  { word: "Present", detail: "Built in Connecticut, for Connecticut, with families in the room." },
+];
+
+function Values() {
+  const [active, setActive] = useState<number | null>(null);
+  return (
+    <section id="values" className="border-t border-border/60 px-6 py-32 sm:px-12 lg:px-24">
+      <SectionLabel index="03" label="What We Stand For" />
+      <ul className="divide-y divide-border/60">
+        {VALUES.map((v, i) => {
+          const isActive = active === i;
+          return (
+            <li key={i}>
+              <button
+                onMouseEnter={() => setActive(i)}
+                onMouseLeave={() => setActive(null)}
+                onFocus={() => setActive(i)}
+                onBlur={() => setActive(null)}
+                className="group flex w-full items-center justify-between gap-8 py-8 text-left transition-colors"
+              >
+                <span className="flex items-baseline gap-6">
+                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                    0{i + 1}
+                  </span>
+                  <span
+                    className={cn(
+                      "font-display text-[clamp(2rem,6vw,4.5rem)] font-medium leading-none tracking-tight transition-all duration-500",
+                      isActive ? "italic translate-x-2" : "",
+                    )}
+                  >
+                    {v.word}.
+                  </span>
+                </span>
+                <ArrowUpRight
+                  className={cn(
+                    "h-6 w-6 shrink-0 text-muted-foreground transition-all duration-500",
+                    isActive ? "rotate-45 text-foreground" : "",
+                  )}
+                />
+              </button>
+              <AnimatePresence initial={false}>
+                {isActive && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <p className="pb-8 pl-16 text-base text-muted-foreground sm:text-lg">
+                      {v.detail}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Closing — oversized pull quote + CTA                                */
+/* ------------------------------------------------------------------ */
+
+function Closing() {
+  const { scrollYProgress } = useScroll();
+  const spring = useSpring(scrollYProgress, { stiffness: 80, damping: 20 });
+  const x = useTransform(spring, [0.7, 1], ["-5%", "0%"]);
+
+  return (
+    <section className="border-t border-border/60 px-6 py-40 sm:px-12 lg:px-24">
+      <SectionLabel index="04" label="The Invitation" />
+      <motion.blockquote
+        style={{ x }}
+        className="max-w-6xl font-display text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.95] tracking-tight"
+      >
+        <Kinetic text="If transition" />
+        <br />
+        <Kinetic text="planning feels" delay={0.1} />
+        <br />
+        <span className="italic text-muted-foreground">
+          <Kinetic text="heavy" delay={0.2} />
+        </span>{" "}
+        <Kinetic text="—" delay={0.3} />
+        <br />
+        <Kinetic text="we built this" delay={0.4} />
+        <br />
+        <Kinetic text="for you." delay={0.5} />
+      </motion.blockquote>
+
+      <motion.div
+        {...useReveal()}
+        className="mt-20 flex flex-wrap items-center gap-4"
+      >
+        <Button asChild size="lg">
+          <Link to="/families">
+            For families
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+        <Button asChild variant="ghost" size="lg">
+          <Link to="/educators">For educators</Link>
+        </Button>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Reading progress rail                                                */
+/* ------------------------------------------------------------------ */
+
+function ProgressRail() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
   return (
     <motion.div
+      style={{ scaleX, transformOrigin: "0% 50%" }}
+      className="fixed left-0 right-0 top-0 z-40 h-[2px] bg-foreground/80"
       aria-hidden
-      className="fixed inset-x-0 top-0 z-40 h-[3px] origin-left bg-gradient-to-r from-primary via-accent to-primary/40"
-      style={{ scaleX }}
     />
   );
 }
 
-const SECTIONS = [
-  { id: "story", label: "Story" },
-  { id: "journey", label: "Journey" },
-  { id: "values", label: "Values" },
-  { id: "flow", label: "Pathway" },
-  { id: "roles", label: "Who We Serve" },
-] as const;
-
-function SideNav() {
-  const [active, setActive] = useState<string>(SECTIONS[0].id);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActive(visible.target.id);
-      },
-      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
-    );
-    SECTIONS.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) obs.observe(el);
-    });
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <nav
-      aria-label="On this page"
-      className="pointer-events-none fixed left-6 top-1/2 z-30 hidden -translate-y-1/2 xl:block"
-    >
-      <ul className="pointer-events-auto flex flex-col gap-3">
-        {SECTIONS.map((s) => (
-          <li key={s.id}>
-            <a
-              href={`#${s.id}`}
-              className="group flex items-center gap-3"
-              aria-current={active === s.id ? "true" : undefined}
-            >
-              <span
-                className={cn(
-                  "h-px w-6 bg-muted-foreground/40 transition-all duration-300",
-                  active === s.id && "w-10 bg-primary",
-                )}
-              />
-              <span
-                className={cn(
-                  "text-[11px] uppercase tracking-[0.18em] text-muted-foreground/60 opacity-0 transition-all duration-300 group-hover:opacity-100",
-                  active === s.id && "text-foreground opacity-100",
-                )}
-              >
-                {s.label}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
-/* ---------------------------------------------------------------- founder letter / video */
-
-const FOUNDER_VIDEO_URL = (import.meta.env.VITE_FOUNDER_VIDEO_URL as string | undefined) ?? "";
-
-const FOUNDER_LETTER = [
-  "I started in business strategy. I went back for a Master of Arts in Teaching, K–12 Special Education, because I wanted to do work that actually touched a life.",
-  "What I found in PPT meetings and IEP binders broke my heart and clarified my purpose. Families were doing everything right and still leaving the table holding paper instead of a pathway.",
-  "TransitionForward is the tool I wished I had for my own caseload — built to make the next right step obvious, and to treat every family with the respect they deserve.",
-];
-
-function FounderLetter() {
-  const [open, setOpen] = useState(false);
-  const reduced = useReducedMotion();
-  const hasVideo = Boolean(FOUNDER_VIDEO_URL);
-
-  return (
-    <>
-      <div className="mx-auto mt-12 max-w-2xl">
-        <motion.button
-          type="button"
-          onClick={() => setOpen(true)}
-          whileHover={reduced ? undefined : { y: -3 }}
-          transition={{ type: "spring", stiffness: 220, damping: 18 }}
-          className="group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-background/80 p-3 text-left shadow-lg backdrop-blur transition-all duration-500 hover:border-primary/50 hover:shadow-2xl sm:gap-5 sm:p-4"
-          aria-label={hasVideo ? "Play the founder video" : "Read the founder letter"}
-        >
-          {/* Poster thumbnail */}
-          <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-primary/20 via-accent/15 to-muted sm:w-40">
-            <img
-              src={aboutHero}
-              alt=""
-              className="h-full w-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-110"
-              style={{ objectPosition: "center 35%" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-accent/20" />
-            {/* Play badge */}
-            <div className="absolute inset-0 grid place-items-center">
-              <motion.span
-                aria-hidden
-                className="grid h-11 w-11 place-items-center rounded-full bg-background/90 text-primary shadow-xl backdrop-blur"
-                animate={
-                  reduced
-                    ? undefined
-                    : { boxShadow: ["0 0 0 0 color-mix(in oklab, var(--primary) 40%, transparent)", "0 0 0 12px transparent"] }
-                }
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-              >
-                {hasVideo ? <Play className="ml-0.5 h-5 w-5 fill-current" /> : <PenLine className="h-5 w-5" />}
-              </motion.span>
-            </div>
-          </div>
-
-          {/* Text */}
-          <div className="min-w-0 flex-1 pr-2">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-primary">
-              {hasVideo ? "Watch · 90 Seconds" : "A Note From The Founder"}
-            </p>
-            <p className="mt-1 font-serif text-base leading-snug tracking-tight text-foreground sm:text-lg">
-              "Students Deserve A Clear Path Forward."
-            </p>
-            <p className="mt-1 hidden text-xs text-muted-foreground sm:block">
-              {hasVideo ? "A short letter to families, educators, and students." : "Click to read the founder's letter."}
-            </p>
-          </div>
-
-          {/* Trailing chevron */}
-          <ChevronRight className="mr-1 h-5 w-5 shrink-0 text-muted-foreground transition-all duration-500 group-hover:translate-x-1 group-hover:text-primary" />
-
-          {/* Hover sheen */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
-        </motion.button>
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl gap-0 overflow-hidden p-0 sm:max-w-3xl">
-          <DialogTitle className="sr-only">
-            {hasVideo ? "Founder Video" : "A Letter From The Founder"}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            A personal note from the founder of TransitionForward.
-          </DialogDescription>
-
-          {hasVideo ? (
-            <div className="aspect-video w-full bg-black">
-              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <video
-                src={FOUNDER_VIDEO_URL}
-                controls
-                autoPlay
-                playsInline
-                className="h-full w-full"
-              />
-            </div>
-          ) : (
-            <div className="relative bg-gradient-to-br from-primary/[0.06] via-background to-accent/[0.06] p-8 sm:p-10">
-              <div className="flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
-                  <UserRound className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="font-serif text-lg leading-tight tracking-tight text-foreground">
-                    A Letter From The Founder
-                  </p>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                    Connecticut Special Educator
-                  </p>
-                </div>
-              </div>
-              <div className="mt-6 space-y-4 font-serif text-base leading-relaxed text-foreground/85 sm:text-lg">
-                {FOUNDER_LETTER.map((p, i) => (
-                  <motion.p
-                    key={i}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 + i * 0.12 }}
-                  >
-                    {p}
-                  </motion.p>
-                ))}
-              </div>
-              <p className="mt-6 font-serif text-sm italic text-muted-foreground">
-                — The Founder, TransitionForward
-              </p>
-            </div>
-          )}
-
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-}
-
-/* ---------------------------------------------------------------- hero */
-
-function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const reduced = useReducedMotion();
-
-  // Cursor-driven mesh gradient
-  const mx = useMotionValue(50);
-  const my = useMotionValue(40);
-  const onMove = (e: React.MouseEvent) => {
-    if (reduced) return;
-    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    mx.set(((e.clientX - r.left) / r.width) * 100);
-    my.set(((e.clientY - r.top) / r.height) * 100);
-  };
-  const bgX = useSpring(mx, { stiffness: 60, damping: 20 });
-  const bgY = useSpring(my, { stiffness: 60, damping: 20 });
-  const background = useTransform(
-    [bgX, bgY],
-    ([x, y]) =>
-      `radial-gradient(60% 50% at ${x}% ${y}%, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%), radial-gradient(50% 40% at ${100 - (x as number)}% ${100 - (y as number)}%, color-mix(in oklab, var(--accent) 24%, transparent), transparent 70%)`,
-  );
-
-  return (
-    <section
-      ref={ref}
-      onMouseMove={onMove}
-      className="relative isolate overflow-hidden border-b border-border/60 bg-background"
-    >
-      {/* Mesh gradient */}
-      <motion.div className="absolute inset-0 -z-10" style={{ background, opacity }} aria-hidden />
-      {/* Subtle photo wash */}
-      <motion.div className="absolute inset-0 -z-20" style={{ y }} aria-hidden>
-        <img src={aboutHero} alt="" className="h-full w-full object-cover opacity-10" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
-      </motion.div>
-      {/* Grid texture */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-          maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-5xl px-6 py-28 text-center sm:py-36 md:py-44">
-        <Reveal>
-          <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs uppercase tracking-[0.22em] text-muted-foreground backdrop-blur">
-            <Sparkles className="h-3 w-3 text-primary" />
-            The Founder Story
-          </span>
-        </Reveal>
-
-        {/* Layered, masked headline */}
-        <div className="relative mt-7">
-          <motion.h1
-            initial={{ opacity: 0, y: 30, filter: "blur(12px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1, ease: [0.22, 0.61, 0.36, 1] }}
-            className="font-serif text-5xl leading-[1.02] tracking-tight text-foreground sm:text-7xl md:text-[5.5rem]"
-          >
-            Built From The Classroom.
-          </motion.h1>
-          <motion.h1
-            initial={{ opacity: 0, y: 30, filter: "blur(12px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1, delay: 0.18, ease: [0.22, 0.61, 0.36, 1] }}
-            className="mt-1 font-serif text-5xl leading-[1.02] tracking-tight sm:text-7xl md:text-[5.5rem]"
-          >
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage:
-                  "linear-gradient(120deg, var(--primary), var(--accent), var(--primary))",
-                backgroundSize: "200% 200%",
-                animation: reduced ? undefined : "tf-pan 14s ease-in-out infinite",
-              }}
-            >
-              Designed For The Future.
-            </span>
-          </motion.h1>
-          <style>{`@keyframes tf-pan { 0%,100% { background-position: 0% 50% } 50% { background-position: 100% 50% } }`}</style>
-        </div>
-
-        <Reveal delay={0.35}>
-          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            From strategy decks to Connecticut classrooms — the story behind a
-            platform built to move every student from paperwork to possibility.
-          </p>
-        </Reveal>
-        <Reveal delay={0.45}>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg" className="rounded-full">
-              <a href="#story">
-                Read The Story <ChevronRight className="ml-1 h-4 w-4" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="rounded-full">
-              <a href="#journey">See The Journey</a>
-            </Button>
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.6}>
-          <FounderLetter />
-        </Reveal>
-      </div>
-
-      {/* Bottom scroll cue */}
-      <motion.div
-        aria-hidden
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60"
-        animate={reduced ? undefined : { y: [0, 6, 0], opacity: [0.6, 1, 0.6] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        Scroll
-      </motion.div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- story (condensed) */
-
-const STORY_CARDS = [
-  {
-    eyebrow: "Chapter 01",
-    title: "From Strategy To The Classroom",
-    body: "I began in business strategy — frameworks, decision trees, systems. Then I went back for a Master of Arts in Teaching, K–12 Special Education, and the classroom rewired me.",
-  },
-  {
-    eyebrow: "Chapter 02",
-    title: "Sitting With Families",
-    body: "New Haven. Hamden. PPT meetings, IEP binders, families who advocated for a decade and still left the table with paper instead of a pathway.",
-  },
-  {
-    eyebrow: "Chapter 03",
-    title: "The Platform Became The Response",
-    body: "TransitionForward grew from tools I built for my own caseload — opinionated, gentle with families, and built to make the next right step obvious.",
-  },
-];
-
-function FounderSticky() {
-  return (
-    <section id="story" className="relative bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <div className="lg:sticky lg:top-24">
-              <Reveal>
-                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                  Why I Built TransitionForward
-                </p>
-                <h2 className="mt-4 font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-                  A Letter From The Classroom.
-                </h2>
-              </Reveal>
-              <Reveal delay={0.15}>
-                <blockquote className="mt-8 border-l-2 border-primary/60 pl-5 font-serif text-xl italic leading-relaxed text-foreground/85">
-                  "Students deserve more than paperwork. They deserve a clear
-                  path forward."
-                </blockquote>
-              </Reveal>
-              <Reveal delay={0.25}>
-                <Button asChild className="mt-8 rounded-full">
-                  <Link to="/waitlist">
-                    Join The Waitlist <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
-              </Reveal>
-            </div>
-          </div>
-
-          <div className="space-y-6 lg:col-span-7">
-            {STORY_CARDS.map((c, i) => (
-              <motion.article
-                key={c.title}
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.7, delay: i * 0.05, ease: [0.22, 0.61, 0.36, 1] }}
-                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card p-7 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:p-9"
-              >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                <p className="text-[11px] uppercase tracking-[0.22em] text-primary">{c.eyebrow}</p>
-                <h3 className="mt-3 font-serif text-2xl leading-tight tracking-tight text-foreground sm:text-3xl">
-                  {c.title}
-                </h3>
-                <p className="mt-3 text-[0.98rem] leading-relaxed text-muted-foreground">{c.body}</p>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- quote */
-
-function QuoteBlock({ text, attribution }: { text: string; attribution?: string }) {
-  return (
-    <section className="relative overflow-hidden border-y border-border/60 bg-gradient-to-br from-primary/[0.06] via-background to-accent/[0.05]">
-      <div className="mx-auto max-w-4xl px-6 py-20 text-center sm:py-28">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.9, ease: [0.22, 0.61, 0.36, 1] }}
-        >
-          <Quote className="mx-auto h-10 w-10 text-primary/40" aria-hidden />
-          <blockquote className="mx-auto mt-6 max-w-3xl font-serif text-2xl leading-snug text-foreground sm:text-3xl md:text-4xl">
-            {text}
-          </blockquote>
-          {attribution && (
-            <p className="mt-6 text-xs uppercase tracking-[0.22em] text-muted-foreground">
-              {attribution}
-            </p>
-          )}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- timeline (condensed + spotlight) */
-
-const JOURNEY = [
-  { icon: BookOpen, year: "Origin", title: "Strategy, Then The Classroom", body: "Strategy work, then an MAT in K–12 Special Education. Practice rewired the questions." },
-  { icon: School, year: "Practice", title: "New Haven & Hamden", body: "Urban and suburban classrooms. Same gap. Families holding paper instead of plans." },
-  { icon: Lightbulb, year: "Insight", title: "Naming The Real Gap", body: "The IEP transition page and the actual transition lived on different planets." },
-  { icon: RouteIcon, year: "Build", title: "Building TransitionForward", body: "Tools for one caseload became tools for colleagues. Weekends became the platform." },
-  { icon: Sunrise, year: "Today", title: "From Paperwork To Possibility", body: "A pathway students can read, families can understand, and districts can trust." },
-];
-
-function Timeline() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 70%", "end 30%"] });
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const spotlightY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-
-  return (
-    <section
-      id="journey"
-      className="relative overflow-hidden bg-gradient-to-b from-background to-muted/40 py-24 sm:py-32"
-    >
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal>
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">The Founder Journey</p>
-          <h2 className="mt-4 max-w-3xl font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            Five Chapters From Strategy To Classroom To Platform.
-          </h2>
-        </Reveal>
-
-        <div ref={ref} className="relative mt-16">
-          {/* Center rail */}
-          <div
-            className="absolute left-6 top-0 h-full w-[2px] bg-border/60 md:left-1/2 md:-translate-x-1/2"
-            aria-hidden
-          />
-          <motion.div
-            className="absolute left-6 top-0 w-[2px] origin-top bg-gradient-to-b from-primary via-accent to-primary md:left-1/2 md:-translate-x-1/2"
-            style={{ height: lineHeight }}
-            aria-hidden
-          />
-          {/* Spotlight glow following scroll */}
-          <motion.div
-            className="pointer-events-none absolute left-6 -ml-[60px] h-[120px] w-[120px] rounded-full bg-primary/30 blur-3xl md:left-1/2 md:-ml-[60px]"
-            style={{ top: spotlightY }}
-            aria-hidden
-          />
-
-          <ul className="space-y-12">
-            {JOURNEY.map((m, i) => {
-              const left = i % 2 === 0;
-              return (
-                <li key={m.title} className="relative">
-                  <motion.span
-                    className="absolute left-6 top-3 z-10 grid h-4 w-4 -translate-x-1/2 place-items-center rounded-full bg-primary shadow-[0_0_0_4px_var(--background)] md:left-1/2"
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true, margin: "-120px" }}
-                    transition={{ duration: 0.45, type: "spring", stiffness: 200, damping: 14 }}
-                    aria-hidden
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                  </motion.span>
-
-                  <div
-                    className={cn(
-                      "ml-14 md:ml-0 md:grid md:grid-cols-2 md:gap-12",
-                      !left && "md:[&>*:first-child]:col-start-2",
-                    )}
-                  >
-                    <motion.article
-                      initial={{ opacity: 0, x: left ? -40 : 40 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true, margin: "-120px" }}
-                      transition={{ duration: 0.7, ease: [0.22, 0.61, 0.36, 1] }}
-                      className={cn(
-                        "group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl sm:p-7",
-                        left ? "md:text-right" : "md:text-left",
-                      )}
-                    >
-                      <div className={cn("flex items-center gap-3", left ? "md:justify-end" : "md:justify-start")}>
-                        <motion.div
-                          whileHover={{ rotate: 12, scale: 1.1 }}
-                          transition={{ type: "spring", stiffness: 200, damping: 14 }}
-                          className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary"
-                        >
-                          <m.icon className="h-5 w-5" />
-                        </motion.div>
-                        <span className="text-[11px] uppercase tracking-[0.22em] text-primary">{m.year}</span>
-                      </div>
-                      <h3 className="mt-3 font-serif text-xl tracking-tight text-foreground sm:text-2xl">
-                        {m.title}
-                      </h3>
-                      <p className="mt-2 text-[0.95rem] leading-relaxed text-muted-foreground">{m.body}</p>
-                    </motion.article>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- values (orbital cluster) */
-
-const VALUES = [
-  { icon: MessageSquare, label: "Student Voice", body: "The student is the first author of their own pathway. Their words, goals, and choices shape the plan." },
-  { icon: Compass, label: "Clarity", body: "Plain language. Visible next steps. No one needs a translator to read their own transition plan." },
-  { icon: Scale, label: "Equity", body: "Every family — across language, income, and zip code — gets the same caliber of planning support." },
-  { icon: CheckCircle2, label: "Action", body: "Plans are useless without movement. Every step ladders to a real, owned, due-dated next action." },
-  { icon: HeartHandshake, label: "Collaboration", body: "Educators, families, agencies, and partners working from the same page — literally." },
-  { icon: ShieldCheck, label: "Dignity", body: "Privacy, agency, and respect are not features. They are the floor." },
-];
-
-function Values() {
-  const [active, setActive] = useState(0);
-  const reduced = useReducedMotion();
-  const v = VALUES[active];
-  const Icon = v.icon;
-
-  return (
-    <section
-      id="values"
-      className="relative overflow-hidden bg-gradient-to-b from-background via-muted/30 to-background py-24 sm:py-32"
-    >
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal>
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">What We Stand For</p>
-          <h2 className="mt-4 max-w-3xl font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            Six Values, One Orbit.
-          </h2>
-        </Reveal>
-
-        <div className="relative mx-auto mt-16 aspect-square max-w-[640px]">
-          {/* Rotating orbit ring */}
-          <motion.div
-            aria-hidden
-            className="absolute inset-6 rounded-full border border-dashed border-primary/30"
-            animate={reduced ? undefined : { rotate: 360 }}
-            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            aria-hidden
-            className="absolute inset-16 rounded-full border border-border/50"
-            animate={reduced ? undefined : { rotate: -360 }}
-            transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-          />
-
-          {/* Center card */}
-          <div className="absolute inset-1/2 z-10 grid h-[58%] w-[58%] -translate-x-1/2 -translate-y-1/2 place-items-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={v.label}
-                initial={{ opacity: 0, scale: 0.9, filter: "blur(8px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.9, filter: "blur(8px)" }}
-                transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
-                className="flex h-full w-full flex-col items-center justify-center rounded-full border border-border/60 bg-background/90 p-8 text-center shadow-2xl backdrop-blur"
-              >
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
-                  <Icon className="h-7 w-7" />
-                </div>
-                <h3 className="mt-4 font-serif text-xl tracking-tight text-foreground sm:text-2xl">
-                  {v.label}
-                </h3>
-                <p className="mt-2 max-w-[22ch] text-sm leading-relaxed text-muted-foreground">
-                  {v.body}
-                </p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Orbiting nodes */}
-          {VALUES.map((val, i) => {
-            const angle = (i / VALUES.length) * Math.PI * 2 - Math.PI / 2;
-            const x = 50 + 44 * Math.cos(angle);
-            const y = 50 + 44 * Math.sin(angle);
-            const isActive = active === i;
-            const NodeIcon = val.icon;
-            return (
-              <button
-                key={val.label}
-                type="button"
-                onMouseEnter={() => setActive(i)}
-                onFocus={() => setActive(i)}
-                onClick={() => setActive(i)}
-                aria-label={val.label}
-                className="group absolute z-20 -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${x}%`, top: `${y}%` }}
-              >
-                <motion.div
-                  animate={
-                    isActive
-                      ? { scale: 1.18, boxShadow: "0 12px 40px -8px color-mix(in oklab, var(--primary) 60%, transparent)" }
-                      : { scale: 1 }
-                  }
-                  transition={{ type: "spring", stiffness: 220, damping: 16 }}
-                  className={cn(
-                    "grid h-14 w-14 place-items-center rounded-2xl border bg-background transition-colors duration-300 sm:h-16 sm:w-16",
-                    isActive
-                      ? "border-primary text-primary"
-                      : "border-border/60 text-foreground/70 hover:border-primary/60 hover:text-foreground",
-                  )}
-                >
-                  <NodeIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                </motion.div>
-                <span
-                  className={cn(
-                    "absolute left-1/2 mt-2 hidden -translate-x-1/2 whitespace-nowrap text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition-colors sm:block",
-                    isActive && "text-foreground",
-                  )}
-                >
-                  {val.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- flow (signature) */
-
-const FLOW = [
-  { icon: FileText, title: "Paperwork", body: "IEPs, documents, and meetings can feel overwhelming." },
-  { icon: Lightbulb, title: "Clarity", body: "We organize and explain the planning process." },
-  { icon: RouteIcon, title: "Pathway", body: "A Pathway Report ties strengths, goals, and next steps." },
-  { icon: CheckCircle2, title: "Action", body: "Resources, partners, and tasks create movement." },
-  { icon: Sunrise, title: "Future", body: "Students move toward adult life with confidence." },
-];
-
-function Flow() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 40%"] });
-  const lineScaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const lineScaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
-  return (
-    <section id="flow" className="relative overflow-hidden bg-background py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <Reveal>
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">The Signature Flow</p>
-          <h2 className="mt-4 max-w-3xl font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            From Paperwork To Possibility.
-          </h2>
-        </Reveal>
-
-        <div ref={ref} className="relative mt-16">
-          <div
-            className="pointer-events-none absolute left-0 right-0 top-[44px] hidden h-[2px] bg-border/60 md:block"
-            aria-hidden
-          />
-          <motion.div
-            className="pointer-events-none absolute left-0 right-0 top-[44px] hidden h-[2px] origin-left bg-gradient-to-r from-primary via-accent to-primary md:block"
-            style={{ scaleX: lineScaleX }}
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute left-[22px] top-0 h-full w-[2px] bg-border/60 md:hidden"
-            aria-hidden
-          />
-          <motion.div
-            className="pointer-events-none absolute left-[22px] top-0 w-[2px] origin-top bg-gradient-to-b from-primary via-accent to-primary md:hidden"
-            style={{ scaleY: lineScaleY }}
-            aria-hidden
-          />
-
-          <ol className="grid gap-8 md:grid-cols-5">
-            {FLOW.map((s, i) => (
-              <motion.li
-                key={s.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 0.61, 0.36, 1] }}
-                className="group relative pl-14 md:pl-0"
-              >
-                <motion.div
-                  className="absolute left-0 top-0 z-10 grid h-11 w-11 place-items-center rounded-full border-2 border-primary bg-background text-primary shadow-lg md:relative md:mx-auto"
-                  whileHover={{ scale: 1.18, rotate: 8 }}
-                  whileInView={{ scale: [0.7, 1.15, 1] }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 + 0.2 }}
-                >
-                  <s.icon className="h-5 w-5" />
-                </motion.div>
-                <div className="md:mt-5 md:text-center">
-                  <p className="font-serif text-[2.4rem] leading-none tracking-tight text-foreground/15 transition-colors duration-500 group-hover:text-primary/40 md:text-[3rem]">
-                    0{i + 1}
-                  </p>
-                  <h3 className="mt-1 font-serif text-xl tracking-tight text-foreground">{s.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
-                </div>
-              </motion.li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- roles (condensed to 4) */
-
-const ROLES = [
-  {
-    icon: GraduationCap,
-    label: "Students & Families",
-    need: "Clarity on what's next — and how to help.",
-    help: "Plain-language IEP summary, Student Voice, shared pathway view, and curated family resources.",
-    features: ["Student-friendly summary", "Student Voice intake", "Shared pathway view", "Family resources"],
-    href: "/families",
-  },
-  {
-    icon: BookOpen,
-    label: "Educators",
-    need: "Less duplicate work, more time with students.",
-    help: "IEP upload + AI assist, action items, partner suggestions, and audit-ready collaboration.",
-    features: ["IEP upload + AI assist", "Action items", "Collaboration & notes", "Partner suggestions"],
-    href: "/educators",
-  },
-  {
-    icon: School,
-    label: "Schools & Districts",
-    need: "Confidence every student has a real plan.",
-    help: "School and district dashboards, compliance signals, and templates that lift the whole building.",
-    features: ["School & district rollups", "Compliance signals", "Templates & playbooks", "Role & access controls"],
-    href: "/platform",
-  },
-  {
-    icon: Network,
-    label: "Partners",
-    need: "Reach the families who actually need us.",
-    help: "Partner profile, opportunity posting, and warm matches into student pathways — no PII required.",
-    features: ["Partner profile", "Opportunity posting", "Pathway matches", "No private document access"],
-    href: "/partners",
-  },
-];
-
-function Roles() {
-  const [active, setActive] = useState(0);
-  const role = ROLES[active];
-  const RoleIcon = role.icon;
-  return (
-    <section
-      id="roles"
-      className="relative overflow-hidden bg-gradient-to-b from-muted/40 via-background to-background py-24 sm:py-32"
-    >
-      <div className="mx-auto max-w-7xl px-6">
-        <Reveal>
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Who We Serve</p>
-          <h2 className="mt-4 max-w-3xl font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            One Platform, Four Vantage Points.
-          </h2>
-        </Reveal>
-
-        <div className="mt-10 -mx-6 overflow-x-auto px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div role="tablist" className="flex min-w-max gap-3 pb-2">
-            {ROLES.map((r, i) => {
-              const isActive = i === active;
-              const TabIcon = r.icon;
-              return (
-                <button
-                  key={r.label}
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setActive(i)}
-                  className={cn(
-                    "group flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300",
-                    isActive
-                      ? "border-primary bg-primary text-primary-foreground shadow-lg"
-                      : "border-border/60 bg-background text-foreground/80 hover:border-primary/50 hover:text-foreground",
-                  )}
-                >
-                  <TabIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
-                  {r.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mt-8 overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={role.label}
-              initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
-              transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
-              className="grid gap-8 p-8 md:grid-cols-[1.1fr_1fr] md:gap-12 md:p-12"
-            >
-              <div>
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
-                  <RoleIcon className="h-7 w-7" />
-                </div>
-                <h3 className="mt-5 font-serif text-2xl tracking-tight text-foreground sm:text-3xl">
-                  {role.label}
-                </h3>
-                <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-                  <span className="font-medium text-foreground">What they need:</span> {role.need}
-                </p>
-                <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-                  <span className="font-medium text-foreground">How we help:</span> {role.help}
-                </p>
-                <Button asChild className="mt-6 rounded-full">
-                  <Link to={role.href}>
-                    Explore For {role.label} <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-              <div className="rounded-2xl border border-border/60 bg-muted/40 p-6">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Key Features</p>
-                <ul className="mt-4 space-y-3">
-                  {role.features.map((f, i) => (
-                    <motion.li
-                      key={f}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.35, delay: i * 0.06 }}
-                      className="flex items-start gap-2 text-sm text-foreground/85"
-                    >
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {f}
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- close */
-
-function Closing() {
-  return (
-    <section className="relative overflow-hidden border-t border-border/60 bg-gradient-to-br from-primary/[0.08] via-background to-accent/[0.08]">
-      <div className="mx-auto max-w-3xl px-6 py-24 text-center sm:py-32">
-        <Reveal>
-          <h2 className="font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            From Paperwork To Possibility — For Every Student.
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            TransitionForward is built for the families, educators, and districts
-            who are already doing the work — and deserve a tool that respects it.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg" className="rounded-full">
-              <Link to="/waitlist">
-                Join The Waitlist <ArrowRight className="ml-1.5 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="rounded-full">
-              <Link to="/contact">Get In Touch</Link>
-            </Button>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- page */
+/* ------------------------------------------------------------------ */
+/* Page                                                                 */
+/* ------------------------------------------------------------------ */
 
 function AboutPage() {
   return (
     <SiteShell>
-      <ReadingRail />
-      <SideNav />
-      <Hero />
-      <FounderSticky />
-      <QuoteBlock
-        text="Transition planning should not just document a future. It should help build one."
-        attribution="Our North Star"
-      />
-      <Timeline />
-      <Values />
-      <Flow />
-      <Roles />
-      <Closing />
+      <ProgressRail />
+      <main className="bg-background text-foreground">
+        <Hero />
+        <Marquee />
+        <Letter />
+        <Stats />
+        <Chapters />
+        <Values />
+        <Closing />
+      </main>
     </SiteShell>
   );
 }
