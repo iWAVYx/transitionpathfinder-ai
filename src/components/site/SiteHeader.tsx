@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
+import { SmartLink } from "./SmartLink";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
