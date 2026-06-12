@@ -98,7 +98,7 @@ export const listStudentFriendlyDocuments = createServerFn({ method: "POST" })
       .from("documents")
       .select("id, title, doc_type, created_at")
       .eq("student_id", data.student_id)
-      .in("doc_type", ["iep", "transition-plan"])
+      .in("doc_type", ["iep", "current-iep", "previous-iep", "transition-plan"])
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
 
