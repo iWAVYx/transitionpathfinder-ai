@@ -70,6 +70,7 @@ function StudentDetailPage() {
   const fetchStudent = useServerFn(getStudent);
   const fetchDocs = useServerFn(listDocuments);
   const fetchGoals = useServerFn(listGoals);
+  const fetchCanEdit = useServerFn(canEditStudent);
   const remove = useServerFn(deleteDocument);
   const sign = useServerFn(getDocumentSignedUrl);
   const extractGoals = useServerFn(extractGoalsFromText);
@@ -78,19 +79,22 @@ function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [canEdit, setCanEdit] = useState<boolean>(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function reload() {
-    const [s, d, g] = await Promise.all([
+    const [s, d, g, e] = await Promise.all([
       fetchStudent({ data: { id: studentId } }).catch(() => null),
       fetchDocs({ data: { student_id: studentId } }).catch(() => ({ documents: [] })),
       fetchGoals({ data: { student_id: studentId } }).catch(() => ({ goals: [] })),
+      fetchCanEdit({ data: { student_id: studentId } }).catch(() => ({ canEdit: false })),
     ]);
     setStudent(s);
     setDocs(d.documents);
     setGoals(g.goals);
+    setCanEdit(e.canEdit);
   }
 
   useEffect(() => {
