@@ -279,6 +279,10 @@ function Hero() {
             </Button>
           </div>
         </Reveal>
+
+        <Reveal delay={0.6}>
+          <FounderLetter />
+        </Reveal>
       </div>
 
       {/* Bottom scroll cue */}
