@@ -65,10 +65,20 @@ function MeetingDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingId]);
 
-  const saveField = async (field: "student_voice" | "family_concerns" | "teacher_notes", value: string) => {
+  const saveField = async (
+    field: "student_voice" | "family_concerns" | "teacher_notes" | "summary" | "decisions" | "documents_to_update",
+    value: string,
+  ) => {
     if (!meeting) return;
     setMeeting({ ...meeting, [field]: value });
     await update({ data: { id: meeting.id, [field]: value } as never });
+  };
+
+  const saveNextMeetingDate = async (value: string) => {
+    if (!meeting) return;
+    const next = value || null;
+    setMeeting({ ...meeting, next_meeting_date: next });
+    await update({ data: { id: meeting.id, next_meeting_date: next } });
   };
 
   function handlePrint() {
