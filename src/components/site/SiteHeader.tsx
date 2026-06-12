@@ -332,18 +332,18 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              <Link
+              <SmartLink
                 to="/login"
                 className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-3"
               >
                 Sign In
-              </Link>
-              <Link
+              </SmartLink>
+              <SmartLink
                 to="/waitlist"
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift lg:px-3.5"
               >
                 Join the Waitlist
-              </Link>
+              </SmartLink>
             </>
           )}
         </div>
