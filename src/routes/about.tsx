@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos, srcSetFor } from "@/lib/photos";
-import { toTitleCase } from "@/lib/title-case";
+
 
 const aboutHero = photos.about;
 const aboutHeroSrcSet = srcSetFor("about");
