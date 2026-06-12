@@ -492,3 +492,39 @@ export const revokeDocumentPermission = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+/**
+ * Audit-log a document view. Caller must have view rights (RLS scopes the
+ * document fetch via `can_view_document`). Best-effort: failures are logged
+ * server-side but never bubble up to the user.
+ */
+export const logDocumentView = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        document_id: z.string().uuid(),
+        context: z.string().trim().max(80).optional().default(""),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: doc } = await supabase
+      .from("documents")
+      .select("id, student_id")
+      .eq("id", data.document_id)
+      .maybeSingle();
+    if (!doc) return { ok: false };
+    const { error } = await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.viewed",
+      entity_type: "document",
+      entity_id: doc.id,
+      student_id: (doc as { student_id: string | null }).student_id,
+      metadata: { context: data.context || null },
+    });
+    if (error) console.error("logDocumentView failed", error);
+    return { ok: true };
+  });
+
