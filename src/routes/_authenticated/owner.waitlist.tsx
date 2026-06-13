@@ -461,11 +461,6 @@ function ConvertToInvitationButton({ entry }: { entry: WaitlistEntry }) {
       Convert to invitation
     </Button>
   );
-          </div>
-        )}
-      </aside>
-    </div>
-  );
 }
 
 function Field({ label, value }: { label: string; value: string | null | undefined }) {
