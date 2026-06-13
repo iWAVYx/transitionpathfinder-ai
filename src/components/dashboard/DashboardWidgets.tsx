@@ -37,10 +37,12 @@ function formatWhen(iso: string) {
 export function DashboardWidgets() {
   const list = useServerFn(listMyReports);
   const summarize = useServerFn(summarizeGoalStatuses);
+  const fetchElig = useServerFn(getProgramEligibility);
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
   const [updatingGoals, setUpdatingGoals] = useState(false);
   const [goalsError, setGoalsError] = useState(false);
+  const [elig, setElig] = useState<{ hasMiddleSchoolStudent: boolean; isPartner: boolean } | null>(null);
   const reportIdsRef = useRef<string[]>([]);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
