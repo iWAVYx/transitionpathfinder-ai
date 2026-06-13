@@ -183,7 +183,7 @@ export const upsertFitReview = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const payload = {
       ...data,
-      comparison_priorities: data.comparison_priorities ?? {},
+      comparison_priorities: (data.comparison_priorities ?? {}) as never,
       created_by: userId,
     };
     const { error } = await supabase
