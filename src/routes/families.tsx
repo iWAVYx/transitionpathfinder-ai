@@ -7,6 +7,8 @@ import {
   MapPin,
   ClipboardCheck,
   Archive,
+  GraduationCap,
+  ArrowRight,
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
 import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
@@ -249,6 +251,33 @@ function FamiliesPage() {
         </div>
       </section>
 
+      {/* BridgeForward — middle school pathway */}
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-10 lg:p-12">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                <GraduationCap className="h-3.5 w-3.5" />
+                Grades 6–8
+              </div>
+              <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                Not in High School Yet? Start With BridgeForward.
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                BridgeForward is built for families with middle schoolers. Capture strengths,
+                compare high school options, and hear your student's voice before the first
+                grade 9 PPT ever happens.
+              </p>
+            </div>
+            <Link
+              to="/bridgeforward"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
+            >
+              Explore BridgeForward <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
     </SiteShell>
   );
