@@ -92,6 +92,7 @@ const userGroups: UserNavGroup[] = [
       { to: "/student-voice", label: "Student Voice" },
       { to: "/ppt-prep", label: "PPT / IEP Meeting Prep" },
       { to: "/meetings", label: "Meetings" },
+      { to: "/bridgeforward", label: "BridgeForward (Middle School)" },
       { to: "/trust", label: "Trust & Consent" },
       { to: "/demo-mode", label: "Demo Mode" },
     ],
