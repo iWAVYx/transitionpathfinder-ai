@@ -16,6 +16,7 @@ import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { getProgramEligibility } from "@/lib/bridgeforward.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
 import { toTitleCase } from "@/lib/title-case";
 
