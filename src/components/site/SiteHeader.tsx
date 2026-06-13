@@ -45,6 +45,14 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: "Programs",
+    items: [
+      { to: "/bridgeforward", label: "BridgeForward (6–8)", desc: "Middle-school bridge into high school." },
+      { to: "/framework", label: "TransitionForward (9–12)", desc: "High school planning through graduation." },
+      { to: "/partnerforward", label: "PartnerForward", desc: "For partner organizations and employers." },
+    ],
+  },
+  {
     label: "Resources",
     items: [
       { to: "/resources", label: "Resource Hub", desc: "Connecticut-aware tools and links." },
