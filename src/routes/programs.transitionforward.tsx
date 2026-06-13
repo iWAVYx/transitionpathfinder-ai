@@ -43,17 +43,17 @@ import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/programs/transitionforward")({
   head: () => ({
     meta: [
-      { title: "The framework — How TransitionForward walks through it with you" },
+      { title: "TransitionForward (9–12) — Grade 9 to graduation, one connected story" },
       {
         name: "description",
         content:
-          "A grade-by-grade transition framework for Connecticut families and teams. Six threads, four years, every recommendation tied to evidence.",
+          "TransitionForward is the high-school program for Connecticut families and teams. A grade-by-grade transition framework with six threads, four years, every recommendation tied to evidence.",
       },
-      { property: "og:title", content: "How we walk through transition with you" },
+      { property: "og:title", content: "TransitionForward (9–12) — Grade 9 to graduation" },
       {
         property: "og:description",
         content:
-          "Grade 9 to graduation: settle in, try things on, begin to choose, hand off with confidence.",
+          "High school planning through graduation: settle in, try things on, begin to choose, hand off with confidence.",
       },
       { property: "og:url", content: "/programs/transitionforward" },
       { property: "og:image", content: frameworkHero },

@@ -37,6 +37,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
+import { Route as ProgramsTransitionforwardRouteImport } from './routes/programs.transitionforward'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
 import { Route as PartnerforwardIncentivesRouteImport } from './routes/partnerforward.incentives'
 import { Route as Login2faRouteImport } from './routes/login.2fa'
@@ -277,6 +278,12 @@ const ShareTokenRoute = ShareTokenRouteImport.update({
   path: '/share/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsTransitionforwardRoute =
+  ProgramsTransitionforwardRouteImport.update({
+    id: '/programs/transitionforward',
+    path: '/programs/transitionforward',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   id: '/pathways/$pathwayId',
   path: '/pathways/$pathwayId',
@@ -898,6 +905,7 @@ export interface FileRoutesByFullPath {
   '/login/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
+  '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
@@ -1026,6 +1034,7 @@ export interface FileRoutesByTo {
   '/login/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
+  '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
@@ -1157,6 +1166,7 @@ export interface FileRoutesById {
   '/login/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
+  '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
@@ -1288,6 +1298,7 @@ export interface FileRouteTypes {
     | '/login/2fa'
     | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
+    | '/programs/transitionforward'
     | '/share/$token'
     | '/bridgeforward/fit-finder'
     | '/bridgeforward/intake'
@@ -1416,6 +1427,7 @@ export interface FileRouteTypes {
     | '/login/2fa'
     | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
+    | '/programs/transitionforward'
     | '/share/$token'
     | '/bridgeforward/fit-finder'
     | '/bridgeforward/intake'
@@ -1546,6 +1558,7 @@ export interface FileRouteTypes {
     | '/login/2fa'
     | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
+    | '/programs/transitionforward'
     | '/share/$token'
     | '/_authenticated/bridgeforward/fit-finder'
     | '/_authenticated/bridgeforward/intake'
@@ -1649,6 +1662,7 @@ export interface RootRouteChildren {
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   InviteTokenRoute: typeof InviteTokenRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
+  ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
   ShareTokenRoute: typeof ShareTokenRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1854,6 +1868,13 @@ declare module '@tanstack/react-router' {
       path: '/share/$token'
       fullPath: '/share/$token'
       preLoaderRoute: typeof ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programs/transitionforward': {
+      id: '/programs/transitionforward'
+      path: '/programs/transitionforward'
+      fullPath: '/programs/transitionforward'
+      preLoaderRoute: typeof ProgramsTransitionforwardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pathways/$pathwayId': {
@@ -2870,6 +2891,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   InviteTokenRoute: InviteTokenRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
+  ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
   ShareTokenRoute: ShareTokenRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
