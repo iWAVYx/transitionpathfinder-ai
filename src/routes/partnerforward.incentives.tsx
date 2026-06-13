@@ -12,11 +12,11 @@ import { listPublishedIncentives } from "@/lib/partnerforward.functions";
 export const Route = createFileRoute("/partnerforward/incentives")({
   head: () => ({
     meta: [
-      { title: "Partner Incentive Hub — PartnerForward" },
+      { title: "Incentives & Support — PartnerForward" },
       {
         name: "description",
         content:
-          "Cautious, plain-language overview of federal and state incentives partners may explore — Disabled Access Credit, WOTC, BRS, ADA resources, and more.",
+          "Plain-language overview of federal, state, philanthropic, and workforce incentives, grants, credits, and accessibility resources partners may explore.",
       },
     ],
   }),
@@ -50,29 +50,30 @@ function IncentivesPage() {
         <Breadcrumbs
           trail={[
             { label: "PartnerForward", to: "/partnerforward" },
-            { label: "Incentive Hub" },
+            { label: "Incentives & Support" },
           ]}
         />
         <h1 className="mt-6 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          Partner Incentive Hub
+          Incentives & Support
         </h1>
         <p className="mt-3 max-w-3xl text-base leading-relaxed text-muted-foreground">
-          Some employers may qualify for federal, state, or local incentives
-          that help offset the cost of inclusive hiring, training, or
-          accessibility improvements. The summaries below link directly to the
-          authoritative agencies.
+          Some partners may qualify for federal, state, local, philanthropic,
+          or workforce-development incentives, grants, credits, deductions, or
+          support programs. The summaries below link directly to authoritative
+          agencies.
         </p>
 
         <div className="mt-4 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
           <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <p>
-            <strong>TransitionForward does not provide tax or legal
-            advice.</strong> Eligibility rules, dollar limits, and reporting
-            requirements change. Partners should review official guidance and
-            consult a qualified tax or legal professional before relying on any
-            program.
+            <strong>TransitionForward does not provide tax, legal, or
+            financial advice.</strong> Eligibility rules, dollar limits, and
+            reporting requirements change. Partners should review official
+            guidance and consult qualified professionals before acting on any
+            information shown here.
           </p>
         </div>
+
 
         {isLoading ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>

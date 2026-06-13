@@ -50,7 +50,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/bridgeforward", label: "BridgeForward (6–8)", desc: "Middle-school bridge into high school." },
       { to: "/framework", label: "TransitionForward (9–12)", desc: "High school planning through graduation." },
-      { to: "/partnerforward", label: "PartnerForward", desc: "For partner organizations and employers." },
+      { to: "/partnerforward", label: "PartnerForward", desc: "Incentives & support for partner organizations." },
     ],
   },
   {
@@ -144,14 +144,15 @@ const userGroups: UserNavGroup[] = [
       { to: "/district/reports", label: "District Reports" },
     ],
   },
-  // Partner Organization workspace
+  // Partner Organization workspace — existing Partner Dashboard.
+  // PartnerForward is an Incentives & Support layer here, not a second dashboard.
   {
     label: "Partner Workspace",
     roles: ["partner", "admin"],
     items: [
       { to: "/partners-manage", label: "Partner Profile & Opportunities" },
       { to: "/partners-manage/impact", label: "Partner Impact" },
-      { to: "/partnerforward/incentives", label: "Incentive Hub" },
+      { to: "/partnerforward/incentives", label: "Incentives & Support (PartnerForward)" },
     ],
   },
   // Account — visible to every signed-in user

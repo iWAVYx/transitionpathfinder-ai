@@ -476,22 +476,25 @@ function PartnersPage() {
         </div>
       </section>
 
-      {/* PartnerForward — partner growth pathway */}
+      {/* PartnerForward — incentive & support layer (not a second directory) */}
       <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-10 lg:p-12">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 <Sparkles className="h-3.5 w-3.5" />
-                For Partner Organizations
+                Incentives & Support for Partners
               </div>
               <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-                Grow Your Reach With PartnerForward.
+                PartnerForward: The Incentive & Support Layer.
               </h3>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                List your opportunities, track real impact, and explore federal and state
-                incentives that may help offset the cost of inclusive hiring and training.
-                All in one partner-friendly space.
+                A plain-language guide to federal, state, philanthropic, and
+                workforce-development incentives, grants, credits, deductions,
+                and support programs that may help partners grow inclusive
+                hiring, accessibility, and community reach. PartnerForward sits
+                alongside — not on top of — the existing Partner Network and
+                Opportunity Directory.
               </p>
             </div>
             <Link
@@ -503,6 +506,7 @@ function PartnersPage() {
           </div>
         </div>
       </section>
+
 
       {/* ============ CTA — OPEN COMPOSITION ============ */}
       <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">

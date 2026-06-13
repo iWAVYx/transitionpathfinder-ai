@@ -12,6 +12,7 @@ import {
   Building2,
   Settings2,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -239,6 +240,28 @@ function PartnerManagePage() {
             )}
           </div>
         </header>
+
+        {/* PartnerForward — Incentives & Support layer (not a duplicate dashboard) */}
+        <Link
+          to="/partnerforward/incentives"
+          className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 transition hover:border-primary/50 hover:bg-primary/10"
+        >
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              PartnerForward
+            </p>
+            <p className="mt-1 font-display text-base font-medium tracking-tight">
+              Incentives & Support
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Tax credits, grants, sponsorships, inclusive-hiring resources,
+              and accessibility supports — plain language, with links to
+              authoritative sources.
+            </p>
+          </div>
+          <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+        </Link>
+
 
         <Tabs defaultValue="opportunities" className="mt-6">
           <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
