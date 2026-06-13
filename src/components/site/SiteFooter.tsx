@@ -5,7 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 const productLinks = [
   { to: "/platform", label: "The Platform" },
   { to: "/demo", label: "See the Demo" },
-  { to: "/framework", label: "The Framework" },
+  { to: "/programs/transitionforward", label: "TransitionForward (9–12)" },
   { to: "/resources", label: "Resource Hub" },
   { to: "/research", label: "Research" },
 ] as const;
