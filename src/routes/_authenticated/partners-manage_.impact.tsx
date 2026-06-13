@@ -31,7 +31,7 @@ import {
   getImpactSummary,
 } from "@/lib/partnerforward.functions";
 
-export const Route = createFileRoute("/_authenticated/partners-manage/impact")({
+export const Route = createFileRoute("/_authenticated/partners-manage_/impact")({
   head: () => ({ meta: [{ title: "Your Impact — PartnerForward" }] }),
   component: () => (
     <RoleGuard path="/partners-manage">
