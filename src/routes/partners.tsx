@@ -312,6 +312,14 @@ function PartnersPage() {
                       How matching works
                     </Link>
                   </Magnetic>
+                  <Magnetic>
+                    <Link
+                      to="/partnerforward"
+                      className="inline-flex items-center justify-center border border-primary/30 bg-primary/5 px-7 py-3 text-sm font-semibold text-primary hover:bg-primary/10"
+                    >
+                      PartnerForward
+                    </Link>
+                  </Magnetic>
                 </div>
               </Reveal>
             </div>
@@ -465,6 +473,34 @@ function PartnersPage() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* PartnerForward — partner growth pathway */}
+      <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+        <div className="rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-10 lg:p-12">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                <Sparkles className="h-3.5 w-3.5" />
+                For Partner Organizations
+              </div>
+              <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                Grow Your Reach With PartnerForward.
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                List your opportunities, track real impact, and explore federal and state
+                incentives that may help offset the cost of inclusive hiring and training.
+                All in one partner-friendly space.
+              </p>
+            </div>
+            <Link
+              to="/partnerforward"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
+            >
+              Explore PartnerForward <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
