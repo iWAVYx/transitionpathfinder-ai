@@ -42,6 +42,8 @@ const navGroups: NavGroup[] = [
       { to: "/families", label: "For Families", desc: "Plain-language transition planning." },
       { to: "/educators", label: "For Educators", desc: "Tools for transition teams." },
       { to: "/partners", label: "For Partners", desc: "Districts, agencies, and community orgs." },
+      { to: "/bridgeforward", label: "BridgeForward (6-8)", desc: "Middle school to high school planning." },
+      { to: "/partnerforward", label: "PartnerForward", desc: "Expand your reach as a partner org." },
     ],
   },
   {
