@@ -31,6 +31,7 @@ import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BridgeforwardRouteImport } from './routes/bridgeforward'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -72,7 +73,6 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDemoModeRouteImport } from './routes/_authenticated/demo-mode'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCaseloadRouteImport } from './routes/_authenticated/caseload'
-import { Route as AuthenticatedBridgeforwardRouteImport } from './routes/_authenticated/bridgeforward'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -246,6 +246,11 @@ const DemoRoute = DemoRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BridgeforwardRoute = BridgeforwardRouteImport.update({
+  id: '/bridgeforward',
+  path: '/bridgeforward',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -456,12 +461,6 @@ const AuthenticatedCaseloadRoute = AuthenticatedCaseloadRouteImport.update({
   path: '/caseload',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedBridgeforwardRoute =
-  AuthenticatedBridgeforwardRouteImport.update({
-    id: '/bridgeforward',
-    path: '/bridgeforward',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -776,27 +775,27 @@ const AuthenticatedDistrictOverviewRoute =
   } as any)
 const AuthenticatedBridgeforwardVoiceRoute =
   AuthenticatedBridgeforwardVoiceRouteImport.update({
-    id: '/voice',
-    path: '/voice',
-    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+    id: '/bridgeforward/voice',
+    path: '/bridgeforward/voice',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedBridgeforwardSnapshotRoute =
   AuthenticatedBridgeforwardSnapshotRouteImport.update({
-    id: '/snapshot',
-    path: '/snapshot',
-    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+    id: '/bridgeforward/snapshot',
+    path: '/bridgeforward/snapshot',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedBridgeforwardIntakeRoute =
   AuthenticatedBridgeforwardIntakeRouteImport.update({
-    id: '/intake',
-    path: '/intake',
-    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+    id: '/bridgeforward/intake',
+    path: '/bridgeforward/intake',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedBridgeforwardFitFinderRoute =
   AuthenticatedBridgeforwardFitFinderRouteImport.update({
-    id: '/fit-finder',
-    path: '/fit-finder',
-    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+    id: '/bridgeforward/fit-finder',
+    path: '/bridgeforward/fit-finder',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
@@ -837,6 +836,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/blog': typeof BlogRouteWithChildren
+  '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -862,7 +862,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
-  '/bridgeforward': typeof AuthenticatedBridgeforwardRouteWithChildren
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -966,6 +965,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/blog': typeof BlogRouteWithChildren
+  '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -991,7 +991,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
-  '/bridgeforward': typeof AuthenticatedBridgeforwardRouteWithChildren
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -1096,6 +1095,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/blog': typeof BlogRouteWithChildren
+  '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -1121,7 +1121,6 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
-  '/_authenticated/bridgeforward': typeof AuthenticatedBridgeforwardRouteWithChildren
   '/_authenticated/caseload': typeof AuthenticatedCaseloadRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -1227,6 +1226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/blog'
+    | '/bridgeforward'
     | '/contact'
     | '/demo'
     | '/educators'
@@ -1252,7 +1252,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-school'
     | '/analytics'
-    | '/bridgeforward'
     | '/caseload'
     | '/dashboard'
     | '/demo-mode'
@@ -1356,6 +1355,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/blog'
+    | '/bridgeforward'
     | '/contact'
     | '/demo'
     | '/educators'
@@ -1381,7 +1381,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-school'
     | '/analytics'
-    | '/bridgeforward'
     | '/caseload'
     | '/dashboard'
     | '/demo-mode'
@@ -1485,6 +1484,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/blog'
+    | '/bridgeforward'
     | '/contact'
     | '/demo'
     | '/educators'
@@ -1510,7 +1510,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
     | '/_authenticated/analytics'
-    | '/_authenticated/bridgeforward'
     | '/_authenticated/caseload'
     | '/_authenticated/dashboard'
     | '/_authenticated/demo-mode'
@@ -1616,6 +1615,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   BlogRoute: typeof BlogRouteWithChildren
+  BridgeforwardRoute: typeof BridgeforwardRoute
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
   EducatorsRoute: typeof EducatorsRoute
@@ -1812,6 +1812,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bridgeforward': {
+      id: '/bridgeforward'
+      path: '/bridgeforward'
+      fullPath: '/bridgeforward'
+      preLoaderRoute: typeof BridgeforwardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -2099,13 +2106,6 @@ declare module '@tanstack/react-router' {
       path: '/caseload'
       fullPath: '/caseload'
       preLoaderRoute: typeof AuthenticatedCaseloadRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/bridgeforward': {
-      id: '/_authenticated/bridgeforward'
-      path: '/bridgeforward'
-      fullPath: '/bridgeforward'
-      preLoaderRoute: typeof AuthenticatedBridgeforwardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/analytics': {
@@ -2488,31 +2488,31 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/bridgeforward/voice': {
       id: '/_authenticated/bridgeforward/voice'
-      path: '/voice'
+      path: '/bridgeforward/voice'
       fullPath: '/bridgeforward/voice'
       preLoaderRoute: typeof AuthenticatedBridgeforwardVoiceRouteImport
-      parentRoute: typeof AuthenticatedBridgeforwardRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/bridgeforward/snapshot': {
       id: '/_authenticated/bridgeforward/snapshot'
-      path: '/snapshot'
+      path: '/bridgeforward/snapshot'
       fullPath: '/bridgeforward/snapshot'
       preLoaderRoute: typeof AuthenticatedBridgeforwardSnapshotRouteImport
-      parentRoute: typeof AuthenticatedBridgeforwardRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/bridgeforward/intake': {
       id: '/_authenticated/bridgeforward/intake'
-      path: '/intake'
+      path: '/bridgeforward/intake'
       fullPath: '/bridgeforward/intake'
       preLoaderRoute: typeof AuthenticatedBridgeforwardIntakeRouteImport
-      parentRoute: typeof AuthenticatedBridgeforwardRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/bridgeforward/fit-finder': {
       id: '/_authenticated/bridgeforward/fit-finder'
-      path: '/fit-finder'
+      path: '/bridgeforward/fit-finder'
       fullPath: '/bridgeforward/fit-finder'
       preLoaderRoute: typeof AuthenticatedBridgeforwardFitFinderRouteImport
-      parentRoute: typeof AuthenticatedBridgeforwardRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
@@ -2558,29 +2558,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AuthenticatedBridgeforwardRouteChildren {
-  AuthenticatedBridgeforwardFitFinderRoute: typeof AuthenticatedBridgeforwardFitFinderRoute
-  AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
-  AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
-  AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
-}
-
-const AuthenticatedBridgeforwardRouteChildren: AuthenticatedBridgeforwardRouteChildren =
-  {
-    AuthenticatedBridgeforwardFitFinderRoute:
-      AuthenticatedBridgeforwardFitFinderRoute,
-    AuthenticatedBridgeforwardIntakeRoute:
-      AuthenticatedBridgeforwardIntakeRoute,
-    AuthenticatedBridgeforwardSnapshotRoute:
-      AuthenticatedBridgeforwardSnapshotRoute,
-    AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
-  }
-
-const AuthenticatedBridgeforwardRouteWithChildren =
-  AuthenticatedBridgeforwardRoute._addFileChildren(
-    AuthenticatedBridgeforwardRouteChildren,
-  )
 
 interface AuthenticatedDocumentsRouteChildren {
   AuthenticatedDocumentsDocumentIdReviewRoute: typeof AuthenticatedDocumentsDocumentIdReviewRoute
@@ -2736,7 +2713,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
-  AuthenticatedBridgeforwardRoute: typeof AuthenticatedBridgeforwardRouteWithChildren
   AuthenticatedCaseloadRoute: typeof AuthenticatedCaseloadRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDemoModeRoute: typeof AuthenticatedDemoModeRoute
@@ -2759,6 +2735,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
+  AuthenticatedBridgeforwardFitFinderRoute: typeof AuthenticatedBridgeforwardFitFinderRoute
+  AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
+  AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
+  AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
@@ -2774,7 +2754,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
-  AuthenticatedBridgeforwardRoute: AuthenticatedBridgeforwardRouteWithChildren,
   AuthenticatedCaseloadRoute: AuthenticatedCaseloadRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDemoModeRoute: AuthenticatedDemoModeRoute,
@@ -2797,6 +2776,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedTrustRoute: AuthenticatedTrustRoute,
+  AuthenticatedBridgeforwardFitFinderRoute:
+    AuthenticatedBridgeforwardFitFinderRoute,
+  AuthenticatedBridgeforwardIntakeRoute: AuthenticatedBridgeforwardIntakeRoute,
+  AuthenticatedBridgeforwardSnapshotRoute:
+    AuthenticatedBridgeforwardSnapshotRoute,
+  AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
@@ -2851,6 +2836,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   BlogRoute: BlogRouteWithChildren,
+  BridgeforwardRoute: BridgeforwardRoute,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
   EducatorsRoute: EducatorsRoute,

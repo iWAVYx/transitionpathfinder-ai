@@ -16,6 +16,7 @@ import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { getProgramEligibility } from "@/lib/bridgeforward.functions";
 import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
 import { toTitleCase } from "@/lib/title-case";
 
@@ -42,6 +43,14 @@ const navGroups: NavGroup[] = [
       { to: "/families", label: "For Families", desc: "Plain-language transition planning." },
       { to: "/educators", label: "For Educators", desc: "Tools for transition teams." },
       { to: "/partners", label: "For Partners", desc: "Districts, agencies, and community orgs." },
+    ],
+  },
+  {
+    label: "Programs",
+    items: [
+      { to: "/bridgeforward", label: "BridgeForward (6–8)", desc: "Middle-school bridge into high school." },
+      { to: "/framework", label: "TransitionForward (9–12)", desc: "High school planning through graduation." },
+      { to: "/partnerforward", label: "PartnerForward", desc: "For partner organizations and employers." },
     ],
   },
   {
@@ -166,8 +175,10 @@ export function SiteHeader() {
   const { user, signOut } = useAuth();
   const [roles, setRoles] = useState<string[]>([]);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
+  const [hasMS, setHasMS] = useState(false);
   const fetchRoles = useServerFn(getMyRoles);
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
+  const fetchElig = useServerFn(getProgramEligibility);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -180,6 +191,7 @@ export function SiteHeader() {
     if (!user) {
       setRoles([]);
       setIsPlatformAdmin(false);
+      setHasMS(false);
       return;
     }
     let cancelled = false;
@@ -197,15 +209,35 @@ export function SiteHeader() {
       .catch(() => {
         if (!cancelled) setIsPlatformAdmin(false);
       });
+    fetchElig()
+      .then((res) => {
+        if (!cancelled) setHasMS(Boolean(res.hasMiddleSchoolStudent));
+      })
+      .catch(() => {
+        if (!cancelled) setHasMS(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [user, fetchRoles, fetchAdminRoles]);
+  }, [user, fetchRoles, fetchAdminRoles, fetchElig]);
 
   const visibleUserGroups = useMemo(() => {
     const audiences = audiencesForRoles(roles);
-    return userGroups.filter((g) => g.roles.some((r) => audiences.has(r)));
-  }, [roles]);
+    return userGroups
+      .filter((g) => g.roles.some((r) => audiences.has(r)))
+      .map((g) => ({
+        ...g,
+        items: g.items.filter((item) => {
+          // Hide BridgeForward entry from Planning Tools unless the user
+          // is connected to a grade 6–8 student (or is a platform admin).
+          if (item.to === "/bridgeforward" && !hasMS && !audiences.has("admin")) {
+            return false;
+          }
+          return true;
+        }),
+      }))
+      .filter((g) => g.items.length > 0);
+  }, [roles, hasMS]);
 
 
   return (

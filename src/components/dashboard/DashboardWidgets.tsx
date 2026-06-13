@@ -13,6 +13,7 @@ import {
 
 import { listMyReports } from "@/lib/pathway.functions";
 import { summarizeGoalStatuses } from "@/lib/goal-statuses.functions";
+import { getProgramEligibility } from "@/lib/bridgeforward.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 type ReportRow = {
@@ -36,10 +37,12 @@ function formatWhen(iso: string) {
 export function DashboardWidgets() {
   const list = useServerFn(listMyReports);
   const summarize = useServerFn(summarizeGoalStatuses);
+  const fetchElig = useServerFn(getProgramEligibility);
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
   const [updatingGoals, setUpdatingGoals] = useState(false);
   const [goalsError, setGoalsError] = useState(false);
+  const [elig, setElig] = useState<{ hasMiddleSchoolStudent: boolean; isPartner: boolean } | null>(null);
   const reportIdsRef = useRef<string[]>([]);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
@@ -80,10 +83,17 @@ export function DashboardWidgets() {
       .catch(() => {
         if (!cancelled) setReports([]);
       });
+    fetchElig()
+      .then((res) => {
+        if (!cancelled) setElig(res);
+      })
+      .catch(() => {
+        if (!cancelled) setElig({ hasMiddleSchoolStudent: false, isPartner: false });
+      });
     return () => {
       cancelled = true;
     };
-  }, [list, refreshGoals]);
+  }, [list, refreshGoals, fetchElig]);
 
   // Live updates: refetch the summary whenever this user's goal statuses change.
   useEffect(() => {
@@ -214,39 +224,45 @@ export function DashboardWidgets() {
         />
       </div>
 
-      {/* Program pathways — additive entry points */}
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Link
-          to="/bridgeforward"
-          className="group rounded-3xl border border-border/60 bg-card p-5 shadow-soft transition hover:border-primary/40 hover:shadow-md"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-primary">Middle School</div>
-              <div className="mt-1 text-base font-semibold">BridgeForward (Grades 6–8)</div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Intake, student voice, high school fit finder, and a readiness snapshot.
-              </p>
-            </div>
-            <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
-          </div>
-        </Link>
-        <Link
-          to="/partnerforward"
-          className="group rounded-3xl border border-border/60 bg-card p-5 shadow-soft transition hover:border-primary/40 hover:shadow-md"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-primary">Partners</div>
-              <div className="mt-1 text-base font-semibold">PartnerForward</div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Expand your reach, post opportunities, and explore the incentive hub.
-              </p>
-            </div>
-            <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
-          </div>
-        </Link>
-      </div>
+      {/* Program pathways — only render when relevant to this user. */}
+      {elig && (elig.hasMiddleSchoolStudent || elig.isPartner) && (
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {elig.hasMiddleSchoolStudent && (
+            <Link
+              to="/bridgeforward"
+              className="group rounded-3xl border border-border/60 bg-card p-5 shadow-soft transition hover:border-primary/40 hover:shadow-md"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-wide text-primary">Middle School</div>
+                  <div className="mt-1 text-base font-semibold">BridgeForward (Grades 6–8)</div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Intake, student voice, high school fit finder, and a readiness snapshot.
+                  </p>
+                </div>
+                <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+              </div>
+            </Link>
+          )}
+          {elig.isPartner && (
+            <Link
+              to="/partnerforward"
+              className="group rounded-3xl border border-border/60 bg-card p-5 shadow-soft transition hover:border-primary/40 hover:shadow-md"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-wide text-primary">Partners</div>
+                  <div className="mt-1 text-base font-semibold">PartnerForward</div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Expand your reach, post opportunities, and explore the incentive hub.
+                  </p>
+                </div>
+                <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+              </div>
+            </Link>
+          )}
+        </div>
+      )}
 
 
 
