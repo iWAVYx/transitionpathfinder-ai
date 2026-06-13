@@ -552,6 +552,163 @@ export type Database = {
         }
         Relationships: []
       }
+      bridgeforward_profiles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_school: string | null
+          current_supports: string | null
+          district: string | null
+          executive_functioning_needs: string | null
+          extracurricular_interests: string | null
+          family_concerns: string | null
+          favorite_subjects: string | null
+          grade: number | null
+          high_school_options_considered: string | null
+          id: string
+          interests: string | null
+          is_demo: boolean
+          learning_challenges: string | null
+          learning_strengths: string | null
+          preferred_school_environment: string | null
+          social_emotional_support_needs: string | null
+          student_hopes_for_high_school: string | null
+          student_id: string
+          subjects_needing_support: string | null
+          transportation_considerations: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_school?: string | null
+          current_supports?: string | null
+          district?: string | null
+          executive_functioning_needs?: string | null
+          extracurricular_interests?: string | null
+          family_concerns?: string | null
+          favorite_subjects?: string | null
+          grade?: number | null
+          high_school_options_considered?: string | null
+          id?: string
+          interests?: string | null
+          is_demo?: boolean
+          learning_challenges?: string | null
+          learning_strengths?: string | null
+          preferred_school_environment?: string | null
+          social_emotional_support_needs?: string | null
+          student_hopes_for_high_school?: string | null
+          student_id: string
+          subjects_needing_support?: string | null
+          transportation_considerations?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_school?: string | null
+          current_supports?: string | null
+          district?: string | null
+          executive_functioning_needs?: string | null
+          extracurricular_interests?: string | null
+          family_concerns?: string | null
+          favorite_subjects?: string | null
+          grade?: number | null
+          high_school_options_considered?: string | null
+          id?: string
+          interests?: string | null
+          is_demo?: boolean
+          learning_challenges?: string | null
+          learning_strengths?: string | null
+          preferred_school_environment?: string | null
+          social_emotional_support_needs?: string | null
+          student_hopes_for_high_school?: string | null
+          student_id?: string
+          subjects_needing_support?: string | null
+          transportation_considerations?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridgeforward_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bridgeforward_readiness_snapshots: {
+        Row: {
+          before_high_school_checklist: Json
+          confidence_and_self_advocacy: string | null
+          created_at: string
+          created_by: string | null
+          family_priorities: string | null
+          generated_by_ai: boolean
+          high_school_fit_considerations: string | null
+          id: string
+          is_demo: boolean
+          learning_supports: string | null
+          questions_for_school_team: string | null
+          strengths_and_interests: string | null
+          student_id: string
+          student_snapshot: string | null
+          suggested_next_steps: string | null
+          thirty_day_plan: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          before_high_school_checklist?: Json
+          confidence_and_self_advocacy?: string | null
+          created_at?: string
+          created_by?: string | null
+          family_priorities?: string | null
+          generated_by_ai?: boolean
+          high_school_fit_considerations?: string | null
+          id?: string
+          is_demo?: boolean
+          learning_supports?: string | null
+          questions_for_school_team?: string | null
+          strengths_and_interests?: string | null
+          student_id: string
+          student_snapshot?: string | null
+          suggested_next_steps?: string | null
+          thirty_day_plan?: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          before_high_school_checklist?: Json
+          confidence_and_self_advocacy?: string | null
+          created_at?: string
+          created_by?: string | null
+          family_priorities?: string | null
+          generated_by_ai?: boolean
+          high_school_fit_considerations?: string | null
+          id?: string
+          is_demo?: boolean
+          learning_supports?: string | null
+          questions_for_school_team?: string | null
+          strengths_and_interests?: string | null
+          student_id?: string
+          student_snapshot?: string | null
+          suggested_next_steps?: string | null
+          thirty_day_plan?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridgeforward_readiness_snapshots_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_events: {
         Row: {
           all_day: boolean
@@ -1578,6 +1735,140 @@ export type Database = {
           },
         ]
       }
+      high_school_fit_reviews: {
+        Row: {
+          comparison_priorities: Json
+          created_at: string
+          created_by: string | null
+          family_priorities: string | null
+          id: string
+          is_demo: boolean
+          preferred_option_id: string | null
+          questions_for_team: string | null
+          student_id: string
+          student_voice: string | null
+          updated_at: string
+        }
+        Insert: {
+          comparison_priorities?: Json
+          created_at?: string
+          created_by?: string | null
+          family_priorities?: string | null
+          id?: string
+          is_demo?: boolean
+          preferred_option_id?: string | null
+          questions_for_team?: string | null
+          student_id: string
+          student_voice?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comparison_priorities?: Json
+          created_at?: string
+          created_by?: string | null
+          family_priorities?: string | null
+          id?: string
+          is_demo?: boolean
+          preferred_option_id?: string | null
+          questions_for_team?: string | null
+          student_id?: string
+          student_voice?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "high_school_fit_reviews_preferred_option_id_fkey"
+            columns: ["preferred_option_id"]
+            isOneToOne: false
+            referencedRelation: "high_school_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "high_school_fit_reviews_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      high_school_options: {
+        Row: {
+          academic_fit_notes: string | null
+          accessibility_notes: string | null
+          career_technical_notes: string | null
+          cons: string | null
+          contact_info: string | null
+          created_at: string
+          created_by: string | null
+          extracurricular_notes: string | null
+          id: string
+          is_demo: boolean
+          notes: string | null
+          option_type: string
+          pros: string | null
+          rank: number | null
+          school_name: string
+          school_size_environment: string | null
+          student_id: string
+          support_services_notes: string | null
+          transportation_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          academic_fit_notes?: string | null
+          accessibility_notes?: string | null
+          career_technical_notes?: string | null
+          cons?: string | null
+          contact_info?: string | null
+          created_at?: string
+          created_by?: string | null
+          extracurricular_notes?: string | null
+          id?: string
+          is_demo?: boolean
+          notes?: string | null
+          option_type: string
+          pros?: string | null
+          rank?: number | null
+          school_name: string
+          school_size_environment?: string | null
+          student_id: string
+          support_services_notes?: string | null
+          transportation_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academic_fit_notes?: string | null
+          accessibility_notes?: string | null
+          career_technical_notes?: string | null
+          cons?: string | null
+          contact_info?: string | null
+          created_at?: string
+          created_by?: string | null
+          extracurricular_notes?: string | null
+          id?: string
+          is_demo?: boolean
+          notes?: string | null
+          option_type?: string
+          pros?: string | null
+          rank?: number | null
+          school_name?: string
+          school_size_environment?: string | null
+          student_id?: string
+          support_services_notes?: string | null
+          transportation_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "high_school_options_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       iep_access_alerts: {
         Row: {
           acknowledged_at: string | null
@@ -2353,6 +2644,145 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_badges: {
+        Row: {
+          awarded_at: string
+          awarded_by: string | null
+          badge_kind: string
+          created_at: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_kind: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_kind?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_badges_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_impact_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          event_kind: string
+          id: string
+          metadata: Json
+          notes: string | null
+          occurred_at: string
+          organization_id: string
+          participant_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          event_kind: string
+          id?: string
+          metadata?: Json
+          notes?: string | null
+          occurred_at?: string
+          organization_id: string
+          participant_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          event_kind?: string
+          id?: string
+          metadata?: Json
+          notes?: string | null
+          occurred_at?: string
+          organization_id?: string
+          participant_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_impact_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_incentive_resources: {
+        Row: {
+          agency: string | null
+          category: string
+          cautious_disclaimer: string
+          created_at: string
+          external_url: string | null
+          id: string
+          is_published: boolean
+          long_description: string | null
+          short_description: string
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agency?: string | null
+          category: string
+          cautious_disclaimer?: string
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          is_published?: boolean
+          long_description?: string | null
+          short_description: string
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agency?: string | null
+          category?: string
+          cautious_disclaimer?: string
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          is_published?: boolean
+          long_description?: string | null
+          short_description?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partner_network_opportunities: {
         Row: {
           age_range: string | null
@@ -2434,6 +2864,7 @@ export type Database = {
         Row: {
           age_range: string | null
           application_url: string | null
+          capacity: number | null
           contact_email: string | null
           created_at: string
           description: string | null
@@ -2443,7 +2874,9 @@ export type Database = {
           opportunity_type: string
           organization_id: string
           related_career_clusters: Json
+          required_documents: Json
           status: string
+          support_needs_accepted: Json
           support_needs_fit: Json
           title: string
           updated_at: string
@@ -2451,6 +2884,7 @@ export type Database = {
         Insert: {
           age_range?: string | null
           application_url?: string | null
+          capacity?: number | null
           contact_email?: string | null
           created_at?: string
           description?: string | null
@@ -2460,7 +2894,9 @@ export type Database = {
           opportunity_type: string
           organization_id: string
           related_career_clusters?: Json
+          required_documents?: Json
           status?: string
+          support_needs_accepted?: Json
           support_needs_fit?: Json
           title: string
           updated_at?: string
@@ -2468,6 +2904,7 @@ export type Database = {
         Update: {
           age_range?: string | null
           application_url?: string | null
+          capacity?: number | null
           contact_email?: string | null
           created_at?: string
           description?: string | null
@@ -2477,7 +2914,9 @@ export type Database = {
           opportunity_type?: string
           organization_id?: string
           related_career_clusters?: Json
+          required_documents?: Json
           status?: string
+          support_needs_accepted?: Json
           support_needs_fit?: Json
           title?: string
           updated_at?: string
@@ -4285,6 +4724,7 @@ export type Database = {
           age_band: string | null
           created_at: string
           created_by: string
+          grade_band: string | null
           id: string
           is_demo: boolean
           prompt_key: string
@@ -4296,6 +4736,7 @@ export type Database = {
           age_band?: string | null
           created_at?: string
           created_by: string
+          grade_band?: string | null
           id?: string
           is_demo?: boolean
           prompt_key: string
@@ -4307,6 +4748,7 @@ export type Database = {
           age_band?: string | null
           created_at?: string
           created_by?: string
+          grade_band?: string | null
           id?: string
           is_demo?: boolean
           prompt_key?: string
@@ -4339,6 +4781,7 @@ export type Database = {
           photo_url: string | null
           preferred_name: string | null
           primary_disability_category: string | null
+          program_track: string
           readiness_level: string | null
           rights_status: string
           school: string | null
@@ -4371,6 +4814,7 @@ export type Database = {
           photo_url?: string | null
           preferred_name?: string | null
           primary_disability_category?: string | null
+          program_track?: string
           readiness_level?: string | null
           rights_status?: string
           school?: string | null
@@ -4403,6 +4847,7 @@ export type Database = {
           photo_url?: string | null
           preferred_name?: string | null
           primary_disability_category?: string | null
+          program_track?: string
           readiness_level?: string | null
           rights_status?: string
           school?: string | null
