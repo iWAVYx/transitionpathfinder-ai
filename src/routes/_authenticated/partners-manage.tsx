@@ -12,6 +12,7 @@ import {
   Building2,
   Settings2,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
