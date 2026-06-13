@@ -571,10 +571,10 @@ function WaitlistPage() {
                           : "Partner overview"}
                   </a>
                   <a
-                    href="/framework"
+                    href="/programs/transitionforward"
                     className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
                   >
-                    The framework
+                    TransitionForward (9–12)
                   </a>
                 </div>
               </div>
