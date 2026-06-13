@@ -312,6 +312,14 @@ function PartnersPage() {
                       How matching works
                     </Link>
                   </Magnetic>
+                  <Magnetic>
+                    <Link
+                      to="/partnerforward"
+                      className="inline-flex items-center justify-center border border-primary/30 bg-primary/5 px-7 py-3 text-sm font-semibold text-primary hover:bg-primary/10"
+                    >
+                      PartnerForward
+                    </Link>
+                  </Magnetic>
                 </div>
               </Reveal>
             </div>
