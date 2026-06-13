@@ -88,7 +88,7 @@ export const convertWaitlistToInvitation = createServerFn({ method: "POST" })
 
     const { error: updErr } = await supabase
       .from("waitlist")
-      .update({ status: "invited", invited_at: new Date().toISOString() } as never)
+      .update({ status: "invited" } as never)
       .eq("id", data.waitlist_id);
     if (updErr) console.error("convertWaitlistToInvitation: waitlist update failed", updErr);
 
