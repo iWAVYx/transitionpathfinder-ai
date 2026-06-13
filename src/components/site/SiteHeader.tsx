@@ -33,7 +33,6 @@ const navGroups: NavGroup[] = [
     label: "Product",
     items: [
       { to: "/platform", label: "The Platform", desc: "How TransitionForward fits together." },
-      { to: "/framework", label: "The Framework", desc: "Grade 9 to graduation, one connected story." },
       { to: "/demo", label: "See Demo", desc: "A guided walkthrough of a real pathway." },
     ],
   },
@@ -49,7 +48,7 @@ const navGroups: NavGroup[] = [
     label: "Programs",
     items: [
       { to: "/bridgeforward", label: "BridgeForward (6–8)", desc: "Middle-school bridge into high school." },
-      { to: "/framework", label: "TransitionForward (9–12)", desc: "High school planning through graduation." },
+      { to: "/programs/transitionforward", label: "TransitionForward (9–12)", desc: "High school planning through graduation." },
       { to: "/partnerforward", label: "PartnerForward", desc: "Incentives & support for partner organizations." },
     ],
   },
