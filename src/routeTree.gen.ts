@@ -69,6 +69,7 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDemoModeRouteImport } from './routes/_authenticated/demo-mode'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCaseloadRouteImport } from './routes/_authenticated/caseload'
+import { Route as AuthenticatedBridgeforwardRouteImport } from './routes/_authenticated/bridgeforward'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -122,6 +123,10 @@ import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authent
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
+import { Route as AuthenticatedBridgeforwardVoiceRouteImport } from './routes/_authenticated/bridgeforward.voice'
+import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes/_authenticated/bridgeforward.snapshot'
+import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
+import { Route as AuthenticatedBridgeforwardFitFinderRouteImport } from './routes/_authenticated/bridgeforward.fit-finder'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -431,6 +436,12 @@ const AuthenticatedCaseloadRoute = AuthenticatedCaseloadRouteImport.update({
   path: '/caseload',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedBridgeforwardRoute =
+  AuthenticatedBridgeforwardRouteImport.update({
+    id: '/bridgeforward',
+    path: '/bridgeforward',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -737,6 +748,30 @@ const AuthenticatedDistrictOverviewRoute =
     path: '/district/overview',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedBridgeforwardVoiceRoute =
+  AuthenticatedBridgeforwardVoiceRouteImport.update({
+    id: '/voice',
+    path: '/voice',
+    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+  } as any)
+const AuthenticatedBridgeforwardSnapshotRoute =
+  AuthenticatedBridgeforwardSnapshotRouteImport.update({
+    id: '/snapshot',
+    path: '/snapshot',
+    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+  } as any)
+const AuthenticatedBridgeforwardIntakeRoute =
+  AuthenticatedBridgeforwardIntakeRouteImport.update({
+    id: '/intake',
+    path: '/intake',
+    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+  } as any)
+const AuthenticatedBridgeforwardFitFinderRoute =
+  AuthenticatedBridgeforwardFitFinderRouteImport.update({
+    id: '/fit-finder',
+    path: '/fit-finder',
+    getParentRoute: () => AuthenticatedBridgeforwardRoute,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -799,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/bridgeforward': typeof AuthenticatedBridgeforwardRouteWithChildren
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -835,6 +871,10 @@ export interface FileRoutesByFullPath {
   '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
+  '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
+  '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
+  '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
@@ -919,6 +959,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/bridgeforward': typeof AuthenticatedBridgeforwardRouteWithChildren
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -954,6 +995,10 @@ export interface FileRoutesByTo {
   '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
+  '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
+  '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
+  '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
@@ -1040,6 +1085,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
+  '/_authenticated/bridgeforward': typeof AuthenticatedBridgeforwardRouteWithChildren
   '/_authenticated/caseload': typeof AuthenticatedCaseloadRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -1076,6 +1122,10 @@ export interface FileRoutesById {
   '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
+  '/_authenticated/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
+  '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
+  '/_authenticated/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
+  '/_authenticated/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
@@ -1162,6 +1212,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-school'
     | '/analytics'
+    | '/bridgeforward'
     | '/caseload'
     | '/dashboard'
     | '/demo-mode'
@@ -1198,6 +1249,10 @@ export interface FileRouteTypes {
     | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/bridgeforward/fit-finder'
+    | '/bridgeforward/intake'
+    | '/bridgeforward/snapshot'
+    | '/bridgeforward/voice'
     | '/district/overview'
     | '/district/reports'
     | '/district/schools'
@@ -1282,6 +1337,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-school'
     | '/analytics'
+    | '/bridgeforward'
     | '/caseload'
     | '/dashboard'
     | '/demo-mode'
@@ -1317,6 +1373,10 @@ export interface FileRouteTypes {
     | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/bridgeforward/fit-finder'
+    | '/bridgeforward/intake'
+    | '/bridgeforward/snapshot'
+    | '/bridgeforward/voice'
     | '/district/overview'
     | '/district/reports'
     | '/district/schools'
@@ -1402,6 +1462,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
     | '/_authenticated/analytics'
+    | '/_authenticated/bridgeforward'
     | '/_authenticated/caseload'
     | '/_authenticated/dashboard'
     | '/_authenticated/demo-mode'
@@ -1438,6 +1499,10 @@ export interface FileRouteTypes {
     | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
+    | '/_authenticated/bridgeforward/fit-finder'
+    | '/_authenticated/bridgeforward/intake'
+    | '/_authenticated/bridgeforward/snapshot'
+    | '/_authenticated/bridgeforward/voice'
     | '/_authenticated/district/overview'
     | '/_authenticated/district/reports'
     | '/_authenticated/district/schools'
@@ -1963,6 +2028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCaseloadRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/bridgeforward': {
+      id: '/_authenticated/bridgeforward'
+      path: '/bridgeforward'
+      fullPath: '/bridgeforward'
+      preLoaderRoute: typeof AuthenticatedBridgeforwardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/analytics': {
       id: '/_authenticated/analytics'
       path: '/analytics'
@@ -2334,6 +2406,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictOverviewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/bridgeforward/voice': {
+      id: '/_authenticated/bridgeforward/voice'
+      path: '/voice'
+      fullPath: '/bridgeforward/voice'
+      preLoaderRoute: typeof AuthenticatedBridgeforwardVoiceRouteImport
+      parentRoute: typeof AuthenticatedBridgeforwardRoute
+    }
+    '/_authenticated/bridgeforward/snapshot': {
+      id: '/_authenticated/bridgeforward/snapshot'
+      path: '/snapshot'
+      fullPath: '/bridgeforward/snapshot'
+      preLoaderRoute: typeof AuthenticatedBridgeforwardSnapshotRouteImport
+      parentRoute: typeof AuthenticatedBridgeforwardRoute
+    }
+    '/_authenticated/bridgeforward/intake': {
+      id: '/_authenticated/bridgeforward/intake'
+      path: '/intake'
+      fullPath: '/bridgeforward/intake'
+      preLoaderRoute: typeof AuthenticatedBridgeforwardIntakeRouteImport
+      parentRoute: typeof AuthenticatedBridgeforwardRoute
+    }
+    '/_authenticated/bridgeforward/fit-finder': {
+      id: '/_authenticated/bridgeforward/fit-finder'
+      path: '/fit-finder'
+      fullPath: '/bridgeforward/fit-finder'
+      preLoaderRoute: typeof AuthenticatedBridgeforwardFitFinderRouteImport
+      parentRoute: typeof AuthenticatedBridgeforwardRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -2378,6 +2478,29 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedBridgeforwardRouteChildren {
+  AuthenticatedBridgeforwardFitFinderRoute: typeof AuthenticatedBridgeforwardFitFinderRoute
+  AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
+  AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
+  AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
+}
+
+const AuthenticatedBridgeforwardRouteChildren: AuthenticatedBridgeforwardRouteChildren =
+  {
+    AuthenticatedBridgeforwardFitFinderRoute:
+      AuthenticatedBridgeforwardFitFinderRoute,
+    AuthenticatedBridgeforwardIntakeRoute:
+      AuthenticatedBridgeforwardIntakeRoute,
+    AuthenticatedBridgeforwardSnapshotRoute:
+      AuthenticatedBridgeforwardSnapshotRoute,
+    AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
+  }
+
+const AuthenticatedBridgeforwardRouteWithChildren =
+  AuthenticatedBridgeforwardRoute._addFileChildren(
+    AuthenticatedBridgeforwardRouteChildren,
+  )
 
 interface AuthenticatedDocumentsRouteChildren {
   AuthenticatedDocumentsDocumentIdReviewRoute: typeof AuthenticatedDocumentsDocumentIdReviewRoute
@@ -2533,6 +2656,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
+  AuthenticatedBridgeforwardRoute: typeof AuthenticatedBridgeforwardRouteWithChildren
   AuthenticatedCaseloadRoute: typeof AuthenticatedCaseloadRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDemoModeRoute: typeof AuthenticatedDemoModeRoute
@@ -2569,6 +2693,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
+  AuthenticatedBridgeforwardRoute: AuthenticatedBridgeforwardRouteWithChildren,
   AuthenticatedCaseloadRoute: AuthenticatedCaseloadRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDemoModeRoute: AuthenticatedDemoModeRoute,

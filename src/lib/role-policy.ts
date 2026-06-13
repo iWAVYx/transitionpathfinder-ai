@@ -77,6 +77,7 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/feed": ["family", "educator", "student", "admin"],
   "/messages": ["family", "educator", "student", "admin"],
   "/student-voice": ["family", "educator", "student", "admin"],
+  "/bridgeforward": ["family", "educator", "student", "admin"],
   "/forms": ["family", "educator", "student", "admin"],
   // Partners may browse the opportunity catalog they contribute to.
   "/opportunities": ["family", "educator", "student", "admin", "partner"],
