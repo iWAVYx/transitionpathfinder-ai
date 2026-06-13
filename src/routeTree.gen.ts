@@ -36,6 +36,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
 import { Route as Login2faRouteImport } from './routes/login.2fa'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
@@ -261,6 +262,11 @@ const Login2faRoute = Login2faRouteImport.update({
   id: '/2fa',
   path: '/2fa',
   getParentRoute: () => LoginRoute,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
@@ -825,6 +831,7 @@ export interface FileRoutesByFullPath {
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
@@ -943,6 +950,7 @@ export interface FileRoutesByTo {
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
@@ -1064,6 +1072,7 @@ export interface FileRoutesById {
   '/demo_/report': typeof DemoReportRoute
   '/demo_/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
@@ -1185,6 +1194,7 @@ export interface FileRouteTypes {
     | '/demo/report'
     | '/demo/resources'
     | '/email/unsubscribe'
+    | '/invite/$token'
     | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
@@ -1303,6 +1313,7 @@ export interface FileRouteTypes {
     | '/demo/report'
     | '/demo/resources'
     | '/email/unsubscribe'
+    | '/invite/$token'
     | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
@@ -1423,6 +1434,7 @@ export interface FileRouteTypes {
     | '/demo_/report'
     | '/demo_/resources'
     | '/email/unsubscribe'
+    | '/invite/$token'
     | '/login/2fa'
     | '/pathways/$pathwayId'
     | '/share/$token'
@@ -1518,6 +1530,7 @@ export interface RootRouteChildren {
   DemoReportRoute: typeof DemoReportRoute
   DemoResourcesRoute: typeof DemoResourcesRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  InviteTokenRoute: typeof InviteTokenRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ShareTokenRoute: typeof ShareTokenRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -1718,6 +1731,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login/2fa'
       preLoaderRoute: typeof Login2faRouteImport
       parentRoute: typeof LoginRoute
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
@@ -2640,6 +2660,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoReportRoute: DemoReportRoute,
   DemoResourcesRoute: DemoResourcesRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  InviteTokenRoute: InviteTokenRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ShareTokenRoute: ShareTokenRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,

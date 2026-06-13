@@ -26,6 +26,7 @@ import {
   type WaitlistNote,
   type WaitlistStatus,
 } from "@/lib/owner/owner.functions";
+import { convertWaitlistToInvitation } from "@/lib/owner/waitlist-conversion.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/waitlist")({
   head: () => ({ meta: [{ title: "Waitlist — Admin Hub" }] }),
@@ -405,11 +406,61 @@ function WaitlistDetailDrawer({
               </ul>
             </div>
 
-            <div className="border-t border-border pt-4">
+            <div className="space-y-3 border-t border-border pt-4">
+              <ConvertToInvitationButton entry={entry} />
               <Button variant="destructive" size="sm" onClick={onDelete}>
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete entry
               </Button>
             </div>
+          </div>
+        )}
+      </aside>
+    </div>
+  );
+}
+
+function ConvertToInvitationButton({ entry }: { entry: WaitlistEntry }) {
+  const convert = useServerFn(convertWaitlistToInvitation);
+  const [busy, setBusy] = useState(false);
+
+  const roleMap: Record<string, { role: string; type: string }> = {
+    parent: { role: "parent", type: "connect_to_student" },
+    family: { role: "parent", type: "connect_to_student" },
+    student: { role: "student", type: "connect_to_student" },
+    educator: { role: "educator", type: "join_school" },
+    administrator: { role: "school_admin", type: "join_school" },
+    district: { role: "district_admin", type: "join_district" },
+    partner: { role: "partner", type: "join_partner_org" },
+  };
+  const mapped = roleMap[entry.role ?? ""] ?? { role: "educator", type: "join_school" };
+
+  async function handle() {
+    setBusy(true);
+    try {
+      const r = await convert({
+        data: {
+          waitlist_id: entry.id,
+          invited_role: mapped.role as never,
+          invitation_type: mapped.type as never,
+          expires_in_days: 14,
+        },
+      });
+      const url = `${window.location.origin}/invite/${r.invitation.token}`;
+      await navigator.clipboard?.writeText(url).catch(() => {});
+      toast.success("Invitation created — link copied to clipboard.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not create invitation.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Button size="sm" onClick={handle} disabled={busy}>
+      {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Mail className="mr-1.5 h-3.5 w-3.5" />}
+      Convert to invitation
+    </Button>
+  );
           </div>
         )}
       </aside>
