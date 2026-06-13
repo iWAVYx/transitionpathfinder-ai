@@ -84,7 +84,7 @@ import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authen
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
-import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage.impact'
+import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage_.impact'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
 import { Route as AuthenticatedOwnerTestingScriptsRouteImport } from './routes/_authenticated/owner.testing-scripts'
@@ -525,9 +525,9 @@ const AuthenticatedReportsReportIdRoute =
   } as any)
 const AuthenticatedPartnersManageImpactRoute =
   AuthenticatedPartnersManageImpactRouteImport.update({
-    id: '/impact',
-    path: '/impact',
-    getParentRoute: () => AuthenticatedPartnersManageRoute,
+    id: '/partners-manage_/impact',
+    path: '/partners-manage/impact',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedOwnerWaitlistRoute =
   AuthenticatedOwnerWaitlistRouteImport.update({
@@ -876,7 +876,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
-  '/partners-manage': typeof AuthenticatedPartnersManageRouteWithChildren
+  '/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -1004,7 +1004,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
-  '/partners-manage': typeof AuthenticatedPartnersManageRouteWithChildren
+  '/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -1135,7 +1135,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
-  '/_authenticated/partners-manage': typeof AuthenticatedPartnersManageRouteWithChildren
+  '/_authenticated/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -1205,7 +1205,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
-  '/_authenticated/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
+  '/_authenticated/partners-manage_/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
@@ -1594,7 +1594,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/testing-scripts'
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
-    | '/_authenticated/partners-manage/impact'
+    | '/_authenticated/partners-manage_/impact'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
@@ -2185,12 +2185,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsReportIdRouteImport
       parentRoute: typeof AuthenticatedReportsRoute
     }
-    '/_authenticated/partners-manage/impact': {
-      id: '/_authenticated/partners-manage/impact'
-      path: '/impact'
+    '/_authenticated/partners-manage_/impact': {
+      id: '/_authenticated/partners-manage_/impact'
+      path: '/partners-manage/impact'
       fullPath: '/partners-manage/impact'
       preLoaderRoute: typeof AuthenticatedPartnersManageImpactRouteImport
-      parentRoute: typeof AuthenticatedPartnersManageRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/owner/waitlist': {
       id: '/_authenticated/owner/waitlist'
@@ -2708,21 +2708,6 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
 const AuthenticatedOwnerRouteWithChildren =
   AuthenticatedOwnerRoute._addFileChildren(AuthenticatedOwnerRouteChildren)
 
-interface AuthenticatedPartnersManageRouteChildren {
-  AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
-}
-
-const AuthenticatedPartnersManageRouteChildren: AuthenticatedPartnersManageRouteChildren =
-  {
-    AuthenticatedPartnersManageImpactRoute:
-      AuthenticatedPartnersManageImpactRoute,
-  }
-
-const AuthenticatedPartnersManageRouteWithChildren =
-  AuthenticatedPartnersManageRoute._addFileChildren(
-    AuthenticatedPartnersManageRouteChildren,
-  )
-
 interface AuthenticatedReportsRouteChildren {
   AuthenticatedReportsReportIdRoute: typeof AuthenticatedReportsReportIdRoute
 }
@@ -2765,7 +2750,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
-  AuthenticatedPartnersManageRoute: typeof AuthenticatedPartnersManageRouteWithChildren
+  AuthenticatedPartnersManageRoute: typeof AuthenticatedPartnersManageRoute
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
@@ -2778,6 +2763,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
+  AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
@@ -2802,8 +2788,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
-  AuthenticatedPartnersManageRoute:
-    AuthenticatedPartnersManageRouteWithChildren,
+  AuthenticatedPartnersManageRoute: AuthenticatedPartnersManageRoute,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
@@ -2816,6 +2801,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
+  AuthenticatedPartnersManageImpactRoute:
+    AuthenticatedPartnersManageImpactRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
