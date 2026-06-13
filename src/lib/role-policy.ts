@@ -79,7 +79,13 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/feed": ["family", "educator", "student", "admin"],
   "/messages": ["family", "educator", "student", "admin"],
   "/student-voice": ["family", "educator", "student", "admin"],
+  // BridgeForward dashboard tools — middle-school audiences only.
+  // The /bridgeforward landing page is PUBLIC (no guard).
   "/bridgeforward": ["family", "educator", "student", "admin"],
+  "/bridgeforward/intake": ["family", "educator", "student", "admin"],
+  "/bridgeforward/voice": ["family", "educator", "student", "admin"],
+  "/bridgeforward/fit-finder": ["family", "educator", "student", "admin"],
+  "/bridgeforward/snapshot": ["family", "educator", "student", "admin"],
   "/forms": ["family", "educator", "student", "admin"],
   // Partners may browse the opportunity catalog they contribute to.
   "/opportunities": ["family", "educator", "student", "admin", "partner"],
