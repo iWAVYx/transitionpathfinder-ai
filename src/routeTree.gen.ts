@@ -21,6 +21,8 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PartnerforwardRouteImport } from './routes/partnerforward'
+import { Route as PartnerInterestRouteImport } from './routes/partner-interest'
 import { Route as PartnerDirectoryRouteImport } from './routes/partner-directory'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HelpRouteImport } from './routes/help'
@@ -35,6 +37,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
+import { Route as PartnerforwardIncentivesRouteImport } from './routes/partnerforward.incentives'
 import { Route as Login2faRouteImport } from './routes/login.2fa'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
@@ -81,6 +84,7 @@ import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authen
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
+import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage.impact'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
 import { Route as AuthenticatedOwnerTestingScriptsRouteImport } from './routes/_authenticated/owner.testing-scripts'
@@ -194,6 +198,16 @@ const PartnersRoute = PartnersRouteImport.update({
   path: '/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnerforwardRoute = PartnerforwardRouteImport.update({
+  id: '/partnerforward',
+  path: '/partnerforward',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerInterestRoute = PartnerInterestRouteImport.update({
+  id: '/partner-interest',
+  path: '/partner-interest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartnerDirectoryRoute = PartnerDirectoryRouteImport.update({
   id: '/partner-directory',
   path: '/partner-directory',
@@ -263,6 +277,12 @@ const PathwaysPathwayIdRoute = PathwaysPathwayIdRouteImport.update({
   path: '/pathways/$pathwayId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnerforwardIncentivesRoute =
+  PartnerforwardIncentivesRouteImport.update({
+    id: '/incentives',
+    path: '/incentives',
+    getParentRoute: () => PartnerforwardRoute,
+  } as any)
 const Login2faRoute = Login2faRouteImport.update({
   id: '/2fa',
   path: '/2fa',
@@ -502,6 +522,12 @@ const AuthenticatedReportsReportIdRoute =
     id: '/$reportId',
     path: '/$reportId',
     getParentRoute: () => AuthenticatedReportsRoute,
+  } as any)
+const AuthenticatedPartnersManageImpactRoute =
+  AuthenticatedPartnersManageImpactRouteImport.update({
+    id: '/impact',
+    path: '/impact',
+    getParentRoute: () => AuthenticatedPartnersManageRoute,
   } as any)
 const AuthenticatedOwnerWaitlistRoute =
   AuthenticatedOwnerWaitlistRouteImport.update({
@@ -819,6 +845,8 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
+  '/partner-interest': typeof PartnerInterestRoute
+  '/partnerforward': typeof PartnerforwardRouteWithChildren
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -848,7 +876,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
-  '/partners-manage': typeof AuthenticatedPartnersManageRoute
+  '/partners-manage': typeof AuthenticatedPartnersManageRouteWithChildren
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -869,6 +897,7 @@ export interface FileRoutesByFullPath {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
+  '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -917,6 +946,7 @@ export interface FileRoutesByFullPath {
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
@@ -944,6 +974,8 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
+  '/partner-interest': typeof PartnerInterestRoute
+  '/partnerforward': typeof PartnerforwardRouteWithChildren
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -972,7 +1004,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
-  '/partners-manage': typeof AuthenticatedPartnersManageRoute
+  '/partners-manage': typeof AuthenticatedPartnersManageRouteWithChildren
   '/pathway': typeof AuthenticatedPathwayRoute
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -993,6 +1025,7 @@ export interface FileRoutesByTo {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
+  '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -1041,6 +1074,7 @@ export interface FileRoutesByTo {
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
@@ -1070,6 +1104,8 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
+  '/partner-interest': typeof PartnerInterestRoute
+  '/partnerforward': typeof PartnerforwardRouteWithChildren
   '/partners': typeof PartnersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -1099,7 +1135,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
-  '/_authenticated/partners-manage': typeof AuthenticatedPartnersManageRoute
+  '/_authenticated/partners-manage': typeof AuthenticatedPartnersManageRouteWithChildren
   '/_authenticated/pathway': typeof AuthenticatedPathwayRoute
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
@@ -1120,6 +1156,7 @@ export interface FileRoutesById {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
+  '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/share/$token': typeof ShareTokenRoute
   '/_authenticated/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -1168,6 +1205,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/_authenticated/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
@@ -1197,6 +1235,8 @@ export interface FileRouteTypes {
     | '/help'
     | '/login'
     | '/partner-directory'
+    | '/partner-interest'
+    | '/partnerforward'
     | '/partners'
     | '/platform'
     | '/pricing'
@@ -1247,6 +1287,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/invite/$token'
     | '/login/2fa'
+    | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/bridgeforward/fit-finder'
@@ -1295,6 +1336,7 @@ export interface FileRouteTypes {
     | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
+    | '/partners-manage/impact'
     | '/reports/$reportId'
     | '/school/implementation'
     | '/school/overview'
@@ -1322,6 +1364,8 @@ export interface FileRouteTypes {
     | '/help'
     | '/login'
     | '/partner-directory'
+    | '/partner-interest'
+    | '/partnerforward'
     | '/partners'
     | '/platform'
     | '/pricing'
@@ -1371,6 +1415,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/invite/$token'
     | '/login/2fa'
+    | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/bridgeforward/fit-finder'
@@ -1419,6 +1464,7 @@ export interface FileRouteTypes {
     | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
+    | '/partners-manage/impact'
     | '/reports/$reportId'
     | '/school/implementation'
     | '/school/overview'
@@ -1447,6 +1493,8 @@ export interface FileRouteTypes {
     | '/help'
     | '/login'
     | '/partner-directory'
+    | '/partner-interest'
+    | '/partnerforward'
     | '/partners'
     | '/platform'
     | '/pricing'
@@ -1497,6 +1545,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/invite/$token'
     | '/login/2fa'
+    | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
     | '/share/$token'
     | '/_authenticated/bridgeforward/fit-finder'
@@ -1545,6 +1594,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/testing-scripts'
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
+    | '/_authenticated/partners-manage/impact'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
@@ -1574,6 +1624,8 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRouteWithChildren
   PartnerDirectoryRoute: typeof PartnerDirectoryRoute
+  PartnerInterestRoute: typeof PartnerInterestRoute
+  PartnerforwardRoute: typeof PartnerforwardRouteWithChildren
   PartnersRoute: typeof PartnersRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
@@ -1692,6 +1744,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partnerforward': {
+      id: '/partnerforward'
+      path: '/partnerforward'
+      fullPath: '/partnerforward'
+      preLoaderRoute: typeof PartnerforwardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner-interest': {
+      id: '/partner-interest'
+      path: '/partner-interest'
+      fullPath: '/partner-interest'
+      preLoaderRoute: typeof PartnerInterestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partner-directory': {
       id: '/partner-directory'
       path: '/partner-directory'
@@ -1789,6 +1855,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pathways/$pathwayId'
       preLoaderRoute: typeof PathwaysPathwayIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/partnerforward/incentives': {
+      id: '/partnerforward/incentives'
+      path: '/incentives'
+      fullPath: '/partnerforward/incentives'
+      preLoaderRoute: typeof PartnerforwardIncentivesRouteImport
+      parentRoute: typeof PartnerforwardRoute
     }
     '/login/2fa': {
       id: '/login/2fa'
@@ -2111,6 +2184,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/reports/$reportId'
       preLoaderRoute: typeof AuthenticatedReportsReportIdRouteImport
       parentRoute: typeof AuthenticatedReportsRoute
+    }
+    '/_authenticated/partners-manage/impact': {
+      id: '/_authenticated/partners-manage/impact'
+      path: '/impact'
+      fullPath: '/partners-manage/impact'
+      preLoaderRoute: typeof AuthenticatedPartnersManageImpactRouteImport
+      parentRoute: typeof AuthenticatedPartnersManageRoute
     }
     '/_authenticated/owner/waitlist': {
       id: '/_authenticated/owner/waitlist'
@@ -2628,6 +2708,21 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
 const AuthenticatedOwnerRouteWithChildren =
   AuthenticatedOwnerRoute._addFileChildren(AuthenticatedOwnerRouteChildren)
 
+interface AuthenticatedPartnersManageRouteChildren {
+  AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
+}
+
+const AuthenticatedPartnersManageRouteChildren: AuthenticatedPartnersManageRouteChildren =
+  {
+    AuthenticatedPartnersManageImpactRoute:
+      AuthenticatedPartnersManageImpactRoute,
+  }
+
+const AuthenticatedPartnersManageRouteWithChildren =
+  AuthenticatedPartnersManageRoute._addFileChildren(
+    AuthenticatedPartnersManageRouteChildren,
+  )
+
 interface AuthenticatedReportsRouteChildren {
   AuthenticatedReportsReportIdRoute: typeof AuthenticatedReportsReportIdRoute
 }
@@ -2670,7 +2765,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
-  AuthenticatedPartnersManageRoute: typeof AuthenticatedPartnersManageRoute
+  AuthenticatedPartnersManageRoute: typeof AuthenticatedPartnersManageRouteWithChildren
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRoute
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
@@ -2707,7 +2802,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
-  AuthenticatedPartnersManageRoute: AuthenticatedPartnersManageRoute,
+  AuthenticatedPartnersManageRoute:
+    AuthenticatedPartnersManageRouteWithChildren,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRoute,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
@@ -2751,6 +2847,18 @@ const LoginRouteChildren: LoginRouteChildren = {
 
 const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
 
+interface PartnerforwardRouteChildren {
+  PartnerforwardIncentivesRoute: typeof PartnerforwardIncentivesRoute
+}
+
+const PartnerforwardRouteChildren: PartnerforwardRouteChildren = {
+  PartnerforwardIncentivesRoute: PartnerforwardIncentivesRoute,
+}
+
+const PartnerforwardRouteWithChildren = PartnerforwardRoute._addFileChildren(
+  PartnerforwardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -2764,6 +2872,8 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   LoginRoute: LoginRouteWithChildren,
   PartnerDirectoryRoute: PartnerDirectoryRoute,
+  PartnerInterestRoute: PartnerInterestRoute,
+  PartnerforwardRoute: PartnerforwardRouteWithChildren,
   PartnersRoute: PartnersRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
