@@ -48,6 +48,18 @@ import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist"
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
 import { RoleGuard } from "@/components/RoleGuard";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
+import { AccessPendingCard } from "@/components/access/AccessPendingCard";
+import { useEntitlement } from "@/hooks/use-entitlement";
+
+function EntitlementGate() {
+  const { isActive, loading } = useEntitlement();
+  if (loading || isActive) return null;
+  return (
+    <div className="mb-4">
+      <AccessPendingCard />
+    </div>
+  );
+}
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -344,6 +356,7 @@ function DashboardPage() {
 
         <div className="mt-4">
           <InvitesInbox />
+          <EntitlementGate />
           <NextBestAction surface="family" />
           <JourneyStrip surface="family" className="mt-4" />
           <OnboardingChecklist surface="family" className="mt-4" />
