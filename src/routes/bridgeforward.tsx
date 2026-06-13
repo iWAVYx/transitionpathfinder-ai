@@ -71,7 +71,7 @@ function BridgeForwardPublicPage() {
     }
     let cancelled = false;
     fetchElig()
-      .then((r) => {
+      .then((r: { hasMiddleSchoolStudent: boolean; isPartner: boolean }) => {
         if (!cancelled) setEligible(Boolean(r.hasMiddleSchoolStudent));
       })
       .catch(() => {
