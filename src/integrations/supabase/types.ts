@@ -828,6 +828,7 @@ export type Database = {
           phone: string | null
           source_page: string | null
           status: string
+          submitted_by_user_id: string | null
           updated_at: string
         }
         Insert: {
@@ -843,6 +844,7 @@ export type Database = {
           phone?: string | null
           source_page?: string | null
           status?: string
+          submitted_by_user_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -858,6 +860,7 @@ export type Database = {
           phone?: string | null
           source_page?: string | null
           status?: string
+          submitted_by_user_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -4959,6 +4962,13 @@ export type Database = {
         Returns: boolean
       }
       claim_admin_if_unclaimed: { Args: never; Returns: boolean }
+      consume_unsubscribe_token: {
+        Args: { _token: string }
+        Returns: {
+          already_used: boolean
+          email: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -4979,6 +4989,14 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_peer_profile: {
+        Args: { _peer_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
       }
       has_active_entitlement: {
         Args: { _org_id: string; _plan_kind?: string }
@@ -5027,6 +5045,17 @@ export type Database = {
           message: Json
           msg_id: number
           read_ct: number
+        }[]
+      }
+      resolve_admin_invitation: {
+        Args: { _token: string }
+        Returns: {
+          accepted_at: string
+          email: string
+          expires_at: string
+          id: string
+          revoked_at: string
+          role: Database["public"]["Enums"]["admin_role"]
         }[]
       }
       resolve_share_token: {
