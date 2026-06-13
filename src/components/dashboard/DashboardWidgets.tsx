@@ -83,10 +83,17 @@ export function DashboardWidgets() {
       .catch(() => {
         if (!cancelled) setReports([]);
       });
+    fetchElig()
+      .then((res) => {
+        if (!cancelled) setElig(res);
+      })
+      .catch(() => {
+        if (!cancelled) setElig({ hasMiddleSchoolStudent: false, isPartner: false });
+      });
     return () => {
       cancelled = true;
     };
-  }, [list, refreshGoals]);
+  }, [list, refreshGoals, fetchElig]);
 
   // Live updates: refetch the summary whenever this user's goal statuses change.
   useEffect(() => {
