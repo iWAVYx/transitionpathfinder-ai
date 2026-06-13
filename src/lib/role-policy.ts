@@ -63,6 +63,7 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
 
   "/partners-manage": ["partner", "admin"],
   "/partners-manage/impact": ["partner", "admin"],
+
   "/school/overview": ["school_admin", "admin"],
   "/school/team": ["school_admin", "admin"],
   "/school/reports": ["school_admin", "admin"],
