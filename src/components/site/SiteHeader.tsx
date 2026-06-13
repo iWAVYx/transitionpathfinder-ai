@@ -143,6 +143,8 @@ const userGroups: UserNavGroup[] = [
     roles: ["partner", "admin"],
     items: [
       { to: "/partners-manage", label: "Partner Profile & Opportunities" },
+      { to: "/partners-manage/impact", label: "Partner Impact" },
+      { to: "/partnerforward/incentives", label: "Incentive Hub" },
     ],
   },
   // Account — visible to every signed-in user
