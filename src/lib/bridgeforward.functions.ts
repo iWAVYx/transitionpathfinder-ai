@@ -348,3 +348,61 @@ export const MIDDLE_SCHOOL_VOICE_PROMPTS = [
   { key: "ms-hs-worries", question: "What are you a little worried about for high school?" },
   { key: "voice-meeting", question: "What do you want your team to know at your next meeting?" },
 ] as const;
+
+// -------- Program eligibility (drives nav + dashboard visibility) --------
+
+const MIDDLE_SCHOOL_BAND_PATTERNS = [
+  "middle",
+  "6-8",
+  "6–8",
+  "grade_6",
+  "grade_7",
+  "grade_8",
+  "6th",
+  "7th",
+  "8th",
+];
+
+function isMiddleSchoolBand(band: string | null | undefined): boolean {
+  if (!band) return false;
+  const v = band.toString().toLowerCase().trim();
+  if (["6", "7", "8"].includes(v)) return true;
+  return MIDDLE_SCHOOL_BAND_PATTERNS.some((p) => v.includes(p));
+}
+
+/**
+ * Returns flags describing which program pathways the current user should
+ * see in nav / dashboard. RLS scopes the student query, so this only
+ * surfaces students the user can actually access.
+ */
+export const getProgramEligibility = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    // Any visible student in a middle-school band, OR an existing
+    // BridgeForward profile on a visible student.
+    const [{ data: students }, { data: bfProfiles }, { data: partnerRole }] =
+      await Promise.all([
+        supabase.from("students").select("id, grade_band"),
+        supabase.from("bridgeforward_profiles").select("student_id, grade"),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .eq("role", "partner")
+          .maybeSingle(),
+      ]);
+
+    const bandHit = (students ?? []).some((s) =>
+      isMiddleSchoolBand(s.grade_band),
+    );
+    const profileHit = (bfProfiles ?? []).some(
+      (p) => p.grade == null || (p.grade >= 6 && p.grade <= 8),
+    );
+
+    return {
+      hasMiddleSchoolStudent: bandHit || profileHit,
+      isPartner: Boolean(partnerRole),
+    };
+  });

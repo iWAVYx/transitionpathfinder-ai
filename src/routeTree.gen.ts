@@ -31,6 +31,7 @@ import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BridgeforwardRouteImport } from './routes/bridgeforward'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -245,6 +246,11 @@ const DemoRoute = DemoRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BridgeforwardRoute = BridgeforwardRouteImport.update({
+  id: '/bridgeforward',
+  path: '/bridgeforward',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -830,6 +836,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/blog': typeof BlogRouteWithChildren
+  '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -958,6 +965,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/blog': typeof BlogRouteWithChildren
+  '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -1087,6 +1095,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/blog': typeof BlogRouteWithChildren
+  '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/educators': typeof EducatorsRoute
@@ -1217,6 +1226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/blog'
+    | '/bridgeforward'
     | '/contact'
     | '/demo'
     | '/educators'
@@ -1345,6 +1355,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/blog'
+    | '/bridgeforward'
     | '/contact'
     | '/demo'
     | '/educators'
@@ -1473,6 +1484,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/blog'
+    | '/bridgeforward'
     | '/contact'
     | '/demo'
     | '/educators'
@@ -1603,6 +1615,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   BlogRoute: typeof BlogRouteWithChildren
+  BridgeforwardRoute: typeof BridgeforwardRoute
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
   EducatorsRoute: typeof EducatorsRoute
@@ -1799,6 +1812,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bridgeforward': {
+      id: '/bridgeforward'
+      path: '/bridgeforward'
+      fullPath: '/bridgeforward'
+      preLoaderRoute: typeof BridgeforwardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -2816,6 +2836,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   BlogRoute: BlogRouteWithChildren,
+  BridgeforwardRoute: BridgeforwardRoute,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
   EducatorsRoute: EducatorsRoute,
