@@ -42,6 +42,8 @@ const navGroups: NavGroup[] = [
       { to: "/families", label: "For Families", desc: "Plain-language transition planning." },
       { to: "/educators", label: "For Educators", desc: "Tools for transition teams." },
       { to: "/partners", label: "For Partners", desc: "Districts, agencies, and community orgs." },
+      { to: "/bridgeforward", label: "BridgeForward (6-8)", desc: "Middle school to high school planning." },
+      { to: "/partnerforward", label: "PartnerForward", desc: "Expand your reach as a partner org." },
     ],
   },
   {
@@ -90,6 +92,7 @@ const userGroups: UserNavGroup[] = [
       { to: "/student-voice", label: "Student Voice" },
       { to: "/ppt-prep", label: "PPT / IEP Meeting Prep" },
       { to: "/meetings", label: "Meetings" },
+      { to: "/bridgeforward", label: "BridgeForward (Middle School)" },
       { to: "/trust", label: "Trust & Consent" },
       { to: "/demo-mode", label: "Demo Mode" },
     ],
@@ -140,6 +143,8 @@ const userGroups: UserNavGroup[] = [
     roles: ["partner", "admin"],
     items: [
       { to: "/partners-manage", label: "Partner Profile & Opportunities" },
+      { to: "/partners-manage/impact", label: "Partner Impact" },
+      { to: "/partnerforward/incentives", label: "Incentive Hub" },
     ],
   },
   // Account — visible to every signed-in user
