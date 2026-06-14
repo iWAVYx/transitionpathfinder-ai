@@ -696,9 +696,9 @@ const SOLUTIONS = [
 
 function ProblemSolution() {
   return (
-    <section className="relative overflow-hidden bg-[#1a1410] py-10 md:py-14">
+    <section className="relative overflow-hidden bg-[#1a1410] py-8 md:py-14">
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid gap-x-12 gap-y-12 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
+        <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[1fr_auto_1fr] lg:items-start lg:gap-y-12">
           {/* Problem — editorial, no card */}
           <Reveal>
             <div className="relative">
@@ -706,14 +706,14 @@ function ProblemSolution() {
                 <span className="h-px w-8 bg-red-500/60" />
                 The Problem
               </div>
-              <h3 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl">
+              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4">
                 Paperwork
                 <br />
                 <span className="italic text-white/50">
                   without a path.
                 </span>
               </h3>
-              <div className="mt-6 max-w-md space-y-3 border-l border-red-500/30 pl-5 text-[15px] leading-relaxed text-white/60">
+              <div className="mt-4 max-w-md space-y-2.5 border-l border-red-500/30 pl-4 text-[15px] leading-relaxed text-white/60 sm:space-y-3 sm:pl-5 md:mt-6">
                 {PROBLEMS.map((p) => (
                   <p key={p}>{p}.</p>
                 ))}
@@ -736,13 +736,13 @@ function ProblemSolution() {
                 <span className="h-px w-8 bg-amber-300/60" />
                 The Response
               </div>
-              <h3 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl">
+              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4">
                 A platform
                 <br />
                 <span className="italic text-amber-300/90">built for the plan.</span>
               </h3>
 
-              <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-[15px] text-white/70">
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[15px] text-white/70 md:mt-6">
                 {SOLUTIONS.map((s, i) => {
                   const Icon = s.icon;
                   return (
@@ -781,7 +781,7 @@ const FLOW = [
 
 function PaperworkToPossibility() {
   return (
-    <section className="relative overflow-hidden bg-[#1a1410] py-10 text-white md:py-14">
+    <section className="relative overflow-hidden bg-[#1a1410] py-8 text-white md:py-14">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -798,17 +798,17 @@ function PaperworkToPossibility() {
             The Flow
             <span className="h-px w-8 bg-amber-300/60" />
           </div>
-          <h2 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl md:text-5xl">
+          <h2 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4 md:text-5xl">
             From Paperwork{" "}
             <span className="italic text-amber-300/90">to Possibility.</span>
           </h2>
-          <p className="mt-4 text-white/60">
+          <p className="mt-3 text-sm text-white/60 sm:text-base md:mt-4">
             Five steps. One continuous path — clearer, faster, together.
           </p>
         </Reveal>
 
         {/* Continuous path */}
-        <div className="relative mt-12">
+        <div className="relative mt-8 md:mt-12">
           {/* Horizontal line (desktop) */}
           <div
             aria-hidden
@@ -819,18 +819,18 @@ function PaperworkToPossibility() {
           {/* Vertical line (mobile) */}
           <div
             aria-hidden
-            className="absolute bottom-0 left-7 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
+            className="absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
           />
 
-          <div className="grid gap-8 md:grid-cols-5 md:gap-4">
+          <div className="grid gap-6 md:grid-cols-5 md:gap-4">
             {FLOW.map((step, i) => {
               const Icon = step.icon;
               return (
                 <Reveal key={step.label} delay={i * 0.1}>
-                  <div className="relative pl-20 md:pl-0 md:text-center">
+                  <div className="relative pl-16 md:pl-0 md:text-center">
                     {/* Node */}
                     <div className="absolute left-0 top-0 md:relative md:left-auto md:mx-auto">
-                      <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_6px_rgba(26,20,16,1)]">
+                      <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_5px_rgba(26,20,16,1)] md:h-14 md:w-14 md:shadow-[0_0_0_6px_rgba(26,20,16,1)]">
                         <Icon className="h-5 w-5 text-amber-300" />
                       </div>
                     </div>
