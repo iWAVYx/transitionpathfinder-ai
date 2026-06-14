@@ -188,6 +188,43 @@ function BridgeForwardPublicPage() {
             Report.
           </p>
         </section>
+
+        <section className="mt-10 overflow-hidden rounded-3xl border bg-gradient-hero shadow-soft">
+          <div className="grid gap-0 sm:grid-cols-[1.05fr_1fr]">
+            <div className="flex flex-col justify-center p-8 sm:p-10">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                The Bridge to Grade 9
+              </div>
+              <h2 className="mt-3 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Walk Into High School Already Knowing the Way
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                BridgeForward gives families the room to talk through options
+                together — comparing schools, naming supports, and shaping a
+                plan the student helps write. By the time grade 9 starts, the
+                first day already feels like familiar ground.
+              </p>
+              <HeroCTAs className="mt-6">
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/programs/transitionforward">
+                    See the High School Pathway
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </HeroCTAs>
+            </div>
+            <div className="relative aspect-[4/3] w-full sm:aspect-auto sm:min-h-[320px]">
+              <img
+                src={familyWalking}
+                alt="A parent and middle-school student walking together, talking through next steps for high school."
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ objectPosition: "center 35%" }}
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent sm:from-background/60" />
+            </div>
+          </div>
+        </section>
       </div>
     </SiteShell>
   );
