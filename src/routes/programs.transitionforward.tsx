@@ -239,7 +239,7 @@ function FrameworkPage() {
               Connecticut's IEP guidance, and the research that actually predicts a good life
               after high school.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Magnetic>
                 <Link
                   to="/waitlist"

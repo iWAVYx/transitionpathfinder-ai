@@ -295,7 +295,7 @@ function PartnersPage() {
                 </p>
               </Reveal>
               <Reveal delay={420}>
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
                   <Magnetic>
                     <Link
                       to="/waitlist"
@@ -544,7 +544,7 @@ function PartnersPage() {
                 You stay in control of how students reach you.
               </li>
             </ul>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
                 to="/about"
                 className="inline-flex items-center justify-center border border-foreground/20 bg-background/90 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
