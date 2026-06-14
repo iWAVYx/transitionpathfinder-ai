@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import { SmartBackLink } from "@/components/site/SmartBackLink";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -383,13 +384,11 @@ function PathwayFlow() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/40 to-foreground/10" />
           <div className="relative mx-auto flex h-full max-w-5xl flex-col justify-end px-4 pb-8 text-background sm:px-6 lg:px-8">
-            <Link
-              to="/"
-              hash="pathways"
-              className="mb-3 inline-flex w-fit items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-background/85 hover:text-background"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to all pathways
-            </Link>
+            <SmartBackLink
+              fallbackTo="/"
+              label="Back to all pathways"
+              className="mb-3 -ml-2 text-background/85 hover:bg-background/10 hover:text-background"
+            />
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">
               Guided flow
             </p>
