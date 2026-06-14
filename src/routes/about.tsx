@@ -798,11 +798,11 @@ function PaperworkToPossibility() {
             The Flow
             <span className="h-px w-8 bg-amber-300/60" />
           </div>
-          <h2 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl md:text-5xl">
+          <h2 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4 md:text-5xl">
             From Paperwork{" "}
             <span className="italic text-amber-300/90">to Possibility.</span>
           </h2>
-          <p className="mt-4 text-white/60">
+          <p className="mt-3 text-sm text-white/60 sm:text-base md:mt-4">
             Five steps. One continuous path — clearer, faster, together.
           </p>
         </Reveal>
