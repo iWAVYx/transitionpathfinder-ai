@@ -13,14 +13,9 @@ import {
   DotField,
   UnderlineSwoosh,
   PaperPlane,
-  CompassRose,
 } from "@/components/effects/Decorations";
-import handshakeAsset from "@/assets/handshake.png.asset.json";
-import cohortAsset from "@/assets/students-cohort.jpg.asset.json";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 
-const handshakeImg = handshakeAsset.url;
-const cohortImg = cohortAsset.url;
 const ctMap = ctMapAsset.url;
 
 import {
@@ -32,7 +27,6 @@ import {
   Accessibility,
   ArrowRight,
   Info,
-  CheckCircle2,
   Users,
 } from "lucide-react";
 
@@ -165,52 +159,7 @@ function PartnerForwardPage() {
           </div>
         </section>
 
-        {/* New contextual section — cohort/connect image paired with value list */}
-        <section className="mt-10 overflow-hidden rounded-3xl border bg-card shadow-soft">
-          <div className="grid gap-0 sm:grid-cols-[1.1fr_1fr]">
-            <div className="relative flex flex-col justify-center p-8 sm:p-10">
-              <DotField className="pointer-events-none absolute -bottom-4 -left-4 hidden h-32 w-32 text-primary/10 sm:block" />
-              <div className="relative">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                  <HeartHandshake className="h-4 w-4" /> Network of opportunity
-                </div>
-                <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
-                  Partners Doing the Work, Backed by Real Supports
-                </h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  PartnerForward connects mission-aligned organizations to the
-                  funding, hiring, and accessibility resources that can extend
-                  their reach — without adding another directory or dashboard.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  {[
-                    "Federal & state incentives in plain language",
-                    "Workforce-development pipelines",
-                    "Accessibility & inclusive-hiring toolkits",
-                  ].map((b) => (
-                    <li key={b} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <span className="text-muted-foreground">{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="relative aspect-[4/3] w-full sm:aspect-auto sm:min-h-[340px]">
-              <img
-                src={cohortImg}
-                alt="A diverse group of community partners and students collaborating in a bright workspace."
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ objectPosition: "center 35%" }}
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background/30" />
-              <Sparkle className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-primary/70" />
-            </div>
-          </div>
-        </section>
-
-        {/* Disclaimer band — keep, with subtle decoration */}
+        {/* Disclaimer band */}
         <section className="relative mt-10 flex gap-3 overflow-hidden rounded-3xl border border-amber-400/40 bg-amber-50/60 p-5 text-sm text-amber-950 shadow-soft dark:bg-amber-950/20 dark:text-amber-100">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <p className="relative">
@@ -221,47 +170,6 @@ function PartnerForwardPage() {
             guidance and consult qualified professionals before acting on any
             information shown here.
           </p>
-        </section>
-
-        {/* Bottom: handshake image moment (existing) — with decorations */}
-        <section className="relative mt-10 overflow-hidden rounded-3xl border bg-gradient-hero shadow-soft">
-          <CompassRose className="pointer-events-none absolute -right-6 -top-6 z-10 hidden h-32 w-32 text-primary/15 sm:block" />
-          <Sparkle className="pointer-events-none absolute left-6 top-6 z-10 h-5 w-5 text-primary/70" />
-
-          <div className="relative grid gap-0 sm:grid-cols-[1fr_1.05fr]">
-            <div className="relative aspect-[4/3] w-full sm:aspect-auto sm:min-h-[320px]">
-              <img
-                src={handshakeImg}
-                alt="Partners and community organizations shaking hands, signaling shared commitment to inclusive opportunity."
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ objectPosition: "center 40%" }}
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-background/40 via-transparent to-transparent sm:from-background/60" />
-            </div>
-            <div className="flex flex-col justify-center p-8 sm:p-10">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                <Handshake className="h-4 w-4" /> Partner Growth & Support
-              </div>
-              <h2 className="mt-3 font-display text-2xl font-medium tracking-tight sm:text-3xl">
-                Mission-Aligned Partnerships, Backed by Real Supports
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                PartnerForward surfaces the incentives, grants, and inclusive
-                hiring resources that help partner organizations expand what
-                they already do best — without adding another directory or
-                dashboard to manage.
-              </p>
-              <HeroCTAs className="mt-6">
-                <Button asChild size="lg">
-                  <Link to="/partnerforward/incentives">
-                    Browse Incentives & Support
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </HeroCTAs>
-            </div>
-          </div>
         </section>
 
         <p className="mt-6 text-xs text-muted-foreground">
