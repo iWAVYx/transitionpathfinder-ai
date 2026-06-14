@@ -781,7 +781,7 @@ const FLOW = [
 
 function PaperworkToPossibility() {
   return (
-    <section className="relative overflow-hidden bg-[#1a1410] py-10 text-white md:py-14">
+    <section className="relative overflow-hidden bg-[#1a1410] py-8 text-white md:py-14">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
