@@ -111,12 +111,18 @@ function BridgeForwardPublicPage() {
                   Checking access…
                 </Button>
               ) : eligible ? (
-                <Button asChild size="lg">
-                  <Link to="/bridgeforward/intake">
-                    Open BridgeForward Tools
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                <>
+                  <Button asChild size="lg">
+                    <Link to="/bridgeforward/explore">
+                      Explore High Schools
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/bridgeforward/intake">Open BridgeForward Tools</Link>
+                  </Button>
+                </>
+
               ) : (
                 <>
                   <Button asChild size="lg">
