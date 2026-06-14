@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HeroCTAs } from "@/components/site/HeroCTAs";
 import { CardGrid } from "@/components/layout/CardGrid";
+import handshakeAsset from "@/assets/handshake.png.asset.json";
+const handshakeImg = handshakeAsset.url;
+
 import {
   Handshake,
   Sparkles,
