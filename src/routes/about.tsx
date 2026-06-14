@@ -781,21 +781,13 @@ const FLOW = [
 
 function PaperworkToPossibility() {
   return (
-    <section className="relative overflow-hidden bg-[#0d1117] py-28 text-white md:py-36">
-      <div
-        className="absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage: `url(${frameworkImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+    <section className="relative overflow-hidden bg-[#1a1410] py-10 text-white md:py-14">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(50% 60% at 50% 0%, oklch(0.72 0.14 60 / 0.18), transparent 70%), radial-gradient(60% 50% at 50% 100%, oklch(0.55 0.18 25 / 0.15), transparent 70%)",
+            "radial-gradient(50% 60% at 50% 0%, oklch(0.72 0.14 60 / 0.12), transparent 70%), radial-gradient(60% 50% at 50% 100%, oklch(0.55 0.18 25 / 0.10), transparent 70%)",
         }}
       />
 
@@ -806,17 +798,17 @@ function PaperworkToPossibility() {
             The Flow
             <span className="h-px w-8 bg-amber-300/60" />
           </div>
-          <h2 className="mt-5 font-display text-4xl font-black leading-[1.05] sm:text-5xl md:text-6xl">
+          <h2 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl md:text-5xl">
             From Paperwork{" "}
             <span className="italic text-amber-300/90">to Possibility.</span>
           </h2>
-          <p className="mt-5 text-white/60">
+          <p className="mt-4 text-white/60">
             Five steps. One continuous path — clearer, faster, together.
           </p>
         </Reveal>
 
         {/* Continuous path */}
-        <div className="relative mt-20">
+        <div className="relative mt-12">
           {/* Horizontal line (desktop) */}
           <div
             aria-hidden
@@ -830,7 +822,7 @@ function PaperworkToPossibility() {
             className="absolute bottom-0 left-7 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
           />
 
-          <div className="grid gap-10 md:grid-cols-5 md:gap-4">
+          <div className="grid gap-8 md:grid-cols-5 md:gap-4">
             {FLOW.map((step, i) => {
               const Icon = step.icon;
               return (
@@ -838,18 +830,18 @@ function PaperworkToPossibility() {
                   <div className="relative pl-20 md:pl-0 md:text-center">
                     {/* Node */}
                     <div className="absolute left-0 top-0 md:relative md:left-auto md:mx-auto">
-                      <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-amber-300/30 bg-[#0d1117] shadow-[0_0_0_6px_rgba(13,17,23,1)]">
+                      <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_6px_rgba(26,20,16,1)]">
                         <Icon className="h-5 w-5 text-amber-300" />
                       </div>
                     </div>
-                    <div className="md:mt-6">
+                    <div className="md:mt-5">
                       <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300/70">
                         Step 0{i + 1}
                       </div>
-                      <div className="mt-1 font-display text-xl font-black">
+                      <div className="mt-1 font-display text-xl font-black text-white">
                         {step.label}
                       </div>
-                      <div className="mt-2 text-sm leading-relaxed text-white/55 md:mx-auto md:max-w-[14rem]">
+                      <div className="mt-1.5 text-sm leading-relaxed text-white/55 md:mx-auto md:max-w-[14rem]">
                         {
                           [
                             "Upload the IEP and meet the student.",
