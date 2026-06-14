@@ -128,6 +128,45 @@ function PartnerForwardPage() {
           </p>
         </section>
 
+        <section className="mt-10 overflow-hidden rounded-3xl border bg-gradient-hero shadow-soft">
+          <div className="grid gap-0 sm:grid-cols-[1fr_1.05fr]">
+            <div className="relative aspect-[4/3] w-full sm:aspect-auto sm:min-h-[320px]">
+              <img
+                src={handshakeImg}
+                alt="Partners and community organizations shaking hands, signaling shared commitment to inclusive opportunity."
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ objectPosition: "center 40%" }}
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-background/40 via-transparent to-transparent sm:from-background/60" />
+            </div>
+            <div className="flex flex-col justify-center p-8 sm:p-10">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                <Handshake className="h-4 w-4" /> Partner Growth & Support
+              </div>
+              <h2 className="mt-3 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+                Mission-Aligned Partnerships, Backed by Real Supports
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                PartnerForward surfaces the incentives, grants, and inclusive
+                hiring resources that help partner organizations expand what
+                they already do best — without adding another directory or
+                dashboard to manage.
+              </p>
+              <HeroCTAs className="mt-6">
+                <Button asChild size="lg">
+                  <Link to="/partnerforward/incentives">
+                    Browse Incentives & Support
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </HeroCTAs>
+            </div>
+          </div>
+        </section>
+
+
+
         <p className="mt-6 text-xs text-muted-foreground">
           PartnerForward does not duplicate the existing Partner Dashboard,
           Partner Directory, or Opportunity Directory. Those tools remain the
