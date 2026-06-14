@@ -97,6 +97,7 @@ import { Route as AuthenticatedOwnerResourceSourcesRouteImport } from './routes/
 import { Route as AuthenticatedOwnerResourceReviewRouteImport } from './routes/_authenticated/owner.resource-review'
 import { Route as AuthenticatedOwnerPitchRouteImport } from './routes/_authenticated/owner.pitch'
 import { Route as AuthenticatedOwnerPilotPackagesRouteImport } from './routes/_authenticated/owner.pilot-packages'
+import { Route as AuthenticatedOwnerPartnerforwardResourcesRouteImport } from './routes/_authenticated/owner.partnerforward-resources'
 import { Route as AuthenticatedOwnerPartnerSubmissionsRouteImport } from './routes/_authenticated/owner.partner-submissions'
 import { Route as AuthenticatedOwnerPartnerOutreachRouteImport } from './routes/_authenticated/owner.partner-outreach'
 import { Route as AuthenticatedOwnerPartnerNetworkStatusRouteImport } from './routes/_authenticated/owner.partner-network-status'
@@ -117,6 +118,7 @@ import { Route as AuthenticatedOwnerDemoRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
 import { Route as AuthenticatedOwnerBroadcastsRouteImport } from './routes/_authenticated/owner.broadcasts'
+import { Route as AuthenticatedOwnerBridgeforwardSourcesRouteImport } from './routes/_authenticated/owner.bridgeforward-sources'
 import { Route as AuthenticatedOwnerBlogRouteImport } from './routes/_authenticated/owner.blog'
 import { Route as AuthenticatedOwnerBetaTestersRouteImport } from './routes/_authenticated/owner.beta-testers'
 import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
@@ -132,6 +134,7 @@ import { Route as AuthenticatedBridgeforwardVoiceRouteImport } from './routes/_a
 import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes/_authenticated/bridgeforward.snapshot'
 import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
 import { Route as AuthenticatedBridgeforwardFitFinderRouteImport } from './routes/_authenticated/bridgeforward.fit-finder'
+import { Route as AuthenticatedBridgeforwardExploreRouteImport } from './routes/_authenticated/bridgeforward.explore'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -599,6 +602,12 @@ const AuthenticatedOwnerPilotPackagesRoute =
     path: '/pilot-packages',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerPartnerforwardResourcesRoute =
+  AuthenticatedOwnerPartnerforwardResourcesRouteImport.update({
+    id: '/partnerforward-resources',
+    path: '/partnerforward-resources',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerPartnerSubmissionsRoute =
   AuthenticatedOwnerPartnerSubmissionsRouteImport.update({
     id: '/partner-submissions',
@@ -716,6 +725,12 @@ const AuthenticatedOwnerBroadcastsRoute =
     path: '/broadcasts',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerBridgeforwardSourcesRoute =
+  AuthenticatedOwnerBridgeforwardSourcesRouteImport.update({
+    id: '/bridgeforward-sources',
+    path: '/bridgeforward-sources',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerBlogRoute = AuthenticatedOwnerBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -802,6 +817,12 @@ const AuthenticatedBridgeforwardFitFinderRoute =
   AuthenticatedBridgeforwardFitFinderRouteImport.update({
     id: '/bridgeforward/fit-finder',
     path: '/bridgeforward/fit-finder',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedBridgeforwardExploreRoute =
+  AuthenticatedBridgeforwardExploreRouteImport.update({
+    id: '/bridgeforward/explore',
+    path: '/bridgeforward/explore',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const LovableEmailTransactionalSendRoute =
@@ -907,6 +928,7 @@ export interface FileRoutesByFullPath {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
+  '/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
@@ -922,6 +944,7 @@ export interface FileRoutesByFullPath {
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/owner/beta-testers': typeof AuthenticatedOwnerBetaTestersRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
+  '/owner/bridgeforward-sources': typeof AuthenticatedOwnerBridgeforwardSourcesRoute
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
@@ -942,6 +965,7 @@ export interface FileRoutesByFullPath {
   '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/owner/partnerforward-resources': typeof AuthenticatedOwnerPartnerforwardResourcesRoute
   '/owner/pilot-packages': typeof AuthenticatedOwnerPilotPackagesRoute
   '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
@@ -1036,6 +1060,7 @@ export interface FileRoutesByTo {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
+  '/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
@@ -1051,6 +1076,7 @@ export interface FileRoutesByTo {
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/owner/beta-testers': typeof AuthenticatedOwnerBetaTestersRoute
   '/owner/blog': typeof AuthenticatedOwnerBlogRoute
+  '/owner/bridgeforward-sources': typeof AuthenticatedOwnerBridgeforwardSourcesRoute
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
@@ -1071,6 +1097,7 @@ export interface FileRoutesByTo {
   '/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/owner/partnerforward-resources': typeof AuthenticatedOwnerPartnerforwardResourcesRoute
   '/owner/pilot-packages': typeof AuthenticatedOwnerPilotPackagesRoute
   '/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
@@ -1168,6 +1195,7 @@ export interface FileRoutesById {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
+  '/_authenticated/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/_authenticated/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/_authenticated/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
@@ -1183,6 +1211,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/_authenticated/owner/beta-testers': typeof AuthenticatedOwnerBetaTestersRoute
   '/_authenticated/owner/blog': typeof AuthenticatedOwnerBlogRoute
+  '/_authenticated/owner/bridgeforward-sources': typeof AuthenticatedOwnerBridgeforwardSourcesRoute
   '/_authenticated/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
@@ -1203,6 +1232,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/partner-network-status': typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   '/_authenticated/owner/partner-outreach': typeof AuthenticatedOwnerPartnerOutreachRoute
   '/_authenticated/owner/partner-submissions': typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  '/_authenticated/owner/partnerforward-resources': typeof AuthenticatedOwnerPartnerforwardResourcesRoute
   '/_authenticated/owner/pilot-packages': typeof AuthenticatedOwnerPilotPackagesRoute
   '/_authenticated/owner/pitch': typeof AuthenticatedOwnerPitchRoute
   '/_authenticated/owner/resource-review': typeof AuthenticatedOwnerResourceReviewRoute
@@ -1300,6 +1330,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
     | '/share/$token'
+    | '/bridgeforward/explore'
     | '/bridgeforward/fit-finder'
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
@@ -1315,6 +1346,7 @@ export interface FileRouteTypes {
     | '/owner/analytics'
     | '/owner/beta-testers'
     | '/owner/blog'
+    | '/owner/bridgeforward-sources'
     | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
@@ -1335,6 +1367,7 @@ export interface FileRouteTypes {
     | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
+    | '/owner/partnerforward-resources'
     | '/owner/pilot-packages'
     | '/owner/pitch'
     | '/owner/resource-review'
@@ -1429,6 +1462,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
     | '/share/$token'
+    | '/bridgeforward/explore'
     | '/bridgeforward/fit-finder'
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
@@ -1444,6 +1478,7 @@ export interface FileRouteTypes {
     | '/owner/analytics'
     | '/owner/beta-testers'
     | '/owner/blog'
+    | '/owner/bridgeforward-sources'
     | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
@@ -1464,6 +1499,7 @@ export interface FileRouteTypes {
     | '/owner/partner-network-status'
     | '/owner/partner-outreach'
     | '/owner/partner-submissions'
+    | '/owner/partnerforward-resources'
     | '/owner/pilot-packages'
     | '/owner/pitch'
     | '/owner/resource-review'
@@ -1560,6 +1596,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
     | '/share/$token'
+    | '/_authenticated/bridgeforward/explore'
     | '/_authenticated/bridgeforward/fit-finder'
     | '/_authenticated/bridgeforward/intake'
     | '/_authenticated/bridgeforward/snapshot'
@@ -1575,6 +1612,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/analytics'
     | '/_authenticated/owner/beta-testers'
     | '/_authenticated/owner/blog'
+    | '/_authenticated/owner/bridgeforward-sources'
     | '/_authenticated/owner/broadcasts'
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
@@ -1595,6 +1633,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/partner-network-status'
     | '/_authenticated/owner/partner-outreach'
     | '/_authenticated/owner/partner-submissions'
+    | '/_authenticated/owner/partnerforward-resources'
     | '/_authenticated/owner/pilot-packages'
     | '/_authenticated/owner/pitch'
     | '/_authenticated/owner/resource-review'
@@ -2290,6 +2329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerPilotPackagesRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/partnerforward-resources': {
+      id: '/_authenticated/owner/partnerforward-resources'
+      path: '/partnerforward-resources'
+      fullPath: '/owner/partnerforward-resources'
+      preLoaderRoute: typeof AuthenticatedOwnerPartnerforwardResourcesRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/partner-submissions': {
       id: '/_authenticated/owner/partner-submissions'
       path: '/partner-submissions'
@@ -2430,6 +2476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerBroadcastsRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/bridgeforward-sources': {
+      id: '/_authenticated/owner/bridgeforward-sources'
+      path: '/bridgeforward-sources'
+      fullPath: '/owner/bridgeforward-sources'
+      preLoaderRoute: typeof AuthenticatedOwnerBridgeforwardSourcesRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/blog': {
       id: '/_authenticated/owner/blog'
       path: '/blog'
@@ -2535,6 +2588,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBridgeforwardFitFinderRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/bridgeforward/explore': {
+      id: '/_authenticated/bridgeforward/explore'
+      path: '/bridgeforward/explore'
+      fullPath: '/bridgeforward/explore'
+      preLoaderRoute: typeof AuthenticatedBridgeforwardExploreRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -2625,6 +2685,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
   AuthenticatedOwnerBetaTestersRoute: typeof AuthenticatedOwnerBetaTestersRoute
   AuthenticatedOwnerBlogRoute: typeof AuthenticatedOwnerBlogRoute
+  AuthenticatedOwnerBridgeforwardSourcesRoute: typeof AuthenticatedOwnerBridgeforwardSourcesRoute
   AuthenticatedOwnerBroadcastsRoute: typeof AuthenticatedOwnerBroadcastsRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
@@ -2645,6 +2706,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerPartnerNetworkStatusRoute: typeof AuthenticatedOwnerPartnerNetworkStatusRoute
   AuthenticatedOwnerPartnerOutreachRoute: typeof AuthenticatedOwnerPartnerOutreachRoute
   AuthenticatedOwnerPartnerSubmissionsRoute: typeof AuthenticatedOwnerPartnerSubmissionsRoute
+  AuthenticatedOwnerPartnerforwardResourcesRoute: typeof AuthenticatedOwnerPartnerforwardResourcesRoute
   AuthenticatedOwnerPilotPackagesRoute: typeof AuthenticatedOwnerPilotPackagesRoute
   AuthenticatedOwnerPitchRoute: typeof AuthenticatedOwnerPitchRoute
   AuthenticatedOwnerResourceReviewRoute: typeof AuthenticatedOwnerResourceReviewRoute
@@ -2665,6 +2727,8 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
   AuthenticatedOwnerBetaTestersRoute: AuthenticatedOwnerBetaTestersRoute,
   AuthenticatedOwnerBlogRoute: AuthenticatedOwnerBlogRoute,
+  AuthenticatedOwnerBridgeforwardSourcesRoute:
+    AuthenticatedOwnerBridgeforwardSourcesRoute,
   AuthenticatedOwnerBroadcastsRoute: AuthenticatedOwnerBroadcastsRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
@@ -2688,6 +2752,8 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
     AuthenticatedOwnerPartnerOutreachRoute,
   AuthenticatedOwnerPartnerSubmissionsRoute:
     AuthenticatedOwnerPartnerSubmissionsRoute,
+  AuthenticatedOwnerPartnerforwardResourcesRoute:
+    AuthenticatedOwnerPartnerforwardResourcesRoute,
   AuthenticatedOwnerPilotPackagesRoute: AuthenticatedOwnerPilotPackagesRoute,
   AuthenticatedOwnerPitchRoute: AuthenticatedOwnerPitchRoute,
   AuthenticatedOwnerResourceReviewRoute: AuthenticatedOwnerResourceReviewRoute,
@@ -2756,6 +2822,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
+  AuthenticatedBridgeforwardExploreRoute: typeof AuthenticatedBridgeforwardExploreRoute
   AuthenticatedBridgeforwardFitFinderRoute: typeof AuthenticatedBridgeforwardFitFinderRoute
   AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
   AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
@@ -2797,6 +2864,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedTrustRoute: AuthenticatedTrustRoute,
+  AuthenticatedBridgeforwardExploreRoute:
+    AuthenticatedBridgeforwardExploreRoute,
   AuthenticatedBridgeforwardFitFinderRoute:
     AuthenticatedBridgeforwardFitFinderRoute,
   AuthenticatedBridgeforwardIntakeRoute: AuthenticatedBridgeforwardIntakeRoute,
