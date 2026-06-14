@@ -696,9 +696,9 @@ const SOLUTIONS = [
 
 function ProblemSolution() {
   return (
-    <section className="relative overflow-hidden bg-[#1a1410] py-10 md:py-14">
+    <section className="relative overflow-hidden bg-[#1a1410] py-8 md:py-14">
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid gap-x-12 gap-y-12 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
+        <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[1fr_auto_1fr] lg:items-start lg:gap-y-12">
           {/* Problem — editorial, no card */}
           <Reveal>
             <div className="relative">
