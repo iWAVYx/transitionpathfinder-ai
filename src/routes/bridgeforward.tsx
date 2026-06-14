@@ -13,7 +13,6 @@ import {
   GraduationCap,
   ArrowRight,
   CheckCircle2,
-  School,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
@@ -29,15 +28,9 @@ import {
   DotField,
   UnderlineSwoosh,
 } from "@/components/effects/Decorations";
-import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
-import planningDeskAsset from "@/assets/ppt-planning-desk.png.asset.json";
-import calendarMeetingAsset from "@/assets/calendar-meeting.png.asset.json";
 
-const familyWalking = familyWalkingAsset.url;
 const ctMap = ctMapAsset.url;
-const planningDesk = planningDeskAsset.url;
-const calendarMeeting = calendarMeetingAsset.url;
 
 export const Route = createFileRoute("/bridgeforward")({
   head: () => ({
