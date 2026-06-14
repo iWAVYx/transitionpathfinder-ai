@@ -808,7 +808,7 @@ function PaperworkToPossibility() {
         </Reveal>
 
         {/* Continuous path */}
-        <div className="relative mt-12">
+        <div className="relative mt-8 md:mt-12">
           {/* Horizontal line (desktop) */}
           <div
             aria-hidden
@@ -819,7 +819,7 @@ function PaperworkToPossibility() {
           {/* Vertical line (mobile) */}
           <div
             aria-hidden
-            className="absolute bottom-0 left-7 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
+            className="absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
           />
 
           <div className="grid gap-8 md:grid-cols-5 md:gap-4">
