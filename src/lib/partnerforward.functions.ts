@@ -119,15 +119,38 @@ export const listPublishedIncentives = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
-    const { data } = await supabaseAdmin
-      .from("partner_incentive_resources")
-      .select(
-        "id,slug,title,category,agency,short_description,long_description,external_url,cautious_disclaimer,sort_order",
-      )
-      .eq("is_published", true)
-      .order("sort_order", { ascending: true })
-      .order("title", { ascending: true });
-    return { resources: data ?? [] };
+    const [legacy, modern] = await Promise.all([
+      supabaseAdmin
+        .from("partner_incentive_resources")
+        .select(
+          "id,slug,title,category,agency,short_description,long_description,external_url,cautious_disclaimer,sort_order",
+        )
+        .eq("is_published", true)
+        .order("sort_order", { ascending: true })
+        .order("title", { ascending: true }),
+      supabaseAdmin
+        .from("partnerforward_resources")
+        .select(
+          "id,title,category,source_name,summary,partner_value,eligibility_notes,action_steps,official_url,cautious_disclaimer,legal_financial_disclaimer_required",
+        )
+        .eq("status", "published")
+        .order("title", { ascending: true }),
+    ]);
+    const mapped = (modern.data ?? []).map((r) => ({
+      id: r.id,
+      slug: r.id,
+      title: r.title,
+      category: r.category,
+      agency: r.source_name,
+      short_description: r.summary ?? r.partner_value ?? "",
+      long_description: [r.partner_value, r.eligibility_notes, r.action_steps]
+        .filter(Boolean)
+        .join("\n\n"),
+      external_url: r.official_url,
+      cautious_disclaimer: r.cautious_disclaimer,
+      sort_order: 0,
+    }));
+    return { resources: [...(legacy.data ?? []), ...mapped] };
   });
 
 // -------- Admin: manage incentive resources --------
