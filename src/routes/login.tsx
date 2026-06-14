@@ -31,7 +31,7 @@ export const Route = createFileRoute("/login")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in — TransitionForward" },
+      { title: "Sign In — TransitionForward" },
       { name: "description", content: "Sign in or create your TransitionForward parent account." },
       { property: "og:url", content: "/login" },
     ],
@@ -95,11 +95,11 @@ function LoginPage() {
               <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
                 {isNew ? (
                   <>
-                    <Sparkles className="h-3.5 w-3.5" /> Welcome in
+                    <Sparkles className="h-3.5 w-3.5" /> Welcome In
                   </>
                 ) : (
                   <>
-                    <HeartHandshake className="h-3.5 w-3.5" /> Welcome back
+                    <HeartHandshake className="h-3.5 w-3.5" /> Welcome Back
                   </>
                 )}
               </span>
@@ -149,8 +149,8 @@ function LoginPage() {
             <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-lift md:col-span-3 md:p-8">
               <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Sign in</TabsTrigger>
-                  <TabsTrigger value="signup">Create account</TabsTrigger>
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup">Create Account</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="signin" className="mt-6">
@@ -160,7 +160,7 @@ function LoginPage() {
                   <SignInForm />
                   <p className="mt-4 text-center text-xs text-muted-foreground">
                     <a href="/reset-password" className="font-medium text-primary underline-offset-4 hover:underline">
-                      Forgot your password?
+                      Forgot Your Password?
                     </a>
                   </p>
                 </TabsContent>
@@ -257,7 +257,7 @@ function SignInForm() {
         )}
       </div>
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting ? "Signing in…" : "Sign in"}
+        {submitting ? "Signing In…" : "Sign In"}
       </Button>
     </form>
   );
@@ -317,7 +317,7 @@ function SignUpForm() {
         )}
       </div>
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting ? "Creating…" : "Create account"}
+        {submitting ? "Creating Account…" : "Create Account"}
       </Button>
     </form>
   );
@@ -354,7 +354,7 @@ function GoogleButton() {
       className="w-full gap-2.5 border-border/70 bg-background hover:bg-muted/60"
     >
       <GoogleIcon />
-      {loading ? "Opening Google…" : "Continue with Google"}
+      {loading ? "Opening Google…" : "Continue With Google"}
     </Button>
   );
 }
