@@ -260,7 +260,7 @@ function PlatformPage() {
               language. TransitionForward gives families, students, educators, and admins their
               own view of the same plan, so everyone is finally working from the same page.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
                 to="/login"
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
@@ -529,7 +529,7 @@ function PlatformPage() {
               Create a free account and share a little about your student. You will have a real
               Pathway Report in your inbox before the next PPT meeting.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
                 to="/login"
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"

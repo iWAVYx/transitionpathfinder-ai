@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { SmartBackLink } from "@/components/site/SmartBackLink";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { getBlogPostBySlug, type BlogPost } from "@/lib/cms/cms.functions";
@@ -90,12 +91,7 @@ function BlogPostPage() {
   return (
     <SiteShell>
       <article className="mx-auto max-w-3xl px-4 pb-24 pt-24">
-        <Link
-          to="/blog"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> All posts
-        </Link>
+        <SmartBackLink fallbackTo="/blog" label="All posts" className="-ml-3" />
 
         <header className="mt-6 border-b border-border pb-8">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">

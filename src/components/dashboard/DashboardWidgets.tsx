@@ -226,7 +226,7 @@ export function DashboardWidgets() {
 
       {/* Program pathways — only render when relevant to this user. */}
       {elig && (elig.hasMiddleSchoolStudent || elig.isPartner) && (
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 auto-rows-fr">
           {elig.hasMiddleSchoolStudent && (
             <Link
               to="/bridgeforward"
@@ -254,7 +254,7 @@ export function DashboardWidgets() {
                   <div className="text-xs font-medium uppercase tracking-wide text-primary">Partners</div>
                   <div className="mt-1 text-base font-semibold">PartnerForward</div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Expand your reach, post opportunities, and explore the incentive hub.
+                    Incentives, grants, sponsorships, and accessibility resources for partners.
                   </p>
                 </div>
                 <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
