@@ -822,15 +822,15 @@ function PaperworkToPossibility() {
             className="absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
           />
 
-          <div className="grid gap-8 md:grid-cols-5 md:gap-4">
+          <div className="grid gap-6 md:grid-cols-5 md:gap-4">
             {FLOW.map((step, i) => {
               const Icon = step.icon;
               return (
                 <Reveal key={step.label} delay={i * 0.1}>
-                  <div className="relative pl-20 md:pl-0 md:text-center">
+                  <div className="relative pl-16 md:pl-0 md:text-center">
                     {/* Node */}
                     <div className="absolute left-0 top-0 md:relative md:left-auto md:mx-auto">
-                      <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_6px_rgba(26,20,16,1)]">
+                      <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_5px_rgba(26,20,16,1)] md:h-14 md:w-14 md:shadow-[0_0_0_6px_rgba(26,20,16,1)]">
                         <Icon className="h-5 w-5 text-amber-300" />
                       </div>
                     </div>
