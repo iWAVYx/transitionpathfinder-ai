@@ -33,6 +33,9 @@ import { cn } from "@/lib/utils";
 
 // Assets
 import heroImg from "@/assets/about-cinematic.jpg";
+import heroWash from "@/assets/about-hero-wash.jpg";
+import heroTopo from "@/assets/about-hero-topo.png";
+import heroCollage from "@/assets/about-hero-collage.png";
 import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
 import classroomImg from "@/assets/educators-hero-v2.jpg";
@@ -124,17 +127,33 @@ function Hero() {
   const copyOpacity = useTransform(scrollY, [0, 500, 800], [1, 1, 0.4]);
   const vignette = useTransform(scrollY, [0, 600], [0.35, 0.75]);
   const collageY = useTransform(scrollY, [0, 600], [0, -50]);
+  const topoY = useTransform(scrollY, [0, 800], [0, 120]);
+  const washScale = useTransform(scrollY, [0, 800], [1.05, 1.15]);
+  const collageBgY = useTransform(scrollY, [0, 800], [0, -90]);
 
   const lineEase = [0.22, 0.61, 0.36, 1] as const;
   const lineInitial = reduce ? false : { y: "110%", opacity: 0 };
   const lineAnimate = { y: "0%", opacity: 1 };
 
   return (
-    <section className="relative isolate min-h-[92vh] overflow-hidden">
-      {/* Cinematic background — ken-burns + parallax */}
+    <section className="relative isolate min-h-[92vh] overflow-hidden bg-[#1a1410]">
+      {/* Layer 1 — painterly warm wash (base) with ken-burns */}
+      <motion.div
+        style={reduce ? undefined : { y: bgY, scale: washScale }}
+        className="absolute inset-0 -z-20 will-change-transform"
+        aria-hidden
+      >
+        <img
+          src={heroWash}
+          alt=""
+          className="h-full w-full object-cover object-[30%_center]"
+        />
+      </motion.div>
+
+      {/* Layer 2 — original cinematic photo, softened and blended in */}
       <motion.div
         style={reduce ? undefined : { y: bgY, scale: bgScale }}
-        className="absolute inset-0 -z-20 will-change-transform"
+        className="absolute inset-0 -z-20 mix-blend-soft-light opacity-60 will-change-transform"
         aria-hidden
       >
         <img
@@ -144,23 +163,49 @@ function Hero() {
         />
       </motion.div>
 
-      {/* Warm color wash + cinematic gradient + animated vignette */}
+      {/* Layer 3 — topographic line overlay, drifts with scroll */}
+      <motion.div
+        style={reduce ? undefined : { y: topoY }}
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.35] mix-blend-overlay"
+        aria-hidden
+      >
+        <img
+          src={heroTopo}
+          alt=""
+          className="h-full w-full object-cover"
+        />
+      </motion.div>
+
+      {/* Layer 4 — torn-paper collage shapes, opposite drift for depth */}
+      <motion.div
+        style={reduce ? undefined : { y: collageBgY }}
+        className="pointer-events-none absolute inset-0 -z-10 opacity-30 mix-blend-multiply dark:mix-blend-screen dark:opacity-20"
+        aria-hidden
+      >
+        <img
+          src={heroCollage}
+          alt=""
+          className="h-full w-full scale-110 object-cover object-center"
+        />
+      </motion.div>
+
+      {/* Layer 5 — warm color wash gradients tying the palette together */}
       <div
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-background/30 via-background/60 to-background"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-background/10 via-background/40 to-background"
         aria-hidden
       />
       <div
-        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_30%_40%,rgba(255,170,80,0.18),transparent_55%),radial-gradient(ellipse_at_80%_70%,rgba(80,140,220,0.16),transparent_60%)]"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_18%_30%,rgba(255,196,120,0.30),transparent_55%),radial-gradient(ellipse_at_82%_72%,rgba(64,116,148,0.28),transparent_60%),radial-gradient(ellipse_at_55%_95%,rgba(196,92,76,0.22),transparent_55%)]"
         aria-hidden
       />
       <motion.div
         style={reduce ? undefined : { opacity: vignette }}
-        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_42%,rgba(20,12,8,0.65)_100%)]"
         aria-hidden
       />
-      {/* Subtle film grain */}
+      {/* Layer 6 — film grain */}
       <div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] mix-blend-overlay"
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.09] mix-blend-overlay"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
@@ -168,16 +213,17 @@ function Hero() {
         aria-hidden
       />
 
-      {/* Floating midground orbs */}
+      {/* Layer 7 — floating midground orbs tuned to the wash palette */}
       {!reduce && (
         <motion.div
           style={{ y: midY }}
           className="pointer-events-none absolute inset-0 -z-10"
           aria-hidden
         >
-          <div className="absolute left-[8%] top-[18%] h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
-          <div className="absolute right-[6%] top-[55%] h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute left-[45%] top-[70%] h-60 w-60 rounded-full bg-orange-400/15 blur-3xl" />
+          <div className="absolute left-[6%] top-[14%] h-80 w-80 rounded-full bg-amber-300/25 blur-3xl" />
+          <div className="absolute right-[4%] top-[50%] h-[28rem] w-[28rem] rounded-full bg-teal-500/20 blur-3xl" />
+          <div className="absolute left-[42%] top-[72%] h-72 w-72 rounded-full bg-rose-400/20 blur-3xl" />
+          <div className="absolute left-[30%] top-[8%] h-48 w-48 rounded-full bg-orange-300/20 blur-3xl" />
         </motion.div>
       )}
 
