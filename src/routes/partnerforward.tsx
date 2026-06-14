@@ -3,6 +3,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HeroCTAs } from "@/components/site/HeroCTAs";
+import { CardGrid } from "@/components/layout/CardGrid";
 import {
   Handshake,
   Sparkles,
@@ -84,34 +86,32 @@ function PartnerForwardPage() {
             may help partners expand inclusive hiring, accessibility, and
             community reach.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/partnerforward/incentives">
-              <Button size="lg">
-                Explore Incentives & Support{" "}
+          <HeroCTAs className="mt-6">
+            <Button asChild size="lg">
+              <Link to="/partnerforward/incentives">
+                Explore Incentives & Support
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/partners">
-              <Button variant="outline" size="lg">
-                About the Partner Network
-              </Button>
-            </Link>
-          </div>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/partners">About the Partner Network</Link>
+            </Button>
+          </HeroCTAs>
         </section>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <CardGrid columns={3} centerOddLast className="mt-8">
           {PILLARS.map((p) => (
-            <Card key={p.title}>
-              <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                <p.icon className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base">{p.title}</CardTitle>
+            <Card key={p.title} className="h-full">
+              <CardHeader className="flex flex-row items-start gap-3 space-y-0">
+                <p.icon className="h-5 w-5 shrink-0 text-primary" />
+                <CardTitle className="text-base leading-snug">{p.title}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
                 {p.body}
               </CardContent>
             </Card>
           ))}
-        </div>
+        </CardGrid>
 
         <section className="mt-10 flex gap-3 rounded-3xl border border-amber-400/40 bg-amber-50/60 p-5 text-sm text-amber-950 shadow-soft dark:bg-amber-950/20 dark:text-amber-100">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
