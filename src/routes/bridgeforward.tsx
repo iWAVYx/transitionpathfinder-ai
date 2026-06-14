@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
+import { HeroCTAs } from "@/components/site/HeroCTAs";
+import { CardGrid } from "@/components/layout/CardGrid";
 
 export const Route = createFileRoute("/bridgeforward")({
   head: () => ({
