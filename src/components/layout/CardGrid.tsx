@@ -24,10 +24,14 @@ export function CardGrid({
   const lgClass =
     columns === 2 ? "lg:grid-cols-2" : columns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3";
 
-  // Center the last child on lg when the count is odd on a 3-col grid.
+  // Center the last child(ren) on lg when the count leaves a partial final row.
   const centerLast =
-    centerOddLast && columns === 3 && count % 3 === 1
-      ? "[&>*:last-child]:lg:col-start-2"
+    centerOddLast && columns === 3
+      ? count % 3 === 1
+        ? "[&>*:last-child]:lg:col-start-2"
+        : count % 3 === 2
+        ? "[&>*:nth-last-child(2)]:lg:col-start-2 [&>*:last-child]:lg:col-start-3"
+        : ""
       : "";
 
   return (
