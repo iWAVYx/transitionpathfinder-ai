@@ -2,13 +2,17 @@ import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * HeroCTAs — wrapper that enforces symmetrical, equal-height CTA buttons
- * across hero sections. On mobile, children stack full-width with equal
- * spacing; on sm+ they sit inline with a consistent gap.
+ * HeroCTAs — layout wrapper that enforces symmetrical hero CTA buttons.
  *
- * Children are expected to be <Button>, <SmartLink>, or <a>/<Link>
- * elements. The wrapper applies sizing rules to direct children via a
- * Tailwind child selector so callers don't have to remember the classes.
+ * Children are expected to be one or more clickable elements (Link,
+ * Button asChild Link, anchor, etc.). The wrapper:
+ *   - stacks them full-width on mobile with consistent gap,
+ *   - lays them out inline on sm+ with min-width so paired CTAs match,
+ *   - lets each child keep its own visual styling (primary vs outline).
+ *
+ * Direct children should render as block-level clickable elements; if
+ * they are buttons inside <Link>, the outer <Link> is what gets sized.
+ * Use the inline-flex utility on the inner button so it fills the link.
  */
 export function HeroCTAs({
   children,
@@ -22,13 +26,13 @@ export function HeroCTAs({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4",
+        "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3",
         align === "center" ? "sm:justify-center" : "sm:justify-start",
-        // Equalize direct children: full width on mobile, min-width + h-11 on sm+
-        "[&>*]:inline-flex [&>*]:w-full [&>*]:items-center [&>*]:justify-center",
-        "[&>*]:h-11 [&>*]:min-h-11 [&>*]:px-5 [&>*]:rounded-full",
-        "[&>*]:text-sm [&>*]:font-semibold [&>*]:whitespace-nowrap",
-        "sm:[&>*]:w-auto sm:[&>*]:min-w-[180px]",
+        // Equal widths on mobile, min-width on sm+ so paired CTAs look balanced.
+        "[&>*]:w-full sm:[&>*]:w-auto sm:[&>*]:min-w-[180px]",
+        // If a direct child is a <Link>/<a> wrapping a <Button>, make sure
+        // the inner button fills the link width.
+        "[&>a>button]:w-full [&>a]:inline-flex",
         className,
       )}
     >
