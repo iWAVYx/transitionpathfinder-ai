@@ -696,73 +696,78 @@ const SOLUTIONS = [
 
 function ProblemSolution() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-28">
-      <div className="container mx-auto px-6">
-        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-          {/* Problem */}
+    <section className="relative overflow-hidden py-24 md:py-32">
+      {/* Soft wash sitting on the background, no boxes */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 20% 30%, oklch(0.72 0.14 25 / 0.08), transparent 60%), radial-gradient(55% 45% at 80% 70%, oklch(0.78 0.13 60 / 0.10), transparent 60%)",
+        }}
+      />
+
+      <div className="container mx-auto max-w-6xl px-6">
+        <div className="grid gap-x-16 gap-y-20 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
+          {/* Problem — editorial, no card */}
           <Reveal>
-            <div className="relative h-full overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-lg">
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={paperworkImg}
-                  alt="Stack of paperwork"
-                  className="h-full w-full object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
-                <div className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full bg-background/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-foreground backdrop-blur">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                  The Problem
-                </div>
+            <div className="relative">
+              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-red-600/80 dark:text-red-400/80">
+                <span className="h-px w-8 bg-red-500/60" />
+                The Problem
               </div>
-              <div className="p-7">
-                <h3 className="font-display text-2xl font-black sm:text-3xl">
-                  Paperwork Without a Path
-                </h3>
-                <ul className="mt-5 space-y-3">
-                  {PROBLEMS.map((p) => (
-                    <li key={p} className="flex items-start gap-3 text-sm">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                      <span className="text-muted-foreground">{p}</span>
-                    </li>
-                  ))}
-                </ul>
+              <h3 className="mt-5 font-display text-4xl font-black leading-[1.05] sm:text-5xl">
+                Paperwork
+                <br />
+                <span className="italic text-muted-foreground/70">
+                  without a path.
+                </span>
+              </h3>
+              <div className="mt-8 max-w-md space-y-4 border-l border-red-500/30 pl-5 text-[15px] leading-relaxed text-muted-foreground">
+                {PROBLEMS.map((p) => (
+                  <p key={p}>{p}.</p>
+                ))}
               </div>
             </div>
           </Reveal>
 
-          {/* Solution */}
+          {/* Connecting rule — replaces the visual divide between two boxes */}
+          <div
+            aria-hidden
+            className="hidden lg:flex h-full w-px items-center justify-center"
+          >
+            <div className="h-3/4 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
+          </div>
+
+          {/* Response — same editorial register, warm side */}
           <Reveal delay={0.1}>
-            <div className="relative h-full overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-primary/5 via-amber-500/5 to-background shadow-lg">
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={dashboardImg}
-                  alt="Transition Forward dashboard"
-                  className="h-full w-full object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-                <div className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full bg-background/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-foreground backdrop-blur">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  The Response
-                </div>
+            <div className="relative lg:pt-12">
+              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-primary">
+                <span className="h-px w-8 bg-primary/60" />
+                The Response
               </div>
-              <div className="p-7">
-                <h3 className="font-display text-2xl font-black sm:text-3xl">
-                  A Platform Built for the Plan
-                </h3>
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  {SOLUTIONS.map((s) => {
-                    const Icon = s.icon;
-                    return (
-                      <div
-                        key={s.label}
-                        className="group flex items-center gap-2 rounded-xl border border-border/60 bg-card/70 px-3 py-2.5 text-xs font-medium transition hover:border-primary/40 hover:bg-card"
-                      >
-                        <Icon className="h-4 w-4 shrink-0 text-primary" />
-                        <span>{s.label}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+              <h3 className="mt-5 font-display text-4xl font-black leading-[1.05] sm:text-5xl">
+                A platform
+                <br />
+                <span className="italic text-primary">built for the plan.</span>
+              </h3>
+
+              <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-[15px] text-foreground/80">
+                {SOLUTIONS.map((s, i) => {
+                  const Icon = s.icon;
+                  return (
+                    <span
+                      key={s.label}
+                      className="inline-flex items-center gap-1.5"
+                    >
+                      <Icon className="h-4 w-4 text-primary" />
+                      <span>{s.label}</span>
+                      {i < SOLUTIONS.length - 1 && (
+                        <span className="ml-3 h-1 w-1 rounded-full bg-border" />
+                      )}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </Reveal>
