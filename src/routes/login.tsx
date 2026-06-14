@@ -107,7 +107,7 @@ function LoginPage() {
               <h1 className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight text-foreground">
                 {isNew
                   ? "Let's begin — together."
-                  : "Good to see you again."}
+                  : "Good to see you again!"}
               </h1>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 {isNew
