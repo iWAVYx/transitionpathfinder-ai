@@ -14,10 +14,6 @@ import {
   UnderlineSwoosh,
   PaperPlane,
 } from "@/components/effects/Decorations";
-import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
-
-const ctMap = ctMapAsset.url;
-
 import {
   Handshake,
   Sparkles,
