@@ -552,6 +552,51 @@ export type Database = {
         }
         Relationships: []
       }
+      bridgeforward_import_reviews: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          notes: string | null
+          reviewer_id: string
+          source_record_id: string
+          target_school_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reviewer_id: string
+          source_record_id: string
+          target_school_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reviewer_id?: string
+          source_record_id?: string
+          target_school_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridgeforward_import_reviews_source_record_id_fkey"
+            columns: ["source_record_id"]
+            isOneToOne: false
+            referencedRelation: "bridgeforward_source_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bridgeforward_import_reviews_target_school_id_fkey"
+            columns: ["target_school_id"]
+            isOneToOne: false
+            referencedRelation: "ct_high_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bridgeforward_profiles: {
         Row: {
           created_at: string
@@ -705,6 +750,195 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bridgeforward_resources: {
+        Row: {
+          audience: string
+          body: string | null
+          created_at: string
+          created_by: string | null
+          external_url: string | null
+          id: string
+          last_verified_at: string | null
+          source_name: string | null
+          source_url: string | null
+          status: string
+          summary: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["bf_verification_status"]
+        }
+        Insert: {
+          audience?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          external_url?: string | null
+          id?: string
+          last_verified_at?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+          summary?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["bf_verification_status"]
+        }
+        Update: {
+          audience?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          external_url?: string | null
+          id?: string
+          last_verified_at?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+          summary?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["bf_verification_status"]
+        }
+        Relationships: []
+      }
+      bridgeforward_school_matches: {
+        Row: {
+          created_at: string
+          discuss_with_team: boolean
+          id: string
+          needs_review: string[]
+          notes: string | null
+          program_id: string | null
+          questions_to_ask: string[]
+          reasons: Json
+          saved_by: string | null
+          school_id: string
+          score: number | null
+          status: Database["public"]["Enums"]["bf_match_status"]
+          student_factors: Json
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discuss_with_team?: boolean
+          id?: string
+          needs_review?: string[]
+          notes?: string | null
+          program_id?: string | null
+          questions_to_ask?: string[]
+          reasons?: Json
+          saved_by?: string | null
+          school_id: string
+          score?: number | null
+          status?: Database["public"]["Enums"]["bf_match_status"]
+          student_factors?: Json
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discuss_with_team?: boolean
+          id?: string
+          needs_review?: string[]
+          notes?: string | null
+          program_id?: string | null
+          questions_to_ask?: string[]
+          reasons?: Json
+          saved_by?: string | null
+          school_id?: string
+          score?: number | null
+          status?: Database["public"]["Enums"]["bf_match_status"]
+          student_factors?: Json
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridgeforward_school_matches_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "ct_high_school_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bridgeforward_school_matches_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "ct_high_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bridgeforward_school_matches_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bridgeforward_source_records: {
+        Row: {
+          created_at: string
+          dedupe_key: string | null
+          id: string
+          import_status: Database["public"]["Enums"]["bf_import_status"]
+          imported_at: string
+          imported_by: string | null
+          normalized: Json
+          notes: string | null
+          raw: Json
+          source_name: string
+          source_type: string | null
+          source_url: string | null
+          suggested_school_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          import_status?: Database["public"]["Enums"]["bf_import_status"]
+          imported_at?: string
+          imported_by?: string | null
+          normalized?: Json
+          notes?: string | null
+          raw?: Json
+          source_name: string
+          source_type?: string | null
+          source_url?: string | null
+          suggested_school_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          import_status?: Database["public"]["Enums"]["bf_import_status"]
+          imported_at?: string
+          imported_by?: string | null
+          normalized?: Json
+          notes?: string | null
+          raw?: Json
+          source_name?: string
+          source_type?: string | null
+          source_url?: string | null
+          suggested_school_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridgeforward_source_records_suggested_school_id_fkey"
+            columns: ["suggested_school_id"]
+            isOneToOne: false
+            referencedRelation: "ct_high_schools"
             referencedColumns: ["id"]
           },
         ]
@@ -1019,6 +1253,128 @@ export type Database = {
           status?: string
           submitted_by_user_id?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      ct_high_school_programs: {
+        Row: {
+          application_requirements: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          last_verified_at: string | null
+          program_category: Database["public"]["Enums"]["ct_program_category"]
+          program_name: string
+          school_id: string
+          source_url: string | null
+          student_fit_tags: string[]
+          support_considerations: string | null
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["bf_verification_status"]
+        }
+        Insert: {
+          application_requirements?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          last_verified_at?: string | null
+          program_category?: Database["public"]["Enums"]["ct_program_category"]
+          program_name: string
+          school_id: string
+          source_url?: string | null
+          student_fit_tags?: string[]
+          support_considerations?: string | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["bf_verification_status"]
+        }
+        Update: {
+          application_requirements?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          last_verified_at?: string | null
+          program_category?: Database["public"]["Enums"]["ct_program_category"]
+          program_name?: string
+          school_id?: string
+          source_url?: string | null
+          student_fit_tags?: string[]
+          support_considerations?: string | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["bf_verification_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ct_high_school_programs_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "ct_high_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ct_high_schools: {
+        Row: {
+          admissions_url: string | null
+          application_window: string | null
+          city: string | null
+          county: string | null
+          created_at: string
+          created_by: string | null
+          district: string | null
+          grades_served: string | null
+          id: string
+          last_verified_at: string | null
+          name: string
+          school_type: Database["public"]["Enums"]["ct_school_type"]
+          source_name: string | null
+          source_url: string | null
+          transportation_notes: string | null
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["bf_verification_status"]
+          website_url: string | null
+        }
+        Insert: {
+          admissions_url?: string | null
+          application_window?: string | null
+          city?: string | null
+          county?: string | null
+          created_at?: string
+          created_by?: string | null
+          district?: string | null
+          grades_served?: string | null
+          id?: string
+          last_verified_at?: string | null
+          name: string
+          school_type?: Database["public"]["Enums"]["ct_school_type"]
+          source_name?: string | null
+          source_url?: string | null
+          transportation_notes?: string | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["bf_verification_status"]
+          website_url?: string | null
+        }
+        Update: {
+          admissions_url?: string | null
+          application_window?: string | null
+          city?: string | null
+          county?: string | null
+          created_at?: string
+          created_by?: string | null
+          district?: string | null
+          grades_served?: string | null
+          id?: string
+          last_verified_at?: string | null
+          name?: string
+          school_type?: Database["public"]["Enums"]["ct_school_type"]
+          source_name?: string | null
+          source_url?: string | null
+          transportation_notes?: string | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["bf_verification_status"]
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -1868,6 +2224,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      high_school_program_tags: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          label: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          label: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          label?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       iep_access_alerts: {
         Row: {
@@ -5535,6 +5921,47 @@ export type Database = {
         | "school_admin"
         | "partner"
         | "district_admin"
+      bf_import_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "merged"
+        | "needs_changes"
+      bf_match_status: "suggested" | "saved" | "discussed" | "dismissed"
+      bf_verification_status:
+        | "imported"
+        | "needs_review"
+        | "verified"
+        | "outdated"
+        | "archived"
+      ct_program_category:
+        | "stem"
+        | "arts"
+        | "health_sciences"
+        | "trades"
+        | "manufacturing"
+        | "culinary"
+        | "agriculture"
+        | "aquaculture"
+        | "aviation"
+        | "digital_media"
+        | "business"
+        | "public_service"
+        | "college_credit"
+        | "career_technical"
+        | "special_program"
+        | "other"
+      ct_school_type:
+        | "comprehensive_public"
+        | "technical_ctecs"
+        | "magnet"
+        | "charter"
+        | "agricultural_aste"
+        | "open_choice"
+        | "specialized_program"
+        | "alternative_program"
+        | "private_or_out_of_district"
+        | "other"
       document_extraction_status:
         | "pending"
         | "needs_review"
@@ -5753,6 +6180,51 @@ export const Constants = {
         "school_admin",
         "partner",
         "district_admin",
+      ],
+      bf_import_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "merged",
+        "needs_changes",
+      ],
+      bf_match_status: ["suggested", "saved", "discussed", "dismissed"],
+      bf_verification_status: [
+        "imported",
+        "needs_review",
+        "verified",
+        "outdated",
+        "archived",
+      ],
+      ct_program_category: [
+        "stem",
+        "arts",
+        "health_sciences",
+        "trades",
+        "manufacturing",
+        "culinary",
+        "agriculture",
+        "aquaculture",
+        "aviation",
+        "digital_media",
+        "business",
+        "public_service",
+        "college_credit",
+        "career_technical",
+        "special_program",
+        "other",
+      ],
+      ct_school_type: [
+        "comprehensive_public",
+        "technical_ctecs",
+        "magnet",
+        "charter",
+        "agricultural_aste",
+        "open_choice",
+        "specialized_program",
+        "alternative_program",
+        "private_or_out_of_district",
+        "other",
       ],
       document_extraction_status: [
         "pending",
