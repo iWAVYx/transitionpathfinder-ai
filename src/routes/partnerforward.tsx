@@ -17,12 +17,10 @@ import {
 } from "@/components/effects/Decorations";
 import handshakeAsset from "@/assets/handshake.png.asset.json";
 import cohortAsset from "@/assets/students-cohort.jpg.asset.json";
-import connectAsset from "@/assets/connect-shot.png.asset.json";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 
 const handshakeImg = handshakeAsset.url;
 const cohortImg = cohortAsset.url;
-const connectImg = connectAsset.url;
 const ctMap = ctMapAsset.url;
 
 import {
