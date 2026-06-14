@@ -23,6 +23,7 @@ export default defineConfig({
         devOptions: { enabled: false },
         workbox: {
           globPatterns: ["**/*.{js,css,html,svg,png,ico,webp,woff2}"],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallback: "/offline.html",
           navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/_/],
           cleanupOutdatedCaches: true,
