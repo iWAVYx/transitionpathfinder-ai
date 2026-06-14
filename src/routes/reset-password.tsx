@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — TransitionForward" },
+      { title: "Reset Password — TransitionForward" },
       { name: "robots", content: "noindex" },
       { property: "og:url", content: "/reset-password" },
     ],
@@ -51,7 +51,7 @@ function ResetPasswordPage() {
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
-            <Label htmlFor="new-password">New password</Label>
+            <Label htmlFor="new-password">New Password</Label>
             <Input
               id="new-password"
               type="password"
@@ -64,7 +64,7 @@ function ResetPasswordPage() {
             />
           </div>
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? "Saving…" : "Update password"}
+            {submitting ? "Updating Password…" : "Update Password"}
           </Button>
         </form>
       </section>

@@ -18,7 +18,7 @@ export const Route = createFileRoute("/login/2fa")({
   }),
   head: () => ({
     meta: [
-      { title: "Two-factor verification — TransitionForward" },
+      { title: "Two-Factor Verification — TransitionForward" },
       {
         name: "description",
         content: "Enter your six-digit authenticator code to finish signing in.",
@@ -128,10 +128,10 @@ function TwoFactorChallengePage() {
       <section className="mx-auto flex max-w-md flex-col px-4 py-16 sm:px-6">
         <div className="rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-            Extra check
+            Extra Check
           </p>
           <h1 className="mt-3 font-display text-3xl font-medium tracking-tight text-foreground">
-            Two-factor verification
+            Two-Factor Verification
           </h1>
           <p
             className="mt-3 text-sm leading-relaxed text-muted-foreground"
@@ -149,7 +149,7 @@ function TwoFactorChallengePage() {
               data-testid="twofa-status"
             >
               {bootstrapping
-                ? "Preparing two-factor challenge"
+                ? "Preparing Two-Factor Challenge"
                 : error
                   ? `Error: ${error}`
                   : "Ready for your six-digit code"}
@@ -197,7 +197,7 @@ function TwoFactorChallengePage() {
               className="w-full"
               onClick={onCancel}
             >
-              Cancel and sign out
+              Cancel and Sign Out
             </Button>
           </form>
         </div>
