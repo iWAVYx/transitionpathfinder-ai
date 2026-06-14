@@ -13,14 +13,9 @@ import {
   DotField,
   UnderlineSwoosh,
   PaperPlane,
-  CompassRose,
 } from "@/components/effects/Decorations";
-import handshakeAsset from "@/assets/handshake.png.asset.json";
-import cohortAsset from "@/assets/students-cohort.jpg.asset.json";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
 
-const handshakeImg = handshakeAsset.url;
-const cohortImg = cohortAsset.url;
 const ctMap = ctMapAsset.url;
 
 import {
@@ -32,7 +27,6 @@ import {
   Accessibility,
   ArrowRight,
   Info,
-  CheckCircle2,
   Users,
 } from "lucide-react";
 
