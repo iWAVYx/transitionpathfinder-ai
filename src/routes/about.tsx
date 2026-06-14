@@ -696,34 +696,24 @@ const SOLUTIONS = [
 
 function ProblemSolution() {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
-      {/* Soft wash sitting on the background, no boxes */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 20% 30%, oklch(0.72 0.14 25 / 0.08), transparent 60%), radial-gradient(55% 45% at 80% 70%, oklch(0.78 0.13 60 / 0.10), transparent 60%)",
-        }}
-      />
-
+    <section className="relative overflow-hidden bg-[#1a1410] py-10 md:py-14">
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid gap-x-16 gap-y-20 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
+        <div className="grid gap-x-12 gap-y-12 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
           {/* Problem — editorial, no card */}
           <Reveal>
             <div className="relative">
-              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-red-600/80 dark:text-red-400/80">
+              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-red-400/80">
                 <span className="h-px w-8 bg-red-500/60" />
                 The Problem
               </div>
-              <h3 className="mt-5 font-display text-4xl font-black leading-[1.05] sm:text-5xl">
+              <h3 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl">
                 Paperwork
                 <br />
-                <span className="italic text-muted-foreground/70">
+                <span className="italic text-white/50">
                   without a path.
                 </span>
               </h3>
-              <div className="mt-8 max-w-md space-y-4 border-l border-red-500/30 pl-5 text-[15px] leading-relaxed text-muted-foreground">
+              <div className="mt-6 max-w-md space-y-3 border-l border-red-500/30 pl-5 text-[15px] leading-relaxed text-white/60">
                 {PROBLEMS.map((p) => (
                   <p key={p}>{p}.</p>
                 ))}
@@ -731,28 +721,28 @@ function ProblemSolution() {
             </div>
           </Reveal>
 
-          {/* Connecting rule — replaces the visual divide between two boxes */}
+          {/* Connecting rule */}
           <div
             aria-hidden
             className="hidden lg:flex h-full w-px items-center justify-center"
           >
-            <div className="h-3/4 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
+            <div className="h-3/4 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
           </div>
 
           {/* Response — same editorial register, warm side */}
           <Reveal delay={0.1}>
-            <div className="relative lg:pt-12">
-              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-primary">
-                <span className="h-px w-8 bg-primary/60" />
+            <div className="relative lg:pt-8">
+              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-300/80">
+                <span className="h-px w-8 bg-amber-300/60" />
                 The Response
               </div>
-              <h3 className="mt-5 font-display text-4xl font-black leading-[1.05] sm:text-5xl">
+              <h3 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl">
                 A platform
                 <br />
-                <span className="italic text-primary">built for the plan.</span>
+                <span className="italic text-amber-300/90">built for the plan.</span>
               </h3>
 
-              <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-[15px] text-foreground/80">
+              <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-[15px] text-white/70">
                 {SOLUTIONS.map((s, i) => {
                   const Icon = s.icon;
                   return (
@@ -760,10 +750,10 @@ function ProblemSolution() {
                       key={s.label}
                       className="inline-flex items-center gap-1.5"
                     >
-                      <Icon className="h-4 w-4 text-primary" />
+                      <Icon className="h-4 w-4 text-amber-300/80" />
                       <span>{s.label}</span>
                       {i < SOLUTIONS.length - 1 && (
-                        <span className="ml-3 h-1 w-1 rounded-full bg-border" />
+                        <span className="ml-2 h-1 w-1 rounded-full bg-white/30" />
                       )}
                     </span>
                   );
