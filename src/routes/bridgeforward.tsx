@@ -102,46 +102,43 @@ function BridgeForwardPublicPage() {
             alongside the high school TransitionForward planning flow.
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <HeroCTAs className="mt-6">
             {user ? (
               eligible === null ? (
                 <Button size="lg" disabled>
                   Checking access…
                 </Button>
               ) : eligible ? (
-                <Link to="/bridgeforward/intake">
-                  <Button size="lg">
-                    Open BridgeForward Tools{" "}
+                <Button asChild size="lg">
+                  <Link to="/bridgeforward/intake">
+                    Open BridgeForward Tools
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               ) : (
                 <>
-                  <Link to="/students">
-                    <Button size="lg">Connect a Middle School Student</Button>
-                  </Link>
-                  <Link to="/help">
-                    <Button variant="outline" size="lg">
-                      Request Access
-                    </Button>
-                  </Link>
+                  <Button asChild size="lg">
+                    <Link to="/students">Connect a Middle School Student</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg">
+                    <Link to="/help">Request Access</Link>
+                  </Button>
                 </>
               )
             ) : (
               <>
-                <Link to="/login">
-                  <Button size="lg">
-                    Sign In to Start <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to="/waitlist">
-                  <Button variant="outline" size="lg">
-                    Join the Waitlist
-                  </Button>
-                </Link>
+                <Button asChild size="lg">
+                  <Link to="/login">
+                    Sign In to Start
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link to="/waitlist">Join the Waitlist</Link>
+                </Button>
               </>
             )}
-          </div>
+          </HeroCTAs>
 
           {user && eligible === false && (
             <p className="mt-4 text-xs text-muted-foreground">
@@ -151,11 +148,11 @@ function BridgeForwardPublicPage() {
           )}
         </section>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <CardGrid columns={2} className="mt-8">
           {STEPS.map((s) => (
-            <Card key={s.title}>
+            <Card key={s.title} className="h-full">
               <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                <s.icon className="h-5 w-5 text-primary" />
+                <s.icon className="h-5 w-5 shrink-0 text-primary" />
                 <CardTitle className="text-base">{s.title}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
@@ -163,7 +160,7 @@ function BridgeForwardPublicPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </CardGrid>
 
         <section className="mt-10 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <h2 className="font-display text-2xl font-medium tracking-tight">
