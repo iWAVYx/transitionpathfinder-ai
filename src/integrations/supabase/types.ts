@@ -3573,6 +3573,210 @@ export type Database = {
           },
         ]
       }
+      partnerforward_admin_reviews: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          notes: string | null
+          resource_id: string
+          reviewer_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          resource_id: string
+          reviewer_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          resource_id?: string
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnerforward_admin_reviews_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "partnerforward_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnerforward_incentive_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          disclaimer_required: boolean
+          id: string
+          label: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          disclaimer_required?: boolean
+          id?: string
+          label: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          disclaimer_required?: boolean
+          id?: string
+          label?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      partnerforward_partner_saved_resources: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          partner_user_id: string
+          resource_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          partner_user_id: string
+          resource_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          partner_user_id?: string
+          resource_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnerforward_partner_saved_resources_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "partnerforward_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnerforward_resource_sources: {
+        Row: {
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          name: string
+          notes: string | null
+          source_type: Database["public"]["Enums"]["pf_source_type"]
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          name: string
+          notes?: string | null
+          source_type?: Database["public"]["Enums"]["pf_source_type"]
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          name?: string
+          notes?: string | null
+          source_type?: Database["public"]["Enums"]["pf_source_type"]
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      partnerforward_resources: {
+        Row: {
+          action_steps: string | null
+          category: Database["public"]["Enums"]["pf_category"]
+          cautious_disclaimer: string | null
+          created_at: string
+          created_by: string | null
+          eligibility_notes: string | null
+          id: string
+          last_verified_at: string | null
+          legal_financial_disclaimer_required: boolean
+          official_url: string | null
+          partner_value: string | null
+          source_id: string | null
+          source_name: string | null
+          source_type: Database["public"]["Enums"]["pf_source_type"] | null
+          status: Database["public"]["Enums"]["pf_status"]
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_steps?: string | null
+          category?: Database["public"]["Enums"]["pf_category"]
+          cautious_disclaimer?: string | null
+          created_at?: string
+          created_by?: string | null
+          eligibility_notes?: string | null
+          id?: string
+          last_verified_at?: string | null
+          legal_financial_disclaimer_required?: boolean
+          official_url?: string | null
+          partner_value?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          source_type?: Database["public"]["Enums"]["pf_source_type"] | null
+          status?: Database["public"]["Enums"]["pf_status"]
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_steps?: string | null
+          category?: Database["public"]["Enums"]["pf_category"]
+          cautious_disclaimer?: string | null
+          created_at?: string
+          created_by?: string | null
+          eligibility_notes?: string | null
+          id?: string
+          last_verified_at?: string | null
+          legal_financial_disclaimer_required?: boolean
+          official_url?: string | null
+          partner_value?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          source_type?: Database["public"]["Enums"]["pf_source_type"] | null
+          status?: Database["public"]["Enums"]["pf_status"]
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnerforward_resources_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "partnerforward_resource_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pathway_progress: {
         Row: {
           completed: boolean
@@ -6036,6 +6240,34 @@ export type Database = {
         | "archived"
         | "community_resource"
         | "outdated"
+      pf_category:
+        | "tax_credit"
+        | "tax_deduction"
+        | "grant"
+        | "workforce_program"
+        | "accessibility_support"
+        | "inclusive_hiring"
+        | "disability_awareness_training"
+        | "vocational_rehabilitation"
+        | "sponsorship"
+        | "technical_assistance"
+        | "funding_opportunity"
+        | "employer_support"
+        | "other"
+      pf_source_type:
+        | "federal"
+        | "state_ct"
+        | "local"
+        | "nonprofit"
+        | "workforce_board"
+        | "foundation"
+        | "internal"
+      pf_status:
+        | "draft"
+        | "needs_review"
+        | "verified"
+        | "published"
+        | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6306,6 +6538,31 @@ export const Constants = {
         "community_resource",
         "outdated",
       ],
+      pf_category: [
+        "tax_credit",
+        "tax_deduction",
+        "grant",
+        "workforce_program",
+        "accessibility_support",
+        "inclusive_hiring",
+        "disability_awareness_training",
+        "vocational_rehabilitation",
+        "sponsorship",
+        "technical_assistance",
+        "funding_opportunity",
+        "employer_support",
+        "other",
+      ],
+      pf_source_type: [
+        "federal",
+        "state_ct",
+        "local",
+        "nonprofit",
+        "workforce_board",
+        "foundation",
+        "internal",
+      ],
+      pf_status: ["draft", "needs_review", "verified", "published", "archived"],
     },
   },
 } as const
