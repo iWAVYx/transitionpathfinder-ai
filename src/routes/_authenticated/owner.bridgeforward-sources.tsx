@@ -100,7 +100,7 @@ function SourceManager() {
   });
 
   return (
-    <OwnerShell>
+    <OwnerShell title="BridgeForward Source Manager">
       <div className="px-4 py-6 sm:px-6">
         <h1 className="font-display text-2xl">BridgeForward Source Manager</h1>
         <p className="mt-1 text-sm text-muted-foreground">
