@@ -1083,13 +1083,9 @@ function AboutPage() {
     <SiteShell>
       <Hero />
       <FounderStory />
-      <Timeline />
       <ProblemSolution />
-      <PaperworkToPossibility />
-      <Audiences />
       <MissionValues />
-      <ProductPreview />
-      <CTOpportunity />
+      <PaperworkToPossibility />
       <FinalCTA />
     </SiteShell>
   );
