@@ -11,10 +11,17 @@ const SMALL = new Set([
 
 function titleCaseWord(word: string, forceCap: boolean): string {
   if (!word) return word;
+  
   // Preserve all-caps tokens of 2+ chars (IEP, PPT, DDS, AI, FAQ, USA).
   if (/^[A-Z0-9]{2,}$/.test(word)) return word;
+  
+  // Preserve camelCase / PascalCase tokens (PartnerForward, TransitionForward).
+  // We identify these by checking if there's an uppercase letter AFTER the first character.
+  if (/[a-z0-9][A-Z]/.test(word)) return word;
+
   const lower = word.toLowerCase();
   if (!forceCap && SMALL.has(lower)) return lower;
+  
   // Handle hyphen / slash compounds: "post-secondary" -> "Post-Secondary"
   if (/[-/]/.test(lower)) {
     return lower
