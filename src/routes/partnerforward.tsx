@@ -82,12 +82,6 @@ function PartnerForwardPage() {
 
         {/* Hero with layered backdrop + decorations */}
         <section className="relative mt-6 overflow-hidden rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-12">
-          <img
-            src={ctMap}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute -right-20 -top-10 hidden h-[120%] w-auto select-none opacity-[0.07] sm:block"
-          />
           <ArcStack className="pointer-events-none absolute -left-4 -top-4 hidden h-32 w-32 -scale-y-100 text-primary/15 sm:block" />
           <Starburst className="pointer-events-none absolute right-10 top-10 hidden h-20 w-20 text-primary/20 sm:block" />
           <PaperPlane className="pointer-events-none absolute bottom-8 right-12 hidden h-12 w-12 text-primary/40 sm:block" />
