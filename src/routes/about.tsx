@@ -706,14 +706,14 @@ function ProblemSolution() {
                 <span className="h-px w-8 bg-red-500/60" />
                 The Problem
               </div>
-              <h3 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl">
+              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4">
                 Paperwork
                 <br />
                 <span className="italic text-white/50">
                   without a path.
                 </span>
               </h3>
-              <div className="mt-6 max-w-md space-y-3 border-l border-red-500/30 pl-5 text-[15px] leading-relaxed text-white/60">
+              <div className="mt-4 max-w-md space-y-2.5 border-l border-red-500/30 pl-4 text-[15px] leading-relaxed text-white/60 sm:space-y-3 sm:pl-5 md:mt-6">
                 {PROBLEMS.map((p) => (
                   <p key={p}>{p}.</p>
                 ))}
