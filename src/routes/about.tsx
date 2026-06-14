@@ -114,92 +114,195 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
 
 function Hero() {
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 600], [0, 120]);
   const reduce = useReducedMotion();
+  // Layered parallax: bg moves slow w/ ken-burns zoom, mid orbs faster,
+  // copy lifts and fades as user scrolls, vignette deepens.
+  const bgY = useTransform(scrollY, [0, 800], [0, 180]);
+  const bgScale = useTransform(scrollY, [0, 800], [1.08, 1.18]);
+  const midY = useTransform(scrollY, [0, 800], [0, 90]);
+  const copyY = useTransform(scrollY, [0, 800], [0, -40]);
+  const copyOpacity = useTransform(scrollY, [0, 500, 800], [1, 1, 0.4]);
+  const vignette = useTransform(scrollY, [0, 600], [0.35, 0.75]);
+  const collageY = useTransform(scrollY, [0, 600], [0, -50]);
+
+  const lineEase = [0.22, 0.61, 0.36, 1] as const;
+  const lineInitial = reduce ? false : { y: "110%", opacity: 0 };
+  const lineAnimate = { y: "0%", opacity: 1 };
 
   return (
-    <section className="relative isolate overflow-hidden">
-      {/* Background */}
+    <section className="relative isolate min-h-[92vh] overflow-hidden">
+      {/* Cinematic background — ken-burns + parallax */}
       <motion.div
-        style={reduce ? undefined : { y }}
-        className="absolute inset-0 -z-10"
+        style={reduce ? undefined : { y: bgY, scale: bgScale }}
+        className="absolute inset-0 -z-20 will-change-transform"
+        aria-hidden
       >
         <img
           src={heroImg}
           alt=""
-          className="h-[120%] w-full object-cover object-center"
+          className="h-full w-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/30 to-transparent" />
       </motion.div>
 
-      <div className="container mx-auto px-6 pb-24 pt-28 sm:pt-36 md:pb-32 md:pt-44">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          {/* Copy */}
+      {/* Warm color wash + cinematic gradient + animated vignette */}
+      <div
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-background/30 via-background/60 to-background"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_30%_40%,rgba(255,170,80,0.18),transparent_55%),radial-gradient(ellipse_at_80%_70%,rgba(80,140,220,0.16),transparent_60%)]"
+        aria-hidden
+      />
+      <motion.div
+        style={reduce ? undefined : { opacity: vignette }}
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]"
+        aria-hidden
+      />
+      {/* Subtle film grain */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
+        }}
+        aria-hidden
+      />
+
+      {/* Floating midground orbs */}
+      {!reduce && (
+        <motion.div
+          style={{ y: midY }}
+          className="pointer-events-none absolute inset-0 -z-10"
+          aria-hidden
+        >
+          <div className="absolute left-[8%] top-[18%] h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
+          <div className="absolute right-[6%] top-[55%] h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute left-[45%] top-[70%] h-60 w-60 rounded-full bg-orange-400/15 blur-3xl" />
+        </motion.div>
+      )}
+
+      <motion.div
+        style={reduce ? undefined : { y: copyY, opacity: copyOpacity }}
+        className="container mx-auto px-6 pb-28 pt-32 sm:pt-40 md:pb-36 md:pt-48"
+      >
+        <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+          {/* Copy with line-by-line mask reveals */}
           <div className="max-w-2xl">
-            <Reveal>
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: lineEase }}
+            >
               <SectionEyebrow>Our Story</SectionEyebrow>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <h1 className="mt-5 font-display text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-                Built from the Classroom.
-                <br />
-                <span className="bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent">
+            </motion.div>
+
+            <h1 className="mt-6 font-display text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+              <span className="block overflow-hidden">
+                <motion.span
+                  className="block"
+                  initial={lineInitial}
+                  animate={lineAnimate}
+                  transition={{ duration: 0.95, delay: 0.15, ease: lineEase }}
+                >
+                  Built from the
+                </motion.span>
+              </span>
+              <span className="block overflow-hidden">
+                <motion.span
+                  className="block"
+                  initial={lineInitial}
+                  animate={lineAnimate}
+                  transition={{ duration: 0.95, delay: 0.3, ease: lineEase }}
+                >
+                  Classroom.
+                </motion.span>
+              </span>
+              <span className="block overflow-hidden pb-2">
+                <motion.span
+                  className="block bg-gradient-to-r from-primary via-amber-500 to-orange-500 bg-clip-text text-transparent"
+                  initial={lineInitial}
+                  animate={lineAnimate}
+                  transition={{ duration: 0.95, delay: 0.5, ease: lineEase }}
+                >
                   Designed for the Future.
-                </span>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.18}>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+                </motion.span>
+              </span>
+            </h1>
+
+            <div className="mt-7 overflow-hidden">
+              <motion.p
+                initial={reduce ? false : { y: "100%", opacity: 0 }}
+                animate={{ y: "0%", opacity: 1 }}
+                transition={{ duration: 0.9, delay: 0.75, ease: lineEase }}
+                className="max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl"
+              >
                 Transition Forward helps students receiving special education
                 services, families, educators, and school teams move from
                 confusing paperwork to clear, personalized pathways.
-              </p>
-            </Reveal>
-            <Reveal delay={0.28}>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="group">
-                  <Link to="/platform">
-                    Explore the Platform
-                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/waitlist">Join the Waitlist</Link>
-                </Button>
+              </motion.p>
+            </div>
+
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.95, ease: lineEase }}
+              className="mt-9 flex flex-wrap gap-3"
+            >
+              <Button asChild size="lg" className="group shadow-lg shadow-primary/20">
+                <Link to="/platform">
+                  Explore the Platform
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="backdrop-blur">
+                <Link to="/waitlist">Join the Waitlist</Link>
+              </Button>
+            </motion.div>
+
+            <motion.div
+              initial={reduce ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.15 }}
+              className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground"
+            >
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" /> Rooted in Connecticut
               </div>
-            </Reveal>
-            <Reveal delay={0.4}>
-              <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" /> Rooted in Connecticut
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" /> Student-centered
-                </div>
-                <div className="flex items-center gap-2">
-                  <HandHeart className="h-4 w-4 text-primary" /> Built by an educator
-                </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Student-centered
               </div>
-            </Reveal>
+              <div className="flex items-center gap-2">
+                <HandHeart className="h-4 w-4 text-primary" /> Built by an educator
+              </div>
+            </motion.div>
           </div>
 
-          {/* Visual collage */}
-          <Reveal delay={0.2} className="relative hidden lg:block">
-            <div className="relative aspect-[4/5] w-full">
-              <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-border/60 shadow-2xl">
+          {/* Visual collage — drifts opposite to copy for depth */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.1, delay: 0.5, ease: lineEase }}
+            className="relative hidden lg:block"
+          >
+            <motion.div
+              style={reduce ? undefined : { y: collageY }}
+              className="relative aspect-[4/5] w-full"
+            >
+              <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-border/60 shadow-2xl ring-1 ring-white/10">
                 <img
                   src={pathwayImg}
                   alt="Student pathway planning"
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-amber-500/10" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/25 via-transparent to-amber-500/15" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
               </div>
+
               {/* Floating Pathway Report card */}
               <motion.div
-                initial={reduce ? false : { opacity: 0, y: 20 }}
+                initial={reduce ? false : { opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
+                transition={{ delay: 1, duration: 0.8, ease: lineEase }}
                 className="absolute -left-8 bottom-10 w-64 rounded-2xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur"
               >
                 <div className="flex items-center gap-2 text-xs font-medium text-primary">
@@ -219,7 +322,7 @@ function Hero() {
                             initial={{ width: 0 }}
                             whileInView={{ width: `${[82, 64, 73][i]}%` }}
                             viewport={{ once: true }}
-                            transition={{ delay: 0.9 + i * 0.15, duration: 1 }}
+                            transition={{ delay: 1.3 + i * 0.15, duration: 1 }}
                             className="h-full rounded-full bg-gradient-to-r from-primary to-amber-500"
                           />
                         </div>
@@ -228,19 +331,49 @@ function Hero() {
                   )}
                 </div>
               </motion.div>
-              {/* Floating compass */}
+
+              {/* Floating compass — gentle idle float */}
               <motion.div
                 initial={reduce ? false : { opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
+                animate={
+                  reduce
+                    ? { opacity: 1 }
+                    : { opacity: 1, scale: 1, y: [0, -8, 0] }
+                }
+                transition={
+                  reduce
+                    ? { duration: 0.4 }
+                    : {
+                        opacity: { delay: 1.1, duration: 0.6 },
+                        scale: { delay: 1.1, duration: 0.6 },
+                        y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
+                      }
+                }
                 className="absolute -right-6 top-8 flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card/95 shadow-xl backdrop-blur"
               >
                 <Compass className="h-9 w-9 text-primary" />
               </motion.div>
-            </div>
-          </Reveal>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
+
+        {/* Scroll cue */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.8 }}
+          className="mt-16 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground"
+        >
+          <span className="h-px w-10 bg-muted-foreground/40" />
+          Scroll
+          <motion.span
+            animate={reduce ? undefined : { y: [0, 4, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
