@@ -107,15 +107,8 @@ function BridgeForwardPublicPage() {
       <div className="mx-auto max-w-5xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10 lg:px-8">
         <Breadcrumbs trail={[{ label: "BridgeForward" }]} />
 
-        {/* Hero — layered background graphics, CT map texture, floating decorations */}
+        {/* Hero — layered background graphics, floating decorations */}
         <section className="relative mt-6 overflow-hidden rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-12">
-          {/* CT map ambient backdrop */}
-          <img
-            src={ctMap}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute -right-16 -top-10 hidden h-[120%] w-auto select-none opacity-[0.08] sm:block"
-          />
           {/* Decorative cluster */}
           <CompassRose className="pointer-events-none absolute -left-6 -top-6 hidden h-32 w-32 text-primary/15 sm:block" />
           <ArcStack className="pointer-events-none absolute bottom-0 right-0 hidden h-40 w-40 text-primary/20 sm:block" />
