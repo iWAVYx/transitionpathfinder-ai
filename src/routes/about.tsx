@@ -736,13 +736,13 @@ function ProblemSolution() {
                 <span className="h-px w-8 bg-amber-300/60" />
                 The Response
               </div>
-              <h3 className="mt-4 font-display text-3xl font-black leading-[1.05] text-white sm:text-4xl">
+              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4">
                 A platform
                 <br />
                 <span className="italic text-amber-300/90">built for the plan.</span>
               </h3>
 
-              <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-[15px] text-white/70">
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[15px] text-white/70 md:mt-6">
                 {SOLUTIONS.map((s, i) => {
                   const Icon = s.icon;
                   return (
