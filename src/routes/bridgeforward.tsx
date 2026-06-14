@@ -28,9 +28,6 @@ import {
   DotField,
   UnderlineSwoosh,
 } from "@/components/effects/Decorations";
-import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
-
-const ctMap = ctMapAsset.url;
 
 export const Route = createFileRoute("/bridgeforward")({
   head: () => ({
