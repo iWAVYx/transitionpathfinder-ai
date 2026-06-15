@@ -699,22 +699,9 @@ function Transformation() {
         </div>
 
         <div className="relative mx-auto h-[520px] w-full max-w-3xl">
-          {FRAGMENTS.map((f, i) => {
-            const p = useTransform(scrollYProgress, [0.2, 0.7], [0, 1]);
-            const x = useTransform(p, [0, 1], [reduce ? 0 : f.x, 0]);
-            const y = useTransform(p, [0, 1], [reduce ? 0 : f.y, i * 12 - 30]);
-            const rot = useTransform(p, [0, 1], [reduce ? 0 : f.rot, 0]);
-            const opacity = useTransform(p, [0, 0.6, 1], [1, 1, 0.15]);
-            return (
-              <motion.div
-                key={i}
-                style={{ x, y, rotate: rot, opacity }}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[#1c1814]/15 bg-white/95 px-5 py-3 text-xs uppercase tracking-[0.2em] text-[#1c1814]/80 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]"
-              >
-                {f.label}
-              </motion.div>
-            );
-          })}
+          {FRAGMENTS.map((f, i) => (
+            <Fragment key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
+          ))}
           {/* Pathway Report — solidifies */}
           <motion.div
             style={{
