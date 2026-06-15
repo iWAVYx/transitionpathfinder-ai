@@ -975,16 +975,16 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[520px] w-full max-w-3xl">
+          <div className="relative mx-auto h-[68vh] w-full max-w-5xl">
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
             <motion.div
               style={{
                 opacity: useTransform(scrollYProgress, [0.38, 0.58, 0.92, 1], [0, 1, 1, 0.85]),
-                scale: useTransform(scrollYProgress, [0.38, 0.58], [0.85, 1]),
+                scale: useTransform(scrollYProgress, [0.38, 0.58], [0.55, 1.45]),
               }}
-              className="absolute left-1/2 top-1/2 w-[min(420px,90%)] -translate-x-1/2 -translate-y-1/2"
+              className="absolute left-1/2 top-1/2 w-[min(560px,92%)] -translate-x-1/2 -translate-y-1/2"
             >
               <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
                 <img src={dashboardImg} alt="The Pathway Report" className="aspect-[16/10] w-full object-cover" />
