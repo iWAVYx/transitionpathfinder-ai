@@ -351,7 +351,7 @@ export function SiteHeader() {
                 </SmartLink>
               )}
 
-              <DropdownMenu>
+              <DropdownMenu onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
