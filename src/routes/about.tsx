@@ -685,20 +685,20 @@ const PROBLEMS = [
 ];
 
 const SOLUTIONS = [
-  { label: "Student Profile", icon: UserRound },
-  { label: "IEP Upload & Review", icon: FileText },
-  { label: "Student Voice", icon: HandHeart },
-  { label: "Pathway Report", icon: Compass },
-  { label: "Resource Library", icon: BookOpen },
-  { label: "Partner Network", icon: Network },
-  { label: "Calendar & Meeting Prep", icon: Calendar },
+  { label: "Student Profile", icon: UserRound, desc: "Everything in one place — goals, strengths, and support needs at a glance." },
+  { label: "IEP Upload & Review", icon: FileText, desc: "Upload, organize, and revisit IEP documents anytime, anywhere." },
+  { label: "Student Voice", icon: HandHeart, desc: "Capture what students want — their goals, their words, their future." },
+  { label: "Pathway Report", icon: Compass, desc: "Turn data into a clear, actionable post-school roadmap." },
+  { label: "Resource Library", icon: BookOpen, desc: "Curated tools, guides, and contacts matched to each student's plan." },
+  { label: "Partner Network", icon: Network, desc: "Connect families with trusted local programs and agencies." },
+  { label: "Calendar & Meeting Prep", icon: Calendar, desc: "Schedule, prepare, and follow up on transition meetings." },
 ];
 
 function ProblemSolution() {
   return (
     <section className="relative overflow-hidden bg-[#1a1410] py-8 md:py-14">
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[1fr_auto_1fr] lg:items-start lg:gap-y-12">
+        <div className="grid items-start gap-x-12 gap-y-8 lg:grid-cols-[1fr_auto_1fr] lg:gap-y-12">
           {/* Problem — editorial, no card */}
           <Reveal>
             <div className="relative">
@@ -706,7 +706,7 @@ function ProblemSolution() {
                 <span className="h-px w-8 bg-red-500/60" />
                 The Problem
               </div>
-              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4">
+              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4" style={{ textWrap: 'balance' }}>
                 Paperwork
                 <br />
                 <span className="italic text-white/50">
@@ -724,38 +724,36 @@ function ProblemSolution() {
           {/* Connecting rule */}
           <div
             aria-hidden
-            className="hidden lg:flex h-full w-px items-center justify-center"
+            className="hidden h-full w-px items-center justify-center lg:flex"
           >
             <div className="h-3/4 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
           </div>
 
           {/* Response — same editorial register, warm side */}
           <Reveal delay={0.1}>
-            <div className="relative lg:pt-8">
+            <div className="relative">
               <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-300/80">
                 <span className="h-px w-8 bg-amber-300/60" />
                 The Response
               </div>
-              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4">
+              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4" style={{ textWrap: 'balance' }}>
                 A platform
                 <br />
                 <span className="italic text-amber-300/90">built for the plan.</span>
               </h3>
 
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[15px] text-white/70 md:mt-6">
-                {SOLUTIONS.map((s, i) => {
+              <div className="mt-4 max-w-md space-y-2.5 border-l border-amber-300/25 pl-4 text-[15px] leading-relaxed text-white/60 sm:space-y-3 sm:pl-5 md:mt-6">
+                {SOLUTIONS.map((s) => {
                   const Icon = s.icon;
                   return (
-                    <span
-                      key={s.label}
-                      className="inline-flex items-center gap-1.5"
-                    >
-                      <Icon className="h-4 w-4 text-amber-300/80" />
-                      <span>{s.label}</span>
-                      {i < SOLUTIONS.length - 1 && (
-                        <span className="ml-2 h-1 w-1 rounded-full bg-white/30" />
-                      )}
-                    </span>
+                    <p key={s.label} className="flex items-start gap-2">
+                      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-300/80" />
+                      <span>
+                        <span className="font-medium text-white/80">{s.label}</span>
+                        {" — "}
+                        {s.desc}
+                      </span>
+                    </p>
                   );
                 })}
               </div>
