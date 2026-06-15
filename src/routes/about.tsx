@@ -487,9 +487,10 @@ function MosaicStory() {
   const progress = useSpring(scrollYProgress, { damping: 32, stiffness: 70, mass: 0.7 });
 
   // Camera "walks up" the staircase — translates Z forward and tilts down.
-  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 2400]);
-  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -780]);
-  const camRotX = useTransform(progress, [0, 1], reduce ? [0, 0] : [4, 14]);
+  // Reduced amplitude so each (taller) door stays framed in the viewport longer.
+  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 1900]);
+  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -640]);
+  const camRotX = useTransform(progress, [0, 1], reduce ? [0, 0] : [3, 11]);
 
   // Visible scroll progress bar (vertical, right side)
   const barScaleY = useTransform(progress, [0, 1], [0, 1]);
@@ -524,9 +525,11 @@ function MosaicStory() {
     <section
       ref={ref}
       className="relative bg-[#0b0a09] text-white"
-      // Much longer scroll window so each door stays open and on-screen longer.
-      style={{ height: reduce ? "auto" : `${TILES.length * 160 + 120}vh` }}
+      // Longer scroll window per landing so each door stays open and on-screen long
+      // enough to read its caption before the camera moves on.
+      style={{ height: reduce ? "auto" : `${TILES.length * 200 + 160}vh` }}
     >
+
       <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
         {/* Ambient atmosphere — soft light spill from the top of the stairwell */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,220,170,0.18),transparent_60%)]" />
