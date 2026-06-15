@@ -179,6 +179,27 @@ export function SiteHeader() {
   const fetchRoles = useServerFn(getMyRoles);
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
   const fetchElig = useServerFn(getProgramEligibility);
+  const [openDropdowns, setOpenDropdowns] = useState(0);
+
+  const isMenuOpen = open || openDropdowns > 0;
+
+  useEffect(() => {
+    const lenis = window.__lenis;
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+      lenis?.stop();
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      lenis?.start();
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      lenis?.start();
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -275,8 +296,8 @@ export function SiteHeader() {
 
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 xl:flex">
-          {navGroups.map((group) => (
-            <DropdownMenu key={group.label}>
+        {navGroups.map((group) => (
+            <DropdownMenu key={group.label} onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}>
               <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                 {group.label} <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
@@ -330,7 +351,7 @@ export function SiteHeader() {
                 </SmartLink>
               )}
 
-              <DropdownMenu>
+              <DropdownMenu onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
