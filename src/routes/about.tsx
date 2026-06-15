@@ -696,60 +696,55 @@ const SOLUTIONS = [
 
 function ProblemSolution() {
   return (
-    <section className="relative overflow-hidden bg-[#1a1410] py-8 md:py-14">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-16">
-          {/* Problem — editorial, wide */}
-          <Reveal>
-            <div className="relative">
-              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-red-400/80">
-                <span className="h-px w-8 bg-red-500/60" />
-                The Problem
-              </div>
-              <h3 className="mt-3 font-display text-3xl font-black leading-[1.05] text-white sm:text-5xl md:mt-4 md:text-6xl">
-                Paperwork{" "}
-                <span className="italic text-white/40">
-                  without a path.
-                </span>
-              </h3>
-              <div className="mt-5 space-y-3 border-l-2 border-red-500/20 pl-5 text-base leading-relaxed text-white/50 sm:text-lg sm:leading-relaxed md:mt-7">
-                {PROBLEMS.map((p) => (
-                  <p key={p}>{p}.</p>
-                ))}
-              </div>
+    <section className="relative overflow-hidden bg-[#1a1410] py-6 md:py-10">
+      <div className="mx-auto max-w-3xl px-6">
+        {/* Problem — compact, stacked */}
+        <Reveal>
+          <div className="relative">
+            <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-red-400/80">
+              <span className="h-px w-6 bg-red-500/60" />
+              The Problem
             </div>
-          </Reveal>
-
-          {/* Response — same wide register, warm side */}
-          <Reveal delay={0.1}>
-            <div className="relative lg:border-l lg:border-white/10 lg:pl-16">
-              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-300/80">
-                <span className="h-px w-8 bg-amber-300/60" />
-                The Response
-              </div>
-              <h3 className="mt-3 font-display text-3xl font-black leading-[1.05] text-white sm:text-5xl md:mt-4 md:text-6xl">
-                A platform{" "}
-                <span className="italic text-amber-300/80">built for the plan.</span>
-              </h3>
-
-              <div className="mt-5 space-y-3 border-l-2 border-amber-300/20 pl-5 text-base leading-relaxed text-white/50 sm:text-lg sm:leading-relaxed md:mt-7">
-                {SOLUTIONS.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <p key={s.label} className="flex items-start gap-3">
-                      <Icon className="mt-1 h-5 w-5 shrink-0 text-amber-300/70" />
-                      <span>
-                        <span className="font-medium text-white/80">{s.label}</span>
-                        {" — "}
-                        {s.desc}
-                      </span>
-                    </p>
-                  );
-                })}
-              </div>
+            <h3 className="mt-2 font-display text-2xl font-black leading-[1.1] text-white sm:text-3xl md:text-4xl">
+              Paperwork{" "}
+              <span className="italic text-white/40">without a path.</span>
+            </h3>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-l-2 border-red-500/20 pl-4 text-sm leading-snug text-white/50 sm:text-base">
+              {PROBLEMS.map((p) => (
+                <p key={p}>{p}.</p>
+              ))}
             </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
+
+        {/* Response — compact, stacked directly below */}
+        <Reveal delay={0.1}>
+          <div className="relative mt-6 md:mt-8">
+            <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-300/80">
+              <span className="h-px w-6 bg-amber-300/60" />
+              The Response
+            </div>
+            <h3 className="mt-2 font-display text-2xl font-black leading-[1.1] text-white sm:text-3xl md:text-4xl">
+              A platform{" "}
+              <span className="italic text-amber-300/80">built for the plan.</span>
+            </h3>
+            <div className="mt-3 grid gap-1.5 border-l-2 border-amber-300/20 pl-4 text-sm leading-snug text-white/50 sm:text-base sm:grid-cols-2">
+              {SOLUTIONS.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <p key={s.label} className="flex items-start gap-2">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-300/70" />
+                    <span>
+                      <span className="font-medium text-white/80">{s.label}</span>
+                      {" — "}
+                      {s.desc}
+                    </span>
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
