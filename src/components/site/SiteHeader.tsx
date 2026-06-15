@@ -415,7 +415,7 @@ export function SiteHeader() {
               </SmartLink>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 py-4">
+            <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
               <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Explore
               </p>
