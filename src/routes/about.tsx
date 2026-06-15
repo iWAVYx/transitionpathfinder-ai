@@ -7,6 +7,7 @@ import {
   useReducedMotion,
   useSpring,
   AnimatePresence,
+  type MotionValue,
 } from "motion/react";
 import { ArrowRight, MapPin, Quote } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
