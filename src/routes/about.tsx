@@ -948,18 +948,18 @@ function FragmentCard({
         x,
         y,
         rotate: rot,
+        rotateX: tiltX,
+        rotateY: tiltY,
         opacity,
         backgroundColor: fragment.color,
-        transform: `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+        transformPerspective: 800,
         transformStyle: "preserve-3d",
-      }}
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[120px] w-[160px] px-4 py-5 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 shadow-[0_18px_28px_-10px_rgba(0,0,0,0.35),0_4px_8px_-2px_rgba(0,0,0,0.2),inset_0_-12px_18px_-12px_rgba(0,0,0,0.18)] before:absolute before:left-1/2 before:-top-2 before:h-4 before:w-14 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_2px_4px_rgba(0,0,0,0.15)] after:absolute after:inset-x-0 after:bottom-0 after:h-6 after:bg-gradient-to-t after:from-black/10 after:to-transparent flex items-center justify-center"
+        boxShadow:
+          "0 22px 30px -10px rgba(0,0,0,0.35), 0 6px 10px -2px rgba(0,0,0,0.22), inset 0 -14px 22px -14px rgba(0,0,0,0.22)",
+        ["--tape" as never]: fragment.tape,
+      } as React.CSSProperties}
+      className="absolute left-1/2 top-1/2 flex h-[130px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-5 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-2 before:h-4 before:w-16 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_2px_4px_rgba(0,0,0,0.18)] before:content-['']"
     >
-      <span style={{ "--tape": fragment.tape } as React.CSSProperties} className="hidden" />
-      <span
-        style={{ ["--tape" as never]: fragment.tape } as React.CSSProperties}
-        className="absolute inset-0 -z-10"
-      />
       <span className="relative z-10">{fragment.label}</span>
     </motion.div>
   );
