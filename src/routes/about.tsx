@@ -431,17 +431,50 @@ function FounderMessage() {
 type Tile = {
   src: string;
   caption: string;
+  alt: string;
   span: string;
   offset?: string;
   ratio?: string;
 };
 
 const TILES: Tile[] = [
-  { src: studentCenter, caption: "New Haven, CT", span: "md:col-span-5 md:row-span-2", ratio: "aspect-[4/5]" },
-  { src: classroomImg, caption: "Hamden, CT", span: "md:col-span-4", offset: "md:mt-12", ratio: "aspect-[4/3]" },
-  { src: studentPhoto, caption: "Student voice", span: "md:col-span-3", ratio: "aspect-square" },
-  { src: paperworkImg, caption: "Paperwork → possibility", span: "md:col-span-4", offset: "md:-mt-8", ratio: "aspect-[4/3]" },
-  { src: familyImg, caption: "Family meeting prep", span: "md:col-span-3", ratio: "aspect-[4/5]" },
+  {
+    src: studentCenter,
+    caption: "New Haven, CT",
+    alt: "Student support center in New Haven, Connecticut, where the founder began teaching special education.",
+    span: "md:col-span-5 md:row-span-2",
+    ratio: "aspect-[4/5]",
+  },
+  {
+    src: classroomImg,
+    caption: "Hamden, CT",
+    alt: "Special education classroom in Hamden, Connecticut, where the founder taught across grade bands.",
+    span: "md:col-span-4",
+    offset: "md:mt-12",
+    ratio: "aspect-[4/3]",
+  },
+  {
+    src: studentPhoto,
+    caption: "Student voice",
+    alt: "A young student at the center of their own plan, representing the student voice that drives every pathway.",
+    span: "md:col-span-3",
+    ratio: "aspect-square",
+  },
+  {
+    src: paperworkImg,
+    caption: "Paperwork to possibility",
+    alt: "IEP paperwork and transition documents spread across a desk — the binder that inspired building a clearer path.",
+    span: "md:col-span-4",
+    offset: "md:-mt-8",
+    ratio: "aspect-[4/3]",
+  },
+  {
+    src: familyImg,
+    caption: "Family meeting prep",
+    alt: "A family preparing together for a transition meeting — the people behind the paperwork who need a plan.",
+    span: "md:col-span-3",
+    ratio: "aspect-[4/5]",
+  },
 ];
 
 function MosaicStory() {
@@ -553,7 +586,7 @@ function MosaicStory() {
                   <button
                     type="button"
                     onClick={() => scrollToLanding(i)}
-                    aria-label={`Jump to landing ${i + 1}: ${t.caption}`}
+                    aria-label={`Jump to landing ${i + 1}: ${t.alt}`}
                     className={cn(
                       "group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] transition-colors",
                       isActive ? "text-amber-200" : "text-white/40 hover:text-white/80",
@@ -673,7 +706,7 @@ function Stair({
         <div className={cn("relative h-full w-full overflow-hidden rounded-[3px] bg-black")}>
           <img
             src={tile.src}
-            alt={tile.caption}
+            alt={tile.alt}
             className="h-full w-full object-cover"
             style={{ objectPosition: "center" }}
           />
