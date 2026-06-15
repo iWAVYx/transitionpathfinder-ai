@@ -932,11 +932,13 @@ function FragmentCard({
   progress: MotionValue<number>;
   reduce: boolean;
 }) {
-  const p = useTransform(progress, [0.2, 0.7], [0, 1]);
+  // Fragments hold their scattered positions while the section enters, then
+  // converge toward center as the user scrolls through the pinned stage.
+  const p = useTransform(progress, [0.25, 0.55], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x, 0]);
   const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot, 0]);
-  const opacity = useTransform(p, [0, 0.6, 1], [1, 1, 0.15]);
+  const opacity = useTransform(p, [0, 0.7, 1], [1, 1, 0.15]);
   return (
     <motion.div
       style={{ x, y, rotate: rot, opacity }}
@@ -953,44 +955,46 @@ function Transformation() {
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
 
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden bg-[#f4ede3] py-28 text-[#1c1814] sm:py-36"
+      className="relative bg-[#f4ede3] text-[#1c1814]"
+      style={{ height: reduce ? "auto" : "260vh" }}
     >
-      <div className="mx-auto max-w-[1300px] px-6">
-        <div className="mx-auto mb-20 max-w-2xl text-center">
-          <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
-            The transformation
-          </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1.02]">
-            Scattered documents <span className="italic">become</span> a clear pathway.
-          </h2>
-        </div>
-
-        <div className="relative mx-auto h-[520px] w-full max-w-3xl">
-          {FRAGMENTS.map((f, i) => (
-            <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
-          ))}
-          {/* Pathway Report — solidifies */}
-          <motion.div
-            style={{
-              opacity: useTransform(scrollYProgress, [0.5, 0.8], [0, 1]),
-              scale: useTransform(scrollYProgress, [0.5, 0.8], [0.85, 1]),
-            }}
-            className="absolute left-1/2 top-1/2 w-[min(420px,90%)] -translate-x-1/2 -translate-y-1/2"
-          >
-            <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
-              <img src={dashboardImg} alt="The Pathway Report" className="aspect-[16/10] w-full object-cover" />
-              <div className="flex items-center justify-between border-t border-[#1c1814]/10 px-5 py-3 text-[10px] uppercase tracking-[0.3em] text-[#1c1814]/70">
-                <span>Pathway Report</span>
-                <span>Ready</span>
-              </div>
+      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
+        <div className="mx-auto w-full max-w-[1300px] px-6">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
+              The transformation
             </div>
-          </motion.div>
+            <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1.02]">
+              Scattered documents <span className="italic">become</span> a clear pathway.
+            </h2>
+          </div>
+
+          <div className="relative mx-auto h-[520px] w-full max-w-3xl">
+            {FRAGMENTS.map((f, i) => (
+              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
+            ))}
+            <motion.div
+              style={{
+                opacity: useTransform(scrollYProgress, [0.45, 0.7], [0, 1]),
+                scale: useTransform(scrollYProgress, [0.45, 0.7], [0.85, 1]),
+              }}
+              className="absolute left-1/2 top-1/2 w-[min(420px,90%)] -translate-x-1/2 -translate-y-1/2"
+            >
+              <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
+                <img src={dashboardImg} alt="The Pathway Report" className="aspect-[16/10] w-full object-cover" />
+                <div className="flex items-center justify-between border-t border-[#1c1814]/10 px-5 py-3 text-[10px] uppercase tracking-[0.3em] text-[#1c1814]/70">
+                  <span>Pathway Report</span>
+                  <span>Ready</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
