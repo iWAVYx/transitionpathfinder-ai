@@ -179,6 +179,27 @@ export function SiteHeader() {
   const fetchRoles = useServerFn(getMyRoles);
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
   const fetchElig = useServerFn(getProgramEligibility);
+  const [openDropdowns, setOpenDropdowns] = useState(0);
+
+  const isMenuOpen = open || openDropdowns > 0;
+
+  useEffect(() => {
+    const lenis = window.__lenis;
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+      lenis?.stop();
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      lenis?.start();
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      lenis?.start();
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
