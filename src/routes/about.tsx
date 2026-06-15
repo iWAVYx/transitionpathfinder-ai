@@ -957,7 +957,7 @@ function FragmentCard({
         boxShadow:
           "0 22px 30px -10px rgba(0,0,0,0.35), 0 6px 10px -2px rgba(0,0,0,0.22), inset 0 -14px 22px -14px rgba(0,0,0,0.22)",
         ["--tape" as never]: fragment.tape,
-      } as React.CSSProperties}
+      } as unknown as React.CSSProperties}
       className="absolute left-1/2 top-1/2 flex h-[130px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-5 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-2 before:h-4 before:w-16 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_2px_4px_rgba(0,0,0,0.18)] before:content-['']"
     >
       <span className="relative z-10">{fragment.label}</span>
