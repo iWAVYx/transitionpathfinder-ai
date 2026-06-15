@@ -487,9 +487,10 @@ function MosaicStory() {
   const progress = useSpring(scrollYProgress, { damping: 32, stiffness: 70, mass: 0.7 });
 
   // Camera "walks up" the staircase — translates Z forward and tilts down.
-  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 2400]);
-  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -780]);
-  const camRotX = useTransform(progress, [0, 1], reduce ? [0, 0] : [4, 14]);
+  // Reduced amplitude so each (taller) door stays framed in the viewport longer.
+  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 1900]);
+  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -640]);
+  const camRotX = useTransform(progress, [0, 1], reduce ? [0, 0] : [3, 11]);
 
   // Visible scroll progress bar (vertical, right side)
   const barScaleY = useTransform(progress, [0, 1], [0, 1]);
@@ -524,9 +525,11 @@ function MosaicStory() {
     <section
       ref={ref}
       className="relative bg-[#0b0a09] text-white"
-      // Much longer scroll window so each door stays open and on-screen longer.
-      style={{ height: reduce ? "auto" : `${TILES.length * 160 + 120}vh` }}
+      // Longer scroll window per landing so each door stays open and on-screen long
+      // enough to read its caption before the camera moves on.
+      style={{ height: reduce ? "auto" : `${TILES.length * 200 + 160}vh` }}
     >
+
       <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
         {/* Ambient atmosphere — soft light spill from the top of the stairwell */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,220,170,0.18),transparent_60%)]" />
@@ -661,49 +664,53 @@ function Stair({
   const stepZ = -900 - index * 620;
   const stepY = 80 + index * 260;
   // Stagger alternating left/right landings so each door reads as its own room.
-  const stepX = index % 2 === 0 ? -320 : 320;
+  const stepX = index % 2 === 0 ? -300 : 300;
 
-  // Per-step scroll window — door opens early, holds wide-open for most of the window,
-  // so the content behind it stays in view longer.
+  // Per-step scroll window — door opens quickly, then holds wide-open for the
+  // majority of its slot so the content behind it stays on-screen long enough to read.
   const slot = 1 / total;
   const start = index * slot;
-  const openAt = start + slot * 0.35;
-  const holdEnd = start + slot * 0.9;
+  const openAt = start + slot * 0.22;
+  const holdEnd = start + slot * 0.95;
   const end = start + slot;
   const doorOpen = useTransform(
     progress,
     [start, openAt, holdEnd, end],
-    reduce ? [0, 0, 0, 0] : [0, 100, 100, 100],
+    reduce ? [0, 0, 0, 0] : [0, 105, 105, 105],
   );
-  const labelOpacity = useTransform(progress, [start + slot * 0.1, openAt], [0, 1]);
+  const labelOpacity = useTransform(progress, [start + slot * 0.08, openAt], [0, 1]);
+
+  // Door dimensions — taller and narrower, shaped like an actual interior door.
+  const DOOR_W = 360;
+  const DOOR_H = 720;
 
   return (
     <div
       className="absolute left-1/2 top-1/2"
       style={{
-        transform: `translate3d(${stepX - 300}px, ${stepY - 220}px, ${stepZ}px)`,
+        transform: `translate3d(${stepX - DOOR_W / 2}px, ${stepY - DOOR_H / 2}px, ${stepZ}px)`,
         transformStyle: "preserve-3d",
       }}
     >
-      {/* Stair tread / landing — wider for the bigger door */}
+      {/* Stair tread / landing — sized to the door's footprint */}
       <div
-        className="absolute h-[100px] w-[960px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
+        className="absolute h-[90px] w-[820px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
         style={{
-          transform: "rotateX(90deg) translateZ(-50px) translateY(300px)",
+          transform: `rotateX(90deg) translateX(${DOOR_W / 2 - 410}px) translateZ(-45px) translateY(${DOOR_H / 2 + 40}px)`,
           transformOrigin: "center top",
         }}
       />
 
-      {/* Door frame — significantly larger */}
+      {/* Door frame — taller, narrower, door-shaped */}
       <div
-        className="relative h-[460px] w-[620px] rounded-[6px] border border-white/10 bg-[#1a1612] p-[14px] shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
-        style={{ transformStyle: "preserve-3d" }}
+        className="relative rounded-t-[140px] border border-white/10 bg-[#1a1612] p-[12px] shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
+        style={{ transformStyle: "preserve-3d", height: DOOR_H, width: DOOR_W }}
       >
         {/* Glow from behind the door */}
-        <div className="absolute inset-0 rounded-[6px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.4),transparent_70%)] blur-lg" />
+        <div className="absolute inset-0 rounded-t-[140px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.45),transparent_70%)] blur-lg" />
 
         {/* The image inside the room — revealed when door swings open */}
-        <div className={cn("relative h-full w-full overflow-hidden rounded-[3px] bg-black")}>
+        <div className={cn("relative h-full w-full overflow-hidden rounded-t-[130px] rounded-b-[4px] bg-black")}>
           <img
             src={tile.src}
             alt={tile.alt}
@@ -713,7 +720,7 @@ function Stair({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           <motion.figcaption
             style={{ opacity: labelOpacity }}
-            className="absolute bottom-4 left-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-white/90"
+            className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap text-[11px] uppercase tracking-[0.3em] text-white/90"
           >
             <span className="h-px w-5 bg-white/70" />
             {tile.caption}
@@ -727,12 +734,13 @@ function Stair({
             transformOrigin: "left center",
             transformStyle: "preserve-3d",
           }}
-          className="absolute inset-[14px] rounded-[3px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_40px_rgba(0,0,0,0.7)]"
+          className="absolute inset-[12px] rounded-t-[130px] rounded-b-[4px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_50px_rgba(0,0,0,0.75)]"
         >
-          {/* Door panels detail */}
-          <div className="absolute inset-4 rounded-[3px] border border-white/5">
-            <div className="absolute inset-x-4 top-4 h-[40%] rounded-[3px] border border-white/5" />
-            <div className="absolute inset-x-4 bottom-4 h-[40%] rounded-[3px] border border-white/5" />
+          {/* Door panels detail — three stacked recessed panels */}
+          <div className="absolute inset-5 rounded-t-[120px] rounded-b-[3px] border border-white/5">
+            <div className="absolute inset-x-3 top-3 h-[36%] rounded-t-[110px] border border-white/5" />
+            <div className="absolute inset-x-3 top-[42%] h-[24%] rounded-[3px] border border-white/5" />
+            <div className="absolute inset-x-3 bottom-3 h-[28%] rounded-[3px] border border-white/5" />
           </div>
           {/* Door handle */}
           <div className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,210,150,0.7)]" />
@@ -924,11 +932,13 @@ function FragmentCard({
   progress: MotionValue<number>;
   reduce: boolean;
 }) {
-  const p = useTransform(progress, [0.2, 0.7], [0, 1]);
+  // Fragments hold their scattered positions while the section enters, then
+  // converge toward center as the user scrolls through the pinned stage.
+  const p = useTransform(progress, [0.25, 0.55], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x, 0]);
   const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot, 0]);
-  const opacity = useTransform(p, [0, 0.6, 1], [1, 1, 0.15]);
+  const opacity = useTransform(p, [0, 0.7, 1], [1, 1, 0.15]);
   return (
     <motion.div
       style={{ x, y, rotate: rot, opacity }}
@@ -945,44 +955,46 @@ function Transformation() {
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
 
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden bg-[#f4ede3] py-28 text-[#1c1814] sm:py-36"
+      className="relative bg-[#f4ede3] text-[#1c1814]"
+      style={{ height: reduce ? "auto" : "260vh" }}
     >
-      <div className="mx-auto max-w-[1300px] px-6">
-        <div className="mx-auto mb-20 max-w-2xl text-center">
-          <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
-            The transformation
-          </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1.02]">
-            Scattered documents <span className="italic">become</span> a clear pathway.
-          </h2>
-        </div>
-
-        <div className="relative mx-auto h-[520px] w-full max-w-3xl">
-          {FRAGMENTS.map((f, i) => (
-            <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
-          ))}
-          {/* Pathway Report — solidifies */}
-          <motion.div
-            style={{
-              opacity: useTransform(scrollYProgress, [0.5, 0.8], [0, 1]),
-              scale: useTransform(scrollYProgress, [0.5, 0.8], [0.85, 1]),
-            }}
-            className="absolute left-1/2 top-1/2 w-[min(420px,90%)] -translate-x-1/2 -translate-y-1/2"
-          >
-            <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
-              <img src={dashboardImg} alt="The Pathway Report" className="aspect-[16/10] w-full object-cover" />
-              <div className="flex items-center justify-between border-t border-[#1c1814]/10 px-5 py-3 text-[10px] uppercase tracking-[0.3em] text-[#1c1814]/70">
-                <span>Pathway Report</span>
-                <span>Ready</span>
-              </div>
+      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
+        <div className="mx-auto w-full max-w-[1300px] px-6">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
+              The transformation
             </div>
-          </motion.div>
+            <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1.02]">
+              Scattered documents <span className="italic">become</span> a clear pathway.
+            </h2>
+          </div>
+
+          <div className="relative mx-auto h-[520px] w-full max-w-3xl">
+            {FRAGMENTS.map((f, i) => (
+              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
+            ))}
+            <motion.div
+              style={{
+                opacity: useTransform(scrollYProgress, [0.45, 0.7], [0, 1]),
+                scale: useTransform(scrollYProgress, [0.45, 0.7], [0.85, 1]),
+              }}
+              className="absolute left-1/2 top-1/2 w-[min(420px,90%)] -translate-x-1/2 -translate-y-1/2"
+            >
+              <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
+                <img src={dashboardImg} alt="The Pathway Report" className="aspect-[16/10] w-full object-cover" />
+                <div className="flex items-center justify-between border-t border-[#1c1814]/10 px-5 py-3 text-[10px] uppercase tracking-[0.3em] text-[#1c1814]/70">
+                  <span>Pathway Report</span>
+                  <span>Ready</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
