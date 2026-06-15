@@ -391,7 +391,7 @@ function FounderJourney() {
         {/* content */}
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8">
           <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-            <div className="max-w-xl">
+            <div className="relative max-w-xl">
               {JOURNEY.map((s, i) => (
                 <motion.div
                   key={s.id}
