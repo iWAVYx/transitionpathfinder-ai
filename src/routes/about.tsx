@@ -808,7 +808,7 @@ function PaperworkToPossibility() {
         </Reveal>
 
         {/* Continuous path */}
-        <div className="relative mt-8 md:mt-12">
+        <div className="relative mt-6 md:mt-12">
           {/* Horizontal line (desktop) */}
           <div
             aria-hidden
@@ -819,29 +819,29 @@ function PaperworkToPossibility() {
           {/* Vertical line (mobile) */}
           <div
             aria-hidden
-            className="absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
+            className="absolute bottom-0 left-[22px] top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
           />
 
-          <div className="grid gap-6 md:grid-cols-5 md:gap-4">
+          <div className="grid gap-3 md:grid-cols-5 md:gap-4">
             {FLOW.map((step, i) => {
               const Icon = step.icon;
               return (
                 <Reveal key={step.label} delay={i * 0.1}>
-                  <div className="relative pl-16 md:pl-0 md:text-center">
+                  <div className="relative pl-[52px] md:pl-0 md:text-center">
                     {/* Node */}
                     <div className="absolute left-0 top-0 md:relative md:left-auto md:mx-auto">
-                      <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_5px_rgba(26,20,16,1)] md:h-14 md:w-14 md:shadow-[0_0_0_6px_rgba(26,20,16,1)]">
-                        <Icon className="h-5 w-5 text-amber-300" />
+                      <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_4px_rgba(26,20,16,1)] md:h-14 md:w-14 md:shadow-[0_0_0_6px_rgba(26,20,16,1)]">
+                        <Icon className="h-[18px] w-[18px] text-amber-300 md:h-5 md:w-5" />
                       </div>
                     </div>
                     <div className="md:mt-5">
                       <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300/70">
                         Step 0{i + 1}
                       </div>
-                      <div className="mt-1 font-display text-xl font-black text-white">
+                      <div className="mt-0.5 font-display text-lg font-black text-white md:mt-1 md:text-xl">
                         {step.label}
                       </div>
-                      <div className="mt-1.5 text-sm leading-relaxed text-white/55 md:mx-auto md:max-w-[14rem]">
+                      <div className="mt-1 text-sm leading-relaxed text-white/55 md:mx-auto md:max-w-[14rem]">
                         {
                           [
                             "Upload the IEP and meet the student.",
