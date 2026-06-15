@@ -981,8 +981,8 @@ function Transformation() {
             ))}
             <motion.div
               style={{
-                opacity: useTransform(scrollYProgress, [0.38, 0.58, 0.92, 1], [0, 1, 1, 0.85]),
-                scale: useTransform(scrollYProgress, [0.38, 0.58], [0.55, 1.45]),
+                opacity: useTransform(scrollYProgress, [0.40, 0.55, 0.92, 1], [0, 1, 1, 0.85]),
+                scale: useTransform(scrollYProgress, [0.40, 0.92], [0.55, 1.45]),
               }}
               className="absolute left-1/2 top-1/2 w-[min(560px,92%)] -translate-x-1/2 -translate-y-1/2"
             >
