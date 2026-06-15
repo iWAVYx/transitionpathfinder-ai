@@ -661,49 +661,53 @@ function Stair({
   const stepZ = -900 - index * 620;
   const stepY = 80 + index * 260;
   // Stagger alternating left/right landings so each door reads as its own room.
-  const stepX = index % 2 === 0 ? -320 : 320;
+  const stepX = index % 2 === 0 ? -300 : 300;
 
-  // Per-step scroll window — door opens early, holds wide-open for most of the window,
-  // so the content behind it stays in view longer.
+  // Per-step scroll window — door opens quickly, then holds wide-open for the
+  // majority of its slot so the content behind it stays on-screen long enough to read.
   const slot = 1 / total;
   const start = index * slot;
-  const openAt = start + slot * 0.35;
-  const holdEnd = start + slot * 0.9;
+  const openAt = start + slot * 0.22;
+  const holdEnd = start + slot * 0.95;
   const end = start + slot;
   const doorOpen = useTransform(
     progress,
     [start, openAt, holdEnd, end],
-    reduce ? [0, 0, 0, 0] : [0, 100, 100, 100],
+    reduce ? [0, 0, 0, 0] : [0, 105, 105, 105],
   );
-  const labelOpacity = useTransform(progress, [start + slot * 0.1, openAt], [0, 1]);
+  const labelOpacity = useTransform(progress, [start + slot * 0.08, openAt], [0, 1]);
+
+  // Door dimensions — taller and narrower, shaped like an actual interior door.
+  const DOOR_W = 360;
+  const DOOR_H = 720;
 
   return (
     <div
       className="absolute left-1/2 top-1/2"
       style={{
-        transform: `translate3d(${stepX - 300}px, ${stepY - 220}px, ${stepZ}px)`,
+        transform: `translate3d(${stepX - DOOR_W / 2}px, ${stepY - DOOR_H / 2}px, ${stepZ}px)`,
         transformStyle: "preserve-3d",
       }}
     >
-      {/* Stair tread / landing — wider for the bigger door */}
+      {/* Stair tread / landing — sized to the door's footprint */}
       <div
-        className="absolute h-[100px] w-[960px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
+        className="absolute h-[90px] w-[820px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
         style={{
-          transform: "rotateX(90deg) translateZ(-50px) translateY(300px)",
+          transform: `rotateX(90deg) translateX(${DOOR_W / 2 - 410}px) translateZ(-45px) translateY(${DOOR_H / 2 + 40}px)`,
           transformOrigin: "center top",
         }}
       />
 
-      {/* Door frame — significantly larger */}
+      {/* Door frame — taller, narrower, door-shaped */}
       <div
-        className="relative h-[460px] w-[620px] rounded-[6px] border border-white/10 bg-[#1a1612] p-[14px] shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
-        style={{ transformStyle: "preserve-3d" }}
+        className="relative rounded-t-[140px] border border-white/10 bg-[#1a1612] p-[12px] shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
+        style={{ transformStyle: "preserve-3d", height: DOOR_H, width: DOOR_W }}
       >
         {/* Glow from behind the door */}
-        <div className="absolute inset-0 rounded-[6px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.4),transparent_70%)] blur-lg" />
+        <div className="absolute inset-0 rounded-t-[140px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.45),transparent_70%)] blur-lg" />
 
         {/* The image inside the room — revealed when door swings open */}
-        <div className={cn("relative h-full w-full overflow-hidden rounded-[3px] bg-black")}>
+        <div className={cn("relative h-full w-full overflow-hidden rounded-t-[130px] rounded-b-[4px] bg-black")}>
           <img
             src={tile.src}
             alt={tile.alt}
@@ -713,7 +717,7 @@ function Stair({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           <motion.figcaption
             style={{ opacity: labelOpacity }}
-            className="absolute bottom-4 left-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-white/90"
+            className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap text-[11px] uppercase tracking-[0.3em] text-white/90"
           >
             <span className="h-px w-5 bg-white/70" />
             {tile.caption}
@@ -727,12 +731,13 @@ function Stair({
             transformOrigin: "left center",
             transformStyle: "preserve-3d",
           }}
-          className="absolute inset-[14px] rounded-[3px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_40px_rgba(0,0,0,0.7)]"
+          className="absolute inset-[12px] rounded-t-[130px] rounded-b-[4px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_50px_rgba(0,0,0,0.75)]"
         >
-          {/* Door panels detail */}
-          <div className="absolute inset-4 rounded-[3px] border border-white/5">
-            <div className="absolute inset-x-4 top-4 h-[40%] rounded-[3px] border border-white/5" />
-            <div className="absolute inset-x-4 bottom-4 h-[40%] rounded-[3px] border border-white/5" />
+          {/* Door panels detail — three stacked recessed panels */}
+          <div className="absolute inset-5 rounded-t-[120px] rounded-b-[3px] border border-white/5">
+            <div className="absolute inset-x-3 top-3 h-[36%] rounded-t-[110px] border border-white/5" />
+            <div className="absolute inset-x-3 top-[42%] h-[24%] rounded-[3px] border border-white/5" />
+            <div className="absolute inset-x-3 bottom-3 h-[28%] rounded-[3px] border border-white/5" />
           </div>
           {/* Door handle */}
           <div className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,210,150,0.7)]" />
