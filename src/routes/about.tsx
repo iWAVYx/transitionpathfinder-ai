@@ -701,7 +701,7 @@ function Transformation() {
 
         <div className="relative mx-auto h-[520px] w-full max-w-3xl">
           {FRAGMENTS.map((f, i) => (
-            <Fragment key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
+            <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
           ))}
           {/* Pathway Report — solidifies */}
           <motion.div
