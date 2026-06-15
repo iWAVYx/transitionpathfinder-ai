@@ -26,19 +26,16 @@ import { cn } from "@/lib/utils";
 
 // Imagery — reused project assets, cropped via aspect wrappers per project rules.
 import heroImg from "@/assets/about-cinematic.jpg";
-import narrativeHero from "@/assets/about-narrative-hero.jpg";
 import studentCenter from "@/assets/about-student-center.jpg";
 import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
 import classroomImg from "@/assets/educators-hero-v2.jpg";
 import familyImg from "@/assets/families-hero-v2.jpg";
-import studentImg from "@/assets/home-student-photo.jpg";
 import pathwayImg from "@/assets/pathway-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
 import ctaImg from "@/assets/home-road.jpg";
 import sunriseImg from "@/assets/framework-bg-sunrise.jpg";
 import topoImg from "@/assets/framework-bg-topo.jpg";
-import collageImg from "@/assets/about-hero-collage.png";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
