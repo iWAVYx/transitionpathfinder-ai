@@ -788,7 +788,7 @@ const FLOW_BLURBS = [
 ];
 
 function PaperworkToPossibility() {
-  const [active, setActive] = React.useState(0);
+  const [active, setActive] = useState(0);
   const progressPct = FLOW.length > 1 ? (active / (FLOW.length - 1)) * 100 : 0;
 
   return (
