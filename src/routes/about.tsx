@@ -913,12 +913,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: "IEP paperwork", rot: -8, x: -120, y: -60 },
-  { label: "Student strengths", rot: 6, x: 80, y: -100 },
-  { label: "Family priorities", rot: -4, x: -180, y: 40 },
-  { label: "Educator input", rot: 10, x: 140, y: 60 },
-  { label: "Resources", rot: -12, x: -60, y: 120 },
-  { label: "Action items", rot: 5, x: 180, y: 140 },
+  { label: "IEP paperwork", rot: -8, x: -240, y: -120, color: "#fff48a", tape: "#f3d34a" },
+  { label: "Student strengths", rot: 6, x: 220, y: -160, color: "#ffb3c1", tape: "#f48fb1" },
+  { label: "Family priorities", rot: -4, x: -300, y: 60, color: "#a8e6cf", tape: "#7fd1ae" },
+  { label: "Educator input", rot: 10, x: 280, y: 80, color: "#b5d8ff", tape: "#8fbcf0" },
+  { label: "Resources", rot: -12, x: -120, y: 180, color: "#ffd59e", tape: "#f5b87a" },
+  { label: "Action items", rot: 5, x: 260, y: 200, color: "#e0bbff", tape: "#c79bf0" },
 ];
 
 function FragmentCard({
@@ -939,12 +939,28 @@ function FragmentCard({
   const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot, 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
+  // Subtle 3D tilt — pseudo-perspective via rotateX/Y baked into rotate axis
+  const tiltX = (index % 2 === 0 ? 1 : -1) * 8;
+  const tiltY = (index % 3 === 0 ? -1 : 1) * 10;
   return (
     <motion.div
-      style={{ x, y, rotate: rot, opacity }}
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[#1c1814]/15 bg-white/95 px-5 py-3 text-xs uppercase tracking-[0.2em] text-[#1c1814]/80 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]"
+      style={{
+        x,
+        y,
+        rotate: rot,
+        rotateX: tiltX,
+        rotateY: tiltY,
+        opacity,
+        backgroundColor: fragment.color,
+        transformPerspective: 800,
+        transformStyle: "preserve-3d",
+        boxShadow:
+          "0 22px 30px -10px rgba(0,0,0,0.35), 0 6px 10px -2px rgba(0,0,0,0.22), inset 0 -14px 22px -14px rgba(0,0,0,0.22)",
+        ["--tape" as never]: fragment.tape,
+      } as unknown as React.CSSProperties}
+      className="absolute left-1/2 top-1/2 flex h-[130px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-5 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-2 before:h-4 before:w-16 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_2px_4px_rgba(0,0,0,0.18)] before:content-['']"
     >
-      {fragment.label}
+      <span className="relative z-10">{fragment.label}</span>
     </motion.div>
   );
 }
