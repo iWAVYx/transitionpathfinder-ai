@@ -913,12 +913,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: "IEP paperwork", rot: -8, x: -240, y: -120, color: "#fff48a", tape: "#f3d34a" },
-  { label: "Student strengths", rot: 6, x: 220, y: -160, color: "#ffb3c1", tape: "#f48fb1" },
-  { label: "Family priorities", rot: -4, x: -300, y: 60, color: "#a8e6cf", tape: "#7fd1ae" },
-  { label: "Educator input", rot: 10, x: 280, y: 80, color: "#b5d8ff", tape: "#8fbcf0" },
-  { label: "Resources", rot: -12, x: -120, y: 180, color: "#ffd59e", tape: "#f5b87a" },
-  { label: "Action items", rot: 5, x: 260, y: 200, color: "#e0bbff", tape: "#c79bf0" },
+  { label: "IEP paperwork", rot: -8, x: -140, y: -80, color: "#fff48a", tape: "#f3d34a" },
+  { label: "Student strengths", rot: 6, x: 130, y: -100, color: "#ffb3c1", tape: "#f48fb1" },
+  { label: "Family priorities", rot: -4, x: -170, y: 40, color: "#a8e6cf", tape: "#7fd1ae" },
+  { label: "Educator input", rot: 10, x: 160, y: 50, color: "#b5d8ff", tape: "#8fbcf0" },
+  { label: "Resources", rot: -12, x: -80, y: 110, color: "#ffd59e", tape: "#f5b87a" },
+  { label: "Action items", rot: 5, x: 150, y: 120, color: "#e0bbff", tape: "#c79bf0" },
 ];
 
 function FragmentCard({
@@ -936,12 +936,12 @@ function FragmentCard({
   // the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.1, 0.4], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 12 - 30]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 8 - 20]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot, 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
-  // Subtle 3D tilt — pseudo-perspective via rotateX/Y baked into rotate axis
-  const tiltX = (index % 2 === 0 ? 1 : -1) * 8;
-  const tiltY = (index % 3 === 0 ? -1 : 1) * 10;
+  // Subtle 3D tilt — reduced on smaller screens via responsive classes
+  const tiltX = (index % 2 === 0 ? 1 : -1) * 6;
+  const tiltY = (index % 3 === 0 ? -1 : 1) * 8;
   return (
     <motion.div
       style={{
@@ -952,13 +952,13 @@ function FragmentCard({
         rotateY: tiltY,
         opacity,
         backgroundColor: fragment.color,
-        transformPerspective: 800,
+        transformPerspective: 1000,
         transformStyle: "preserve-3d",
         boxShadow:
-          "0 22px 30px -10px rgba(0,0,0,0.35), 0 6px 10px -2px rgba(0,0,0,0.22), inset 0 -14px 22px -14px rgba(0,0,0,0.22)",
+          "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
         ["--tape" as never]: fragment.tape,
       } as unknown as React.CSSProperties}
-      className="absolute left-1/2 top-1/2 flex h-[130px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-5 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-2 before:h-4 before:w-16 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_2px_4px_rgba(0,0,0,0.18)] before:content-['']"
+      className="absolute left-1/2 top-1/2 flex h-[90px] w-[120px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[11px] font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-1.5 before:h-3 before:w-10 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_1px_3px_rgba(0,0,0,0.16)] before:content-[''] sm:h-[110px] sm:w-[150px] sm:px-4 sm:py-4 sm:text-[12px] sm:leading-snug sm:before:h-3.5 sm:before:w-14 md:h-[130px] md:w-[170px] md:py-5 md:text-sm md:before:h-4 md:before:w-16"
     >
       <span className="relative z-10">{fragment.label}</span>
     </motion.div>
@@ -996,7 +996,7 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[68vh] w-full max-w-5xl">
+          <div className="relative mx-auto h-[55vh] w-full max-w-5xl sm:h-[62vh] md:h-[68vh]">
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
