@@ -492,38 +492,45 @@ function TheGap() {
 
           {/* scattered cards */}
           <div className="relative h-[520px] sm:h-[560px]">
-            {cards.map((c, i) => {
-              const angle = [-9, 6, -4, 8, -7, 3][i];
-              const x = [0, 65, 10, 80, 30, 60][i];
-              const y = [0, 30, 130, 180, 280, 340][i];
-              const order = useTransform(
-                scrollYProgress,
-                [0.1, 0.55],
-                [angle, 0]
-              );
-              const tx = useTransform(scrollYProgress, [0.1, 0.55], [x, 20]);
-              const ty = useTransform(scrollYProgress, [0.1, 0.55], [y, i * 64]);
-              return (
-                <motion.div
-                  key={i}
-                  style={{ rotate: order, x: tx, y: ty }}
-                  className="absolute left-0 top-0 w-[78%] max-w-md rounded-md border border-stone-300/80 bg-white px-5 py-4 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.25)] sm:w-[70%]"
-                >
-                  <div className="flex items-center justify-between text-xs text-stone-400">
-                    <span className="uppercase tracking-[0.2em]">Document {String(i + 1).padStart(2, "0")}</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-stone-300" />
-                  </div>
-                  <p className="mt-2 font-serif text-xl text-stone-900" style={{ fontFamily: "Georgia, serif" }}>
-                    {c.t}
-                  </p>
-                  <p className="mt-1 text-sm text-stone-500">{c.s}</p>
-                </motion.div>
-              );
-            })}
+            {cards.map((c, i) => (
+              <GapCard key={i} c={c} i={i} scrollYProgress={scrollYProgress} />
+            ))}
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function GapCard({
+  c,
+  i,
+  scrollYProgress,
+}: {
+  c: { t: string; s: string };
+  i: number;
+  scrollYProgress: MotionValue<number>;
+}) {
+  const angle = [-9, 6, -4, 8, -7, 3][i] ?? 0;
+  const x = [0, 65, 10, 80, 30, 60][i] ?? 0;
+  const y = [0, 30, 130, 180, 280, 340][i] ?? 0;
+  const rotate = useTransform(scrollYProgress, [0.1, 0.55], [angle, 0]);
+  const tx = useTransform(scrollYProgress, [0.1, 0.55], [x, 20]);
+  const ty = useTransform(scrollYProgress, [0.1, 0.55], [y, i * 64]);
+  return (
+    <motion.div
+      style={{ rotate, x: tx, y: ty }}
+      className="absolute left-0 top-0 w-[78%] max-w-md rounded-md border border-stone-300/80 bg-white px-5 py-4 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.25)] sm:w-[70%]"
+    >
+      <div className="flex items-center justify-between text-xs text-stone-400">
+        <span className="uppercase tracking-[0.2em]">Document {String(i + 1).padStart(2, "0")}</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-stone-300" />
+      </div>
+      <p className="mt-2 font-serif text-xl text-stone-900" style={{ fontFamily: "Georgia, serif" }}>
+        {c.t}
+      </p>
+      <p className="mt-1 text-sm text-stone-500">{c.s}</p>
+    </motion.div>
   );
 }
 
