@@ -697,23 +697,22 @@ const SOLUTIONS = [
 function ProblemSolution() {
   return (
     <section className="relative overflow-hidden bg-[#1a1410] py-8 md:py-14">
-      <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid items-start gap-x-12 gap-y-8 lg:grid-cols-[1fr_auto_1fr] lg:gap-y-12">
-          {/* Problem — editorial, no card */}
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-16">
+          {/* Problem — editorial, wide */}
           <Reveal>
             <div className="relative">
               <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-red-400/80">
                 <span className="h-px w-8 bg-red-500/60" />
                 The Problem
               </div>
-              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4" style={{ textWrap: 'balance' }}>
-                Paperwork
-                <br />
-                <span className="italic text-white/50">
+              <h3 className="mt-3 font-display text-3xl font-black leading-[1.05] text-white sm:text-5xl md:mt-4 md:text-6xl">
+                Paperwork{" "}
+                <span className="italic text-white/40">
                   without a path.
                 </span>
               </h3>
-              <div className="mt-4 max-w-md space-y-2.5 border-l border-red-500/30 pl-4 text-[15px] leading-relaxed text-white/60 sm:space-y-3 sm:pl-5 md:mt-6">
+              <div className="mt-5 space-y-3 border-l-2 border-red-500/20 pl-5 text-base leading-relaxed text-white/50 sm:text-lg sm:leading-relaxed md:mt-7">
                 {PROBLEMS.map((p) => (
                   <p key={p}>{p}.</p>
                 ))}
@@ -721,33 +720,24 @@ function ProblemSolution() {
             </div>
           </Reveal>
 
-          {/* Connecting rule */}
-          <div
-            aria-hidden
-            className="hidden h-full w-px items-center justify-center lg:flex"
-          >
-            <div className="h-3/4 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-          </div>
-
-          {/* Response — same editorial register, warm side */}
+          {/* Response — same wide register, warm side */}
           <Reveal delay={0.1}>
-            <div className="relative">
+            <div className="relative lg:border-l lg:border-white/10 lg:pl-16">
               <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-300/80">
                 <span className="h-px w-8 bg-amber-300/60" />
                 The Response
               </div>
-              <h3 className="mt-3 font-display text-2xl font-black leading-[1.05] text-white sm:text-4xl md:mt-4" style={{ textWrap: 'balance' }}>
-                A platform
-                <br />
-                <span className="italic text-amber-300/90">built for the plan.</span>
+              <h3 className="mt-3 font-display text-3xl font-black leading-[1.05] text-white sm:text-5xl md:mt-4 md:text-6xl">
+                A platform{" "}
+                <span className="italic text-amber-300/80">built for the plan.</span>
               </h3>
 
-              <div className="mt-4 max-w-md space-y-2.5 border-l border-amber-300/25 pl-4 text-[15px] leading-relaxed text-white/60 sm:space-y-3 sm:pl-5 md:mt-6">
+              <div className="mt-5 space-y-3 border-l-2 border-amber-300/20 pl-5 text-base leading-relaxed text-white/50 sm:text-lg sm:leading-relaxed md:mt-7">
                 {SOLUTIONS.map((s) => {
                   const Icon = s.icon;
                   return (
-                    <p key={s.label} className="flex items-start gap-2">
-                      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-300/80" />
+                    <p key={s.label} className="flex items-start gap-3">
+                      <Icon className="mt-1 h-5 w-5 shrink-0 text-amber-300/70" />
                       <span>
                         <span className="font-medium text-white/80">{s.label}</span>
                         {" — "}
