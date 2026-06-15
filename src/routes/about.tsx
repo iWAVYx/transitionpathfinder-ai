@@ -962,7 +962,7 @@ function Transformation() {
     <section
       ref={ref}
       className="relative bg-[#f4ede3] text-[#1c1814]"
-      style={{ height: reduce ? "auto" : "260vh" }}
+      style={{ height: reduce ? "auto" : "360vh" }}
     >
       <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
         <div className="mx-auto w-full max-w-[1300px] px-6">
@@ -981,8 +981,8 @@ function Transformation() {
             ))}
             <motion.div
               style={{
-                opacity: useTransform(scrollYProgress, [0.45, 0.7], [0, 1]),
-                scale: useTransform(scrollYProgress, [0.45, 0.7], [0.85, 1]),
+                opacity: useTransform(scrollYProgress, [0.38, 0.58, 0.92, 1], [0, 1, 1, 0.85]),
+                scale: useTransform(scrollYProgress, [0.38, 0.58], [0.85, 1]),
               }}
               className="absolute left-1/2 top-1/2 w-[min(420px,90%)] -translate-x-1/2 -translate-y-1/2"
             >
