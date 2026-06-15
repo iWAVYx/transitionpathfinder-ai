@@ -393,6 +393,7 @@ export function SiteHeader() {
           </SheetTrigger>
           <SheetContent
             side="right"
+            data-lenis-prevent
             className="flex w-[88%] max-w-sm flex-col gap-0 p-0 sm:max-w-sm"
           >
             <div className="border-b border-border/60 px-5 py-4">
