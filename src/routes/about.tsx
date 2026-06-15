@@ -676,6 +676,33 @@ const FRAGMENTS = [
   { label: "Action items", rot: 5, x: 180, y: 140 },
 ];
 
+function FragmentCard({
+  fragment,
+  index,
+  progress,
+  reduce,
+}: {
+  fragment: (typeof FRAGMENTS)[number];
+  index: number;
+  progress: MotionValue<number>;
+  reduce: boolean;
+}) {
+  const p = useTransform(progress, [0.2, 0.7], [0, 1]);
+  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x, 0]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 12 - 30]);
+  const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot, 0]);
+  const opacity = useTransform(p, [0, 0.6, 1], [1, 1, 0.15]);
+  return (
+    <motion.div
+      style={{ x, y, rotate: rot, opacity }}
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[#1c1814]/15 bg-white/95 px-5 py-3 text-xs uppercase tracking-[0.2em] text-[#1c1814]/80 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]"
+    >
+      {fragment.label}
+    </motion.div>
+  );
+}
+
+
 function Transformation() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
