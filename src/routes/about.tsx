@@ -451,18 +451,48 @@ function MosaicStory() {
     target: ref,
     offset: ["start start", "end end"],
   });
-  const progress = useSpring(scrollYProgress, { damping: 30, stiffness: 80, mass: 0.6 });
+  const progress = useSpring(scrollYProgress, { damping: 32, stiffness: 70, mass: 0.7 });
 
   // Camera "walks up" the staircase — translates Z forward and tilts down.
-  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 1800]);
-  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -600]);
+  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 2400]);
+  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -780]);
   const camRotX = useTransform(progress, [0, 1], reduce ? [0, 0] : [4, 14]);
+
+  // Visible scroll progress bar (vertical, right side)
+  const barScaleY = useTransform(progress, [0, 1], [0, 1]);
+
+  // Jump-to-landing helper. Each landing centers in its scroll slot.
+  const scrollToLanding = (i: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const total = TILES.length;
+    // Aim near the midpoint of each landing's slot so the door is fully open
+    const fraction = (i + 0.55) / total;
+    const scrollable = el.offsetHeight - window.innerHeight;
+    const targetY = el.offsetTop + scrollable * fraction;
+    if (window.__lenis) {
+      window.__lenis.scrollTo(targetY, { duration: 1.4 });
+    } else {
+      window.scrollTo({ top: targetY, behavior: "smooth" });
+    }
+  };
+
+  // Track the active landing for the indicator
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const unsub = progress.on("change", (v) => {
+      const idx = Math.min(TILES.length - 1, Math.max(0, Math.floor(v * TILES.length)));
+      setActive(idx);
+    });
+    return () => unsub();
+  }, [progress]);
 
   return (
     <section
       ref={ref}
       className="relative bg-[#0b0a09] text-white"
-      style={{ height: reduce ? "auto" : `${TILES.length * 90 + 80}vh` }}
+      // Much longer scroll window so each door stays open and on-screen longer.
+      style={{ height: reduce ? "auto" : `${TILES.length * 160 + 120}vh` }}
     >
       <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
         {/* Ambient atmosphere — soft light spill from the top of the stairwell */}
@@ -487,7 +517,7 @@ function MosaicStory() {
         {/* 3D stairwell stage */}
         <div
           className="relative flex-1"
-          style={{ perspective: "1400px", perspectiveOrigin: "50% 35%" }}
+          style={{ perspective: "1600px", perspectiveOrigin: "50% 38%" }}
         >
           <motion.div
             className="absolute inset-0"
@@ -507,10 +537,64 @@ function MosaicStory() {
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,#0b0a09_100%)]" />
         </div>
 
+        {/* Scroll progress + landing jump rail (right side) */}
+        <div className="pointer-events-none absolute right-4 top-1/2 z-30 hidden -translate-y-1/2 md:flex md:flex-col md:items-center md:gap-4">
+          <div className="relative h-64 w-[3px] overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              className="absolute inset-x-0 top-0 origin-top bg-gradient-to-b from-amber-200 via-amber-300/80 to-amber-500/60"
+              style={{ height: "100%", scaleY: barScaleY }}
+            />
+          </div>
+          <ul className="pointer-events-auto flex flex-col gap-3">
+            {TILES.map((t, i) => {
+              const isActive = i === active;
+              return (
+                <li key={i}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToLanding(i)}
+                    aria-label={`Jump to landing ${i + 1}: ${t.caption}`}
+                    className={cn(
+                      "group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] transition-colors",
+                      isActive ? "text-amber-200" : "text-white/40 hover:text-white/80",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-full border transition-all",
+                        isActive
+                          ? "scale-125 border-amber-200 bg-amber-200 shadow-[0_0_10px_rgba(255,210,150,0.8)]"
+                          : "border-white/40 bg-transparent group-hover:border-white/80",
+                      )}
+                    />
+                    <span className="hidden lg:inline">0{i + 1}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Mobile jump dots (bottom) */}
+        <div className="pointer-events-auto absolute inset-x-0 bottom-4 z-30 flex justify-center gap-2 md:hidden">
+          {TILES.map((t, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => scrollToLanding(i)}
+              aria-label={`Jump to landing ${i + 1}`}
+              className={cn(
+                "h-2 w-2 rounded-full transition-all",
+                i === active ? "w-6 bg-amber-200" : "bg-white/30",
+              )}
+            />
+          ))}
+        </div>
+
         {/* Quote overlay — appears at the top of the climb */}
         <motion.blockquote
-          style={{ opacity: useTransform(progress, [0.75, 1], [0, 1]) }}
-          className="pointer-events-none absolute inset-x-0 bottom-10 z-20 mx-auto max-w-4xl px-6 text-center"
+          style={{ opacity: useTransform(progress, [0.82, 1], [0, 1]) }}
+          className="pointer-events-none absolute inset-x-0 bottom-16 z-20 mx-auto max-w-4xl px-6 text-center md:bottom-10"
         >
           <Quote className="mx-auto mb-3 h-6 w-6 text-white/40" />
           <p className="font-serif text-[clamp(1.1rem,2.2vw,1.8rem)] font-light leading-[1.25]">
@@ -541,44 +625,52 @@ function Stair({
   reduce: boolean;
 }) {
   // Each step sits deeper into Z and lower in Y — the staircase climbs away from camera.
-  const stepZ = -800 - index * 520;
-  const stepY = 60 + index * 220;
+  const stepZ = -900 - index * 620;
+  const stepY = 80 + index * 260;
   // Stagger alternating left/right landings so each door reads as its own room.
-  const stepX = index % 2 === 0 ? -260 : 260;
+  const stepX = index % 2 === 0 ? -320 : 320;
 
-  // Per-step scroll window — door swings open as the camera approaches that landing.
-  const start = index / total;
-  const end = (index + 1) / total;
-  const doorOpen = useTransform(progress, [start, (start + end) / 2, end], reduce ? [0, 0, 0] : [0, 75, 95]);
-  const labelOpacity = useTransform(progress, [start + 0.02, (start + end) / 2], [0, 1]);
+  // Per-step scroll window — door opens early, holds wide-open for most of the window,
+  // so the content behind it stays in view longer.
+  const slot = 1 / total;
+  const start = index * slot;
+  const openAt = start + slot * 0.35;
+  const holdEnd = start + slot * 0.9;
+  const end = start + slot;
+  const doorOpen = useTransform(
+    progress,
+    [start, openAt, holdEnd, end],
+    reduce ? [0, 0, 0, 0] : [0, 100, 100, 100],
+  );
+  const labelOpacity = useTransform(progress, [start + slot * 0.1, openAt], [0, 1]);
 
   return (
     <div
       className="absolute left-1/2 top-1/2"
       style={{
-        transform: `translate3d(${stepX - 220}px, ${stepY - 160}px, ${stepZ}px)`,
+        transform: `translate3d(${stepX - 300}px, ${stepY - 220}px, ${stepZ}px)`,
         transformStyle: "preserve-3d",
       }}
     >
-      {/* Stair tread / landing */}
+      {/* Stair tread / landing — wider for the bigger door */}
       <div
-        className="absolute h-[80px] w-[700px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_30px_60px_rgba(0,0,0,0.6)]"
+        className="absolute h-[100px] w-[960px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
         style={{
-          transform: "rotateX(90deg) translateZ(-40px) translateY(220px)",
+          transform: "rotateX(90deg) translateZ(-50px) translateY(300px)",
           transformOrigin: "center top",
         }}
       />
 
-      {/* Door frame */}
+      {/* Door frame — significantly larger */}
       <div
-        className="relative h-[320px] w-[440px] rounded-[4px] border border-white/10 bg-[#1a1612] p-[10px] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
+        className="relative h-[460px] w-[620px] rounded-[6px] border border-white/10 bg-[#1a1612] p-[14px] shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
         style={{ transformStyle: "preserve-3d" }}
       >
         {/* Glow from behind the door */}
-        <div className="absolute inset-0 rounded-[4px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.35),transparent_70%)] blur-md" />
+        <div className="absolute inset-0 rounded-[6px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.4),transparent_70%)] blur-lg" />
 
         {/* The image inside the room — revealed when door swings open */}
-        <div className={cn("relative h-full w-full overflow-hidden rounded-[2px] bg-black")}>
+        <div className={cn("relative h-full w-full overflow-hidden rounded-[3px] bg-black")}>
           <img
             src={tile.src}
             alt={tile.caption}
@@ -588,9 +680,9 @@ function Stair({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           <motion.figcaption
             style={{ opacity: labelOpacity }}
-            className="absolute bottom-3 left-3 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/85"
+            className="absolute bottom-4 left-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-white/90"
           >
-            <span className="h-px w-4 bg-white/60" />
+            <span className="h-px w-5 bg-white/70" />
             {tile.caption}
           </motion.figcaption>
         </div>
@@ -602,20 +694,20 @@ function Stair({
             transformOrigin: "left center",
             transformStyle: "preserve-3d",
           }}
-          className="absolute inset-[10px] rounded-[2px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_30px_rgba(0,0,0,0.6)]"
+          className="absolute inset-[14px] rounded-[3px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_40px_rgba(0,0,0,0.7)]"
         >
           {/* Door panels detail */}
-          <div className="absolute inset-3 rounded-[2px] border border-white/5">
-            <div className="absolute inset-x-3 top-3 h-[40%] rounded-[2px] border border-white/5" />
-            <div className="absolute inset-x-3 bottom-3 h-[40%] rounded-[2px] border border-white/5" />
+          <div className="absolute inset-4 rounded-[3px] border border-white/5">
+            <div className="absolute inset-x-4 top-4 h-[40%] rounded-[3px] border border-white/5" />
+            <div className="absolute inset-x-4 bottom-4 h-[40%] rounded-[3px] border border-white/5" />
           </div>
           {/* Door handle */}
-          <div className="absolute right-3 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-amber-200/80 shadow-[0_0_8px_rgba(255,210,150,0.6)]" />
+          <div className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,210,150,0.7)]" />
         </motion.div>
       </div>
 
       {/* Step number plaque */}
-      <div className="mt-3 text-center font-serif text-[10px] uppercase tracking-[0.4em] text-white/40">
+      <div className="mt-4 text-center font-serif text-[11px] uppercase tracking-[0.4em] text-white/40">
         Landing 0{index + 1}
       </div>
     </div>
