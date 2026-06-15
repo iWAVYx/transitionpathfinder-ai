@@ -779,7 +779,18 @@ const FLOW = [
   { label: "Future", icon: Sparkles },
 ];
 
+const FLOW_BLURBS = [
+  "Upload the IEP and meet the student.",
+  "Translate documents into plain language.",
+  "Generate the personalized pathway.",
+  "Action items, partners, meeting prep.",
+  "College, career, independent life.",
+];
+
 function PaperworkToPossibility() {
+  const [active, setActive] = useState(0);
+  const progressPct = FLOW.length > 1 ? (active / (FLOW.length - 1)) * 100 : 0;
+
   return (
     <section className="relative overflow-hidden bg-[#1a1410] py-8 text-white md:py-14">
       <div
@@ -808,52 +819,108 @@ function PaperworkToPossibility() {
         </Reveal>
 
         {/* Continuous path */}
-        <div className="relative mt-6 md:mt-12">
+        <div
+          className="relative mt-6 md:mt-12"
+          role="tablist"
+          aria-label="Flow steps"
+          onMouseLeave={() => setActive((a) => a)}
+        >
           {/* Horizontal line (desktop) */}
           <div
             aria-hidden
             className="absolute left-0 right-0 top-7 hidden md:block"
           >
-            <div className="mx-[8%] h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent" />
+            <div className="relative mx-[8%] h-px bg-gradient-to-r from-transparent via-amber-300/25 to-transparent">
+              <div
+                className="absolute left-0 top-1/2 h-[2px] -translate-y-1/2 rounded-full bg-gradient-to-r from-amber-300/60 to-amber-300 shadow-[0_0_12px_rgba(252,211,77,0.55)] transition-[width] duration-500 ease-out"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
           </div>
           {/* Vertical line (mobile) */}
           <div
             aria-hidden
-            className="absolute bottom-0 left-[22px] top-0 w-px bg-gradient-to-b from-transparent via-amber-300/30 to-transparent md:hidden"
-          />
+            className="absolute bottom-0 left-[22px] top-0 w-px bg-gradient-to-b from-transparent via-amber-300/20 to-transparent md:hidden"
+          >
+            <div
+              className="absolute left-1/2 top-0 w-[2px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-300 to-amber-300/60 shadow-[0_0_12px_rgba(252,211,77,0.55)] transition-[height] duration-500 ease-out"
+              style={{ height: `${progressPct}%` }}
+            />
+          </div>
 
           <div className="grid gap-3 md:grid-cols-5 md:gap-4">
             {FLOW.map((step, i) => {
               const Icon = step.icon;
+              const isActive = i === active;
+              const isPast = i < active;
               return (
                 <Reveal key={step.label} delay={i * 0.1}>
-                  <div className="relative pl-[52px] md:pl-0 md:text-center">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setActive(i)}
+                    onMouseEnter={() => setActive(i)}
+                    onFocus={() => setActive(i)}
+                    className="group relative block w-full pl-[52px] text-left outline-none md:pl-0 md:text-center"
+                  >
                     {/* Node */}
                     <div className="absolute left-0 top-0 md:relative md:left-auto md:mx-auto">
-                      <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-amber-300/30 bg-[#1a1410] shadow-[0_0_0_4px_rgba(26,20,16,1)] md:h-14 md:w-14 md:shadow-[0_0_0_6px_rgba(26,20,16,1)]">
-                        <Icon className="h-[18px] w-[18px] text-amber-300 md:h-5 md:w-5" />
+                      <div
+                        className={[
+                          "relative flex h-11 w-11 items-center justify-center rounded-full border bg-[#1a1410] shadow-[0_0_0_4px_rgba(26,20,16,1)] transition-all duration-300 md:h-14 md:w-14 md:shadow-[0_0_0_6px_rgba(26,20,16,1)]",
+                          isActive
+                            ? "scale-110 border-amber-300 bg-amber-300/15 ring-2 ring-amber-300/60 ring-offset-2 ring-offset-[#1a1410]"
+                            : isPast
+                              ? "border-amber-300/60"
+                              : "border-amber-300/25 group-hover:border-amber-300/60",
+                        ].join(" ")}
+                      >
+                        {isActive && (
+                          <span
+                            aria-hidden
+                            className="absolute inset-0 rounded-full bg-amber-300/30 blur-md"
+                          />
+                        )}
+                        <Icon
+                          className={[
+                            "relative h-[18px] w-[18px] transition-colors md:h-5 md:w-5",
+                            isActive
+                              ? "text-amber-200"
+                              : isPast
+                                ? "text-amber-300"
+                                : "text-amber-300/60 group-hover:text-amber-300",
+                          ].join(" ")}
+                        />
                       </div>
                     </div>
                     <div className="md:mt-5">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300/70">
+                      <div
+                        className={[
+                          "text-[10px] font-bold uppercase tracking-[0.22em] transition-colors",
+                          isActive ? "text-amber-200" : "text-amber-300/60",
+                        ].join(" ")}
+                      >
                         Step 0{i + 1}
                       </div>
-                      <div className="mt-0.5 font-display text-lg font-black text-white md:mt-1 md:text-xl">
+                      <div
+                        className={[
+                          "mt-0.5 font-display text-lg font-black transition-colors md:mt-1 md:text-xl",
+                          isActive ? "text-white" : "text-white/80 group-hover:text-white",
+                        ].join(" ")}
+                      >
                         {step.label}
                       </div>
-                      <div className="mt-1 text-sm leading-relaxed text-white/55 md:mx-auto md:max-w-[14rem]">
-                        {
-                          [
-                            "Upload the IEP and meet the student.",
-                            "Translate documents into plain language.",
-                            "Generate the personalized pathway.",
-                            "Action items, partners, meeting prep.",
-                            "College, career, independent life.",
-                          ][i]
-                        }
+                      <div
+                        className={[
+                          "mt-1 text-sm leading-relaxed transition-colors md:mx-auto md:max-w-[14rem]",
+                          isActive ? "text-white/80" : "text-white/50",
+                        ].join(" ")}
+                      >
+                        {FLOW_BLURBS[i]}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 </Reveal>
               );
             })}
