@@ -958,6 +958,11 @@ function Transformation() {
     offset: ["start start", "end end"],
   });
 
+  const rawOpacity = useTransform(scrollYProgress, [0.40, 0.55, 0.92, 1], [0, 1, 1, 0.85]);
+  const rawScale = useTransform(scrollYProgress, [0.40, 0.92], [0.55, 1.45]);
+  const opacity = useSpring(rawOpacity, { stiffness: 80, damping: 20, mass: 0.8 });
+  const scale = useSpring(rawScale, { stiffness: 60, damping: 15, mass: 0.8 });
+
   return (
     <section
       ref={ref}
@@ -980,10 +985,7 @@ function Transformation() {
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
             <motion.div
-              style={{
-                opacity: useTransform(scrollYProgress, [0.40, 0.55, 0.92, 1], [0, 1, 1, 0.85]),
-                scale: useTransform(scrollYProgress, [0.40, 0.92], [0.55, 1.45]),
-              }}
+              style={{ opacity, scale }}
               className="absolute left-1/2 top-1/2 w-[min(560px,92%)] -translate-x-1/2 -translate-y-1/2"
             >
               <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
