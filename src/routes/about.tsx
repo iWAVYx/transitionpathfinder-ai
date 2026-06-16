@@ -152,7 +152,7 @@ function CinematicHero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 + i * 0.12, duration: 0.6 }}
-            className="absolute flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/70"
+            className="absolute flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
             style={l as React.CSSProperties}
           >
             <span className="h-px w-6 bg-white/40" />
