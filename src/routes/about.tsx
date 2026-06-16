@@ -171,7 +171,7 @@ function CinematicHero() {
           A founder story
           <span className="h-px w-8 bg-white/40" />
         </div>
-        <h1 className="font-serif text-[clamp(3rem,11vw,11rem)] font-light leading-[0.88] tracking-tight">
+        <h1 className="font-serif text-[clamp(2.8rem,10vw,10rem)] font-light leading-[0.95] tracking-tight">
           <SplitReveal text="From paperwork" />
           <span className="block italic text-white/80">
             <SplitReveal text="to possibility." delay={0.25} />
@@ -208,7 +208,7 @@ function SplitReveal({ text, delay = 0 }: { text: string; delay?: number }) {
   return (
     <span className="inline-block">
       {words.map((w, i) => (
-        <span key={i} className="mr-[0.25em] inline-block overflow-hidden align-bottom">
+        <span key={i} className="mr-[0.25em] inline-block overflow-hidden pb-[0.18em] align-bottom">
           <motion.span
             initial={{ y: "110%" }}
             animate={{ y: "0%" }}
