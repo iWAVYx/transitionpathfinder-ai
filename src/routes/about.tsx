@@ -208,7 +208,7 @@ function SplitReveal({ text, delay = 0 }: { text: string; delay?: number }) {
   return (
     <span className="inline-block">
       {words.map((w, i) => (
-        <span key={i} className="mr-[0.25em] inline-block overflow-hidden align-bottom">
+        <span key={i} className="mr-[0.25em] inline-block overflow-hidden pb-[0.18em] align-bottom">
           <motion.span
             initial={{ y: "110%" }}
             animate={{ y: "0%" }}
