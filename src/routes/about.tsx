@@ -171,7 +171,7 @@ function CinematicHero() {
           A founder story
           <span className="h-px w-8 bg-white/40" />
         </div>
-        <h1 className="font-serif text-[clamp(3rem,11vw,11rem)] font-light leading-[0.88] tracking-tight">
+        <h1 className="font-serif text-[clamp(2.8rem,10vw,10rem)] font-light leading-[0.95] tracking-tight">
           <SplitReveal text="From paperwork" />
           <span className="block italic text-white/80">
             <SplitReveal text="to possibility." delay={0.25} />
