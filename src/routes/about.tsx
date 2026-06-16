@@ -121,47 +121,7 @@ function CinematicHero() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.2]);
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "-20%"]);
 
-  const labels = [
-    { text: "New Haven · CT", top: "12%", left: "8%" },
-    { text: "MBA → MAT", top: "12%", right: "8%" },
-    { text: "Special Education K–12", top: "28%", left: "8%" },
-    { text: "Founder · Educator", top: "28%", right: "7%" },
-  ];
-
-  return (
-    <section
-      ref={ref}
-      className="relative h-[100svh] w-full overflow-hidden bg-[#0b0a09] text-white"
-    >
-      {/* Background image */}
-      <motion.div style={{ y, scale }} className="absolute inset-0">
-        <img
-          src={heroImg}
-          alt="A Connecticut classroom at golden hour"
-          className="h-full w-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/85" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.55)_100%)]" />
-      </motion.div>
-
-      {/* Floating context labels */}
-      <motion.div style={{ opacity }} className="absolute inset-0 hidden sm:block">
-        {labels.map((l, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 + i * 0.12, duration: 0.6 }}
-            className="absolute flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
-            style={l as React.CSSProperties}
-          >
-            <span className="h-px w-6 bg-white/40" />
-            {l.text}
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Headline */}
+  const labels: never[] = [];
       <motion.div
         style={{ y: titleY, opacity }}
         className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-6 pb-20 sm:pb-28"
