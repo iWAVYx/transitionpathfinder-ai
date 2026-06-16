@@ -122,10 +122,10 @@ function CinematicHero() {
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "-20%"]);
 
   const labels = [
-    { text: "New Haven · CT", top: "18%", left: "6%" },
-    { text: "MBA → MAT", top: "26%", right: "8%" },
-    { text: "Special Education K–12", bottom: "30%", left: "5%" },
-    { text: "Founder · Educator", bottom: "20%", right: "7%" },
+    { text: "New Haven · CT", top: "12%", left: "8%" },
+    { text: "MBA → MAT", top: "12%", right: "8%" },
+    { text: "Special Education K–12", top: "28%", left: "8%" },
+    { text: "Founder · Educator", top: "28%", right: "7%" },
   ];
 
   return (
@@ -152,7 +152,7 @@ function CinematicHero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 + i * 0.12, duration: 0.6 }}
-            className="absolute flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/70"
+            className="absolute flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
             style={l as React.CSSProperties}
           >
             <span className="h-px w-6 bg-white/40" />
