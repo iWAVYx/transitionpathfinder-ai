@@ -121,7 +121,23 @@ function CinematicHero() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.2]);
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "-20%"]);
 
-  const labels: never[] = [];
+  return (
+    <section
+      ref={ref}
+      className="relative h-[100svh] w-full overflow-hidden bg-[#0b0a09] text-white"
+    >
+      {/* Background image */}
+      <motion.div style={{ y, scale }} className="absolute inset-0">
+        <img
+          src={heroImg}
+          alt="A Connecticut classroom at golden hour"
+          className="h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/85" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.55)_100%)]" />
+      </motion.div>
+
+      {/* Headline */}
       <motion.div
         style={{ y: titleY, opacity }}
         className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-6 pb-20 sm:pb-28"
