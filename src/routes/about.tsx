@@ -122,10 +122,10 @@ function CinematicHero() {
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "-20%"]);
 
   const labels = [
-    { text: "New Haven · CT", top: "18%", left: "6%" },
-    { text: "MBA → MAT", top: "26%", right: "8%" },
-    { text: "Special Education K–12", bottom: "30%", left: "5%" },
-    { text: "Founder · Educator", bottom: "20%", right: "7%" },
+    { text: "New Haven · CT", top: "12%", left: "8%" },
+    { text: "MBA → MAT", top: "12%", right: "8%" },
+    { text: "Special Education K–12", top: "28%", left: "8%" },
+    { text: "Founder · Educator", top: "28%", right: "7%" },
   ];
 
   return (
