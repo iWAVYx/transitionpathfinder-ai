@@ -275,7 +275,7 @@ function PinnedStory() {
   }
 
   return (
-    <section ref={ref} className="relative bg-[#0b0a09] text-white" style={{ height: "400vh" }}>
+    <section ref={ref} className="relative bg-[#0b0a09] text-white" style={{ height: "250vh" }}>
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
         {/* Background image crossfade */}
         <div className="absolute inset-0">
@@ -354,7 +354,7 @@ function FounderMessage() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover opacity-10"
       />
-      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-24 md:grid-cols-[5fr_6fr] md:gap-20 md:py-32">
+      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-16 md:grid-cols-[5fr_6fr] md:gap-20 md:py-24">
         <div className="relative">
           <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5">
             <motion.img
@@ -503,7 +503,7 @@ function MosaicStory() {
       className="relative bg-[#0b0a09] text-white"
       // Longer scroll window per landing so each door stays open and on-screen long
       // enough to read its caption before the camera moves on.
-      style={{ height: reduce ? "auto" : `${TILES.length * 200 + 160}vh` }}
+      style={{ height: reduce ? "auto" : `${TILES.length * 110 + 80}vh` }}
     >
 
       <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
@@ -637,8 +637,8 @@ function Stair({
   reduce: boolean;
 }) {
   // Each step sits deeper into Z and lower in Y — the staircase climbs away from camera.
-  const stepZ = -900 - index * 620;
-  const stepY = 80 + index * 260;
+  const stepZ = -900 - index * 380;
+  const stepY = 80 + index * 160;
   // Stagger alternating left/right landings so each door reads as its own room.
   const stepX = index % 2 === 0 ? -300 : 300;
 
@@ -781,7 +781,7 @@ function SplitRow({ a, b, body, index }: { a: string; b: string; body: string; i
   const xB = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["6%", "-6%"]);
 
   return (
-    <div ref={ref} className="grid items-center gap-6 py-14 md:grid-cols-[1fr_auto_1fr] md:gap-10 md:py-20">
+    <div ref={ref} className="grid items-center gap-6 py-10 md:grid-cols-[1fr_auto_1fr] md:gap-10 md:py-14">
       <motion.div style={{ x: xA }} className="text-left">
         <span className="text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
           0{index + 1} · From
@@ -825,12 +825,12 @@ function JourneyPath() {
   const pathLength = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-24 text-white sm:py-32">
+    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white sm:py-24">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
 
       <div className="relative mx-auto max-w-[1400px] px-6">
-        <div className="mb-20 max-w-2xl">
+        <div className="mb-12 max-w-2xl">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
           </div>
@@ -977,7 +977,7 @@ function Transformation() {
     <section
       ref={ref}
       className="relative bg-[#f4ede3] text-[#1c1814]"
-      style={{ height: reduce ? "auto" : "360vh" }}
+      style={{ height: reduce ? "auto" : "220vh" }}
     >
       <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
         <div className="mx-auto w-full max-w-[1300px] px-6">
@@ -1034,7 +1034,7 @@ function ClosingCTA() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/55 to-[#0b0a09]" />
       </motion.div>
 
-      <div className="relative mx-auto flex min-h-[90svh] max-w-[1300px] flex-col items-center justify-center px-6 py-32 text-center">
+      <div className="relative mx-auto flex min-h-[70svh] max-w-[1300px] flex-col items-center justify-center px-6 py-20 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
