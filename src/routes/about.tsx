@@ -889,12 +889,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: "IEP paperwork", rot: -8, x: -140, y: -80, color: "#fff48a", tape: "#f3d34a" },
-  { label: "Student strengths", rot: 6, x: 130, y: -100, color: "#ffb3c1", tape: "#f48fb1" },
-  { label: "Family priorities", rot: -4, x: -170, y: 40, color: "#a8e6cf", tape: "#7fd1ae" },
-  { label: "Educator input", rot: 10, x: 160, y: 50, color: "#b5d8ff", tape: "#8fbcf0" },
-  { label: "Resources", rot: -12, x: -80, y: 110, color: "#ffd59e", tape: "#f5b87a" },
-  { label: "Action items", rot: 5, x: 150, y: 120, color: "#e0bbff", tape: "#c79bf0" },
+  { label: "IEP paperwork", rot: -14, x: -220, y: -130, color: "#fff48a", tape: "#f3d34a" },
+  { label: "Student strengths", rot: 10, x: 200, y: -150, color: "#ffb3c1", tape: "#f48fb1" },
+  { label: "Family priorities", rot: -7, x: -260, y: 60, color: "#a8e6cf", tape: "#7fd1ae" },
+  { label: "Educator input", rot: 16, x: 240, y: 80, color: "#b5d8ff", tape: "#8fbcf0" },
+  { label: "Resources", rot: -18, x: -120, y: 170, color: "#ffd59e", tape: "#f5b87a" },
+  { label: "Action items", rot: 8, x: 220, y: 190, color: "#e0bbff", tape: "#c79bf0" },
 ];
 
 function FragmentCard({
