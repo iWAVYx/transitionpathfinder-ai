@@ -952,7 +952,7 @@ function FragmentCard({
           "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
         ["--tape" as never]: fragment.tape,
       } as unknown as React.CSSProperties}
-      className="absolute left-1/2 top-1/2 flex h-[120px] w-[150px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[12px] font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-1.5 before:h-3 before:w-10 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_1px_3px_rgba(0,0,0,0.16)] before:content-[''] sm:h-[145px] sm:w-[180px] sm:px-4 sm:py-4 sm:text-[13px] sm:leading-snug sm:before:h-3.5 sm:before:w-14 md:h-[170px] md:w-[210px] md:py-5 md:text-base md:before:h-4 md:before:w-16"
+      className="absolute left-1/2 top-1/2 flex h-[135px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[12px] font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-1.5 before:h-3 before:w-10 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_1px_3px_rgba(0,0,0,0.16)] before:content-[''] sm:h-[165px] sm:w-[205px] sm:px-4 sm:py-4 sm:text-[13px] sm:leading-snug sm:before:h-3.5 sm:before:w-14 md:h-[195px] md:w-[245px] md:py-5 md:text-base md:before:h-4 md:before:w-16"
     >
       <span className="relative z-10">{fragment.label}</span>
     </motion.div>
