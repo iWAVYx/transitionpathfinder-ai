@@ -972,7 +972,7 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[55vh] w-full max-w-5xl sm:h-[62vh] md:h-[68vh]">
+          <div className="relative mx-auto h-[70vh] w-full max-w-5xl sm:h-[78vh] md:h-[85vh]">
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
