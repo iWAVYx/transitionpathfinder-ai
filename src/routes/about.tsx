@@ -889,12 +889,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: "IEP paperwork", rot: -8, x: -140, y: -80, color: "#fff48a", tape: "#f3d34a" },
-  { label: "Student strengths", rot: 6, x: 130, y: -100, color: "#ffb3c1", tape: "#f48fb1" },
-  { label: "Family priorities", rot: -4, x: -170, y: 40, color: "#a8e6cf", tape: "#7fd1ae" },
-  { label: "Educator input", rot: 10, x: 160, y: 50, color: "#b5d8ff", tape: "#8fbcf0" },
-  { label: "Resources", rot: -12, x: -80, y: 110, color: "#ffd59e", tape: "#f5b87a" },
-  { label: "Action items", rot: 5, x: 150, y: 120, color: "#e0bbff", tape: "#c79bf0" },
+  { label: "IEP paperwork", rot: -14, x: -220, y: -130, color: "#fff48a", tape: "#f3d34a" },
+  { label: "Student strengths", rot: 10, x: 200, y: -150, color: "#ffb3c1", tape: "#f48fb1" },
+  { label: "Family priorities", rot: -7, x: -260, y: 60, color: "#a8e6cf", tape: "#7fd1ae" },
+  { label: "Educator input", rot: 16, x: 240, y: 80, color: "#b5d8ff", tape: "#8fbcf0" },
+  { label: "Resources", rot: -18, x: -120, y: 170, color: "#ffd59e", tape: "#f5b87a" },
+  { label: "Action items", rot: 8, x: 220, y: 190, color: "#e0bbff", tape: "#c79bf0" },
 ];
 
 function FragmentCard({
@@ -934,7 +934,7 @@ function FragmentCard({
           "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
         ["--tape" as never]: fragment.tape,
       } as unknown as React.CSSProperties}
-      className="absolute left-1/2 top-1/2 flex h-[90px] w-[120px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[11px] font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-1.5 before:h-3 before:w-10 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_1px_3px_rgba(0,0,0,0.16)] before:content-[''] sm:h-[110px] sm:w-[150px] sm:px-4 sm:py-4 sm:text-[12px] sm:leading-snug sm:before:h-3.5 sm:before:w-14 md:h-[130px] md:w-[170px] md:py-5 md:text-sm md:before:h-4 md:before:w-16"
+      className="absolute left-1/2 top-1/2 flex h-[120px] w-[150px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[12px] font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-1.5 before:h-3 before:w-10 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_1px_3px_rgba(0,0,0,0.16)] before:content-[''] sm:h-[145px] sm:w-[180px] sm:px-4 sm:py-4 sm:text-[13px] sm:leading-snug sm:before:h-3.5 sm:before:w-14 md:h-[170px] md:w-[210px] md:py-5 md:text-base md:before:h-4 md:before:w-16"
     >
       <span className="relative z-10">{fragment.label}</span>
     </motion.div>
@@ -972,7 +972,7 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[55vh] w-full max-w-5xl sm:h-[62vh] md:h-[68vh]">
+          <div className="relative mx-auto h-[70vh] w-full max-w-5xl sm:h-[78vh] md:h-[85vh]">
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
