@@ -830,7 +830,7 @@ function JourneyPath() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
 
       <div className="relative mx-auto max-w-[1400px] px-6">
-        <div className="mb-20 max-w-2xl">
+        <div className="mb-12 max-w-2xl">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
           </div>
