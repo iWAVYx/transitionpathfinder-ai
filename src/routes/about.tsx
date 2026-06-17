@@ -897,6 +897,22 @@ const FRAGMENTS = [
   { label: "Action items", rot: 8, x: 220, y: 190, color: "#e0bbff", tape: "#c79bf0" },
 ];
 
+function useScatterScale() {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 640) setScale(0.35);
+      else if (w < 1024) setScale(0.6);
+      else setScale(1);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return scale;
+}
+
 function FragmentCard({
   fragment,
   index,
