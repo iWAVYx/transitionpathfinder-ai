@@ -140,9 +140,9 @@ function CinematicHero() {
       {/* Headline */}
       <motion.div
         style={{ y: titleY, opacity }}
-        className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-center px-6 pb-8 pt-20 sm:pb-12 sm:pt-28"
+        className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-4 pb-10 pt-16 sm:justify-center sm:px-6 sm:pb-12 sm:pt-28"
       >
-        <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-white/60">
+        <div className="mb-3 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-white/60 sm:mb-6">
           <span className="h-px w-8 bg-white/40" />
           A founder story
           <span className="h-px w-8 bg-white/40" />
@@ -153,7 +153,7 @@ function CinematicHero() {
             <SplitReveal text="to possibility." delay={0.25} />
           </span>
         </h1>
-        <p className="mt-8 max-w-xl text-base text-white/75 sm:text-lg">
+        <p className="mt-5 max-w-xl text-base text-white/75 sm:mt-8 sm:text-lg">
           The story of a Black special educator from Connecticut — and the platform built from
           everything he kept seeing between the binder and the bus.
         </p>
