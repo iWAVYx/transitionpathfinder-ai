@@ -897,6 +897,22 @@ const FRAGMENTS = [
   { label: "Action items", rot: 8, x: 220, y: 190, color: "#e0bbff", tape: "#c79bf0" },
 ];
 
+function useScatterScale() {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 640) setScale(0.35);
+      else if (w < 1024) setScale(0.6);
+      else setScale(1);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return scale;
+}
+
 function FragmentCard({
   fragment,
   index,
@@ -908,16 +924,18 @@ function FragmentCard({
   progress: MotionValue<number>;
   reduce: boolean;
 }) {
+  const scatterScale = useScatterScale();
   // Fragments stay scattered while the headline reads, converge slowly through
   // the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.1, 0.4], [0, 1]);
-  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y, index * 8 - 20]);
-  const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot, 0]);
+  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale, 0]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale, index * 8 - 20]);
+  const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
-  // Subtle 3D tilt — reduced on smaller screens via responsive classes
-  const tiltX = (index % 2 === 0 ? 1 : -1) * 6;
-  const tiltY = (index % 3 === 0 ? -1 : 1) * 8;
+  // Subtle 3D tilt — reduced on smaller screens
+  const tiltScale = Math.min(scatterScale * 1.5, 1);
+  const tiltX = (index % 2 === 0 ? 1 : -1) * 6 * tiltScale;
+  const tiltY = (index % 3 === 0 ? -1 : 1) * 8 * tiltScale;
   return (
     <motion.div
       style={{
