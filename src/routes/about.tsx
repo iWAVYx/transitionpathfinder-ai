@@ -140,7 +140,7 @@ function CinematicHero() {
       {/* Headline */}
       <motion.div
         style={{ y: titleY, opacity }}
-        className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-6 pb-20 sm:pb-28"
+        className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-center px-6 pb-8 pt-20 sm:pb-12 sm:pt-28"
       >
         <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-white/60">
           <span className="h-px w-8 bg-white/40" />
