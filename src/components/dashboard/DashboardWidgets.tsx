@@ -45,7 +45,7 @@ export function DashboardWidgets() {
   // Slice 4: BridgeForward card was previously shown whenever the user had
   // a middle-school student linked, even for partner accounts. Gate on
   // role as well so partner-only users never see family-side program cards.
-  const [elig, setElig] = useState<{ hasMiddleSchoolStudent: boolean; isPartner: boolean; isPartnerOnly: boolean } | null>(null);
+  const [elig, setElig] = useState<{ hasMiddleSchoolStudent: boolean; isPartner: boolean } | null>(null);
   const reportIdsRef = useRef<string[]>([]);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
@@ -228,9 +228,9 @@ export function DashboardWidgets() {
       </div>
 
       {/* Program pathways — only render when relevant to this user. */}
-      {elig && (elig.hasMiddleSchoolStudent || elig.isPartner) && (
+      {elig && ((elig.hasMiddleSchoolStudent && !elig.isPartner) || elig.isPartner) && (
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 auto-rows-fr">
-          {elig.hasMiddleSchoolStudent && (
+          {elig.hasMiddleSchoolStudent && !elig.isPartner && (
             <Link
               to="/bridgeforward"
               className="group rounded-3xl border border-border/60 bg-card p-5 shadow-soft transition hover:border-primary/40 hover:shadow-md"
