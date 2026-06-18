@@ -10,16 +10,26 @@ on:
       - "tests/e2e/auth-roles.setup.ts"
       - "tests/e2e/helpers/roles.ts"
       - "tests/e2e/dashboard-regression.signedin.spec.ts"
+      - "tests/e2e/role-leak-nav.signedin.spec.ts"
+      - "tests/e2e/role-access-rules.signedin.spec.ts"
+      - "tests/e2e/scripts/check-role-creds.mjs"
       - "vitest.config.ts"
       - "playwright.config.ts"
       - ".github/workflows/dashboard-regression.yml"
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      live:
+        description: "Live verification — fail if no role credentials are configured"
+        required: false
+        default: "false"
+      require_all_roles:
+        description: "Fail if ANY role is missing credentials (all 7 must be present)"
+        required: false
+        default: "false"
 
 jobs:
-  # Static, source-only checks: no duplicate <Link to=…> in a dashboard,
-  # no obviously dead <Button>, and empty/loading/error states present
-  # when the dashboard queries data. Always runs — no secrets required.
   unit:
     runs-on: ubuntu-latest
     steps:
@@ -31,8 +41,9 @@ jobs:
       - name: Vitest — dashboard static regression
         run: bun run test:unit
 
-  # Browser regression across 7 roles × 3 viewports. Skips automatically
-  # for any role whose credentials aren't configured as repo secrets.
+  # Browser regression + role-leak + role-access across 7 roles. Each role
+  # auto-skips when its storageState is missing. Manually trigger with
+  # `live=true` to force a hard failure when zero roles are configured.
   e2e:
     runs-on: ubuntu-latest
     needs: unit
@@ -40,18 +51,27 @@ jobs:
       PLAYWRIGHT_BASE_URL: ${{ secrets.E2E_BASE_URL }}
       E2E_STUDENT_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
       E2E_STUDENT_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
+      E2E_STUDENT_TOTP_SECRET: ${{ secrets.E2E_STUDENT_TOTP_SECRET }}
       E2E_PARENT_EMAIL: ${{ secrets.E2E_PARENT_EMAIL }}
       E2E_PARENT_PASSWORD: ${{ secrets.E2E_PARENT_PASSWORD }}
+      E2E_PARENT_TOTP_SECRET: ${{ secrets.E2E_PARENT_TOTP_SECRET }}
       E2E_EDUCATOR_EMAIL: ${{ secrets.E2E_EDUCATOR_EMAIL }}
       E2E_EDUCATOR_PASSWORD: ${{ secrets.E2E_EDUCATOR_PASSWORD }}
+      E2E_EDUCATOR_TOTP_SECRET: ${{ secrets.E2E_EDUCATOR_TOTP_SECRET }}
       E2E_SCHOOL_ADMIN_EMAIL: ${{ secrets.E2E_SCHOOL_ADMIN_EMAIL }}
       E2E_SCHOOL_ADMIN_PASSWORD: ${{ secrets.E2E_SCHOOL_ADMIN_PASSWORD }}
+      E2E_SCHOOL_ADMIN_TOTP_SECRET: ${{ secrets.E2E_SCHOOL_ADMIN_TOTP_SECRET }}
       E2E_DISTRICT_ADMIN_EMAIL: ${{ secrets.E2E_DISTRICT_ADMIN_EMAIL }}
       E2E_DISTRICT_ADMIN_PASSWORD: ${{ secrets.E2E_DISTRICT_ADMIN_PASSWORD }}
+      E2E_DISTRICT_ADMIN_TOTP_SECRET: ${{ secrets.E2E_DISTRICT_ADMIN_TOTP_SECRET }}
       E2E_PARTNER_EMAIL: ${{ secrets.E2E_PARTNER_EMAIL }}
       E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
+      E2E_PARTNER_TOTP_SECRET: ${{ secrets.E2E_PARTNER_TOTP_SECRET }}
       E2E_OWNER_EMAIL: ${{ secrets.E2E_OWNER_EMAIL }}
       E2E_OWNER_PASSWORD: ${{ secrets.E2E_OWNER_PASSWORD }}
+      E2E_OWNER_TOTP_SECRET: ${{ secrets.E2E_OWNER_TOTP_SECRET }}
+      LIVE_VERIFICATION: ${{ github.event.inputs.live }}
+      REQUIRE_ALL_ROLES: ${{ github.event.inputs.require_all_roles }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -60,13 +80,24 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
+      - name: Role credential readiness check
+        run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Per-role auth setup (skips roles without credentials)
         run: bunx playwright test --project=dashboard-setup
+      - name: Verify storage states match configured roles (live only)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live == 'true' }}
+        env:
+          CHECK_STORAGE_STATES: "1"
+        run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Dashboard regression
         run: bunx playwright test --project=dashboard-regression
+      - name: Role-leak nav + access-rule guard
+        run: bunx playwright test --project=role-access
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: playwright-report
-          path: playwright-report/
-          retention-days: 7
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
