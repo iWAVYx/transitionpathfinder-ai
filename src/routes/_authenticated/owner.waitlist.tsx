@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Search, Trash2, Mail, ExternalLink, X } from "lucide-react";
+import { Archive, Loader2, Mail, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,16 @@ import {
   type WaitlistStatus,
 } from "@/lib/owner/owner.functions";
 import { convertWaitlistToInvitation } from "@/lib/owner/waitlist-conversion.functions";
+
+const ROLE_TO_INVITE: Record<string, { role: string; type: string }> = {
+  parent: { role: "parent", type: "connect_to_student" },
+  family: { role: "parent", type: "connect_to_student" },
+  student: { role: "student", type: "connect_to_student" },
+  educator: { role: "educator", type: "join_school" },
+  administrator: { role: "school_admin", type: "join_school" },
+  district: { role: "district_admin", type: "join_district" },
+  partner: { role: "partner", type: "join_partner_org" },
+};
 
 export const Route = createFileRoute("/_authenticated/owner/waitlist")({
   head: () => ({ meta: [{ title: "Waitlist — Admin Hub" }] }),
