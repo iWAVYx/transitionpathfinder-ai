@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+// CI readiness check for the role dashboard live verification suite.
+//
+// Usage:
+//   node tests/e2e/scripts/check-role-creds.mjs           # report only
+//   LIVE_VERIFICATION=1 node ... check-role-creds.mjs     # fail if all missing
+//   REQUIRE_ALL_ROLES=1 node ... check-role-creds.mjs     # fail if any missing
+//
+// In LIVE mode, exits non-zero when zero roles have credentials so a
+// workflow_dispatch run cannot silently claim success after skipping every
+// test. In REQUIRE_ALL_ROLES mode, exits non-zero unless every role has
+// both email + password.
+
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const AUTH_DIR = path.join(__dirname, "..", ".auth");
+
+const ROLES = [
+  "STUDENT",
+  "PARENT",
+  "EDUCATOR",
+  "SCHOOL_ADMIN",
+  "DISTRICT_ADMIN",
+  "PARTNER",
+  "OWNER",
+];
+
+const present = [];
+const missing = [];
+for (const r of ROLES) {
+  const hasEmail = !!process.env[`E2E_${r}_EMAIL`];
+  const hasPass = !!process.env[`E2E_${r}_PASSWORD`];
+  const hasTotp = !!process.env[`E2E_${r}_TOTP_SECRET`];
+  if (hasEmail && hasPass) {
+    present.push({ role: r, totp: hasTotp });
+  } else {
+    missing.push({
+      role: r,
+      need: [hasEmail ? null : `E2E_${r}_EMAIL`, hasPass ? null : `E2E_${r}_PASSWORD`].filter(Boolean),
+    });
+  }
+}
+
+console.log("Role credential readiness");
+console.log("=========================");
+for (const p of present) {
+  console.log(`  ✓ ${p.role}${p.totp ? " (TOTP configured)" : ""}`);
+}
+for (const m of missing) {
+  console.log(`  ✗ ${m.role} — missing: ${m.need.join(", ")}`);
+}
+
+let stateFiles = [];
+if (existsSync(AUTH_DIR)) {
+  stateFiles = readdirSync(AUTH_DIR).filter((f) => f.endsWith(".json"));
+  console.log(`\nStorage states present: ${stateFiles.length ? stateFiles.join(", ") : "(none yet)"}`);
+} else {
+  console.log("\nStorage state dir does not exist yet (auth-roles.setup will create it).");
+}
+
+const live = process.env.LIVE_VERIFICATION === "1" || process.env.LIVE_VERIFICATION === "true";
+const requireAll = process.env.REQUIRE_ALL_ROLES === "1" || process.env.REQUIRE_ALL_ROLES === "true";
+
+if (requireAll && missing.length > 0) {
+  console.error(`\n::error::REQUIRE_ALL_ROLES=1 but ${missing.length} role(s) missing credentials.`);
+  process.exit(2);
+}
+
+if (live && present.length === 0) {
+  console.error(
+    "\n::error::LIVE_VERIFICATION=1 requested but no role credentials configured. " +
+      "Add E2E_<ROLE>_EMAIL / E2E_<ROLE>_PASSWORD secrets and re-run.",
+  );
+  process.exit(1);
+}
+
+// After auth-roles.setup runs, a second invocation can verify state files
+// were actually produced for every role that had creds.
+if (live && process.env.CHECK_STORAGE_STATES === "1") {
+  const produced = new Set(stateFiles.map((f) => f.replace(/\.json$/, "").toUpperCase()));
+  const expectedRoles = present.map((p) => p.role);
+  const missingStates = expectedRoles.filter((r) => !produced.has(r));
+  if (missingStates.length) {
+    console.error(
+      `\n::error::Live verification requested but storageState missing for: ${missingStates.join(", ")}. ` +
+        `Check auth-roles.setup logs (wrong password / 2FA secret / blocked sign-in).`,
+    );
+    process.exit(3);
+  }
+}
+
+console.log("\nReadiness check OK.");

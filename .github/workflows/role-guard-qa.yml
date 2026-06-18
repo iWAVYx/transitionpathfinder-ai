@@ -8,11 +8,22 @@ on:
       - "src/routes/_authenticated/**"
       - "tests/role-guard-matrix.test.mjs"
       - "tests/__snapshots__/role-guard-matrix.snap.json"
+      - "tests/e2e/role-leak-nav.signedin.spec.ts"
+      - "tests/e2e/role-access-rules.signedin.spec.ts"
+      - "tests/e2e/helpers/roles.ts"
+      - "tests/e2e/scripts/check-role-creds.mjs"
       - ".github/workflows/role-guard-qa.yml"
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      live:
+        description: "Live verification — fail if no role credentials are configured"
+        required: false
+        default: "false"
 
 jobs:
+  # Static, no-secret matrix check — always runs.
   role-guard-matrix:
     runs-on: ubuntu-latest
     steps:
@@ -20,9 +31,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      # No install needed — the test only uses node:test + fs and parses
-      # src/lib/role-policy.ts directly. Keeps CI fast and avoids depending
-      # on the rest of the project's toolchain.
       - name: Run role-guard regression
         run: node --test tests/role-guard-matrix.test.mjs
       - name: How to update snapshot
@@ -32,3 +40,61 @@ jobs:
           echo "If the change is intentional, regenerate the snapshot locally:"
           echo "  UPDATE_SNAPSHOTS=1 npm run test:role-guard"
           echo "Then commit tests/__snapshots__/role-guard-matrix.snap.json."
+
+  # Signed-in role-leak + access-rule verification across 7 roles. Each
+  # role auto-skips when its storageState is missing. Manually trigger
+  # with `live=true` to force a failure when zero roles are configured.
+  role-leak-signedin:
+    runs-on: ubuntu-latest
+    needs: role-guard-matrix
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+      E2E_STUDENT_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
+      E2E_STUDENT_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
+      E2E_STUDENT_TOTP_SECRET: ${{ secrets.E2E_STUDENT_TOTP_SECRET }}
+      E2E_PARENT_EMAIL: ${{ secrets.E2E_PARENT_EMAIL }}
+      E2E_PARENT_PASSWORD: ${{ secrets.E2E_PARENT_PASSWORD }}
+      E2E_PARENT_TOTP_SECRET: ${{ secrets.E2E_PARENT_TOTP_SECRET }}
+      E2E_EDUCATOR_EMAIL: ${{ secrets.E2E_EDUCATOR_EMAIL }}
+      E2E_EDUCATOR_PASSWORD: ${{ secrets.E2E_EDUCATOR_PASSWORD }}
+      E2E_EDUCATOR_TOTP_SECRET: ${{ secrets.E2E_EDUCATOR_TOTP_SECRET }}
+      E2E_SCHOOL_ADMIN_EMAIL: ${{ secrets.E2E_SCHOOL_ADMIN_EMAIL }}
+      E2E_SCHOOL_ADMIN_PASSWORD: ${{ secrets.E2E_SCHOOL_ADMIN_PASSWORD }}
+      E2E_SCHOOL_ADMIN_TOTP_SECRET: ${{ secrets.E2E_SCHOOL_ADMIN_TOTP_SECRET }}
+      E2E_DISTRICT_ADMIN_EMAIL: ${{ secrets.E2E_DISTRICT_ADMIN_EMAIL }}
+      E2E_DISTRICT_ADMIN_PASSWORD: ${{ secrets.E2E_DISTRICT_ADMIN_PASSWORD }}
+      E2E_DISTRICT_ADMIN_TOTP_SECRET: ${{ secrets.E2E_DISTRICT_ADMIN_TOTP_SECRET }}
+      E2E_PARTNER_EMAIL: ${{ secrets.E2E_PARTNER_EMAIL }}
+      E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
+      E2E_PARTNER_TOTP_SECRET: ${{ secrets.E2E_PARTNER_TOTP_SECRET }}
+      E2E_OWNER_EMAIL: ${{ secrets.E2E_OWNER_EMAIL }}
+      E2E_OWNER_PASSWORD: ${{ secrets.E2E_OWNER_PASSWORD }}
+      E2E_OWNER_TOTP_SECRET: ${{ secrets.E2E_OWNER_TOTP_SECRET }}
+      LIVE_VERIFICATION: ${{ github.event.inputs.live }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+      - name: Role credential readiness check
+        run: node tests/e2e/scripts/check-role-creds.mjs
+      - name: Per-role auth setup (skips roles without credentials)
+        run: bunx playwright test --project=dashboard-setup
+      - name: Verify storage states match configured roles (live only)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live == 'true' }}
+        env:
+          CHECK_STORAGE_STATES: "1"
+        run: node tests/e2e/scripts/check-role-creds.mjs
+      - name: Role-leak nav + access-rule guard
+        run: bunx playwright test --project=role-access
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: role-leak-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

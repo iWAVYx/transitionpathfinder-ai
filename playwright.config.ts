@@ -65,6 +65,15 @@ export default defineConfig({
       testMatch: /dashboard-regression\.signedin\.spec\.ts$/,
       dependencies: ["dashboard-setup"],
     },
+    // Role-leak nav guard + role-specific access rules. Same per-role
+    // storage states as dashboard-regression; specs auto-skip per role
+    // when storageState is missing.
+    {
+      name: "role-access",
+      use: { baseURL, trace: "retain-on-failure" },
+      testMatch: /(role-leak-nav|role-access-rules)\.signedin\.spec\.ts$/,
+      dependencies: ["dashboard-setup"],
+    },
   ],
   webServer: useExternal
     ? undefined
