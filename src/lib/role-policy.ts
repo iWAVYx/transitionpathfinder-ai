@@ -122,3 +122,30 @@ export const AUDIENCE_LABEL: Record<RoleAudience, string> = {
   admin: "Platform Admin",
   partner: "Partner Organization",
 };
+
+// Human-readable label for a destination path — used in redirect toasts.
+export const DESTINATION_LABEL: Record<string, string> = {
+  "/admin": "Admin Hub",
+  "/owner": "Admin Hub",
+  "/district/overview": "District Overview",
+  "/school/overview": "School Overview",
+  "/caseload": "My Caseload",
+  "/partners-manage": "Partner Workspace",
+  "/dashboard": "your Dashboard",
+  "/onboarding": "Onboarding",
+};
+
+export function labelForDestination(path: string): string {
+  return DESTINATION_LABEL[path] ?? path;
+}
+
+export function labelForAudiences(audiences: RoleAudience[]): string {
+  const labels = audiences
+    .filter((a) => a !== "admin") // skip "Platform Admin" — implied
+    .map((a) => AUDIENCE_LABEL[a]);
+  if (labels.length === 0) return "Platform Admins";
+  if (labels.length === 1) return labels[0] + " accounts";
+  if (labels.length === 2) return `${labels[0]} and ${labels[1]} accounts`;
+  return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]} accounts`;
+}
+

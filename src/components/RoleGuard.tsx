@@ -7,6 +7,8 @@ import {
   ROUTE_AUDIENCES,
   audiencesForRoles,
   fallbackPathFor,
+  labelForAudiences,
+  labelForDestination,
   type RoleAudience,
 } from "@/lib/role-policy";
 
@@ -46,8 +48,8 @@ export function RoleGuard({ path, allow, children }: Props) {
         } else {
           setStatus("denied");
           const target = fallbackPathFor(roles);
-          toast.error("This section isn't available for your role.", {
-            description: "We've taken you to a page you can access.",
+          toast.error(`That page is for ${labelForAudiences(required)}.`, {
+            description: `Taking you to ${labelForDestination(target)} instead.`,
           });
           navigate({ to: target, replace: true });
         }
