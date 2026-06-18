@@ -53,6 +53,7 @@ import { Route as DemoCalendarRouteImport } from './routes/demo_.calendar'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
+import { Route as AuthenticatedTeacherPortalRouteImport } from './routes/_authenticated/teacher-portal'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authenticated/student-voice'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -363,6 +364,12 @@ const AuthenticatedTrustRoute = AuthenticatedTrustRouteImport.update({
   path: '/trust',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedTeacherPortalRoute =
+  AuthenticatedTeacherPortalRouteImport.update({
+    id: '/teacher-portal',
+    path: '/teacher-portal',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
   path: '/students',
@@ -911,6 +918,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/teacher-portal': typeof AuthenticatedTeacherPortalRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1043,6 +1051,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/teacher-portal': typeof AuthenticatedTeacherPortalRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1178,6 +1187,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/_authenticated/teacher-portal': typeof AuthenticatedTeacherPortalRoute
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1313,6 +1323,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/student-voice'
     | '/students'
+    | '/teacher-portal'
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -1445,6 +1456,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/student-voice'
     | '/students'
+    | '/teacher-portal'
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -1579,6 +1591,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/student-voice'
     | '/_authenticated/students'
+    | '/_authenticated/teacher-portal'
     | '/_authenticated/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -2019,6 +2032,13 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof AuthenticatedTrustRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/teacher-portal': {
+      id: '/_authenticated/teacher-portal'
+      path: '/teacher-portal'
+      fullPath: '/teacher-portal'
+      preLoaderRoute: typeof AuthenticatedTeacherPortalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/students': {
@@ -2821,6 +2841,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedTeacherPortalRoute: typeof AuthenticatedTeacherPortalRoute
   AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
   AuthenticatedBridgeforwardExploreRoute: typeof AuthenticatedBridgeforwardExploreRoute
   AuthenticatedBridgeforwardFitFinderRoute: typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -2863,6 +2884,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedTeacherPortalRoute: AuthenticatedTeacherPortalRoute,
   AuthenticatedTrustRoute: AuthenticatedTrustRoute,
   AuthenticatedBridgeforwardExploreRoute:
     AuthenticatedBridgeforwardExploreRoute,
