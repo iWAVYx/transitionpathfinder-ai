@@ -1095,19 +1095,17 @@ function ClosingCTA() {
 /* -------------------------------------------------------------------------- */
 
 function AboutPage() {
-  const [introDone, setIntroDone] = useState(false);
-  // touch unused collage import so it's tree-shaken cleanly without warning
+  // touch unused imports so they're tree-shaken cleanly without warning
   void collageImg;
+  void studentCenter;
+  void studentPhoto;
 
   return (
     <SiteShell>
-      <AnimatePresence>{!introDone && <Intro onDone={() => setIntroDone(true)} />}</AnimatePresence>
       <article className="bg-[#0b0a09]">
         <CinematicHero />
         <PinnedStory />
         <FounderMessage />
-        <MosaicStory />
-        <SplitHeadlines />
         <JourneyPath />
         <Transformation />
         <ClosingCTA />
