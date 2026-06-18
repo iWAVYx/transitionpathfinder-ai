@@ -63,6 +63,9 @@ function SchoolOverviewPage() {
                 <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                   <Link to="/school/reports"><FileText className="h-4 w-4" /> View Reports</Link>
                 </Button>
+                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                  <Link to="/teacher-portal"><ShieldAlert className="h-4 w-4" /> Compliance & Milestones</Link>
+                </Button>
                 <Button asChild size="sm" className="w-full sm:w-auto">
                   <Link to="/school/implementation">Implementation <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
