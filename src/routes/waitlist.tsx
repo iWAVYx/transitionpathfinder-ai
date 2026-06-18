@@ -87,12 +87,33 @@ const Schema = z.object({
   role: z.enum(["family", "student", "educator", "district", "partner"]),
   state: z.string().trim().max(100).optional(),
   student_grade_band: z
-    .enum(["9-10", "11-12", "post-secondary", "not-applicable"])
+    .enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable"])
     .optional(),
+  // Organization / school / district context — branched by selected door.
+  organization_name: z.string().trim().max(200).optional(),
+  district_name: z.string().trim().max(200).optional(),
+  school_name: z.string().trim().max(200).optional(),
   reason: z.string().trim().max(2000).optional(),
 });
 
 type FormValues = z.infer<typeof Schema>;
+
+// Maps the selected "door" to the canonical interest_type stored on the
+// waitlist row. Owner Hub triages by this enum, not by free-text role.
+function deriveInterestType(role: RoleKey): string {
+  switch (role) {
+    case "family":
+      return "family_early_access";
+    case "student":
+      return "family_early_access";
+    case "educator":
+      return "educator_access";
+    case "district":
+      return "school_pilot"; // refined below if district_name is filled
+    case "partner":
+      return "partner_interest";
+  }
+}
 
 export const Route = createFileRoute("/waitlist")({
   head: () => ({
@@ -298,7 +319,30 @@ function WaitlistPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await submit({ data: { ...values, source: "waitlist-tiles" } });
+      const role = (selected ?? values.role) as RoleKey;
+      let interest_type = deriveInterestType(role);
+      // If a school-or-district submitter typed a district name (with no
+      // single school), treat it as district_pilot interest.
+      if (
+        role === "district" &&
+        (values.district_name?.trim()?.length ?? 0) > 0 &&
+        !(values.school_name?.trim()?.length ?? 0)
+      ) {
+        interest_type = "district_pilot";
+      }
+      await submit({
+        data: {
+          ...values,
+          source: "waitlist-tiles",
+          interest_type: interest_type as
+            | "family_early_access"
+            | "educator_access"
+            | "school_pilot"
+            | "district_pilot"
+            | "partner_interest"
+            | "demo_request",
+        },
+      });
       setDone(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
@@ -443,12 +487,41 @@ function WaitlistPage() {
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="6-8">6th – 8th (BridgeForward · high school choice)</SelectItem>
                         <SelectItem value="9-10">9th – 10th (Launch / Explore)</SelectItem>
                         <SelectItem value="11-12">11th – 12th (Plan / Execute)</SelectItem>
                         <SelectItem value="post-secondary">Post-secondary (18–21)</SelectItem>
                         <SelectItem value="not-applicable">Not applicable</SelectItem>
                       </SelectContent>
                     </Select>
+                  </Field>
+                )}
+
+                {current.key === "educator" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="School (optional)">
+                      <Input {...form.register("school_name")} placeholder="e.g. Hartford Public HS" maxLength={200} />
+                    </Field>
+                    <Field label="District (optional)">
+                      <Input {...form.register("district_name")} placeholder="e.g. Hartford Public Schools" maxLength={200} />
+                    </Field>
+                  </div>
+                )}
+
+                {current.key === "district" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="District">
+                      <Input {...form.register("district_name")} placeholder="District name" maxLength={200} />
+                    </Field>
+                    <Field label="School (if just one building)">
+                      <Input {...form.register("school_name")} placeholder="Leave blank for district-wide" maxLength={200} />
+                    </Field>
+                  </div>
+                )}
+
+                {current.key === "partner" && (
+                  <Field label="Organization">
+                    <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
                   </Field>
                 )}
 
@@ -514,24 +587,29 @@ function WaitlistPage() {
               <ol className="mt-7 space-y-4 border-l-2 border-primary/20 pl-5">
                 <NextStep
                   n={1}
-                  title="Within 2 school days"
-                  body="We'll send a personal email confirming we received your request and routing it to the right teammate."
+                  title="You're on the waitlist"
+                  body="A real person on our Connecticut team reads every submission — usually within two school days."
                 />
                 <NextStep
                   n={2}
-                  title="Within 1–2 weeks"
+                  title="We review your fit"
                   body={
                     current.key === "district" || current.key === "partner"
-                      ? "We'll schedule a 20-minute intro call to learn about your goals, caseload, and timeline."
+                      ? "We'll match your request to the next open pilot cohort and schedule a 20-minute intro call."
                       : current.key === "educator"
-                        ? "We'll invite you to a short educator walkthrough and share the case-manager onboarding pack."
-                        : "We'll invite you to the next family cohort and share your private invite link to set up the Student Hub."
+                        ? "We'll match your request to an educator cohort or an existing school pilot in your area."
+                        : "We'll match you to a family cohort or an existing school pilot in your district."
                   }
                 />
                 <NextStep
                   n={3}
-                  title="When you're ready"
-                  body="You'll set up your first student profile with us on a live, no-pressure call — or on your own if you prefer."
+                  title="You may be invited"
+                  body="Invitations go out based on role, organization, and pilot capacity. If you're not in the first wave, we'll keep you posted as cohorts open."
+                />
+                <NextStep
+                  n={4}
+                  title="When your school or district joins"
+                  body="Connected families, students, and educators in that building can be invited in too — no separate signup required."
                 />
               </ol>
 

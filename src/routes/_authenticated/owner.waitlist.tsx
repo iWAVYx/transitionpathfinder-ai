@@ -328,11 +328,14 @@ function WaitlistDetailDrawer({
             </div>
 
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <Field label="Interest type" value={entry.interest_type} />
               <Field label="Role" value={entry.role} />
-              <Field label="Organization" value={entry.organization} />
+              <Field label="Organization" value={entry.organization_name ?? entry.organization} />
+              <Field label="District" value={entry.district_name} />
+              <Field label="School" value={entry.school_name} />
+              <Field label="Org type" value={entry.organization_type} />
               <Field label="City" value={entry.city} />
               <Field label="State" value={entry.state} />
-              <Field label="Interest area" value={entry.interest_area} />
               <Field label="Grade band" value={entry.student_grade_band} />
               <Field label="Source" value={entry.source || entry.source_page} />
               <Field
@@ -340,6 +343,17 @@ function WaitlistDetailDrawer({
                 value={new Date(entry.created_at).toLocaleString()}
               />
             </dl>
+
+            {entry.intended_use && (
+              <div>
+                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Intended use
+                </div>
+                <p className="mt-1 whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-sm">
+                  {entry.intended_use}
+                </p>
+              </div>
+            )}
 
             {entry.reason && (
               <div>

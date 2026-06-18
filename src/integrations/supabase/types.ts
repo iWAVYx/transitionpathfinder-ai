@@ -5869,6 +5869,7 @@ export type Database = {
           id: string
           intended_use: string | null
           interest_area: string | null
+          interest_type: string | null
           last_name: string | null
           organization: string | null
           organization_name: string | null
@@ -5898,6 +5899,7 @@ export type Database = {
           id?: string
           intended_use?: string | null
           interest_area?: string | null
+          interest_type?: string | null
           last_name?: string | null
           organization?: string | null
           organization_name?: string | null
@@ -5927,6 +5929,7 @@ export type Database = {
           id?: string
           intended_use?: string | null
           interest_area?: string | null
+          interest_type?: string | null
           last_name?: string | null
           organization?: string | null
           organization_name?: string | null

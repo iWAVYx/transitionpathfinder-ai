@@ -44,6 +44,12 @@ export type WaitlistEntry = {
   state: string | null;
   city: string | null;
   interest_area: string | null;
+  interest_type: string | null;
+  organization_name: string | null;
+  organization_type: string | null;
+  district_name: string | null;
+  school_name: string | null;
+  intended_use: string | null;
   student_grade_band: string | null;
   reason: string | null;
   source: string | null;
