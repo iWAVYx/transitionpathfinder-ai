@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/bridgeforward/explore")({
   head: () => ({ meta: [{ title: "Explore High Schools — BridgeForward" }] }),
-  component: ExplorePage,
+  component: withRoleGuard(["family", "educator", "student", "admin"], ExplorePage),
 });
 
 function ExplorePage() {
