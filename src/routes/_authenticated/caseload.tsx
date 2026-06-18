@@ -218,6 +218,20 @@ function CaseloadPage() {
 }
 
 
+function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.ReactNode; label: string; desc: string }) {
+  return (
+    <Link
+      to={to}
+      className="group flex flex-col gap-1 rounded-2xl border bg-card p-3 shadow-soft transition hover:border-primary/40 hover:shadow-md"
+    >
+      <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        {icon} {label}
+      </span>
+      <span className="text-[11px] text-muted-foreground/80 group-hover:text-foreground">{desc}</span>
+    </Link>
+  );
+}
+
 function EmptyState({ hasAny }: { hasAny: boolean }) {
   return (
     <div className="px-6 py-12 text-center">
