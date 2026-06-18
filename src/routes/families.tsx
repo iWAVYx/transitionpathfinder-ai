@@ -131,9 +131,8 @@ function FamiliesPage() {
               and gently translates, so you can see what is happening, what to ask, and what to do next.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
-              <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift">Create a Pathway Report</Link>
+              <Link to="/demo" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift">See a Sample Pathway</Link>
               <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted">Join the Waitlist</Link>
-              <Link to="/bridgeforward" className="inline-flex items-center justify-center rounded-full border border-primary/30 bg-primary/5 px-6 py-3 text-sm font-semibold text-primary hover:bg-primary/10">BridgeForward (Grades 6–8)</Link>
               <ArrowDoodle className="ml-1 hidden h-12 w-16 -translate-y-2 rotate-[10deg] text-primary/60 sm:block" />
             </div>
           </Reveal>
