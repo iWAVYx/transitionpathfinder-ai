@@ -1,90 +1,47 @@
-# TransitionForward Cohesion & Cleanup Pass
+# Signed-In Dashboard Audit & Cleanup
 
-This is a large, cross-cutting pass touching public IA, waitlist, pricing, every role dashboard, the Owner Hub, routing, and copy. To keep each step reviewable (and avoid one giant unverifiable edit), I'll work in 6 sequenced slices. After each slice I'll show what changed and pause for your go-ahead on the next.
+This is a focused cleanup pass across all 7 signed-in roles. No app-wide redesign, no new features — just making sure each dashboard shows the right things, in the right order, with comfortable spacing and clear next steps.
 
-No visual redesign. No new features. Cleanup, consolidation, role-correctness, and copy cohesion only.
+## Approach
 
----
+I'll work in role-sized slices so you can review each one before I move on, rather than touching all dashboards in one giant change. For each role I will:
 
-## Slice 1 — Audit & Inventory (read-only, ~1 turn)
+1. Read the current dashboard route + components.
+2. Compare against your spec (what should/shouldn't appear).
+3. Remove irrelevant cards, deduplicate links, fix dead buttons, tighten spacing.
+4. Verify empty/loading/error states, mobile layout, refresh persistence.
+5. Report a short diff + screenshots for that role.
 
-Produce a single inventory document I work from for the rest of the pass:
+## Slice order
 
-- Every public route → purpose, primary CTA, duplicates/overlaps flagged
-- Every `_authenticated` route → allowed roles vs. actual gate vs. RLS
-- Every dashboard widget / quick action → role it should belong to
-- Every Owner Hub page → keep / move / merge / delete recommendation
-- Waitlist form fields today vs. fields you asked for
-- Pricing tiers today vs. the 10-tier model you described
-- Glossary of approved vs. avoided language, with current offenders
+1. **Student dashboard** — gate BridgeForward (6–8) vs TransitionForward (9–12) by grade band; trim adult-only controls.
+2. **Parent / Guardian** — multi-student switcher; gate tools by each connected student's grade band; surface invitations + consent status.
+3. **Educator / Case Manager** — caseload-first view; merge with the new Teacher Portal entry if duplicative; missing-info alerts.
+4. **School Administrator** — school overview, educator list, school pilot/access; remove platform-admin and partner controls.
+5. **District Administrator** — district → schools → admins → educators rollup; entitlements + onboarding status.
+6. **Partner Organization** — partner profile, opportunities, PartnerForward resources; hard-block student data surfaces.
+7. **Platform Admin / Owner Hub** — regroup into the 10 sections you listed; remove anything that duplicates user dashboards.
 
-Deliverable: `docs/cohesion-audit.md` + a short summary in chat. No code changes yet. This is the contract for slices 2–6.
+## Global standards applied per slice
 
-## Slice 2 — Public Site IA & Copy Cohesion
+- Header / welcome strip → quick actions → primary cards → secondary cards.
+- One canonical "next step" component per dashboard (NextBestAction).
+- Card sizing: consistent heights inside a grid row, single CTA per card.
+- Mobile: single column, no horizontal scroll, no clipped buttons.
+- Every list has empty + loading + error states wired to the server fn.
+- Role + grade-band + org + entitlement gating goes through `role-policy.ts` and existing entitlement hooks — no new gating systems.
 
-- Consolidate duplicate public pages flagged in Slice 1 (redirect, don't delete URLs)
-- Normalize every public CTA to one of: Join waitlist / Request demo / Explore program / Become a partner / Sign in / Learn more
-- Make sure each public page answers: Who is this for? What can they do here? What happens next? Why does this matter?
-- Apply approved-language pass (planning companion, pathway, readiness, next step, from paperwork to possibility) and remove avoided phrases (legal guarantees, "replaces IEP/PPT", overpromises)
-- Remove signed-in-only tools from any signed-out surface
+## Final QA checklist (run after all slices)
 
-## Slice 3 — Waitlist + Pricing Restructure
+The 10 items from your spec, executed as a manual pass plus the existing `role-guard-matrix` test.
 
-**Waitlist**
-- Extend the waitlist form (and `waitlist` table if needed) with: role, organization type, school/district, student grade band, reason, `interest_type` enum (family_early_access / educator_access / school_pilot / district_pilot / partner_interest / demo_request)
-- Single waitlist entrypoint with branching by interest_type (no parallel duplicate forms)
-- Post-submit staged state screen: "You're on the waitlist → We'll review → You may be invited based on role/org/pilot → If your school or district joins, connected users may get access"
-- Owner Hub waitlist review surfaces the new fields + admin notes/status
+## What I will NOT do
 
-**Pricing**
-- Restructure `/pricing` around the 10 tiers you listed (Free/Waitlist, Family Early Access, Educator Individual, School Pilot, School Plan, District Pilot, District Plan, Partner Basic, Partner Featured, Platform Internal)
-- Show the long-term flow (District → Schools → Educators → Students → Families) plus the alternate early-access paths
-- Pilot-ready copy; no payment integration changes
+- Redesign the visual system or change the theme.
+- Add new features beyond what each role already has.
+- Touch landing/marketing pages.
+- Rewrite the Owner Hub data layer — only reorganize the surface.
 
-## Slice 4 — Signed-In Role Dashboards
+## Question before I start
 
-For each role, prune to only role-appropriate widgets/quick actions and fix dashboard→route mismatches:
-
-- Student, Parent/Guardian — BridgeForward visible only for grades 6–8; TransitionForward pathway tools for 9–12
-- Educator / Case Manager — caseload-scoped only
-- School Admin — school-level only (no platform controls)
-- District Admin — district/school oversight only (no owner internals)
-- Partner — Partner Dashboard + PartnerForward; never student PII
-- Platform Admin — link out to Owner Hub, not duplicated cards
-
-Remove dead links, staged-feature cards without explanation, and duplicate quick actions surfaced by Slice 1.
-
-## Slice 5 — Owner Hub Reorganization
-
-Regroup `/owner/*` into exactly these sections, moving/merging existing pages (redirects for old URLs):
-
-1. Access & Accounts (waitlist, invitations, users)
-2. Organizations & Entitlements (orgs, schools/districts, memberships, subscriptions/entitlements)
-3. Students & Relationships
-4. Content & Resources (resources + BridgeForward source manager)
-5. Partners & Opportunities (approvals, opportunities, PartnerForward resource manager)
-6. Product Operations (feedback, bug tracker, site content/settings)
-7. Launch & Pilot Readiness (launch checklist, pilot outreach)
-8. System Health (health checks, analytics)
-
-Delete/move anything in Owner Hub that duplicates a user-role dashboard.
-
-## Slice 6 — Routing, Back-Nav, and Final QA
-
-- Walk every route from Slice 1's inventory: fix broken links, wrong nav categories, public CTAs that point to private routes without an auth-aware fallback
-- Back buttons return to logical prior context (dashboard section, admin section, library, directory, program page, waitlist/pricing)
-- Run the journey tests you listed (signed-out visitor; family/student/educator/school/district/partner waitlist; Platform Admin waitlist + invite; each role dashboard; BF/TF/PF visibility; Owner Hub; mobile/tablet/desktop)
-- TypeScript build clean; security scan clean; RLS unchanged for sensitive tables
-
----
-
-## Technical notes
-
-- Waitlist field additions are an additive migration (new columns + enum), no destructive changes; existing rows stay valid.
-- Owner Hub reorg uses route redirects (not deletes) so any bookmarks keep working.
-- Role visibility uses the existing `RoleGuard` + `audiencesForRoles` + `visibleUserGroups` plumbing already in place; no new auth primitives.
-- No edits to `src/integrations/supabase/*` generated files, no changes to auth/storage/realtime schemas.
-
----
-
-**Recommended start:** Slice 1 (audit), so slices 2–6 are driven by a real inventory instead of guesses. Want me to proceed with Slice 1?
+Do you want me to **start with Slice 1 (Student) and check in after each slice**, or **run all 7 slices straight through and present one consolidated report at the end**? Straight-through is faster but harder to course-correct mid-way.
