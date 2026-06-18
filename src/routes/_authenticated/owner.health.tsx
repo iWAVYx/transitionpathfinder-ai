@@ -147,7 +147,7 @@ function SystemHealthPage() {
       ) : (
         <div className="space-y-6">
           {/* Summary band */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 sm:gap-3">
             <SummaryTile label="Total checks" value={data.summary.total} accent="text-foreground" Icon={Activity} />
             <SummaryTile label="Working" value={data.summary.working} accent="text-emerald-600 dark:text-emerald-400" Icon={CheckCircle2} />
             <SummaryTile label="Needs attention" value={data.summary.attention} accent="text-amber-600 dark:text-amber-400" Icon={AlertTriangle} />
@@ -174,16 +174,16 @@ function SystemHealthPage() {
                       const Icon = meta.Icon;
                       const showDetails = item.status !== "working";
                       return (
-                        <li key={item.key} className="flex flex-wrap items-start gap-3 px-4 py-3 sm:flex-nowrap">
+                        <li key={item.key} className="flex items-start gap-3 px-3 py-3 sm:px-4">
                           <Icon className={"mt-0.5 h-4 w-4 shrink-0 " + meta.iconClass} />
                           <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                               <span className="text-sm font-medium">{item.label}</span>
                               <Badge variant="outline" className={"text-[10px] font-medium uppercase tracking-wide " + meta.chip}>
                                 {meta.label}
                               </Badge>
                             </div>
-                            <p className="mt-0.5 text-xs text-muted-foreground">{item.detail}</p>
+                            <p className="mt-0.5 break-words text-xs text-muted-foreground">{item.detail}</p>
 
                             {showDetails && (
                               <div className="mt-2">
@@ -208,11 +208,11 @@ function SystemHealthPage() {
                             {showDetails && (item.error || (item.fixes && item.fixes.length > 0)) && (
                               <details className="group mt-2 rounded-md border border-border/60 bg-muted/30 open:bg-muted/40">
                                 <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground">
-                                  <span className="inline-flex items-center gap-1.5">
-                                    <Wrench className="h-3.5 w-3.5" />
-                                    Error details &amp; suggested fixes
+                                  <span className="inline-flex min-w-0 items-center gap-1.5">
+                                    <Wrench className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">Error details &amp; suggested fixes</span>
                                   </span>
-                                  <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                                  <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform group-open:rotate-180" />
                                 </summary>
                                 <div className="space-y-3 border-t border-border/60 px-3 py-3">
                                   {item.error && (
@@ -220,7 +220,7 @@ function SystemHealthPage() {
                                       <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                                         Raw output
                                       </p>
-                                      <pre className="mt-1 max-h-48 overflow-auto rounded bg-background p-2 text-[11px] leading-snug text-foreground/90 ring-1 ring-border">
+                                      <pre className="mt-1 max-h-48 overflow-auto rounded bg-background p-2 text-[11px] leading-snug text-foreground/90 ring-1 ring-border whitespace-pre-wrap break-words">
 {item.error}
                                       </pre>
                                     </div>
@@ -232,7 +232,7 @@ function SystemHealthPage() {
                                       </p>
                                       <ol className="mt-1 list-decimal space-y-1 pl-4 text-xs text-foreground/90">
                                         {item.fixes.map((f, i) => (
-                                          <li key={i}>{f}</li>
+                                          <li key={i} className="break-words">{f}</li>
                                         ))}
                                       </ol>
                                     </div>
