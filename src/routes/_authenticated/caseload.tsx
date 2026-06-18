@@ -13,6 +13,9 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  ShieldAlert,
+  CalendarClock,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -139,6 +142,15 @@ function CaseloadPage() {
             />
           </StatGrid>
 
+          {/* Educator quick links — surfaces tied to caseload work */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <EducatorQuickLink to="/teacher-portal" icon={<ShieldAlert className="h-4 w-4" />} label="Teacher Portal" desc="Milestones & compliance" />
+            <EducatorQuickLink to="/meetings" icon={<CalendarClock className="h-4 w-4" />} label="Meetings" desc="Schedule & prep" />
+            <EducatorQuickLink to="/meeting-templates" icon={<ClipboardCheck className="h-4 w-4" />} label="Templates" desc="Agendas & checklists" />
+            <EducatorQuickLink to="/goals" icon={<Target className="h-4 w-4" />} label="Goal Tracker" desc="Transition goals" />
+          </div>
+
+
           {/* Secondary: team calendar — collapsed on mobile to reduce density */}
           <CollapsibleSection
             title="Team calendar"
@@ -205,6 +217,20 @@ function CaseloadPage() {
   );
 }
 
+
+function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.ReactNode; label: string; desc: string }) {
+  return (
+    <Link
+      to={to}
+      className="group flex flex-col gap-1 rounded-2xl border bg-card p-3 shadow-soft transition hover:border-primary/40 hover:shadow-md"
+    >
+      <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        {icon} {label}
+      </span>
+      <span className="text-[11px] text-muted-foreground/80 group-hover:text-foreground">{desc}</span>
+    </Link>
+  );
+}
 
 function EmptyState({ hasAny }: { hasAny: boolean }) {
   return (
