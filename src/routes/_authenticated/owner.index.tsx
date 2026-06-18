@@ -185,8 +185,8 @@ function OwnerDashboardPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
-                <Link to="/owner/activity">
-                  <Building2 className="mr-1.5 h-3.5 w-3.5" /> Partners ({metrics.partnerInquiries})
+                <Link to="/owner/partner-network">
+                  <Building2 className="mr-1.5 h-3.5 w-3.5" /> Partner network ({metrics.partnerInquiries})
                 </Link>
               </Button>
             </div>
