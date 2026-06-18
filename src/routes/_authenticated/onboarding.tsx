@@ -46,6 +46,7 @@ const ROLE_OPTIONS = [
 type RoleId = (typeof ROLE_OPTIONS)[number]["id"];
 
 const GRADE_OPTIONS = [
+  { value: "6-8", label: "6th–8th grade (BridgeForward)" },
   { value: "9-10", label: "9th–10th grade" },
   { value: "11-12", label: "11th–12th grade" },
   { value: "post-secondary", label: "Post-secondary" },

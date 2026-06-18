@@ -7,7 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const StudentInput = z.object({
   first_name: z.string().trim().min(1).max(80),
   last_name: z.string().trim().max(80).optional(),
-  grade_band: z.enum(["9-10", "11-12", "post-secondary", "not-applicable"]).optional(),
+  grade_band: z.enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable"]).optional(),
   school: z.string().trim().max(160).optional(),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   notes: z.string().trim().max(2000).optional(),
