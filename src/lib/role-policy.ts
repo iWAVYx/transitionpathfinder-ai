@@ -50,6 +50,7 @@ export function audiencesForRoles(roles: string[]): Set<RoleAudience> {
 export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/students": ["family", "educator", "admin"],
   "/caseload": ["educator", "admin"],
+  "/teacher-portal": ["educator", "admin"],
   "/goals": ["family", "educator", "admin"],
   "/documents": ["family", "educator", "admin"],
   "/pathway": ["family", "educator", "admin"],
