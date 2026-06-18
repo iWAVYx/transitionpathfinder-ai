@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export type RoleAuditReadiness = "ready" | "needs_review" | "staged" | "blocked";
+
 export type RoleAuditReview = {
   id: string;
   role_key: string;
@@ -10,6 +12,7 @@ export type RoleAuditReview = {
   issues_fixed: string;
   staged_items: string;
   notes: string;
+  readiness: RoleAuditReadiness;
   last_reviewed_at: string | null;
   last_reviewed_by: string | null;
   updated_at: string;
@@ -67,6 +70,7 @@ export const updateRoleAuditReview = createServerFn({ method: "POST" })
     issues_fixed?: string;
     staged_items?: string;
     notes?: string;
+    readiness?: RoleAuditReadiness;
     mark_reviewed?: boolean;
   }) => data)
   .handler(async ({ context, data }) => {
@@ -75,6 +79,9 @@ export const updateRoleAuditReview = createServerFn({ method: "POST" })
     const patch: Record<string, unknown> = {};
     for (const k of ["purpose", "issues_found", "issues_fixed", "staged_items", "notes"] as const) {
       if (typeof data[k] === "string") patch[k] = data[k];
+    }
+    if (data.readiness && ["ready", "needs_review", "staged", "blocked"].includes(data.readiness)) {
+      patch.readiness = data.readiness;
     }
     if (data.mark_reviewed) {
       patch.last_reviewed_at = new Date().toISOString();

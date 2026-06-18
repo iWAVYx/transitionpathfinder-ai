@@ -12,14 +12,36 @@ import {
   listRoleAuditReviews,
   updateRoleAuditReview,
   type RoleAuditReview,
+  type RoleAuditReadiness,
 } from "@/lib/owner/role-audit.functions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/owner/role-audit")({
   head: () => ({ meta: [{ title: "Role Dashboard Audit — Admin Hub" }] }),
   component: RoleAuditPage,
 });
 
-type Draft = Pick<RoleAuditReview, "purpose" | "issues_found" | "issues_fixed" | "staged_items" | "notes">;
+type Draft = Pick<RoleAuditReview, "purpose" | "issues_found" | "issues_fixed" | "staged_items" | "notes" | "readiness">;
+
+const READINESS_OPTIONS: { value: RoleAuditReadiness; label: string }[] = [
+  { value: "ready", label: "Ready" },
+  { value: "needs_review", label: "Needs review" },
+  { value: "staged", label: "Staged" },
+  { value: "blocked", label: "Blocked" },
+];
+
+const READINESS_VARIANT: Record<RoleAuditReadiness, "default" | "secondary" | "outline" | "destructive"> = {
+  ready: "default",
+  needs_review: "outline",
+  staged: "secondary",
+  blocked: "destructive",
+};
 
 function RoleAuditPage() {
   const list = useServerFn(listRoleAuditReviews);
@@ -45,6 +67,7 @@ function RoleAuditPage() {
             issues_fixed: r.issues_fixed,
             staged_items: r.staged_items,
             notes: r.notes,
+            readiness: r.readiness,
           };
         }
         setDrafts(next);
@@ -116,10 +139,34 @@ function RoleAuditPage() {
                       )}
                     </p>
                   </div>
-                  <Badge variant={reviewed ? "secondary" : "outline"}>
-                    {reviewed ? "Reviewed" : "Pending review"}
-                  </Badge>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={READINESS_VARIANT[row.readiness] ?? "outline"}>
+                      {READINESS_OPTIONS.find((o) => o.value === row.readiness)?.label ?? row.readiness}
+                    </Badge>
+                    <Badge variant={reviewed ? "secondary" : "outline"}>
+                      {reviewed ? "Reviewed" : "Pending review"}
+                    </Badge>
+                  </div>
                 </header>
+
+                <div className="mb-4 flex flex-wrap items-end gap-3">
+                  <div className="w-full sm:w-56">
+                    <Label className="text-xs font-medium text-muted-foreground">Readiness</Label>
+                    <Select
+                      value={draft?.readiness ?? row.readiness}
+                      onValueChange={(v) => patchDraft(row.id, { readiness: v as RoleAuditReadiness })}
+                    >
+                      <SelectTrigger className="mt-1.5">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {READINESS_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
                 <div className="grid gap-4 lg:grid-cols-2">
                   <Field
