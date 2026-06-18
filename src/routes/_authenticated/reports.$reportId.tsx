@@ -50,7 +50,7 @@ const SearchSchema = z.object({
 export const Route = createFileRoute("/_authenticated/reports/$reportId")({
   head: () => ({ meta: [{ title: "Pathway Report — TransitionForward" }] }),
   validateSearch: (s) => SearchSchema.parse(s),
-  component: ReportDetailPage,
+  component: withRoleGuard(["family", "educator", "student", "admin"], ReportDetailPage),
 });
 
 function ReportDetailPage() {

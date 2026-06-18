@@ -46,7 +46,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
-  component: StudentDetailPage,
+  component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
 
 async function extractPdfText(file: File): Promise<string> {

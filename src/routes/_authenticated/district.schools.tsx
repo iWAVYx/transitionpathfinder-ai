@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/district/schools")({
   head: () => ({ meta: [{ title: "District Schools — TransitionForward" }] }),
-  component: DistrictSchoolsPage,
+  component: withRoleGuard(["district_admin", "admin"], DistrictSchoolsPage),
 });
 
 function DistrictSchoolsPage() {

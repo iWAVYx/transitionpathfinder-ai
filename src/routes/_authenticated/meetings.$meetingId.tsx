@@ -26,7 +26,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/meetings/$meetingId")({
   head: () => ({ meta: [{ title: "Meeting Prep — TransitionForward" }] }),
-  component: MeetingDetailPage,
+  component: withRoleGuard(["family", "educator", "admin"], MeetingDetailPage),
 });
 
 function MeetingDetailPage() {

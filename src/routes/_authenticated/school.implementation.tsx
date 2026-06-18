@@ -9,7 +9,7 @@ import { getSchoolReadiness, type SchoolReadiness } from "@/lib/school-admin.fun
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
   head: () => ({ meta: [{ title: "Implementation — TransitionForward" }] }),
-  component: SchoolImplementationPage,
+  component: withRoleGuard(["school_admin", "admin"], SchoolImplementationPage),
 });
 
 function SchoolImplementationPage() {

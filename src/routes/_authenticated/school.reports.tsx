@@ -10,7 +10,7 @@ import { listSchoolReports, type SchoolReportRow } from "@/lib/school-admin.func
 
 export const Route = createFileRoute("/_authenticated/school/reports")({
   head: () => ({ meta: [{ title: "School Reports — TransitionForward" }] }),
-  component: SchoolReportsPage,
+  component: withRoleGuard(["school_admin", "admin"], SchoolReportsPage),
 });
 
 function SchoolReportsPage() {

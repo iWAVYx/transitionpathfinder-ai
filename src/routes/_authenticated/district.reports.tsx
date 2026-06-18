@@ -31,7 +31,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/district/reports")({
   head: () => ({ meta: [{ title: "District Reports — TransitionForward" }] }),
-  component: DistrictReportsPage,
+  component: withRoleGuard(["district_admin", "admin"], DistrictReportsPage),
 });
 
 function DistrictReportsPage() {

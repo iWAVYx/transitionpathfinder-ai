@@ -29,7 +29,7 @@ import {
 import { logDocumentView } from "@/lib/documents.functions";
 
 export const Route = createFileRoute("/_authenticated/documents/$documentId/review")({
-  component: ReviewPage,
+  component: withRoleGuard(["family", "educator", "admin"], ReviewPage),
 });
 
 const SECTION_LABELS: Record<ExtractionSectionKey, { label: string; hint: string }> = {
