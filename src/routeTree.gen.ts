@@ -67,6 +67,7 @@ import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authen
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMeetingsRouteImport } from './routes/_authenticated/meetings'
+import { Route as AuthenticatedMeetingTemplatesRouteImport } from './routes/_authenticated/meeting-templates'
 import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/forms'
@@ -438,6 +439,12 @@ const AuthenticatedMeetingsRoute = AuthenticatedMeetingsRouteImport.update({
   path: '/meetings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMeetingTemplatesRoute =
+  AuthenticatedMeetingTemplatesRouteImport.update({
+    id: '/meeting-templates',
+    path: '/meeting-templates',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedInsightsRoute = AuthenticatedInsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
@@ -905,6 +912,7 @@ export interface FileRoutesByFullPath {
   '/forms': typeof AuthenticatedFormsRouteWithChildren
   '/goals': typeof AuthenticatedGoalsRoute
   '/insights': typeof AuthenticatedInsightsRoute
+  '/meeting-templates': typeof AuthenticatedMeetingTemplatesRoute
   '/meetings': typeof AuthenticatedMeetingsRouteWithChildren
   '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -1039,6 +1047,7 @@ export interface FileRoutesByTo {
   '/forms': typeof AuthenticatedFormsRouteWithChildren
   '/goals': typeof AuthenticatedGoalsRoute
   '/insights': typeof AuthenticatedInsightsRoute
+  '/meeting-templates': typeof AuthenticatedMeetingTemplatesRoute
   '/meetings': typeof AuthenticatedMeetingsRouteWithChildren
   '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -1174,6 +1183,7 @@ export interface FileRoutesById {
   '/_authenticated/forms': typeof AuthenticatedFormsRouteWithChildren
   '/_authenticated/goals': typeof AuthenticatedGoalsRoute
   '/_authenticated/insights': typeof AuthenticatedInsightsRoute
+  '/_authenticated/meeting-templates': typeof AuthenticatedMeetingTemplatesRoute
   '/_authenticated/meetings': typeof AuthenticatedMeetingsRouteWithChildren
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -1310,6 +1320,7 @@ export interface FileRouteTypes {
     | '/forms'
     | '/goals'
     | '/insights'
+    | '/meeting-templates'
     | '/meetings'
     | '/messages'
     | '/onboarding'
@@ -1444,6 +1455,7 @@ export interface FileRouteTypes {
     | '/forms'
     | '/goals'
     | '/insights'
+    | '/meeting-templates'
     | '/meetings'
     | '/messages'
     | '/onboarding'
@@ -1578,6 +1590,7 @@ export interface FileRouteTypes {
     | '/_authenticated/forms'
     | '/_authenticated/goals'
     | '/_authenticated/insights'
+    | '/_authenticated/meeting-templates'
     | '/_authenticated/meetings'
     | '/_authenticated/messages'
     | '/_authenticated/onboarding'
@@ -2130,6 +2143,13 @@ declare module '@tanstack/react-router' {
       path: '/meetings'
       fullPath: '/meetings'
       preLoaderRoute: typeof AuthenticatedMeetingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meeting-templates': {
+      id: '/_authenticated/meeting-templates'
+      path: '/meeting-templates'
+      fullPath: '/meeting-templates'
+      preLoaderRoute: typeof AuthenticatedMeetingTemplatesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/insights': {
@@ -2828,6 +2848,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsRoute: typeof AuthenticatedFormsRouteWithChildren
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
   AuthenticatedInsightsRoute: typeof AuthenticatedInsightsRoute
+  AuthenticatedMeetingTemplatesRoute: typeof AuthenticatedMeetingTemplatesRoute
   AuthenticatedMeetingsRoute: typeof AuthenticatedMeetingsRouteWithChildren
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -2871,6 +2892,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFormsRoute: AuthenticatedFormsRouteWithChildren,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
   AuthenticatedInsightsRoute: AuthenticatedInsightsRoute,
+  AuthenticatedMeetingTemplatesRoute: AuthenticatedMeetingTemplatesRoute,
   AuthenticatedMeetingsRoute: AuthenticatedMeetingsRouteWithChildren,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -2994,13 +3016,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

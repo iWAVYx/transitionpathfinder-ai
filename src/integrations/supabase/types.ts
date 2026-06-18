@@ -2549,35 +2549,61 @@ export type Database = {
       }
       meeting_agenda_items: {
         Row: {
+          completed: boolean
           created_at: string
           id: string
+          linked_compliance_key: string | null
+          linked_goal_id: string | null
           meeting_id: string
           notes: string | null
           position: number
+          template_id: string | null
           title: string
         }
         Insert: {
+          completed?: boolean
           created_at?: string
           id?: string
+          linked_compliance_key?: string | null
+          linked_goal_id?: string | null
           meeting_id: string
           notes?: string | null
           position?: number
+          template_id?: string | null
           title: string
         }
         Update: {
+          completed?: boolean
           created_at?: string
           id?: string
+          linked_compliance_key?: string | null
+          linked_goal_id?: string | null
           meeting_id?: string
           notes?: string | null
           position?: number
+          template_id?: string | null
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "meeting_agenda_items_linked_goal_id_fkey"
+            columns: ["linked_goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "meeting_agenda_items_meeting_id_fkey"
             columns: ["meeting_id"]
             isOneToOne: false
             referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_agenda_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -2667,6 +2693,83 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      meeting_template_items: {
+        Row: {
+          compliance_key: string | null
+          created_at: string
+          id: string
+          links_to: string
+          notes: string | null
+          position: number
+          template_id: string
+          title: string
+        }
+        Insert: {
+          compliance_key?: string | null
+          created_at?: string
+          id?: string
+          links_to?: string
+          notes?: string | null
+          position?: number
+          template_id: string
+          title: string
+        }
+        Update: {
+          compliance_key?: string | null
+          created_at?: string
+          id?: string
+          links_to?: string
+          notes?: string | null
+          position?: number
+          template_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_shared: boolean
+          kind: string
+          name: string
+          recommended_band: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_shared?: boolean
+          kind?: string
+          name: string
+          recommended_band?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_shared?: boolean
+          kind?: string
+          name?: string
+          recommended_band?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       meetings: {
         Row: {

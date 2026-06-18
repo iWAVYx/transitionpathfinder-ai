@@ -31,6 +31,10 @@ export type AgendaItem = {
   position: number;
   title: string;
   notes: string | null;
+  completed: boolean;
+  linked_goal_id: string | null;
+  linked_compliance_key: string | null;
+  template_id: string | null;
 };
 
 export type MeetingQuestion = {
