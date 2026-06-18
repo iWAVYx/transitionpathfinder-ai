@@ -218,10 +218,14 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           </section>
         </div>
 
+        {/* Explore — grade-band aware tools just for you */}
+        <ExploreForStudent gradeBand={s.grade_band} />
+
         {/* Calendar — your meetings, prep steps, and team events */}
         <div className="mt-6">
           <DashboardCalendar studentId={s.id} compact title="Your calendar" />
         </div>
+
 
         {/* IEP summary in plain language */}
         <div className="mt-6">
