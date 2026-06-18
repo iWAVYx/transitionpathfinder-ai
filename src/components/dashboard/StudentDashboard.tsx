@@ -287,3 +287,69 @@ function FactCard({
     </div>
   );
 }
+
+type ExploreTile = {
+  to: string;
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+};
+
+function ExploreForStudent({ gradeBand }: { gradeBand: string | null }) {
+  const isMiddle = gradeBand === "6-8";
+  const isHigh = gradeBand === "9-10" || gradeBand === "11-12";
+
+  const tiles: ExploreTile[] = [];
+  if (isMiddle) {
+    tiles.push({
+      to: "/bridgeforward",
+      icon: <Compass className="h-5 w-5" />,
+      title: "BridgeForward",
+      body: "Find a high school that fits — explore interests, take the fit finder, share your voice.",
+    });
+  }
+  if (isHigh) {
+    tiles.push({
+      to: "/opportunities",
+      icon: <Bookmark className="h-5 w-5" />,
+      title: "Opportunities for you",
+      body: "Programs, internships, and pathways that match your goals and interests.",
+    });
+  }
+  tiles.push({
+    to: "/forms",
+    icon: <Mic className="h-5 w-5" />,
+    title: "Your student voice",
+    body: "Add what's important to you so your team can plan around your goals.",
+  });
+  tiles.push({
+    to: "/messages",
+    icon: <MessageCircle className="h-5 w-5" />,
+    title: "Your team",
+    body: "Message the adults connected to your plan — family, teachers, case manager.",
+  });
+
+  return (
+    <section className="mt-6">
+      <h2 className="font-display text-xl">Explore</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Tools picked for you{isMiddle ? " — middle school" : isHigh ? " — high school" : ""}.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {tiles.map((t) => (
+          <Link
+            key={t.to}
+            to={t.to}
+            className="group flex h-full flex-col rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              {t.icon}
+            </div>
+            <h3 className="mt-3 font-display text-base">{t.title}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{t.body}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
