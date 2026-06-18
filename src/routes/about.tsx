@@ -1034,7 +1034,7 @@ function ClosingCTA() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/55 to-[#0b0a09]" />
       </motion.div>
 
-      <div className="relative mx-auto flex min-h-[70svh] max-w-[1300px] flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="relative mx-auto flex min-h-[70svh] max-w-[1300px] flex-col items-center justify-center px-6 py-16 text-center md:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
