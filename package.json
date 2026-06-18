@@ -13,7 +13,9 @@
     "test": "node --test tests/*.test.mjs",
     "test:role-guard": "node --test tests/role-guard-matrix.test.mjs",
     "test:ct-seed-v2": "node --test tests/ct-seed-v2-audit.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "vitest run",
+    "test:dashboards": "vitest run && playwright test --project=dashboard-setup --project=dashboard-regression"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
