@@ -13,6 +13,9 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  ShieldAlert,
+  CalendarClock,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
