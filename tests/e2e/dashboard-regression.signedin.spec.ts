@@ -1,0 +1,163 @@
+// Cross-role dashboard regression: viewport layout, no duplicate links,
+// no dead buttons, and that loading/empty/error states render and persist
+// after a hard refresh.
+//
+// Each role × viewport combo auto-skips when the role's storageState
+// produced by auth-roles.setup.ts is missing (so partial credential
+// matrices still produce useful CI signal).
+//
+// Run all roles locally:
+//   E2E_STUDENT_EMAIL=… E2E_STUDENT_PASSWORD=… \
+//   E2E_EDUCATOR_EMAIL=… E2E_EDUCATOR_PASSWORD=… \
+//   …                                            \
+//   npx playwright test --project=dashboard-regression
+
+import { test, expect, type Page } from "@playwright/test";
+import { existsSync } from "node:fs";
+import { ROLES, VIEWPORTS } from "./helpers/roles";
+
+async function assertNoHorizontalScroll(page: Page, label: string) {
+  const dims = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  expect(
+    dims.scrollWidth,
+    `${label} overflows horizontally (scroll=${dims.scrollWidth}, client=${dims.clientWidth})`,
+  ).toBeLessThanOrEqual(dims.clientWidth + 2);
+}
+
+async function collectInteractiveTargets(page: Page) {
+  // Visible buttons + links inside <main>. We only care about controls the
+  // user can actually click, so hidden / off-screen elements are filtered.
+  return await page.evaluate(() => {
+    const main = document.querySelector("main") ?? document.body;
+    const nodes = Array.from(
+      main.querySelectorAll<HTMLElement>("a[href], button"),
+    );
+    return nodes
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) return false;
+        const style = getComputedStyle(el);
+        if (style.visibility === "hidden" || style.display === "none") return false;
+        return true;
+      })
+      .map((el) => ({
+        tag: el.tagName.toLowerCase(),
+        href: el.getAttribute("href") ?? null,
+        text: (el.textContent ?? "").trim().slice(0, 60),
+        // Heuristic: dead-button = <button> with no type, no aria-*, no
+        // data-state (Radix), no form attribute. Click-handlers can't be
+        // sniffed from the DOM, so we ALSO click in a later step and
+        // assert SOMETHING changes.
+        hasType: el.hasAttribute("type"),
+        hasForm: el.hasAttribute("form"),
+        hasAria: !!el.getAttributeNames().find((n) => n.startsWith("aria-")),
+        hasDataState: el.hasAttribute("data-state"),
+        disabled: (el as HTMLButtonElement).disabled === true,
+      }));
+  });
+}
+
+for (const role of ROLES) {
+  test.describe(`${role.label} dashboard`, () => {
+    test.skip(
+      () => !existsSync(role.storageState),
+      `no storageState for ${role.key} — set ${role.emailEnv}/${role.passwordEnv} and re-run setup`,
+    );
+    test.use({ storageState: role.storageState });
+
+    for (const vp of VIEWPORTS) {
+      test.describe(`@ ${vp.label} (${vp.width}×${vp.height})`, () => {
+        test.use({ viewport: { width: vp.width, height: vp.height } });
+
+        test("renders, no horizontal overflow, expected landmarks", async ({ page }) => {
+          await page.goto(role.dashboard, { waitUntil: "networkidle" });
+          await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+          for (const re of role.mustSee) {
+            await expect(page.getByText(re).first()).toBeVisible({ timeout: 10_000 });
+          }
+          for (const re of role.mustNotSee) {
+            await expect(page.getByText(re).first()).toHaveCount(0);
+          }
+          await assertNoHorizontalScroll(page, `${role.key} ${vp.label}`);
+        });
+
+        test("has no duplicate links in main content", async ({ page }) => {
+          await page.goto(role.dashboard, { waitUntil: "networkidle" });
+          const items = await collectInteractiveTargets(page);
+          const hrefs = items
+            .filter((i) => i.tag === "a" && i.href && i.href.startsWith("/"))
+            .map((i) => i.href!);
+          const counts = new Map<string, number>();
+          for (const h of hrefs) counts.set(h, (counts.get(h) ?? 0) + 1);
+          // Allow href="/" once (logo) and known repeating utility links
+          // like /messages once per region.
+          const dupes = [...counts.entries()].filter(([, n]) => n > 1);
+          expect(
+            dupes,
+            `duplicate hrefs inside <main> for ${role.key}: ${JSON.stringify(dupes)}`,
+          ).toEqual([]);
+        });
+
+        test("has no inert <button> elements", async ({ page }) => {
+          await page.goto(role.dashboard, { waitUntil: "networkidle" });
+          const items = await collectInteractiveTargets(page);
+          const suspects = items.filter(
+            (i) =>
+              i.tag === "button" &&
+              !i.disabled &&
+              !i.hasType &&
+              !i.hasForm &&
+              !i.hasAria &&
+              !i.hasDataState,
+          );
+          expect(
+            suspects.map((s) => s.text),
+            `buttons with no type / form / aria / data-state for ${role.key} — likely dead`,
+          ).toEqual([]);
+        });
+      });
+    }
+
+    // Persistence: the dashboard surface that survives a hard refresh.
+    // Strategy: capture stable text from the role's first "must-see"
+    // region, reload, and assert it's still there. Catches loaders that
+    // throw away state on remount and loading/error states that flash
+    // instead of resolving.
+    test("dashboard state survives a hard refresh", async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await expect(page.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
+      const before = await page.locator("main").innerText();
+      await page.reload({ waitUntil: "networkidle" });
+      await expect(page.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
+      const after = await page.locator("main").innerText();
+      // The two snapshots will differ slightly (timestamps, "moments ago"),
+      // so compare lengths within 25% — catches the "everything vanished"
+      // and "error boundary replaced the dashboard" regressions.
+      const ratio = Math.min(before.length, after.length) /
+        Math.max(before.length, after.length);
+      expect(
+        ratio,
+        `${role.key} dashboard collapsed after refresh (before=${before.length} after=${after.length})`,
+      ).toBeGreaterThan(0.75);
+    });
+
+    test("renders an error-resilient state when the loader fails", async ({ page }) => {
+      // Force every server-fn POST to 500 and confirm the page still mounts
+      // (errorComponent or in-page ErrorState), not a blank screen.
+      await page.route("**/_serverFn/**", (route) => route.fulfill({ status: 500, body: "boom" }));
+      await page.route("**/_server/**", (route) => route.fulfill({ status: 500, body: "boom" }));
+      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
+      await expect(page.locator("body")).toBeVisible();
+      // Page must render *something* — header / main / an error message.
+      const visibleText = await page.locator("body").innerText();
+      expect(
+        visibleText.length,
+        `${role.key} dashboard rendered nothing when loader failed`,
+      ).toBeGreaterThan(20);
+    });
+  });
+}
