@@ -354,7 +354,7 @@ function FounderMessage() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover opacity-10"
       />
-      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-16 md:grid-cols-[5fr_6fr] md:gap-20 md:py-24">
+      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-16 md:grid-cols-[5fr_6fr] md:gap-20 md:py-20">
         <div className="relative">
           <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5">
             <motion.img
