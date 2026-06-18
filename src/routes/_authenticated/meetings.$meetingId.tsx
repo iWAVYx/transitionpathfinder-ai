@@ -47,6 +47,12 @@ function MeetingDetailPage() {
   const setStatus = useServerFn(setActionStatus);
   const fetchStudent = useServerFn(getStudent);
   const [pulling, setPulling] = useState(false);
+  const listTpl = useServerFn(listMeetingTemplates);
+  const applyTpl = useServerFn(applyMeetingTemplate);
+  const toggleAg = useServerFn(setAgendaItemCompleted);
+  const removeAg = useServerFn(deleteAgendaItem);
+  const [templates, setTemplates] = useState<MeetingTemplate[]>([]);
+  const [applying, setApplying] = useState(false);
 
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
@@ -70,6 +76,9 @@ function MeetingDetailPage() {
 
   useEffect(() => {
     reload();
+    listTpl()
+      .then((r) => setTemplates(r.templates))
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingId]);
 
