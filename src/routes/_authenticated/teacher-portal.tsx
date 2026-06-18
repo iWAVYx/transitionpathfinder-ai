@@ -44,9 +44,9 @@ function TeacherPortalPage() {
     <RoleGuard path="/teacher-portal" allow={["educator", "admin"]}>
       <SiteShell>
         <PageContainer>
-          <Breadcrumbs items={[{ label: "Teacher Portal" }]} />
+          <Breadcrumbs trail={[{ label: "Teacher Portal" }]} />
           <PageHeader
-            icon={GraduationCap}
+            eyebrow="Educator"
             title="Teacher Portal"
             description="Upcoming transition milestones, goal target dates, and Connecticut compliance reminders for your caseload."
           />
@@ -109,26 +109,28 @@ function PortalBody() {
     <div className="space-y-6 sm:space-y-8">
       <StatGrid>
         <StatCard
-          icon={GraduationCap}
+          icon={<GraduationCap className="h-4 w-4" />}
           label="Students on caseload"
           value={data.students.length}
         />
         <StatCard
-          icon={CalendarClock}
+          icon={<CalendarClock className="h-4 w-4" />}
           label="Upcoming meetings (next 90d)"
           value={data.upcomingMeetings.length}
         />
         <StatCard
-          icon={Target}
+          icon={<Target className="h-4 w-4" />}
           label="Goals due / overdue"
           value={data.upcomingGoals.length}
           hint={overdueGoals > 0 ? `${overdueGoals} overdue` : undefined}
+          tone={overdueGoals > 0 ? "warn" : "default"}
         />
         <StatCard
-          icon={ShieldAlert}
+          icon={<ShieldAlert className="h-4 w-4" />}
           label="Compliance reminders"
           value={dueReminders + overdueReminders}
           hint={overdueReminders > 0 ? `${overdueReminders} overdue` : undefined}
+          tone={overdueReminders > 0 ? "danger" : "default"}
         />
       </StatGrid>
 
