@@ -487,12 +487,41 @@ function WaitlistPage() {
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="6-8">6th – 8th (BridgeForward · high school choice)</SelectItem>
                         <SelectItem value="9-10">9th – 10th (Launch / Explore)</SelectItem>
                         <SelectItem value="11-12">11th – 12th (Plan / Execute)</SelectItem>
                         <SelectItem value="post-secondary">Post-secondary (18–21)</SelectItem>
                         <SelectItem value="not-applicable">Not applicable</SelectItem>
                       </SelectContent>
                     </Select>
+                  </Field>
+                )}
+
+                {current.key === "educator" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="School (optional)">
+                      <Input {...form.register("school_name")} placeholder="e.g. Hartford Public HS" maxLength={200} />
+                    </Field>
+                    <Field label="District (optional)">
+                      <Input {...form.register("district_name")} placeholder="e.g. Hartford Public Schools" maxLength={200} />
+                    </Field>
+                  </div>
+                )}
+
+                {current.key === "district" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="District">
+                      <Input {...form.register("district_name")} placeholder="District name" maxLength={200} />
+                    </Field>
+                    <Field label="School (if just one building)">
+                      <Input {...form.register("school_name")} placeholder="Leave blank for district-wide" maxLength={200} />
+                    </Field>
+                  </div>
+                )}
+
+                {current.key === "partner" && (
+                  <Field label="Organization">
+                    <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
                   </Field>
                 )}
 
