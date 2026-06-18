@@ -7,6 +7,8 @@ import {
   ROUTE_AUDIENCES,
   audiencesForRoles,
   fallbackPathFor,
+  labelForAudiences,
+  labelForDestination,
   type RoleAudience,
 } from "@/lib/role-policy";
 
