@@ -225,28 +225,141 @@ function MeetingDetailPage() {
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           {/* Agenda */}
           <div className="lg:col-span-2 rounded-2xl border bg-card p-5 shadow-soft">
-            <header className="flex items-center justify-between">
+            <header className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 font-display text-lg">
                 <ClipboardList className="h-4 w-4 text-primary" />
-                Agenda
+                Agenda & checklist
               </h2>
-              <AddInline
-                label="Add item"
-                placeholder="Agenda item"
-                onAdd={async (v) => {
-                  await addAg({ data: { meeting_id: meeting.id, title: v } });
-                  reload();
-                }}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                {templates.length > 0 ? (
+                  <div className="flex items-center gap-1">
+                    <select
+                      aria-label="Apply template"
+                      defaultValue=""
+                      disabled={applying}
+                      onChange={async (e) => {
+                        const tplId = e.target.value;
+                        e.currentTarget.value = "";
+                        if (!tplId) return;
+                        setApplying(true);
+                        try {
+                          const r = await applyTpl({
+                            data: { meeting_id: meeting.id, template_id: tplId },
+                          });
+                          toast.success(
+                            `Added ${r.inserted} item${r.inserted === 1 ? "" : "s"}` +
+                              (r.goalsAdded ? ` · ${r.goalsAdded} goal review${r.goalsAdded === 1 ? "" : "s"}` : "") +
+                              (r.complianceAdded ? ` · ${r.complianceAdded} compliance` : ""),
+                          );
+                          await reload();
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Couldn't apply template.");
+                        } finally {
+                          setApplying(false);
+                        }
+                      }}
+                      className="rounded-md border bg-background px-2 py-1.5 text-xs"
+                    >
+                      <option value="">Apply template…</option>
+                      {templates.map((t) => (
+                        <option key={t.id} value={t.id}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <Link
+                    to="/meeting-templates"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Create templates →
+                  </Link>
+                )}
+                <AddInline
+                  label="Add item"
+                  placeholder="Agenda item"
+                  onAdd={async (v) => {
+                    await addAg({ data: { meeting_id: meeting.id, title: v } });
+                    reload();
+                  }}
+                />
+              </div>
             </header>
             <ol className="mt-4 space-y-2">
               {agenda.map((a, i) => (
-                <li key={a.id} className="rounded-xl border bg-background p-3 text-sm">
-                  <span className="text-muted-foreground">{i + 1}.</span> {a.title}
+                <li
+                  key={a.id}
+                  className={cn(
+                    "rounded-xl border bg-background p-3 text-sm",
+                    a.completed && "opacity-60",
+                  )}
+                >
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={a.completed}
+                      aria-label={`Mark "${a.title}" complete`}
+                      onChange={async (e) => {
+                        const next = e.target.checked;
+                        setAgenda(agenda.map((x) => (x.id === a.id ? { ...x, completed: next } : x)));
+                        try {
+                          await toggleAg({ data: { id: a.id, completed: next } });
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Couldn't update.");
+                        }
+                      }}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-input"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className={cn("font-medium", a.completed && "line-through")}>
+                        <span className="text-muted-foreground">{i + 1}.</span> {a.title}
+                      </p>
+                      {a.notes ? (
+                        <p className="mt-0.5 text-xs text-muted-foreground">{a.notes}</p>
+                      ) : null}
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {a.linked_goal_id ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                            <Target className="h-3 w-3" /> Goal
+                          </span>
+                        ) : null}
+                        {a.linked_compliance_key ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-900">
+                            <ShieldAlert className="h-3 w-3" /> Compliance
+                          </span>
+                        ) : null}
+                        {a.template_id ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                            From template
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="Remove item"
+                      onClick={async () => {
+                        if (!confirm("Remove this agenda item?")) return;
+                        try {
+                          await removeAg({ data: { id: a.id } });
+                          reload();
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Couldn't remove.");
+                        }
+                      }}
+                      className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted print:hidden"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </li>
               ))}
-              {agenda.length === 0 && <p className="text-sm text-muted-foreground">No agenda yet.</p>}
+              {agenda.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No agenda yet. Apply a template to seed agenda items and pull in this student's open transition goals plus due compliance milestones.
+                </p>
+              )}
             </ol>
+
 
             <h3 className="mt-8 flex items-center gap-2 font-display text-base">
               <Sparkles className="h-4 w-4 text-primary" />
