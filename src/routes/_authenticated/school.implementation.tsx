@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, TrendingUp, Target, FileText, ClipboardList } from "lucide-react";
@@ -8,7 +9,7 @@ import { getSchoolReadiness, type SchoolReadiness } from "@/lib/school-admin.fun
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
   head: () => ({ meta: [{ title: "Implementation — TransitionForward" }] }),
-  component: SchoolImplementationPage,
+  component: withRoleGuard(["school_admin", "admin"], SchoolImplementationPage),
 });
 
 function SchoolImplementationPage() {

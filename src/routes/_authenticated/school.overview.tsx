@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight } from "lucide-react";
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
@@ -12,7 +13,7 @@ import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
-  component: SchoolOverviewPage,
+  component: withRoleGuard(["school_admin", "admin"], SchoolOverviewPage),
 });
 
 function SchoolOverviewPage() {

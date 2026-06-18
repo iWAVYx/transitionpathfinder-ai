@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -45,7 +46,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
-  component: StudentDetailPage,
+  component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
 
 async function extractPdfText(file: File): Promise<string> {

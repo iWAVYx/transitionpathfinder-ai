@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -28,7 +29,7 @@ import {
 import { logDocumentView } from "@/lib/documents.functions";
 
 export const Route = createFileRoute("/_authenticated/documents/$documentId/review")({
-  component: ReviewPage,
+  component: withRoleGuard(["family", "educator", "admin"], ReviewPage),
 });
 
 const SECTION_LABELS: Record<ExtractionSectionKey, { label: string; hint: string }> = {

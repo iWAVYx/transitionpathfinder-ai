@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -18,7 +19,7 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/district/schools")({
   head: () => ({ meta: [{ title: "District Schools — TransitionForward" }] }),
-  component: DistrictSchoolsPage,
+  component: withRoleGuard(["district_admin", "admin"], DistrictSchoolsPage),
 });
 
 function DistrictSchoolsPage() {

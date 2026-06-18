@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/meetings/$meetingId")({
   head: () => ({ meta: [{ title: "Meeting Prep — TransitionForward" }] }),
-  component: MeetingDetailPage,
+  component: withRoleGuard(["family", "educator", "admin"], MeetingDetailPage),
 });
 
 function MeetingDetailPage() {

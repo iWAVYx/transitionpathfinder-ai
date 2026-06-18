@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import {
   School,
   Users,
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/district/overview")({
   head: () => ({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),
-  component: DistrictOverviewPage,
+  component: withRoleGuard(["district_admin", "admin"], DistrictOverviewPage),
 });
 
 function DistrictOverviewPage() {

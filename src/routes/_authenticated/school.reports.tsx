@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { FileText, ExternalLink, Loader2 } from "lucide-react";
@@ -9,7 +10,7 @@ import { listSchoolReports, type SchoolReportRow } from "@/lib/school-admin.func
 
 export const Route = createFileRoute("/_authenticated/school/reports")({
   head: () => ({ meta: [{ title: "School Reports — TransitionForward" }] }),
-  component: SchoolReportsPage,
+  component: withRoleGuard(["school_admin", "admin"], SchoolReportsPage),
 });
 
 function SchoolReportsPage() {
