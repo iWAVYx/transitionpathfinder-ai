@@ -825,7 +825,7 @@ function JourneyPath() {
   const pathLength = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white sm:py-24">
+    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white md:py-20">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
 
