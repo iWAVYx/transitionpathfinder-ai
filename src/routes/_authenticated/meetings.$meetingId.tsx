@@ -3,7 +3,14 @@ import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Printer, Sparkles, CheckSquare, ClipboardList, MessageSquare, Wand2 } from "lucide-react";
+import { Plus, Printer, Sparkles, CheckSquare, ClipboardList, MessageSquare, Wand2, Target, ShieldAlert, Trash2 } from "lucide-react";
+import {
+  listMeetingTemplates,
+  applyMeetingTemplate,
+  setAgendaItemCompleted,
+  deleteAgendaItem,
+  type MeetingTemplate,
+} from "@/lib/meeting-templates.functions";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
