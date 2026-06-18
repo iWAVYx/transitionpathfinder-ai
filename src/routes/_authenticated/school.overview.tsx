@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
-import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight } from "lucide-react";
+import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight, ShieldAlert } from "lucide-react";
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,9 @@ function SchoolOverviewPage() {
                 </Button>
                 <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                   <Link to="/school/reports"><FileText className="h-4 w-4" /> View Reports</Link>
+                </Button>
+                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                  <Link to="/teacher-portal"><ShieldAlert className="h-4 w-4" /> Compliance & Milestones</Link>
                 </Button>
                 <Button asChild size="sm" className="w-full sm:w-auto">
                   <Link to="/school/implementation">Implementation <ArrowRight className="h-4 w-4" /></Link>
