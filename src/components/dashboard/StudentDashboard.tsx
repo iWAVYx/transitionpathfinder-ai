@@ -10,6 +10,10 @@ import {
   FileText,
   GraduationCap,
   Mail,
+  Compass,
+  MessageCircle,
+  Bookmark,
+  Mic,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
