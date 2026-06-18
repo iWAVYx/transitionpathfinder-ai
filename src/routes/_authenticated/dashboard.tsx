@@ -164,11 +164,13 @@ function DashboardPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [snap, setSnap] = useState<DashboardSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
 
   const reload = useCallback(
     async (sid?: string | null) => {
       setLoading(true);
+      setLoadError(null);
       try {
         const list = await fetchStudents();
         const studentList = list.students.map((s) => ({
@@ -181,6 +183,8 @@ function DashboardPage() {
         setSelectedId(id);
         const data = await fetchSnapshot({ data: id ? { student_id: id } : {} });
         setSnap(data);
+      } catch (err) {
+        setLoadError(err instanceof Error ? err.message : "Could not load your dashboard.");
       } finally {
         setLoading(false);
       }
