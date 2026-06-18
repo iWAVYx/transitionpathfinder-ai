@@ -343,6 +343,19 @@ function DashboardPage() {
     );
   }
 
+  if (loadError && !snap) {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+          <AlertCircle className="mx-auto h-6 w-6 text-destructive" />
+          <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">We couldn't load your dashboard</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <Button onClick={() => reload()} className="mt-5">Try again</Button>
+        </div>
+      </SiteShell>
+    );
+  }
+
   if (loading || !snap) {
     return (
       <SiteShell>
