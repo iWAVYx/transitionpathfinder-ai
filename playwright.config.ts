@@ -38,17 +38,32 @@ export default defineConfig({
     {
       name: "setup",
       testMatch: /auth\.setup\.ts/,
+      testIgnore: [/auth-roles\.setup\.ts/],
     },
     {
       name: "anon",
       use: { baseURL, trace: "retain-on-failure" },
-      testIgnore: [/auth\.setup\.ts/, /\.signedin\.spec\.ts$/],
+      testIgnore: [/auth(-roles)?\.setup\.ts/, /\.signedin\.spec\.ts$/],
     },
     {
       name: "authed",
       use: { baseURL, trace: "retain-on-failure", storageState: STORAGE_STATE },
       testMatch: /\.signedin\.spec\.ts$/,
+      testIgnore: [/dashboard-regression\.signedin\.spec\.ts$/],
       dependencies: ["setup"],
+    },
+    // Per-role dashboard regression. Storage state is selected inside the
+    // spec via test.use({ storageState }) so a single project handles all
+    // seven roles; missing-credential roles auto-skip.
+    {
+      name: "dashboard-setup",
+      testMatch: /auth-roles\.setup\.ts/,
+    },
+    {
+      name: "dashboard-regression",
+      use: { baseURL, trace: "retain-on-failure" },
+      testMatch: /dashboard-regression\.signedin\.spec\.ts$/,
+      dependencies: ["dashboard-setup"],
     },
   ],
   webServer: useExternal
