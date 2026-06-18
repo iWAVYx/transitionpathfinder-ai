@@ -6,14 +6,14 @@ import type { RoleAudience } from "@/lib/role-policy";
  * createFileRoute for routes not already covered by ROUTE_AUDIENCES
  * (e.g. dynamic-segment children of guarded parents).
  */
-export function withRoleGuard<P extends object>(
+export function withRoleGuard(
   allow: RoleAudience[],
-  Component: React.ComponentType<P>,
+  Component: () => React.ReactNode,
   path = "__guarded__",
-): React.ComponentType<P> {
-  const Guarded = (props: P) => (
+): () => React.ReactElement {
+  const Guarded = () => (
     <RoleGuard path={path} allow={allow}>
-      <Component {...props} />
+      <Component />
     </RoleGuard>
   );
   Guarded.displayName = `withRoleGuard(${Component.displayName ?? Component.name ?? "Component"})`;
