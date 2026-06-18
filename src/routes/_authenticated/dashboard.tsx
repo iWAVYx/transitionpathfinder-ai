@@ -796,10 +796,32 @@ function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-10 mb-12 grid gap-4 sm:grid-cols-3">
+          <div className="mt-10 mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <QuickLink to="/pathway" icon={<Sparkles className="h-5 w-5" />} title="Pathway tool" body="Generate or update the report." />
             <QuickLink to="/ppt-prep" icon={<ClipboardList className="h-5 w-5" />} title="PPT prep" body="Calm one-page agenda + questions." />
             <QuickLink to="/goals" icon={<Target className="h-5 w-5" />} title="Goals" body="Track progress over time." />
+            {s.grade_band === "6-8" ? (
+              <QuickLink
+                to="/bridgeforward"
+                icon={<GraduationCap className="h-5 w-5" />}
+                title="BridgeForward"
+                body="Plan the move from middle to high school."
+              />
+            ) : s.grade_band === "9-10" || s.grade_band === "11-12" ? (
+              <QuickLink
+                to="/opportunities"
+                icon={<GraduationCap className="h-5 w-5" />}
+                title="Opportunities"
+                body="Internships, jobs, and partner programs."
+              />
+            ) : (
+              <QuickLink
+                to="/resources"
+                icon={<GraduationCap className="h-5 w-5" />}
+                title="Resources"
+                body="Curated supports for your family."
+              />
+            )}
           </div>
         </section>
       )}
