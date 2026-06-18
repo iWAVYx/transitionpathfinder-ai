@@ -9,11 +9,9 @@ import {
   AnimatePresence,
   type MotionValue,
 } from "motion/react";
-import { ArrowRight, MapPin, Quote } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
-import { HeroCTAs } from "@/components/site/HeroCTAs";
-import { cn } from "@/lib/utils";
 
 // Imagery — reused project assets, cropped via aspect wrappers per project rules.
 import heroImg from "@/assets/about-cinematic.jpg";
@@ -57,53 +55,6 @@ export const Route = createFileRoute("/about")({
 /*  Intro loader                                                              */
 /* -------------------------------------------------------------------------- */
 
-function Intro({ onDone }: { onDone: () => void }) {
-  const reduce = useReducedMotion();
-  useEffect(() => {
-    if (reduce) {
-      onDone();
-      return;
-    }
-    const t = setTimeout(onDone, 1500);
-    return () => clearTimeout(t);
-  }, [reduce, onDone]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7, ease: [0.22, 0.61, 0.36, 1] }}
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-[#0b0a09]"
-    >
-      <div className="flex flex-col items-center gap-5 text-center">
-        <motion.span
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-[10px] uppercase tracking-[0.4em] text-white/50"
-        >
-          Loading the pathway
-        </motion.span>
-        <div className="relative h-px w-56 overflow-hidden bg-white/10">
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: "100%" }}
-            transition={{ duration: 1.3, ease: "easeInOut" }}
-            className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white to-transparent"
-          />
-        </div>
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.7 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="font-serif text-2xl italic text-white/80"
-        >
-          Transition Forward
-        </motion.span>
-      </div>
-    </motion.div>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Hero — full-screen cinematic                                              */
@@ -354,7 +305,7 @@ function FounderMessage() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover opacity-10"
       />
-      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-16 md:grid-cols-[5fr_6fr] md:gap-20 md:py-24">
+      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-16 md:grid-cols-[5fr_6fr] md:gap-20 md:py-20">
         <div className="relative">
           <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5">
             <motion.img
@@ -404,403 +355,11 @@ function FounderMessage() {
 /*  Image mosaic with captions + quote overlay                                */
 /* -------------------------------------------------------------------------- */
 
-type Tile = {
-  src: string;
-  caption: string;
-  alt: string;
-  span: string;
-  offset?: string;
-  ratio?: string;
-};
-
-const TILES: Tile[] = [
-  {
-    src: studentCenter,
-    caption: "New Haven, CT",
-    alt: "Student support center in New Haven, Connecticut, where the founder began teaching special education.",
-    span: "md:col-span-5 md:row-span-2",
-    ratio: "aspect-[4/5]",
-  },
-  {
-    src: classroomImg,
-    caption: "Hamden, CT",
-    alt: "Special education classroom in Hamden, Connecticut, where the founder taught across grade bands.",
-    span: "md:col-span-4",
-    offset: "md:mt-12",
-    ratio: "aspect-[4/3]",
-  },
-  {
-    src: studentPhoto,
-    caption: "Student voice",
-    alt: "A young student at the center of their own plan, representing the student voice that drives every pathway.",
-    span: "md:col-span-3",
-    ratio: "aspect-square",
-  },
-  {
-    src: paperworkImg,
-    caption: "Paperwork to possibility",
-    alt: "IEP paperwork and transition documents spread across a desk — the binder that inspired building a clearer path.",
-    span: "md:col-span-4",
-    offset: "md:-mt-8",
-    ratio: "aspect-[4/3]",
-  },
-  {
-    src: familyImg,
-    caption: "Family meeting prep",
-    alt: "A family preparing together for a transition meeting — the people behind the paperwork who need a plan.",
-    span: "md:col-span-3",
-    ratio: "aspect-[4/5]",
-  },
-];
-
-function MosaicStory() {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-  const progress = useSpring(scrollYProgress, { damping: 32, stiffness: 70, mass: 0.7 });
-
-  // Camera "walks up" the staircase — translates Z forward and tilts down.
-  // Reduced amplitude so each (taller) door stays framed in the viewport longer.
-  const camZ = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, 1900]);
-  const camY = useTransform(progress, [0, 1], reduce ? [0, 0] : [0, -640]);
-  const camRotX = useTransform(progress, [0, 1], reduce ? [0, 0] : [3, 11]);
-
-  // Visible scroll progress bar (vertical, right side)
-  const barScaleY = useTransform(progress, [0, 1], [0, 1]);
-
-  // Jump-to-landing helper. Each landing centers in its scroll slot.
-  const scrollToLanding = (i: number) => {
-    const el = ref.current;
-    if (!el) return;
-    const total = TILES.length;
-    // Aim near the midpoint of each landing's slot so the door is fully open
-    const fraction = (i + 0.55) / total;
-    const scrollable = el.offsetHeight - window.innerHeight;
-    const targetY = el.offsetTop + scrollable * fraction;
-    if (window.__lenis) {
-      window.__lenis.scrollTo(targetY, { duration: 1.4 });
-    } else {
-      window.scrollTo({ top: targetY, behavior: "smooth" });
-    }
-  };
-
-  // Track the active landing for the indicator
-  const [active, setActive] = useState(0);
-  useEffect(() => {
-    const unsub = progress.on("change", (v) => {
-      const idx = Math.min(TILES.length - 1, Math.max(0, Math.floor(v * TILES.length)));
-      setActive(idx);
-    });
-    return () => unsub();
-  }, [progress]);
-
-  return (
-    <section
-      ref={ref}
-      className="relative bg-[#0b0a09] text-white"
-      // Longer scroll window per landing so each door stays open and on-screen long
-      // enough to read its caption before the camera moves on.
-      style={{ height: reduce ? "auto" : `${TILES.length * 110 + 80}vh` }}
-    >
-
-      <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
-        {/* Ambient atmosphere — soft light spill from the top of the stairwell */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,220,170,0.18),transparent_60%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_100%,rgba(0,0,0,0.6),transparent_55%)]" />
-
-        {/* Heading */}
-        <div className="relative z-20 mx-auto flex w-full max-w-[1500px] flex-col gap-3 px-6 pt-16 md:flex-row md:items-end md:justify-between md:pt-20">
-          <div>
-            <div className="mb-3 text-[10px] uppercase tracking-[0.4em] text-white/50">
-              Field notes
-            </div>
-            <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1]">
-              Step <span className="italic text-white/70">through</span> the doors.
-            </h2>
-          </div>
-          <p className="max-w-sm text-sm text-white/60">
-            Each landing is a district, a meeting, a moment — open the door and walk in.
-          </p>
-        </div>
-
-        {/* 3D stairwell stage */}
-        <div
-          className="relative flex-1"
-          style={{ perspective: "1600px", perspectiveOrigin: "50% 38%" }}
-        >
-          <motion.div
-            className="absolute inset-0"
-            style={{
-              transformStyle: "preserve-3d",
-              rotateX: camRotX,
-              y: camY,
-              z: camZ,
-            }}
-          >
-            {TILES.map((t, i) => (
-              <Stair key={i} tile={t} index={i} total={TILES.length} progress={progress} reduce={!!reduce} />
-            ))}
-          </motion.div>
-
-          {/* Foreground vignette to sell the "stairwell" depth */}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,#0b0a09_100%)]" />
-        </div>
-
-        {/* Scroll progress + landing jump rail (right side) */}
-        <div className="pointer-events-none absolute right-4 top-1/2 z-30 hidden -translate-y-1/2 md:flex md:flex-col md:items-center md:gap-4">
-          <div className="relative h-64 w-[3px] overflow-hidden rounded-full bg-white/10">
-            <motion.div
-              className="absolute inset-x-0 top-0 origin-top bg-gradient-to-b from-amber-200 via-amber-300/80 to-amber-500/60"
-              style={{ height: "100%", scaleY: barScaleY }}
-            />
-          </div>
-          <ul className="pointer-events-auto flex flex-col gap-3">
-            {TILES.map((t, i) => {
-              const isActive = i === active;
-              return (
-                <li key={i}>
-                  <button
-                    type="button"
-                    onClick={() => scrollToLanding(i)}
-                    aria-label={`Jump to landing ${i + 1}: ${t.alt}`}
-                    className={cn(
-                      "group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] transition-colors",
-                      isActive ? "text-amber-200" : "text-white/40 hover:text-white/80",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "h-2.5 w-2.5 rounded-full border transition-all",
-                        isActive
-                          ? "scale-125 border-amber-200 bg-amber-200 shadow-[0_0_10px_rgba(255,210,150,0.8)]"
-                          : "border-white/40 bg-transparent group-hover:border-white/80",
-                      )}
-                    />
-                    <span className="hidden lg:inline">0{i + 1}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        {/* Mobile jump dots (bottom) */}
-        <div className="pointer-events-auto absolute inset-x-0 bottom-4 z-30 flex justify-center gap-2 md:hidden">
-          {TILES.map((t, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => scrollToLanding(i)}
-              aria-label={`Jump to landing ${i + 1}`}
-              className={cn(
-                "h-2 w-2 rounded-full transition-all",
-                i === active ? "w-6 bg-amber-200" : "bg-white/30",
-              )}
-            />
-          ))}
-        </div>
-
-        {/* Quote overlay — appears at the top of the climb */}
-        <motion.blockquote
-          style={{ opacity: useTransform(progress, [0.82, 1], [0, 1]) }}
-          className="pointer-events-none absolute inset-x-0 bottom-16 z-20 mx-auto max-w-4xl px-6 text-center md:bottom-10"
-        >
-          <Quote className="mx-auto mb-3 h-6 w-6 text-white/40" />
-          <p className="font-serif text-[clamp(1.1rem,2.2vw,1.8rem)] font-light leading-[1.25]">
-            "Transition Forward was built from what I kept seeing
-            <span className="italic"> between the paperwork and the people </span>
-            who needed it most."
-          </p>
-          <div className="mt-3 text-[10px] uppercase tracking-[0.4em] text-white/50">
-            — The Founder
-          </div>
-        </motion.blockquote>
-      </div>
-    </section>
-  );
-}
-
-function Stair({
-  tile,
-  index,
-  total,
-  progress,
-  reduce,
-}: {
-  tile: Tile;
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
-  reduce: boolean;
-}) {
-  // Each step sits deeper into Z and lower in Y — the staircase climbs away from camera.
-  const stepZ = -900 - index * 380;
-  const stepY = 80 + index * 160;
-  // Stagger alternating left/right landings so each door reads as its own room.
-  const stepX = index % 2 === 0 ? -300 : 300;
-
-  // Per-step scroll window — door opens quickly, then holds wide-open for the
-  // majority of its slot so the content behind it stays on-screen long enough to read.
-  const slot = 1 / total;
-  const start = index * slot;
-  const openAt = start + slot * 0.22;
-  const holdEnd = start + slot * 0.95;
-  const end = start + slot;
-  const doorOpen = useTransform(
-    progress,
-    [start, openAt, holdEnd, end],
-    reduce ? [0, 0, 0, 0] : [0, 105, 105, 105],
-  );
-  const labelOpacity = useTransform(progress, [start + slot * 0.08, openAt], [0, 1]);
-
-  // Door dimensions — taller and narrower, shaped like an actual interior door.
-  const DOOR_W = 360;
-  const DOOR_H = 720;
-
-  return (
-    <div
-      className="absolute left-1/2 top-1/2"
-      style={{
-        transform: `translate3d(${stepX - DOOR_W / 2}px, ${stepY - DOOR_H / 2}px, ${stepZ}px)`,
-        transformStyle: "preserve-3d",
-      }}
-    >
-      {/* Stair tread / landing — sized to the door's footprint */}
-      <div
-        className="absolute h-[90px] w-[820px] rounded-[6px] bg-gradient-to-b from-[#2a2520] to-[#0e0c0a] shadow-[0_40px_80px_rgba(0,0,0,0.7)]"
-        style={{
-          transform: `rotateX(90deg) translateX(${DOOR_W / 2 - 410}px) translateZ(-45px) translateY(${DOOR_H / 2 + 40}px)`,
-          transformOrigin: "center top",
-        }}
-      />
-
-      {/* Door frame — taller, narrower, door-shaped */}
-      <div
-        className="relative rounded-t-[140px] border border-white/10 bg-[#1a1612] p-[12px] shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
-        style={{ transformStyle: "preserve-3d", height: DOOR_H, width: DOOR_W }}
-      >
-        {/* Glow from behind the door */}
-        <div className="absolute inset-0 rounded-t-[140px] bg-[radial-gradient(ellipse_at_center,rgba(255,210,150,0.45),transparent_70%)] blur-lg" />
-
-        {/* The image inside the room — revealed when door swings open */}
-        <div className={cn("relative h-full w-full overflow-hidden rounded-t-[130px] rounded-b-[4px] bg-black")}>
-          <img
-            src={tile.src}
-            alt={tile.alt}
-            className="h-full w-full object-cover"
-            style={{ objectPosition: "center" }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <motion.figcaption
-            style={{ opacity: labelOpacity }}
-            className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap text-[11px] uppercase tracking-[0.3em] text-white/90"
-          >
-            <span className="h-px w-5 bg-white/70" />
-            {tile.caption}
-          </motion.figcaption>
-        </div>
-
-        {/* The swinging door panel — hinged on the left, opens outward toward the camera */}
-        <motion.div
-          style={{
-            rotateY: useTransform(doorOpen, (v) => -v),
-            transformOrigin: "left center",
-            transformStyle: "preserve-3d",
-          }}
-          className="absolute inset-[12px] rounded-t-[130px] rounded-b-[4px] bg-gradient-to-br from-[#3a2f25] via-[#231b14] to-[#120d09] shadow-[inset_0_0_50px_rgba(0,0,0,0.75)]"
-        >
-          {/* Door panels detail — three stacked recessed panels */}
-          <div className="absolute inset-5 rounded-t-[120px] rounded-b-[3px] border border-white/5">
-            <div className="absolute inset-x-3 top-3 h-[36%] rounded-t-[110px] border border-white/5" />
-            <div className="absolute inset-x-3 top-[42%] h-[24%] rounded-[3px] border border-white/5" />
-            <div className="absolute inset-x-3 bottom-3 h-[28%] rounded-[3px] border border-white/5" />
-          </div>
-          {/* Door handle */}
-          <div className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,210,150,0.7)]" />
-        </motion.div>
-      </div>
-
-      {/* Step number plaque */}
-      <div className="mt-4 text-center font-serif text-[11px] uppercase tracking-[0.4em] text-white/40">
-        Landing 0{index + 1}
-      </div>
-    </div>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Split-headline word sections                                              */
 /* -------------------------------------------------------------------------- */
 
-const SPLITS = [
-  {
-    a: "Paperwork",
-    b: "Possibility",
-    body: "Every IEP, evaluation, and transition page becomes one Pathway Report — clear, sharable, actionable.",
-  },
-  {
-    a: "Classroom",
-    b: "Systems",
-    body: "Lived district experience baked into the workflow. The tool doesn't fight the meeting — it leads it.",
-  },
-  {
-    a: "Student",
-    b: "Voice",
-    body: "Strengths and goals from the student themselves, not just the binder. The plan starts with them.",
-  },
-  {
-    a: "Plan",
-    b: "Action",
-    body: "Next steps with owners, dates, and partners — so the meeting becomes momentum.",
-  },
-];
-
-function SplitHeadlines() {
-  return (
-    <section className="bg-[#f4ede3] text-[#1c1814]">
-      <div className="mx-auto max-w-[1400px] divide-y divide-[#1c1814]/15 px-6">
-        {SPLITS.map((s, i) => (
-          <SplitRow key={i} {...s} index={i} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function SplitRow({ a, b, body, index }: { a: string; b: string; body: string; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const xA = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-6%", "6%"]);
-  const xB = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["6%", "-6%"]);
-
-  return (
-    <div ref={ref} className="grid items-center gap-6 py-10 md:grid-cols-[1fr_auto_1fr] md:gap-10 md:py-14">
-      <motion.div style={{ x: xA }} className="text-left">
-        <span className="text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
-          0{index + 1} · From
-        </span>
-        <div className="font-serif text-[clamp(2.4rem,8vw,7rem)] font-light leading-[0.9] tracking-tight">
-          {a}
-        </div>
-      </motion.div>
-      <div className="hidden max-w-xs text-center text-sm text-[#1c1814]/70 md:block">{body}</div>
-      <motion.div style={{ x: xB }} className="text-right">
-        <span className="text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">To</span>
-        <div className="font-serif text-[clamp(2.4rem,8vw,7rem)] font-light italic leading-[0.9] tracking-tight">
-          {b}
-        </div>
-      </motion.div>
-      <p className="text-sm text-[#1c1814]/70 md:hidden">{body}</p>
-    </div>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Journey timeline as a moving pathway                                       */
@@ -825,7 +384,7 @@ function JourneyPath() {
   const pathLength = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white sm:py-24">
+    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white md:py-20">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
 
@@ -1034,7 +593,7 @@ function ClosingCTA() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/55 to-[#0b0a09]" />
       </motion.div>
 
-      <div className="relative mx-auto flex min-h-[70svh] max-w-[1300px] flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="relative mx-auto flex min-h-[70svh] max-w-[1300px] flex-col items-center justify-center px-6 py-16 text-center md:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1060,30 +619,22 @@ function ClosingCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-20%" }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-12 w-full max-w-3xl"
+          className="mt-10 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:justify-center"
         >
-          <HeroCTAs align="center">
-            <Link to="/platform">
-              <Button size="lg" className="inline-flex w-full items-center justify-center gap-2">
-                Explore Transition Forward <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/waitlist">
-              <Button size="lg" variant="outline" className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10">
-                Join the Waitlist
-              </Button>
-            </Link>
-            <Link to="/partners">
-              <Button size="lg" variant="outline" className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10">
-                Partner With Us
-              </Button>
-            </Link>
-            <Link to="/demo">
-              <Button size="lg" variant="outline" className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10">
-                Request a Demo
-              </Button>
-            </Link>
-          </HeroCTAs>
+          <Link to="/platform" className="sm:flex-1">
+            <Button size="lg" className="inline-flex w-full items-center justify-center gap-2">
+              Explore Transition Forward <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link to="/waitlist" className="sm:flex-1">
+            <Button
+              size="lg"
+              variant="outline"
+              className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10"
+            >
+              Join the Waitlist
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>
@@ -1095,19 +646,17 @@ function ClosingCTA() {
 /* -------------------------------------------------------------------------- */
 
 function AboutPage() {
-  const [introDone, setIntroDone] = useState(false);
-  // touch unused collage import so it's tree-shaken cleanly without warning
+  // touch unused imports so they're tree-shaken cleanly without warning
   void collageImg;
+  void studentCenter;
+  void studentPhoto;
 
   return (
     <SiteShell>
-      <AnimatePresence>{!introDone && <Intro onDone={() => setIntroDone(true)} />}</AnimatePresence>
       <article className="bg-[#0b0a09]">
         <CinematicHero />
         <PinnedStory />
         <FounderMessage />
-        <MosaicStory />
-        <SplitHeadlines />
         <JourneyPath />
         <Transformation />
         <ClosingCTA />
