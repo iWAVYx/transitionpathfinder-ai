@@ -67,7 +67,6 @@ const NAV: NavItem[] = [
   { to: "/owner/organizations", label: "Organizations", icon: Building2, group: "Platform" },
   { to: "/owner/opportunities", label: "Opportunity Review", icon: Briefcase, group: "Platform" },
   { to: "/owner/partner-network", label: "Partner Network", icon: HeartHandshake, group: "Platform" },
-  { to: "/owner/partner-network-status", label: "Network Status", icon: Activity, group: "Platform" },
   { to: "/owner/import-audit", label: "CT Seed Import Audit", icon: History, group: "Platform" },
   { to: "/owner/users", label: "Users", icon: UserCog, group: "Platform" },
   { to: "/owner/admins", label: "Admin Users", icon: Users, group: "Settings" },
