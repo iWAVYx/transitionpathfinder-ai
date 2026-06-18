@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/district/overview")({
   head: () => ({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),
-  component: DistrictOverviewPage,
+  component: withRoleGuard(["district_admin", "admin"], DistrictOverviewPage),
 });
 
 function DistrictOverviewPage() {
