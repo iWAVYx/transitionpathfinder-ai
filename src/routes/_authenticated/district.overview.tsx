@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { withRoleGuard } from "@/components/withRoleGuard";
 import {
   School,
   Users,
