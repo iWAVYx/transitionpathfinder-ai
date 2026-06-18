@@ -93,8 +93,9 @@ function PartnerManagePage() {
       const w = await fetchWs({ data: { org_id: next } });
       setWs(w);
       setOrgId(w.selected_org?.id);
-    } catch {
+    } catch (e) {
       setWs(null);
+      toast.error(e instanceof Error ? e.message : "Could not load your partner workspace.");
     } finally {
       setLoading(false);
     }

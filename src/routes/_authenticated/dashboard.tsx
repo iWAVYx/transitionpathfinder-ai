@@ -164,11 +164,13 @@ function DashboardPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [snap, setSnap] = useState<DashboardSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
 
   const reload = useCallback(
     async (sid?: string | null) => {
       setLoading(true);
+      setLoadError(null);
       try {
         const list = await fetchStudents();
         const studentList = list.students.map((s) => ({
@@ -181,6 +183,8 @@ function DashboardPage() {
         setSelectedId(id);
         const data = await fetchSnapshot({ data: id ? { student_id: id } : {} });
         setSnap(data);
+      } catch (err) {
+        setLoadError(err instanceof Error ? err.message : "Could not load your dashboard.");
       } finally {
         setLoading(false);
       }
@@ -334,6 +338,19 @@ function DashboardPage() {
               Explore Demo Mode (read-only)
             </Link>
           </div>
+        </div>
+      </SiteShell>
+    );
+  }
+
+  if (loadError && !snap) {
+    return (
+      <SiteShell>
+        <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+          <AlertCircle className="mx-auto h-6 w-6 text-destructive" />
+          <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">We couldn't load your dashboard</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <Button onClick={() => reload()} className="mt-5">Try again</Button>
         </div>
       </SiteShell>
     );
