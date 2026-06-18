@@ -36,41 +36,64 @@ type NavItem = {
   group: string;
 };
 
+// Sections mirror the 10-section Admin Hub spec. Order matters — sidebar
+// renders groups in this declaration order, and "Overview" leads.
 const NAV: NavItem[] = [
+  // 1. Overview
   { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
-  { to: "/owner/health", label: "System Health", icon: Activity, group: "Overview" },
-  { to: "/owner/demo", label: "Demo Mode", icon: Activity, group: "Overview" },
-  { to: "/owner/testing", label: "Testing Runs & Scripts", icon: ClipboardCheck, group: "Validation" },
-  { to: "/owner/beta-testers", label: "Beta Testers", icon: Users, group: "Validation" },
-  { to: "/owner/feedback", label: "Feedback", icon: MessageSquareQuote, group: "Validation" },
-  { to: "/owner/issues", label: "Product Issues", icon: ClipboardList, group: "Validation" },
-  { to: "/owner/launch", label: "Launch Checklist", icon: ClipboardCheck, group: "Validation" },
-  { to: "/owner/outreach", label: "Pilot Outreach", icon: HeartHandshake, group: "Validation" },
-  { to: "/owner/pilot-packages", label: "Pilot Packages", icon: Briefcase, group: "Validation" },
-  { to: "/owner/pitch", label: "Pitch & Demo", icon: Megaphone, group: "Overview" },
   { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
+  { to: "/owner/activity", label: "Recent activity", icon: History, group: "Overview" },
 
-  { to: "/owner/activity", label: "Activity Logs", icon: History, group: "Overview" },
-  { to: "/owner/iep-audit", label: "IEP Signed-URL Audit", icon: Shield, group: "Overview" },
-  { to: "/owner/content", label: "Site Content", icon: FileText, group: "Content" },
-  { to: "/owner/media", label: "Media Library", icon: ImageIcon, group: "Content" },
-  { to: "/owner/blog", label: "Blog & News", icon: Newspaper, group: "Content" },
-  { to: "/owner/faqs", label: "FAQs", icon: HelpCircle, group: "Content" },
-  { to: "/owner/testimonials", label: "Testimonials", icon: MessageSquareQuote, group: "Content" },
-  { to: "/owner/resources", label: "Resources", icon: BookOpen, group: "Content" },
-  { to: "/owner/resource-sources", label: "Source Libraries", icon: BookOpen, group: "Content" },
-  { to: "/owner/resource-review", label: "Review Queue", icon: ClipboardCheck, group: "Content" },
-  { to: "/owner/waitlist", label: "Waitlist", icon: ClipboardList, group: "Leads" },
-  { to: "/owner/contacts", label: "Contact Forms", icon: Mail, group: "Leads" },
-  { to: "/owner/emails", label: "Email Monitor", icon: Mail, group: "Platform" },
-  { to: "/owner/broadcasts", label: "Broadcasts", icon: Megaphone, group: "Platform" },
-  { to: "/owner/organizations", label: "Organizations", icon: Building2, group: "Platform" },
-  { to: "/owner/opportunities", label: "Opportunity Review", icon: Briefcase, group: "Platform" },
-  { to: "/owner/partner-network", label: "Partner Network", icon: HeartHandshake, group: "Platform" },
-  { to: "/owner/import-audit", label: "CT Seed Import Audit", icon: History, group: "Platform" },
-  { to: "/owner/users", label: "Users", icon: UserCog, group: "Platform" },
-  { to: "/owner/admins", label: "Admin Users", icon: Users, group: "Settings" },
-  { to: "/owner/settings", label: "Site Settings", icon: Settings, group: "Settings" },
+  // 2. Access & Accounts
+  { to: "/owner/users", label: "Manage users", icon: UserCog, group: "Access & Accounts" },
+  { to: "/owner/admins", label: "Admin team", icon: Users, group: "Access & Accounts" },
+  { to: "/owner/waitlist", label: "Review waitlist", icon: ClipboardList, group: "Access & Accounts" },
+  { to: "/owner/contacts", label: "Contact requests", icon: Mail, group: "Access & Accounts" },
+
+  // 3. Organizations & Entitlements
+  { to: "/owner/organizations", label: "Manage organizations", icon: Building2, group: "Organizations" },
+  { to: "/owner/pilot-packages", label: "Pilot packages", icon: Briefcase, group: "Organizations" },
+
+  // 5. Content & Resources
+  { to: "/owner/content", label: "Site content", icon: FileText, group: "Content & Resources" },
+  { to: "/owner/media", label: "Media library", icon: ImageIcon, group: "Content & Resources" },
+  { to: "/owner/blog", label: "Blog & news", icon: Newspaper, group: "Content & Resources" },
+  { to: "/owner/faqs", label: "FAQs", icon: HelpCircle, group: "Content & Resources" },
+  { to: "/owner/testimonials", label: "Testimonials", icon: MessageSquareQuote, group: "Content & Resources" },
+  { to: "/owner/resources", label: "Resource library", icon: BookOpen, group: "Content & Resources" },
+  { to: "/owner/resource-sources", label: "Resource sources", icon: BookOpen, group: "Content & Resources" },
+  { to: "/owner/bridgeforward-sources", label: "BridgeForward sources", icon: BookOpen, group: "Content & Resources" },
+  { to: "/owner/resource-review", label: "Resource review queue", icon: ClipboardCheck, group: "Content & Resources" },
+  { to: "/owner/import-audit", label: "Import history", icon: History, group: "Content & Resources" },
+
+  // 6. Partners & Opportunities
+  { to: "/owner/partner-network", label: "Partner network", icon: HeartHandshake, group: "Partners & Opportunities" },
+  { to: "/owner/partner-submissions", label: "Partner requests", icon: ClipboardList, group: "Partners & Opportunities" },
+  { to: "/owner/opportunities", label: "Approve opportunities", icon: Briefcase, group: "Partners & Opportunities" },
+  { to: "/owner/outreach", label: "Outreach pipeline", icon: HeartHandshake, group: "Partners & Opportunities" },
+
+  // 7. PartnerForward Resource Manager
+  { to: "/owner/partnerforward-resources", label: "Incentives & supports", icon: Briefcase, group: "PartnerForward" },
+
+  // 8. Product Operations
+  { to: "/owner/feedback", label: "Feedback", icon: MessageSquareQuote, group: "Product Operations" },
+  { to: "/owner/issues", label: "Issue tracker", icon: ClipboardList, group: "Product Operations" },
+  { to: "/owner/beta-testers", label: "Beta testers", icon: Users, group: "Product Operations" },
+  { to: "/owner/testing", label: "QA test runs", icon: ClipboardCheck, group: "Product Operations" },
+
+  // 9. Launch & Pilot Readiness
+  { to: "/owner/launch", label: "Launch readiness", icon: ClipboardCheck, group: "Launch & Pilot" },
+  { to: "/owner/pitch", label: "Pitch deck", icon: Megaphone, group: "Launch & Pilot" },
+  { to: "/owner/demo", label: "Demo workspace", icon: Activity, group: "Launch & Pilot" },
+
+  // 10. System Health
+  { to: "/owner/health", label: "System health", icon: Activity, group: "System Health" },
+  { to: "/owner/emails", label: "Email delivery", icon: Mail, group: "System Health" },
+  { to: "/owner/broadcasts", label: "Broadcasts", icon: Megaphone, group: "System Health" },
+  { to: "/owner/iep-audit", label: "Document access audit", icon: Shield, group: "System Health" },
+
+  // Settings
+  { to: "/owner/settings", label: "Site settings", icon: Settings, group: "Settings" },
 ];
 
 export function OwnerShell({
