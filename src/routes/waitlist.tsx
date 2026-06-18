@@ -319,7 +319,30 @@ function WaitlistPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await submit({ data: { ...values, source: "waitlist-tiles" } });
+      const role = (selected ?? values.role) as RoleKey;
+      let interest_type = deriveInterestType(role);
+      // If a school-or-district submitter typed a district name (with no
+      // single school), treat it as district_pilot interest.
+      if (
+        role === "district" &&
+        (values.district_name?.trim()?.length ?? 0) > 0 &&
+        !(values.school_name?.trim()?.length ?? 0)
+      ) {
+        interest_type = "district_pilot";
+      }
+      await submit({
+        data: {
+          ...values,
+          source: "waitlist-tiles",
+          interest_type: interest_type as
+            | "family_early_access"
+            | "educator_access"
+            | "school_pilot"
+            | "district_pilot"
+            | "partner_interest"
+            | "demo_request",
+        },
+      });
       setDone(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
