@@ -185,6 +185,7 @@ export type Database = {
           last_reviewed_by: string | null
           notes: string
           purpose: string
+          readiness: string
           role_key: string
           role_label: string
           staged_items: string
@@ -199,6 +200,7 @@ export type Database = {
           last_reviewed_by?: string | null
           notes?: string
           purpose?: string
+          readiness?: string
           role_key: string
           role_label: string
           staged_items?: string
@@ -213,6 +215,7 @@ export type Database = {
           last_reviewed_by?: string | null
           notes?: string
           purpose?: string
+          readiness?: string
           role_key?: string
           role_label?: string
           staged_items?: string
