@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Search, Trash2, Mail, ExternalLink, X } from "lucide-react";
+import { Archive, Loader2, Mail, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,16 @@ import {
 } from "@/lib/owner/owner.functions";
 import { convertWaitlistToInvitation } from "@/lib/owner/waitlist-conversion.functions";
 
+const ROLE_TO_INVITE: Record<string, { role: string; type: string }> = {
+  parent: { role: "parent", type: "connect_to_student" },
+  family: { role: "parent", type: "connect_to_student" },
+  student: { role: "student", type: "connect_to_student" },
+  educator: { role: "educator", type: "join_school" },
+  administrator: { role: "school_admin", type: "join_school" },
+  district: { role: "district_admin", type: "join_district" },
+  partner: { role: "partner", type: "join_partner_org" },
+};
+
 export const Route = createFileRoute("/_authenticated/owner/waitlist")({
   head: () => ({ meta: [{ title: "Waitlist — Admin Hub" }] }),
   component: WaitlistPage,
@@ -46,6 +57,7 @@ function WaitlistPage() {
   const list = useServerFn(ownerListWaitlist);
   const update = useServerFn(ownerUpdateWaitlistEntry);
   const del = useServerFn(ownerDeleteWaitlistEntry);
+  const convert = useServerFn(convertWaitlistToInvitation);
 
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +65,8 @@ function WaitlistPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState<null | "archive" | "convert">(null);
 
   async function reload() {
     setLoading(true);
@@ -85,6 +99,40 @@ function WaitlistPage() {
       return hay.includes(q);
     });
   }, [entries, search, statusFilter, roleFilter]);
+
+  // Drop selections that no longer match filters
+  useEffect(() => {
+    setSelected((prev) => {
+      const visible = new Set(filtered.map((e) => e.id));
+      const next = new Set<string>();
+      prev.forEach((id) => visible.has(id) && next.add(id));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [filtered]);
+
+  const allVisibleSelected =
+    filtered.length > 0 && filtered.every((e) => selected.has(e.id));
+  const someVisibleSelected = filtered.some((e) => selected.has(e.id));
+
+  function toggleOne(id: string, checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+  function toggleAllVisible(checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked) filtered.forEach((e) => next.add(e.id));
+      else filtered.forEach((e) => next.delete(e.id));
+      return next;
+    });
+  }
+  function clearSelection() {
+    setSelected(new Set());
+  }
 
   function exportCSV() {
     const headers = [
@@ -139,6 +187,84 @@ function WaitlistPage() {
     }
   }
 
+  async function bulkArchive() {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    if (!confirm(`Archive ${ids.length} entr${ids.length === 1 ? "y" : "ies"}?`)) return;
+    setBulkBusy("archive");
+    const results = await Promise.allSettled(
+      ids.map((id) => update({ data: { id, status: "archived" } })),
+    );
+    const ok = results.filter((r) => r.status === "fulfilled").length;
+    const failed = results.length - ok;
+    if (ok) {
+      setEntries((prev) =>
+        prev.map((e) => (selected.has(e.id) ? { ...e, status: "archived" as WaitlistStatus } : e)),
+      );
+    }
+    clearSelection();
+    setBulkBusy(null);
+    if (failed === 0) toast.success(`Archived ${ok} ${ok === 1 ? "entry" : "entries"}.`);
+    else if (ok === 0) toast.error(`Failed to archive ${failed} ${failed === 1 ? "entry" : "entries"}.`);
+    else toast.warning(`Archived ${ok}, ${failed} failed.`);
+  }
+
+  async function bulkConvert() {
+    const targets = filtered.filter((e) => selected.has(e.id));
+    if (!targets.length) return;
+    const skipped = targets.filter((e) => !ROLE_TO_INVITE[e.role ?? ""]).length;
+    const eligible = targets.filter((e) => ROLE_TO_INVITE[e.role ?? ""]);
+    if (!eligible.length) {
+      toast.error("None of the selected entries have a mappable role.");
+      return;
+    }
+    if (
+      !confirm(
+        `Convert ${eligible.length} entr${eligible.length === 1 ? "y" : "ies"} to invitation${
+          eligible.length === 1 ? "" : "s"
+        }?${skipped ? ` (${skipped} skipped — unknown role)` : ""}`,
+      )
+    )
+      return;
+    setBulkBusy("convert");
+    const results = await Promise.allSettled(
+      eligible.map((e) => {
+        const m = ROLE_TO_INVITE[e.role ?? ""]!;
+        return convert({
+          data: {
+            waitlist_id: e.id,
+            invited_role: m.role as never,
+            invitation_type: m.type as never,
+            expires_in_days: 14,
+          },
+        });
+      }),
+    );
+    const ok = results.filter((r) => r.status === "fulfilled").length;
+    const failed = results.length - ok;
+    const convertedIds = new Set(
+      eligible
+        .filter((_, i) => results[i].status === "fulfilled")
+        .map((e) => e.id),
+    );
+    if (convertedIds.size) {
+      setEntries((prev) =>
+        prev.map((e) =>
+          convertedIds.has(e.id) ? { ...e, status: "invited" as WaitlistStatus } : e,
+        ),
+      );
+    }
+    clearSelection();
+    setBulkBusy(null);
+    if (failed === 0 && !skipped) toast.success(`Created ${ok} invitation${ok === 1 ? "" : "s"}.`);
+    else
+      toast.warning(
+        `Created ${ok} invitation${ok === 1 ? "" : "s"}${failed ? `, ${failed} failed` : ""}${
+          skipped ? `, ${skipped} skipped` : ""
+        }.`,
+      );
+  }
+
   return (
     <OwnerShell
       title="Waitlist"
@@ -188,6 +314,41 @@ function WaitlistPage() {
         </Select>
       </div>
 
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm">
+          <span className="font-medium">
+            {selected.size} selected
+          </span>
+          <span className="text-muted-foreground">·</span>
+          <button
+            type="button"
+            className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+            onClick={clearSelection}
+          >
+            Clear
+          </button>
+          <div className="ml-auto flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={bulkArchive} disabled={bulkBusy !== null}>
+              {bulkBusy === "archive" ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Archive className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              Archive
+            </Button>
+            <Button size="sm" onClick={bulkConvert} disabled={bulkBusy !== null}>
+              {bulkBusy === "convert" ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Mail className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              Convert to invitations
+            </Button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
@@ -200,6 +361,19 @@ function WaitlistPage() {
             <table className="w-full text-sm">
               <thead className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
+                  <th className="w-8 px-3 py-2.5">
+                    <Checkbox
+                      checked={
+                        allVisibleSelected
+                          ? true
+                          : someVisibleSelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      onCheckedChange={(v) => toggleAllVisible(v === true)}
+                      aria-label="Select all visible"
+                    />
+                  </th>
                   <th className="px-3 py-2.5 font-medium">Name / Email</th>
                   <th className="px-3 py-2.5 font-medium">Role</th>
                   <th className="px-3 py-2.5 font-medium">Status</th>
@@ -208,28 +382,41 @@ function WaitlistPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((e) => (
-                  <tr key={e.id} className="hover:bg-muted/30">
-                    <td className="px-3 py-2.5">
-                      <div className="font-medium">
-                        {e.full_name || `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim() || "—"}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{e.email}</div>
-                    </td>
-                    <td className="px-3 py-2.5 text-muted-foreground">{e.role}</td>
-                    <td className="px-3 py-2.5">
-                      <Badge variant={STATUS_COLORS[e.status]}>{e.status}</Badge>
-                    </td>
-                    <td className="px-3 py-2.5 text-xs text-muted-foreground">
-                      {new Date(e.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <Button size="sm" variant="ghost" onClick={() => setOpenId(e.id)}>
-                        Open
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((e) => {
+                  const isSel = selected.has(e.id);
+                  return (
+                    <tr
+                      key={e.id}
+                      className={`hover:bg-muted/30 ${isSel ? "bg-muted/40" : ""}`}
+                    >
+                      <td className="px-3 py-2.5">
+                        <Checkbox
+                          checked={isSel}
+                          onCheckedChange={(v) => toggleOne(e.id, v === true)}
+                          aria-label={`Select ${e.email}`}
+                        />
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <div className="font-medium">
+                          {e.full_name || `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim() || "—"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{e.email}</div>
+                      </td>
+                      <td className="px-3 py-2.5 text-muted-foreground">{e.role}</td>
+                      <td className="px-3 py-2.5">
+                        <Badge variant={STATUS_COLORS[e.status]}>{e.status}</Badge>
+                      </td>
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                        {new Date(e.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <Button size="sm" variant="ghost" onClick={() => setOpenId(e.id)}>
+                          Open
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
