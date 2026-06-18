@@ -587,24 +587,29 @@ function WaitlistPage() {
               <ol className="mt-7 space-y-4 border-l-2 border-primary/20 pl-5">
                 <NextStep
                   n={1}
-                  title="Within 2 school days"
-                  body="We'll send a personal email confirming we received your request and routing it to the right teammate."
+                  title="You're on the waitlist"
+                  body="A real person on our Connecticut team reads every submission — usually within two school days."
                 />
                 <NextStep
                   n={2}
-                  title="Within 1–2 weeks"
+                  title="We review your fit"
                   body={
                     current.key === "district" || current.key === "partner"
-                      ? "We'll schedule a 20-minute intro call to learn about your goals, caseload, and timeline."
+                      ? "We'll match your request to the next open pilot cohort and schedule a 20-minute intro call."
                       : current.key === "educator"
-                        ? "We'll invite you to a short educator walkthrough and share the case-manager onboarding pack."
-                        : "We'll invite you to the next family cohort and share your private invite link to set up the Student Hub."
+                        ? "We'll match your request to an educator cohort or an existing school pilot in your area."
+                        : "We'll match you to a family cohort or an existing school pilot in your district."
                   }
                 />
                 <NextStep
                   n={3}
-                  title="When you're ready"
-                  body="You'll set up your first student profile with us on a live, no-pressure call — or on your own if you prefer."
+                  title="You may be invited"
+                  body="Invitations go out based on role, organization, and pilot capacity. If you're not in the first wave, we'll keep you posted as cohorts open."
+                />
+                <NextStep
+                  n={4}
+                  title="When your school or district joins"
+                  body="Connected families, students, and educators in that building can be invited in too — no separate signup required."
                 />
               </ol>
 
