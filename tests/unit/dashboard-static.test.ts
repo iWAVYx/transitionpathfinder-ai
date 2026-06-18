@@ -81,23 +81,38 @@ describe.each(Object.entries(ROLE_DASHBOARDS))(
       expect(sources.length).toBeGreaterThan(0);
     });
 
-    it("has no duplicate <Link to=\"…\"> in the same component", () => {
-      // Per source file: collect every literal `to="/path"` and assert no
-      // path repeats. Repeats almost always indicate accidental
-      // copy-paste duplicate nav cards.
+    it("has no duplicate <Link to=\"…\"> with the same label", () => {
+      // Per source file: collect every `<Link to="/x">…</Link>` and key it
+      // by (href, visible-text). A repeat of the SAME href+label pair is a
+      // true copy-paste duplicate. Same href with different labels is
+      // legitimate (header CTA vs empty-state CTA, "Manage" vs "View all",
+      // multiple stat cards drilling into the same queue, etc.).
       const offenders: string[] = [];
+      const linkRe = /<Link\b[^>]*\bto=["'](\/[^"']+)["'][^>]*>([\s\S]*?)<\/Link>/g;
       for (const src of sources) {
-        const matches = [
-          ...src.matchAll(/<Link\b[^>]*\bto=["'](\/[^"']+)["']/g),
-        ].map((m) => m[1]);
         const counts = new Map<string, number>();
-        for (const t of matches) counts.set(t, (counts.get(t) ?? 0) + 1);
-        for (const [path, n] of counts) {
-          if (n > 1) offenders.push(`${path} ×${n}`);
+        let m: RegExpExecArray | null;
+        while ((m = linkRe.exec(src))) {
+          const href = m[1];
+          // Strip JSX expressions and tags so identical visible labels
+          // collide regardless of icon/className noise.
+          const label = m[2]
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\{[^}]*\}/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+          if (!label) continue;
+          const key = `${href}::${label}`;
+          counts.set(key, (counts.get(key) ?? 0) + 1);
+        }
+        for (const [key, n] of counts) {
+          if (n > 1) offenders.push(`${key} ×${n}`);
         }
       }
-      expect(offenders, `duplicate Link targets in ${role} dashboard`).toEqual([]);
+      expect(offenders, `duplicate Link href+label in ${role} dashboard`).toEqual([]);
     });
+
 
     it("has no obviously dead <Button> (no onClick / type / asChild / form)", () => {
       // Heuristic: a <Button …> open-tag with NO onClick, type=, asChild,
