@@ -16,6 +16,6 @@ export function withRoleGuard(
       <Component />
     </RoleGuard>
   );
-  Guarded.displayName = `withRoleGuard(${Component.displayName ?? Component.name ?? "Component"})`;
+  Guarded.displayName = `withRoleGuard(${(Component as { displayName?: string; name?: string }).displayName ?? Component.name ?? "Component"})`;
   return Guarded;
 }
