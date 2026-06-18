@@ -115,12 +115,18 @@ function DashboardPage() {
         const aud = audiencesForRoles(r.roles);
         setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
         // Route non-family roles to their proper workspace:
+        // - Platform Admin (admin-only) → Owner Hub instead of family UI
         // - School/District Admin & Partner → their hub
         // - Educator / Case Manager → /caseload (unless they also have family access)
         // Family + Student stay on this dashboard.
         const hasFamily = aud.has("family");
-        if (!hasFamily) {
-          if (aud.has("district_admin") || aud.has("school_admin") || aud.has("partner")) {
+        const hasStudent = aud.has("student");
+        if (!hasFamily && !hasStudent) {
+          if (aud.has("admin")) {
+            // Platform admin landing on /dashboard would see family widgets;
+            // send them to Owner Hub where their tools actually live.
+            navigate({ to: "/owner", replace: true });
+          } else if (aud.has("district_admin") || aud.has("school_admin") || aud.has("partner")) {
             navigate({ to: fallbackPathFor(r.roles), replace: true });
           } else if (aud.has("educator")) {
             navigate({ to: "/caseload", replace: true });

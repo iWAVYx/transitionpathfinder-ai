@@ -42,7 +42,10 @@ export function DashboardWidgets() {
   const [goals, setGoals] = useState<GoalTotals>({ total: 0, inProgress: 0, met: 0 });
   const [updatingGoals, setUpdatingGoals] = useState(false);
   const [goalsError, setGoalsError] = useState(false);
-  const [elig, setElig] = useState<{ hasMiddleSchoolStudent: boolean; isPartner: boolean } | null>(null);
+  // Slice 4: BridgeForward card was previously shown whenever the user had
+  // a middle-school student linked, even for partner accounts. Gate on
+  // role as well so partner-only users never see family-side program cards.
+  const [elig, setElig] = useState<{ hasMiddleSchoolStudent: boolean; isPartner: boolean; isPartnerOnly: boolean } | null>(null);
   const reportIdsRef = useRef<string[]>([]);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
