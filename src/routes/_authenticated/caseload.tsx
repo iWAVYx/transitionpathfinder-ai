@@ -409,7 +409,7 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
         />
         <div className="flex items-center gap-2">
           <Select value={actionPriority} onValueChange={(v) => setActionPriority(v as any)}>
-            <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[130px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
