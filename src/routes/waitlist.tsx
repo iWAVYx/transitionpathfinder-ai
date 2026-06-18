@@ -87,12 +87,33 @@ const Schema = z.object({
   role: z.enum(["family", "student", "educator", "district", "partner"]),
   state: z.string().trim().max(100).optional(),
   student_grade_band: z
-    .enum(["9-10", "11-12", "post-secondary", "not-applicable"])
+    .enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable"])
     .optional(),
+  // Organization / school / district context — branched by selected door.
+  organization_name: z.string().trim().max(200).optional(),
+  district_name: z.string().trim().max(200).optional(),
+  school_name: z.string().trim().max(200).optional(),
   reason: z.string().trim().max(2000).optional(),
 });
 
 type FormValues = z.infer<typeof Schema>;
+
+// Maps the selected "door" to the canonical interest_type stored on the
+// waitlist row. Owner Hub triages by this enum, not by free-text role.
+function deriveInterestType(role: RoleKey): string {
+  switch (role) {
+    case "family":
+      return "family_early_access";
+    case "student":
+      return "family_early_access";
+    case "educator":
+      return "educator_access";
+    case "district":
+      return "school_pilot"; // refined below if district_name is filled
+    case "partner":
+      return "partner_interest";
+  }
+}
 
 export const Route = createFileRoute("/waitlist")({
   head: () => ({
