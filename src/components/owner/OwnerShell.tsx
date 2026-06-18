@@ -83,8 +83,10 @@ const NAV: NavItem[] = [
 
   // 9. Launch & Pilot Readiness
   { to: "/owner/launch", label: "Launch readiness", icon: ClipboardCheck, group: "Launch & Pilot" },
+  { to: "/owner/role-audit", label: "Role dashboard audit", icon: ClipboardCheck, group: "Launch & Pilot" },
   { to: "/owner/pitch", label: "Pitch deck", icon: Megaphone, group: "Launch & Pilot" },
   { to: "/owner/demo", label: "Demo workspace", icon: Activity, group: "Launch & Pilot" },
+
 
   // 10. System Health
   { to: "/owner/health", label: "System health", icon: Activity, group: "System Health" },

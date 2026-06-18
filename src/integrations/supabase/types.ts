@@ -175,6 +175,51 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          issues_fixed: string
+          issues_found: string
+          last_reviewed_at: string | null
+          last_reviewed_by: string | null
+          notes: string
+          purpose: string
+          role_key: string
+          role_label: string
+          staged_items: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issues_fixed?: string
+          issues_found?: string
+          last_reviewed_at?: string | null
+          last_reviewed_by?: string | null
+          notes?: string
+          purpose?: string
+          role_key: string
+          role_label: string
+          staged_items?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issues_fixed?: string
+          issues_found?: string
+          last_reviewed_at?: string | null
+          last_reviewed_by?: string | null
+          notes?: string
+          purpose?: string
+          role_key?: string
+          role_label?: string
+          staged_items?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_invitations: {
         Row: {
           accepted_at: string | null
