@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/owner/pitch")({
 
 /* ─── Core message (verbatim) ─── */
 const CORE_PITCH =
-  "TransitionForward is an AI-powered transition planning platform that helps students with IEPs, their families, and school teams build personalized post-school pathways — from first assessment to independent adulthood.";
+  "TransitionForward is a specialist-built, AI-assisted transition planning platform that helps students with IEPs, their families, and school teams build personalized post-school pathways — from first assessment to independent adulthood.";
 
 const PROBLEM =
   "Most transition planning is fragmented: IEP goals live in one system, community resources in another, and family input is often captured too late. Students fall through the gap between school services and adult life — not because teams don't care, but because the tools don't connect.";

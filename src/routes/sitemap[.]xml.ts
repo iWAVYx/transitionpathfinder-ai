@@ -20,18 +20,24 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/about", changefreq: "monthly", priority: "0.8" },
-          { path: "/contact", changefreq: "monthly", priority: "0.8" },
           { path: "/educators", changefreq: "monthly", priority: "0.8" },
           { path: "/families", changefreq: "monthly", priority: "0.8" },
           { path: "/programs/transitionforward", changefreq: "monthly", priority: "0.7" },
+          { path: "/bridgeforward", changefreq: "monthly", priority: "0.7" },
           { path: "/partners", changefreq: "monthly", priority: "0.7" },
+          { path: "/partnerforward", changefreq: "monthly", priority: "0.7" },
+          { path: "/partner-directory", changefreq: "weekly", priority: "0.6" },
           { path: "/platform", changefreq: "monthly", priority: "0.8" },
           { path: "/pricing", changefreq: "monthly", priority: "0.8" },
           { path: "/research", changefreq: "weekly", priority: "0.7" },
           { path: "/resources", changefreq: "weekly", priority: "0.7" },
+          { path: "/waitlist", changefreq: "monthly", priority: "0.9" },
+          { path: "/demo", changefreq: "monthly", priority: "0.7" },
           { path: "/blog", changefreq: "weekly", priority: "0.8" },
           { path: "/help", changefreq: "monthly", priority: "0.5" },
           { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+          { path: "/terms", changefreq: "yearly", priority: "0.3" },
+          { path: "/trust-and-safety", changefreq: "yearly", priority: "0.3" },
         ];
 
         for (const id of PATHWAY_IDS) {
