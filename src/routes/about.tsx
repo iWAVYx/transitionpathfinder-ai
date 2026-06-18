@@ -1060,30 +1060,22 @@ function ClosingCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-20%" }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-12 w-full max-w-3xl"
+          className="mt-10 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:justify-center"
         >
-          <HeroCTAs align="center">
-            <Link to="/platform">
-              <Button size="lg" className="inline-flex w-full items-center justify-center gap-2">
-                Explore Transition Forward <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/waitlist">
-              <Button size="lg" variant="outline" className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10">
-                Join the Waitlist
-              </Button>
-            </Link>
-            <Link to="/partners">
-              <Button size="lg" variant="outline" className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10">
-                Partner With Us
-              </Button>
-            </Link>
-            <Link to="/demo">
-              <Button size="lg" variant="outline" className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10">
-                Request a Demo
-              </Button>
-            </Link>
-          </HeroCTAs>
+          <Link to="/platform" className="sm:flex-1">
+            <Button size="lg" className="inline-flex w-full items-center justify-center gap-2">
+              Explore Transition Forward <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link to="/waitlist" className="sm:flex-1">
+            <Button
+              size="lg"
+              variant="outline"
+              className="inline-flex w-full items-center justify-center border-white/30 bg-white/5 text-white hover:bg-white/10"
+            >
+              Join the Waitlist
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>
