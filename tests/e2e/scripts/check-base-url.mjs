@@ -126,4 +126,24 @@ if (root.looksCf || login.looksCf) {
   process.exit(13);
 }
 
+// Production-redirect guard: configured base is e2e./staging.* but the
+// host actually serving the response is the bare apex production domain.
+const configuredHost = parsed.hostname.toLowerCase();
+const configuredIsStaging = /^(e2e|staging)\./.test(configuredHost);
+const apexHosts = new Set(["transitionforwardct.com", "www.transitionforwardct.com"]);
+for (const probe of [root, login]) {
+  if (configuredIsStaging && probe.finalHost && apexHosts.has(probe.finalHost)) {
+    fail(
+      15,
+      `E2E domain is redirecting to protected production domain. ` +
+        `configured=${parsed.origin} (host=${configuredHost}) but the response was served ` +
+        `from ${probe.finalUrl} (host=${probe.finalHost}). Fix: in Cloudflare, make ` +
+        `${configuredHost} a CNAME to the Lovable target with proxy=DNS only (gray cloud) ` +
+        `and delete any page/redirect rule sending it to the apex; in Lovable custom-domain ` +
+        `settings, add ${configuredHost} as its own connected domain with SSL active.`,
+    );
+  }
+}
+
 console.log("\nBase URL preflight OK.");
+
