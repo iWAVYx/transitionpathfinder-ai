@@ -368,40 +368,92 @@ for (const role of ROLES) {
         { timeout: 30_000 },
       );
 
-      if (new URL(page.url()).pathname.startsWith("/login/2fa")) {
-        const totp = process.env[`E2E_${role.key.toUpperCase()}_TOTP_SECRET`];
-        setup.skip(!totp, `2FA required but no TOTP secret for ${role.key}`);
-        try {
-          const code = authenticator.generate(totp!);
-          // Prefer stable testid; fall back to accessible label, then to
-          // the hidden input rendered by input-otp.
-          const totpInput = page.getByTestId("totp-code").first();
-          const labelInput = page.getByLabel(/six-digit authenticator code/i).first();
-          let target = totpInput;
-          if (!(await totpInput.isVisible().catch(() => false))) {
-            target = labelInput;
-          }
-          await target.waitFor({ state: "visible", timeout: 15_000 });
-          await target.click();
-          await page.keyboard.type(code, { delay: 30 });
+      // Helper: is the user already authenticated in this page context?
+      // The 2FA route may auto-redirect away (no enrolled factor / already
+      // aal2) before we even arrive — treat that as success and persist
+      // the session instead of waiting for a challenge form that will
+      // never render.
+      const isAuthenticated = async () => {
+        const tokenPresent = await page.evaluate(() =>
+          Object.keys(window.localStorage).some((k) => k.includes("auth-token")),
+        ).catch(() => false);
+        if (!tokenPresent) return false;
+        const signOutVisible = await page
+          .getByRole("button", { name: /sign out/i })
+          .first()
+          .isVisible()
+          .catch(() => false);
+        const signOutLink = await page
+          .getByRole("link", { name: /sign out/i })
+          .first()
+          .isVisible()
+          .catch(() => false);
+        const leftLogin = !new URL(page.url()).pathname.startsWith("/login");
+        return leftLogin || signOutVisible || signOutLink;
+      };
 
-          const submit = page.getByTestId("totp-submit").first();
-          if (await submit.isVisible().catch(() => false)) {
-            await submit.click();
-          } else {
-            await page.getByRole("button", { name: /^verify$/i }).click();
+      if (new URL(page.url()).pathname.startsWith("/login/2fa")) {
+        // Race three signals: a real challenge form appears, the route
+        // auto-redirects away (no factor / already aal2), or the session
+        // is otherwise established. First one wins.
+        const totpInput = page.getByTestId("totp-code").first();
+        const labelInput = page.getByLabel(/six-digit authenticator code/i).first();
+
+        const challengePromise = Promise.race([
+          totpInput.waitFor({ state: "visible", timeout: 15_000 }).then(() => "challenge" as const),
+          labelInput.waitFor({ state: "visible", timeout: 15_000 }).then(() => "challenge" as const),
+        ]).catch(() => null);
+        const leftLoginPromise = page
+          .waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 15_000 })
+          .then(() => "left-login" as const)
+          .catch(() => null);
+
+        const outcome = await Promise.race([challengePromise, leftLoginPromise]);
+
+        if (outcome === "challenge") {
+          const totp = process.env[`E2E_${role.key.toUpperCase()}_TOTP_SECRET`];
+          setup.skip(!totp, `2FA challenge present but no TOTP secret for ${role.key}`);
+          try {
+            const code = authenticator.generate(totp!);
+            const target = (await totpInput.isVisible().catch(() => false))
+              ? totpInput
+              : labelInput;
+            await target.click();
+            await page.keyboard.type(code, { delay: 30 });
+            const submit = page.getByTestId("totp-submit").first();
+            if (await submit.isVisible().catch(() => false)) {
+              await submit.click();
+            } else {
+              await page.getByRole("button", { name: /^verify$/i }).click();
+            }
+            await page.waitForURL(
+              (url) => !url.pathname.startsWith("/login"),
+              { timeout: 20_000 },
+            );
+          } catch (twofaErr) {
+            await dumpDiagnostics("2fa-challenge-failed");
+            throw new Error(
+              `2FA challenge failed for ${role.key} at ${page.url()}. ` +
+                `Verify E2E_${role.key.toUpperCase()}_TOTP_SECRET matches the enrolled authenticator. ` +
+                `Original: ${(twofaErr as Error).message}`,
+            );
           }
-          await page.waitForURL(
-            (url) => !url.pathname.startsWith("/login"),
-            { timeout: 20_000 },
-          );
-        } catch (twofaErr) {
-          await dumpDiagnostics("2fa-challenge-failed");
-          throw new Error(
-            `2FA challenge failed for ${role.key} at ${page.url()}. ` +
-              `Verify E2E_${role.key.toUpperCase()}_TOTP_SECRET matches the enrolled authenticator. ` +
-              `Original: ${(twofaErr as Error).message}`,
-          );
+        } else if (outcome === "left-login") {
+          // Route auto-redirected — owner had no enrolled factor or was
+          // already aal2. Session should be live; fall through to the
+          // session-persistence check below.
+        } else {
+          // Neither signal fired in 15s. If the session is somehow live
+          // anyway (e.g. nav already updated), accept it; otherwise fail
+          // with the actionable message the user asked for.
+          if (!(await isAuthenticated())) {
+            await dumpDiagnostics("2fa-route-without-challenge");
+            throw new Error(
+              `2FA route rendered without challenge form for ${role.key} at ${page.url()}. ` +
+                `Either expose data-testid="totp-code" + "totp-submit" on /login/2fa, ` +
+                `or redirect authenticated users straight to the dashboard when no factor is enrolled.`,
+            );
+          }
         }
       }
 
