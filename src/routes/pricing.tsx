@@ -128,13 +128,13 @@ function PricingPage() {
 
       {/* Tiers */}
       <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <CardGrid columns={3} centerOddLast>
           {tiers.map((tier) => {
             const Icon = tier.icon;
             return (
               <div
                 key={tier.id}
-                className="flex flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-shadow hover:shadow-lift"
+                className="flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-shadow hover:shadow-lift"
               >
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -144,8 +144,8 @@ function PricingPage() {
                 </div>
 
                 <div className="mt-5">
-                  <p className="font-display text-3xl tracking-tight">{tier.price}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{tier.priceNote}</p>
+                  <p className="font-display text-3xl tracking-tight">{toTitleCase(tier.price)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.priceNote)}</p>
                 </div>
 
                 <p className="mt-3 text-sm leading-relaxed text-foreground/85">
@@ -173,7 +173,7 @@ function PricingPage() {
               </div>
             );
           })}
-        </div>
+        </CardGrid>
 
         {/* Promise */}
         <div className="mt-10 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
