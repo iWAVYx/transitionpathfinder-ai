@@ -371,15 +371,40 @@ for (const role of ROLES) {
       if (new URL(page.url()).pathname.startsWith("/login/2fa")) {
         const totp = process.env[`E2E_${role.key.toUpperCase()}_TOTP_SECRET`];
         setup.skip(!totp, `2FA required but no TOTP secret for ${role.key}`);
-        const code = authenticator.generate(totp!);
-        await page.getByLabel(/six-digit authenticator code/i).click();
-        await page.keyboard.type(code, { delay: 30 });
-        await page.getByRole("button", { name: /^verify$/i }).click();
-        await page.waitForURL(
-          (url) => !url.pathname.startsWith("/login"),
-          { timeout: 20_000 },
-        );
+        try {
+          const code = authenticator.generate(totp!);
+          // Prefer stable testid; fall back to accessible label, then to
+          // the hidden input rendered by input-otp.
+          const totpInput = page.getByTestId("totp-code").first();
+          const labelInput = page.getByLabel(/six-digit authenticator code/i).first();
+          let target = totpInput;
+          if (!(await totpInput.isVisible().catch(() => false))) {
+            target = labelInput;
+          }
+          await target.waitFor({ state: "visible", timeout: 15_000 });
+          await target.click();
+          await page.keyboard.type(code, { delay: 30 });
+
+          const submit = page.getByTestId("totp-submit").first();
+          if (await submit.isVisible().catch(() => false)) {
+            await submit.click();
+          } else {
+            await page.getByRole("button", { name: /^verify$/i }).click();
+          }
+          await page.waitForURL(
+            (url) => !url.pathname.startsWith("/login"),
+            { timeout: 20_000 },
+          );
+        } catch (twofaErr) {
+          await dumpDiagnostics("2fa-challenge-failed");
+          throw new Error(
+            `2FA challenge failed for ${role.key} at ${page.url()}. ` +
+              `Verify E2E_${role.key.toUpperCase()}_TOTP_SECRET matches the enrolled authenticator. ` +
+              `Original: ${(twofaErr as Error).message}`,
+          );
+        }
       }
+
 
       const hasSession = await page.evaluate(() =>
         Object.keys(window.localStorage).some((k) => k.includes("auth-token")),
