@@ -53,11 +53,44 @@ for (const role of ROLES) {
     };
 
     try {
+      // Cloudflare preflight: production (transitionforwardct.com) sits behind
+      // a Cloudflare challenge that blocks headless browsers. CI must point
+      // PLAYWRIGHT_BASE_URL at an E2E/staging subdomain (e.g.
+      // https://e2e.transitionforwardct.com) that is NOT behind the challenge.
+      // If we detect the interstitial here, fail loudly with remediation steps
+      // instead of timing out on a missing #login-email.
+      const baseUrl = process.env.PLAYWRIGHT_BASE_URL ?? "";
+      if (/(^|\.)transitionforwardct\.com$/i.test(new URL(baseUrl || "http://x").hostname) &&
+          !/^(e2e|staging)\./i.test(new URL(baseUrl || "http://x").hostname)) {
+        console.warn(
+          `[auth-setup ${role.key}] PLAYWRIGHT_BASE_URL=${baseUrl} looks like production. ` +
+            `Use an E2E/staging subdomain (e2e.transitionforwardct.com or staging.transitionforwardct.com) ` +
+            `that is exempt from the Cloudflare challenge.`,
+        );
+      }
+
+      const probeResp = await page.goto("/", { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => null);
+      const probeBody = await page.locator("body").innerText({ timeout: 2_000 }).catch(() => "");
+      const cfChallenge =
+        /just a moment/i.test(probeBody) ||
+        /cf-browser-verification|challenge-platform|cf-chl-/i.test(await page.content().catch(() => "")) ||
+        probeResp?.status() === 403;
+      if (cfChallenge) {
+        await dumpDiagnostics("cloudflare-challenge");
+        throw new Error(
+          `Cloudflare challenge detected at ${baseUrl}. Playwright cannot solve "Just a moment...". ` +
+            `Fix: point PLAYWRIGHT_BASE_URL (GitHub Actions secret E2E_BASE_URL) at an E2E/staging ` +
+            `subdomain such as https://e2e.transitionforwardct.com or https://staging.transitionforwardct.com ` +
+            `with the Cloudflare challenge disabled for that hostname. Do NOT run E2E against production.`,
+        );
+      }
+
       // Route discovery: probe candidate auth routes and report which one
       // actually serves the sign-in form (login-email testid). This lets us
       // confirm whether /login is canonical or the app has moved to /auth,
       // /signin, etc. Result is logged and attached to the report.
       const candidates = ["/login", "/auth", "/signin", "/sign-in", "/account/login"];
+
       const discovery: Array<{
         path: string;
         finalUrl: string;
