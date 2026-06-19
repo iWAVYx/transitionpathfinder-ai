@@ -133,11 +133,12 @@ for (const role of ROLES) {
     test("dashboard state survives a hard refresh", async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
-      await expect(page.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
-      const before = await page.locator("main").innerText();
+      const main = page.locator("main");
+      await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
+      const before = await main.innerText();
       await page.reload({ waitUntil: "networkidle" });
-      await expect(page.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
-      const after = await page.locator("main").innerText();
+      await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
+      const after = await main.innerText();
       // The two snapshots will differ slightly (timestamps, "moments ago"),
       // so compare lengths within 25% — catches the "everything vanished"
       // and "error boundary replaced the dashboard" regressions.
