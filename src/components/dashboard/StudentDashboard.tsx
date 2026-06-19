@@ -44,6 +44,12 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+          <p
+            className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+            data-dashboard-landmark="student"
+          >
+            Next Best Step — Student Dashboard
+          </p>
           <Breadcrumbs trail={[{ label: "My plan" }]} />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(firstName)}.
@@ -78,6 +84,12 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
   return (
     <SiteShell>
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+          data-dashboard-landmark="student"
+        >
+          Next Best Step — Student Dashboard
+        </p>
         <Breadcrumbs trail={[{ label: "My plan" }]} />
 
         <div className="mt-6">
