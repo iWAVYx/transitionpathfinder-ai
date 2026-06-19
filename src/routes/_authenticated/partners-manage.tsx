@@ -48,15 +48,6 @@ export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
   component: () => (
     <RoleGuard path="/partners-manage">
-      {/* Stable role landmark — keeps the Partner dashboard regression
-          matching /partner|opportunit/i across viewports, including the
-          checking/loading states before partner workspace data resolves. */}
-      <p
-        className="mx-auto max-w-6xl px-4 pt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary sm:px-6 lg:px-8"
-        data-dashboard-landmark="partner"
-      >
-        Partner Workspace — Opportunities
-      </p>
       <PartnerManagePage />
     </RoleGuard>
   ),
