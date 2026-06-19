@@ -217,10 +217,13 @@ for (const role of ROLES) {
 
 
       // Route discovery: probe candidate auth routes and report which one
-      // actually serves the sign-in form (login-email testid).
+      // actually serves the sign-in form (login-email testid). Stops at
+      // the first 200 page that has an email input — additional candidates
+      // only run if earlier ones failed, so the diagnostics dump is rooted
+      // at the page that actually matters (typically /login).
       const candidates = ["/login", "/auth", "/signin", "/sign-in", "/account/login"];
 
-      const discovery: Array<{
+      type Discovery = {
         path: string;
         attemptedUrl: string;
         finalUrl: string;
@@ -228,7 +231,11 @@ for (const role of ROLES) {
         navError: string | null;
         hasLoginEmail: boolean;
         hasAnyEmailInput: boolean;
-      }> = [];
+        inputs: Array<{ id: string; name: string; type: string; testid: string | null; autocomplete: string | null }>;
+        missingTestId: boolean;
+        stopped: "found-canonical" | "found-email-no-testid" | null;
+      };
+      const discovery: Discovery[] = [];
       const baseForJoin = configuredBaseUrl.startsWith("http") ? configuredBaseUrl : "http://localhost:3000";
       for (const path of candidates) {
         const attemptedUrl = new URL(path, baseForJoin).toString();
@@ -241,25 +248,47 @@ for (const role of ROLES) {
           navError = (e as Error).message;
         }
         const finalUrl = page.url();
-        const hasLoginEmail = await page
-          .getByTestId("login-email")
-          .first()
-          .isVisible()
-          .catch(() => false);
+        // Give client hydration a beat before checking visibility — the
+        // tab-based form renders after the bundle boots, and an immediate
+        // isVisible() can race React.
+        const emailLoc = page.getByTestId("login-email").first();
+        await emailLoc.waitFor({ state: "visible", timeout: 5_000 }).catch(() => {});
+        const hasLoginEmail = await emailLoc.isVisible().catch(() => false);
         const hasAnyEmailInput = await page
           .locator('input[type="email"], input[name="email" i], input[autocomplete="email"]')
           .first()
           .isVisible()
           .catch(() => false);
+        const inputs = await page
+          .$$eval("input", (els) =>
+            els.map((e) => ({
+              id: (e as HTMLInputElement).id,
+              name: (e as HTMLInputElement).name,
+              type: (e as HTMLInputElement).type,
+              testid: e.getAttribute("data-testid"),
+              autocomplete: (e as HTMLInputElement).autocomplete,
+            })),
+          )
+          .catch(() => [] as Discovery["inputs"]);
+        const missingTestId = hasAnyEmailInput && !hasLoginEmail;
+        const stopped: Discovery["stopped"] = hasLoginEmail
+          ? "found-canonical"
+          : status === 200 && missingTestId
+            ? "found-email-no-testid"
+            : null;
         discovery.push({
-          path,
-          attemptedUrl,
-          finalUrl,
-          status,
-          navError,
-          hasLoginEmail,
-          hasAnyEmailInput,
+          path, attemptedUrl, finalUrl, status, navError,
+          hasLoginEmail, hasAnyEmailInput, inputs, missingTestId, stopped,
         });
+        console.log(
+          `[auth-setup ${role.key}] candidate ${path} → status=${status} finalUrl=${finalUrl} ` +
+            `hasLoginEmail=${hasLoginEmail} hasAnyEmailInput=${hasAnyEmailInput} ` +
+            `missingTestId=${missingTestId} inputs=${JSON.stringify(inputs)}`,
+        );
+        // Stop as soon as we either find the canonical form OR find a 200
+        // page with an email input but no test id — both are actionable;
+        // no point probing /auth, /signin, /account/login after that.
+        if (stopped) break;
       }
       const report = JSON.stringify(discovery, null, 2);
       console.log(`[auth-setup ${role.key}] route-discovery:\n${report}`);
@@ -275,6 +304,18 @@ for (const role of ROLES) {
           `Every candidate route resolved to chrome-error:// — the CI browser cannot reach ` +
             `the base URL at all. configuredBaseURL=${configuredBaseUrl}. Check DNS, TLS, ` +
             `and that the staging subdomain is connected to the deployed app.`,
+        );
+      }
+
+      const missingTestIdHit = discovery.find((d) => d.stopped === "found-email-no-testid");
+      if (missingTestIdHit && !discovery.some((d) => d.hasLoginEmail)) {
+        await dumpDiagnostics("login-form-missing-testid");
+        throw new Error(
+          `Sign-in form is rendered at ${missingTestIdHit.path} (status ${missingTestIdHit.status}, ` +
+            `final ${missingTestIdHit.finalUrl}) but does not expose data-testid="login-email". ` +
+            `Add data-testid="login-email" / "login-password" / "login-submit" to the email, password, ` +
+            `and submit elements (the deployed build may be older than the source). Observed inputs: ` +
+            `${JSON.stringify(missingTestIdHit.inputs)}.`,
         );
       }
 
