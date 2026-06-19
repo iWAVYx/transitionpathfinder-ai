@@ -74,12 +74,16 @@ for (const role of ROLES) {
 
         test("renders, no horizontal overflow, expected landmarks", async ({ page }) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
-          await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+          const main = page.locator("main");
+          await expect(main).toBeVisible({ timeout: 15_000 });
+          // Scope role landmark checks to <main>: hidden responsive nav links
+          // and shared header/footer copy must not satisfy or violate the
+          // role's expected dashboard content.
           for (const re of role.mustSee) {
-            await expect(page.getByText(re).first()).toBeVisible({ timeout: 10_000 });
+            await expect(main.getByText(re).first()).toBeVisible({ timeout: 10_000 });
           }
           for (const re of role.mustNotSee) {
-            await expect(page.getByText(re).first()).toHaveCount(0);
+            await expect(main.getByText(re)).toHaveCount(0);
           }
           await assertNoHorizontalScroll(page, `${role.key} ${vp.label}`);
         });
@@ -129,11 +133,12 @@ for (const role of ROLES) {
     test("dashboard state survives a hard refresh", async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
-      await expect(page.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
-      const before = await page.locator("main").innerText();
+      const main = page.locator("main");
+      await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
+      const before = await main.innerText();
       await page.reload({ waitUntil: "networkidle" });
-      await expect(page.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
-      const after = await page.locator("main").innerText();
+      await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
+      const after = await main.innerText();
       // The two snapshots will differ slightly (timestamps, "moments ago"),
       // so compare lengths within 25% — catches the "everything vanished"
       // and "error boundary replaced the dashboard" regressions.
