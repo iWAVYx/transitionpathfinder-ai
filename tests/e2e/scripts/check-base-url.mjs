@@ -70,25 +70,33 @@ async function probe(path) {
   const url = new URL(path, parsed.origin).toString();
   const started = Date.now();
   try {
+    // Follow redirects so we can detect host changes (e2e.* → apex).
     const res = await fetch(url, {
       method: "GET",
-      redirect: "manual",
+      redirect: "follow",
       headers: { "user-agent": "lovable-e2e-preflight/1.0" },
     });
     const ms = Date.now() - started;
     const body = await res.text().catch(() => "");
     const looksCf =
       /just a moment/i.test(body) || /cf-chl-|challenge-platform|cf-browser-verification/i.test(body);
+    const finalUrl = res.url || url;
+    const finalHost = (() => {
+      try { return new URL(finalUrl).hostname.toLowerCase(); } catch { return ""; }
+    })();
     console.log(
-      `  GET ${url} → ${res.status} ${res.statusText} (${ms}ms)${looksCf ? " [CLOUDFLARE CHALLENGE]" : ""}`,
+      `  GET ${url} → ${res.status} ${res.statusText} (${ms}ms)${
+        finalUrl !== url ? ` [→ ${finalUrl}]` : ""
+      }${looksCf ? " [CLOUDFLARE CHALLENGE]" : ""}`,
     );
-    return { ok: res.status < 500, status: res.status, looksCf };
+    return { ok: res.status < 500, status: res.status, looksCf, finalUrl, finalHost };
   } catch (e) {
     const ms = Date.now() - started;
     console.error(`  GET ${url} → FAILED after ${ms}ms: ${(e instanceof Error ? e.message : String(e))}`);
     return { ok: false, error: e };
   }
 }
+
 
 const root = await probe("/");
 if (!root.ok) {
