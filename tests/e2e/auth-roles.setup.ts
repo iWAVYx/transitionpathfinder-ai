@@ -69,65 +69,75 @@ for (const role of ROLES) {
         );
       }
 
-      const probeResp = await page.goto("/", { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => null);
-      const probeBody = await page.locator("body").innerText({ timeout: 2_000 }).catch(() => "");
-      const cfChallenge =
-        /just a moment/i.test(probeBody) ||
-        /cf-browser-verification|challenge-platform|cf-chl-/i.test(await page.content().catch(() => "")) ||
-        probeResp?.status() === 403;
-      if (cfChallenge) {
-        await dumpDiagnostics("cloudflare-challenge");
+      // Reachability preflight: if the base host itself is unreachable
+      // (DNS failure, TLS error, wrong domain), `page.goto` resolves to
+      // chrome-error://chromewebdata/ and every candidate route looks
+      // broken in the same opaque way. Probe "/" first and fail fast with
+      // the actual navigation error.
+      const configuredBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? "(unset — using localhost)";
+      console.log(`[auth-setup ${role.key}] configured baseURL=${configuredBaseUrl}`);
+      let rootNavError: string | null = null;
+      let rootStatus: number | null = null;
+      try {
+        const r = await page.goto("/", { waitUntil: "domcontentloaded", timeout: 20_000 });
+        rootStatus = r?.status() ?? null;
+      } catch (e) {
+        rootNavError = (e as Error).message;
+      }
+      const rootFinalUrl = page.url();
+      if (rootNavError || rootFinalUrl.startsWith("chrome-error://")) {
+        await dumpDiagnostics("base-url-unreachable");
         throw new Error(
-          `Cloudflare challenge detected at ${baseUrl}. Playwright cannot solve "Just a moment...". ` +
-            `Fix: point PLAYWRIGHT_BASE_URL (GitHub Actions secret E2E_BASE_URL) at an E2E/staging ` +
-            `subdomain such as https://e2e.transitionforwardct.com or https://staging.transitionforwardct.com ` +
-            `with the Cloudflare challenge disabled for that hostname. Do NOT run E2E against production.`,
+          `E2E base URL is unreachable from CI. configuredBaseURL=${configuredBaseUrl} ` +
+            `finalUrl=${rootFinalUrl} status=${rootStatus ?? "n/a"} navError=${rootNavError ?? "none"}. ` +
+            `Fix DNS / hosting / SSL for the staging hostname before re-running.`,
         );
       }
 
       // Route discovery: probe candidate auth routes and report which one
-      // actually serves the sign-in form (login-email testid). This lets us
-      // confirm whether /login is canonical or the app has moved to /auth,
-      // /signin, etc. Result is logged and attached to the report.
+      // actually serves the sign-in form (login-email testid).
       const candidates = ["/login", "/auth", "/signin", "/sign-in", "/account/login"];
 
       const discovery: Array<{
         path: string;
+        attemptedUrl: string;
         finalUrl: string;
         status: number | null;
+        navError: string | null;
         hasLoginEmail: boolean;
         hasAnyEmailInput: boolean;
       }> = [];
+      const baseForJoin = configuredBaseUrl.startsWith("http") ? configuredBaseUrl : "http://localhost:3000";
       for (const path of candidates) {
+        const attemptedUrl = new URL(path, baseForJoin).toString();
+        let status: number | null = null;
+        let navError: string | null = null;
         try {
           const resp = await page.goto(path, { waitUntil: "domcontentloaded", timeout: 20_000 });
-          const finalUrl = page.url();
-          const hasLoginEmail = await page
-            .getByTestId("login-email")
-            .first()
-            .isVisible()
-            .catch(() => false);
-          const hasAnyEmailInput = await page
-            .locator('input[type="email"], input[name="email" i], input[autocomplete="email"]')
-            .first()
-            .isVisible()
-            .catch(() => false);
-          discovery.push({
-            path,
-            finalUrl,
-            status: resp?.status() ?? null,
-            hasLoginEmail,
-            hasAnyEmailInput,
-          });
+          status = resp?.status() ?? null;
         } catch (e) {
-          discovery.push({
-            path,
-            finalUrl: page.url(),
-            status: null,
-            hasLoginEmail: false,
-            hasAnyEmailInput: false,
-          });
+          navError = (e as Error).message;
         }
+        const finalUrl = page.url();
+        const hasLoginEmail = await page
+          .getByTestId("login-email")
+          .first()
+          .isVisible()
+          .catch(() => false);
+        const hasAnyEmailInput = await page
+          .locator('input[type="email"], input[name="email" i], input[autocomplete="email"]')
+          .first()
+          .isVisible()
+          .catch(() => false);
+        discovery.push({
+          path,
+          attemptedUrl,
+          finalUrl,
+          status,
+          navError,
+          hasLoginEmail,
+          hasAnyEmailInput,
+        });
       }
       const report = JSON.stringify(discovery, null, 2);
       console.log(`[auth-setup ${role.key}] route-discovery:\n${report}`);
@@ -135,6 +145,16 @@ for (const role of ROLES) {
         body: report,
         contentType: "application/json",
       });
+
+      const allChromeError = discovery.every((d) => d.finalUrl.startsWith("chrome-error://"));
+      if (allChromeError) {
+        await dumpDiagnostics("all-routes-chrome-error");
+        throw new Error(
+          `Every candidate route resolved to chrome-error:// — the CI browser cannot reach ` +
+            `the base URL at all. configuredBaseURL=${configuredBaseUrl}. Check DNS, TLS, ` +
+            `and that the staging subdomain is connected to the deployed app.`,
+        );
+      }
 
       const canonical = discovery.find((d) => d.hasLoginEmail);
       if (!canonical) {
