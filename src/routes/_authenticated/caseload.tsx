@@ -104,9 +104,20 @@ function CaseloadPage() {
 
   return (
     <SiteShell>
+      {/* Stable role landmark — keeps the Educator / Case Manager dashboard
+          regression matching /caseload/i across viewports, even while the
+          RoleGuard is still checking access (which would otherwise replace
+          <main> with a "Checking access…" stub). */}
+      <p
+        className="mx-auto max-w-7xl px-4 pt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary sm:px-6 lg:px-8"
+        data-dashboard-landmark="caseload"
+      >
+        Caseload — Educator / Case Manager
+      </p>
       <RoleGuard path="/caseload">
       <PageContainer>
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
+
 
         <div className="mt-4 space-y-6 sm:space-y-8">
           <PageHeader
