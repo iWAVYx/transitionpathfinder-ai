@@ -16,8 +16,10 @@
 //   10 = base URL env var not set
 //   11 = not https://
 //   12 = DNS resolution failed
-//   13 = base URL fetch failed (network/TLS) or 5xx
+//   13 = base URL fetch failed (network/TLS) or 5xx, or Cloudflare challenge
 //   14 = /login fetch failed or 5xx
+//   15 = e2e./staging. host redirects to bare apex (transitionforwardct.com)
+
 
 import { lookup } from "node:dns/promises";
 
@@ -70,25 +72,33 @@ async function probe(path) {
   const url = new URL(path, parsed.origin).toString();
   const started = Date.now();
   try {
+    // Follow redirects so we can detect host changes (e2e.* → apex).
     const res = await fetch(url, {
       method: "GET",
-      redirect: "manual",
+      redirect: "follow",
       headers: { "user-agent": "lovable-e2e-preflight/1.0" },
     });
     const ms = Date.now() - started;
     const body = await res.text().catch(() => "");
     const looksCf =
       /just a moment/i.test(body) || /cf-chl-|challenge-platform|cf-browser-verification/i.test(body);
+    const finalUrl = res.url || url;
+    const finalHost = (() => {
+      try { return new URL(finalUrl).hostname.toLowerCase(); } catch { return ""; }
+    })();
     console.log(
-      `  GET ${url} → ${res.status} ${res.statusText} (${ms}ms)${looksCf ? " [CLOUDFLARE CHALLENGE]" : ""}`,
+      `  GET ${url} → ${res.status} ${res.statusText} (${ms}ms)${
+        finalUrl !== url ? ` [→ ${finalUrl}]` : ""
+      }${looksCf ? " [CLOUDFLARE CHALLENGE]" : ""}`,
     );
-    return { ok: res.status < 500, status: res.status, looksCf };
+    return { ok: res.status < 500, status: res.status, looksCf, finalUrl, finalHost };
   } catch (e) {
     const ms = Date.now() - started;
     console.error(`  GET ${url} → FAILED after ${ms}ms: ${(e instanceof Error ? e.message : String(e))}`);
     return { ok: false, error: e };
   }
 }
+
 
 const root = await probe("/");
 if (!root.ok) {
@@ -118,4 +128,24 @@ if (root.looksCf || login.looksCf) {
   process.exit(13);
 }
 
+// Production-redirect guard: configured base is e2e./staging.* but the
+// host actually serving the response is the bare apex production domain.
+const configuredHost = parsed.hostname.toLowerCase();
+const configuredIsStaging = /^(e2e|staging)\./.test(configuredHost);
+const apexHosts = new Set(["transitionforwardct.com", "www.transitionforwardct.com"]);
+for (const probe of [root, login]) {
+  if (configuredIsStaging && probe.finalHost && apexHosts.has(probe.finalHost)) {
+    fail(
+      15,
+      `E2E domain is redirecting to protected production domain. ` +
+        `configured=${parsed.origin} (host=${configuredHost}) but the response was served ` +
+        `from ${probe.finalUrl} (host=${probe.finalHost}). Fix: in Cloudflare, make ` +
+        `${configuredHost} a CNAME to the Lovable target with proxy=DNS only (gray cloud) ` +
+        `and delete any page/redirect rule sending it to the apex; in Lovable custom-domain ` +
+        `settings, add ${configuredHost} as its own connected domain with SSL active.`,
+    );
+  }
+}
+
 console.log("\nBase URL preflight OK.");
+
