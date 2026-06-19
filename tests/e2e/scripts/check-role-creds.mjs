@@ -46,12 +46,41 @@ for (const r of ROLES) {
 
 console.log("Role credential readiness");
 console.log("=========================");
+
+// Base URL sanity. Production (transitionforwardct.com without an e2e./staging.
+// subdomain) sits behind Cloudflare's challenge and will block headless
+// Playwright. CI must point at an exempt staging hostname.
+const baseUrl = process.env.PLAYWRIGHT_BASE_URL ?? process.env.E2E_BASE_URL ?? "";
+if (baseUrl) {
+  try {
+    const host = new URL(baseUrl).hostname;
+    const isProdRoot =
+      /(^|\.)transitionforwardct\.com$/i.test(host) && !/^(e2e|staging)\./i.test(host);
+    console.log(`  base URL: ${baseUrl}`);
+    if (isProdRoot) {
+      console.error(
+        "::error::PLAYWRIGHT_BASE_URL points at production (transitionforwardct.com). " +
+          "Cloudflare will block Playwright. Set E2E_BASE_URL to an exempt subdomain such as " +
+          "https://e2e.transitionforwardct.com or https://staging.transitionforwardct.com.",
+      );
+      if (process.env.LIVE_VERIFICATION === "1" || process.env.LIVE_VERIFICATION === "true") {
+        process.exit(4);
+      }
+    }
+  } catch {
+    console.warn(`  base URL: ${baseUrl} (could not parse)`);
+  }
+} else {
+  console.log("  base URL: (not set — will use localhost dev server)");
+}
+
 for (const p of present) {
   console.log(`  ✓ ${p.role}${p.totp ? " (TOTP configured)" : ""}`);
 }
 for (const m of missing) {
   console.log(`  ✗ ${m.role} — missing: ${m.need.join(", ")}`);
 }
+
 
 let stateFiles = [];
 if (existsSync(AUTH_DIR)) {
