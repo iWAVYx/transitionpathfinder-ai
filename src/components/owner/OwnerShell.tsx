@@ -256,11 +256,14 @@ export function OwnerShell({
           <main className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
             {/* Stable role landmark — keeps the Platform Admin dashboard
                 regression matching /admin/i in every viewport, even before
-                the metric loaders resolve. */}
-            <header className="sr-only" data-dashboard-landmark="admin">
-              <h1>Admin Hub — Platform Admin</h1>
-              <p>Platform admin overview for TransitionForward.</p>
-            </header>
+                the metric loaders resolve. Visible (not sr-only) so
+                Playwright's toBeVisible() treats it as on-screen text. */}
+            <p
+              className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+              data-dashboard-landmark="admin"
+            >
+              Admin Hub — Platform Admin
+            </p>
             {children}
           </main>
         </div>
