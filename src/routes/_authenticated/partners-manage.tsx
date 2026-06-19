@@ -159,6 +159,9 @@ function PartnerManagePage() {
   if (loading && !ws) {
     return (
       <SiteShell>
+        <header className="sr-only" data-dashboard-landmark="partner">
+          <h1>Partner Workspace — Opportunities</h1>
+        </header>
         <div className="flex min-h-[60vh] items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
