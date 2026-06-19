@@ -19,8 +19,12 @@ import { fileURLToPath } from "node:url";
  *   - authed   Runs *.signedin.spec.ts with the saved session attached.
  *              Depends on `setup`.
  */
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
-const useExternal = Boolean(process.env.PLAYWRIGHT_BASE_URL);
+// Treat empty string the same as unset — GitHub Actions injects "" when a
+// referenced secret (e.g. E2E_BASE_URL) is missing, which would otherwise
+// leave baseURL="" and skip the dev server entirely.
+const externalBase = process.env.PLAYWRIGHT_BASE_URL?.trim() || undefined;
+const baseURL = externalBase ?? "http://localhost:3000";
+const useExternal = Boolean(externalBase);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORAGE_STATE = path.join(__dirname, "tests/e2e/.auth/user.json");
