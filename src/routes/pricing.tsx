@@ -165,7 +165,7 @@ function PricingPage() {
                 <div className="mt-auto pt-6">
                   <Button asChild className="w-full" variant="outline">
                     <Link to={tier.cta.to} search={tier.cta.search as never}>
-                      {tier.cta.label} <ArrowRight className="h-4 w-4" />
+                      {toTitleCase(tier.cta.label)} <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
