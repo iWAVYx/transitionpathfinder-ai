@@ -62,7 +62,7 @@ export function SiteFooter() {
             </span>
           </Link>
           <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
-            From IEP Goals to Real-Life Pathways. One platform for the students,
+            From IEP Plans to Real-Life Pathways. One platform for the students,
             families, and educators walking the long road of transition together.
           </p>
           <p className="mt-4 max-w-md text-xs leading-relaxed text-muted-foreground/80">

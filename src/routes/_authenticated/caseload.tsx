@@ -110,8 +110,9 @@ function CaseloadPage() {
 
         <div className="mt-4 space-y-6 sm:space-y-8">
           <PageHeader
-            title="Your Caseload"
-            description="Students you own or have been invited to support as an Educator / Case Manager."
+            eyebrow="Educator / Case Manager"
+            title="Caseload Overview"
+            description="Students you own or have been invited to support — meetings, pending transition tasks, and reports needing review."
             action={
               <Button asChild className="w-full sm:w-auto">
                 <Link to="/students"><Plus className="h-4 w-4" /> Add Student</Link>
