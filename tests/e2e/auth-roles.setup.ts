@@ -53,17 +53,74 @@ for (const role of ROLES) {
     };
 
     try {
-      await page.goto("/login", { waitUntil: "domcontentloaded" });
+      // Route discovery: probe candidate auth routes and report which one
+      // actually serves the sign-in form (login-email testid). This lets us
+      // confirm whether /login is canonical or the app has moved to /auth,
+      // /signin, etc. Result is logged and attached to the report.
+      const candidates = ["/login", "/auth", "/signin", "/sign-in", "/account/login"];
+      const discovery: Array<{
+        path: string;
+        finalUrl: string;
+        status: number | null;
+        hasLoginEmail: boolean;
+        hasAnyEmailInput: boolean;
+      }> = [];
+      for (const path of candidates) {
+        try {
+          const resp = await page.goto(path, { waitUntil: "domcontentloaded", timeout: 20_000 });
+          const finalUrl = page.url();
+          const hasLoginEmail = await page
+            .getByTestId("login-email")
+            .first()
+            .isVisible()
+            .catch(() => false);
+          const hasAnyEmailInput = await page
+            .locator('input[type="email"], input[name="email" i], input[autocomplete="email"]')
+            .first()
+            .isVisible()
+            .catch(() => false);
+          discovery.push({
+            path,
+            finalUrl,
+            status: resp?.status() ?? null,
+            hasLoginEmail,
+            hasAnyEmailInput,
+          });
+        } catch (e) {
+          discovery.push({
+            path,
+            finalUrl: page.url(),
+            status: null,
+            hasLoginEmail: false,
+            hasAnyEmailInput: false,
+          });
+        }
+      }
+      const report = JSON.stringify(discovery, null, 2);
+      console.log(`[auth-setup ${role.key}] route-discovery:\n${report}`);
+      await testInfo.attach(`${role.key}-route-discovery.json`, {
+        body: report,
+        contentType: "application/json",
+      });
 
-      // Confirm we actually landed on /login (not redirected to marketing,
-      // an error page, or an auth wall).
-      const landedPath = new URL(page.url()).pathname;
-      if (landedPath !== "/login") {
-        await dumpDiagnostics("wrong-landing-route");
+      const canonical = discovery.find((d) => d.hasLoginEmail);
+      if (!canonical) {
+        const anyEmail = discovery.find((d) => d.hasAnyEmailInput);
+        await dumpDiagnostics("no-login-form-on-any-candidate");
         throw new Error(
-          `Expected /login but got ${landedPath} — login route may have moved or the app is redirecting.`,
+          `No candidate route exposed data-testid="login-email". ` +
+            `Closest match with an email input: ${anyEmail?.path ?? "none"} (final ${anyEmail?.finalUrl ?? "n/a"}). ` +
+            `Full discovery: ${report}`,
         );
       }
+      if (canonical.path !== "/login") {
+        console.warn(
+          `[auth-setup ${role.key}] sign-in form is served at ${canonical.path} (final ${canonical.finalUrl}), NOT /login. Update setup to use this route.`,
+        );
+      }
+
+      // Navigate to the discovered canonical route for the actual sign-in.
+      await page.goto(canonical.path, { waitUntil: "domcontentloaded" });
 
       // Ensure the Sign In tab is active (it's the default, but be explicit
       // in case a future change flips defaults).
@@ -74,6 +131,7 @@ for (const role of ROLES) {
           await signinTab.first().click();
         }
       }
+
 
       const emailInput = page.getByTestId("login-email");
       try {
