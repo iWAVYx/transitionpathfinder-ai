@@ -16,8 +16,10 @@
 //   10 = base URL env var not set
 //   11 = not https://
 //   12 = DNS resolution failed
-//   13 = base URL fetch failed (network/TLS) or 5xx
+//   13 = base URL fetch failed (network/TLS) or 5xx, or Cloudflare challenge
 //   14 = /login fetch failed or 5xx
+//   15 = e2e./staging. host redirects to bare apex (transitionforwardct.com)
+
 
 import { lookup } from "node:dns/promises";
 
