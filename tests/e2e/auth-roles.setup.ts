@@ -94,6 +94,39 @@ for (const role of ROLES) {
         );
       }
 
+      // Production-redirect preflight: if the configured base URL is an
+      // e2e./staging. subdomain but we landed on the bare apex
+      // (transitionforwardct.com), Cloudflare/Lovable is canonical-redirecting
+      // the staging host into production — which is exactly the case
+      // Playwright cannot pass because production is behind the Cloudflare
+      // challenge. Fail loudly with remediation steps instead of letting the
+      // test continue and hit a 403 challenge page.
+      try {
+        const configuredHost = new URL(configuredBaseUrl).hostname.toLowerCase();
+        const finalHost = new URL(rootFinalUrl).hostname.toLowerCase();
+        const configuredIsStaging = /^(e2e|staging)\./.test(configuredHost);
+        const finalIsApex =
+          finalHost === "transitionforwardct.com" || finalHost === "www.transitionforwardct.com";
+        if (configuredIsStaging && finalIsApex) {
+          await dumpDiagnostics("e2e-redirected-to-production");
+          throw new Error(
+            `E2E domain is redirecting to protected production domain. ` +
+              `configuredBaseURL=${configuredBaseUrl} (host=${configuredHost}) but ` +
+              `finalUrl=${rootFinalUrl} (host=${finalHost}). Fix: in Cloudflare, ensure ` +
+              `${configuredHost} is a CNAME to the Lovable target with proxy=DNS only ` +
+              `(gray cloud) and remove any page/redirect rule sending it to the apex. In ` +
+              `Lovable custom-domain settings, add ${configuredHost} as its own connected ` +
+              `domain with SSL active so the app accepts that host without canonical ` +
+              `redirect to transitionforwardct.com.`,
+          );
+        }
+      } catch (e) {
+        // URL() can throw on the "(unset — using localhost)" sentinel — only
+        // rethrow our own preflight error, not URL parsing failures.
+        if (e instanceof Error && e.message.startsWith("E2E domain is redirecting")) throw e;
+      }
+
+
       // Route discovery: probe candidate auth routes and report which one
       // actually serves the sign-in form (login-email testid).
       const candidates = ["/login", "/auth", "/signin", "/sign-in", "/account/login"];
