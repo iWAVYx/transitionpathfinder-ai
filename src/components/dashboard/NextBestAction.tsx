@@ -50,20 +50,45 @@ export function NextBestAction({
 
   if (loading) {
     return (
-      <div
+      <section
         className={cn(
-          "rounded-3xl border bg-card p-5 shadow-soft sm:p-6 animate-pulse",
+          "rounded-3xl border bg-card p-5 shadow-soft sm:p-6",
           className,
         )}
+        aria-label="Next best step"
       >
-        <div className="h-3 w-24 rounded bg-muted" />
-        <div className="mt-3 h-5 w-2/3 rounded bg-muted" />
-        <div className="mt-2 h-4 w-full rounded bg-muted" />
-      </div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Next best step
+        </p>
+        <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
+          Finding your next best step…
+        </h3>
+        <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-muted" />
+      </section>
     );
   }
 
-  if (!action) return null;
+  if (!action) {
+    return (
+      <section
+        className={cn(
+          "rounded-3xl border bg-card p-5 shadow-soft sm:p-6",
+          className,
+        )}
+        aria-label="Next best step"
+      >
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Next best step
+        </p>
+        <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
+          You're all caught up
+        </h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-foreground/75">
+          No urgent next step right now. Keep moving your plan forward when you're ready.
+        </p>
+      </section>
+    );
+  }
 
   const Icon =
     action.tone === "success"
@@ -94,7 +119,7 @@ export function NextBestAction({
         className,
       )}
       role="region"
-      aria-label="Next best action"
+      aria-label="Next best step"
     >
       <div className="flex items-start gap-4">
         <div
@@ -107,7 +132,7 @@ export function NextBestAction({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Next best action
+            Next best step
           </p>
           <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
             {action.headline}

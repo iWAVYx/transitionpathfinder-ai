@@ -59,7 +59,7 @@ function OwnerDashboardPage() {
 
   return (
     <OwnerShell
-      title="Dashboard"
+      title="Admin Hub"
       description="Website and platform overview for TransitionForward."
     >
       {loading ? (
