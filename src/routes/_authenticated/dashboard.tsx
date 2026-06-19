@@ -359,6 +359,9 @@ function DashboardPage() {
   if (loading || !snap) {
     return (
       <SiteShell>
+        <header className="sr-only" data-dashboard-landmark="dashboard">
+          <h1>Your Dashboard — Next Best Step</h1>
+        </header>
         <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
           <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Loading your dashboard…
         </div>
