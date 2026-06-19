@@ -155,8 +155,12 @@ function TwoFactorChallengePage() {
                   : "Ready for your six-digit code"}
             </div>
 
+            <label htmlFor="totp-code-input" className="sr-only">
+              Six-digit authenticator code
+            </label>
             <div className="flex justify-center">
               <InputOTP
+                id="totp-code-input"
                 maxLength={6}
                 value={code}
                 onChange={setCode}
@@ -164,7 +168,10 @@ function TwoFactorChallengePage() {
                 disabled={bootstrapping || submitting}
                 aria-label="Six-digit authenticator code"
                 aria-describedby="twofa-instructions"
-                data-testid="twofa-code"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                data-testid="totp-code"
               >
                 <InputOTPGroup>
                   {[0, 1, 2, 3, 4, 5].map((i) => (
