@@ -157,7 +157,7 @@ function PricingPage() {
                       key={h}
                       className="rounded-full border border-border/60 bg-background/60 px-2.5 py-1 text-xs text-muted-foreground"
                     >
-                      {h}
+                      {toTitleCase(h)}
                     </li>
                   ))}
                 </ul>
