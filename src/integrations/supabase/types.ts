@@ -6151,6 +6151,11 @@ export type Database = {
         Returns: boolean
       }
       claim_admin_if_unclaimed: { Args: never; Returns: boolean }
+      collaborator_role_for: { Args: { _collab_id: string }; Returns: string }
+      collaborator_student_for: {
+        Args: { _collab_id: string }
+        Returns: string
+      }
       consume_unsubscribe_token: {
         Args: { _token: string }
         Returns: {
