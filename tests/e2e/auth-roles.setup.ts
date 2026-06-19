@@ -29,15 +29,22 @@ for (const role of ROLES) {
       `${role.emailEnv} / ${role.passwordEnv} not set — ${role.key} skipped`,
     );
 
-    await page.goto("/login");
-    const panel = page.getByRole("tabpanel", { name: /sign in/i });
-    await panel.getByLabel(/email/i).fill(email!);
-    await panel.getByLabel(/password/i).fill(password!);
-    await panel.getByRole("button", { name: /sign in/i }).click();
+    await page.goto("/login", { waitUntil: "domcontentloaded" });
+    // The Sign In tab is selected by default. Target inputs by their stable
+    // ids (signin-email / signin-password) so we don't depend on the tabpanel
+    // having an accessible name — shadcn's Tabs don't set aria-label on the
+    // panel, so getByRole("tabpanel", { name }) never matched.
+    const emailInput = page.locator("#signin-email");
+    await emailInput.waitFor({ state: "visible", timeout: 20_000 });
+    await emailInput.fill(email!);
+    await page.locator("#signin-password").fill(password!);
+    await page
+      .locator('form:has(#signin-email) button[type="submit"]')
+      .click();
 
     await page.waitForURL(
       (url) => !url.pathname.match(/^\/login$/),
-      { timeout: 20_000 },
+      { timeout: 30_000 },
     );
 
     // Handle TOTP if the account requires it.
