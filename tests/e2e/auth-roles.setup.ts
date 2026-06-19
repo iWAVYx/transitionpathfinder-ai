@@ -18,6 +18,68 @@ for (const role of ROLES) {
       `${role.emailEnv} / ${role.passwordEnv} not set — ${role.key} skipped`,
     );
 
+    // Redirect/navigation chain recorder. Captures every top-level
+    // response and frame navigation so a failure artifact shows exactly
+    // what host/status sequence ran — e.g. e2e.* → 301 apex →
+    // Cloudflare challenge. Populated for the lifetime of the test.
+    type ChainEntry = {
+      kind: "response" | "framenavigated" | "request";
+      at: string;
+      method?: string;
+      url: string;
+      host: string;
+      status?: number;
+      statusText?: string;
+      location?: string | null;
+      server?: string | null;
+      cfRay?: string | null;
+      resourceType?: string;
+      fromRedirect?: string | null;
+    };
+    const chain: ChainEntry[] = [];
+    const hostOf = (u: string) => {
+      try { return new URL(u).hostname.toLowerCase(); } catch { return ""; }
+    };
+    page.on("request", (req) => {
+      if (req.resourceType() !== "document") return;
+      const redirectedFrom = req.redirectedFrom();
+      chain.push({
+        kind: "request",
+        at: new Date().toISOString(),
+        method: req.method(),
+        url: req.url(),
+        host: hostOf(req.url()),
+        resourceType: req.resourceType(),
+        fromRedirect: redirectedFrom ? redirectedFrom.url() : null,
+      });
+    });
+    page.on("response", (resp) => {
+      const req = resp.request();
+      if (req.resourceType() !== "document") return;
+      const headers = resp.headers();
+      chain.push({
+        kind: "response",
+        at: new Date().toISOString(),
+        method: req.method(),
+        url: resp.url(),
+        host: hostOf(resp.url()),
+        status: resp.status(),
+        statusText: resp.statusText(),
+        location: headers["location"] ?? null,
+        server: headers["server"] ?? null,
+        cfRay: headers["cf-ray"] ?? null,
+      });
+    });
+    page.on("framenavigated", (frame) => {
+      if (frame !== page.mainFrame()) return;
+      chain.push({
+        kind: "framenavigated",
+        at: new Date().toISOString(),
+        url: frame.url(),
+        host: hostOf(frame.url()),
+      });
+    });
+
     // Dump live diagnostics if anything below throws — the failure log
     // tells us where the page actually was instead of just "selector not found".
     const dumpDiagnostics = async (label: string) => {
@@ -26,7 +88,10 @@ for (const role of ROLES) {
         const title = await page.title().catch(() => "<title unavailable>");
         const bodyText = (
           await page.locator("body").innerText({ timeout: 2_000 }).catch(() => "<body unavailable>")
-        ).slice(0, 800);
+        ).slice(0, 2_000);
+        const htmlSnippet = (
+          await page.content().catch(() => "<html unavailable>")
+        ).slice(0, 20_000);
         const inputIds = await page
           .$$eval("input", (els) =>
             els.map((e) => ({
@@ -44,8 +109,32 @@ for (const role of ROLES) {
             contentType: "image/png",
           });
         }
+        await testInfo.attach(`${role.key}-${label}-redirect-chain.json`, {
+          body: JSON.stringify(
+            {
+              configuredBaseUrl: process.env.PLAYWRIGHT_BASE_URL ?? null,
+              finalUrl: url,
+              chain,
+            },
+            null,
+            2,
+          ),
+          contentType: "application/json",
+        });
+        await testInfo.attach(`${role.key}-${label}.html`, {
+          body: htmlSnippet,
+          contentType: "text/html",
+        });
+        const chainSummary = chain
+          .filter((c) => c.kind === "response" || c.kind === "framenavigated")
+          .map((c) =>
+            c.kind === "response"
+              ? `  → ${c.status} ${c.host}${new URL(c.url).pathname}${c.location ? `  [Location: ${c.location}]` : ""}${c.cfRay ? `  [cf-ray=${c.cfRay}]` : ""}`
+              : `  ⇢ nav ${c.host}${(() => { try { return new URL(c.url).pathname; } catch { return ""; }})()}`,
+          )
+          .join("\n");
         console.log(
-          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n  body[0..800]=${bodyText}`,
+          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
         );
       } catch (e) {
         console.log(`[auth-setup ${role.key}] dumpDiagnostics threw: ${(e as Error).message}`);
