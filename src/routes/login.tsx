@@ -236,10 +236,17 @@ function SignInForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" data-testid="login-form">
       <div>
         <Label htmlFor="signin-email">Email</Label>
-        <Input id="signin-email" type="email" autoComplete="email" {...form.register("email")} />
+        <Input
+          id="signin-email"
+          type="email"
+          autoComplete="email"
+          aria-label="Email"
+          data-testid="login-email"
+          {...form.register("email")}
+        />
         {form.formState.errors.email && (
           <p className="mt-1 text-xs text-destructive">{form.formState.errors.email.message}</p>
         )}
@@ -250,13 +257,20 @@ function SignInForm() {
           id="signin-password"
           type="password"
           autoComplete="current-password"
+          aria-label="Password"
+          data-testid="login-password"
           {...form.register("password")}
         />
         {form.formState.errors.password && (
           <p className="mt-1 text-xs text-destructive">{form.formState.errors.password.message}</p>
         )}
       </div>
-      <Button type="submit" disabled={submitting} className="w-full">
+      <Button
+        type="submit"
+        disabled={submitting}
+        className="w-full"
+        data-testid="login-submit"
+      >
         {submitting ? "Signing In…" : "Sign In"}
       </Button>
     </form>
