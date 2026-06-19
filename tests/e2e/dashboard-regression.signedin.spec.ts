@@ -74,12 +74,16 @@ for (const role of ROLES) {
 
         test("renders, no horizontal overflow, expected landmarks", async ({ page }) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
-          await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+          const main = page.locator("main");
+          await expect(main).toBeVisible({ timeout: 15_000 });
+          // Scope role landmark checks to <main>: hidden responsive nav links
+          // and shared header/footer copy must not satisfy or violate the
+          // role's expected dashboard content.
           for (const re of role.mustSee) {
-            await expect(page.getByText(re).first()).toBeVisible({ timeout: 10_000 });
+            await expect(main.getByText(re).first()).toBeVisible({ timeout: 10_000 });
           }
           for (const re of role.mustNotSee) {
-            await expect(page.getByText(re).first()).toHaveCount(0);
+            await expect(main.getByText(re)).toHaveCount(0);
           }
           await assertNoHorizontalScroll(page, `${role.key} ${vp.label}`);
         });
