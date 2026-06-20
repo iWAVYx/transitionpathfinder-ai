@@ -289,12 +289,10 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
-          <p
-            className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
-            data-dashboard-landmark="family"
-          >
-            Pathway Progress
-          </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <span data-dashboard-landmark="student">Next Best Step</span>
+            <span data-dashboard-landmark="family">Pathway Progress</span>
+          </div>
           <Breadcrumbs trail={[{ label: "Dashboard" }]} />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
