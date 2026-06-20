@@ -289,6 +289,10 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <span data-dashboard-landmark="student">Next Best Step</span>
+            <span data-dashboard-landmark="family">Pathway Progress</span>
+          </div>
           <Breadcrumbs trail={[{ label: "Dashboard" }]} />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
@@ -347,6 +351,10 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+          <div className="mb-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <span data-dashboard-landmark="student">Next Best Step</span>
+            <span data-dashboard-landmark="family">Pathway Progress</span>
+          </div>
           <AlertCircle className="mx-auto h-6 w-6 text-destructive" />
           <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">We couldn't load your dashboard</h1>
           <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
@@ -360,12 +368,10 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-          <p
-            className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
-            data-dashboard-landmark="dashboard"
-          >
-            Your Dashboard — Next Best Step
-          </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <span data-dashboard-landmark="student">Next Best Step</span>
+            <span data-dashboard-landmark="family">Pathway Progress</span>
+          </div>
         </div>
         <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
           <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Loading your dashboard…
@@ -378,6 +384,12 @@ function DashboardPage() {
   return (
     <SiteShell>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+          data-dashboard-landmark="family"
+        >
+          Pathway Progress
+        </p>
         <Breadcrumbs trail={[{ label: "Dashboard" }]} />
 
         <div className="mt-4">
