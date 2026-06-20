@@ -48,7 +48,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_STUDENT_EMAIL",
     passwordEnv: "E2E_STUDENT_PASSWORD",
     dashboard: "/dashboard",
-    mustSee: [/next best/i],
+    mustSee: [/Next Best Step/i],
     mustNotSee: [/caseload/i, /admin hub/i, /partner network/i],
   },
   {
@@ -58,7 +58,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_PARENT_EMAIL",
     passwordEnv: "E2E_PARENT_PASSWORD",
     dashboard: "/dashboard",
-    mustSee: [/next best|pathway|goals/i],
+    mustSee: [/Pathway Progress/i],
     mustNotSee: [/caseload/i, /partner network/i, /platform admin/i],
   },
   {
@@ -68,7 +68,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_EDUCATOR_EMAIL",
     passwordEnv: "E2E_EDUCATOR_PASSWORD",
     dashboard: "/caseload",
-    mustSee: [/caseload/i],
+    mustSee: [/Caseload Overview/i],
     mustNotSee: [/platform admin/i, /partner network/i],
   },
   {
@@ -109,7 +109,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_OWNER_EMAIL",
     passwordEnv: "E2E_OWNER_PASSWORD",
     dashboard: "/admin",
-    mustSee: [/admin/i],
+    mustSee: [/Platform Admin/i],
     mustNotSee: [],
   },
 ];
