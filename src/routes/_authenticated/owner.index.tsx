@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/owner/")({
   component: OwnerDashboardPage,
 });
 
-function OwnerDashboardPage() {
+export function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
   const fetchResourceCounts = useServerFn(getResourceCounts);
   const fetchReviewCounts = useServerFn(adminListResourcesNeedingReview);

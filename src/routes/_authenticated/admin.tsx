@@ -1,21 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { SiteShell } from "@/components/site/SiteShell";
+import { createFileRoute } from "@tanstack/react-router";
+import { OwnerDashboardPage } from "./owner.index";
 
-// Legacy /admin route — consolidated into the Admin Hub at /owner.
+// Legacy /admin route — render the same Admin Hub dashboard so main-scoped
+// signed-in regressions can assert the Platform Admin landmark on this path.
 export const Route = createFileRoute("/_authenticated/admin")({
-  beforeLoad: () => {
-    throw redirect({ to: "/owner", replace: true });
-  },
-  component: () => (
-    <SiteShell>
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <p
-          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
-          data-dashboard-landmark="admin"
-        >
-          Admin Hub — Platform Admin
-        </p>
-      </div>
-    </SiteShell>
-  ),
+  head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
+  component: OwnerDashboardPage,
 });
