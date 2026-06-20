@@ -53,7 +53,7 @@ interface Tier {
 const tiers: Tier[] = [
   {
     id: "family",
-    name: "Families",
+    name: "Students & Families",
     price: "Free",
     priceNote: "During the pilot",
     description:
