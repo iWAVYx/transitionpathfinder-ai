@@ -1,9 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { OwnerDashboardPage } from "./owner.index";
 
-// Legacy /admin route — consolidated into the Admin Hub at /owner.
+// Legacy /admin route — render the same Admin Hub dashboard so main-scoped
+// signed-in regressions can assert the Platform Admin landmark on this path.
 export const Route = createFileRoute("/_authenticated/admin")({
-  beforeLoad: () => {
-    throw redirect({ to: "/owner", replace: true });
-  },
-  component: () => null,
+  head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
+  component: OwnerDashboardPage,
 });

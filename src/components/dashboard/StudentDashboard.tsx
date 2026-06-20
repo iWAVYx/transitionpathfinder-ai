@@ -59,7 +59,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
             educator, or case manager needs to add you as a collaborator on your plan.
           </p>
           <div className="mt-8 rounded-3xl border bg-card p-6 shadow-soft">
-            <h2 className="font-display text-xl">What to do next</h2>
+            <h2 className="font-display text-xl">Next Best Step</h2>
             <ol className="mt-3 list-inside list-decimal space-y-2 text-sm text-muted-foreground">
               <li>Ask a parent, guardian, or case manager to invite you using this account's email.</li>
               <li>Accept the invite when you receive it — your plan will appear here.</li>
@@ -185,7 +185,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ClipboardList className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-xl">Things you can do</h2>
+                <h2 className="font-display text-xl">Next Best Steps</h2>
               </div>
               <span className="text-xs text-muted-foreground">{openCount} open</span>
             </div>
