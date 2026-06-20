@@ -187,7 +187,7 @@ function PricingPage() {
                 We will never charge a family for the core planning tools their
                 student needs to leave high school with a real plan. If cost is
                 a barrier — for a family, a teacher, or a small program —
-                email <a className="text-primary underline-offset-2 hover:underline" href="mailto:hello@transitionforward.org">hello@transitionforward.org</a>.
+                email <a className="text-primary underline-offset-2 hover:underline" href="mailto:hello@transitionforwardct.com">hello@transitionforwardct.com</a>.
               </p>
             </div>
           </div>
