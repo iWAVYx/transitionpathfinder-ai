@@ -386,6 +386,12 @@ function DashboardPage() {
   return (
     <SiteShell>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+          data-dashboard-landmark="family"
+        >
+          Pathway Progress
+        </p>
         <Breadcrumbs trail={[{ label: "Dashboard" }]} />
 
         <div className="mt-4">
