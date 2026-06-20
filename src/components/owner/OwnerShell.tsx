@@ -139,8 +139,15 @@ export function OwnerShell({
 
   if (status !== "allowed") {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-background">
-        <div className="flex items-center gap-3 text-muted-foreground">
+      <div className="flex min-h-dvh flex-col bg-background text-foreground">
+        <main className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
+          <p
+            className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+            data-dashboard-landmark="admin"
+          >
+            Platform Admin
+          </p>
+        <div className="flex min-h-[70vh] items-center justify-center gap-3 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span className="text-sm">
             {status === "denied"
@@ -148,6 +155,7 @@ export function OwnerShell({
               : "Checking admin access…"}
           </span>
         </div>
+        </main>
       </div>
     );
   }

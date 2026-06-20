@@ -12,9 +12,34 @@
 //   …                                            \
 //   npx playwright test --project=dashboard-regression
 
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES, VIEWPORTS } from "./helpers/roles";
+
+async function attachMainDiagnostic(
+  page: Page,
+  testInfo: TestInfo,
+  roleKey: string,
+  label: string,
+) {
+  const mainText = await page
+    .locator("main")
+    .innerText({ timeout: 15_000 })
+    .catch((err: Error) => `<main unavailable: ${err.message}>`);
+  const diagnostic = {
+    roleKey,
+    label,
+    finalUrl: page.url(),
+    mainText,
+  };
+  console.log(
+    `[dashboard-main-diagnostic ${roleKey} ${label}] finalUrl=${diagnostic.finalUrl}\n${mainText}`,
+  );
+  await testInfo.attach(`${roleKey}-${label}-main-diagnostic.json`, {
+    body: JSON.stringify(diagnostic, null, 2),
+    contentType: "application/json",
+  });
+}
 
 async function assertNoHorizontalScroll(page: Page, label: string) {
   const dims = await page.evaluate(() => ({
@@ -72,8 +97,9 @@ for (const role of ROLES) {
       test.describe(`@ ${vp.label} (${vp.width}×${vp.height})`, () => {
         test.use({ viewport: { width: vp.width, height: vp.height } });
 
-        test("renders, no horizontal overflow, expected landmarks", async ({ page }) => {
+        test("renders, no horizontal overflow, expected landmarks", async ({ page }, testInfo) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
+          await attachMainDiagnostic(page, testInfo, role.key, vp.label);
           const main = page.locator("main");
           await expect(main).toBeVisible({ timeout: 15_000 });
           // Scope role landmark checks to <main>: hidden responsive nav links
@@ -130,9 +156,10 @@ for (const role of ROLES) {
     // region, reload, and assert it's still there. Catches loaders that
     // throw away state on remount and loading/error states that flash
     // instead of resolving.
-    test("dashboard state survives a hard refresh", async ({ page }) => {
+    test("dashboard state survives a hard refresh", async ({ page }, testInfo) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await attachMainDiagnostic(page, testInfo, role.key, "refresh-before");
       const main = page.locator("main");
       await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
       const before = await main.innerText();

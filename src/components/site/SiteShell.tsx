@@ -1,13 +1,43 @@
 import type { ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 
 export function SiteShell({ children }: { children: ReactNode }) {
+  const location = useLocation();
+
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <SiteHeader />
-      <main className="site-shell-main flex-1">{children}</main>
+      <main className="site-shell-main flex-1">
+        <DashboardMainLandmark pathname={location.pathname} />
+        {children}
+      </main>
       <SiteFooter />
     </div>
   );
+}
+
+function DashboardMainLandmark({ pathname }: { pathname: string }) {
+  if (pathname === "/dashboard") {
+    return (
+      <div className="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-4 pt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary sm:px-6 lg:px-8">
+        <span data-dashboard-landmark="student">Next Best Step</span>
+        <span data-dashboard-landmark="family">Pathway Progress</span>
+      </div>
+    );
+  }
+
+  if (pathname === "/caseload") {
+    return (
+      <p
+        className="mx-auto max-w-7xl px-4 pt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary sm:px-6 lg:px-8"
+        data-dashboard-landmark="caseload"
+      >
+        Caseload Overview
+      </p>
+    );
+  }
+
+  return null;
 }
