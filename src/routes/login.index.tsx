@@ -26,7 +26,7 @@ const SignUpSchema = SignInSchema.extend({
   full_name: z.string().trim().min(1, "Required").max(200),
 });
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/login/")({
   validateSearch: (s: { redirect?: string }): { redirect: string } => ({
     redirect: s.redirect || "/dashboard",
   }),
