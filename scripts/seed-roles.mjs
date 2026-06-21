@@ -25,6 +25,8 @@ const roles = [
   { key: 'owner',          email: 'e2e-owner@transitionforwardct.com',          appRole: 'admin', adminRole: 'platform_owner' },
 ]
 
+const studentOwners = new Map()
+
 function genPassword(label) {
   const suffix = randomBytes(8).toString('base64').replace(/[^A-Za-z0-9]/g, '').slice(0, 12)
   return `E2e${label}!${suffix}`
@@ -89,6 +91,84 @@ for (const r of roles) {
       .from('admin_roles')
       .upsert({ user_id: user.id, role: r.adminRole }, { onConflict: 'user_id,role' })
     if (aErr) throw new Error(`admin_roles ${r.email}: ${aErr.message}`)
+  }
+
+  if (['student', 'parent', 'educator'].includes(r.key)) {
+    const { data: existing } = await admin
+      .from('students')
+      .select('id')
+      .eq('owner_id', user.id)
+      .eq('is_demo', true)
+      .limit(1)
+      .maybeSingle()
+    let studentId = existing?.id
+    if (!studentId) {
+      const { data: s, error: sErr } = await admin
+        .from('students')
+        .insert({
+          owner_id: user.id,
+          student_user_id: r.key === 'student' ? user.id : null,
+          first_name: 'E2E',
+          last_name: r.key === 'student' ? 'Student' : 'Learner',
+          grade_band: '11-12',
+          school: 'E2E Transition School',
+          is_demo: true,
+        })
+        .select('id')
+        .single()
+      if (sErr || !s) throw new Error(`student ${r.email}: ${sErr?.message ?? 'missing row'}`)
+      studentId = s.id
+    }
+    studentOwners.set(r.key, { user, studentId })
+    if (r.key === 'parent' || r.key === 'student') {
+      const { error: gErr } = await admin.from('student_guardians').insert({
+        student_id: studentId,
+        guardian_user_id: user.id,
+        guardian_email: r.email,
+        relationship: r.key,
+        is_primary: true,
+        verified: true,
+      })
+      if (gErr && !/duplicate/i.test(gErr.message)) throw new Error(`guardian ${r.email}: ${gErr.message}`)
+    }
+    if (r.key === 'educator') {
+      const { error: cErr } = await admin.from('student_collaborators').insert({
+        student_id: studentId,
+        user_id: user.id,
+        invited_email: r.email,
+        role: 'editor',
+        status: 'accepted',
+        invited_by: user.id,
+        is_demo: true,
+      })
+      if (cErr && !/duplicate/i.test(cErr.message)) throw new Error(`collaborator ${r.email}: ${cErr.message}`)
+    }
+  }
+
+  if (['school_admin', 'district_admin', 'partner'].includes(r.key)) {
+    const orgType = r.key === 'district_admin' ? 'district' : r.key === 'partner' ? 'partner' : 'school'
+    const orgName = `E2E ${r.key.replace(/_/g, ' ')} Organization`
+    const { data: existingOrg } = await admin
+      .from('organizations')
+      .select('id')
+      .eq('name', orgName)
+      .eq('type', orgType)
+      .limit(1)
+      .maybeSingle()
+    let orgId = existingOrg?.id
+    if (!orgId) {
+      const { data: org, error: orgErr } = await admin
+        .from('organizations')
+        .insert({ name: orgName, type: orgType, city: 'Hartford', state: 'CT', verified_status: 'verified', status: 'active' })
+        .select('id')
+        .single()
+      if (orgErr || !org) throw new Error(`organization ${r.email}: ${orgErr?.message ?? 'missing row'}`)
+      orgId = org.id
+    }
+    const { error: mErr } = await admin
+      .from('organization_memberships')
+      .upsert({ organization_id: orgId, user_id: user.id, role_within_org: r.key, status: 'active', membership_status: 'active' }, { onConflict: 'organization_id,user_id' })
+    if (mErr) throw new Error(`membership ${r.email}: ${mErr.message}`)
   }
 
   results.push({ key: r.key, email: r.email, password })
