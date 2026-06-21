@@ -3,7 +3,7 @@
 // tests/e2e/.auth/<role>.json. Roles with missing creds are skipped so
 // PRs without the full secret matrix still run whatever they have.
 
-import { test as setup, expect } from "@playwright/test";
+import { test as setup, expect, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { authenticator } from "otplib";
@@ -31,7 +31,7 @@ function dashboardReadinessError(expected: string, got: string) {
 }
 
 async function assertDashboardReady(
-  page: import("@playwright/test").Page,
+  page: Page,
   role: RoleSpec,
   dumpDiagnostics?: (label: string) => Promise<void>,
 ) {
@@ -54,7 +54,7 @@ async function assertDashboardReady(
 }
 
 async function completeOnboardingIfPresent(
-  page: import("@playwright/test").Page,
+  page: Page,
   role: RoleSpec,
 ) {
   if (normalizePath(new URL(page.url()).pathname) !== "/onboarding") return;
@@ -109,7 +109,7 @@ async function completeOnboardingIfPresent(
   }
 }
 
-async function ensureWorkspaceSeeded(page: import("@playwright/test").Page, role: RoleSpec) {
+async function ensureWorkspaceSeeded(page: Page, role: RoleSpec) {
   if (role.key === "school_admin") {
     const setupCard = page.getByRole("heading", { name: /set up your school/i }).first();
     if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
@@ -144,7 +144,7 @@ async function ensureWorkspaceSeeded(page: import("@playwright/test").Page, role
 }
 
 for (const role of ROLES) {
-  setup(`authenticate ${role.key}`, async ({ page }, testInfo) => {
+  setup(`authenticate ${role.key}`, async ({ page, browser }, testInfo) => {
     const email = process.env[role.emailEnv];
     const password = process.env[role.passwordEnv];
     setup.skip(
