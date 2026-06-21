@@ -84,7 +84,7 @@ async function completeTwoFactorIfPresent(
     await otpInput.fill(authenticator.generate(secret));
 
     const verifyButton = page
-      .locator('[data-testid="verify-2fa"]')
+      .locator('[data-testid="totp-submit"], [data-testid="verify-2fa"]')
       .or(page.getByRole("button", { name: /verify|continue|submit|confirm/i }))
       .first();
 
@@ -560,6 +560,11 @@ for (const role of ROLES) {
       expect(hasSession, `${role.key} session should persist`).toBe(true);
 
       await completeOnboardingIfPresent(page, role);
+      if (role.key === "owner") {
+        await page.goto("/admin", { waitUntil: "networkidle" });
+        await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
+        await assertDashboardReady(page, role, dumpDiagnostics);
+      }
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
       await completeOnboardingIfPresent(page, role);
       if (normalizePath(new URL(page.url()).pathname) !== normalizePath(role.dashboard)) {
