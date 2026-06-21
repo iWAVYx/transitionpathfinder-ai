@@ -47,6 +47,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const redirect = normalizeAuthRedirect(search.redirect);
+  const isTwoFactorRoute = normalizeAuthPath(location.pathname) === "/login/2fa";
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -54,7 +56,7 @@ function LoginPage() {
   // a verified TOTP factor but the session is still aal1, bounce to the 2FA
   // challenge before letting them through to their redirect target.
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || isTwoFactorRoute) return;
     let cancelled = false;
     (async () => {
       const { data: aal } =
@@ -63,23 +65,23 @@ function LoginPage() {
       if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
         navigate({
           to: "/login/2fa",
-          search: { redirect: search.redirect },
+          search: { redirect },
           replace: true,
         });
         return;
       }
-      navigate({ to: search.redirect, replace: true });
+      navigate({ to: redirect, replace: true });
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, loading, search.redirect, navigate]);
+  }, [user, loading, redirect, isTwoFactorRoute, navigate]);
 
-  if (location.pathname === "/login/2fa") {
-    return <TwoFactorChallenge redirect={search.redirect} />;
+  if (isTwoFactorRoute) {
+    return <TwoFactorChallenge redirect={redirect} />;
   }
 
-  if (!loading && user) {
+  if (loading || user) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="redirecting-signed-in">
         <p className="text-sm text-muted-foreground">Loading…</p>
@@ -214,6 +216,16 @@ function LoginPage() {
   );
 }
 
+function normalizeAuthPath(pathname: string) {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+}
+
+function normalizeAuthRedirect(value: string) {
+  if (!value.startsWith("/")) return "/dashboard";
+  if (value.startsWith("//") || value.startsWith("/login")) return "/dashboard";
+  return value;
+}
+
 function SignInForm() {
   const [submitting, setSubmitting] = useState(false);
   const form = useForm<z.infer<typeof SignInSchema>>({
@@ -223,6 +235,7 @@ function SignInForm() {
 
   const navigate = useNavigate();
   const search = Route.useSearch();
+  const redirect = normalizeAuthRedirect(search.redirect);
   const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     setSubmitting(true);
     const { error } = await supabase.auth.signInWithPassword(values);
@@ -240,12 +253,13 @@ function SignInForm() {
     if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
       navigate({
         to: "/login/2fa",
-        search: { redirect: search.redirect },
+        search: { redirect },
         replace: true,
       });
       return;
     }
     toast.success("Signed in");
+    navigate({ to: redirect, replace: true });
   };
 
   return (
