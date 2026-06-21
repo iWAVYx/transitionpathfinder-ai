@@ -520,7 +520,12 @@ for (const role of ROLES) {
       }
 
       // Navigate to the discovered canonical route for the actual sign-in.
-      await page.goto(canonical.path, { waitUntil: "domcontentloaded" });
+      // Owner must complete aal2 against /admin so the saved state proves the
+      // platform-admin dashboard is reachable, not merely a generic dashboard.
+      const signInPath = role.key === "owner"
+        ? `${canonical.path}?redirect=${encodeURIComponent(role.dashboard)}`
+        : canonical.path;
+      await page.goto(signInPath, { waitUntil: "domcontentloaded" });
 
       // Ensure the Sign In tab is active (it's the default, but be explicit
       // in case a future change flips defaults).
