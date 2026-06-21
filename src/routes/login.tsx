@@ -79,6 +79,14 @@ function LoginPage() {
     return <TwoFactorChallenge redirect={search.redirect} />;
   }
 
+  if (!loading && user) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="redirecting-signed-in">
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      </main>
+    );
+  }
+
   const isNew = tab === "signup";
 
   return (
