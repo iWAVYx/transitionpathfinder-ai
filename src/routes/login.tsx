@@ -46,10 +46,7 @@ function LoginPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-
-  if (location.pathname === "/login/2fa") {
-    return <TwoFactorChallenge redirect={search.redirect} />;
-  }
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -78,8 +75,10 @@ function LoginPage() {
     };
   }, [user, loading, search.redirect, navigate]);
 
+  if (location.pathname === "/login/2fa") {
+    return <TwoFactorChallenge redirect={search.redirect} />;
+  }
 
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
   const isNew = tab === "signup";
 
   return (
