@@ -66,7 +66,7 @@ for (const r of roles) {
   // profile
   const { error: pErr } = await admin
     .from('profiles')
-    .upsert({ id: user.id, email: r.email, full_name: `E2E ${r.key}` }, { onConflict: 'id' })
+    .upsert({ id: user.id, email: r.email, full_name: `E2E ${r.key}`, onboarding_completed: true, primary_role: r.appRole }, { onConflict: 'id' })
   if (pErr) throw new Error(`profile ${r.email}: ${pErr.message}`)
 
   // app_role

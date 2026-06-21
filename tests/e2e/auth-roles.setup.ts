@@ -367,6 +367,14 @@ for (const role of ROLES) {
         (url) => !url.pathname.match(/^\/login$/),
         { timeout: 30_000 },
       );
+      // Fail fast: if redirected to onboarding, the seed is broken.
+      if (page.url().includes("/onboarding")) {
+        await dumpDiagnostics("unexpected-onboarding-redirect");
+        throw new Error(
+          `Seeded account for ${role.key} was redirected to /onboarding. ` +
+          `Ensure profiles.onboarding_completed is true and primary_role is set in the DB seed.`
+        );
+      }
 
       // Helper: is the user already authenticated in this page context?
       // The 2FA route may auto-redirect away (no enrolled factor / already
@@ -457,6 +465,26 @@ for (const role of ROLES) {
         }
       }
 
+
+      // Final destination check: did we reach the dashboard or a role-specific landing page?
+      const finalPath = new URL(page.url()).pathname;
+      if (finalPath.startsWith("/login")) {
+        await dumpDiagnostics("stuck-on-login");
+        throw new Error(`Auth setup for ${role.key} stuck on ${finalPath}. Verify credentials and 2FA secrets.`);
+      }
+
+      if (role.dashboard) {
+        try {
+          // Allow some time for role-based redirects (e.g. /dashboard -> /caseload) to settle
+          await page.waitForURL((url) => url.pathname.startsWith(role.dashboard), { timeout: 10_000 });
+        } catch (e) {
+          await dumpDiagnostics("unexpected-landing-page");
+          throw new Error(
+            `Auth setup for ${role.key} landed on ${page.url()} instead of expected ${role.dashboard}. ` +
+            `Check role-policy.ts fallbackPathFor() and seeded user_roles.`
+          );
+        }
+      }
 
       const hasSession = await page.evaluate(() =>
         Object.keys(window.localStorage).some((k) => k.includes("auth-token")),
