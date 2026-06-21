@@ -40,7 +40,7 @@ import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as ProgramsTransitionforwardRouteImport } from './routes/programs.transitionforward'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
 import { Route as PartnerforwardIncentivesRouteImport } from './routes/partnerforward.incentives'
-import { Route as Login2faRouteImport } from './routes/login.2fa'
+import { Route as Login2faRouteImport } from './routes/login_.2fa'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
@@ -302,9 +302,9 @@ const PartnerforwardIncentivesRoute =
     getParentRoute: () => PartnerforwardRoute,
   } as any)
 const Login2faRoute = Login2faRouteImport.update({
-  id: '/2fa',
-  path: '/2fa',
-  getParentRoute: () => LoginRoute,
+  id: '/login_/2fa',
+  path: '/login/2fa',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
@@ -892,7 +892,7 @@ export interface FileRoutesByFullPath {
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
-  '/login': typeof LoginRouteWithChildren
+  '/login': typeof LoginRoute
   '/partner-directory': typeof PartnerDirectoryRoute
   '/partner-interest': typeof PartnerInterestRoute
   '/partnerforward': typeof PartnerforwardRouteWithChildren
@@ -1028,7 +1028,7 @@ export interface FileRoutesByTo {
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
-  '/login': typeof LoginRouteWithChildren
+  '/login': typeof LoginRoute
   '/partner-directory': typeof PartnerDirectoryRoute
   '/partner-interest': typeof PartnerInterestRoute
   '/partnerforward': typeof PartnerforwardRouteWithChildren
@@ -1165,7 +1165,7 @@ export interface FileRoutesById {
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
   '/help': typeof HelpRoute
-  '/login': typeof LoginRouteWithChildren
+  '/login': typeof LoginRoute
   '/partner-directory': typeof PartnerDirectoryRoute
   '/partner-interest': typeof PartnerInterestRoute
   '/partnerforward': typeof PartnerforwardRouteWithChildren
@@ -1219,7 +1219,7 @@ export interface FileRoutesById {
   '/demo_/resources': typeof DemoResourcesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
-  '/login/2fa': typeof Login2faRoute
+  '/login_/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
@@ -1629,7 +1629,7 @@ export interface FileRouteTypes {
     | '/demo_/resources'
     | '/email/unsubscribe'
     | '/invite/$token'
-    | '/login/2fa'
+    | '/login_/2fa'
     | '/partnerforward/incentives'
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
@@ -1713,7 +1713,7 @@ export interface RootRouteChildren {
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
   HelpRoute: typeof HelpRoute
-  LoginRoute: typeof LoginRouteWithChildren
+  LoginRoute: typeof LoginRoute
   PartnerDirectoryRoute: typeof PartnerDirectoryRoute
   PartnerInterestRoute: typeof PartnerInterestRoute
   PartnerforwardRoute: typeof PartnerforwardRouteWithChildren
@@ -1739,6 +1739,7 @@ export interface RootRouteChildren {
   DemoResourcesRoute: typeof DemoResourcesRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  Login2faRoute: typeof Login2faRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
   ShareTokenRoute: typeof ShareTokenRoute
@@ -1969,12 +1970,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnerforwardIncentivesRouteImport
       parentRoute: typeof PartnerforwardRoute
     }
-    '/login/2fa': {
-      id: '/login/2fa'
-      path: '/2fa'
+    '/login_/2fa': {
+      id: '/login_/2fa'
+      path: '/login/2fa'
       fullPath: '/login/2fa'
       preLoaderRoute: typeof Login2faRouteImport
-      parentRoute: typeof LoginRoute
+      parentRoute: typeof rootRouteImport
     }
     '/invite/$token': {
       id: '/invite/$token'
@@ -2965,16 +2966,6 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
-interface LoginRouteChildren {
-  Login2faRoute: typeof Login2faRoute
-}
-
-const LoginRouteChildren: LoginRouteChildren = {
-  Login2faRoute: Login2faRoute,
-}
-
-const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
-
 interface PartnerforwardRouteChildren {
   PartnerforwardIncentivesRoute: typeof PartnerforwardIncentivesRoute
 }
@@ -2999,7 +2990,7 @@ const rootRouteChildren: RootRouteChildren = {
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
   HelpRoute: HelpRoute,
-  LoginRoute: LoginRouteWithChildren,
+  LoginRoute: LoginRoute,
   PartnerDirectoryRoute: PartnerDirectoryRoute,
   PartnerInterestRoute: PartnerInterestRoute,
   PartnerforwardRoute: PartnerforwardRouteWithChildren,
@@ -3025,6 +3016,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoResourcesRoute: DemoResourcesRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   InviteTokenRoute: InviteTokenRoute,
+  Login2faRoute: Login2faRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
   ShareTokenRoute: ShareTokenRoute,

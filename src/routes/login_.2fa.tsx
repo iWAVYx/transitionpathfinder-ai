@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/login/2fa")({
+export const Route = createFileRoute("/login_/2fa")({
   validateSearch: (s: { redirect?: string }): { redirect: string } => ({
     redirect: s.redirect || "/dashboard",
   }),
@@ -195,7 +195,7 @@ function TwoFactorChallengePage() {
               type="submit"
               className="w-full"
               disabled={submitting || bootstrapping || code.length !== 6}
-              data-testid="totp-submit"
+              data-testid="verify-2fa"
             >
               {submitting ? "Verifying…" : "Verify"}
             </Button>

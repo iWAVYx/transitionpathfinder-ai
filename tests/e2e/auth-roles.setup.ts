@@ -650,7 +650,7 @@ for (const role of ROLES) {
               : labelInput;
             await target.click();
             await page.keyboard.type(code, { delay: 30 });
-            const submit = page.getByTestId("totp-submit").first();
+            const submit = page.getByTestId("verify-2fa").first();
             if (await submit.isVisible().catch(() => false)) {
               await submit.click();
             } else {
@@ -680,7 +680,7 @@ for (const role of ROLES) {
             await dumpDiagnostics("2fa-route-without-challenge");
             throw new Error(
               `2FA route rendered without challenge form for ${role.key} at ${page.url()}. ` +
-                `Either expose data-testid="totp-code" + "totp-submit" on /login/2fa, ` +
+                `Either expose data-testid="totp-code" + "verify-2fa" on /login/2fa, ` +
                 `or redirect authenticated users straight to the dashboard when no factor is enrolled.`,
             );
           }
