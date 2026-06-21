@@ -104,16 +104,8 @@ function CaseloadPage() {
 
   return (
     <SiteShell>
-      {/* Stable role landmark — keeps the Educator / Case Manager dashboard
-          regression matching the actual signed-in /caseload main content
-          across viewports and while access is still being checked. */}
-      <p
-        className="mx-auto max-w-7xl px-4 pt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary sm:px-6 lg:px-8"
-        data-dashboard-landmark="caseload"
-      >
-        Caseload Overview
-      </p>
-      <RoleGuard path="/caseload">
+      <CaseloadRoleLandmark />
+      <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
       <PageContainer>
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
 
@@ -225,6 +217,25 @@ function CaseloadPage() {
       </PageContainer>
       </RoleGuard>
     </SiteShell>
+  );
+}
+
+function CaseloadRoleLandmark() {
+  return (
+    <p
+      className="mx-auto max-w-7xl px-4 pt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary sm:px-6 lg:px-8"
+      data-dashboard-landmark="caseload"
+    >
+      Caseload Overview
+    </p>
+  );
+}
+
+function CaseloadAccessFallback() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
+      Checking access…
+    </div>
   );
 }
 

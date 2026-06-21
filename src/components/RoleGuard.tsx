@@ -16,6 +16,8 @@ type Props = {
   path: keyof typeof ROUTE_AUDIENCES | string;
   /** Override the policy table for ad-hoc gating. */
   allow?: RoleAudience[];
+  /** Optional route-owned loading/denied shell, used when the page needs its own <main>. */
+  fallback?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -24,7 +26,7 @@ type Props = {
  * roles, redirects to an allowed section if they don't qualify, and shows
  * a friendly toast explaining why.
  */
-export function RoleGuard({ path, allow, children }: Props) {
+export function RoleGuard({ path, allow, fallback, children }: Props) {
   const navigate = useNavigate();
   const fetchRoles = useServerFn(getMyRoles);
   const [status, setStatus] = useState<"checking" | "allowed" | "denied">(
@@ -65,6 +67,7 @@ export function RoleGuard({ path, allow, children }: Props) {
   }, [fetchRoles, navigate, path, allow]);
 
   if (status === "checking" || status === "denied") {
+    if (fallback) return <>{fallback}</>;
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-sm text-muted-foreground">Checking access…</p>
