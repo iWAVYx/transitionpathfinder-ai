@@ -67,17 +67,7 @@ async function completeTwoFactorIfPresent(
     throw new Error(`${role.key} requires 2FA but ${envName} is missing.`);
   }
 
-  const otpInput = page
-    .locator(
-      [
-        '[data-testid="totp-code"]',
-        '[data-testid="two-factor-code"]',
-        'input[name="code"]',
-        'input[name="otp"]',
-        'input[autocomplete="one-time-code"]',
-      ].join(", "),
-    )
-    .first();
+  const otpInput = page.getByTestId("totp-code").first();
 
   try {
     await otpInput.waitFor({ state: "visible", timeout: 10_000 }).catch(async (waitErr) => {
@@ -87,10 +77,7 @@ async function completeTwoFactorIfPresent(
     if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
     await otpInput.fill(authenticator.generate(secret));
 
-    const verifyButton = page
-      .locator('[data-testid="totp-submit"], [data-testid="verify-2fa"]')
-      .or(page.getByRole("button", { name: /verify|continue|submit|confirm/i }))
-      .first();
+    const verifyButton = page.getByTestId("totp-submit").first();
 
     await verifyButton.click();
     await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
