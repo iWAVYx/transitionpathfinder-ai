@@ -42,7 +42,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
       }
 
       if (aal?.nextLevel !== "aal2") {
-        navigate({ to: safeRedirect, replace: true });
+        await bounceToLogin();
         return;
       }
 
@@ -63,8 +63,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
       const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: totp.id });
       if (cancelled) return;
       if (challengeError || !challenge) {
-        setError(challengeError?.message ?? "Could not start two-factor challenge");
-        setBootstrapping(false);
+        await bounceToLogin();
         return;
       }
 
