@@ -80,11 +80,15 @@ async function completeTwoFactorIfPresent(
     .first();
 
   try {
-    await otpInput.waitFor({ state: "visible", timeout: 10_000 });
+    await otpInput.waitFor({ state: "visible", timeout: 10_000 }).catch(async (waitErr) => {
+      if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
+      throw waitErr;
+    });
+    if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
     await otpInput.fill(authenticator.generate(secret));
 
     const verifyButton = page
-      .locator('[data-testid="verify-2fa"]')
+      .locator('[data-testid="totp-submit"], [data-testid="verify-2fa"]')
       .or(page.getByRole("button", { name: /verify|continue|submit|confirm/i }))
       .first();
 
@@ -520,7 +524,12 @@ for (const role of ROLES) {
       }
 
       // Navigate to the discovered canonical route for the actual sign-in.
-      await page.goto(canonical.path, { waitUntil: "domcontentloaded" });
+      // Owner must complete aal2 against /admin so the saved state proves the
+      // platform-admin dashboard is reachable, not merely a generic dashboard.
+      const signInPath = role.key === "owner"
+        ? `${canonical.path}?redirect=${encodeURIComponent(role.dashboard)}`
+        : canonical.path;
+      await page.goto(signInPath, { waitUntil: "domcontentloaded" });
 
       // Ensure the Sign In tab is active (it's the default, but be explicit
       // in case a future change flips defaults).
@@ -560,6 +569,11 @@ for (const role of ROLES) {
       expect(hasSession, `${role.key} session should persist`).toBe(true);
 
       await completeOnboardingIfPresent(page, role);
+      if (role.key === "owner") {
+        await page.goto("/admin", { waitUntil: "networkidle" });
+        await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
+        await assertDashboardReady(page, role, dumpDiagnostics);
+      }
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
       await completeOnboardingIfPresent(page, role);
       if (normalizePath(new URL(page.url()).pathname) !== normalizePath(role.dashboard)) {

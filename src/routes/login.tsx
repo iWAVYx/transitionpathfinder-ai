@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import { TwoFactorChallenge } from "@/components/auth/TwoFactorChallenge";
 
 const SignInSchema = z.object({
   email: z.string().trim().email("Enter a valid email").max(255),
@@ -42,8 +43,10 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const search = Route.useSearch();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -72,8 +75,18 @@ function LoginPage() {
     };
   }, [user, loading, search.redirect, navigate]);
 
+  if (location.pathname === "/login/2fa") {
+    return <TwoFactorChallenge redirect={search.redirect} />;
+  }
 
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  if (!loading && user) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="redirecting-signed-in">
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      </main>
+    );
+  }
+
   const isNew = tab === "signup";
 
   return (
