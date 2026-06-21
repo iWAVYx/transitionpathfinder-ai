@@ -12,10 +12,11 @@ if (!url || !serviceKey) {
 
 const admin = createClient(url, serviceKey, { auth: { persistSession: false } })
 
-// app_role values: parent, educator, school_admin, district_admin, partner.
+// app_role values: student, parent, educator, school_admin, district_admin, partner.
 // "owner" is not in app_role; we model the e2e owner as a platform_owner
 // in admin_roles (and also give them app_role 'admin' for has_role checks).
 const roles = [
+  { key: 'student',        email: 'e2e-student@transitionforwardct.com',        appRole: 'student' },
   { key: 'parent',         email: 'e2e-parent@transitionforwardct.com',         appRole: 'parent' },
   { key: 'educator',       email: 'e2e-educator@transitionforwardct.com',       appRole: 'educator' },
   { key: 'school_admin',   email: 'e2e-school-admin@transitionforwardct.com',   appRole: 'school_admin' },
@@ -74,6 +75,13 @@ for (const r of roles) {
     .from('user_roles')
     .upsert({ user_id: user.id, role: r.appRole }, { onConflict: 'user_id,role' })
   if (rErr) throw new Error(`user_roles ${r.email}: ${rErr.message}`)
+
+  if (r.key === 'educator') {
+    const { error: cmErr } = await admin
+      .from('user_roles')
+      .upsert({ user_id: user.id, role: 'case_manager' }, { onConflict: 'user_id,role' })
+    if (cmErr) throw new Error(`case_manager role ${r.email}: ${cmErr.message}`)
+  }
 
   // admin_role (owner only)
   if (r.adminRole) {
