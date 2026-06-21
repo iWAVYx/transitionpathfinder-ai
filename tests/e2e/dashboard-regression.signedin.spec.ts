@@ -213,6 +213,7 @@ for (const role of ROLES) {
       await page.route("**/_serverFn/**", (route) => route.fulfill({ status: 500, body: "boom" }));
       await page.route("**/_server/**", (route) => route.fulfill({ status: 500, body: "boom" }));
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
+      await assertDashboardRouteReady(page, role);
       await expect(page.locator("body")).toBeVisible();
       // Page must render *something* — header / main / an error message.
       const visibleText = await page.locator("body").innerText();
