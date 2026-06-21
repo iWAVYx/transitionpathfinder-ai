@@ -546,7 +546,13 @@ for (const role of ROLES) {
 
         if (outcome === "challenge") {
           const totp = process.env[`E2E_${role.key.toUpperCase()}_TOTP_SECRET`];
-          setup.skip(!totp, `2FA challenge present but no TOTP secret for ${role.key}`);
+          if (!totp) {
+            await dumpDiagnostics("2fa-secret-missing");
+            throw new Error(
+              `2FA challenge present but E2E_${role.key.toUpperCase()}_TOTP_SECRET is not configured for ${role.key}. ` +
+                `Storage state is not dashboard-ready until the real TOTP flow completes.`,
+            );
+          }
           try {
             const code = authenticator.generate(totp!);
             const target = (await totpInput.isVisible().catch(() => false))
