@@ -102,17 +102,17 @@ function AuthenticatedLayout() {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <main className="flex min-h-screen items-center justify-center bg-background" data-auth-state="loading">
         <p className="text-sm text-muted-foreground">Loading…</p>
-      </div>
+      </main>
     );
   }
 
   if (!checkedOnboarding) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <main className="flex min-h-screen items-center justify-center bg-background" data-auth-state="checking-onboarding">
         <p className="text-sm text-muted-foreground">Loading…</p>
-      </div>
+      </main>
     );
   }
 
