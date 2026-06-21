@@ -599,6 +599,10 @@ for (const role of ROLES) {
 
       await completeOnboardingIfPresent(page, role);
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await completeOnboardingIfPresent(page, role);
+      if (normalizePath(new URL(page.url()).pathname) !== normalizePath(role.dashboard)) {
+        await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      }
       await ensureWorkspaceSeeded(page, role);
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
       await assertDashboardReady(page, role, dumpDiagnostics);
