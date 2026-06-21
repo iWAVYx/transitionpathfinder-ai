@@ -71,9 +71,35 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function DashboardPageGuarded() {
   return (
-    <RoleGuard path="/dashboard" allow={["family", "student", "educator", "admin"]}>
+    <RoleGuard
+      path="/dashboard"
+      allow={["family", "student", "educator", "admin"]}
+      fallback={<DashboardLoadingShell />}
+    >
       <DashboardPage />
     </RoleGuard>
+  );
+}
+
+function DashboardRoleLandmarks() {
+  return (
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+      <span data-dashboard-landmark="student">Next Best Step</span>
+      <span data-dashboard-landmark="family">Pathway Progress</span>
+    </div>
+  );
+}
+
+function DashboardLoadingShell() {
+  return (
+    <SiteShell>
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <DashboardRoleLandmarks />
+      </div>
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
+        <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Checking access…
+      </div>
+    </SiteShell>
   );
 }
 
@@ -289,10 +315,7 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            <span data-dashboard-landmark="student">Next Best Step</span>
-            <span data-dashboard-landmark="family">Pathway Progress</span>
-          </div>
+          <DashboardRoleLandmarks />
           <Breadcrumbs trail={[{ label: "Dashboard" }]} />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
@@ -351,9 +374,8 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-          <div className="mb-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            <span data-dashboard-landmark="student">Next Best Step</span>
-            <span data-dashboard-landmark="family">Pathway Progress</span>
+          <div className="mb-4 flex justify-center">
+            <DashboardRoleLandmarks />
           </div>
           <AlertCircle className="mx-auto h-6 w-6 text-destructive" />
           <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">We couldn't load your dashboard</h1>
@@ -368,10 +390,7 @@ function DashboardPage() {
     return (
       <SiteShell>
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            <span data-dashboard-landmark="student">Next Best Step</span>
-            <span data-dashboard-landmark="family">Pathway Progress</span>
-          </div>
+          <DashboardRoleLandmarks />
         </div>
         <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
           <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Loading your dashboard…
