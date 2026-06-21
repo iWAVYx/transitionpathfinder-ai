@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
-export function TwoFactorChallenge({ redirect }: { redirect: string }) {
+export function TwoFactorVerification({ redirect }: { redirect: string }) {
   const navigate = useNavigate();
   const safeRedirect = normalizeChallengeRedirect(redirect);
   const [code, setCode] = useState("");
@@ -42,7 +42,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
       }
 
       if (aal?.nextLevel !== "aal2") {
-        navigate({ to: safeRedirect, replace: true });
+        await bounceToLogin();
         return;
       }
 
@@ -63,8 +63,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
       const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: totp.id });
       if (cancelled) return;
       if (challengeError || !challenge) {
-        setError(challengeError?.message ?? "Could not start two-factor challenge");
-        setBootstrapping(false);
+        await bounceToLogin();
         return;
       }
 
@@ -112,6 +111,14 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
   };
+
+  if (bootstrapping) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="checking-two-factor">
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
@@ -177,6 +184,8 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     </main>
   );
 }
+
+export const TwoFactorChallenge = TwoFactorVerification;
 
 function normalizeChallengeRedirect(value: string) {
   if (!value.startsWith("/")) return "/dashboard";

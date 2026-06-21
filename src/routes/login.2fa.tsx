@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { TwoFactorChallenge } from "@/components/auth/TwoFactorChallenge";
+import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
 
-export const Route = createFileRoute("/login_/2fa")({
+export const Route = createFileRoute("/login/2fa")({
   validateSearch: (s: { redirect?: string }): { redirect: string } => ({
     redirect: s.redirect || "/dashboard",
   }),
@@ -21,5 +21,5 @@ export const Route = createFileRoute("/login_/2fa")({
 
 function TwoFactorChallengePage() {
   const { redirect } = Route.useSearch();
-  return <TwoFactorChallenge redirect={redirect} />;
+  return <TwoFactorVerification redirect={redirect} />;
 }
