@@ -80,7 +80,11 @@ async function completeTwoFactorIfPresent(
     .first();
 
   try {
-    await otpInput.waitFor({ state: "visible", timeout: 10_000 });
+    await otpInput.waitFor({ state: "visible", timeout: 10_000 }).catch(async (waitErr) => {
+      if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
+      throw waitErr;
+    });
+    if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
     await otpInput.fill(authenticator.generate(secret));
 
     const verifyButton = page
