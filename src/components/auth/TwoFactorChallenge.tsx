@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function TwoFactorChallenge({ redirect }: { redirect: string }) {
   const navigate = useNavigate();
+  const safeRedirect = normalizeChallengeRedirect(redirect);
   const [code, setCode] = useState("");
   const [factorId, setFactorId] = useState<string | null>(null);
   const [challengeId, setChallengeId] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     const bounceToLogin = async () => {
       await supabase.auth.signOut().catch(() => undefined);
       if (!cancelled) {
-        navigate({ to: "/login", search: { redirect }, replace: true });
+        navigate({ to: "/login", search: { redirect: safeRedirect }, replace: true });
       }
     };
 
@@ -36,12 +37,12 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (cancelled) return;
       if (aal?.currentLevel === "aal2") {
-        navigate({ to: redirect, replace: true });
+        navigate({ to: safeRedirect, replace: true });
         return;
       }
 
       if (aal?.nextLevel !== "aal2") {
-        navigate({ to: redirect, replace: true });
+        navigate({ to: safeRedirect, replace: true });
         return;
       }
 
@@ -75,7 +76,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     return () => {
       cancelled = true;
     };
-  }, [navigate, redirect]);
+  }, [navigate, safeRedirect]);
 
   useEffect(() => {
     if (!bootstrapping) inputRef.current?.focus();
@@ -104,7 +105,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     }
 
     toast.success("Verified");
-    navigate({ to: redirect, replace: true });
+    navigate({ to: safeRedirect, replace: true });
   };
 
   const onCancel = async () => {
@@ -175,4 +176,10 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
       </section>
     </main>
   );
+}
+
+function normalizeChallengeRedirect(value: string) {
+  if (!value.startsWith("/")) return "/dashboard";
+  if (value.startsWith("//") || value.startsWith("/login")) return "/dashboard";
+  return value;
 }
