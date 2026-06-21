@@ -202,25 +202,6 @@ for (const role of ROLES) {
       `${role.emailEnv} / ${role.passwordEnv} not set — ${role.key} skipped`,
     );
 
-    // Owner sign-in is gated by TOTP. Re-enroll a fresh TOTP factor server-side
-    // so the secret used by `authenticator.generate()` is GUARANTEED to match
-    // the enrolled factor, and stash it where the challenge handler picks it up.
-    // Other roles: only do this if E2E_<ROLE>_TOTP_SECRET is set and we want
-    // it to keep working — for now we only auto-manage owner.
-    if (role.key === "owner") {
-      const fresh = await ensureFreshTotpEnrollment(role, email!, password!).catch(
-        (e) => {
-          console.warn(`[auth-setup ${role.key}] ensureFreshTotpEnrollment threw: ${(e as Error).message}`);
-          return null;
-        },
-      );
-      if (fresh) {
-        process.env[`E2E_${role.key.toUpperCase()}_TOTP_SECRET`] = fresh;
-        console.log(`[auth-setup ${role.key}] re-enrolled fresh TOTP factor for this run`);
-      }
-    }
-
-
     // Redirect/navigation chain recorder. Captures every top-level
     // response and frame navigation so a failure artifact shows exactly
     // what host/status sequence ran — e.g. e2e.* → 301 apex →
