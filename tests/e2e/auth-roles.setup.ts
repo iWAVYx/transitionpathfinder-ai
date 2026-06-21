@@ -53,6 +53,56 @@ async function assertDashboardReady(
   await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
 }
 
+async function completeTwoFactorIfPresent(
+  page: Page,
+  role: RoleSpec,
+  dumpDiagnostics?: (label: string) => Promise<void>,
+) {
+  if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
+
+  const envName = `E2E_${role.key.toUpperCase()}_TOTP_SECRET`;
+  const secret = process.env[envName]?.replace(/\s+/g, "");
+  if (!secret) {
+    await dumpDiagnostics?.("2fa-secret-missing");
+    throw new Error(`${role.key} requires 2FA but ${envName} is missing.`);
+  }
+
+  const otpInput = page
+    .locator(
+      [
+        '[data-testid="totp-code"]',
+        '[data-testid="two-factor-code"]',
+        'input[name="code"]',
+        'input[name="otp"]',
+        'input[autocomplete="one-time-code"]',
+      ].join(", "),
+    )
+    .first();
+
+  try {
+    await otpInput.waitFor({ state: "visible", timeout: 10_000 });
+    await otpInput.fill(authenticator.generate(secret));
+
+    const verifyButton = page
+      .locator('[data-testid="verify-2fa"]')
+      .or(page.getByRole("button", { name: /verify|continue|submit|confirm/i }))
+      .first();
+
+    await verifyButton.click();
+    await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
+      timeout: 20_000,
+    });
+    await page.waitForLoadState("networkidle").catch(() => {});
+  } catch (twofaErr) {
+    await dumpDiagnostics?.("2fa-challenge-failed");
+    throw new Error(
+      `2FA challenge failed for ${role.key} at ${page.url()}. ` +
+        `Verify ${envName} matches the enrolled authenticator. ` +
+        `Original: ${(twofaErr as Error).message}`,
+    );
+  }
+}
+
 async function completeOnboardingIfPresent(
   page: Page,
   role: RoleSpec,
