@@ -4,7 +4,7 @@
 // PRs without the full secret matrix still run whatever they have.
 
 import { test as setup, expect, type Page } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
 import { authenticator } from "otplib";
 import { ROLES, type RoleSpec } from "./helpers/roles";
@@ -605,6 +605,20 @@ for (const role of ROLES) {
 
       mkdirSync(dirname((role as RoleSpec).storageState), { recursive: true });
       await page.context().storageState({ path: role.storageState });
+      const verifyContext = await browser.newContext({
+        baseURL: String(testInfo.project.use.baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000"),
+        storageState: role.storageState,
+      });
+      try {
+        const verifyPage = await verifyContext.newPage();
+        await verifyPage.goto(role.dashboard, { waitUntil: "networkidle" });
+        await assertDashboardReady(verifyPage, role);
+      } catch (verifyErr) {
+        rmSync(role.storageState, { force: true });
+        throw verifyErr;
+      } finally {
+        await verifyContext.close();
+      }
     } catch (err) {
       await dumpDiagnostics("failure");
       throw err;
