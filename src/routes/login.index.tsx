@@ -1,4 +1,4 @@
-import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -15,7 +15,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
-import { TwoFactorChallenge } from "@/components/auth/TwoFactorChallenge";
 
 const SignInSchema = z.object({
   email: z.string().trim().email("Enter a valid email").max(255),
@@ -43,12 +42,10 @@ export const Route = createFileRoute("/login/")({
 
 function LoginPage() {
   const search = Route.useSearch();
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const redirect = normalizeAuthRedirect(search.redirect);
-  const isTwoFactorRoute = normalizeAuthPath(location.pathname) === "/login/2fa";
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -56,7 +53,7 @@ function LoginPage() {
   // a verified TOTP factor but the session is still aal1, bounce to the 2FA
   // challenge before letting them through to their redirect target.
   useEffect(() => {
-    if (loading || !user || isTwoFactorRoute) return;
+    if (loading || !user) return;
     let cancelled = false;
     (async () => {
       const { data: aal } =
@@ -75,11 +72,7 @@ function LoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, loading, redirect, isTwoFactorRoute, navigate]);
-
-  if (isTwoFactorRoute) {
-    return <TwoFactorChallenge redirect={redirect} />;
-  }
+  }, [user, loading, redirect, navigate]);
 
   if (loading || user) {
     return (
@@ -214,10 +207,6 @@ function LoginPage() {
       </section>
     </SiteShell>
   );
-}
-
-function normalizeAuthPath(pathname: string) {
-  return pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
 }
 
 function normalizeAuthRedirect(value: string) {
