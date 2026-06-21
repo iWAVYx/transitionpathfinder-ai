@@ -7,78 +7,7 @@ import { test as setup, expect, type Page } from "@playwright/test";
 import { mkdirSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
 import { authenticator } from "otplib";
-import { createClient } from "@supabase/supabase-js";
 import { ROLES, type RoleSpec } from "./helpers/roles";
-
-/**
- * Ensure the role has a verified TOTP factor whose secret matches what the
- * browser flow will use. We re-enroll on every run so the in-process secret
- * always matches the enrolled factor — no need for the human to mirror an
- * out-of-band E2E_<ROLE>_TOTP_SECRET. Returns the secret to use; null if
- * Supabase env is not available (we then fall back to the env var if any).
- */
-async function ensureFreshTotpEnrollment(
-  role: RoleSpec,
-  email: string,
-  password: string,
-): Promise<string | null> {
-  const url = process.env.SUPABASE_URL;
-  const anon =
-    process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
-  if (!url || !anon) return null;
-
-  const client = createClient(url, anon, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-  const { data: signIn, error: signInErr } =
-    await client.auth.signInWithPassword({ email, password });
-  if (signInErr || !signIn.session) {
-    console.warn(
-      `[auth-setup ${role.key}] TOTP re-enroll: sign-in failed (${signInErr?.message ?? "no session"})`,
-    );
-    return null;
-  }
-
-  // Unenroll any existing TOTP factors so we know which secret is live.
-  const { data: existing } = await client.auth.mfa.listFactors();
-  for (const f of existing?.totp ?? []) {
-    await client.auth.mfa.unenroll({ factorId: f.id }).catch(() => {});
-  }
-
-  const { data: enroll, error: enrollErr } = await client.auth.mfa.enroll({
-    factorType: "totp",
-  });
-  if (enrollErr || !enroll) {
-    console.warn(
-      `[auth-setup ${role.key}] TOTP enroll failed: ${enrollErr?.message ?? "no enroll payload"}`,
-    );
-    return null;
-  }
-  const secret = enroll.totp.secret;
-  const code = authenticator.generate(secret);
-  const { data: challenge, error: chErr } = await client.auth.mfa.challenge({
-    factorId: enroll.id,
-  });
-  if (chErr || !challenge) {
-    console.warn(
-      `[auth-setup ${role.key}] TOTP challenge failed: ${chErr?.message ?? "no challenge"}`,
-    );
-    return null;
-  }
-  const { error: verifyErr } = await client.auth.mfa.verify({
-    factorId: enroll.id,
-    challengeId: challenge.id,
-    code,
-  });
-  if (verifyErr) {
-    console.warn(
-      `[auth-setup ${role.key}] TOTP verify failed: ${verifyErr.message}`,
-    );
-    return null;
-  }
-  await client.auth.signOut().catch(() => {});
-  return secret;
-}
 
 const DASHBOARD_NOT_READY_PREFIX = "Seeded role account is not dashboard-ready";
 
