@@ -41,6 +41,31 @@ async function attachMainDiagnostic(
   });
 }
 
+function normalizePath(path: string) {
+  return path.length > 1 ? path.replace(/\/+$/, "") : path;
+}
+
+function pathMatchesExpected(actualPath: string, expectedPath: string) {
+  const actual = normalizePath(actualPath);
+  const expected = normalizePath(expectedPath);
+  return actual === expected || actual.startsWith(`${expected}/`);
+}
+
+function isRejectedDashboardPath(path: string) {
+  const actual = normalizePath(path);
+  return actual === "/onboarding" || actual === "/login" || actual.startsWith("/login/2fa");
+}
+
+async function assertDashboardRouteReady(page: Page, role: (typeof ROLES)[number]) {
+  const finalUrl = page.url();
+  const finalPath = new URL(finalUrl).pathname;
+  expect(
+    !isRejectedDashboardPath(finalPath) && pathMatchesExpected(finalPath, role.dashboard),
+    `Seeded role account is not dashboard-ready: expected ${role.dashboard}, got ${finalUrl}. Complete onboarding seed data or fix route guard.`,
+  ).toBe(true);
+  await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+}
+
 async function assertNoHorizontalScroll(page: Page, label: string) {
   const dims = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -100,6 +125,7 @@ for (const role of ROLES) {
         test("renders, no horizontal overflow, expected landmarks", async ({ page }, testInfo) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
           await attachMainDiagnostic(page, testInfo, role.key, vp.label);
+          await assertDashboardRouteReady(page, role);
           const main = page.locator("main");
           await expect(main).toBeVisible({ timeout: 15_000 });
           // Scope role landmark checks to <main>: hidden responsive nav links
@@ -116,6 +142,7 @@ for (const role of ROLES) {
 
         test("has no duplicate links in main content", async ({ page }) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
+          await assertDashboardRouteReady(page, role);
           const items = await collectInteractiveTargets(page);
           const hrefs = items
             .filter((i) => i.tag === "a" && i.href && i.href.startsWith("/"))
@@ -133,6 +160,7 @@ for (const role of ROLES) {
 
         test("has no inert <button> elements", async ({ page }) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
+          await assertDashboardRouteReady(page, role);
           const items = await collectInteractiveTargets(page);
           const suspects = items.filter(
             (i) =>
@@ -160,10 +188,12 @@ for (const role of ROLES) {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
       await attachMainDiagnostic(page, testInfo, role.key, "refresh-before");
+      await assertDashboardRouteReady(page, role);
       const main = page.locator("main");
       await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
       const before = await main.innerText();
       await page.reload({ waitUntil: "networkidle" });
+      await assertDashboardRouteReady(page, role);
       await expect(main.getByText(role.mustSee[0]!).first()).toBeVisible({ timeout: 15_000 });
       const after = await main.innerText();
       // The two snapshots will differ slightly (timestamps, "moments ago"),
@@ -183,6 +213,7 @@ for (const role of ROLES) {
       await page.route("**/_serverFn/**", (route) => route.fulfill({ status: 500, body: "boom" }));
       await page.route("**/_server/**", (route) => route.fulfill({ status: 500, body: "boom" }));
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
+      await assertDashboardRouteReady(page, role);
       await expect(page.locator("body")).toBeVisible();
       // Page must render *something* — header / main / an error message.
       const visibleText = await page.locator("body").innerText();

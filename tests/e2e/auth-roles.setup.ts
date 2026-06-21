@@ -3,14 +3,148 @@
 // tests/e2e/.auth/<role>.json. Roles with missing creds are skipped so
 // PRs without the full secret matrix still run whatever they have.
 
-import { test as setup, expect } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { test as setup, expect, type Page } from "@playwright/test";
+import { mkdirSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
 import { authenticator } from "otplib";
 import { ROLES, type RoleSpec } from "./helpers/roles";
 
+const DASHBOARD_NOT_READY_PREFIX = "Seeded role account is not dashboard-ready";
+
+function normalizePath(path: string) {
+  return path.length > 1 ? path.replace(/\/+$/, "") : path;
+}
+
+function pathMatchesExpected(actualPath: string, expectedPath: string) {
+  const actual = normalizePath(actualPath);
+  const expected = normalizePath(expectedPath);
+  return actual === expected || actual.startsWith(`${expected}/`);
+}
+
+function isRejectedDashboardPath(path: string) {
+  const actual = normalizePath(path);
+  return actual === "/onboarding" || actual === "/login" || actual.startsWith("/login/2fa");
+}
+
+function dashboardReadinessError(expected: string, got: string) {
+  return `${DASHBOARD_NOT_READY_PREFIX}: expected ${expected}, got ${got}. Complete onboarding seed data or fix route guard.`;
+}
+
+async function assertDashboardReady(
+  page: Page,
+  role: RoleSpec,
+  dumpDiagnostics?: (label: string) => Promise<void>,
+) {
+  await page
+    .waitForURL(
+      (url) =>
+        pathMatchesExpected(url.pathname, role.dashboard) ||
+        isRejectedDashboardPath(url.pathname),
+      { timeout: 15_000 },
+    )
+    .catch(() => {});
+
+  const finalUrl = page.url();
+  const finalPath = new URL(finalUrl).pathname;
+  if (isRejectedDashboardPath(finalPath) || !pathMatchesExpected(finalPath, role.dashboard)) {
+    await dumpDiagnostics?.("dashboard-not-ready");
+    throw new Error(dashboardReadinessError(role.dashboard, finalUrl));
+  }
+  await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+}
+
+async function completeOnboardingIfPresent(
+  page: Page,
+  role: RoleSpec,
+) {
+  if (normalizePath(new URL(page.url()).pathname) !== "/onboarding") return;
+  if (role.key === "owner") {
+    throw new Error(dashboardReadinessError(role.dashboard, page.url()));
+  }
+
+  const roleLabels: Record<string, string> = {
+    student: "Student",
+    parent: "Parent or Guardian",
+    educator: "Educator or Case Manager",
+    school_admin: "School Administrator",
+    district_admin: "School District Administrator",
+    partner: "Partner Organization",
+  };
+  const requiredAnswers: Record<string, string[]> = {
+    student: ["Middle school"],
+    parent: ["Actively planning for the next IEP"],
+    educator: ["Case manager", "1–10"],
+    school_admin: ["High school", "0–50"],
+    district_admin: ["1–3"],
+    partner: ["Community-based organization"],
+  };
+
+  for (let step = 0; step < 8 && normalizePath(new URL(page.url()).pathname) === "/onboarding"; step += 1) {
+    if (await page.getByText("Which best describes you?", { exact: true }).isVisible().catch(() => false)) {
+      await page.getByText(roleLabels[role.key] ?? role.label, { exact: true }).click();
+    }
+
+    if (await page.locator("#you-first").isVisible().catch(() => false)) {
+      await page.locator("#you-first").fill("E2E");
+      await page.locator("#you-last").fill(role.key.replace(/_/g, " "));
+    }
+
+    for (const answer of requiredAnswers[role.key] ?? []) {
+      const option = page.getByRole("button", { name: new RegExp(answer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") }).first();
+      if (await option.isVisible().catch(() => false)) await option.click();
+    }
+
+    if (await page.locator("#s-first").isVisible().catch(() => false)) {
+      await page.locator("#s-first").fill("E2E Student");
+      await page.locator("#s-last").fill(role.key.replace(/_/g, " "));
+    }
+
+    const finish = page.getByRole("button", { name: /finish & open dashboard/i }).first();
+    if (await finish.isVisible().catch(() => false)) {
+      await finish.click();
+    } else {
+      await page.getByRole("button", { name: /^continue/i }).first().click();
+    }
+    await page.waitForTimeout(750);
+  }
+}
+
+async function ensureWorkspaceSeeded(page: Page, role: RoleSpec) {
+  if (role.key === "school_admin") {
+    const setupCard = page.getByRole("heading", { name: /set up your school/i }).first();
+    if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await page.locator("#org-name").fill("E2E Transition School");
+      await page.locator("#org-city").fill("Hartford");
+      await page.locator("#org-state").fill("CT");
+      await page.getByRole("button", { name: /create school/i }).click();
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
+  }
+
+  if (role.key === "district_admin") {
+    const setupCard = page.getByRole("heading", { name: /set up your district/i }).first();
+    if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await page.locator("#district-name").fill("E2E Transition District");
+      await page.locator("#district-city").fill("Hartford");
+      await page.locator("#district-state").fill("CT");
+      await page.getByRole("button", { name: /create district/i }).click();
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
+  }
+
+  if (role.key === "partner") {
+    const setupCard = page.getByRole("heading", { name: /set up your partner workspace/i }).first();
+    if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await page.getByPlaceholder(/capital community college/i).fill("E2E Transition Partner");
+      await page.getByPlaceholder(/hartford/i).fill("Hartford");
+      await page.getByRole("button", { name: /create workspace/i }).click();
+      await page.waitForLoadState("networkidle").catch(() => {});
+    }
+  }
+}
+
 for (const role of ROLES) {
-  setup(`authenticate ${role.key}`, async ({ page }, testInfo) => {
+  setup(`authenticate ${role.key}`, async ({ page, browser }, testInfo) => {
     const email = process.env[role.emailEnv];
     const password = process.env[role.passwordEnv];
     setup.skip(
@@ -412,7 +546,13 @@ for (const role of ROLES) {
 
         if (outcome === "challenge") {
           const totp = process.env[`E2E_${role.key.toUpperCase()}_TOTP_SECRET`];
-          setup.skip(!totp, `2FA challenge present but no TOTP secret for ${role.key}`);
+          if (!totp) {
+            await dumpDiagnostics("2fa-secret-missing");
+            throw new Error(
+              `2FA challenge present but E2E_${role.key.toUpperCase()}_TOTP_SECRET is not configured for ${role.key}. ` +
+                `Storage state is not dashboard-ready until the real TOTP flow completes.`,
+            );
+          }
           try {
             const code = authenticator.generate(totp!);
             const target = (await totpInput.isVisible().catch(() => false))
@@ -463,8 +603,32 @@ for (const role of ROLES) {
       );
       expect(hasSession, `${role.key} session should persist`).toBe(true);
 
+      await completeOnboardingIfPresent(page, role);
+      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await completeOnboardingIfPresent(page, role);
+      if (normalizePath(new URL(page.url()).pathname) !== normalizePath(role.dashboard)) {
+        await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      }
+      await ensureWorkspaceSeeded(page, role);
+      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await assertDashboardReady(page, role, dumpDiagnostics);
+
       mkdirSync(dirname((role as RoleSpec).storageState), { recursive: true });
       await page.context().storageState({ path: role.storageState });
+      const verifyContext = await browser.newContext({
+        baseURL: String(testInfo.project.use.baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000"),
+        storageState: role.storageState,
+      });
+      try {
+        const verifyPage = await verifyContext.newPage();
+        await verifyPage.goto(role.dashboard, { waitUntil: "networkidle" });
+        await assertDashboardReady(verifyPage, role);
+      } catch (verifyErr) {
+        rmSync(role.storageState, { force: true });
+        throw verifyErr;
+      } finally {
+        await verifyContext.close();
+      }
     } catch (err) {
       await dumpDiagnostics("failure");
       throw err;
