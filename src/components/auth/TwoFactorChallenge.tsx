@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as React from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,6 +77,10 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     };
   }, [navigate, redirect]);
 
+  useEffect(() => {
+    if (!bootstrapping) inputRef.current?.focus();
+  }, [bootstrapping]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedCode = code.replace(/\D/g, "").slice(0, 6);
@@ -130,6 +135,7 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
               Authenticator Code
             </label>
             <Input
+              ref={inputRef}
               id="totp-code-input"
               name="otp"
               type="text"
