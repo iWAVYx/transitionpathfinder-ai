@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/login/2fa")({
+export const Route = createFileRoute("/login_/2fa")({
   validateSearch: (s: { redirect?: string }): { redirect: string } => ({
     redirect: s.redirect || "/dashboard",
   }),
