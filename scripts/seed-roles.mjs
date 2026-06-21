@@ -25,8 +25,6 @@ const roles = [
   { key: 'owner',          email: 'e2e-owner@transitionforwardct.com',          appRole: 'admin', adminRole: 'platform_owner' },
 ]
 
-const studentOwners = new Map()
-
 function genPassword(label) {
   const suffix = randomBytes(8).toString('base64').replace(/[^A-Za-z0-9]/g, '').slice(0, 12)
   return `E2e${label}!${suffix}`
@@ -119,29 +117,39 @@ for (const r of roles) {
       if (sErr || !s) throw new Error(`student ${r.email}: ${sErr?.message ?? 'missing row'}`)
       studentId = s.id
     }
-    studentOwners.set(r.key, { user, studentId })
     if (r.key === 'parent' || r.key === 'student') {
-      const { error: gErr } = await admin.from('student_guardians').insert({
-        student_id: studentId,
-        guardian_user_id: user.id,
-        guardian_email: r.email,
-        relationship: r.key,
-        is_primary: true,
-        verified: true,
-      })
-      if (gErr && !/duplicate/i.test(gErr.message)) throw new Error(`guardian ${r.email}: ${gErr.message}`)
+      const { data: existingGuardian } = await admin
+        .from('student_guardians')
+        .select('id')
+        .eq('student_id', studentId)
+        .eq('guardian_user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+      if (!existingGuardian) {
+        const { error: gErr } = await admin.from('student_guardians').insert({
+          student_id: studentId,
+          guardian_user_id: user.id,
+          guardian_email: r.email,
+          relationship: r.key,
+          is_primary: true,
+          verified: true,
+        })
+        if (gErr) throw new Error(`guardian ${r.email}: ${gErr.message}`)
+      }
     }
     if (r.key === 'educator') {
-      const { error: cErr } = await admin.from('student_collaborators').insert({
-        student_id: studentId,
-        user_id: user.id,
-        invited_email: r.email,
-        role: 'editor',
-        status: 'accepted',
-        invited_by: user.id,
-        is_demo: true,
-      })
-      if (cErr && !/duplicate/i.test(cErr.message)) throw new Error(`collaborator ${r.email}: ${cErr.message}`)
+      const { error: cErr } = await admin
+        .from('student_collaborators')
+        .upsert({
+          student_id: studentId,
+          user_id: user.id,
+          invited_email: r.email,
+          role: 'editor',
+          status: 'accepted',
+          invited_by: user.id,
+          is_demo: true,
+        }, { onConflict: 'student_id,invited_email' })
+      if (cErr) throw new Error(`collaborator ${r.email}: ${cErr.message}`)
     }
   }
 
