@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
-export function TwoFactorChallenge({ redirect }: { redirect: string }) {
+export function TwoFactorVerification({ redirect }: { redirect: string }) {
   const navigate = useNavigate();
   const safeRedirect = normalizeChallengeRedirect(redirect);
   const [code, setCode] = useState("");
@@ -112,6 +112,14 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     navigate({ to: "/login", replace: true });
   };
 
+  if (bootstrapping) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="checking-two-factor">
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
       <section className="w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
@@ -176,6 +184,8 @@ export function TwoFactorChallenge({ redirect }: { redirect: string }) {
     </main>
   );
 }
+
+export const TwoFactorChallenge = TwoFactorVerification;
 
 function normalizeChallengeRedirect(value: string) {
   if (!value.startsWith("/")) return "/dashboard";
