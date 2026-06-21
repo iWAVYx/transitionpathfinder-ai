@@ -196,7 +196,6 @@ function TwoFactorChallengePage() {
               className="w-full"
               disabled={submitting || bootstrapping || code.length !== 6}
               data-testid="verify-2fa"
-              data-testid="totp-submit"
             >
               {submitting ? "Verifying…" : "Verify"}
             </Button>
