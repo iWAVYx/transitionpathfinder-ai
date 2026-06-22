@@ -43,7 +43,8 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
   if (!s) {
     return (
       <SiteShell>
-        <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+        <div data-testid="student-dashboard-main" className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+
           <p
             className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             data-dashboard-landmark="student"
