@@ -122,7 +122,7 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
   const isNew = tab === "signup";
 
   return (
-    <main className="min-h-dvh bg-background text-foreground" data-auth-page="login">
+    <main className="min-h-dvh bg-background text-foreground" data-auth-page="login" data-testid="login-page">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-50" />
         <div

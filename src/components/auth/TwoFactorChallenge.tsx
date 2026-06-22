@@ -138,7 +138,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
         pendingChallengeExists={Boolean(challengeId)}
         twoFactorVerificationRendered
       />
-      <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground" data-testid="two-factor-page">
         <section className="w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
           <Link to="/" className="text-xs font-semibold uppercase tracking-wider text-primary">
             TransitionForward
