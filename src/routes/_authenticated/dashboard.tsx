@@ -97,21 +97,25 @@ function DashboardRoleLandmarks() {
 }
 
 function DashboardLoadingShell() {
+  const { user } = useAuth();
   const fetchProfile = useServerFn(getProfile);
   const dashboardHint =
     typeof window === "undefined"
       ? null
       : new URLSearchParams(window.location.search).get("dashboardTestId") ||
         window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const hintedDashboardTestId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email);
   const [testId, setTestId] = useState<RoleDashboardTestId | null>(
-    dashboardTestIdForDashboardHint(dashboardHint),
+    hintedDashboardTestId,
   );
 
   useEffect(() => {
     let cancelled = false;
     fetchProfile()
       .then((p) => {
-        if (!cancelled) setTestId(dashboardTestIdForProfileRole(p.primary_role) ?? dashboardTestIdForDashboardHint(dashboardHint));
+        if (!cancelled) setTestId(dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId);
       })
       .catch(() => {
         if (!cancelled) setTestId(null);
@@ -119,7 +123,7 @@ function DashboardLoadingShell() {
     return () => {
       cancelled = true;
     };
-  }, [fetchProfile, dashboardHint]);
+  }, [fetchProfile, hintedDashboardTestId]);
 
   return (
       <SiteShell dashboardTestId={testId ?? undefined}>
