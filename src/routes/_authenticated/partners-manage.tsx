@@ -47,7 +47,7 @@ import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatus
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
   component: () => (
-    <RoleGuard path="/partners-manage">
+    <RoleGuard path="/partners-manage" fallback={<PartnerDashboardFallback />}>
       <PartnerManagePage />
     </RoleGuard>
   ),
@@ -64,6 +64,24 @@ const TYPES: { value: string; label: string }[] = [
   { value: "agency_support", label: "Agency support" },
   { value: "community_resource", label: "Community resource" },
 ];
+
+function PartnerDashboardFallback() {
+  return (
+    <SiteShell>
+      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+          data-dashboard-landmark="partner"
+        >
+          Partner Workspace — Opportunities
+        </p>
+      </div>
+      <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    </SiteShell>
+  );
+}
 
 function PartnerManagePage() {
   const fetchWs = useServerFn(getPartnerWorkspace);

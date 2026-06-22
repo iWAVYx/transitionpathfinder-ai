@@ -30,6 +30,12 @@ function dashboardReadinessError(expected: string, got: string) {
   return `${DASHBOARD_NOT_READY_PREFIX}: expected ${expected}, got ${got}. Complete onboarding seed data or fix route guard.`;
 }
 
+async function renderedDataTestIds(page: Page) {
+  return page.locator("[data-testid]").evaluateAll((els) =>
+    els.map((el) => el.getAttribute("data-testid")).filter(Boolean),
+  );
+}
+
 async function assertDashboardReady(
   page: Page,
   role: RoleSpec,
@@ -62,10 +68,12 @@ async function assertDashboardReady(
   // a redirect or error boundary. The element is on / inside <main> and
   // exists as soon as the shell mounts (before async data resolves).
   await page
-    .getByTestId(role.dashboardTestId)
+    .locator(`main[data-testid="${role.dashboardTestId}"]`)
     .first()
     .waitFor({ state: "visible", timeout: 20_000 })
     .catch(async (err) => {
+      const testIds = await renderedDataTestIds(page).catch(() => []);
+      console.log(`[auth-setup ${role.key}] rendered data-testids=`, testIds);
       await dumpDiagnostics?.("dashboard-testid-missing");
       throw new Error(
         `data-testid="${role.dashboardTestId}" not visible on ${role.dashboard} within 20s: ${(err as Error).message}`,
@@ -349,6 +357,7 @@ for (const role of ROLES) {
             })),
           )
           .catch(() => []);
+        const dataTestIds = await renderedDataTestIds(page).catch(() => []);
         const shot = await page.screenshot({ fullPage: true }).catch(() => null);
         if (shot) {
           await testInfo.attach(`${role.key}-${label}.png`, {
@@ -394,7 +403,7 @@ for (const role of ROLES) {
           `  failed-requests=${failedRequests.length}${failedRequests[0] ? ` first="${failedRequests[0].method} ${failedRequests[0].url} (${failedRequests[0].failure})"` : ""}`,
         ].join("\n");
         console.log(
-          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
+          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  data-testids=${JSON.stringify(dataTestIds)}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
         );
 
       } catch (e) {
