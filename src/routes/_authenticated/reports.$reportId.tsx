@@ -299,6 +299,8 @@ function ReportDetailPage() {
         initialAudience={audience}
         onAudienceChange={(a) => setAudience(a as V2Audience)}
         hasV2={isV2(state.report)}
+        onRefresh={state.studentId ? handleRegenerate : undefined}
+        refreshing={regenBusy}
         meta={{
           reportId: `TF-${reportId.slice(0, 8).toUpperCase()}`,
           preparedFor: state.name,
