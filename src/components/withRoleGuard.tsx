@@ -1,3 +1,4 @@
+import { useLocation } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import type { RoleAudience } from "@/lib/role-policy";
 import { dashboardTestIdForPath } from "@/lib/dashboard-testids";
@@ -12,11 +13,15 @@ export function withRoleGuard(
   Component: () => React.ReactNode,
   path = "__guarded__",
 ): () => React.ReactElement {
-  const Guarded = () => (
-    <RoleGuard path={path} allow={allow} fallback={<GuardFallback path={path} />}>
-      <Component />
-    </RoleGuard>
-  );
+  const Guarded = () => {
+    const location = useLocation();
+    const guardPath = path === "__guarded__" ? location.pathname : path;
+    return (
+      <RoleGuard path={guardPath} allow={allow} fallback={<GuardFallback path={guardPath} />}>
+        <Component />
+      </RoleGuard>
+    );
+  };
   Guarded.displayName = `withRoleGuard(${(Component as { displayName?: string; name?: string }).displayName ?? Component.name ?? "Component"})`;
   return Guarded;
 }
