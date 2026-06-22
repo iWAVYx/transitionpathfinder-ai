@@ -125,6 +125,8 @@ export function ReportView({
   extendedPlans,
   hasV2 = false,
   onAudienceChange,
+  onRefresh,
+  refreshing = false,
 }: {
   name: string;
   report: PathwayReport;
@@ -147,6 +149,9 @@ export function ReportView({
   hasV2?: boolean;
   /** Notify caller when the user switches audience tabs (for v2 sections). */
   onAudienceChange?: (a: Audience) => void;
+  /** Inline "Refresh report" action in the toolbar. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
   const setAudience = (a: Audience) => {
