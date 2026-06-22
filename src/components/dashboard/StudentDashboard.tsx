@@ -237,7 +237,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
         </div>
 
         {/* Explore — grade-band aware tools just for you */}
-        <ExploreForStudent gradeBand={s.grade_band} />
+        <ExploreForStudent gradeBand={s.grade_band} studentId={s.id} />
 
         {/* Calendar — your meetings, prep steps, and team events */}
         <div className="mt-6">
