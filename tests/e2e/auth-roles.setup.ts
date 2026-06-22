@@ -8,6 +8,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
 import { authenticator } from "otplib";
 import { ROLES, type RoleSpec } from "./helpers/roles";
+import { DASHBOARD_TESTID_CONTRACT_VERSION } from "../../src/lib/dashboard-testids";
 
 const DASHBOARD_NOT_READY_PREFIX = "Seeded role account is not dashboard-ready";
 
@@ -34,6 +35,42 @@ async function renderedDataTestIds(page: Page) {
   return page.locator("[data-testid]").evaluateAll((els) =>
     els.map((el) => el.getAttribute("data-testid")).filter(Boolean),
   );
+}
+
+async function readBuildMarker(page: Page) {
+  return page.evaluate(() => ({
+    buildSha:
+      document.querySelector('meta[name="app-build-sha"]')?.getAttribute("content") ??
+      document.body.getAttribute("data-app-build-sha") ??
+      null,
+    buildTime: document.querySelector('meta[name="app-build-time"]')?.getAttribute("content") ?? null,
+    dashboardTestIdContract:
+      document.querySelector('meta[name="dashboard-testid-contract"]')?.getAttribute("content") ??
+      document.body.getAttribute("data-dashboard-testid-contract") ??
+      null,
+  }));
+}
+
+async function assertDeploymentParity(page: Page, role: RoleSpec, dumpDiagnostics?: (label: string) => Promise<void>) {
+  const marker = await readBuildMarker(page).catch(() => null);
+  console.log(`[auth-setup ${role.key}] build-marker=`, marker);
+  if (marker?.dashboardTestIdContract !== DASHBOARD_TESTID_CONTRACT_VERSION) {
+    await dumpDiagnostics?.("deployed-build-missing-dashboard-testid-contract");
+    throw new Error(
+      `Deployed app is not serving the dashboard test-id contract. ` +
+        `expected dashboard-testid-contract=${DASHBOARD_TESTID_CONTRACT_VERSION}, ` +
+        `got ${marker?.dashboardTestIdContract ?? "null"}. ` +
+        `Redeploy/publish the exact PLAYWRIGHT_BASE_URL host after the dashboard test ID changes.`,
+    );
+  }
+  const expectedSha = process.env.GITHUB_SHA?.trim();
+  if (expectedSha && marker.buildSha && marker.buildSha !== "dev" && marker.buildSha !== expectedSha) {
+    await dumpDiagnostics?.("deployed-build-sha-mismatch");
+    throw new Error(
+      `Deployed app build SHA does not match the commit under test. ` +
+        `expected ${expectedSha}, got ${marker.buildSha}. Redeploy/publish PLAYWRIGHT_BASE_URL.`,
+    );
+  }
 }
 
 async function assertDashboardReady(
@@ -358,6 +395,7 @@ for (const role of ROLES) {
           )
           .catch(() => []);
         const dataTestIds = await renderedDataTestIds(page).catch(() => []);
+        const buildMarker = await readBuildMarker(page).catch(() => null);
         const shot = await page.screenshot({ fullPage: true }).catch(() => null);
         if (shot) {
           await testInfo.attach(`${role.key}-${label}.png`, {
@@ -369,6 +407,7 @@ for (const role of ROLES) {
           body: JSON.stringify(
             {
               configuredBaseUrl: process.env.PLAYWRIGHT_BASE_URL ?? null,
+              buildMarker,
               finalUrl: url,
               chain,
             },
@@ -403,7 +442,7 @@ for (const role of ROLES) {
           `  failed-requests=${failedRequests.length}${failedRequests[0] ? ` first="${failedRequests[0].method} ${failedRequests[0].url} (${failedRequests[0].failure})"` : ""}`,
         ].join("\n");
         console.log(
-          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  data-testids=${JSON.stringify(dataTestIds)}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
+          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  build-marker=${JSON.stringify(buildMarker)}\n  data-testids=${JSON.stringify(dataTestIds)}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
         );
 
       } catch (e) {
@@ -452,6 +491,8 @@ for (const role of ROLES) {
             `Fix DNS / hosting / SSL for the staging hostname before re-running.`,
         );
       }
+
+      await assertDeploymentParity(page, role, dumpDiagnostics);
 
       // Production-redirect preflight: if the configured base URL is an
       // e2e./staging. subdomain but we landed on the bare apex

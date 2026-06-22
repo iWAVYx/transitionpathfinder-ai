@@ -1,3 +1,5 @@
+export const DASHBOARD_TESTID_CONTRACT_VERSION = "dashboard-main-testids-v3";
+
 export const ROLE_DASHBOARD_TEST_IDS = {
   student: "student-dashboard-main",
   parent: "parent-dashboard-main",

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useLocation } from "@tanstack/react-router";
 import {
+  DASHBOARD_TESTID_CONTRACT_VERSION,
   dashboardTestIdForPath,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
@@ -22,6 +23,7 @@ export function SiteShell({
       <SiteHeader />
       <main
         className="site-shell-main flex-1"
+        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={testId ?? undefined}
       >
         <DashboardMainLandmark pathname={location.pathname} />

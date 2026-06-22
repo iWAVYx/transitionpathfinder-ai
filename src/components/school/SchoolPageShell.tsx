@@ -23,6 +23,7 @@ import {
   type SchoolDashboard,
   type SchoolOrg,
 } from "@/lib/school-admin.functions";
+import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useSchoolDashboard() {
   const fetchDash = useServerFn(getSchoolDashboard);
@@ -71,7 +72,7 @@ export function SchoolPageShell({
   children: (org: SchoolOrg, data: SchoolDashboard) => React.ReactNode;
 }) {
   return (
-    <SiteShell>
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.school_admin}>
       <RoleGuard path={path}>
         <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
           <Breadcrumbs

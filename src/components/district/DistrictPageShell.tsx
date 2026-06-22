@@ -23,6 +23,7 @@ import {
   type DistrictDashboard,
   type DistrictOrg,
 } from "@/lib/district-admin.functions";
+import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useDistrictDashboard() {
   const fetchDash = useServerFn(getDistrictDashboard);
@@ -71,7 +72,7 @@ export function DistrictPageShell({
   children: (district: DistrictOrg, data: DistrictDashboard) => React.ReactNode;
 }) {
   return (
-    <SiteShell>
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.district_admin}>
       <RoleGuard path={path}>
         <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
           <Breadcrumbs
