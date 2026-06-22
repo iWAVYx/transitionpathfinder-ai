@@ -217,6 +217,62 @@ export const acceptInvite = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const resendCollaboratorInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: row, error } = await supabase
+      .from("student_collaborators")
+      .select("id, student_id, invited_email, role, status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error || !row) throw new Error("Invite not found.");
+    if (row.status !== "pending") {
+      throw new Error("This invite is no longer pending.");
+    }
+
+    try {
+      const req = getRequest();
+      const origin = new URL(req.url).origin;
+      const authHeader = getRequestHeader("Authorization") ?? "";
+      const [{ data: inviter }, { data: student }] = await Promise.all([
+        supabase.from("profiles").select("full_name, first_name").eq("id", userId).maybeSingle(),
+        supabase.from("students").select("first_name, last_name").eq("id", row.student_id).maybeSingle(),
+      ]);
+      const inviterName =
+        (inviter?.full_name as string | null)?.trim() ||
+        (inviter?.first_name as string | null)?.trim() ||
+        "A TransitionForward user";
+      const studentName =
+        [student?.first_name, student?.last_name].filter(Boolean).join(" ").trim() || "a student";
+
+      await fetch(`${origin}/lovable/email/transactional/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: authHeader },
+        body: JSON.stringify({
+          templateName: "collaborator-invitation",
+          recipientEmail: row.invited_email,
+          idempotencyKey: `collab-invite-resend-${row.id}-${Date.now()}`,
+          templateData: {
+            inviterName,
+            studentName,
+            roleLabel: row.role === "editor" ? "Editor" : "Viewer",
+            acceptUrl: `${origin}/dashboard`,
+            siteName: "TransitionForward",
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("resendCollaboratorInvite email failed", err);
+      throw new Error("Could not resend invite email.");
+    }
+
+    return { ok: true };
+  });
+
+
 
 export type InviteWithStudent = Collaborator & {
   student_first_name: string | null;

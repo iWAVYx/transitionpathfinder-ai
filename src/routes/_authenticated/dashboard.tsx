@@ -52,6 +52,7 @@ import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
+import { InvitePeopleCard } from "@/components/dashboard/InvitePeopleCard";
 import { RoleGuard } from "@/components/RoleGuard";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { AccessPendingCard } from "@/components/access/AccessPendingCard";
@@ -562,6 +563,13 @@ function DashboardPage() {
               </p>
             )}
           </div>
+
+          {/* Invite People — co-parent / educator one-click flows */}
+          <div className="mt-6">
+            <InvitePeopleCard studentId={s.id} studentFirstName={s.first_name} />
+          </div>
+
+
 
           {/* Pathway Report Panel */}
           <div className="mt-6 rounded-3xl border bg-gradient-hero p-5 shadow-soft sm:p-6 lg:p-8">
