@@ -391,7 +391,8 @@ function DashboardPage() {
   if (loading || !snap) {
     return (
       <SiteShell>
-        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div data-testid="parent-dashboard-main" className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+
           <DashboardRoleLandmarks />
         </div>
         <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
