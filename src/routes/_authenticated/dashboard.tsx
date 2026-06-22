@@ -43,6 +43,7 @@ import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import {
   ROLE_DASHBOARD_TEST_IDS,
+  dashboardTestIdForDashboardHint,
   dashboardTestIdForProfileRole,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
@@ -97,13 +98,20 @@ function DashboardRoleLandmarks() {
 
 function DashboardLoadingShell() {
   const fetchProfile = useServerFn(getProfile);
-  const [testId, setTestId] = useState<RoleDashboardTestId | null>(null);
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const [testId, setTestId] = useState<RoleDashboardTestId | null>(
+    dashboardTestIdForDashboardHint(dashboardHint),
+  );
 
   useEffect(() => {
     let cancelled = false;
     fetchProfile()
       .then((p) => {
-        if (!cancelled) setTestId(dashboardTestIdForProfileRole(p.primary_role));
+        if (!cancelled) setTestId(dashboardTestIdForProfileRole(p.primary_role) ?? dashboardTestIdForDashboardHint(dashboardHint));
       })
       .catch(() => {
         if (!cancelled) setTestId(null);
@@ -111,7 +119,7 @@ function DashboardLoadingShell() {
     return () => {
       cancelled = true;
     };
-  }, [fetchProfile]);
+  }, [fetchProfile, dashboardHint]);
 
   return (
       <SiteShell dashboardTestId={testId ?? undefined}>
