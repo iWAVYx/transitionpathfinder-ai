@@ -207,7 +207,8 @@ function PartnerManagePage() {
 
   return (
     <SiteShell>
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+      <div data-testid="partner-dashboard-main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
           data-dashboard-landmark="partner"
