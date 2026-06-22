@@ -104,6 +104,10 @@ export type ReportMeta = {
   issued?: string;
   version?: string;
   confidentiality?: string;
+  nextReviewDate?: string | null;
+  lastUpdated?: string | null;
+  school?: string | null;
+  graduationYear?: string | number | null;
 };
 
 export function ReportView({
@@ -119,6 +123,7 @@ export function ReportView({
   meta,
   studentId,
   extendedPlans,
+  hasV2 = false,
 }: {
   name: string;
   report: PathwayReport;
@@ -132,6 +137,13 @@ export function ReportView({
   meta?: ReportMeta;
   studentId?: string;
   extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
+  /**
+   * When the report has been regenerated into the v2 schema, the route also
+   * renders <ReportV2Sections />. Set this to suppress the v1 sections that
+   * v2 re-renders (IEP translator, family/educator action plans, meeting
+   * prep toolkit, opportunity matches) so the document doesn't duplicate.
+   */
+  hasV2?: boolean;
 }) {
   const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
   const [copied, setCopied] = useState(false);
