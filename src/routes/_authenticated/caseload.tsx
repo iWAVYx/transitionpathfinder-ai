@@ -218,6 +218,8 @@ function CaseloadPage() {
         </div>
       </PageContainer>
       </RoleGuard>
+      </div>
+
     </SiteShell>
   );
 }
