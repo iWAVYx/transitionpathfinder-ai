@@ -1197,7 +1197,7 @@ export function ReportView({
       </Block>
 
       {/* ============ Opportunity matches ============ */}
-      {r.opportunity_matches && r.opportunity_matches.length > 0 && (
+      {!hasV2 && r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
