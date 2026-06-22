@@ -568,6 +568,11 @@ for (const role of ROLES) {
         console.log(
           `[auth-setup owner] URL after password login=${page.url()} totp-code-count=${totpCount}`,
         );
+        if (new URL(page.url()).pathname.startsWith("/login/2fa")) {
+          await expect(page.getByTestId("totp-code")).toBeVisible();
+          await expect(page.getByTestId("login-email")).toHaveCount(0);
+          await expect(page.getByTestId("login-password")).toHaveCount(0);
+        }
       }
 
       await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
