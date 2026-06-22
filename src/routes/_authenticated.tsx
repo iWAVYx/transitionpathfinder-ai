@@ -122,7 +122,7 @@ function AuthenticatedLayout() {
     return () => {
       cancelled = true;
     };
-  }, [user, loading, location.pathname, navigate, loadProfile]);
+  }, [user, loading, location.pathname, navigate, loadProfile, loadAdminRoles, hintedDashboardTestId]);
 
   if (loading || !user) {
     return (
