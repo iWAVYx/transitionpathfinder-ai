@@ -123,12 +123,12 @@ export function OwnerDashboardPage() {
                 Resource library health
               </h2>
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
-                <Link to="/owner/resource-review" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
+                <Link to="/owner/resource-review" hash="needing-review" aria-label="Open the resources needing review queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources needing review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.resourcesNeedingReview}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Open review queue →</p>
                 </Link>
-                <Link to="/owner/resource-review" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
+                <Link to="/owner/resource-review" hash="broken-links" aria-label="Open the broken links queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken links</p>
                   <p className={`mt-2 font-display text-2xl ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Resolve in queue →</p>

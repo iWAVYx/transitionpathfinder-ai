@@ -268,7 +268,7 @@ function EmptyState({ hasAny }: { hasAny: boolean }) {
       </p>
       {!hasAny && (
         <Button asChild className="mt-4">
-          <Link to="/students"><Plus className="h-4 w-4" /> Add your first student</Link>
+          <Link to="/students" hash="caseload-empty" aria-label="Add your first student"><Plus className="h-4 w-4" /> Add your first student</Link>
         </Button>
       )}
     </div>

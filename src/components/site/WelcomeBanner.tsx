@@ -50,12 +50,14 @@ export function WelcomeBanner({ firstName }: WelcomeBannerProps) {
         <div className="flex shrink-0 flex-wrap gap-2">
           <Link
             to="/pathway"
+            hash="welcome-pathway"
             className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
           >
             Create a Pathway Report
           </Link>
           <Link
             to="/students"
+            hash="welcome-students"
             className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-4 py-2 text-sm font-semibold text-foreground backdrop-blur hover:bg-background"
           >
             Open students

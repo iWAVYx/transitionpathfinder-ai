@@ -328,6 +328,7 @@ function DashboardPage() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <button
+              type="button"
               onClick={handleSeed}
               disabled={seeding}
               className="group rounded-3xl border-2 border-primary/40 bg-gradient-hero p-7 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60"
@@ -535,12 +536,14 @@ function DashboardPage() {
                       <FileText className="h-4 w-4" /> Open
                     </Link>
                     <button
+                      type="button"
                       onClick={() => handleDownloadPdf(snap.latestReport!.id)}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
                     >
                       <Download className="h-4 w-4" /> Download PDF
                     </button>
                     <button
+                      type="button"
                       disabled={sharing}
                       onClick={() => handleCopyShare(snap.latestReport!.id, "family")}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
@@ -548,6 +551,7 @@ function DashboardPage() {
                       <Share2 className="h-4 w-4" /> Copy family link
                     </button>
                     <button
+                      type="button"
                       disabled={sharing}
                       onClick={() => handleCopyShare(snap.latestReport!.id, "educator")}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
@@ -1011,6 +1015,8 @@ function QuickLink({
   return (
     <Link
       to={to as never}
+      hash="quick-link"
+      aria-label={`Go to ${title}`}
       className="group rounded-2xl border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
     >
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
