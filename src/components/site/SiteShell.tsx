@@ -27,12 +27,10 @@ function dashboardMainTestId(pathname: string): string | null {
   // <main> landmark for each role's signed-in landing route. Keep the
   // mapping here so the contract lives in one place and cannot drift
   // when individual route files are refactored.
-  if (pathname === "/dashboard") {
-    // Both student and parent land here. The test only requires one of
-    // these testids to be present on /dashboard; we expose both via the
-    // main landmark + a sibling node below so either lookup succeeds.
-    return "student-dashboard-main";
-  }
+  //
+  // /dashboard is intentionally omitted — both student and parent land
+  // there, so the role-specific testid is rendered on the inner branch
+  // (StudentDashboard / parent branch in dashboard.tsx) instead.
   if (pathname === "/caseload") return "caseload-main";
   if (pathname === "/school/overview" || pathname.startsWith("/school/")) {
     return "school-admin-dashboard-main";
@@ -42,9 +40,6 @@ function dashboardMainTestId(pathname: string): string | null {
   }
   if (pathname === "/partners-manage" || pathname.startsWith("/partners-manage")) {
     return "partner-dashboard-main";
-  }
-  if (pathname === "/admin" || pathname.startsWith("/admin") || pathname.startsWith("/owner")) {
-    return "platform-admin-main";
   }
   return null;
 }
