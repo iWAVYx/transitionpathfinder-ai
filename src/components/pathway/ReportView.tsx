@@ -1308,6 +1308,18 @@ export function ReportView({
 
       {/* ============ Document footer / control ============ */}
       <footer className="mt-10 rounded-2xl border bg-card">
+        <div className="border-b border-border/60 bg-amber-50/40 px-6 py-5 sm:px-8 dark:bg-amber-950/10">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
+            <ShieldCheck className="h-3.5 w-3.5" /> Planning Disclaimer
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground/80">
+            This Pathway Report is a planning document — <strong>not a legal determination,
+            clinical diagnosis, eligibility decision, or placement order</strong>. It is meant
+            to organize a conversation between the student, family, and school team. Final
+            decisions about services, accommodations, and placement are made by the IEP / PPT
+            team based on the school's own evaluations and the student's IEP.
+          </p>
+        </div>
         <div className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -1319,22 +1331,29 @@ export function ReportView({
             <p className="mt-1 font-mono text-xs text-muted-foreground">
               ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
             </p>
+            {meta?.nextReviewDate && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Next review: <span className="font-medium text-foreground/80">{meta.nextReviewDate}</span>
+              </p>
+            )}
           </div>
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              How this was prepared
+              How This Was Prepared
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/75">
-              AI-drafted from the intake, then formatted for family and educator review.
-              Recommendations are suggestions — not clinical, legal, or placement decisions.
+              AI-drafted from the student's intake and (when available) IEP excerpts, then
+              formatted for family, student, and educator review. Recommendations are
+              suggestions for the team to consider — they are not generated, reviewed, or
+              endorsed by a licensed clinician or attorney.
             </p>
           </div>
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Use & sharing
+              Confidentiality
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/75">
-              {meta?.confidentiality ?? "Share only with the student, family, and authorized members of the school team."}
+              {meta?.confidentiality ?? "Share only with the student, family, and authorized members of the school team. Treat this document like any other planning record from the IEP file."}
             </p>
           </div>
         </div>
@@ -1368,8 +1387,8 @@ export function ReportView({
             {resetLabel}
           </Button>
         )}
-        <Button onClick={() => window.print()}>
-          <Printer className="h-4 w-4" /> Print / save as PDF
+        <Button onClick={() => window.print()} aria-label="Download Pathway Report as PDF">
+          <Download className="h-4 w-4" /> Download Pathway Report (PDF)
         </Button>
       </div>
 
