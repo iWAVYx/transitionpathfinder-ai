@@ -30,6 +30,12 @@ function dashboardReadinessError(expected: string, got: string) {
   return `${DASHBOARD_NOT_READY_PREFIX}: expected ${expected}, got ${got}. Complete onboarding seed data or fix route guard.`;
 }
 
+async function renderedDataTestIds(page: Page) {
+  return page.locator("[data-testid]").evaluateAll((els) =>
+    els.map((el) => el.getAttribute("data-testid")).filter(Boolean),
+  );
+}
+
 async function assertDashboardReady(
   page: Page,
   role: RoleSpec,
@@ -66,6 +72,8 @@ async function assertDashboardReady(
     .first()
     .waitFor({ state: "visible", timeout: 20_000 })
     .catch(async (err) => {
+      const testIds = await renderedDataTestIds(page).catch(() => []);
+      console.log(`[auth-setup ${role.key}] rendered data-testids=`, testIds);
       await dumpDiagnostics?.("dashboard-testid-missing");
       throw new Error(
         `data-testid="${role.dashboardTestId}" not visible on ${role.dashboard} within 20s: ${(err as Error).message}`,
