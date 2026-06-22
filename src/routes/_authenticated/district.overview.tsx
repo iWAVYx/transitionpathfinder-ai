@@ -58,7 +58,7 @@ function DistrictOverviewPage() {
               icon={<Users className="h-3.5 w-3.5" />}
             />
             <StatCard
-              label="Educators / Case Mgrs"
+              label="Educators & Case Managers"
               value={d.metrics.educators}
               icon={<Users className="h-3.5 w-3.5" />}
             />

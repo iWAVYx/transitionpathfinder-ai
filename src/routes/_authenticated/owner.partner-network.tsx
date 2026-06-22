@@ -760,7 +760,7 @@ function OpportunityForm({
     <div className="mt-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          {value.id ? "Edit opportunity" : "New opportunity"}
+          {value.id ? "Edit Opportunity" : "Create Opportunity"}
         </h3>
         <Button size="sm" variant="ghost" onClick={onCancel}>
           <X className="h-3 w-3" />

@@ -107,7 +107,7 @@ function CaseloadPage() {
       <CaseloadRoleLandmark />
       <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
       <PageContainer>
-        <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
+        <Breadcrumbs trail={[{ label: "Caseload" }]} />
 
 
         <div className="mt-4 space-y-6 sm:space-y-8">
