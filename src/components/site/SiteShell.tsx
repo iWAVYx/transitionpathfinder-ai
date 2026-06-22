@@ -39,8 +39,8 @@ function dashboardMainTestId(pathname: string): RoleDashboardTestId | null {
   // when individual route files are refactored.
   //
   // /dashboard is intentionally omitted — both student and parent land
-  // there, so the role-specific testid is rendered on the inner branch
-  // (StudentDashboard / parent branch in dashboard.tsx) instead.
+  // there, so the dashboard route passes the role-specific test ID once
+  // it has resolved the viewer audience.
   if (pathname === "/caseload") return ROLE_DASHBOARD_TEST_IDS.educator;
   if (pathname === "/school/overview" || pathname.startsWith("/school/")) {
     return ROLE_DASHBOARD_TEST_IDS.school_admin;
