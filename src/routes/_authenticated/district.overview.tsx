@@ -137,7 +137,7 @@ function DistrictOverviewPage() {
                 </p>
               </div>
               <Button asChild size="sm" variant="outline" className="shrink-0">
-                <Link to="/district/schools">View all</Link>
+                <Link to="/district/schools" hash="needs-followup" aria-label="Go to all schools needing follow-up">View all</Link>
               </Button>
             </div>
             {d.schools.filter((s) => s.needs_followup).length === 0 ? (
