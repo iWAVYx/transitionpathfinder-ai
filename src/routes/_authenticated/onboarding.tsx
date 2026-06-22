@@ -138,13 +138,16 @@ function OnboardingPage() {
   const needsStudent = role === "parent" || role === "educator";
   const roleQuestions = useMemo(() => questionsForRole(role), [role]);
   const hasQuestions = !!roleQuestions && roleQuestions.questions.length > 0;
+  const roleTips = useMemo(() => tipsForRole(role), [role]);
+  const hasTips = !!roleTips;
 
   const activeSteps: StepId[] = useMemo(() => {
     const steps: StepId[] = ["role", "you"];
     if (hasQuestions) steps.push("questions");
     if (needsStudent) steps.push("student");
+    if (hasTips) steps.push("tips");
     return steps;
-  }, [hasQuestions, needsStudent]);
+  }, [hasQuestions, needsStudent, hasTips]);
 
   const safeIdx = Math.min(idx, activeSteps.length - 1);
   const stepId: StepId = activeSteps[safeIdx];
