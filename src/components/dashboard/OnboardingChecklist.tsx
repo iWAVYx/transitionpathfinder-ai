@@ -148,6 +148,8 @@ export function OnboardingChecklist({
                 {s.to && (
                   <Link
                     to={s.to}
+                    hash={`onboarding-${surface}-${s.id}`}
+                    aria-label={`Go to ${s.label}`}
                     className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary hover:underline"
                   >
                     Go <ChevronRight className="h-3 w-3" />
