@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -14,6 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
+
+type LoginSearch = {
+  redirect: string;
+  mfa?: "expired";
+};
 
 const SignInSchema = z.object({
   email: z.string().trim().email("Enter a valid email").max(255),
@@ -25,8 +31,9 @@ const SignUpSchema = SignInSchema.extend({
 });
 
 export const Route = createFileRoute("/login/")({
-  validateSearch: (s: { redirect?: string }): { redirect: string } => ({
+  validateSearch: (s: { redirect?: string; mfa?: string }): LoginSearch => ({
     redirect: s.redirect || "/dashboard",
+    mfa: s.mfa === "expired" ? "expired" : undefined,
   }),
   head: () => ({
     meta: [
@@ -41,10 +48,15 @@ export const Route = createFileRoute("/login/")({
 
 function LoginPage() {
   const search = Route.useSearch();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const redirect = normalizeAuthRedirect(search.redirect);
+
+  if (location.pathname === "/login/2fa") {
+    return <TwoFactorVerification redirect={redirect} />;
+  }
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -155,6 +167,11 @@ function LoginPage() {
 
             <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-lift md:col-span-3 md:p-8">
               <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
+                {search.mfa === "expired" && (
+                  <p className="mb-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+                    Your Two-Factor Verification expired. Please sign in again.
+                  </p>
+                )}
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
                   <TabsTrigger value="signup">Create Account</TabsTrigger>
