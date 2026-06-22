@@ -1135,7 +1135,7 @@ export function ReportView({
       )}
 
       {/* ============ Meeting prep toolkit ============ */}
-      {r.meeting_prep_toolkit && (
+      {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
           <div className="rounded-3xl border bg-card p-6 shadow-soft lift-card">
             <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
