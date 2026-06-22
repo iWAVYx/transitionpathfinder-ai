@@ -8,6 +8,7 @@ import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import {
   dashboardTestIdForPath,
+  dashboardTestIdForDashboardHint,
   dashboardTestIdForProfileRole,
   ROLE_DASHBOARD_TEST_IDS,
   type RoleDashboardTestId,
@@ -57,6 +58,12 @@ function AuthenticatedLayout() {
   const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(() =>
     dashboardTestIdForPath(location.pathname),
   );
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const hintedDashboardTestId = dashboardTestIdForDashboardHint(dashboardHint);
 
   // Client-side fallback: catch session expiry mid-session.
   useEffect(() => {
@@ -86,7 +93,7 @@ function AuthenticatedLayout() {
         if (cancelled) return;
         setDashboardTestId(
           location.pathname === "/dashboard"
-            ? dashboardTestIdForProfileRole(p.primary_role) ?? ROLE_DASHBOARD_TEST_IDS.parent
+            ? dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent
             : dashboardTestIdForPath(location.pathname),
         );
         if (!p.onboarding_completed) {
@@ -122,7 +129,7 @@ function AuthenticatedLayout() {
       <main
         className="flex min-h-screen items-center justify-center bg-background"
         data-auth-state="loading"
-        data-testid={dashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
+        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
       >
         <p className="text-sm text-muted-foreground">Loading…</p>
       </main>
@@ -134,7 +141,7 @@ function AuthenticatedLayout() {
       <main
         className="flex min-h-screen items-center justify-center bg-background"
         data-auth-state="checking-onboarding"
-        data-testid={dashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
+        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
       >
         <p className="text-sm text-muted-foreground">Loading…</p>
       </main>
