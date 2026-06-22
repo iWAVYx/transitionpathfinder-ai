@@ -483,7 +483,9 @@ export const getReport = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
-      .select("id, created_at, content, intake_id, student_id, student_intakes(student_first_name, grade_band)")
+      .select(
+        "id, created_at, content, intake_id, student_id, review_date, student_intakes(student_first_name, grade_band)",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (error || !row) {
@@ -496,6 +498,7 @@ export const getReport = createServerFn({ method: "POST" })
       content: unknown;
       intake_id: string;
       student_id: string | null;
+      review_date: string | null;
       student_intakes: { student_first_name: string; grade_band: string | null } | null;
     };
     const r = row as unknown as Row;
@@ -505,6 +508,7 @@ export const getReport = createServerFn({ method: "POST" })
       student_id: r.student_id,
       student_first_name: r.student_intakes?.student_first_name ?? "—",
       grade_band: r.student_intakes?.grade_band ?? null,
+      review_date: r.review_date,
       report: r.content as PathwayReport,
     };
   });

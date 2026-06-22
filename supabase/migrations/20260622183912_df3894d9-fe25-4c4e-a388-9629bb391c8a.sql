@@ -1,0 +1,2 @@
+ALTER TABLE public.pathway_reports ADD COLUMN IF NOT EXISTS review_date date;
+COMMENT ON COLUMN public.pathway_reports.review_date IS 'Next planning review date surfaced on the Pathway Report. Nullable.';

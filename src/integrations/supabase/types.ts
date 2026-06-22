@@ -4120,6 +4120,7 @@ export type Database = {
           recommended_pathways: Json | null
           report_status: string
           resource_recommendations: Json | null
+          review_date: string | null
           strengths_needs_analysis: Json | null
           student_id: string | null
           student_snapshot: Json | null
@@ -4149,6 +4150,7 @@ export type Database = {
           recommended_pathways?: Json | null
           report_status?: string
           resource_recommendations?: Json | null
+          review_date?: string | null
           strengths_needs_analysis?: Json | null
           student_id?: string | null
           student_snapshot?: Json | null
@@ -4178,6 +4180,7 @@ export type Database = {
           recommended_pathways?: Json | null
           report_status?: string
           resource_recommendations?: Json | null
+          review_date?: string | null
           strengths_needs_analysis?: Json | null
           student_id?: string | null
           student_snapshot?: Json | null

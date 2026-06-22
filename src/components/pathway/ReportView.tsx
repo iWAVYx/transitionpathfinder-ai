@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
-  Printer,
   Download,
   BookmarkPlus,
   Users,
@@ -66,7 +65,7 @@ import { toTitleCase } from "@/lib/title-case";
 import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
 import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
 
-type Audience = "family" | "educator";
+type Audience = "student" | "family" | "educator";
 
 const READINESS_PCT: Record<string, number> = {
   emerging: 20,
@@ -104,6 +103,10 @@ export type ReportMeta = {
   issued?: string;
   version?: string;
   confidentiality?: string;
+  nextReviewDate?: string | null;
+  lastUpdated?: string | null;
+  school?: string | null;
+  graduationYear?: string | number | null;
 };
 
 export function ReportView({
@@ -119,6 +122,8 @@ export function ReportView({
   meta,
   studentId,
   extendedPlans,
+  hasV2 = false,
+  onAudienceChange,
 }: {
   name: string;
   report: PathwayReport;
@@ -132,8 +137,21 @@ export function ReportView({
   meta?: ReportMeta;
   studentId?: string;
   extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
+  /**
+   * When the report has been regenerated into the v2 schema, the route also
+   * renders <ReportV2Sections />. Set this to suppress the v1 sections that
+   * v2 re-renders (IEP translator, family/educator action plans, meeting
+   * prep toolkit, opportunity matches) so the document doesn't duplicate.
+   */
+  hasV2?: boolean;
+  /** Notify caller when the user switches audience tabs (for v2 sections). */
+  onAudienceChange?: (a: Audience) => void;
 }) {
-  const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
+  const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
+  const setAudience = (a: Audience) => {
+    setAudienceState(a);
+    onAudienceChange?.(a);
+  };
   const [copied, setCopied] = useState(false);
   const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
   const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
@@ -245,8 +263,8 @@ export function ReportView({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    const v = params.get("view");
-    if (v === "family" || v === "educator") setAudience(v);
+    const v = params.get("view") ?? params.get("audience");
+    if (v === "student" || v === "family" || v === "educator") setAudience(v);
   }, []);
 
   useEffect(() => {
@@ -258,14 +276,20 @@ export function ReportView({
 
   const heading = useMemo(
     () =>
-      audience === "family" ? `A plan for ${name}.` : `PPT Prep packet — ${name}`,
+      audience === "family"
+        ? `A plan for ${name}.`
+        : audience === "student"
+          ? `Your plan, ${name}.`
+          : `PPT Prep packet — ${name}`,
     [audience, name],
   );
 
   const subheading =
     audience === "family"
       ? displayReport.summary
-      : "A teacher-facing snapshot to bring to the next Planning & Placement Team meeting. Use the talking points and next steps to keep the conversation focused on the student.";
+      : audience === "student"
+        ? "A plain-language plan written for you. Use it to see what's next, what you're good at, and what to ask your team about."
+        : "A teacher-facing snapshot to bring to the next Planning & Placement Team meeting. Use the talking points and next steps to keep the conversation focused on the student.";
 
   const copyLink = async () => {
     if (typeof window === "undefined") return;
@@ -434,6 +458,13 @@ export function ReportView({
           className="inline-flex rounded-xl bg-muted p-1"
         >
           <AudienceTab
+            active={audience === "student"}
+            onClick={() => setAudience("student")}
+            icon={<MessageSquareQuote className="h-4 w-4" />}
+            label="Student View"
+            hint="For You"
+          />
+          <AudienceTab
             active={audience === "family"}
             onClick={() => setAudience("family")}
             icon={<Users className="h-4 w-4" />}
@@ -522,15 +553,17 @@ export function ReportView({
               {saved ? "Saved" : saveLabel ?? "Save to Profile"}
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={shareReport} aria-label="Share report">
+          <Button variant="outline" size="sm" onClick={shareReport} aria-label="Share Pathway Report">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "Copied" : "Share"}
+            {copied ? "Copied" : "Share With Team"}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()} aria-label="Print report">
-            <Printer className="h-4 w-4" /> Print
-          </Button>
-          <Button variant="secondary" size="sm" onClick={() => window.print()} aria-label="Download as PDF">
-            <Download className="h-4 w-4" /> PDF
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => window.print()}
+            aria-label="Download Pathway Report as PDF"
+          >
+            <Download className="h-4 w-4" /> Download Pathway Report (PDF)
           </Button>
         </div>
       </div>
@@ -600,6 +633,16 @@ export function ReportView({
           </div>
         </div>
       </header>
+
+      {/* ============ Student Snapshot summary card (top, all audiences) ============ */}
+      <StudentSnapshotCard
+        name={name}
+        snapshot={r.student_snapshot}
+        readiness={r.student_snapshot?.readiness_level ?? null}
+        confidenceLabel={confidenceLabel}
+        meta={meta}
+        today={today}
+      />
 
       <div className="mt-8">
         <AIDisclaimer />
@@ -830,6 +873,18 @@ export function ReportView({
                     {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
                   </Badge>
                   <h3 className="font-display text-2xl">{toTitleCase(p.title)}</h3>
+                  {confidenceLabel && (
+                    <Badge variant="outline" className="gap-1 text-[11px]">
+                      <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
+                    </Badge>
+                  )}
+                  {r.student_snapshot?.readiness_level && (
+                    <Badge variant="outline" className="gap-1 text-[11px]">
+                      <Target className="h-3 w-3" /> Readiness:{" "}
+                      {READINESS_LABEL[r.student_snapshot.readiness_level] ??
+                        r.student_snapshot.readiness_level}
+                    </Badge>
+                  )}
                 </div>
                 <p className="mt-3 text-sm text-foreground/80">{p.why_it_fits}</p>
 
@@ -962,7 +1017,7 @@ export function ReportView({
       </Block>
 
       {/* ============ IEP translator ============ */}
-      {r.iep_translator && r.iep_translator.length > 0 && (
+      {!hasV2 && r.iep_translator && r.iep_translator.length > 0 && (
         <Block id="sec-iep-translator" title="IEP / Transition Plan Translator" icon={<BookOpen className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             Plain-English translations of transition-related goal language. This is not legal
@@ -1035,7 +1090,7 @@ export function ReportView({
       )}
 
       {/* ============ Family Action Plan ============ */}
-      {r.family_action_plan && (
+      {!hasV2 && r.family_action_plan && (
         <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <HorizonCard label="This Week" items={r.family_action_plan.this_week} />
@@ -1057,7 +1112,7 @@ export function ReportView({
       )}
 
       {/* ============ Teacher / case manager plan ============ */}
-      {r.teacher_action_plan && (
+      {!hasV2 && r.teacher_action_plan && (
         <Block
           title="Educator / Case Manager Action Plan"
           icon={<GraduationCap className="h-5 w-5" />}
@@ -1098,7 +1153,7 @@ export function ReportView({
       )}
 
       {/* ============ Meeting prep toolkit ============ */}
-      {r.meeting_prep_toolkit && (
+      {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
           <div className="rounded-3xl border bg-card p-6 shadow-soft lift-card">
             <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
@@ -1160,7 +1215,7 @@ export function ReportView({
       </Block>
 
       {/* ============ Opportunity matches ============ */}
-      {r.opportunity_matches && r.opportunity_matches.length > 0 && (
+      {!hasV2 && r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
@@ -1271,6 +1326,18 @@ export function ReportView({
 
       {/* ============ Document footer / control ============ */}
       <footer className="mt-10 rounded-2xl border bg-card">
+        <div className="border-b border-border/60 bg-amber-50/40 px-6 py-5 sm:px-8 dark:bg-amber-950/10">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
+            <ShieldCheck className="h-3.5 w-3.5" /> Planning Disclaimer
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground/80">
+            This Pathway Report is a planning document — <strong>not a legal determination,
+            clinical diagnosis, eligibility decision, or placement order</strong>. It is meant
+            to organize a conversation between the student, family, and school team. Final
+            decisions about services, accommodations, and placement are made by the IEP / PPT
+            team based on the school's own evaluations and the student's IEP.
+          </p>
+        </div>
         <div className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -1282,22 +1349,29 @@ export function ReportView({
             <p className="mt-1 font-mono text-xs text-muted-foreground">
               ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
             </p>
+            {meta?.nextReviewDate && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Next review: <span className="font-medium text-foreground/80">{meta.nextReviewDate}</span>
+              </p>
+            )}
           </div>
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              How this was prepared
+              How This Was Prepared
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/75">
-              AI-drafted from the intake, then formatted for family and educator review.
-              Recommendations are suggestions — not clinical, legal, or placement decisions.
+              AI-drafted from the student's intake and (when available) IEP excerpts, then
+              formatted for family, student, and educator review. Recommendations are
+              suggestions for the team to consider — they are not generated, reviewed, or
+              endorsed by a licensed clinician or attorney.
             </p>
           </div>
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Use & sharing
+              Confidentiality
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/75">
-              {meta?.confidentiality ?? "Share only with the student, family, and authorized members of the school team."}
+              {meta?.confidentiality ?? "Share only with the student, family, and authorized members of the school team. Treat this document like any other planning record from the IEP file."}
             </p>
           </div>
         </div>
@@ -1331,8 +1405,8 @@ export function ReportView({
             {resetLabel}
           </Button>
         )}
-        <Button onClick={() => window.print()}>
-          <Printer className="h-4 w-4" /> Print / save as PDF
+        <Button onClick={() => window.print()} aria-label="Download Pathway Report as PDF">
+          <Download className="h-4 w-4" /> Download Pathway Report (PDF)
         </Button>
       </div>
 
@@ -1607,6 +1681,69 @@ export function ReportView({
           }
         }
       `}</style>
+    </section>
+  );
+}
+
+/* ---------- Student Snapshot summary card (top of report) ---------- */
+
+function StudentSnapshotCard({
+  name,
+  snapshot,
+  readiness,
+  confidenceLabel,
+  meta,
+  today,
+}: {
+  name: string;
+  snapshot: PathwayReport["student_snapshot"];
+  readiness: string | null;
+  confidenceLabel: string | null;
+  meta?: ReportMeta;
+  today: string;
+}) {
+  const fields: Array<{ label: string; value: string | null | undefined }> = [
+    { label: "Student", value: name },
+    { label: "Grade", value: snapshot?.grade_level ?? null },
+    { label: "School", value: meta?.school ?? null },
+    {
+      label: "Graduation",
+      value:
+        (meta?.graduationYear ? String(meta.graduationYear) : null) ??
+        snapshot?.graduation_timeline ??
+        null,
+    },
+    {
+      label: "Readiness",
+      value: readiness ? READINESS_LABEL[readiness] ?? readiness : null,
+    },
+    { label: "Confidence", value: confidenceLabel },
+    { label: "Last Updated", value: meta?.lastUpdated ?? meta?.issued ?? today },
+    { label: "Next Review", value: meta?.nextReviewDate ?? null },
+  ];
+  const visible = fields.filter((f) => f.value);
+  if (visible.length === 0) return null;
+  return (
+    <section
+      aria-label="Student Snapshot"
+      className="mt-6 rounded-2xl border border-primary/20 bg-card p-5 shadow-soft sm:p-6"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          Student Snapshot
+        </p>
+        {readiness && <ReadinessBadge level={readiness} compact />}
+      </div>
+      <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+        {visible.map((f) => (
+          <div key={f.label}>
+            <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {f.label}
+            </dt>
+            <dd className="mt-0.5 text-sm font-medium text-foreground/90">{f.value}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
