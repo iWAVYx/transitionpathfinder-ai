@@ -36,9 +36,11 @@ export interface RoleSpec {
   emailEnv: string;
   passwordEnv: string;
   dashboard: string;
+  dashboardTestId: string; // data-testid rendered on or inside <main> when this role's dashboard is ready
   mustSee: RegExp[];      // headings / labels that must render
   mustNotSee: RegExp[];   // surfaces that would indicate a role leak
 }
+
 
 export const ROLES: RoleSpec[] = [
   {
