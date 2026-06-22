@@ -10,6 +10,11 @@ export type Crumb = { label: string; to?: string };
  * Last crumb is rendered as plain text (current page).
  */
 export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
+  // The Home icon already links to /dashboard, so a leading
+  // { label: "Dashboard", to: "/dashboard" } crumb would render a second
+  // identical href inside <main> and fail the no-duplicate-link rule.
+  // Strip any /dashboard entries from the caller-provided trail.
+  const filtered = trail.filter((c) => c.to !== "/dashboard");
   return (
     <nav aria-label="Breadcrumb" className="text-xs sm:text-sm">
       <ol className="flex flex-wrap items-center gap-1.5 text-muted-foreground">
@@ -23,8 +28,8 @@ export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
             <span className="sr-only sm:not-sr-only">Dashboard</span>
           </Link>
         </li>
-        {trail.map((c, i) => {
-          const last = i === trail.length - 1;
+        {filtered.map((c, i) => {
+          const last = i === filtered.length - 1;
           return (
             <li key={`${c.label}-${i}`} className="flex items-center gap-1.5">
               <ChevronRight className="h-3.5 w-3.5 opacity-60" aria-hidden />
