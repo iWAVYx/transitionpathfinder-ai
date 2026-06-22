@@ -1,4 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { getStudentVoiceResponses } from "@/lib/student-voice.functions";
 import {
   Sparkles,
   ClipboardList,
