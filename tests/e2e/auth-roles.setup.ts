@@ -68,6 +68,10 @@ async function completeTwoFactorIfPresent(
   }
 
   const otpInput = page.getByTestId("totp-code").first();
+  const otpCount = await page.getByTestId("totp-code").count().catch(() => 0);
+  console.log(
+    `[auth-setup ${role.key}] /login/2fa detected; data-testid=totp-code count=${otpCount}`,
+  );
 
   try {
     await otpInput.waitFor({ state: "visible", timeout: 10_000 }).catch(async (waitErr) => {
@@ -75,6 +79,7 @@ async function completeTwoFactorIfPresent(
       throw waitErr;
     });
     if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
+    console.log(`[auth-setup ${role.key}] data-testid=totp-code visible=true`);
     await otpInput.fill(authenticator.generate(secret));
 
     const verifyButton = page.getByTestId("totp-submit").first();
@@ -84,6 +89,7 @@ async function completeTwoFactorIfPresent(
       timeout: 20_000,
     });
     await page.waitForLoadState("networkidle").catch(() => {});
+    console.log(`[auth-setup ${role.key}] final URL after 2FA submit=${page.url()}`);
   } catch (twofaErr) {
     await dumpDiagnostics?.("2fa-challenge-failed");
     throw new Error(
@@ -544,11 +550,20 @@ for (const role of ROLES) {
       await page.getByTestId("login-submit").click();
 
       await page.waitForURL(
-        (url) => !url.pathname.match(/^\/login$/),
+        (url) => normalizePath(url.pathname) !== "/login",
         { timeout: 30_000 },
       );
+      if (role.key === "owner") {
+        const totpCount = await page.getByTestId("totp-code").count().catch(() => 0);
+        console.log(
+          `[auth-setup owner] URL after password login=${page.url()} totp-code-count=${totpCount}`,
+        );
+      }
 
       await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
+      if (role.key === "owner") {
+        console.log(`[auth-setup owner] final URL after login=${page.url()}`);
+      }
 
       const hasSession = await page.evaluate(() =>
         Object.keys(window.localStorage).some((k) => k.includes("auth-token")),
@@ -560,6 +575,10 @@ for (const role of ROLES) {
         await page.goto("/admin", { waitUntil: "networkidle" });
         await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
         await assertDashboardReady(page, role, dumpDiagnostics);
+        const adminMainVisible = await page.locator("main").isVisible().catch(() => false);
+        console.log(
+          `[auth-setup owner] final URL after page.goto("/admin")=${page.url()} admin-main-visible=${adminMainVisible}`,
+        );
       }
       await page.goto(role.dashboard, { waitUntil: "networkidle" });
       await completeOnboardingIfPresent(page, role);
