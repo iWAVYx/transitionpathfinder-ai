@@ -16,11 +16,17 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  const [authResolution, setAuthResolution] = useState<"pending" | "ready" | "redirecting">("pending");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    document.title = "Two-Factor Verification — TransitionForward";
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     const bounceToLogin = async () => {
+      if (!cancelled) setAuthResolution("redirecting");
       await supabase.auth.signOut().catch(() => undefined);
       if (!cancelled) {
         navigate({ to: "/login", search: { redirect: safeRedirect }, replace: true });
@@ -37,6 +43,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (cancelled) return;
       if (aal?.currentLevel === "aal2") {
+        setAuthResolution("redirecting");
         navigate({ to: safeRedirect, replace: true });
         return;
       }
@@ -69,6 +76,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
 
       setFactorId(totp.id);
       setChallengeId(challenge.id);
+      setAuthResolution("ready");
       setBootstrapping(false);
     })();
 
@@ -112,14 +120,6 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
     navigate({ to: "/login", replace: true });
   };
 
-  if (bootstrapping) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="checking-two-factor">
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      </main>
-    );
-  }
-
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
       <section className="w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
@@ -150,7 +150,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
               value={code}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
               autoFocus
-              disabled={bootstrapping || submitting}
+              disabled={authResolution === "redirecting" || submitting}
               aria-label="Six-digit authenticator code"
               aria-describedby="twofa-instructions"
               autoComplete="one-time-code"
@@ -177,7 +177,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
             {submitting ? "Verifying…" : "Verify"}
           </Button>
           <Button type="button" variant="ghost" className="w-full" onClick={onCancel}>
-            Cancel and Sign Out
+            Use A Different Account
           </Button>
         </form>
       </section>

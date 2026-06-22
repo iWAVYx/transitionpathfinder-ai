@@ -568,10 +568,15 @@ for (const role of ROLES) {
         console.log(
           `[auth-setup owner] URL after password login=${page.url()} totp-code-count=${totpCount}`,
         );
-        if (new URL(page.url()).pathname.startsWith("/login/2fa")) {
+        const ownerTotpSecret = process.env.E2E_OWNER_TOTP_SECRET?.trim();
+        if (ownerTotpSecret) {
+          expect(page.url(), "owner with E2E_OWNER_TOTP_SECRET should route to /login/2fa after password login").toContain("/login/2fa");
+          expect(new URL(page.url()).searchParams.get("redirect")).toBe("/admin");
           await expect(page.getByTestId("totp-code")).toBeVisible();
           await expect(page.getByTestId("login-email")).toHaveCount(0);
           await expect(page.getByTestId("login-password")).toHaveCount(0);
+          await expect(page.locator("#signin-email")).toHaveCount(0);
+          await expect(page.locator("#signin-password")).toHaveCount(0);
         }
       }
 
