@@ -372,6 +372,14 @@ for (const role of ROLES) {
           body: htmlSnippet,
           contentType: "text/html",
         });
+        await testInfo.attach(`${role.key}-${label}-runtime.json`, {
+          body: JSON.stringify(
+            { consoleEvents, pageErrors, failedRequests: failedRequests.slice(-50) },
+            null,
+            2,
+          ),
+          contentType: "application/json",
+        });
         const chainSummary = chain
           .filter((c) => c.kind === "response" || c.kind === "framenavigated")
           .map((c) =>
@@ -380,9 +388,15 @@ for (const role of ROLES) {
               : `  ⇢ nav ${c.host}${(() => { try { return new URL(c.url).pathname; } catch { return ""; }})()}`,
           )
           .join("\n");
+        const errSummary = [
+          `  console-errors=${consoleEvents.filter((c) => c.type === "error").length}`,
+          `  page-errors=${pageErrors.length}${pageErrors[0] ? ` first="${pageErrors[0].message.slice(0, 200)}"` : ""}`,
+          `  failed-requests=${failedRequests.length}${failedRequests[0] ? ` first="${failedRequests[0].method} ${failedRequests[0].url} (${failedRequests[0].failure})"` : ""}`,
+        ].join("\n");
         console.log(
-          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
+          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
         );
+
       } catch (e) {
         console.log(`[auth-setup ${role.key}] dumpDiagnostics threw: ${(e as Error).message}`);
       }
