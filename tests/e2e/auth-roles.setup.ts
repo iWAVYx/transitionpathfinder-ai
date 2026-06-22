@@ -565,18 +565,26 @@ for (const role of ROLES) {
       );
       if (role.key === "owner") {
         const totpCount = await page.getByTestId("totp-code").count().catch(() => 0);
-        console.log(
-          `[auth-setup owner] URL after password login=${page.url()} totp-code-count=${totpCount}`,
-        );
         const ownerTotpSecret = process.env.E2E_OWNER_TOTP_SECRET?.trim();
-        if (ownerTotpSecret) {
-          expect(page.url(), "owner with E2E_OWNER_TOTP_SECRET should route to /login/2fa after password login").toContain("/login/2fa");
+        const ownerTotpConfigured = Boolean(ownerTotpSecret);
+        console.log(
+          `[auth-setup owner] OWNER_TOTP_CONFIGURED=${ownerTotpConfigured} ` +
+            `URL after password login=${page.url()} totp-code-count=${totpCount}`,
+        );
+        const onTwoFa = page.url().includes("/login/2fa");
+        if (ownerTotpConfigured) {
+          expect(onTwoFa, "owner with E2E_OWNER_TOTP_SECRET should route to /login/2fa after password login").toBe(true);
           expect(new URL(page.url()).searchParams.get("redirect")).toBe("/admin");
           await expect(page.getByTestId("totp-code")).toBeVisible();
           await expect(page.getByTestId("login-email")).toHaveCount(0);
           await expect(page.getByTestId("login-password")).toHaveCount(0);
           await expect(page.locator("#signin-email")).toHaveCount(0);
           await expect(page.locator("#signin-password")).toHaveCount(0);
+        } else if (onTwoFa) {
+          await dumpDiagnostics("owner-2fa-without-secret");
+          throw new Error(
+            "E2E owner account still has 2FA enabled. Use a non-2FA E2E owner or configure a valid TOTP secret.",
+          );
         }
       }
 
