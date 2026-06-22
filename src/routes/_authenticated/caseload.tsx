@@ -386,7 +386,7 @@ function CaseloadRow({
       <div className="mt-3 flex flex-wrap gap-2">
         <Button asChild size="sm" variant="outline">
           <Link to="/students/$studentId" params={{ studentId: row.id }}>
-            Open Profile
+            Open Student Profile
           </Link>
         </Button>
         <Button asChild size="sm" variant="outline">
