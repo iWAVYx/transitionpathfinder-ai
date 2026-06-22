@@ -149,7 +149,14 @@ function ReportDetailPage() {
     try {
       const res = await regenerate({ data: { report_id: reportId } });
       const fresh = await fetchReport({ data: { id: reportId } });
-      setState({ kind: "ok", name: fresh.student_first_name, report: fresh.report, studentId: fresh.student_id });
+      setState({
+        kind: "ok",
+        name: fresh.student_first_name,
+        report: fresh.report,
+        studentId: fresh.student_id,
+        reviewDate: (fresh as { review_date?: string | null }).review_date ?? null,
+        lastUpdated: fresh.created_at,
+      });
       toast.success(`Regenerated (v${res.version_number}). ${res.change_summary}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not regenerate.");
