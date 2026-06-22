@@ -313,9 +313,33 @@ type ExploreTile = {
   body: string;
 };
 
-function ExploreForStudent({ gradeBand }: { gradeBand: string | null }) {
+function ExploreForStudent({
+  gradeBand,
+  studentId,
+}: {
+  gradeBand: string | null;
+  studentId: string;
+}) {
   const isMiddle = gradeBand === "6-8";
   const isHigh = gradeBand === "9-10" || gradeBand === "11-12";
+
+  // Phase 6D — read voice-response count so the Student Voice tile can
+  // nudge first-time students to add a reflection.
+  const fetchVoice = useServerFn(getStudentVoiceResponses);
+  const [voiceCount, setVoiceCount] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchVoice({ data: { studentId } })
+      .then((r) => {
+        if (!cancelled) setVoiceCount(r.responses?.length ?? 0);
+      })
+      .catch(() => {
+        if (!cancelled) setVoiceCount(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, fetchVoice]);
 
   const tiles: ExploreTile[] = [];
   if (isMiddle) {
@@ -335,10 +359,13 @@ function ExploreForStudent({ gradeBand }: { gradeBand: string | null }) {
     });
   }
   tiles.push({
-    to: "/forms",
+    to: "/student-voice",
     icon: <Mic className="h-5 w-5" />,
-    title: "Your student voice",
-    body: "Add what's important to you so your team can plan around your goals.",
+    title: "Your Student Voice",
+    body:
+      voiceCount === 0
+        ? "Add your first reflection — your team will see it in your plan."
+        : "Add what's important to you so your team can plan around your goals.",
   });
   tiles.push({
     to: "/messages",
