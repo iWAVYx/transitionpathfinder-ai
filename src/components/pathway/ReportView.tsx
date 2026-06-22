@@ -25,6 +25,7 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
   Search,
+  RefreshCw,
 } from "lucide-react";
 import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
@@ -124,6 +125,8 @@ export function ReportView({
   extendedPlans,
   hasV2 = false,
   onAudienceChange,
+  onRefresh,
+  refreshing = false,
 }: {
   name: string;
   report: PathwayReport;
@@ -146,6 +149,9 @@ export function ReportView({
   hasV2?: boolean;
   /** Notify caller when the user switches audience tabs (for v2 sections). */
   onAudienceChange?: (a: Audience) => void;
+  /** Inline "Refresh report" action in the toolbar. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
   const setAudience = (a: Audience) => {
@@ -557,6 +563,18 @@ export function ReportView({
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied" : "Share With Team"}
           </Button>
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={refreshing}
+              aria-label="Refresh Pathway Report"
+            >
+              <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+              {refreshing ? "Refreshing…" : "Refresh Report"}
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
