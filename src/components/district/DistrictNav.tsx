@@ -20,6 +20,8 @@ export function DistrictNav() {
           <Link
             key={to}
             to={to}
+            hash="nav"
+            aria-label={`District navigation: ${label}`}
             className={cn(
               "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-t-lg px-3 py-2 text-sm transition-colors",
               active
