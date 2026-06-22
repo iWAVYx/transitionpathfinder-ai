@@ -564,6 +564,13 @@ function DashboardPage() {
             )}
           </div>
 
+          {/* Invite People — co-parent / educator one-click flows */}
+          <div className="mt-6">
+            <InvitePeopleCard studentId={s.id} studentFirstName={s.first_name} />
+          </div>
+
+
+
           {/* Pathway Report Panel */}
           <div className="mt-6 rounded-3xl border bg-gradient-hero p-5 shadow-soft sm:p-6 lg:p-8">
             <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
