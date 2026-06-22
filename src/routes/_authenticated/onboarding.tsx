@@ -55,7 +55,7 @@ const GRADE_OPTIONS = [
   { value: "not-applicable", label: "Not applicable" },
 ] as const;
 
-const STEPS = ["role", "you", "questions", "student"] as const;
+const STEPS = ["role", "you", "questions", "student", "tips"] as const;
 type StepId = (typeof STEPS)[number];
 
 // Per-prompt answer can be a string (single/text) or string[] (multi).
