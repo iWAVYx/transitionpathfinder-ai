@@ -41,7 +41,10 @@ import {
 import { listStudents, createShareToken } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
-import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
+import {
+  ROLE_DASHBOARD_TEST_IDS,
+  type RoleDashboardTestId,
+} from "@/lib/dashboard-testids";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
@@ -107,6 +110,12 @@ function DashboardLoadingShell() {
 
 type StudentLite = { id: string; first_name: string; last_name: string | null };
 
+function dashboardTestIdForPrimaryRole(role: string | null | undefined): RoleDashboardTestId | null {
+  if (role === "student") return ROLE_DASHBOARD_TEST_IDS.student;
+  if (role === "parent" || role === "guardian") return ROLE_DASHBOARD_TEST_IDS.parent;
+  return null;
+}
+
 function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -126,11 +135,17 @@ function DashboardPage() {
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
   const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
+  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(null);
 
   useEffect(() => {
     fetchProfile()
       .then((p) => {
         if (p.first_name) setProfileFirstName(p.first_name);
+        const profileTestId = dashboardTestIdForPrimaryRole(p.primary_role);
+        if (profileTestId) {
+          setDashboardTestId(profileTestId);
+          setIsStudentOnly(profileTestId === ROLE_DASHBOARD_TEST_IDS.student);
+        }
       })
       .catch(() => {
         /* fall back to user_metadata / email */
@@ -141,7 +156,13 @@ function DashboardPage() {
     fetchRoles()
       .then((r) => {
         const aud = audiencesForRoles(r.roles);
-        setIsStudentOnly(aud.size > 0 && aud.has("student") && aud.size === 1);
+        const studentOnly = aud.size > 0 && aud.has("student") && aud.size === 1;
+        setIsStudentOnly(studentOnly);
+        if (studentOnly) {
+          setDashboardTestId(ROLE_DASHBOARD_TEST_IDS.student);
+        } else if (aud.has("family")) {
+          setDashboardTestId(ROLE_DASHBOARD_TEST_IDS.parent);
+        }
         // Route non-family roles to their proper workspace:
         // - Platform Admin (admin-only) → Owner Hub instead of family UI
         // - School/District Admin & Partner → their hub
@@ -161,7 +182,10 @@ function DashboardPage() {
           }
         }
       })
-      .catch(() => setIsStudentOnly(false));
+      .catch(() => {
+        setIsStudentOnly((current) => current ?? false);
+        setDashboardTestId((current) => current ?? ROLE_DASHBOARD_TEST_IDS.parent);
+      });
   }, [fetchRoles, navigate]);
 
 
