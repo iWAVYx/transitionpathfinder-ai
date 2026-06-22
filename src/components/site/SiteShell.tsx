@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 import { useLocation } from "@tanstack/react-router";
+import {
+  ROLE_DASHBOARD_TEST_IDS,
+  type RoleDashboardTestId,
+} from "@/lib/dashboard-testids";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 
@@ -8,7 +12,7 @@ export function SiteShell({
   dashboardTestId,
 }: {
   children: ReactNode;
-  dashboardTestId?: string;
+  dashboardTestId?: RoleDashboardTestId;
 }) {
   const location = useLocation();
   const testId = dashboardTestId ?? dashboardMainTestId(location.pathname);
@@ -28,7 +32,7 @@ export function SiteShell({
   );
 }
 
-function dashboardMainTestId(pathname: string): string | null {
+function dashboardMainTestId(pathname: string): RoleDashboardTestId | null {
   // The dashboard-setup E2E suite asserts a stable data-testid on the
   // <main> landmark for each role's signed-in landing route. Keep the
   // mapping here so the contract lives in one place and cannot drift
@@ -37,15 +41,15 @@ function dashboardMainTestId(pathname: string): string | null {
   // /dashboard is intentionally omitted — both student and parent land
   // there, so the role-specific testid is rendered on the inner branch
   // (StudentDashboard / parent branch in dashboard.tsx) instead.
-  if (pathname === "/caseload") return "caseload-main";
+  if (pathname === "/caseload") return ROLE_DASHBOARD_TEST_IDS.educator;
   if (pathname === "/school/overview" || pathname.startsWith("/school/")) {
-    return "school-admin-dashboard-main";
+    return ROLE_DASHBOARD_TEST_IDS.school_admin;
   }
   if (pathname === "/district/overview" || pathname.startsWith("/district/")) {
-    return "district-admin-dashboard-main";
+    return ROLE_DASHBOARD_TEST_IDS.district_admin;
   }
   if (pathname === "/partners-manage" || pathname.startsWith("/partners-manage")) {
-    return "partner-dashboard-main";
+    return ROLE_DASHBOARD_TEST_IDS.partner;
   }
   return null;
 }
