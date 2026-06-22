@@ -1015,6 +1015,8 @@ function QuickLink({
   return (
     <Link
       to={to as never}
+      hash="quick-link"
+      aria-label={`Go to ${title}`}
       className="group rounded-2xl border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
     >
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
