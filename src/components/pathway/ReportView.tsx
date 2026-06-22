@@ -452,6 +452,13 @@ export function ReportView({
           className="inline-flex rounded-xl bg-muted p-1"
         >
           <AudienceTab
+            active={audience === "student"}
+            onClick={() => setAudience("student")}
+            icon={<MessageSquareQuote className="h-4 w-4" />}
+            label="Student View"
+            hint="For You"
+          />
+          <AudienceTab
             active={audience === "family"}
             onClick={() => setAudience("family")}
             icon={<Users className="h-4 w-4" />}
