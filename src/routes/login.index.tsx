@@ -1,4 +1,4 @@
-import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
-import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
 
 type LoginSearch = {
   redirect: string;
@@ -48,12 +47,7 @@ export const Route = createFileRoute("/login/")({
 
 function LoginRouteEntry() {
   const search = Route.useSearch();
-  const location = useLocation();
   const redirect = normalizeAuthRedirect(search.redirect);
-
-  if (location.pathname.startsWith("/login/2fa")) {
-    return <TwoFactorVerification redirect={redirect} />;
-  }
 
   return <LoginPage search={search} redirect={redirect} />;
 }
