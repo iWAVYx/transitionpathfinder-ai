@@ -77,11 +77,18 @@ export const getCaseload = createServerFn({ method: "GET" })
     const ids = Array.from(map.keys());
     if (ids.length === 0) return { students: [] as CaseloadStudent[] };
 
-    const [{ data: actions }, { data: goals }, { data: notes }, { data: reports }] = await Promise.all([
+    const nowIso = new Date().toISOString();
+    const [{ data: actions }, { data: goals }, { data: notes }, { data: reports }, { data: meetings }] = await Promise.all([
       supabase.from("action_items").select("student_id, status").in("student_id", ids),
       supabase.from("goals").select("student_id").in("student_id", ids),
       supabase.from("collaboration_notes").select("student_id, created_at").in("student_id", ids).order("created_at", { ascending: false }),
       supabase.from("pathway_reports").select("id, student_id, created_at").in("student_id", ids).order("created_at", { ascending: false }),
+      supabase
+        .from("meetings")
+        .select("id, student_id, title, scheduled_at, status")
+        .in("student_id", ids)
+        .gte("scheduled_at", nowIso)
+        .order("scheduled_at", { ascending: true }),
     ]);
 
     for (const a of actions ?? []) {
@@ -103,6 +110,16 @@ export const getCaseload = createServerFn({ method: "GET" })
       if (!r.student_id) continue;
       const row = map.get(r.student_id);
       if (row && !row.latest_report_id) row.latest_report_id = r.id;
+    }
+    for (const m of meetings ?? []) {
+      if (!m.student_id || !m.scheduled_at) continue;
+      if (m.status === "cancelled") continue;
+      const row = map.get(m.student_id);
+      if (row && !row.next_meeting_at) {
+        row.next_meeting_at = m.scheduled_at;
+        row.next_meeting_id = m.id;
+        row.next_meeting_title = m.title ?? null;
+      }
     }
 
     return { students: Array.from(map.values()) };
