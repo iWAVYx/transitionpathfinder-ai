@@ -242,6 +242,8 @@ function CaseloadPage() {
               <SelectTrigger className="w-full sm:w-[220px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Students</SelectItem>
+                <SelectItem value="today">Meeting Today</SelectItem>
+                <SelectItem value="this-week">Meeting This Week</SelectItem>
                 <SelectItem value="needs-attention">Open Action Items</SelectItem>
                 <SelectItem value="no-report">No Pathway Report</SelectItem>
               </SelectContent>
