@@ -116,14 +116,36 @@ function CaseloadPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return rows.filter((r) => {
+    const todayEnd = endOfToday().getTime();
+    const weekEnd = endOfThisWeek().getTime();
+    const now = Date.now();
+    const result = rows.filter((r) => {
       if (q) {
         const name = `${r.first_name} ${r.last_name ?? ""}`.toLowerCase();
         if (!name.includes(q) && !(r.school ?? "").toLowerCase().includes(q)) return false;
       }
       if (filter === "needs-attention" && r.open_action_items === 0) return false;
       if (filter === "no-report" && r.latest_report_id) return false;
+      if (filter === "today") {
+        if (!r.next_meeting_at) return false;
+        const t = new Date(r.next_meeting_at).getTime();
+        if (t < now || t > todayEnd) return false;
+      }
+      if (filter === "this-week") {
+        if (!r.next_meeting_at) return false;
+        const t = new Date(r.next_meeting_at).getTime();
+        if (t < now || t > weekEnd) return false;
+      }
       return true;
+    });
+    // Sort: students with an upcoming meeting first (soonest), then by name.
+    return result.slice().sort((a, b) => {
+      const at = a.next_meeting_at ? new Date(a.next_meeting_at).getTime() : Infinity;
+      const bt = b.next_meeting_at ? new Date(b.next_meeting_at).getTime() : Infinity;
+      if (at !== bt) return at - bt;
+      return `${a.first_name} ${a.last_name ?? ""}`.localeCompare(
+        `${b.first_name} ${b.last_name ?? ""}`,
+      );
     });
   }, [rows, query, filter]);
 
