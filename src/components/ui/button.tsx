@@ -37,10 +37,20 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, type, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    // Default <button> to type="button" so it's never a form submitter by
+    // accident, and so dashboard regression's inert-button heuristic
+    // (which requires an explicit type attribute) recognizes our buttons
+    // as real interactive controls.
+    const resolvedType = asChild ? type : (type ?? "button");
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...(resolvedType ? { type: resolvedType } : {})}
+        {...props}
+      />
     );
   },
 );
