@@ -117,7 +117,7 @@ function CaseloadPage() {
             description="Students you own or have been invited to support — meetings, pending transition tasks, and reports needing review."
             action={
               <Button asChild className="w-full sm:w-auto">
-                <Link to="/students"><Plus className="h-4 w-4" /> Add Student</Link>
+                <Link to="/students"><Plus className="h-4 w-4" /> Invite Student</Link>
               </Button>
             }
           />
