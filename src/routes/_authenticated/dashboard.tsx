@@ -154,14 +154,20 @@ function DashboardPage() {
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const hintedDashboardTestId = dashboardTestIdForDashboardHint(dashboardHint);
   const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
-  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(null);
+  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(hintedDashboardTestId);
 
   useEffect(() => {
     fetchProfile()
       .then((p) => {
         if (p.first_name) setProfileFirstName(p.first_name);
-        const profileTestId = dashboardTestIdForProfileRole(p.primary_role);
+        const profileTestId = dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId;
         if (profileTestId) {
           setDashboardTestId(profileTestId);
           setIsStudentOnly(profileTestId === ROLE_DASHBOARD_TEST_IDS.student);
@@ -204,9 +210,9 @@ function DashboardPage() {
       })
       .catch(() => {
         setIsStudentOnly((current) => current ?? false);
-        setDashboardTestId((current) => current ?? ROLE_DASHBOARD_TEST_IDS.parent);
+        setDashboardTestId((current) => current ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent);
       });
-  }, [fetchRoles, navigate]);
+  }, [fetchRoles, navigate, hintedDashboardTestId]);
 
 
   const handleDownloadPdf = useCallback((reportId: string) => {
