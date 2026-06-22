@@ -109,6 +109,8 @@ function ReportDetailPage() {
           name: r.student_first_name,
           report: r.report,
           studentId: r.student_id,
+          reviewDate: (r as { review_date?: string | null }).review_date ?? null,
+          lastUpdated: r.created_at,
         }),
       )
       .catch((e) =>
