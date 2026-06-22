@@ -112,14 +112,6 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
     navigate({ to: "/login", replace: true });
   };
 
-  if (bootstrapping) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="checking-two-factor">
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      </main>
-    );
-  }
-
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
       <section className="w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
