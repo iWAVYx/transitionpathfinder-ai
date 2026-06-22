@@ -578,6 +578,7 @@ for (const role of ROLES) {
         if (ownerTotpConfigured) {
           expect(onTwoFa, "owner with E2E_OWNER_TOTP_SECRET should route to /login/2fa after password login").toBe(true);
           expect(new URL(page.url()).searchParams.get("redirect")).toBe("/admin");
+          await expect(page.getByRole("heading", { name: /two-factor verification/i })).toBeVisible();
           await expect(page.getByTestId("totp-code")).toBeVisible();
           await expect(page.getByTestId("totp-submit")).toBeVisible();
           await expect(page.getByTestId("login-email")).toHaveCount(0);
