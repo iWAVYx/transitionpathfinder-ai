@@ -656,7 +656,7 @@ for (const role of ROLES) {
       });
       try {
         const verifyPage = await verifyContext.newPage();
-        await verifyPage.goto(role.dashboard, { waitUntil: "networkidle" });
+        await verifyPage.goto(role.dashboard, { waitUntil: "domcontentloaded" });
         await assertDashboardReady(verifyPage, role);
       } catch (verifyErr) {
         rmSync(role.storageState, { force: true });
