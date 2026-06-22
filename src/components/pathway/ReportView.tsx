@@ -1094,7 +1094,7 @@ export function ReportView({
       )}
 
       {/* ============ Teacher / case manager plan ============ */}
-      {r.teacher_action_plan && (
+      {!hasV2 && r.teacher_action_plan && (
         <Block
           title="Educator / Case Manager Action Plan"
           icon={<GraduationCap className="h-5 w-5" />}
