@@ -47,6 +47,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
+import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 
 export const Route = createFileRoute("/_authenticated/caseload")({
@@ -103,7 +104,7 @@ function CaseloadPage() {
   }, [rows]);
 
   return (
-    <SiteShell>
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.educator}>
       <CaseloadRoleLandmark />
       <div>
       <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>

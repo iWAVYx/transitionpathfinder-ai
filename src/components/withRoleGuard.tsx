@@ -1,7 +1,10 @@
 import { useLocation } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import type { RoleAudience } from "@/lib/role-policy";
-import { dashboardTestIdForPath } from "@/lib/dashboard-testids";
+import {
+  DASHBOARD_TESTID_CONTRACT_VERSION,
+  dashboardTestIdForPath,
+} from "@/lib/dashboard-testids";
 
 /**
  * Wrap a route component with a RoleGuard. Use in `component:` of
@@ -31,6 +34,7 @@ function GuardFallback({ path }: { path: string }) {
   return (
     <main
       className="flex min-h-screen items-center justify-center bg-background"
+      data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       data-testid={testId ?? undefined}
     >
       <p className="text-sm text-muted-foreground">Checking access…</p>

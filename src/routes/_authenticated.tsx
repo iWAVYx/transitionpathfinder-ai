@@ -7,6 +7,7 @@ import { getProfile } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import {
+  DASHBOARD_TESTID_CONTRACT_VERSION,
   dashboardTestIdForPath,
   dashboardTestIdForDashboardHint,
   dashboardTestIdForProfileRole,
@@ -131,6 +132,7 @@ function AuthenticatedLayout() {
       <main
         className="flex min-h-screen items-center justify-center bg-background"
         data-auth-state="loading"
+        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
       >
         <p className="text-sm text-muted-foreground">Loading…</p>
@@ -143,6 +145,7 @@ function AuthenticatedLayout() {
       <main
         className="flex min-h-screen items-center justify-center bg-background"
         data-auth-state="checking-onboarding"
+        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
       >
         <p className="text-sm text-muted-foreground">Loading…</p>

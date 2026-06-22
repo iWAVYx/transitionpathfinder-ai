@@ -7,6 +7,15 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
+const appBuildSha =
+  process.env.VITE_APP_BUILD_SHA ??
+  process.env.GITHUB_SHA ??
+  process.env.CF_PAGES_COMMIT_SHA ??
+  process.env.VERCEL_GIT_COMMIT_SHA ??
+  "dev";
+
+const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString();
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
@@ -14,6 +23,10 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    define: {
+      "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
+      "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
+    },
     plugins: [
       VitePWA({
         registerType: "autoUpdate",
