@@ -312,6 +312,8 @@ function PartnerManagePage() {
 
           <TabsContent value="opportunities" className="mt-4 space-y-6">
             <OpportunityStatusStats opps={ws.opportunities} />
+            <PartnerImpactSummaryCard orgId={org.id} />
+
 
             <div className="flex justify-end">
               <Button onClick={() => setShowForm((s) => !s)}>
