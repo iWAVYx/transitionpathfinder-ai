@@ -314,7 +314,8 @@ function DashboardPage() {
     }
     return (
       <SiteShell>
-        <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+        <div data-testid="parent-dashboard-main" className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+
           <DashboardRoleLandmarks />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
