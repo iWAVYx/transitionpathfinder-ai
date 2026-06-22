@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
+import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
@@ -275,6 +276,7 @@ export function SiteHeader() {
   }, [roles, hasMS]);
 
   const showSignedInNav = Boolean(user && signedInNavAllowed);
+  const signedInUser = showSignedInNav ? user : null;
 
 
   return (
@@ -347,9 +349,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
-          {showSignedInNav ? (
+          {signedInUser ? (
             <>
-              <NotificationsBell userId={user.id} />
+              <NotificationsBell userId={signedInUser.id} />
 
               <SmartLink
                 to="/dashboard"
@@ -500,7 +502,7 @@ export function SiteHeader() {
               </nav>
 
 
-              {showSignedInNav && (
+              {signedInUser && (
                 <>
                   <p className="mt-6 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Your Workspace
@@ -554,7 +556,7 @@ export function SiteHeader() {
             </div>
 
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">
-              {showSignedInNav ? (
+              {signedInUser ? (
                 <div className="space-y-2">
                   <SmartLink
                     to="/pathway"
