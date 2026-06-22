@@ -16,11 +16,13 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  const [authResolution, setAuthResolution] = useState<"pending" | "ready" | "redirecting">("pending");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     const bounceToLogin = async () => {
+      if (!cancelled) setAuthResolution("redirecting");
       await supabase.auth.signOut().catch(() => undefined);
       if (!cancelled) {
         navigate({ to: "/login", search: { redirect: safeRedirect }, replace: true });
@@ -30,13 +32,15 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
     (async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        await bounceToLogin();
+        setAuthResolution("ready");
+        setBootstrapping(false);
         return;
       }
 
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (cancelled) return;
       if (aal?.currentLevel === "aal2") {
+        setAuthResolution("redirecting");
         navigate({ to: safeRedirect, replace: true });
         return;
       }
@@ -69,6 +73,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
 
       setFactorId(totp.id);
       setChallengeId(challenge.id);
+      setAuthResolution("ready");
       setBootstrapping(false);
     })();
 
@@ -142,7 +147,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
               value={code}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
               autoFocus
-              disabled={bootstrapping || submitting}
+              disabled={authResolution === "redirecting" || submitting}
               aria-label="Six-digit authenticator code"
               aria-describedby="twofa-instructions"
               autoComplete="one-time-code"
