@@ -631,7 +631,7 @@ for (const role of ROLES) {
 
       await completeOnboardingIfPresent(page, role);
       if (role.key === "owner") {
-        await page.goto("/admin", { waitUntil: "networkidle" });
+        await page.goto("/admin", { waitUntil: "domcontentloaded" });
         await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
         await assertDashboardReady(page, role, dumpDiagnostics);
         const adminMainVisible = await page.locator("main").isVisible().catch(() => false);
@@ -639,13 +639,13 @@ for (const role of ROLES) {
           `[auth-setup owner] final URL after page.goto("/admin")=${page.url()} admin-main-visible=${adminMainVisible}`,
         );
       }
-      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await completeOnboardingIfPresent(page, role);
       if (normalizePath(new URL(page.url()).pathname) !== normalizePath(role.dashboard)) {
-        await page.goto(role.dashboard, { waitUntil: "networkidle" });
+        await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       }
       await ensureWorkspaceSeeded(page, role);
-      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await assertDashboardReady(page, role, dumpDiagnostics);
 
       mkdirSync(dirname((role as RoleSpec).storageState), { recursive: true });
