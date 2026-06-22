@@ -1,4 +1,5 @@
 import { Briefcase, CheckCircle2, Clock, Archive, FileEdit } from "lucide-react";
+import { OPPORTUNITY_STATUS_LABEL } from "@/lib/opportunity-status";
 
 type Opp = { id: string; status: string };
 
@@ -21,10 +22,10 @@ export function OpportunityStatusStats({ opps }: { opps: Opp[] }) {
     icon: React.ReactNode;
     tone: string;
   }> = [
-    { key: "approved", label: "Live", icon: <CheckCircle2 className="h-3.5 w-3.5" />, tone: "text-emerald-600 dark:text-emerald-400" },
-    { key: "pending_review", label: "In review", icon: <Clock className="h-3.5 w-3.5" />, tone: "text-amber-600 dark:text-amber-400" },
-    { key: "draft", label: "Drafts", icon: <FileEdit className="h-3.5 w-3.5" />, tone: "text-foreground" },
-    { key: "inactive", label: "Archived", icon: <Archive className="h-3.5 w-3.5" />, tone: "text-muted-foreground" },
+    { key: "approved", label: OPPORTUNITY_STATUS_LABEL.approved, icon: <CheckCircle2 className="h-3.5 w-3.5" />, tone: "text-emerald-600 dark:text-emerald-400" },
+    { key: "pending_review", label: OPPORTUNITY_STATUS_LABEL.pending_review, icon: <Clock className="h-3.5 w-3.5" />, tone: "text-amber-600 dark:text-amber-400" },
+    { key: "draft", label: OPPORTUNITY_STATUS_LABEL.draft, icon: <FileEdit className="h-3.5 w-3.5" />, tone: "text-foreground" },
+    { key: "inactive", label: OPPORTUNITY_STATUS_LABEL.inactive, icon: <Archive className="h-3.5 w-3.5" />, tone: "text-muted-foreground" },
   ];
 
   return (
