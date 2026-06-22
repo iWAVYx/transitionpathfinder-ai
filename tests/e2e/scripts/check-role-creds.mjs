@@ -86,7 +86,10 @@ for (const m of missing) {
 const ownerTotpConfigured = Boolean(process.env.E2E_OWNER_TOTP_SECRET && process.env.E2E_OWNER_TOTP_SECRET.trim());
 console.log(`\nOWNER_TOTP_CONFIGURED=${ownerTotpConfigured}`);
 if (!ownerTotpConfigured) {
-  console.log("  → owner will use the non-2FA E2E path and must reach /admin directly.");
+  console.error("::error::E2E_OWNER_TOTP_SECRET is required for the strict owner 2FA dashboard setup path.");
+  if (process.env.LIVE_VERIFICATION === "1" || process.env.LIVE_VERIFICATION === "true" || process.env.REQUIRE_ALL_ROLES === "1" || process.env.REQUIRE_ALL_ROLES === "true") {
+    process.exit(5);
+  }
 }
 
 

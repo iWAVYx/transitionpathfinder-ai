@@ -29,7 +29,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
       if (!cancelled) setAuthResolution("redirecting");
       await supabase.auth.signOut().catch(() => undefined);
       if (!cancelled) {
-        navigate({ to: "/login", search: { redirect: safeRedirect }, replace: true });
+        navigate({ to: "/login", search: { redirect: safeRedirect, mfa: "expired" }, replace: true });
       }
     };
 
