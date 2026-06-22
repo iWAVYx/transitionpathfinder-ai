@@ -29,13 +29,13 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
       if (!cancelled) setAuthResolution("redirecting");
       await supabase.auth.signOut().catch(() => undefined);
       if (!cancelled) {
-        navigate({ to: "/login", search: { redirect: safeRedirect }, replace: true });
+        navigate({ to: "/login", search: { redirect: safeRedirect, mfa: "expired" }, replace: true });
       }
     };
 
     (async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
+      const session = await waitForMfaSession();
+      if (!session) {
         await bounceToLogin();
         return;
       }
@@ -191,4 +191,13 @@ function normalizeChallengeRedirect(value: string) {
   if (!value.startsWith("/")) return "/dashboard";
   if (value.startsWith("//") || value.startsWith("/login")) return "/dashboard";
   return value;
+}
+
+async function waitForMfaSession() {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) return data.session;
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+  }
+  return null;
 }

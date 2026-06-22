@@ -87,8 +87,11 @@ async function completeTwoFactorIfPresent(
     console.log(`[auth-setup ${role.key}] data-testid=totp-code visible=true`);
     if (role.key === "owner") {
       await expect(page.getByTestId("totp-code")).toBeVisible();
+      await expect(page.getByTestId("totp-submit")).toBeVisible();
       await expect(page.getByTestId("login-email")).toHaveCount(0);
       await expect(page.getByTestId("login-password")).toHaveCount(0);
+      await expect(page.locator("#signin-email")).toHaveCount(0);
+      await expect(page.locator("#signin-password")).toHaveCount(0);
     }
     await otpInput.fill(authenticator.generate(secret));
 
@@ -576,15 +579,14 @@ for (const role of ROLES) {
           expect(onTwoFa, "owner with E2E_OWNER_TOTP_SECRET should route to /login/2fa after password login").toBe(true);
           expect(new URL(page.url()).searchParams.get("redirect")).toBe("/admin");
           await expect(page.getByTestId("totp-code")).toBeVisible();
+          await expect(page.getByTestId("totp-submit")).toBeVisible();
           await expect(page.getByTestId("login-email")).toHaveCount(0);
           await expect(page.getByTestId("login-password")).toHaveCount(0);
           await expect(page.locator("#signin-email")).toHaveCount(0);
           await expect(page.locator("#signin-password")).toHaveCount(0);
-        } else if (onTwoFa) {
-          await dumpDiagnostics("owner-2fa-without-secret");
-          throw new Error(
-            "E2E owner account still has 2FA enabled. Use a non-2FA E2E owner or configure a valid TOTP secret.",
-          );
+        } else {
+          await dumpDiagnostics("owner-totp-secret-missing");
+          throw new Error("E2E_OWNER_TOTP_SECRET is required for strict owner 2FA setup.");
         }
       }
 

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
+import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
@@ -178,6 +179,7 @@ export function SiteHeader() {
   const [roles, setRoles] = useState<string[]>([]);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [hasMS, setHasMS] = useState(false);
+  const [signedInNavAllowed, setSignedInNavAllowed] = useState(false);
   const fetchRoles = useServerFn(getMyRoles);
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
   const fetchElig = useServerFn(getProgramEligibility);
@@ -215,9 +217,20 @@ export function SiteHeader() {
       setRoles([]);
       setIsPlatformAdmin(false);
       setHasMS(false);
+      setSignedInNavAllowed(false);
       return;
     }
     let cancelled = false;
+    setSignedInNavAllowed(false);
+    supabase.auth.mfa
+      .getAuthenticatorAssuranceLevel()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setSignedInNavAllowed(!(data?.nextLevel === "aal2" && data.currentLevel !== "aal2"));
+      })
+      .catch(() => {
+        if (!cancelled) setSignedInNavAllowed(false);
+      });
     fetchRoles()
       .then((res) => {
         if (!cancelled) setRoles(res.roles);
@@ -261,6 +274,9 @@ export function SiteHeader() {
       }))
       .filter((g) => g.items.length > 0);
   }, [roles, hasMS]);
+
+  const showSignedInNav = Boolean(user && signedInNavAllowed);
+  const signedInUser = showSignedInNav ? user : null;
 
 
   return (
@@ -333,9 +349,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
-          {user ? (
+          {signedInUser ? (
             <>
-              <NotificationsBell userId={user.id} />
+              <NotificationsBell userId={signedInUser.id} />
 
               <SmartLink
                 to="/dashboard"
@@ -386,7 +402,7 @@ export function SiteHeader() {
                 Sign Out
               </button>
             </>
-          ) : (
+          ) : user ? null : (
             <>
               <SmartLink
                 to="/login"
@@ -486,7 +502,7 @@ export function SiteHeader() {
               </nav>
 
 
-              {user && (
+              {signedInUser && (
                 <>
                   <p className="mt-6 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Your Workspace
@@ -540,7 +556,7 @@ export function SiteHeader() {
             </div>
 
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">
-              {user ? (
+              {signedInUser ? (
                 <div className="space-y-2">
                   <SmartLink
                     to="/pathway"
@@ -562,7 +578,7 @@ export function SiteHeader() {
                     Sign Out
                   </button>
                 </div>
-              ) : (
+              ) : user ? null : (
                 <div className="space-y-2">
                   <SmartLink
                     to="/waitlist"
