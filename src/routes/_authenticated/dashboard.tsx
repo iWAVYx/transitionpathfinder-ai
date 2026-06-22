@@ -176,7 +176,7 @@ function DashboardPage() {
       .catch(() => {
         /* fall back to user_metadata / email */
       });
-  }, [fetchProfile]);
+  }, [fetchProfile, hintedDashboardTestId]);
 
   useEffect(() => {
     fetchRoles()
