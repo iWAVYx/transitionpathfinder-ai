@@ -1679,6 +1679,69 @@ export function ReportView({
   );
 }
 
+/* ---------- Student Snapshot summary card (top of report) ---------- */
+
+function StudentSnapshotCard({
+  name,
+  snapshot,
+  readiness,
+  confidenceLabel,
+  meta,
+  today,
+}: {
+  name: string;
+  snapshot: PathwayReport["student_snapshot"];
+  readiness: string | null;
+  confidenceLabel: string | null;
+  meta?: ReportMeta;
+  today: string;
+}) {
+  const fields: Array<{ label: string; value: string | null | undefined }> = [
+    { label: "Student", value: name },
+    { label: "Grade", value: snapshot?.grade_level ?? null },
+    { label: "School", value: meta?.school ?? null },
+    {
+      label: "Graduation",
+      value:
+        (meta?.graduationYear ? String(meta.graduationYear) : null) ??
+        snapshot?.graduation_timeline ??
+        null,
+    },
+    {
+      label: "Readiness",
+      value: readiness ? READINESS_LABEL[readiness] ?? readiness : null,
+    },
+    { label: "Confidence", value: confidenceLabel },
+    { label: "Last Updated", value: meta?.lastUpdated ?? meta?.issued ?? today },
+    { label: "Next Review", value: meta?.nextReviewDate ?? null },
+  ];
+  const visible = fields.filter((f) => f.value);
+  if (visible.length === 0) return null;
+  return (
+    <section
+      aria-label="Student Snapshot"
+      className="mt-6 rounded-2xl border border-primary/20 bg-card p-5 shadow-soft sm:p-6"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          Student Snapshot
+        </p>
+        {readiness && <ReadinessBadge level={readiness} compact />}
+      </div>
+      <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+        {visible.map((f) => (
+          <div key={f.label}>
+            <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {f.label}
+            </dt>
+            <dd className="mt-0.5 text-sm font-medium text-foreground/90">{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 /* ---------- Small primitives ---------- */
 
 function AudienceTab({
