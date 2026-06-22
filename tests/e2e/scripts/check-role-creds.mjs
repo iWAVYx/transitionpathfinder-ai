@@ -81,6 +81,14 @@ for (const m of missing) {
   console.log(`  ✗ ${m.role} — missing: ${m.need.join(", ")}`);
 }
 
+// Explicit owner 2FA flag so CI logs show which auth path the owner setup
+// will follow without ever exposing the secret value.
+const ownerTotpConfigured = Boolean(process.env.E2E_OWNER_TOTP_SECRET && process.env.E2E_OWNER_TOTP_SECRET.trim());
+console.log(`\nOWNER_TOTP_CONFIGURED=${ownerTotpConfigured}`);
+if (!ownerTotpConfigured) {
+  console.log("  → owner will use the non-2FA E2E path and must reach /admin directly.");
+}
+
 
 let stateFiles = [];
 if (existsSync(AUTH_DIR)) {
