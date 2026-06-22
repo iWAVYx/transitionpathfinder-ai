@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 export function TwoFactorVerification({ redirect }: { redirect: string }) {
   const navigate = useNavigate();
   const safeRedirect = normalizeChallengeRedirect(redirect);
+  const isStandaloneChallengeRoute =
+    typeof window !== "undefined" && window.location.pathname.startsWith("/login/2fa");
   const [code, setCode] = useState("");
   const [factorId, setFactorId] = useState<string | null>(null);
   const [challengeId, setChallengeId] = useState<string | null>(null);
@@ -26,6 +28,13 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
   useEffect(() => {
     let cancelled = false;
     const bounceToLogin = async () => {
+      if (isStandaloneChallengeRoute) {
+        if (!cancelled) {
+          setAuthResolution("ready");
+          setBootstrapping(false);
+        }
+        return;
+      }
       if (!cancelled) setAuthResolution("redirecting");
       await supabase.auth.signOut().catch(() => undefined);
       if (!cancelled) {
@@ -83,7 +92,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
     return () => {
       cancelled = true;
     };
-  }, [navigate, safeRedirect]);
+  }, [isStandaloneChallengeRoute, navigate, safeRedirect]);
 
   useEffect(() => {
     if (!bootstrapping) inputRef.current?.focus();
