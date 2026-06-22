@@ -35,6 +35,9 @@ async function assertDashboardReady(
   role: RoleSpec,
   dumpDiagnostics?: (label: string) => Promise<void>,
 ) {
+  // Wait for the URL to settle on the expected dashboard path (or a known
+  // rejected path) without relying on `networkidle` — long-lived Supabase
+  // subscriptions / polling keep the network busy forever.
   await page
     .waitForURL(
       (url) =>
@@ -50,8 +53,33 @@ async function assertDashboardReady(
     await dumpDiagnostics?.("dashboard-not-ready");
     throw new Error(dashboardReadinessError(role.dashboard, finalUrl));
   }
-  await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+  // <main> must be present in the shell immediately, even while data loads.
+  await page.locator("main").first().waitFor({ state: "attached", timeout: 15_000 }).catch(async (err) => {
+    await dumpDiagnostics?.("dashboard-main-missing");
+    throw new Error(`<main> never attached on ${role.dashboard}: ${(err as Error).message}`);
+  });
+  // Role-specific dashboard test id confirms the right shell rendered, not
+  // a redirect or error boundary. The element is on / inside <main> and
+  // exists as soon as the shell mounts (before async data resolves).
+  await page
+    .getByTestId(role.dashboardTestId)
+    .first()
+    .waitFor({ state: "visible", timeout: 20_000 })
+    .catch(async (err) => {
+      await dumpDiagnostics?.("dashboard-testid-missing");
+      throw new Error(
+        `data-testid="${role.dashboardTestId}" not visible on ${role.dashboard} within 20s: ${(err as Error).message}`,
+      );
+    });
+  // Guard against an app-level error boundary swallowing the dashboard.
+  const bodyText = await page.locator("body").innerText({ timeout: 2_000 }).catch(() => "");
+  if (/something went wrong|application error|unexpected error/i.test(bodyText) &&
+      !/dashboard/i.test(bodyText)) {
+    await dumpDiagnostics?.("dashboard-error-boundary");
+    throw new Error(`App-level error state detected on ${role.dashboard}.`);
+  }
 }
+
 
 async function completeTwoFactorIfPresent(
   page: Page,
@@ -274,6 +302,31 @@ for (const role of ROLES) {
       });
     });
 
+    // Console / page errors / failed requests for richer dashboard-setup
+    // diagnostics. Collected for the lifetime of the test and dumped via
+    // dumpDiagnostics on any failure.
+    const consoleEvents: Array<{ type: string; text: string; at: string }> = [];
+    const pageErrors: Array<{ message: string; stack?: string; at: string }> = [];
+    const failedRequests: Array<{ url: string; method: string; failure: string; at: string }> = [];
+    page.on("console", (msg) => {
+      const type = msg.type();
+      if (type === "error" || type === "warning") {
+        consoleEvents.push({ type, text: msg.text().slice(0, 500), at: new Date().toISOString() });
+      }
+    });
+    page.on("pageerror", (err) => {
+      pageErrors.push({ message: err.message, stack: err.stack?.slice(0, 2_000), at: new Date().toISOString() });
+    });
+    page.on("requestfailed", (req) => {
+      failedRequests.push({
+        url: req.url(),
+        method: req.method(),
+        failure: req.failure()?.errorText ?? "unknown",
+        at: new Date().toISOString(),
+      });
+    });
+
+
     // Dump live diagnostics if anything below throws — the failure log
     // tells us where the page actually was instead of just "selector not found".
     const dumpDiagnostics = async (label: string) => {
@@ -319,6 +372,14 @@ for (const role of ROLES) {
           body: htmlSnippet,
           contentType: "text/html",
         });
+        await testInfo.attach(`${role.key}-${label}-runtime.json`, {
+          body: JSON.stringify(
+            { consoleEvents, pageErrors, failedRequests: failedRequests.slice(-50) },
+            null,
+            2,
+          ),
+          contentType: "application/json",
+        });
         const chainSummary = chain
           .filter((c) => c.kind === "response" || c.kind === "framenavigated")
           .map((c) =>
@@ -327,9 +388,15 @@ for (const role of ROLES) {
               : `  ⇢ nav ${c.host}${(() => { try { return new URL(c.url).pathname; } catch { return ""; }})()}`,
           )
           .join("\n");
+        const errSummary = [
+          `  console-errors=${consoleEvents.filter((c) => c.type === "error").length}`,
+          `  page-errors=${pageErrors.length}${pageErrors[0] ? ` first="${pageErrors[0].message.slice(0, 200)}"` : ""}`,
+          `  failed-requests=${failedRequests.length}${failedRequests[0] ? ` first="${failedRequests[0].method} ${failedRequests[0].url} (${failedRequests[0].failure})"` : ""}`,
+        ].join("\n");
         console.log(
-          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
+          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
         );
+
       } catch (e) {
         console.log(`[auth-setup ${role.key}] dumpDiagnostics threw: ${(e as Error).message}`);
       }
@@ -603,7 +670,7 @@ for (const role of ROLES) {
 
       await completeOnboardingIfPresent(page, role);
       if (role.key === "owner") {
-        await page.goto("/admin", { waitUntil: "networkidle" });
+        await page.goto("/admin", { waitUntil: "domcontentloaded" });
         await completeTwoFactorIfPresent(page, role, dumpDiagnostics);
         await assertDashboardReady(page, role, dumpDiagnostics);
         const adminMainVisible = await page.locator("main").isVisible().catch(() => false);
@@ -611,13 +678,13 @@ for (const role of ROLES) {
           `[auth-setup owner] final URL after page.goto("/admin")=${page.url()} admin-main-visible=${adminMainVisible}`,
         );
       }
-      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await completeOnboardingIfPresent(page, role);
       if (normalizePath(new URL(page.url()).pathname) !== normalizePath(role.dashboard)) {
-        await page.goto(role.dashboard, { waitUntil: "networkidle" });
+        await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       }
       await ensureWorkspaceSeeded(page, role);
-      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await assertDashboardReady(page, role, dumpDiagnostics);
 
       mkdirSync(dirname((role as RoleSpec).storageState), { recursive: true });
@@ -628,7 +695,7 @@ for (const role of ROLES) {
       });
       try {
         const verifyPage = await verifyContext.newPage();
-        await verifyPage.goto(role.dashboard, { waitUntil: "networkidle" });
+        await verifyPage.goto(role.dashboard, { waitUntil: "domcontentloaded" });
         await assertDashboardReady(verifyPage, role);
       } catch (verifyErr) {
         rmSync(role.storageState, { force: true });

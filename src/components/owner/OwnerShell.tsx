@@ -140,7 +140,8 @@ export function OwnerShell({
   if (status !== "allowed") {
     return (
       <div className="flex min-h-dvh flex-col bg-background text-foreground">
-        <main className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
+        <main data-testid="platform-admin-main" className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
+
           <p
             className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             data-dashboard-landmark="admin"
@@ -261,7 +262,7 @@ export function OwnerShell({
               })}
             </div>
           </header>
-          <main className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
+          <main data-testid="platform-admin-main" className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
             {/* Stable role landmark — keeps the Platform Admin dashboard
                 regression matching /admin/i in every viewport, even before
                 the metric loaders resolve. Visible (not sr-only) so

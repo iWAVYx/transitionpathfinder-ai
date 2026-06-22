@@ -93,13 +93,18 @@ function DashboardRoleLandmarks() {
 function DashboardLoadingShell() {
   return (
     <SiteShell>
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <DashboardRoleLandmarks />
-      </div>
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
-        <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Checking access…
+      {/* Two test ids: /dashboard is shared by student and family roles;
+          the loading shell renders before the audience check resolves. */}
+      <div data-testid="parent-dashboard-main">
+        <div data-testid="student-dashboard-main" className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <DashboardRoleLandmarks />
+        </div>
+        <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Checking access…
+        </div>
       </div>
     </SiteShell>
+
   );
 }
 
@@ -314,7 +319,8 @@ function DashboardPage() {
     }
     return (
       <SiteShell>
-        <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+        <div data-testid="parent-dashboard-main" className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+
           <DashboardRoleLandmarks />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
@@ -373,7 +379,8 @@ function DashboardPage() {
   if (loadError && !snap) {
     return (
       <SiteShell>
-        <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <div data-testid="parent-dashboard-main" className="mx-auto max-w-2xl px-4 py-16 text-center">
+
           <div className="mb-4 flex justify-center">
             <DashboardRoleLandmarks />
           </div>
@@ -389,7 +396,8 @@ function DashboardPage() {
   if (loading || !snap) {
     return (
       <SiteShell>
-        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div data-testid="parent-dashboard-main" className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+
           <DashboardRoleLandmarks />
         </div>
         <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
@@ -402,7 +410,8 @@ function DashboardPage() {
   const s = snap.student;
   return (
     <SiteShell>
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+      <div data-testid="parent-dashboard-main" className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
           data-dashboard-landmark="family"

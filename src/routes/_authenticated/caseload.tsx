@@ -105,8 +105,10 @@ function CaseloadPage() {
   return (
     <SiteShell>
       <CaseloadRoleLandmark />
+      <div data-testid="caseload-main">
       <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
       <PageContainer>
+
         <Breadcrumbs trail={[{ label: "Caseload" }]} />
 
 
@@ -216,6 +218,8 @@ function CaseloadPage() {
         </div>
       </PageContainer>
       </RoleGuard>
+      </div>
+
     </SiteShell>
   );
 }
