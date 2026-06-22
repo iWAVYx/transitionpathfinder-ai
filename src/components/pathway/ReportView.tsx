@@ -1072,7 +1072,7 @@ export function ReportView({
       )}
 
       {/* ============ Family Action Plan ============ */}
-      {r.family_action_plan && (
+      {!hasV2 && r.family_action_plan && (
         <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <HorizonCard label="This Week" items={r.family_action_plan.this_week} />
