@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import { Sparkles, ShieldCheck, HeartHandshake, Compass } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,7 +84,7 @@ function LoginPage() {
   const isNew = tab === "signup";
 
   return (
-    <SiteShell>
+    <main className="min-h-dvh bg-background text-foreground" data-auth-page="login">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-50" />
         <div
@@ -205,7 +204,7 @@ function LoginPage() {
           </p>
         </div>
       </section>
-    </SiteShell>
+    </main>
   );
 }
 
