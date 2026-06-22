@@ -20,6 +20,10 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    document.title = "Two-Factor Verification — TransitionForward";
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     const bounceToLogin = async () => {
       if (!cancelled) setAuthResolution("redirecting");
@@ -32,8 +36,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
     (async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        setAuthResolution("ready");
-        setBootstrapping(false);
+        await bounceToLogin();
         return;
       }
 
