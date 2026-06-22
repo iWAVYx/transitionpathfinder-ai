@@ -41,6 +41,7 @@ import {
 import { listStudents, createShareToken } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
+import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
@@ -92,7 +93,7 @@ function DashboardRoleLandmarks() {
 
 function DashboardLoadingShell() {
   return (
-    <SiteShell dashboardTestId="parent-dashboard-main">
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <DashboardRoleLandmarks />
       </div>
@@ -314,7 +315,7 @@ function DashboardPage() {
       );
     }
     return (
-      <SiteShell dashboardTestId={isStudentOnly === true ? "student-dashboard-main" : "parent-dashboard-main"}>
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
 
           <DashboardRoleLandmarks />
@@ -374,7 +375,7 @@ function DashboardPage() {
 
   if (loadError && !snap) {
     return (
-      <SiteShell dashboardTestId={isStudentOnly === true ? "student-dashboard-main" : "parent-dashboard-main"}>
+      <SiteShell dashboardTestId={isStudentOnly ? ROLE_DASHBOARD_TEST_IDS.student : ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
 
           <div className="mb-4 flex justify-center">
@@ -391,7 +392,7 @@ function DashboardPage() {
 
   if (loading || !snap) {
     return (
-      <SiteShell dashboardTestId={isStudentOnly === true ? "student-dashboard-main" : "parent-dashboard-main"}>
+      <SiteShell dashboardTestId={isStudentOnly ? ROLE_DASHBOARD_TEST_IDS.student : ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
 
           <DashboardRoleLandmarks />
@@ -405,7 +406,7 @@ function DashboardPage() {
 
   const s = snap.student;
   return (
-    <SiteShell dashboardTestId="parent-dashboard-main">
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
 
         <p
