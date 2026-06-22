@@ -289,13 +289,13 @@ function PartnerManagePage() {
 
             <div className="flex justify-end">
               <Button onClick={() => setShowForm((s) => !s)}>
-                <Plus className="mr-1 h-4 w-4" /> New opportunity
+                <Plus className="mr-1 h-4 w-4" /> Create Opportunity
               </Button>
             </div>
 
             {showForm && (
               <section className="rounded-2xl border border-border/60 bg-card p-5">
-                <h2 className="font-display text-lg font-medium">New opportunity</h2>
+                <h2 className="font-display text-lg font-medium">Create Opportunity</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label className="text-xs font-medium text-muted-foreground">Title</label>
