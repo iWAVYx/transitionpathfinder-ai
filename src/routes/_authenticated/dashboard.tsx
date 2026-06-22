@@ -96,8 +96,25 @@ function DashboardRoleLandmarks() {
 }
 
 function DashboardLoadingShell() {
+  const fetchProfile = useServerFn(getProfile);
+  const [testId, setTestId] = useState<RoleDashboardTestId | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchProfile()
+      .then((p) => {
+        if (!cancelled) setTestId(dashboardTestIdForProfileRole(p.primary_role));
+      })
+      .catch(() => {
+        if (!cancelled) setTestId(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchProfile]);
+
   return (
-      <SiteShell>
+      <SiteShell dashboardTestId={testId ?? undefined}>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <DashboardRoleLandmarks />
       </div>
