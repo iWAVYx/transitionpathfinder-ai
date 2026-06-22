@@ -43,6 +43,7 @@ import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
+import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
@@ -67,7 +68,7 @@ const TYPES: { value: string; label: string }[] = [
 
 function PartnerDashboardFallback() {
   return (
-    <SiteShell>
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
@@ -176,7 +177,7 @@ function PartnerManagePage() {
 
   if (loading && !ws) {
     return (
-      <SiteShell>
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
         <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
 
           <p
@@ -195,7 +196,7 @@ function PartnerManagePage() {
 
   if (!ws?.is_partner) {
     return (
-      <SiteShell>
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
 
           <p
@@ -224,7 +225,7 @@ function PartnerManagePage() {
   const org = ws.selected_org!;
 
   return (
-    <SiteShell>
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
 
         <p
