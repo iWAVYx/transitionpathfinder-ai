@@ -73,65 +73,73 @@ export function DistrictPageShell({
   children: (district: DistrictOrg, data: DistrictDashboard) => React.ReactNode;
 }) {
   return (
-    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.district_admin}>
-      <RoleGuard path={path}>
-        <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-          <Breadcrumbs
-            trail={[
-              { label: "Dashboard", to: "/dashboard" },
-              { label: "District Administration" },
-              { label: title },
-            ]}
-          />
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+      <SiteHeader />
+      <main
+        className="site-shell-main flex-1"
+        data-testid={ROLE_DASHBOARD_TEST_IDS.district_admin}
+      >
+        <RoleGuard path={path}>
+          <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+            <Breadcrumbs
+              trail={[
+                { label: "Dashboard", to: "/dashboard" },
+                { label: "District Administration" },
+                { label: title },
+              ]}
+            />
 
-          <header className="mt-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary/70">
-                District leadership
-              </p>
-              <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">
-                {title}
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-            </div>
-            {data && data.districts.length > 1 && (
-              <Select value={districtId} onValueChange={onSwitchDistrict}>
-                <SelectTrigger className="w-full sm:w-72">
-                  <SelectValue placeholder="Select district" />
-                </SelectTrigger>
-                <SelectContent>
-                  {data.districts.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      <span className="inline-flex items-center gap-2">
-                        <Building2 className="h-3.5 w-3.5" /> {d.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </header>
-
-          <DistrictNav />
-
-          <div className="mt-6">
-            {loading && !data ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <header className="mt-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary/70">
+                  District leadership
+                </p>
+                <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">
+                  {title}
+                </h1>
+                <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
               </div>
-            ) : !data?.is_district_admin || data.districts.length === 0 ? (
-              <CreateDistrictCard onCreated={() => window.location.reload()} />
-            ) : (() => {
-                const district =
-                  data.districts.find((d) => d.id === districtId) ?? data.districts[0];
-                return children(district, data);
-              })()}
-          </div>
-        </section>
-      </RoleGuard>
-    </SiteShell>
+              {data && data.districts.length > 1 && (
+                <Select value={districtId} onValueChange={onSwitchDistrict}>
+                  <SelectTrigger className="w-full sm:w-72">
+                    <SelectValue placeholder="Select district" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data.districts.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        <span className="inline-flex items-center gap-2">
+                          <Building2 className="h-3.5 w-3.5" /> {d.name}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </header>
+
+            <DistrictNav />
+
+            <div className="mt-6">
+              {loading && !data ? (
+                <div className="flex justify-center py-16">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : !data?.is_district_admin || data.districts.length === 0 ? (
+                <CreateDistrictCard onCreated={() => window.location.reload()} />
+              ) : (() => {
+                  const district =
+                    data.districts.find((d) => d.id === districtId) ?? data.districts[0];
+                  return children(district, data);
+                })()}
+            </div>
+          </section>
+        </RoleGuard>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }
+
 
 function CreateDistrictCard({ onCreated }: { onCreated: () => void }) {
   const create = useServerFn(createDistrict);
