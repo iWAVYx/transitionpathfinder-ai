@@ -3,7 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import { SiteFooter } from "@/components/site/SiteFooter";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { RoleGuard } from "@/components/RoleGuard";
 import { DistrictNav } from "@/components/district/DistrictNav";
