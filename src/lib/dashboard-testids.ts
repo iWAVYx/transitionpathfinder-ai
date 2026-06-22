@@ -39,6 +39,18 @@ export function dashboardTestIdForProfileRole(role: string | null | undefined): 
   return null;
 }
 
+export function dashboardTestIdForDashboardHint(hint: string | null | undefined): RoleDashboardTestId | null {
+  const normalized = hint?.toLowerCase().trim() ?? "";
+  if (!normalized) return null;
+  if (/\bstudent\b/.test(normalized) || normalized.includes("e2e-student")) {
+    return ROLE_DASHBOARD_TEST_IDS.student;
+  }
+  if (/\b(parent|guardian|family)\b/.test(normalized) || normalized.includes("e2e-parent")) {
+    return ROLE_DASHBOARD_TEST_IDS.parent;
+  }
+  return dashboardTestIdForProfileRole(normalized);
+}
+
 export function dashboardTestIdForRoles(roles: string[]): RoleDashboardTestId | null {
   const roleSet = new Set(roles);
   if (roleSet.has("admin")) return ROLE_DASHBOARD_TEST_IDS.owner;
