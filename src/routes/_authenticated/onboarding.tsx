@@ -174,6 +174,8 @@ function OnboardingPage() {
         return requiredAnswered;
       case "student":
         return studentFirst.trim().length > 0;
+      case "tips":
+        return true;
     }
   }, [stepId, role, firstName, requiredAnswered, studentFirst]);
 
