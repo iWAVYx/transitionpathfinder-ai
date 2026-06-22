@@ -107,7 +107,7 @@ function CaseloadPage() {
       <CaseloadRoleLandmark />
       <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
       <PageContainer>
-        <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Caseload" }]} />
+        <Breadcrumbs trail={[{ label: "Caseload" }]} />
 
 
         <div className="mt-4 space-y-6 sm:space-y-8">
@@ -117,7 +117,7 @@ function CaseloadPage() {
             description="Students you own or have been invited to support — meetings, pending transition tasks, and reports needing review."
             action={
               <Button asChild className="w-full sm:w-auto">
-                <Link to="/students"><Plus className="h-4 w-4" /> Add Student</Link>
+                <Link to="/students"><Plus className="h-4 w-4" /> Invite Student</Link>
               </Button>
             }
           />

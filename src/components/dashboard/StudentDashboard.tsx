@@ -148,10 +148,10 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-xl">Your goals</h2>
+                <h2 className="font-display text-xl">Your Goals</h2>
               </div>
               <Link to="/goals" className="text-xs font-medium text-primary hover:underline">
-                View all →
+                Open All Goals
               </Link>
             </div>
             {snap.goals.length === 0 ? (

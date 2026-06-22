@@ -316,7 +316,6 @@ function DashboardPage() {
       <SiteShell>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
           <DashboardRoleLandmarks />
-          <Breadcrumbs trail={[{ label: "Dashboard" }]} />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
           </h1>
@@ -410,7 +409,7 @@ function DashboardPage() {
         >
           Pathway Progress
         </p>
-        <Breadcrumbs trail={[{ label: "Dashboard" }]} />
+        
 
         <div className="mt-4">
           <AnnouncementsBanner />

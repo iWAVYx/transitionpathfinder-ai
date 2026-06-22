@@ -196,10 +196,10 @@ export function OwnerDashboardPage() {
           <section className="space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Recent admin activity
+                Recent Admin Activity
               </h2>
               <Link to="/owner/activity" className="text-xs text-primary hover:underline">
-                View all →
+                Open Activity Log
               </Link>
             </div>
             <div className="overflow-hidden rounded-2xl border border-border bg-background">

@@ -184,12 +184,7 @@ function PartnerManagePage() {
           >
             Partner Workspace — Opportunities
           </p>
-          <Breadcrumbs
-            trail={[
-              { label: "Dashboard", to: "/dashboard" },
-              { label: "Partner Workspace" },
-            ]}
-          />
+          <Breadcrumbs trail={[{ label: "Partner Workspace" }]} />
           <FirstRunSetup
             onCreate={async (values) => {
               try {
@@ -217,12 +212,7 @@ function PartnerManagePage() {
         >
           Partner Workspace — Opportunities
         </p>
-        <Breadcrumbs
-          trail={[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "Partner Workspace" },
-          ]}
-        />
+        <Breadcrumbs trail={[{ label: "Partner Workspace" }]} />
 
         <div className="mt-6">
           <NextBestAction surface="partner" /><div className="mt-4"><JourneyStrip surface="partner" /></div>
@@ -299,13 +289,13 @@ function PartnerManagePage() {
 
             <div className="flex justify-end">
               <Button onClick={() => setShowForm((s) => !s)}>
-                <Plus className="mr-1 h-4 w-4" /> New opportunity
+                <Plus className="mr-1 h-4 w-4" /> Create Opportunity
               </Button>
             </div>
 
             {showForm && (
               <section className="rounded-2xl border border-border/60 bg-card p-5">
-                <h2 className="font-display text-lg font-medium">New opportunity</h2>
+                <h2 className="font-display text-lg font-medium">Create Opportunity</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label className="text-xs font-medium text-muted-foreground">Title</label>
@@ -412,7 +402,7 @@ function PartnerManagePage() {
               <ul className="divide-y divide-border/40">
                 {ws.opportunities.length === 0 ? (
                   <li className="px-5 py-10 text-center text-sm text-muted-foreground">
-                    No opportunities yet. Click "New opportunity" to publish your first one.
+                    No opportunities yet. Click "Create Opportunity" to publish your first one.
                   </li>
                 ) : (
                   ws.opportunities.map((o) => (
