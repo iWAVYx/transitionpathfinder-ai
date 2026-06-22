@@ -77,6 +77,8 @@ function PartnerDirectoryPage() {
   const [q, setQ] = useState("");
   const [county, setCounty] = useState<string>("all");
   const [pathway, setPathway] = useState<string>("all");
+  const [serviceType, setServiceType] = useState<string>("all");
+  const [audience, setAudience] = useState<string>("all");
   const [collection, setCollection] = useState<string>("all");
 
   useEffect(() => {
@@ -93,6 +95,14 @@ function PartnerDirectoryPage() {
     () => Array.from(new Set((rows ?? []).flatMap((r) => r.pathway_categories ?? []))),
     [rows],
   );
+  const serviceTypes = useMemo(
+    () => Array.from(new Set((rows ?? []).map((r) => r.partner_type).filter(Boolean))) as string[],
+    [rows],
+  );
+  const audiences = useMemo(
+    () => Array.from(new Set((rows ?? []).flatMap((r) => r.audience_served ?? []))),
+    [rows],
+  );
 
   const activeCollection = COLLECTIONS.find((c) => c.tag === collection);
 
@@ -100,6 +110,8 @@ function PartnerDirectoryPage() {
     return (rows ?? []).filter((p) => {
       if (county !== "all" && p.county !== county) return false;
       if (pathway !== "all" && !(p.pathway_categories ?? []).includes(pathway)) return false;
+      if (serviceType !== "all" && p.partner_type !== serviceType) return false;
+      if (audience !== "all" && !(p.audience_served ?? []).includes(audience)) return false;
       if (collection !== "all" && !(p.collection_tags ?? []).includes(collection)) return false;
       if (q) {
         const hay =
@@ -108,7 +120,7 @@ function PartnerDirectoryPage() {
       }
       return true;
     });
-  }, [rows, q, county, pathway, collection]);
+  }, [rows, q, county, pathway, serviceType, audience, collection]);
 
   const verified = filtered.filter((p) =>
     ["verified", "featured"].includes(p.verification_status),
@@ -166,6 +178,32 @@ function PartnerDirectoryPage() {
               {pathways.sort().map((p) => (
                 <option key={p} value={p}>
                   {p}
+                </option>
+              ))}
+            </select>
+            <select
+              value={serviceType}
+              onChange={(e) => setServiceType(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label="Service type"
+            >
+              <option value="all">All service types</option>
+              {serviceTypes.sort().map((t) => (
+                <option key={t} value={t}>
+                  {t.replace(/_/g, " ")}
+                </option>
+              ))}
+            </select>
+            <select
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label="Age or grade fit"
+            >
+              <option value="all">All ages / grades</option>
+              {audiences.sort().map((a) => (
+                <option key={a} value={a}>
+                  {a.replace(/_/g, " ")}
                 </option>
               ))}
             </select>
