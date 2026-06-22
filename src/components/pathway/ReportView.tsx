@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
-  Download as DownloadAlias2,
+  Download,
   Download,
   BookmarkPlus,
   Users,
