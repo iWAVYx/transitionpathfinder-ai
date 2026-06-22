@@ -478,6 +478,28 @@ function OnboardingPage() {
             </div>
           )}
 
+          {stepId === "tips" && roleTips && (
+            <div className="space-y-5">
+              <Header
+                eyebrow="You're Set"
+                title={roleTips.title}
+                body={roleTips.body}
+              />
+              <ul className="space-y-3">
+                {roleTips.items.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border bg-background p-4 text-sm"
+                  >
+                    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
             <Button
               type="button"
