@@ -85,6 +85,11 @@ async function completeTwoFactorIfPresent(
 
   try {
     console.log(`[auth-setup ${role.key}] data-testid=totp-code visible=true`);
+    if (role.key === "owner") {
+      await expect(page.getByTestId("totp-code")).toBeVisible();
+      await expect(page.getByTestId("login-email")).toHaveCount(0);
+      await expect(page.getByTestId("login-password")).toHaveCount(0);
+    }
     await otpInput.fill(authenticator.generate(secret));
 
     const verifyButton = page.getByTestId("totp-submit").first();
