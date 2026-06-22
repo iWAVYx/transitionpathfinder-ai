@@ -328,6 +328,7 @@ function DashboardPage() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <button
+              type="button"
               onClick={handleSeed}
               disabled={seeding}
               className="group rounded-3xl border-2 border-primary/40 bg-gradient-hero p-7 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60"
