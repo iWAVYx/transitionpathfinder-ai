@@ -177,7 +177,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
             {submitting ? "Verifying…" : "Verify"}
           </Button>
           <Button type="button" variant="ghost" className="w-full" onClick={onCancel}>
-            Cancel and Sign Out
+            Use A Different Account
           </Button>
         </form>
       </section>
