@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
+import { ensureRoleAccess } from "@/lib/route-role-guard";
 import {
   School,
   Users,
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/district/overview")({
   head: () => ({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),
+  beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   component: withRoleGuard(["district_admin", "admin"], DistrictOverviewPage),
 });
 
