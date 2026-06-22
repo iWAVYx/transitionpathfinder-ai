@@ -50,6 +50,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_STUDENT_EMAIL",
     passwordEnv: "E2E_STUDENT_PASSWORD",
     dashboard: "/dashboard",
+    dashboardTestId: "student-dashboard-main",
     mustSee: [/Next Best Step/i],
     mustNotSee: [/caseload/i, /admin hub/i, /partner network/i],
   },
@@ -60,6 +61,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_PARENT_EMAIL",
     passwordEnv: "E2E_PARENT_PASSWORD",
     dashboard: "/dashboard",
+    dashboardTestId: "parent-dashboard-main",
     mustSee: [/Pathway Progress/i],
     mustNotSee: [/caseload/i, /partner network/i, /platform admin/i],
   },
@@ -70,6 +72,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_EDUCATOR_EMAIL",
     passwordEnv: "E2E_EDUCATOR_PASSWORD",
     dashboard: "/caseload",
+    dashboardTestId: "caseload-main",
     mustSee: [/Caseload Overview/i],
     mustNotSee: [/platform admin/i, /partner network/i],
   },
@@ -80,6 +83,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_SCHOOL_ADMIN_EMAIL",
     passwordEnv: "E2E_SCHOOL_ADMIN_PASSWORD",
     dashboard: "/school/overview",
+    dashboardTestId: "school-admin-dashboard-main",
     mustSee: [/school/i],
     mustNotSee: [/platform admin/i],
   },
@@ -90,6 +94,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_DISTRICT_ADMIN_EMAIL",
     passwordEnv: "E2E_DISTRICT_ADMIN_PASSWORD",
     dashboard: "/district/overview",
+    dashboardTestId: "district-admin-dashboard-main",
     mustSee: [/district/i],
     mustNotSee: [/platform admin/i],
   },
@@ -100,6 +105,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_PARTNER_EMAIL",
     passwordEnv: "E2E_PARTNER_PASSWORD",
     dashboard: "/partners-manage",
+    dashboardTestId: "partner-dashboard-main",
     mustSee: [/partner|opportunit/i],
     // Partners must never see student PII surfaces.
     mustNotSee: [/caseload/i, /goals/i, /documents/i, /platform admin/i],
@@ -111,8 +117,10 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_OWNER_EMAIL",
     passwordEnv: "E2E_OWNER_PASSWORD",
     dashboard: "/admin",
+    dashboardTestId: "platform-admin-main",
     mustSee: [/Platform Admin/i],
     mustNotSee: [],
+
   },
 ];
 
