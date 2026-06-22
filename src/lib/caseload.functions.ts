@@ -53,6 +53,9 @@ export const getCaseload = createServerFn({ method: "GET" })
         goal_count: 0,
         last_note_at: null,
         latest_report_id: null,
+        next_meeting_at: null,
+        next_meeting_id: null,
+        next_meeting_title: null,
       });
     }
     for (const c of collabs ?? []) {
@@ -65,6 +68,9 @@ export const getCaseload = createServerFn({ method: "GET" })
         goal_count: 0,
         last_note_at: null,
         latest_report_id: null,
+        next_meeting_at: null,
+        next_meeting_id: null,
+        next_meeting_title: null,
       });
     }
 
