@@ -246,6 +246,14 @@ function StudentDetailPage() {
 
         </header>
 
+        {/* PATHWAY REPORT — single CTA loop */}
+        <div className="mt-8">
+          <PathwayReportCard
+            studentId={studentId}
+            studentFirstName={student?.first_name ?? null}
+          />
+        </div>
+
         {/* HUB CARDS */}
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <HubCard
