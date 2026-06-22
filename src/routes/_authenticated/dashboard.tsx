@@ -43,6 +43,7 @@ import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import {
   ROLE_DASHBOARD_TEST_IDS,
+  dashboardTestIdForProfileRole,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
@@ -110,12 +111,6 @@ function DashboardLoadingShell() {
 
 type StudentLite = { id: string; first_name: string; last_name: string | null };
 
-function dashboardTestIdForPrimaryRole(role: string | null | undefined): RoleDashboardTestId | null {
-  if (role === "student") return ROLE_DASHBOARD_TEST_IDS.student;
-  if (role === "parent" || role === "guardian") return ROLE_DASHBOARD_TEST_IDS.parent;
-  return null;
-}
-
 function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -141,7 +136,7 @@ function DashboardPage() {
     fetchProfile()
       .then((p) => {
         if (p.first_name) setProfileFirstName(p.first_name);
-        const profileTestId = dashboardTestIdForPrimaryRole(p.primary_role);
+        const profileTestId = dashboardTestIdForProfileRole(p.primary_role);
         if (profileTestId) {
           setDashboardTestId(profileTestId);
           setIsStudentOnly(profileTestId === ROLE_DASHBOARD_TEST_IDS.student);
