@@ -52,6 +52,7 @@ import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
+import { InvitePeopleCard } from "@/components/dashboard/InvitePeopleCard";
 import { RoleGuard } from "@/components/RoleGuard";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { AccessPendingCard } from "@/components/access/AccessPendingCard";
