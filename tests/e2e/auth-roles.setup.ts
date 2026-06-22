@@ -35,6 +35,9 @@ async function assertDashboardReady(
   role: RoleSpec,
   dumpDiagnostics?: (label: string) => Promise<void>,
 ) {
+  // Wait for the URL to settle on the expected dashboard path (or a known
+  // rejected path) without relying on `networkidle` — long-lived Supabase
+  // subscriptions / polling keep the network busy forever.
   await page
     .waitForURL(
       (url) =>
@@ -50,8 +53,33 @@ async function assertDashboardReady(
     await dumpDiagnostics?.("dashboard-not-ready");
     throw new Error(dashboardReadinessError(role.dashboard, finalUrl));
   }
-  await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+  // <main> must be present in the shell immediately, even while data loads.
+  await page.locator("main").first().waitFor({ state: "attached", timeout: 15_000 }).catch(async (err) => {
+    await dumpDiagnostics?.("dashboard-main-missing");
+    throw new Error(`<main> never attached on ${role.dashboard}: ${(err as Error).message}`);
+  });
+  // Role-specific dashboard test id confirms the right shell rendered, not
+  // a redirect or error boundary. The element is on / inside <main> and
+  // exists as soon as the shell mounts (before async data resolves).
+  await page
+    .getByTestId(role.dashboardTestId)
+    .first()
+    .waitFor({ state: "visible", timeout: 20_000 })
+    .catch(async (err) => {
+      await dumpDiagnostics?.("dashboard-testid-missing");
+      throw new Error(
+        `data-testid="${role.dashboardTestId}" not visible on ${role.dashboard} within 20s: ${(err as Error).message}`,
+      );
+    });
+  // Guard against an app-level error boundary swallowing the dashboard.
+  const bodyText = await page.locator("body").innerText({ timeout: 2_000 }).catch(() => "");
+  if (/something went wrong|application error|unexpected error/i.test(bodyText) &&
+      !/dashboard/i.test(bodyText)) {
+    await dumpDiagnostics?.("dashboard-error-boundary");
+    throw new Error(`App-level error state detected on ${role.dashboard}.`);
+  }
 }
+
 
 async function completeTwoFactorIfPresent(
   page: Page,
