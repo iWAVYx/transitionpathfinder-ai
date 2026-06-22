@@ -63,7 +63,9 @@ function AuthenticatedLayout() {
       ? null
       : new URLSearchParams(window.location.search).get("dashboardTestId") ||
         window.localStorage.getItem("tf:e2e-dashboard-testid");
-  const hintedDashboardTestId = dashboardTestIdForDashboardHint(dashboardHint);
+  const hintedDashboardTestId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email);
 
   // Client-side fallback: catch session expiry mid-session.
   useEffect(() => {
