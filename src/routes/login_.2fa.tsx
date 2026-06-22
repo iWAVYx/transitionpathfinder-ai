@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AuthRenderDiagnostic } from "@/components/auth/AuthRenderDiagnostic";
 import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
 
 export const Route = createFileRoute("/login_/2fa")({
@@ -22,14 +21,5 @@ export const Route = createFileRoute("/login_/2fa")({
 
 function TwoFactorChallengePage() {
   const { redirect } = Route.useSearch();
-  return (
-    <>
-      <AuthRenderDiagnostic
-        branch="TwoFactorVerification"
-        loginFormRendered={false}
-        twoFactorVerificationRendered
-      />
-      <TwoFactorVerification redirect={redirect} />
-    </>
-  );
+  return <TwoFactorVerification redirect={redirect} />;
 }
