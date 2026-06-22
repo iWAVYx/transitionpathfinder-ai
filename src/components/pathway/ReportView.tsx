@@ -66,7 +66,7 @@ import { toTitleCase } from "@/lib/title-case";
 import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
 import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
 
-type Audience = "family" | "educator";
+type Audience = "student" | "family" | "educator";
 
 const READINESS_PCT: Record<string, number> = {
   emerging: 20,
