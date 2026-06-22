@@ -296,9 +296,20 @@ function ReportDetailPage() {
         saved={!!state.studentId}
         saveLabel={students.length > 0 ? "Save to student profile" : undefined}
         studentId={state.studentId ?? undefined}
+        initialAudience={audience}
+        onAudienceChange={(a) => setAudience(a as V2Audience)}
+        hasV2={isV2(state.report)}
         meta={{
           reportId: `TF-${reportId.slice(0, 8).toUpperCase()}`,
           preparedFor: state.name,
+          nextReviewDate: state.reviewDate,
+          lastUpdated: state.lastUpdated
+            ? new Date(state.lastUpdated).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : null,
         }}
         onSaveToProfile={
           students.length > 0 && !state.studentId
@@ -306,26 +317,6 @@ function ReportDetailPage() {
             : undefined
         }
       />
-
-      {/* Audience selector for the v2 spine */}
-      <div className={`no-print mx-auto mt-4 ${wrapWidth} px-4 sm:px-6 lg:px-8`}>
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-3 shadow-soft">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            View this report as
-          </span>
-          {(["student", "family", "educator"] as const).map((a) => (
-            <Button
-              key={a}
-              size="sm"
-              variant={audience === a ? "default" : "outline"}
-              onClick={() => setAudience(a)}
-              className="capitalize"
-            >
-              {a}
-            </Button>
-          ))}
-        </div>
-      </div>
 
       {/* v2 additive sections — only render once the report has been regenerated into v2 */}
       {isV2(state.report) && (
