@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -43,6 +43,7 @@ export const Route = createFileRoute("/login/")({
 function LoginPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const redirect = normalizeAuthRedirect(search.redirect);
@@ -50,7 +51,7 @@ function LoginPage() {
   // Hard-stop the failure mode seen in CI: if the router ever resolves
   // /login/2fa to the login index component, render the TOTP challenge here
   // instead of the email/password form.
-  if (typeof window !== "undefined" && window.location.pathname === "/login/2fa") {
+  if (location.pathname === "/login/2fa") {
     return <TwoFactorVerification redirect={redirect} />;
   }
 
