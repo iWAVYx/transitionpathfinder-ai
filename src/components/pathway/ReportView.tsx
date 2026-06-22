@@ -123,6 +123,7 @@ export function ReportView({
   studentId,
   extendedPlans,
   hasV2 = false,
+  onAudienceChange,
 }: {
   name: string;
   report: PathwayReport;
@@ -143,8 +144,14 @@ export function ReportView({
    * prep toolkit, opportunity matches) so the document doesn't duplicate.
    */
   hasV2?: boolean;
+  /** Notify caller when the user switches audience tabs (for v2 sections). */
+  onAudienceChange?: (a: Audience) => void;
 }) {
-  const [audience, setAudience] = useState<Audience>(initialAudience ?? "family");
+  const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
+  const setAudience = (a: Audience) => {
+    setAudienceState(a);
+    onAudienceChange?.(a);
+  };
   const [copied, setCopied] = useState(false);
   const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
   const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
