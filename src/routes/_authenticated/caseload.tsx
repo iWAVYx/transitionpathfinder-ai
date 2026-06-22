@@ -55,7 +55,39 @@ export const Route = createFileRoute("/_authenticated/caseload")({
   component: CaseloadPage,
 });
 
-type Filter = "all" | "needs-attention" | "no-report";
+type Filter = "all" | "needs-attention" | "no-report" | "today" | "this-week";
+
+function startOfToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function endOfToday(): Date {
+  const d = new Date();
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+function endOfThisWeek(): Date {
+  // Treat week as next 7 days inclusive
+  const d = endOfToday();
+  d.setDate(d.getDate() + 6);
+  return d;
+}
+function formatMeetingChip(iso: string): string {
+  const d = new Date(iso);
+  const today = startOfToday();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const dayAfter = new Date(today);
+  dayAfter.setDate(today.getDate() + 2);
+  if (d >= today && d < tomorrow) {
+    return `Today · ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+  }
+  if (d >= tomorrow && d < dayAfter) {
+    return `Tomorrow · ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+  }
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
 
 function CaseloadPage() {
   const fetchCaseload = useServerFn(getCaseload);
