@@ -563,6 +563,18 @@ export function ReportView({
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied" : "Share With Team"}
           </Button>
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={refreshing}
+              aria-label="Refresh Pathway Report"
+            >
+              <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+              {refreshing ? "Refreshing…" : "Refresh Report"}
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
