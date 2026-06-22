@@ -25,6 +25,7 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
+import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 type Props = {
   firstName: string;
@@ -42,7 +43,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
 
   if (!s) {
     return (
-      <SiteShell dashboardTestId="student-dashboard-main">
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.student}>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
 
           <p
@@ -83,7 +84,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
   }
 
   return (
-    <SiteShell dashboardTestId="student-dashboard-main">
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.student}>
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
 
         <p
