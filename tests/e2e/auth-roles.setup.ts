@@ -357,6 +357,7 @@ for (const role of ROLES) {
             })),
           )
           .catch(() => []);
+        const dataTestIds = await renderedDataTestIds(page).catch(() => []);
         const shot = await page.screenshot({ fullPage: true }).catch(() => null);
         if (shot) {
           await testInfo.attach(`${role.key}-${label}.png`, {
@@ -402,7 +403,7 @@ for (const role of ROLES) {
           `  failed-requests=${failedRequests.length}${failedRequests[0] ? ` first="${failedRequests[0].method} ${failedRequests[0].url} (${failedRequests[0].failure})"` : ""}`,
         ].join("\n");
         console.log(
-          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
+          `[auth-setup ${role.key}] ${label}\n  url=${url}\n  title=${title}\n  data-testids=${JSON.stringify(dataTestIds)}\n  inputs=${JSON.stringify(inputIds)}\n${errSummary}\n  redirect-chain:\n${chainSummary}\n  body[0..2000]=${bodyText}`,
         );
 
       } catch (e) {
