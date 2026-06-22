@@ -71,7 +71,14 @@ function ReportDetailPage() {
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
-    | { kind: "ok"; name: string; report: PathwayReport; studentId: string | null }
+    | {
+        kind: "ok";
+        name: string;
+        report: PathwayReport;
+        studentId: string | null;
+        reviewDate: string | null;
+        lastUpdated: string | null;
+      }
   >({ kind: "loading" });
   const [tokens, setTokens] = useState<ShareTokenRow[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
