@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
 
 type LoginSearch = {
   redirect: string;
@@ -47,10 +48,15 @@ export const Route = createFileRoute("/login/")({
 
 function LoginPage() {
   const search = Route.useSearch();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const redirect = normalizeAuthRedirect(search.redirect);
+
+  if (location.pathname.startsWith("/login/2fa")) {
+    return <TwoFactorVerification redirect={redirect} />;
+  }
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
