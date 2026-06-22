@@ -628,6 +628,16 @@ export function ReportView({
         </div>
       </header>
 
+      {/* ============ Student Snapshot summary card (top, all audiences) ============ */}
+      <StudentSnapshotCard
+        name={name}
+        snapshot={r.student_snapshot}
+        readiness={r.student_snapshot?.readiness_level ?? null}
+        confidenceLabel={confidenceLabel}
+        meta={meta}
+        today={today}
+      />
+
       <div className="mt-8">
         <AIDisclaimer />
       </div>
