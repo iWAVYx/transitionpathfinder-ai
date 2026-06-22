@@ -3,9 +3,15 @@ import { useLocation } from "@tanstack/react-router";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 
-export function SiteShell({ children }: { children: ReactNode }) {
+export function SiteShell({
+  children,
+  dashboardTestId,
+}: {
+  children: ReactNode;
+  dashboardTestId?: string;
+}) {
   const location = useLocation();
-  const testId = dashboardMainTestId(location.pathname);
+  const testId = dashboardTestId ?? dashboardMainTestId(location.pathname);
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
