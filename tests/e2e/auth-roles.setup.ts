@@ -68,7 +68,7 @@ async function assertDashboardReady(
   // a redirect or error boundary. The element is on / inside <main> and
   // exists as soon as the shell mounts (before async data resolves).
   await page
-    .getByTestId(role.dashboardTestId)
+    .locator(`main[data-testid="${role.dashboardTestId}"]`)
     .first()
     .waitFor({ state: "visible", timeout: 20_000 })
     .catch(async (err) => {
