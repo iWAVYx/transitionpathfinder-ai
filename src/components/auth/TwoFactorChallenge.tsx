@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AuthRenderDiagnostic } from "@/components/auth/AuthRenderDiagnostic";
 import { supabase } from "@/integrations/supabase/client";
 
 export function TwoFactorVerification({ redirect }: { redirect: string }) {
@@ -130,22 +131,29 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
   };
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
-      <section className="w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
-        <Link to="/" className="text-xs font-semibold uppercase tracking-wider text-primary">
-          TransitionForward
-        </Link>
-        <h1 className="mt-4 font-display text-3xl font-medium tracking-tight text-foreground">
-          Two-Factor Verification
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground" id="twofa-instructions">
-          Open your authenticator app and enter the six-digit code.
-        </p>
+    <>
+      <AuthRenderDiagnostic
+        branch="TwoFactorVerification"
+        loginFormRendered={false}
+        pendingChallengeExists={Boolean(challengeId)}
+        twoFactorVerificationRendered
+      />
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12 text-foreground">
+        <section className="w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 shadow-soft">
+          <Link to="/" className="text-xs font-semibold uppercase tracking-wider text-primary">
+            TransitionForward
+          </Link>
+          <h1 className="mt-4 font-display text-3xl font-medium tracking-tight text-foreground">
+            Two-Factor Verification
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground" id="twofa-instructions">
+            Open your authenticator app and enter the six-digit code.
+          </p>
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-5" data-testid="totp-form">
-          <div role="status" aria-live="polite" className="sr-only" data-testid="twofa-status">
-            {bootstrapping ? "Preparing Two-Factor Challenge" : error ? `Error: ${error}` : "Ready for your six-digit code"}
-          </div>
+          <form onSubmit={onSubmit} className="mt-6 space-y-5" data-testid="totp-form">
+            <div role="status" aria-live="polite" className="sr-only" data-testid="twofa-status">
+              {bootstrapping ? "Preparing Two-Factor Challenge" : error ? `Error: ${error}` : "Ready for your six-digit code"}
+            </div>
 
           <div>
             <label htmlFor="totp-code-input" className="text-sm font-medium text-foreground">
@@ -188,9 +196,10 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
           <Button type="button" variant="ghost" className="w-full" onClick={onCancel}>
             Use A Different Account
           </Button>
-        </form>
-      </section>
-    </main>
+          </form>
+        </section>
+      </main>
+    </>
   );
 }
 
