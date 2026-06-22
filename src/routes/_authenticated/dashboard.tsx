@@ -159,7 +159,9 @@ function DashboardPage() {
       ? null
       : new URLSearchParams(window.location.search).get("dashboardTestId") ||
         window.localStorage.getItem("tf:e2e-dashboard-testid");
-  const hintedDashboardTestId = dashboardTestIdForDashboardHint(dashboardHint);
+  const hintedDashboardTestId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email);
   const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
   const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(hintedDashboardTestId);
 
