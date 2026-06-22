@@ -999,7 +999,7 @@ export function ReportView({
       </Block>
 
       {/* ============ IEP translator ============ */}
-      {r.iep_translator && r.iep_translator.length > 0 && (
+      {!hasV2 && r.iep_translator && r.iep_translator.length > 0 && (
         <Block id="sec-iep-translator" title="IEP / Transition Plan Translator" icon={<BookOpen className="h-5 w-5" />}>
           <p className="mb-4 text-sm text-muted-foreground">
             Plain-English translations of transition-related goal language. This is not legal
