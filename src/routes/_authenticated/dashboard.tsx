@@ -96,7 +96,7 @@ function DashboardRoleLandmarks() {
 
 function DashboardLoadingShell() {
   return (
-      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
+      <SiteShell>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <DashboardRoleLandmarks />
       </div>
@@ -399,7 +399,7 @@ function DashboardPage() {
 
   if (loadError && !snap) {
     return (
-      <SiteShell dashboardTestId={isStudentOnly ? ROLE_DASHBOARD_TEST_IDS.student : ROLE_DASHBOARD_TEST_IDS.parent}>
+      <SiteShell dashboardTestId={dashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
 
           <div className="mb-4 flex justify-center">
@@ -416,7 +416,7 @@ function DashboardPage() {
 
   if (loading || !snap) {
     return (
-      <SiteShell dashboardTestId={isStudentOnly ? ROLE_DASHBOARD_TEST_IDS.student : ROLE_DASHBOARD_TEST_IDS.parent}>
+      <SiteShell dashboardTestId={dashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
 
           <DashboardRoleLandmarks />
