@@ -172,6 +172,25 @@ export function ReportView({
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
 
+  // Phase 6D — fetch the student's saved voice answers so the Student
+  // audience tab can show "Your Voice in this plan" with their own words.
+  const fetchVoice = useServerFn(getStudentVoiceResponses);
+  const [voiceResponses, setVoiceResponses] = useState<StudentVoiceResponse[]>([]);
+  useEffect(() => {
+    if (!studentId) return;
+    let cancelled = false;
+    fetchVoice({ data: { studentId } })
+      .then((r) => {
+        if (!cancelled) setVoiceResponses(r.responses ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setVoiceResponses([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, fetchVoice]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem("tf.reportDensity");
