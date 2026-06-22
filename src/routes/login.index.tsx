@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AuthRenderDiagnostic } from "@/components/auth/AuthRenderDiagnostic";
 import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -54,10 +55,28 @@ function LoginRouteEntry() {
   const pathname =
     typeof window !== "undefined" ? window.location.pathname : location.pathname;
   if (pathname.startsWith("/login/2fa")) {
-    return <TwoFactorVerification redirect={redirect} />;
+    return (
+      <>
+        <AuthRenderDiagnostic
+          branch="TwoFactorVerification"
+          loginFormRendered={false}
+          twoFactorVerificationRendered
+        />
+        <TwoFactorVerification redirect={redirect} />
+      </>
+    );
   }
 
-  return <LoginPage search={search} redirect={redirect} />;
+  return (
+    <>
+      <AuthRenderDiagnostic
+        branch="LoginPage"
+        loginFormRendered
+        twoFactorVerificationRendered={false}
+      />
+      <LoginPage search={search} redirect={redirect} />
+    </>
+  );
 }
 
 function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string }) {
