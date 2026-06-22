@@ -44,9 +44,11 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
+import { ensureRoleAccess } from "@/lib/route-role-guard";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
+  beforeLoad: () => ensureRoleAccess(["partner", "admin"]),
   component: () => (
     <RoleGuard path="/partners-manage" fallback={<PartnerDashboardFallback />}>
       <PartnerManagePage />
