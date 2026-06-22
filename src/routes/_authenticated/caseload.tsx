@@ -351,13 +351,22 @@ function CaseloadRow({
     <li className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-medium">
               {row.first_name} {row.last_name ?? ""}
             </p>
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
               {row.relationship}
             </span>
+            {row.next_meeting_at && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
+                title={row.next_meeting_title ?? "Upcoming meeting"}
+              >
+                <CalendarClock className="h-3 w-3" />
+                {formatMeetingChip(row.next_meeting_at)}
+              </span>
+            )}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {[row.grade_band, row.school].filter(Boolean).join(" · ") || "No school on file"}
@@ -367,10 +376,48 @@ function CaseloadRow({
           <Stat label="Goals" value={row.goal_count} />
           <Stat label="Open Actions" value={row.open_action_items} tone={row.open_action_items > 0 ? "warn" : undefined} />
           <Stat label="Report" value={row.latest_report_id ? "✓" : "—"} />
-          <Button size="sm" variant="ghost" onClick={onToggle}>
+          <Button size="sm" variant="ghost" onClick={onToggle} aria-label={expanded ? "Collapse row" : "Expand row"}>
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
+      </div>
+
+      {/* Per-student action ribbon — one-click jumps into the daily loop. */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/students/$studentId" params={{ studentId: row.id }}>
+            Open Profile
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link
+            to={row.next_meeting_id ? "/meetings/$meetingId" : "/meetings"}
+            {...(row.next_meeting_id
+              ? { params: { meetingId: row.next_meeting_id } }
+              : {})}
+          >
+            <CalendarClock className="h-3.5 w-3.5" />
+            {row.next_meeting_id ? "Prep Meeting" : "Schedule Meeting"}
+          </Link>
+        </Button>
+        {row.latest_report_id ? (
+          <Button asChild size="sm" variant="outline">
+            <Link to="/reports/$reportId" params={{ reportId: row.latest_report_id }}>
+              <FileText className="h-3.5 w-3.5" /> Open Report
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild size="sm" variant="outline">
+            <Link to="/students/$studentId" params={{ studentId: row.id }}>
+              <FileText className="h-3.5 w-3.5" /> Generate Report
+            </Link>
+          </Button>
+        )}
+        <Button asChild size="sm" variant="outline">
+          <Link to="/students/$studentId" params={{ studentId: row.id }} hash="documents">
+            Upload Doc
+          </Link>
+        </Button>
       </div>
 
       {expanded && <Expanded row={row} onChanged={onChanged} />}
