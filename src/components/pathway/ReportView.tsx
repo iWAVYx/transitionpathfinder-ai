@@ -257,8 +257,8 @@ export function ReportView({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    const v = params.get("view");
-    if (v === "family" || v === "educator") setAudience(v);
+    const v = params.get("view") ?? params.get("audience");
+    if (v === "student" || v === "family" || v === "educator") setAudience(v);
   }, []);
 
   useEffect(() => {
@@ -270,14 +270,20 @@ export function ReportView({
 
   const heading = useMemo(
     () =>
-      audience === "family" ? `A plan for ${name}.` : `PPT Prep packet — ${name}`,
+      audience === "family"
+        ? `A plan for ${name}.`
+        : audience === "student"
+          ? `Your plan, ${name}.`
+          : `PPT Prep packet — ${name}`,
     [audience, name],
   );
 
   const subheading =
     audience === "family"
       ? displayReport.summary
-      : "A teacher-facing snapshot to bring to the next Planning & Placement Team meeting. Use the talking points and next steps to keep the conversation focused on the student.";
+      : audience === "student"
+        ? "A plain-language plan written for you. Use it to see what's next, what you're good at, and what to ask your team about."
+        : "A teacher-facing snapshot to bring to the next Planning & Placement Team meeting. Use the talking points and next steps to keep the conversation focused on the student.";
 
   const copyLink = async () => {
     if (typeof window === "undefined") return;
