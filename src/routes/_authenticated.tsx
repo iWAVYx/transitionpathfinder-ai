@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { getProfile } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
+import {
+  dashboardTestIdForPath,
+  dashboardTestIdForDashboardHint,
+  dashboardTestIdForProfileRole,
+  ROLE_DASHBOARD_TEST_IDS,
+  type RoleDashboardTestId,
+} from "@/lib/dashboard-testids";
 
 export const Route = createFileRoute("/_authenticated")({
   // Client-only gate: Supabase stores the session in localStorage, which the server
@@ -48,6 +55,17 @@ function AuthenticatedLayout() {
   const loadProfile = useServerFn(getProfile);
   const loadAdminRoles = useServerFn(getMyAdminRoles);
   const [checkedOnboarding, setCheckedOnboarding] = useState(false);
+  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(() =>
+    dashboardTestIdForPath(location.pathname),
+  );
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const hintedDashboardTestId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email);
 
   // Client-side fallback: catch session expiry mid-session.
   useEffect(() => {
@@ -75,6 +93,11 @@ function AuthenticatedLayout() {
     loadProfile()
       .then(async (p) => {
         if (cancelled) return;
+        setDashboardTestId(
+          location.pathname === "/dashboard"
+            ? dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent
+            : dashboardTestIdForPath(location.pathname),
+        );
         if (!p.onboarding_completed) {
           // Platform admins (admin_roles entry) bypass /onboarding and land on /owner.
           try {
@@ -93,16 +116,23 @@ function AuthenticatedLayout() {
         setCheckedOnboarding(true);
       })
       .catch(() => {
-        if (!cancelled) setCheckedOnboarding(true);
+        if (!cancelled) {
+          setDashboardTestId((current) => current ?? dashboardTestIdForPath(location.pathname));
+          setCheckedOnboarding(true);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [user, loading, location.pathname, navigate, loadProfile]);
+  }, [user, loading, location.pathname, navigate, loadProfile, loadAdminRoles, hintedDashboardTestId]);
 
   if (loading || !user) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background" data-auth-state="loading">
+      <main
+        className="flex min-h-screen items-center justify-center bg-background"
+        data-auth-state="loading"
+        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
+      >
         <p className="text-sm text-muted-foreground">Loading…</p>
       </main>
     );
@@ -110,7 +140,11 @@ function AuthenticatedLayout() {
 
   if (!checkedOnboarding) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background" data-auth-state="checking-onboarding">
+      <main
+        className="flex min-h-screen items-center justify-center bg-background"
+        data-auth-state="checking-onboarding"
+        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
+      >
         <p className="text-sm text-muted-foreground">Loading…</p>
       </main>
     );

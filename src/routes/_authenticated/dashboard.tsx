@@ -43,6 +43,8 @@ import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import {
   ROLE_DASHBOARD_TEST_IDS,
+  dashboardTestIdForDashboardHint,
+  dashboardTestIdForProfileRole,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
@@ -95,8 +97,36 @@ function DashboardRoleLandmarks() {
 }
 
 function DashboardLoadingShell() {
+  const { user } = useAuth();
+  const fetchProfile = useServerFn(getProfile);
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const hintedDashboardTestId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email);
+  const [testId, setTestId] = useState<RoleDashboardTestId | null>(
+    hintedDashboardTestId,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchProfile()
+      .then((p) => {
+        if (!cancelled) setTestId(dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId);
+      })
+      .catch(() => {
+        if (!cancelled) setTestId(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchProfile, hintedDashboardTestId]);
+
   return (
-      <SiteShell>
+      <SiteShell dashboardTestId={testId ?? undefined}>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <DashboardRoleLandmarks />
       </div>
@@ -109,12 +139,6 @@ function DashboardLoadingShell() {
 }
 
 type StudentLite = { id: string; first_name: string; last_name: string | null };
-
-function dashboardTestIdForPrimaryRole(role: string | null | undefined): RoleDashboardTestId | null {
-  if (role === "student") return ROLE_DASHBOARD_TEST_IDS.student;
-  if (role === "parent" || role === "guardian") return ROLE_DASHBOARD_TEST_IDS.parent;
-  return null;
-}
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -134,14 +158,22 @@ function DashboardPage() {
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const hintedDashboardTestId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email);
   const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
-  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(null);
+  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(hintedDashboardTestId);
 
   useEffect(() => {
     fetchProfile()
       .then((p) => {
         if (p.first_name) setProfileFirstName(p.first_name);
-        const profileTestId = dashboardTestIdForPrimaryRole(p.primary_role);
+        const profileTestId = dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId;
         if (profileTestId) {
           setDashboardTestId(profileTestId);
           setIsStudentOnly(profileTestId === ROLE_DASHBOARD_TEST_IDS.student);
@@ -150,7 +182,7 @@ function DashboardPage() {
       .catch(() => {
         /* fall back to user_metadata / email */
       });
-  }, [fetchProfile]);
+  }, [fetchProfile, hintedDashboardTestId]);
 
   useEffect(() => {
     fetchRoles()
@@ -184,9 +216,9 @@ function DashboardPage() {
       })
       .catch(() => {
         setIsStudentOnly((current) => current ?? false);
-        setDashboardTestId((current) => current ?? ROLE_DASHBOARD_TEST_IDS.parent);
+        setDashboardTestId((current) => current ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent);
       });
-  }, [fetchRoles, navigate]);
+  }, [fetchRoles, navigate, hintedDashboardTestId]);
 
 
   const handleDownloadPdf = useCallback((reportId: string) => {

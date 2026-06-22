@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useLocation } from "@tanstack/react-router";
 import {
-  ROLE_DASHBOARD_TEST_IDS,
+  dashboardTestIdForPath,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
 import { SiteHeader } from "./SiteHeader";
@@ -15,14 +15,14 @@ export function SiteShell({
   dashboardTestId?: RoleDashboardTestId;
 }) {
   const location = useLocation();
-  const testId = dashboardTestId ?? dashboardMainTestId(location.pathname);
+  const testId = dashboardTestId ?? dashboardTestIdForPath(location.pathname);
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <SiteHeader />
       <main
         className="site-shell-main flex-1"
-        {...(testId ? { "data-testid": testId } : {})}
+        data-testid={testId ?? undefined}
       >
         <DashboardMainLandmark pathname={location.pathname} />
         {children}
@@ -30,28 +30,6 @@ export function SiteShell({
       <SiteFooter />
     </div>
   );
-}
-
-function dashboardMainTestId(pathname: string): RoleDashboardTestId | null {
-  // The dashboard-setup E2E suite asserts a stable data-testid on the
-  // <main> landmark for each role's signed-in landing route. Keep the
-  // mapping here so the contract lives in one place and cannot drift
-  // when individual route files are refactored.
-  //
-  // /dashboard is intentionally omitted — both student and parent land
-  // there, so the dashboard route passes the role-specific test ID once
-  // it has resolved the viewer audience.
-  if (pathname === "/caseload") return ROLE_DASHBOARD_TEST_IDS.educator;
-  if (pathname === "/school/overview" || pathname.startsWith("/school/")) {
-    return ROLE_DASHBOARD_TEST_IDS.school_admin;
-  }
-  if (pathname === "/district/overview" || pathname.startsWith("/district/")) {
-    return ROLE_DASHBOARD_TEST_IDS.district_admin;
-  }
-  if (pathname === "/partners-manage" || pathname.startsWith("/partners-manage")) {
-    return ROLE_DASHBOARD_TEST_IDS.partner;
-  }
-  return null;
 }
 
 function DashboardMainLandmark({ pathname }: { pathname: string }) {
