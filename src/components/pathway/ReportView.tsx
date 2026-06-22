@@ -1114,6 +1114,34 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ Phase 6D — Your Voice in this plan (Student tab) ============ */}
+      {audience === "student" && voiceResponses.length > 0 && (
+        <Block
+          id="sec-your-voice"
+          title="Your Voice in this Plan"
+          icon={<Quote className="h-5 w-5" />}
+        >
+          <p className="mb-4 text-sm text-muted-foreground">
+            These are your own words from Student Voice — they help shape this plan.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {voiceResponses.slice(0, 3).map((vr) => {
+              const prompt = STUDENT_VOICE_PROMPTS.find((p) => p.key === vr.prompt_key);
+              return (
+                <div key={vr.id} className="rounded-2xl border bg-primary/5 p-5 lift-card">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                    {prompt?.question ?? vr.prompt_key}
+                  </p>
+                  <p className="mt-2 font-display text-base italic text-foreground/90">
+                    "{vr.response_text}"
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </Block>
+      )}
+
       {/* ============ Student Voice Prompts ============ */}
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
         <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
