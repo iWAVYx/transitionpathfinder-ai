@@ -867,6 +867,18 @@ export function ReportView({
                     {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
                   </Badge>
                   <h3 className="font-display text-2xl">{toTitleCase(p.title)}</h3>
+                  {confidenceLabel && (
+                    <Badge variant="outline" className="gap-1 text-[11px]">
+                      <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
+                    </Badge>
+                  )}
+                  {r.student_snapshot?.readiness_level && (
+                    <Badge variant="outline" className="gap-1 text-[11px]">
+                      <Target className="h-3 w-3" /> Readiness:{" "}
+                      {READINESS_LABEL[r.student_snapshot.readiness_level] ??
+                        r.student_snapshot.readiness_level}
+                    </Badge>
+                  )}
                 </div>
                 <p className="mt-3 text-sm text-foreground/80">{p.why_it_fits}</p>
 
