@@ -6187,6 +6187,10 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_partner_network_opportunity_contact_email: {
+        Args: { _opportunity_id: string }
+        Returns: string
+      }
       get_peer_profile: {
         Args: { _peer_id: string }
         Returns: {
