@@ -14,6 +14,9 @@ export type CaseloadStudent = {
   goal_count: number;
   last_note_at: string | null;
   latest_report_id: string | null;
+  next_meeting_at: string | null;
+  next_meeting_id: string | null;
+  next_meeting_title: string | null;
 };
 
 export const getCaseload = createServerFn({ method: "GET" })
