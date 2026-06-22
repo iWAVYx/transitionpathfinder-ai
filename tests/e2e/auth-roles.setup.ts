@@ -60,6 +60,22 @@ async function completeTwoFactorIfPresent(
 ) {
   if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
 
+  const otpInput = page.getByTestId("totp-code").first();
+  const otpCount = await page.getByTestId("totp-code").count().catch(() => 0);
+  console.log(
+    `[auth-setup ${role.key}] /login/2fa detected; data-testid=totp-code count=${otpCount}`,
+  );
+  await otpInput.waitFor({ state: "visible", timeout: 10_000 }).catch(async (waitErr) => {
+    if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
+    await dumpDiagnostics?.("2fa-route-missing-totp-input");
+    throw new Error(
+      `/login/2fa did not render data-testid="totp-code" for ${role.key}. ` +
+        `Do not diagnose TOTP secrets until the real 2FA input is visible. ` +
+        `Original: ${(waitErr as Error).message}`,
+    );
+  });
+  if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
+
   const envName = `E2E_${role.key.toUpperCase()}_TOTP_SECRET`;
   const secret = process.env[envName]?.replace(/\s+/g, "");
   if (!secret) {
@@ -67,18 +83,7 @@ async function completeTwoFactorIfPresent(
     throw new Error(`${role.key} requires 2FA but ${envName} is missing.`);
   }
 
-  const otpInput = page.getByTestId("totp-code").first();
-  const otpCount = await page.getByTestId("totp-code").count().catch(() => 0);
-  console.log(
-    `[auth-setup ${role.key}] /login/2fa detected; data-testid=totp-code count=${otpCount}`,
-  );
-
   try {
-    await otpInput.waitFor({ state: "visible", timeout: 10_000 }).catch(async (waitErr) => {
-      if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
-      throw waitErr;
-    });
-    if (!new URL(page.url()).pathname.startsWith("/login/2fa")) return;
     console.log(`[auth-setup ${role.key}] data-testid=totp-code visible=true`);
     await otpInput.fill(authenticator.generate(secret));
 
