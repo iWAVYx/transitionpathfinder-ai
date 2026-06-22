@@ -53,10 +53,7 @@ function LoginPage() {
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const redirect = normalizeAuthRedirect(search.redirect);
-
-  if (location.pathname === "/login/2fa") {
-    return <TwoFactorVerification redirect={redirect} />;
-  }
+  const isTwoFactorPath = location.pathname === "/login/2fa";
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -64,6 +61,7 @@ function LoginPage() {
   // a verified TOTP factor but the session is still aal1, bounce to the 2FA
   // challenge before letting them through to their redirect target.
   useEffect(() => {
+    if (isTwoFactorPath) return;
     if (loading || !user) return;
     let cancelled = false;
     (async () => {
@@ -83,7 +81,11 @@ function LoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, loading, redirect, navigate]);
+  }, [user, loading, redirect, navigate, isTwoFactorPath]);
+
+  if (isTwoFactorPath) {
+    return <TwoFactorVerification redirect={redirect} />;
+  }
 
   if (loading || user) {
     return (
