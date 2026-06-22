@@ -45,6 +45,8 @@ import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist"
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
+import { opportunityStatusLabel } from "@/lib/opportunity-status";
+import { PartnerImpactSummaryCard } from "@/components/dashboard/PartnerImpactSummaryCard";
 
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
@@ -159,7 +161,7 @@ function PartnerManagePage() {
   ) {
     try {
       await updateOp({ data: { id, status } });
-      toast.success(`Marked ${status.replace("_", " ")}`);
+      toast.success(`Marked ${opportunityStatusLabel(status)}`);
       reload(orgId);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -536,7 +538,7 @@ function StatusPill({ status }: { status: string }) {
     <span
       className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${styles}`}
     >
-      {status.replace("_", " ")}
+      {opportunityStatusLabel(status)}
     </span>
   );
 }
