@@ -536,12 +536,14 @@ function DashboardPage() {
                       <FileText className="h-4 w-4" /> Open
                     </Link>
                     <button
+                      type="button"
                       onClick={() => handleDownloadPdf(snap.latestReport!.id)}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
                     >
                       <Download className="h-4 w-4" /> Download PDF
                     </button>
                     <button
+                      type="button"
                       disabled={sharing}
                       onClick={() => handleCopyShare(snap.latestReport!.id, "family")}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
@@ -549,6 +551,7 @@ function DashboardPage() {
                       <Share2 className="h-4 w-4" /> Copy family link
                     </button>
                     <button
+                      type="button"
                       disabled={sharing}
                       onClick={() => handleCopyShare(snap.latestReport!.id, "educator")}
                       className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
