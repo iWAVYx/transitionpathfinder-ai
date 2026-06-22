@@ -302,6 +302,31 @@ for (const role of ROLES) {
       });
     });
 
+    // Console / page errors / failed requests for richer dashboard-setup
+    // diagnostics. Collected for the lifetime of the test and dumped via
+    // dumpDiagnostics on any failure.
+    const consoleEvents: Array<{ type: string; text: string; at: string }> = [];
+    const pageErrors: Array<{ message: string; stack?: string; at: string }> = [];
+    const failedRequests: Array<{ url: string; method: string; failure: string; at: string }> = [];
+    page.on("console", (msg) => {
+      const type = msg.type();
+      if (type === "error" || type === "warning") {
+        consoleEvents.push({ type, text: msg.text().slice(0, 500), at: new Date().toISOString() });
+      }
+    });
+    page.on("pageerror", (err) => {
+      pageErrors.push({ message: err.message, stack: err.stack?.slice(0, 2_000), at: new Date().toISOString() });
+    });
+    page.on("requestfailed", (req) => {
+      failedRequests.push({
+        url: req.url(),
+        method: req.method(),
+        failure: req.failure()?.errorText ?? "unknown",
+        at: new Date().toISOString(),
+      });
+    });
+
+
     // Dump live diagnostics if anything below throws — the failure log
     // tells us where the page actually was instead of just "selector not found".
     const dumpDiagnostics = async (label: string) => {
