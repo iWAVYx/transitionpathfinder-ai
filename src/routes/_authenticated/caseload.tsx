@@ -105,7 +105,7 @@ function CaseloadPage() {
   return (
     <SiteShell>
       <CaseloadRoleLandmark />
-      <div data-testid="caseload-main">
+      <div>
       <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
       <PageContainer>
 

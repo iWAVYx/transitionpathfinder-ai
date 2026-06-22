@@ -5,17 +5,43 @@ import { SiteFooter } from "./SiteFooter";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const testId = dashboardMainTestId(location.pathname);
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <SiteHeader />
-      <main className="site-shell-main flex-1">
+      <main
+        className="site-shell-main flex-1"
+        {...(testId ? { "data-testid": testId } : {})}
+      >
         <DashboardMainLandmark pathname={location.pathname} />
         {children}
       </main>
       <SiteFooter />
     </div>
   );
+}
+
+function dashboardMainTestId(pathname: string): string | null {
+  // The dashboard-setup E2E suite asserts a stable data-testid on the
+  // <main> landmark for each role's signed-in landing route. Keep the
+  // mapping here so the contract lives in one place and cannot drift
+  // when individual route files are refactored.
+  //
+  // /dashboard is intentionally omitted — both student and parent land
+  // there, so the role-specific testid is rendered on the inner branch
+  // (StudentDashboard / parent branch in dashboard.tsx) instead.
+  if (pathname === "/caseload") return "caseload-main";
+  if (pathname === "/school/overview" || pathname.startsWith("/school/")) {
+    return "school-admin-dashboard-main";
+  }
+  if (pathname === "/district/overview" || pathname.startsWith("/district/")) {
+    return "district-admin-dashboard-main";
+  }
+  if (pathname === "/partners-manage" || pathname.startsWith("/partners-manage")) {
+    return "partner-dashboard-main";
+  }
+  return null;
 }
 
 function DashboardMainLandmark({ pathname }: { pathname: string }) {
