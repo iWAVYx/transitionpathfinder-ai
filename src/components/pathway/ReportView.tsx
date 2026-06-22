@@ -25,6 +25,7 @@ import {
   ChevronsDownUp,
   ChevronsUpDown,
   Search,
+  RefreshCw,
 } from "lucide-react";
 import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
