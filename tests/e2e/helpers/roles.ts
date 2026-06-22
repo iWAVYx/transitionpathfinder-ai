@@ -16,6 +16,10 @@
  */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  ROLE_DASHBOARD_TEST_IDS,
+  type RoleDashboardTestId,
+} from "../../../src/lib/dashboard-testids";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const AUTH_DIR = path.join(__dirname, "..", ".auth");
@@ -36,7 +40,7 @@ export interface RoleSpec {
   emailEnv: string;
   passwordEnv: string;
   dashboard: string;
-  dashboardTestId: string; // data-testid rendered on or inside <main> when this role's dashboard is ready
+  dashboardTestId: RoleDashboardTestId; // data-testid rendered on or inside <main> when this role's dashboard is ready
   mustSee: RegExp[];      // headings / labels that must render
   mustNotSee: RegExp[];   // surfaces that would indicate a role leak
 }
@@ -50,7 +54,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_STUDENT_EMAIL",
     passwordEnv: "E2E_STUDENT_PASSWORD",
     dashboard: "/dashboard",
-    dashboardTestId: "student-dashboard-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.student,
     mustSee: [/Next Best Step/i],
     mustNotSee: [/caseload/i, /admin hub/i, /partner network/i],
   },
@@ -61,7 +65,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_PARENT_EMAIL",
     passwordEnv: "E2E_PARENT_PASSWORD",
     dashboard: "/dashboard",
-    dashboardTestId: "parent-dashboard-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.parent,
     mustSee: [/Pathway Progress/i],
     mustNotSee: [/caseload/i, /partner network/i, /platform admin/i],
   },
@@ -72,7 +76,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_EDUCATOR_EMAIL",
     passwordEnv: "E2E_EDUCATOR_PASSWORD",
     dashboard: "/caseload",
-    dashboardTestId: "caseload-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.educator,
     mustSee: [/Caseload Overview/i],
     mustNotSee: [/platform admin/i, /partner network/i],
   },
@@ -83,7 +87,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_SCHOOL_ADMIN_EMAIL",
     passwordEnv: "E2E_SCHOOL_ADMIN_PASSWORD",
     dashboard: "/school/overview",
-    dashboardTestId: "school-admin-dashboard-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.school_admin,
     mustSee: [/school/i],
     mustNotSee: [/platform admin/i],
   },
@@ -94,7 +98,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_DISTRICT_ADMIN_EMAIL",
     passwordEnv: "E2E_DISTRICT_ADMIN_PASSWORD",
     dashboard: "/district/overview",
-    dashboardTestId: "district-admin-dashboard-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.district_admin,
     mustSee: [/district/i],
     mustNotSee: [/platform admin/i],
   },
@@ -105,7 +109,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_PARTNER_EMAIL",
     passwordEnv: "E2E_PARTNER_PASSWORD",
     dashboard: "/partners-manage",
-    dashboardTestId: "partner-dashboard-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.partner,
     mustSee: [/partner|opportunit/i],
     // Partners must never see student PII surfaces.
     mustNotSee: [/caseload/i, /goals/i, /documents/i, /platform admin/i],
@@ -117,7 +121,7 @@ export const ROLES: RoleSpec[] = [
     emailEnv: "E2E_OWNER_EMAIL",
     passwordEnv: "E2E_OWNER_PASSWORD",
     dashboard: "/admin",
-    dashboardTestId: "platform-admin-main",
+    dashboardTestId: ROLE_DASHBOARD_TEST_IDS.owner,
     mustSee: [/Platform Admin/i],
     mustNotSee: [],
 
