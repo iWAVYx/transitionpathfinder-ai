@@ -31,8 +31,10 @@ import { SchoolPicker } from "@/components/forms/SchoolPicker";
 import { fallbackPathFor } from "@/lib/role-policy";
 import {
   questionsForRole,
+  tipsForRole,
   type OnboardingQuestion,
 } from "@/lib/onboarding-questions";
+import { Lightbulb } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { id: "student", label: "Student", note: "This is my plan", icon: User },
