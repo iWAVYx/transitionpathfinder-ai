@@ -49,6 +49,11 @@ import {
   updateReportViewerPrefs,
 } from "@/lib/ui-prefs.functions";
 import {
+  getStudentVoiceResponses,
+  type StudentVoiceResponse,
+} from "@/lib/student-voice.functions";
+import { STUDENT_VOICE_PROMPTS } from "@/lib/student-voice-prompts";
+import {
   EVT_BLOCKS_HYDRATE,
   EVT_DENSITY_SET,
   EVT_OUTLINE_SET,
