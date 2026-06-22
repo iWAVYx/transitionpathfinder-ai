@@ -43,20 +43,25 @@ export const Route = createFileRoute("/login/")({
     ],
     links: [{ rel: "canonical", href: "/login" }],
   }),
-  component: LoginPage,
+  component: LoginRouteEntry,
 });
 
-function LoginPage() {
+function LoginRouteEntry() {
   const search = Route.useSearch();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
   const redirect = normalizeAuthRedirect(search.redirect);
 
   if (location.pathname.startsWith("/login/2fa")) {
     return <TwoFactorVerification redirect={redirect} />;
   }
+
+  return <LoginPage search={search} redirect={redirect} />;
+}
+
+function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string }) {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
