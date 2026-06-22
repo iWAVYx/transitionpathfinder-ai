@@ -1,4 +1,4 @@
-// Role-specific onboarding question sets. Kept intentionally small —
+// Role-specific onboarding question sets. Kept intentionally light —
 // these are the lightest set of prompts that personalize the dashboard
 // and Next Best Action without making setup feel heavy.
 
@@ -22,7 +22,7 @@ export type RoleQuestionSet = {
 export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
   parent: {
     role: "parent",
-    title: "What matters most right now?",
+    title: "What Matters Most Right Now?",
     body: "We'll tailor your dashboard so the most useful tools show up first.",
     questions: [
       {
@@ -35,6 +35,14 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
           { value: "transitioning", label: "Within 12 months of graduation" },
           { value: "post_secondary", label: "Already post-secondary" },
         ],
+      },
+      {
+        key: "school_or_district",
+        label: "What school or district does your child attend? (optional)",
+        help: "Helps us surface local resources and the right team contacts.",
+        type: "text",
+        placeholder: "e.g. Hartford Public Schools",
+        maxLength: 160,
       },
       {
         key: "priorities",
@@ -61,7 +69,7 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
   },
   student: {
     role: "student",
-    title: "Tell us a little about you",
+    title: "Tell Us A Little About You",
     body: "Your answers help us suggest pathways and people who fit who you are.",
     questions: [
       {
@@ -74,6 +82,21 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
           { value: "11-12", label: "11th–12th" },
           { value: "post", label: "Post-secondary" },
         ],
+      },
+      {
+        key: "school_or_district",
+        label: "What school do you go to? (optional)",
+        type: "text",
+        placeholder: "e.g. Bulkeley High School",
+        maxLength: 160,
+      },
+      {
+        key: "team_contact",
+        label: "Who helps you with school planning? (optional)",
+        help: "A parent, guardian, case manager, or teacher — we'll suggest inviting them later.",
+        type: "text",
+        placeholder: "e.g. My mom and my case manager Ms. Rivera",
+        maxLength: 200,
       },
       {
         key: "after_hs",
@@ -100,7 +123,7 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
   },
   educator: {
     role: "educator",
-    title: "How do you support students?",
+    title: "How Do You Support Students?",
     body: "We'll set up your caseload tools to match how you work.",
     questions: [
       {
@@ -114,6 +137,20 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
           { value: "general_ed", label: "General education teacher" },
           { value: "related_service", label: "Related service provider" },
         ],
+      },
+      {
+        key: "school",
+        label: "What school do you work at? (optional)",
+        type: "text",
+        placeholder: "e.g. Bulkeley High School",
+        maxLength: 160,
+      },
+      {
+        key: "district",
+        label: "What district? (optional)",
+        type: "text",
+        placeholder: "e.g. Hartford Public Schools",
+        maxLength: 160,
       },
       {
         key: "caseload_size",
@@ -142,9 +179,23 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
   },
   school_admin: {
     role: "school_admin",
-    title: "About your school",
+    title: "About Your School",
     body: "We'll set up the right dashboards for school-level oversight.",
     questions: [
+      {
+        key: "school_name",
+        label: "What school do you lead?",
+        type: "text",
+        placeholder: "e.g. Bulkeley High School",
+        maxLength: 200,
+      },
+      {
+        key: "district_name",
+        label: "What district is it in? (optional)",
+        type: "text",
+        placeholder: "e.g. Hartford Public Schools",
+        maxLength: 200,
+      },
       {
         key: "school_level",
         label: "What level is your school?",
@@ -183,9 +234,16 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
   },
   district_admin: {
     role: "district_admin",
-    title: "About your district",
+    title: "About Your District",
     body: "We'll surface aggregate reporting tuned to your size.",
     questions: [
+      {
+        key: "district_name",
+        label: "What district do you oversee?",
+        type: "text",
+        placeholder: "e.g. Hartford Public Schools",
+        maxLength: 200,
+      },
       {
         key: "schools_count",
         label: "How many schools do you oversee for transition?",
@@ -213,9 +271,16 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
   },
   partner: {
     role: "partner",
-    title: "About your organization",
+    title: "About Your Organization",
     body: "We'll match your programs to students who fit them best.",
     questions: [
+      {
+        key: "org_name",
+        label: "What's your organization called?",
+        type: "text",
+        placeholder: "e.g. Hartford Workforce Alliance",
+        maxLength: 200,
+      },
       {
         key: "org_type",
         label: "What kind of organization?",
@@ -253,4 +318,76 @@ export const ROLE_QUESTION_SETS: Record<string, RoleQuestionSet> = {
 export function questionsForRole(role: string | null | undefined): RoleQuestionSet | null {
   if (!role) return null;
   return ROLE_QUESTION_SETS[role] ?? null;
+}
+
+// Role-specific "what's next" tips shown as the final onboarding step.
+// Pure copy — no input, no schema change. Mirrors the Phase 3 plan's
+// chronological flow (consent/document/team prompts) without forcing extra
+// inputs that would block finish.
+export type RoleTip = {
+  title: string;
+  body: string;
+  items: string[];
+};
+
+export const ROLE_TIPS: Record<string, RoleTip> = {
+  student: {
+    title: "What You Can Do Next",
+    body: "Your dashboard is ready. A few things you can try right away:",
+    items: [
+      "Open Student Voice to record what you want your team to know.",
+      "Upload any IEP or transition document so your plan stays in one place.",
+      "Invite a parent, guardian, or case manager from your dashboard.",
+    ],
+  },
+  parent: {
+    title: "How Sharing Works",
+    body: "You control who sees your child's information. By default, only you can see it.",
+    items: [
+      "Invite a case manager or teacher when you're ready — they only see what you share.",
+      "Upload your child's most recent IEP so the team can plan from the same page.",
+      "Use Meeting Prep before the next PPT or IEP meeting to gather questions and goals.",
+    ],
+  },
+  educator: {
+    title: "Set Up Your Caseload",
+    body: "Your caseload view is ready. A few good first steps:",
+    items: [
+      "Invite your first student or their family from the caseload page.",
+      "Upload a planning document or IEP to attach context to a student.",
+      "Open Meeting Prep to draft an agenda for an upcoming PPT.",
+    ],
+  },
+  school_admin: {
+    title: "What You'll See Next",
+    body: "Your school overview lights up as staff and students join your school.",
+    items: [
+      "Invite educators and case managers so their caseloads roll up to your school view.",
+      "Review compliance and outcomes rails as data flows in.",
+      "Connect community partners that serve your students.",
+    ],
+  },
+  district_admin: {
+    title: "What You'll See Next",
+    body: "Your district overview fills in as schools, staff, and students connect.",
+    items: [
+      "Invite school administrators so school-level data rolls up to the district.",
+      "Use the compliance highlights rail to spot gaps early.",
+      "Review partner capacity across your district from the partner network page.",
+    ],
+  },
+  partner: {
+    title: "How The Partner Network Works",
+    body: "Posts you publish are reviewed before going live. Student data stays private.",
+    items: [
+      "Create your first opportunity from the partner workspace.",
+      "Posts move through Draft → In Review → Live → Archived.",
+      "PartnerForward incentives and capacity-building resources are in the Partner Hub.",
+    ],
+  },
+};
+
+export function tipsForRole(role: string | null | undefined): RoleTip | null {
+  if (!role) return null;
+  return ROLE_TIPS[role] ?? null;
 }

@@ -31,8 +31,10 @@ import { SchoolPicker } from "@/components/forms/SchoolPicker";
 import { fallbackPathFor } from "@/lib/role-policy";
 import {
   questionsForRole,
+  tipsForRole,
   type OnboardingQuestion,
 } from "@/lib/onboarding-questions";
+import { Lightbulb } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { id: "student", label: "Student", note: "This is my plan", icon: User },
@@ -53,7 +55,7 @@ const GRADE_OPTIONS = [
   { value: "not-applicable", label: "Not applicable" },
 ] as const;
 
-const STEPS = ["role", "you", "questions", "student"] as const;
+const STEPS = ["role", "you", "questions", "student", "tips"] as const;
 type StepId = (typeof STEPS)[number];
 
 // Per-prompt answer can be a string (single/text) or string[] (multi).
@@ -136,13 +138,16 @@ function OnboardingPage() {
   const needsStudent = role === "parent" || role === "educator";
   const roleQuestions = useMemo(() => questionsForRole(role), [role]);
   const hasQuestions = !!roleQuestions && roleQuestions.questions.length > 0;
+  const roleTips = useMemo(() => tipsForRole(role), [role]);
+  const hasTips = !!roleTips;
 
   const activeSteps: StepId[] = useMemo(() => {
     const steps: StepId[] = ["role", "you"];
     if (hasQuestions) steps.push("questions");
     if (needsStudent) steps.push("student");
+    if (hasTips) steps.push("tips");
     return steps;
-  }, [hasQuestions, needsStudent]);
+  }, [hasQuestions, needsStudent, hasTips]);
 
   const safeIdx = Math.min(idx, activeSteps.length - 1);
   const stepId: StepId = activeSteps[safeIdx];
@@ -169,6 +174,8 @@ function OnboardingPage() {
         return requiredAnswered;
       case "student":
         return studentFirst.trim().length > 0;
+      case "tips":
+        return true;
     }
   }, [stepId, role, firstName, requiredAnswered, studentFirst]);
 
@@ -470,6 +477,28 @@ function OnboardingPage() {
               </div>
             </div>
           )}
+
+          {stepId === "tips" && roleTips && (
+            <div className="space-y-5">
+              <Header
+                eyebrow="You're Set"
+                title={roleTips.title}
+                body={roleTips.body}
+              />
+              <ul className="space-y-3">
+                {roleTips.items.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border bg-background p-4 text-sm"
+                  >
+                    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
             <Button
