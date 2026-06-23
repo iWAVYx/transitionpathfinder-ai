@@ -89,6 +89,7 @@ export type DashboardSnapshot = {
     topic: string | null;
     url: string | null;
     matched_reason: string;
+    saved: boolean;
   }>;
   consents: ConsentRow[];
 };
