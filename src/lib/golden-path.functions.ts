@@ -89,6 +89,7 @@ export type DashboardSnapshot = {
     topic: string | null;
     url: string | null;
     matched_reason: string;
+    saved: boolean;
   }>;
   consents: ConsentRow[];
 };
@@ -201,11 +202,20 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
       .join(" ")
       .toLowerCase();
 
-    const { data: allResources } = await supabase
-      .from("resources")
-      .select("id, title, description, resource_type, topic, url")
-      .order("created_at", { ascending: true })
-      .limit(50);
+    const [{ data: allResources }, { data: savedRows }] = await Promise.all([
+      supabase
+        .from("resources")
+        .select("id, title, description, resource_type, topic, url")
+        .order("created_at", { ascending: true })
+        .limit(50),
+      supabase
+        .from("saved_resources")
+        .select("resource_id")
+        .eq("user_id", userId),
+    ]);
+    const savedIds = new Set(
+      ((savedRows ?? []) as Array<{ resource_id: string }>).map((r) => r.resource_id),
+    );
 
     const TOPIC_HINTS: Array<[string, string[]]> = [
       ["self-advocacy", ["advocate", "voice", "speak", "iep meeting"]],
@@ -237,6 +247,7 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
             : topic
               ? `Recommended for ${topic}`
               : "Suggested for transition planning",
+          saved: savedIds.has(r.id),
           _score: matched ? 2 : 1,
         };
       })
@@ -279,6 +290,56 @@ export const setActionItemStatus = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error("Could not update action item.");
     return { ok: true };
+  });
+
+/* ---------- Meeting prep persistence ---------- */
+
+export const setMeetingPrepCompleted = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid(), completed: z.boolean() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("meeting_prep_items")
+      .update({ completed: data.completed })
+      .eq("id", data.id);
+    if (error) throw new Error("Could not update prep item.");
+    return { ok: true as const };
+  });
+
+/* ---------- Saved resources toggle ---------- */
+
+export const toggleSavedResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ resource_id: z.string().uuid(), saved: z.boolean() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    if (data.saved) {
+      const { data: existing } = await supabase
+        .from("saved_resources")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("resource_id", data.resource_id)
+        .limit(1)
+        .maybeSingle();
+      if (!existing) {
+        const { error } = await supabase
+          .from("saved_resources")
+          .insert({ user_id: userId, resource_id: data.resource_id });
+        if (error) throw new Error("Could not save resource.");
+      }
+    } else {
+      const { error } = await supabase
+        .from("saved_resources")
+        .delete()
+        .eq("user_id", userId)
+        .eq("resource_id", data.resource_id);
+      if (error) throw new Error("Could not remove saved resource.");
+    }
+    return { ok: true as const, saved: data.saved };
   });
 
 /* ---------- Consent ---------- */

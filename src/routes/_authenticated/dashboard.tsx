@@ -34,6 +34,8 @@ import {
   getDashboardSnapshot,
   seedDemoStudent,
   setActionItemStatus,
+  setMeetingPrepCompleted,
+  toggleSavedResource,
   recordConsent,
   type DashboardSnapshot,
   type ActionItemRow,
@@ -156,6 +158,8 @@ function DashboardPage() {
   const fetchRoles = useServerFn(getMyRoles);
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
+  const setPrepDone = useServerFn(setMeetingPrepCompleted);
+  const toggleSaved = useServerFn(toggleSavedResource);
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
@@ -321,6 +325,41 @@ function DashboardPage() {
       );
     } catch {
       toast.error("Could not update.");
+    }
+  }
+
+  async function togglePrepDone(item: { id: string; completed: boolean }) {
+    const next = !item.completed;
+    setSnap((s) =>
+      s ? { ...s, meetingPrep: s.meetingPrep.map((p) => (p.id === item.id ? { ...p, completed: next } : p)) } : s,
+    );
+    try {
+      await setPrepDone({ data: { id: item.id, completed: next } });
+    } catch {
+      toast.error("Could not update prep item.");
+      setSnap((s) =>
+        s ? { ...s, meetingPrep: s.meetingPrep.map((p) => (p.id === item.id ? { ...p, completed: item.completed } : p)) } : s,
+      );
+    }
+  }
+
+  async function toggleResourceSaved(resourceId: string, currentlySaved: boolean) {
+    const next = !currentlySaved;
+    setSnap((s) =>
+      s
+        ? { ...s, recommendedResources: s.recommendedResources.map((r) => (r.id === resourceId ? { ...r, saved: next } : r)) }
+        : s,
+    );
+    try {
+      await toggleSaved({ data: { resource_id: resourceId, saved: next } });
+      toast.success(next ? "Saved to your resources." : "Removed from saved.");
+    } catch {
+      toast.error("Could not update saved resources.");
+      setSnap((s) =>
+        s
+          ? { ...s, recommendedResources: s.recommendedResources.map((r) => (r.id === resourceId ? { ...r, saved: currentlySaved } : r)) }
+          : s,
+      );
     }
   }
 
@@ -784,8 +823,22 @@ function DashboardPage() {
                               .slice(0, 4)
                               .map((p) => (
                                 <li key={p.id} className="flex items-start gap-2 text-sm">
-                                  <Circle className="mt-1 h-3 w-3 shrink-0 text-muted-foreground" />
-                                  <span>{p.content}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => togglePrepDone(p)}
+                                    aria-label={p.completed ? "Mark as not done" : "Mark as done"}
+                                    aria-pressed={p.completed}
+                                    className="mt-0.5 shrink-0"
+                                  >
+                                    {p.completed ? (
+                                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                                    ) : (
+                                      <Circle className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                  </button>
+                                  <span className={p.completed ? "line-through text-muted-foreground" : ""}>
+                                    {p.content}
+                                  </span>
                                 </li>
                               ))}
                           </ul>
@@ -825,16 +878,33 @@ function DashboardPage() {
                             {r.matched_reason}
                           </p>
                         </div>
-                        {r.url && (
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="shrink-0 text-muted-foreground hover:text-primary"
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleResourceSaved(r.id, r.saved)}
+                            aria-label={r.saved ? "Remove from saved" : "Save for later"}
+                            aria-pressed={r.saved}
+                            className={
+                              "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition " +
+                              (r.saved
+                                ? "border-primary/40 bg-primary/10 text-primary"
+                                : "border-muted-foreground/20 text-muted-foreground hover:border-primary/40 hover:text-primary")
+                            }
                           >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
+                            {r.saved ? "Saved" : "Save"}
+                          </button>
+                          {r.url && (
+                            <a
+                              href={r.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-primary"
+                              aria-label="Open resource in a new tab"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </li>
                   ))}
