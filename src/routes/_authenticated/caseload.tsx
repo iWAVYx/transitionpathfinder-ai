@@ -399,7 +399,7 @@ function CaseloadRow({
             </Link>
           </Button>
         ) : (
-          <Button size="sm" variant="outline" onClick={onToggle}>
+          <Button type="button" size="sm" variant="outline" onClick={onToggle}>
             <CalendarClock className="h-3.5 w-3.5" />
             Plan Meeting
           </Button>
