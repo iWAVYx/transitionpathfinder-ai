@@ -91,6 +91,12 @@ export function ReportV2Sections({
       aria-label="Pathway Report — detailed sections"
       className="mx-auto max-w-5xl space-y-8 px-4 pb-12 sm:px-6 lg:px-8"
     >
+      <ReportV2SnapshotHeader
+        content={content}
+        audience={audience}
+        studentName={studentName}
+      />
+
       <div className="rounded-3xl border border-primary/30 bg-primary/5 p-5 shadow-soft sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">
           {audienceLabel[audience]}
@@ -104,6 +110,8 @@ export function ReportV2Sections({
           at the next PPT / IEP meeting.
         </p>
       </div>
+
+      <ReportV2ExtrasBody content={content} audience={audience} />
 
       {iep && (
         <SectionBlock
