@@ -73,6 +73,9 @@ function endOfThisWeek(): Date {
   d.setDate(d.getDate() + 6);
   return d;
 }
+function uniqueStudents(students: CaseloadStudent[]): CaseloadStudent[] {
+  return Array.from(new Map(students.map((student) => [student.id, student])).values());
+}
 function formatMeetingChip(iso: string): string {
   const d = new Date(iso);
   const today = startOfToday();
@@ -101,7 +104,7 @@ function CaseloadPage() {
     setLoading(true);
     try {
       const { students } = await fetchCaseload();
-      setRows(students);
+      setRows(uniqueStudents(students));
     } catch {
       toast.error("Could not load caseload.");
     } finally {
@@ -388,17 +391,19 @@ function CaseloadRow({
             Open Student Profile
           </Link>
         </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link
-            to={row.next_meeting_id ? "/meetings/$meetingId" : "/meetings"}
-            {...(row.next_meeting_id
-              ? { params: { meetingId: row.next_meeting_id } }
-              : {})}
-          >
+        {row.next_meeting_id ? (
+          <Button asChild size="sm" variant="outline">
+            <Link to="/meetings/$meetingId" params={{ meetingId: row.next_meeting_id }}>
+              <CalendarClock className="h-3.5 w-3.5" />
+              Prep Meeting
+            </Link>
+          </Button>
+        ) : (
+          <Button type="button" size="sm" variant="outline" onClick={onToggle}>
             <CalendarClock className="h-3.5 w-3.5" />
-            {row.next_meeting_id ? "Prep Meeting" : "Schedule Meeting"}
-          </Link>
-        </Button>
+            Plan Meeting
+          </Button>
+        )}
         {row.latest_report_id && (
           <Button asChild size="sm" variant="outline">
             <Link to="/reports/$reportId" params={{ reportId: row.latest_report_id }}>
