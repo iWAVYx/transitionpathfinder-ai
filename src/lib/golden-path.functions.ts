@@ -202,11 +202,20 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
       .join(" ")
       .toLowerCase();
 
-    const { data: allResources } = await supabase
-      .from("resources")
-      .select("id, title, description, resource_type, topic, url")
-      .order("created_at", { ascending: true })
-      .limit(50);
+    const [{ data: allResources }, { data: savedRows }] = await Promise.all([
+      supabase
+        .from("resources")
+        .select("id, title, description, resource_type, topic, url")
+        .order("created_at", { ascending: true })
+        .limit(50),
+      supabase
+        .from("saved_resources")
+        .select("resource_id")
+        .eq("user_id", userId),
+    ]);
+    const savedIds = new Set(
+      ((savedRows ?? []) as Array<{ resource_id: string }>).map((r) => r.resource_id),
+    );
 
     const TOPIC_HINTS: Array<[string, string[]]> = [
       ["self-advocacy", ["advocate", "voice", "speak", "iep meeting"]],
