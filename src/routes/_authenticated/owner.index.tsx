@@ -229,8 +229,11 @@ export function OwnerDashboardPage() {
                           {a.target_id ? ` ${a.target_id.slice(0, 8)}` : ""}
                         </span>
                       )}
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        {new Date(a.created_at).toLocaleString()}
+                      <span
+                        className="ml-auto text-xs text-muted-foreground"
+                        title={new Date(a.created_at).toLocaleString()}
+                      >
+                        {timeAgo(a.created_at)}
                       </span>
                     </li>
                   ))}
