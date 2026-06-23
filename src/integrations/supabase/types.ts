@@ -6140,6 +6140,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation_by_token: {
+        Args: { _token: string }
+        Returns: {
+          invitation_type: string
+        }[]
+      }
       audience_for_role: { Args: { _role: string }; Returns: string }
       can_access_student: {
         Args: { _student_id: string; _user_id: string }
@@ -6186,6 +6192,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_invitation_share_token: {
+        Args: { _invitation_id: string }
+        Returns: string
       }
       get_partner_network_opportunity_contact_email: {
         Args: { _opportunity_id: string }

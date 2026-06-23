@@ -26,6 +26,9 @@ const INVITATION_TYPE = z.enum([
   "join_partner_org",
 ]);
 
+// `token` is intentionally excluded — the column is not readable by the
+// authenticated role. Inviters fetch tokens via `get_invitation_share_token`,
+// and invitees redeem via `accept_invitation_by_token`.
 export type Invitation = {
   id: string;
   email: string;
@@ -35,7 +38,6 @@ export type Invitation = {
   student_profile_id: string | null;
   invitation_type: string;
   status: "pending" | "accepted" | "revoked" | "expired";
-  token: string;
   expires_at: string;
   accepted_at: string | null;
   accepted_by: string | null;
@@ -44,6 +46,10 @@ export type Invitation = {
   created_at: string;
   updated_at: string;
 };
+
+const INVITATION_COLS =
+  "id,email,invited_role,invited_by_user_id,organization_id,student_profile_id,invitation_type,status,expires_at,accepted_at,accepted_by,revoked_at,message,created_at,updated_at";
+
 
 function randomToken(): string {
   const bytes = new Uint8Array(24);
@@ -86,13 +92,28 @@ export const createInvitation = createServerFn({ method: "POST" })
         token,
         expires_at,
       } as never)
-      .select("*")
+      .select(INVITATION_COLS)
       .single();
     if (error) {
       console.error("createInvitation failed", error);
       throw new Error("Could not create invitation.");
     }
-    return { invitation: row as Invitation };
+    // Return the freshly-generated token to the inviter so they can build the
+    // share URL. After this response it can only be retrieved via the
+    // `get_invitation_share_token` RPC (inviter or platform admin only).
+    return { invitation: row as Invitation, token };
+  });
+
+export const getInvitationShareToken = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: token, error } = await context.supabase.rpc(
+      "get_invitation_share_token",
+      { _invitation_id: data.id },
+    );
+    if (error) throw new Error("Could not load invitation token.");
+    return { token: (token as string | null) ?? null };
   });
 
 export const listMyInvitations = createServerFn({ method: "GET" })
@@ -103,7 +124,7 @@ export const listMyInvitations = createServerFn({ method: "GET" })
     const [sent, claims] = await Promise.all([
       supabase
         .from("invitations")
-        .select("*")
+        .select(INVITATION_COLS)
         .eq("invited_by_user_id", userId)
         .order("created_at", { ascending: false })
         .limit(100),
@@ -114,7 +135,7 @@ export const listMyInvitations = createServerFn({ method: "GET" })
     const incoming = email
       ? await supabase
           .from("invitations")
-          .select("*")
+          .select(INVITATION_COLS)
           .eq("email", email)
           .eq("status", "pending")
           .order("created_at", { ascending: false })
@@ -133,72 +154,18 @@ export const acceptInvitation = createServerFn({ method: "POST" })
     z.object({ token: z.string().min(8).max(128) }).parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: invite, error: findErr } = await supabase
-      .from("invitations")
-      .select("*")
-      .eq("token", data.token)
-      .maybeSingle();
-    if (findErr || !invite) throw new Error("Invitation not found.");
-    const inv = invite as Invitation;
-    if (inv.status !== "pending") throw new Error("Invitation is no longer pending.");
-    if (new Date(inv.expires_at).getTime() < Date.now()) {
-      await supabase
-        .from("invitations")
-        .update({ status: "expired" } as never)
-        .eq("id", inv.id);
-      throw new Error("Invitation has expired.");
+    const { supabase } = context;
+    const { data: rows, error } = await supabase.rpc(
+      "accept_invitation_by_token",
+      { _token: data.token },
+    );
+    if (error) {
+      throw new Error(error.message || "Could not accept invitation.");
     }
-
-    // Side-effects based on type.
-    if (inv.invitation_type === "join_school" || inv.invitation_type === "join_district" || inv.invitation_type === "join_partner_org") {
-      if (inv.organization_id) {
-        const { error: memErr } = await supabase
-          .from("organization_memberships")
-          .upsert(
-            {
-              organization_id: inv.organization_id,
-              user_id: userId,
-              role_within_org: inv.invited_role,
-              status: "active",
-              membership_status: "active",
-              invited_by: inv.invited_by_user_id,
-            } as never,
-            { onConflict: "organization_id,user_id" },
-          );
-        if (memErr) console.error("acceptInvitation: membership upsert failed", memErr);
-      }
-    }
-    if (inv.invitation_type === "connect_to_student" && inv.student_profile_id) {
-      const permission_level =
-        inv.invited_role === "parent" || inv.invited_role === "case_manager"
-          ? "collaborate"
-          : "view";
-      const { error: relErr } = await supabase
-        .from("student_relationships")
-        .upsert(
-          {
-            student_id: inv.student_profile_id,
-            related_user_id: userId,
-            relationship_type: inv.invited_role,
-            permission_level,
-            consent_status: "approved",
-          } as never,
-          { onConflict: "student_id,related_user_id" },
-        );
-      if (relErr) console.error("acceptInvitation: relationship upsert failed", relErr);
-    }
-
-    const { error: updErr } = await supabase
-      .from("invitations")
-      .update({
-        status: "accepted",
-        accepted_at: new Date().toISOString(),
-        accepted_by: userId,
-      } as never)
-      .eq("id", inv.id);
-    if (updErr) throw new Error("Could not accept invitation.");
-    return { ok: true, invitation_type: inv.invitation_type };
+    const first = Array.isArray(rows) ? rows[0] : rows;
+    const invitation_type =
+      (first as { invitation_type?: string } | null)?.invitation_type ?? null;
+    return { ok: true as const, invitation_type };
   });
 
 export const revokeInvitation = createServerFn({ method: "POST" })
