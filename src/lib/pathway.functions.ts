@@ -956,17 +956,51 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const seen = new Set(aiGaps.map((g) => g.topic.toLowerCase()));
     const mergedGaps = [...aiGaps, ...determined.filter((g) => !seen.has(g.topic.toLowerCase()))];
 
+    // Deterministic v2.1 backfills — never trust the AI for grounded facts.
+    const scoreToLevel = (s: number | null): "emerging" | "developing" | "progressing" | "ready" => {
+      const n = s ?? 0;
+      if (n >= 76) return "ready";
+      if (n >= 51) return "progressing";
+      if (n >= 26) return "developing";
+      return "emerging";
+    };
+    const readiness_indicators = ctx.readiness
+      .filter((r) => !!r.category)
+      .slice(0, 20)
+      .map((r) => ({
+        domain: r.category,
+        level: scoreToLevel(r.score),
+        note: r.score != null ? `Score ${r.score}/100` : undefined,
+      }));
+
+    const aiSnapshot = v2.student_snapshot ?? {};
+    const student_snapshot = {
+      ...aiSnapshot,
+      display_name: [ctx.student.first_name, ctx.student.last_name].filter(Boolean).join(" ") || aiSnapshot.display_name,
+      grade: ctx.student.grade_band ?? aiSnapshot.grade,
+      last_updated: new Date().toISOString().slice(0, 10),
+    };
+
     // Build the next content payload: keep legacy v1 fields, graft v2 on top.
     const prevContent =
       typeof rep.content === "object" && rep.content !== null
         ? (rep.content as Record<string, unknown>)
         : {};
+
+    const prevInputs = isV2(prevContent)
+      ? (prevContent as { inputs_used?: InputsUsed }).inputs_used
+      : undefined;
+    const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
+
     const nextContent: Record<string, unknown> = {
       ...prevContent,
       ...v2,
       schema_version: 2,
       missing_information_v2: mergedGaps,
       inputs_used,
+      student_snapshot,
+      readiness_indicators: readiness_indicators.length > 0 ? readiness_indicators : v2.readiness_indicators,
+      change_summary,
     };
 
     // Snapshot + overwrite via updateReportContent path (manual to avoid round-trip).
