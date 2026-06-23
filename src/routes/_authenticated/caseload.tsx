@@ -203,9 +203,8 @@ function CaseloadPage() {
           </StatGrid>
 
           {/* Educator quick links — surfaces tied to caseload work */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <EducatorQuickLink to="/teacher-portal" icon={<ShieldAlert className="h-4 w-4" />} label="Teacher Portal" desc="Milestones & compliance" />
-            <EducatorQuickLink to="/meetings" icon={<CalendarClock className="h-4 w-4" />} label="Meetings" desc="Schedule & prep" />
             <EducatorQuickLink to="/meeting-templates" icon={<ClipboardCheck className="h-4 w-4" />} label="Templates" desc="Agendas & checklists" />
             <EducatorQuickLink to="/goals" icon={<Target className="h-4 w-4" />} label="Goal Tracker" desc="Transition goals" />
           </div>
@@ -400,24 +399,13 @@ function CaseloadRow({
             {row.next_meeting_id ? "Prep Meeting" : "Schedule Meeting"}
           </Link>
         </Button>
-        {row.latest_report_id ? (
+        {row.latest_report_id && (
           <Button asChild size="sm" variant="outline">
             <Link to="/reports/$reportId" params={{ reportId: row.latest_report_id }}>
               <FileText className="h-3.5 w-3.5" /> Open Report
             </Link>
           </Button>
-        ) : (
-          <Button asChild size="sm" variant="outline">
-            <Link to="/students/$studentId" params={{ studentId: row.id }}>
-              <FileText className="h-3.5 w-3.5" /> Generate Report
-            </Link>
-          </Button>
         )}
-        <Button asChild size="sm" variant="outline">
-          <Link to="/students/$studentId" params={{ studentId: row.id }} hash="documents">
-            Upload Doc
-          </Link>
-        </Button>
       </div>
 
       {expanded && <Expanded row={row} onChanged={onChanged} />}
@@ -547,9 +535,6 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
             </SelectContent>
           </Select>
           <div className="ml-auto flex gap-2">
-            <Button asChild size="sm" variant="outline">
-              <Link to="/students/$studentId" params={{ studentId: row.id }}>View Transition Details</Link>
-            </Button>
             <Button type="submit" size="sm" disabled={savingAction || !actionTitle.trim()}>
               {savingAction ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Assign
             </Button>
