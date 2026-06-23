@@ -318,13 +318,19 @@ export const toggleSavedResource = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     if (data.saved) {
-      const { error } = await supabase
+      const { data: existing } = await supabase
         .from("saved_resources")
-        .upsert(
-          { user_id: userId, resource_id: data.resource_id },
-          { onConflict: "user_id,resource_id", ignoreDuplicates: true },
-        );
-      if (error) throw new Error("Could not save resource.");
+        .select("id")
+        .eq("user_id", userId)
+        .eq("resource_id", data.resource_id)
+        .limit(1)
+        .maybeSingle();
+      if (!existing) {
+        const { error } = await supabase
+          .from("saved_resources")
+          .insert({ user_id: userId, resource_id: data.resource_id });
+        if (error) throw new Error("Could not save resource.");
+      }
     } else {
       const { error } = await supabase
         .from("saved_resources")
