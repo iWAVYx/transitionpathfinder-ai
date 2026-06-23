@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   getDashboardMetrics,
   getResourceCounts,
+  getReviewQueueCounts,
   type DashboardMetrics,
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
@@ -28,6 +29,11 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
+import {
+  ReviewQueuesPanel,
+  type ReviewQueueCounts,
+} from "@/components/owner/ReviewQueuesPanel";
+import { timeAgo } from "@/lib/time-ago";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
@@ -38,9 +44,11 @@ export function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
   const fetchResourceCounts = useServerFn(getResourceCounts);
   const fetchReviewCounts = useServerFn(adminListResourcesNeedingReview);
+  const fetchQueueCounts = useServerFn(getReviewQueueCounts);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [resourceCounts, setResourceCounts] = useState<{ published: number; drafts: number } | null>(null);
   const [reviewCounts, setReviewCounts] = useState<{ resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null>(null);
+  const [queueCounts, setQueueCounts] = useState<ReviewQueueCounts | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,14 +56,16 @@ export function OwnerDashboardPage() {
       fetchMetrics().catch(() => null),
       fetchResourceCounts().catch(() => null),
       fetchReviewCounts().catch(() => null),
+      fetchQueueCounts().catch(() => null),
     ])
-      .then(([m, r, rev]) => {
+      .then(([m, r, rev, q]) => {
         setMetrics(m);
         setResourceCounts(r);
         setReviewCounts(rev);
+        setQueueCounts(q);
       })
       .finally(() => setLoading(false));
-  }, [fetchMetrics, fetchResourceCounts, fetchReviewCounts]);
+  }, [fetchMetrics, fetchResourceCounts, fetchReviewCounts, fetchQueueCounts]);
 
   return (
     <OwnerShell
@@ -141,6 +151,8 @@ export function OwnerDashboardPage() {
             </section>
           )}
 
+          <ReviewQueuesPanel counts={queueCounts} loading={loading} />
+
           {/* Quick actions — secondary, collapsed on mobile to reduce density */}
           <CollapsibleSection
             title="Quick actions"
@@ -217,8 +229,11 @@ export function OwnerDashboardPage() {
                           {a.target_id ? ` ${a.target_id.slice(0, 8)}` : ""}
                         </span>
                       )}
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        {new Date(a.created_at).toLocaleString()}
+                      <span
+                        className="ml-auto text-xs text-muted-foreground"
+                        title={new Date(a.created_at).toLocaleString()}
+                      >
+                        {timeAgo(a.created_at)}
                       </span>
                     </li>
                   ))}

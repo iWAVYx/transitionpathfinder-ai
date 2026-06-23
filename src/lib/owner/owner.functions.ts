@@ -1162,7 +1162,71 @@ export const getResourceCounts = createServerFn({ method: "GET" })
     };
   });
 
+// ---------- Admin Hub review queues (polish) ----------
+
+/**
+ * Aggregated counts of items awaiting platform-admin attention across the
+ * major review surfaces. Each count is a HEAD-only query so the call stays
+ * cheap even on large tables. Failures on individual tables degrade to 0
+ * rather than failing the whole panel.
+ */
+export const getReviewQueueCounts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    await requirePlatformAdmin(supabase, userId);
+
+    const safeCount = async (
+      table: string,
+      apply: (q: ReturnType<typeof supabase.from> extends infer T ? T : never) => unknown,
+    ): Promise<number> => {
+      try {
+        // @ts-expect-error dynamic table name is intentional for review-queue rollup
+        const q = supabase.from(table).select("id", { count: "exact", head: true });
+        const res = (await apply(q)) as { count: number | null; error: unknown };
+        return res?.count ?? 0;
+      } catch {
+        return 0;
+      }
+    };
+
+    const [
+      waitlistNew,
+      contactsNew,
+      partnerSubmissions,
+      partnerOpportunities,
+      feedbackOpen,
+      productIssuesOpen,
+      adminInvitationsPending,
+      betaTestersPending,
+    ] = await Promise.all([
+      safeCount("waitlist", (q: any) => q.eq("status", "new")),
+      safeCount("contact_submissions", (q: any) => q.eq("status", "new")),
+      safeCount("partner_submissions", (q: any) => q.in("status", ["pending", "submitted", "new"])),
+      safeCount("partner_opportunities", (q: any) => q.in("status", ["pending_review", "pending", "submitted"])),
+      safeCount("feedback_submissions", (q: any) => q.in("status", ["open", "new", "pending"])),
+      safeCount("product_issues", (q: any) => q.in("status", ["open", "new"])),
+      safeCount("admin_invitations", (q: any) =>
+        q.is("accepted_at", null).is("revoked_at", null).gt("expires_at", new Date().toISOString()),
+      ),
+      safeCount("beta_testers", (q: any) => q.eq("invite_status", "pending")),
+    ]);
+
+    return {
+      waitlistNew,
+      contactsNew,
+      partnerSubmissions,
+      partnerOpportunities,
+      feedbackOpen,
+      productIssuesOpen,
+      adminInvitationsPending,
+      betaTestersPending,
+    };
+  });
+
 // ---------- Admin invitations ----------
+
+
 
 export type AdminInvitation = {
   id: string;
