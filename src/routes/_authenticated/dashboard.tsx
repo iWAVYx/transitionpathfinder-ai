@@ -328,6 +328,41 @@ function DashboardPage() {
     }
   }
 
+  async function togglePrepDone(item: { id: string; completed: boolean }) {
+    const next = !item.completed;
+    setSnap((s) =>
+      s ? { ...s, meetingPrep: s.meetingPrep.map((p) => (p.id === item.id ? { ...p, completed: next } : p)) } : s,
+    );
+    try {
+      await setPrepDone({ data: { id: item.id, completed: next } });
+    } catch {
+      toast.error("Could not update prep item.");
+      setSnap((s) =>
+        s ? { ...s, meetingPrep: s.meetingPrep.map((p) => (p.id === item.id ? { ...p, completed: item.completed } : p)) } : s,
+      );
+    }
+  }
+
+  async function toggleResourceSaved(resourceId: string, currentlySaved: boolean) {
+    const next = !currentlySaved;
+    setSnap((s) =>
+      s
+        ? { ...s, recommendedResources: s.recommendedResources.map((r) => (r.id === resourceId ? { ...r, saved: next } : r)) }
+        : s,
+    );
+    try {
+      await toggleSaved({ data: { resource_id: resourceId, saved: next } });
+      toast.success(next ? "Saved to your resources." : "Removed from saved.");
+    } catch {
+      toast.error("Could not update saved resources.");
+      setSnap((s) =>
+        s
+          ? { ...s, recommendedResources: s.recommendedResources.map((r) => (r.id === resourceId ? { ...r, saved: currentlySaved } : r)) }
+          : s,
+      );
+    }
+  }
+
   async function grantConsent(
     type: "ai_processing" | "team_sharing" | "report_sharing" | "document_storage",
     text: string,
