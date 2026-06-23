@@ -203,9 +203,8 @@ function CaseloadPage() {
           </StatGrid>
 
           {/* Educator quick links — surfaces tied to caseload work */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <EducatorQuickLink to="/teacher-portal" icon={<ShieldAlert className="h-4 w-4" />} label="Teacher Portal" desc="Milestones & compliance" />
-            <EducatorQuickLink to="/meetings" icon={<CalendarClock className="h-4 w-4" />} label="Meetings" desc="Schedule & prep" />
             <EducatorQuickLink to="/meeting-templates" icon={<ClipboardCheck className="h-4 w-4" />} label="Templates" desc="Agendas & checklists" />
             <EducatorQuickLink to="/goals" icon={<Target className="h-4 w-4" />} label="Goal Tracker" desc="Transition goals" />
           </div>
