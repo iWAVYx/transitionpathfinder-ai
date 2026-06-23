@@ -1014,10 +1014,6 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const nextVersion =
       ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
 
-    const prevInputs = isV2(prevContent)
-      ? (prevContent as { inputs_used?: InputsUsed }).inputs_used
-      : undefined;
-    const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
 
     const { error: vErr } = await supabase
       .from("pathway_report_versions")
