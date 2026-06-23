@@ -292,6 +292,50 @@ export const setActionItemStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* ---------- Meeting prep persistence ---------- */
+
+export const setMeetingPrepCompleted = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ id: z.string().uuid(), completed: z.boolean() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("meeting_prep_items")
+      .update({ completed: data.completed })
+      .eq("id", data.id);
+    if (error) throw new Error("Could not update prep item.");
+    return { ok: true as const };
+  });
+
+/* ---------- Saved resources toggle ---------- */
+
+export const toggleSavedResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ resource_id: z.string().uuid(), saved: z.boolean() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    if (data.saved) {
+      const { error } = await supabase
+        .from("saved_resources")
+        .upsert(
+          { user_id: userId, resource_id: data.resource_id },
+          { onConflict: "user_id,resource_id", ignoreDuplicates: true },
+        );
+      if (error) throw new Error("Could not save resource.");
+    } else {
+      const { error } = await supabase
+        .from("saved_resources")
+        .delete()
+        .eq("user_id", userId)
+        .eq("resource_id", data.resource_id);
+      if (error) throw new Error("Could not remove saved resource.");
+    }
+    return { ok: true as const, saved: data.saved };
+  });
+
 /* ---------- Consent ---------- */
 
 export const recordConsent = createServerFn({ method: "POST" })
