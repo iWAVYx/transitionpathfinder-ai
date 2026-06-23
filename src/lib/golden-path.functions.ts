@@ -247,6 +247,7 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
             : topic
               ? `Recommended for ${topic}`
               : "Suggested for transition planning",
+          saved: savedIds.has(r.id),
           _score: matched ? 2 : 1,
         };
       })
