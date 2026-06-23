@@ -151,6 +151,8 @@ export function OwnerDashboardPage() {
             </section>
           )}
 
+          <ReviewQueuesPanel counts={queueCounts} loading={loading} />
+
           {/* Quick actions — secondary, collapsed on mobile to reduce density */}
           <CollapsibleSection
             title="Quick actions"
