@@ -39,6 +39,10 @@ import type {
   ResourceMatch,
 } from "@/lib/pathway-v2";
 import { isV2 } from "@/lib/pathway-v2";
+import {
+  ReportV2SnapshotHeader,
+  ReportV2ExtrasBody,
+} from "@/components/pathway/ReportV2Extras";
 
 export type V2Audience = "student" | "family" | "educator";
 
