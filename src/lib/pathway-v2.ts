@@ -159,6 +159,52 @@ export const InputsUsed = z.object({
 });
 export type InputsUsed = z.infer<typeof InputsUsed>;
 
+/* ---------- v2.1 additive blocks (all optional; existing reports unchanged) ---------- */
+
+export const StudentSnapshot = z.object({
+  display_name: z.string().trim().max(160).optional(),
+  grade: z.string().trim().max(40).optional(),
+  age: z.number().int().min(0).max(99).optional(),
+  school: z.string().trim().max(200).optional(),
+  district: z.string().trim().max(200).optional(),
+  case_manager: z.string().trim().max(160).optional(),
+  plan_type: z.string().trim().max(80).optional(),
+  headline: z.string().trim().max(400).optional(),
+  last_updated: z.string().trim().max(40).optional(),
+});
+export type StudentSnapshot = z.infer<typeof StudentSnapshot>;
+
+export const SPIN = z.object({
+  strengths: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
+  preferences: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
+  interests: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
+  needs: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
+});
+export type SPIN = z.infer<typeof SPIN>;
+
+export const ReadinessIndicator = z.object({
+  domain: z.string().trim().min(1).max(120),
+  level: z.enum(["emerging", "developing", "progressing", "ready"]),
+  note: z.string().trim().max(400).optional(),
+});
+export type ReadinessIndicator = z.infer<typeof ReadinessIndicator>;
+
+export const ConfidenceInfo = z.object({
+  overall: z.enum(["low", "medium", "high"]),
+  rationale: z.string().trim().max(600).optional(),
+  caveats: z.array(z.string().trim().min(1).max(280)).max(8).optional(),
+});
+export type ConfidenceInfo = z.infer<typeof ConfidenceInfo>;
+
+export const NeedsReviewFlag = z.object({
+  section: z.string().trim().min(1).max(80),
+  reason: z.string().trim().min(1).max(400),
+  owner_role: z
+    .enum(["student", "family", "case_manager", "educator", "school_team", "partner", "outside_provider"])
+    .optional(),
+});
+export type NeedsReviewFlag = z.infer<typeof NeedsReviewFlag>;
+
 /** v2 additive block grafted onto PathwayReport via JSON merge. */
 export const PathwayReportV2 = z.object({
   schema_version: z.literal(2),
@@ -186,6 +232,16 @@ export const PathwayReportV2 = z.object({
     .optional(),
   audience_messages: AudienceMessages.optional(),
   inputs_used: InputsUsed.optional(),
+
+  // --- v2.1 additive fields (all optional) ---
+  student_snapshot: StudentSnapshot.optional(),
+  spin: SPIN.optional(),
+  readiness_indicators: z.array(ReadinessIndicator).max(20).optional(),
+  confidence: ConfidenceInfo.optional(),
+  needs_review_flags: z.array(NeedsReviewFlag).max(20).optional(),
+  plain_language_summary: z.string().trim().max(2000).optional(),
+  professional_summary: z.string().trim().max(2000).optional(),
+  change_summary: z.string().trim().max(600).optional(),
 });
 export type PathwayReportV2 = z.infer<typeof PathwayReportV2>;
 
