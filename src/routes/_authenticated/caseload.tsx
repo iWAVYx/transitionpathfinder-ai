@@ -399,24 +399,13 @@ function CaseloadRow({
             {row.next_meeting_id ? "Prep Meeting" : "Schedule Meeting"}
           </Link>
         </Button>
-        {row.latest_report_id ? (
+        {row.latest_report_id && (
           <Button asChild size="sm" variant="outline">
             <Link to="/reports/$reportId" params={{ reportId: row.latest_report_id }}>
               <FileText className="h-3.5 w-3.5" /> Open Report
             </Link>
           </Button>
-        ) : (
-          <Button asChild size="sm" variant="outline">
-            <Link to="/students/$studentId" params={{ studentId: row.id }}>
-              <FileText className="h-3.5 w-3.5" /> Generate Report
-            </Link>
-          </Button>
         )}
-        <Button asChild size="sm" variant="outline">
-          <Link to="/students/$studentId" params={{ studentId: row.id }} hash="documents">
-            Upload Doc
-          </Link>
-        </Button>
       </div>
 
       {expanded && <Expanded row={row} onChanged={onChanged} />}
