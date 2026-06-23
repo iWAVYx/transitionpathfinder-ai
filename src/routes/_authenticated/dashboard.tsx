@@ -823,8 +823,22 @@ function DashboardPage() {
                               .slice(0, 4)
                               .map((p) => (
                                 <li key={p.id} className="flex items-start gap-2 text-sm">
-                                  <Circle className="mt-1 h-3 w-3 shrink-0 text-muted-foreground" />
-                                  <span>{p.content}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => togglePrepDone(p)}
+                                    aria-label={p.completed ? "Mark as not done" : "Mark as done"}
+                                    aria-pressed={p.completed}
+                                    className="mt-0.5 shrink-0"
+                                  >
+                                    {p.completed ? (
+                                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                                    ) : (
+                                      <Circle className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                  </button>
+                                  <span className={p.completed ? "line-through text-muted-foreground" : ""}>
+                                    {p.content}
+                                  </span>
                                 </li>
                               ))}
                           </ul>
