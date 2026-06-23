@@ -79,7 +79,7 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - name: Install Playwright browsers
-        run: bunx playwright install --with-deps chromium
+        run: bun run playwright:install
       - name: Role credential readiness check
         run: node tests/e2e/scripts/check-role-creds.mjs
       - name: E2E base URL reachability preflight
