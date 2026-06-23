@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   getDashboardMetrics,
   getResourceCounts,
+  getReviewQueueCounts,
   type DashboardMetrics,
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
@@ -28,6 +29,11 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
+import {
+  ReviewQueuesPanel,
+  type ReviewQueueCounts,
+} from "@/components/owner/ReviewQueuesPanel";
+import { timeAgo } from "@/lib/time-ago";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
