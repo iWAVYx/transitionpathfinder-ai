@@ -78,6 +78,30 @@ export default defineConfig({
       testMatch: /(role-leak-nav|role-access-rules)\.signedin\.spec\.ts$/,
       dependencies: ["dashboard-setup"],
     },
+    // Release-readiness suite. Public specs run anon; signed-in specs use the
+    // per-role storage states minted by dashboard-setup.
+    {
+      name: "release-public",
+      use: {
+        baseURL,
+        trace: "retain-on-failure",
+        screenshot: "only-on-failure",
+        video: "retain-on-failure",
+      },
+      testMatch:
+        /release-readiness\/(public-release-readiness|accessibility|visual-regression)\.spec\.ts$/,
+    },
+    {
+      name: "release-signedin",
+      use: {
+        baseURL,
+        trace: "retain-on-failure",
+        screenshot: "only-on-failure",
+        video: "retain-on-failure",
+      },
+      testMatch: /release-readiness\/.*\.signedin\.spec\.ts$/,
+      dependencies: ["dashboard-setup"],
+    },
   ],
   webServer: useExternal
     ? undefined
