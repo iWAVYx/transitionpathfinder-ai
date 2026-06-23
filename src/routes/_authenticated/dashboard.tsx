@@ -878,16 +878,33 @@ function DashboardPage() {
                             {r.matched_reason}
                           </p>
                         </div>
-                        {r.url && (
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="shrink-0 text-muted-foreground hover:text-primary"
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleResourceSaved(r.id, r.saved)}
+                            aria-label={r.saved ? "Remove from saved" : "Save for later"}
+                            aria-pressed={r.saved}
+                            className={
+                              "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition " +
+                              (r.saved
+                                ? "border-primary/40 bg-primary/10 text-primary"
+                                : "border-muted-foreground/20 text-muted-foreground hover:border-primary/40 hover:text-primary")
+                            }
                           >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
+                            {r.saved ? "Saved" : "Save"}
+                          </button>
+                          {r.url && (
+                            <a
+                              href={r.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-primary"
+                              aria-label="Open resource in a new tab"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </li>
                   ))}
