@@ -34,6 +34,8 @@ import {
   getDashboardSnapshot,
   seedDemoStudent,
   setActionItemStatus,
+  setMeetingPrepCompleted,
+  toggleSavedResource,
   recordConsent,
   type DashboardSnapshot,
   type ActionItemRow,
