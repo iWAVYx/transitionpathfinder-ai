@@ -158,6 +158,8 @@ function DashboardPage() {
   const fetchRoles = useServerFn(getMyRoles);
   const seed = useServerFn(seedDemoStudent);
   const setActionStatus = useServerFn(setActionItemStatus);
+  const setPrepDone = useServerFn(setMeetingPrepCompleted);
+  const toggleSaved = useServerFn(toggleSavedResource);
   const consent = useServerFn(recordConsent);
   const shareReport = useServerFn(createShareToken);
   const [sharing, setSharing] = useState(false);
