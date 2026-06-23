@@ -44,9 +44,11 @@ export function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
   const fetchResourceCounts = useServerFn(getResourceCounts);
   const fetchReviewCounts = useServerFn(adminListResourcesNeedingReview);
+  const fetchQueueCounts = useServerFn(getReviewQueueCounts);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [resourceCounts, setResourceCounts] = useState<{ published: number; drafts: number } | null>(null);
   const [reviewCounts, setReviewCounts] = useState<{ resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null>(null);
+  const [queueCounts, setQueueCounts] = useState<ReviewQueueCounts | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,14 +56,16 @@ export function OwnerDashboardPage() {
       fetchMetrics().catch(() => null),
       fetchResourceCounts().catch(() => null),
       fetchReviewCounts().catch(() => null),
+      fetchQueueCounts().catch(() => null),
     ])
-      .then(([m, r, rev]) => {
+      .then(([m, r, rev, q]) => {
         setMetrics(m);
         setResourceCounts(r);
         setReviewCounts(rev);
+        setQueueCounts(q);
       })
       .finally(() => setLoading(false));
-  }, [fetchMetrics, fetchResourceCounts, fetchReviewCounts]);
+  }, [fetchMetrics, fetchResourceCounts, fetchReviewCounts, fetchQueueCounts]);
 
   return (
     <OwnerShell
