@@ -779,6 +779,16 @@ cross_cutting_horizons summarizes the most important moves overall.
 
 inputs_used: reflect the manifest you actually drew from. Do NOT fabricate IDs.
 
+ALSO populate these v2.1 additive blocks (all optional — omit any you cannot ground in the inputs):
+- student_snapshot: { headline (1 warm sentence framing where this student is right now) }. Do NOT invent grade/age/school/district/case_manager — leave those out; the server fills them from the profile.
+- spin: { strengths[], preferences[], interests[], needs[] } — short noun phrases, deduped, grounded in profile + student voice + IEP extractions. Skip arrays you cannot ground.
+- readiness_indicators: omit — the server computes these deterministically from readiness_scores.
+- confidence: { overall: 'low'|'medium'|'high', rationale (1 sentence), caveats[] (1-4 short notes about what's thin). Base 'overall' on how many of the manifest inputs are present.
+- needs_review_flags: 1-6 items flagging sections that need human review (e.g. AI-extracted IEP goals, gaps in student voice). Each: { section, reason, owner_role? }.
+- plain_language_summary: 2-4 sentence summary written FOR THE FAMILY/STUDENT at a 6th-grade level, warm and concrete.
+- professional_summary: 2-4 sentence summary written FOR EDUCATORS using transition-planning language (Indicator 13-adjacent), still plain but precise.
+Do NOT populate 'change_summary' — the server fills it from the input-manifest diff.
+
 STUDENT
 First name: ${s.first_name}
 Grade band: ${s.grade_band ?? "(unknown)"}
