@@ -779,6 +779,16 @@ cross_cutting_horizons summarizes the most important moves overall.
 
 inputs_used: reflect the manifest you actually drew from. Do NOT fabricate IDs.
 
+ALSO populate these v2.1 additive blocks (all optional — omit any you cannot ground in the inputs):
+- student_snapshot: { headline (1 warm sentence framing where this student is right now) }. Do NOT invent grade/age/school/district/case_manager — leave those out; the server fills them from the profile.
+- spin: { strengths[], preferences[], interests[], needs[] } — short noun phrases, deduped, grounded in profile + student voice + IEP extractions. Skip arrays you cannot ground.
+- readiness_indicators: omit — the server computes these deterministically from readiness_scores.
+- confidence: { overall: 'low'|'medium'|'high', rationale (1 sentence), caveats[] (1-4 short notes about what's thin). Base 'overall' on how many of the manifest inputs are present.
+- needs_review_flags: 1-6 items flagging sections that need human review (e.g. AI-extracted IEP goals, gaps in student voice). Each: { section, reason, owner_role? }.
+- plain_language_summary: 2-4 sentence summary written FOR THE FAMILY/STUDENT at a 6th-grade level, warm and concrete.
+- professional_summary: 2-4 sentence summary written FOR EDUCATORS using transition-planning language (Indicator 13-adjacent), still plain but precise.
+Do NOT populate 'change_summary' — the server fills it from the input-manifest diff.
+
 STUDENT
 First name: ${s.first_name}
 Grade band: ${s.grade_band ?? "(unknown)"}
@@ -946,17 +956,51 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const seen = new Set(aiGaps.map((g) => g.topic.toLowerCase()));
     const mergedGaps = [...aiGaps, ...determined.filter((g) => !seen.has(g.topic.toLowerCase()))];
 
+    // Deterministic v2.1 backfills — never trust the AI for grounded facts.
+    const scoreToLevel = (s: number | null): "emerging" | "developing" | "progressing" | "ready" => {
+      const n = s ?? 0;
+      if (n >= 76) return "ready";
+      if (n >= 51) return "progressing";
+      if (n >= 26) return "developing";
+      return "emerging";
+    };
+    const readiness_indicators = ctx.readiness
+      .filter((r) => !!r.category)
+      .slice(0, 20)
+      .map((r) => ({
+        domain: r.category,
+        level: scoreToLevel(r.score),
+        note: r.score != null ? `Score ${r.score}/100` : undefined,
+      }));
+
+    const aiSnapshot = v2.student_snapshot ?? {};
+    const student_snapshot = {
+      ...aiSnapshot,
+      display_name: [ctx.student.first_name, ctx.student.last_name].filter(Boolean).join(" ") || aiSnapshot.display_name,
+      grade: ctx.student.grade_band ?? aiSnapshot.grade,
+      last_updated: new Date().toISOString().slice(0, 10),
+    };
+
     // Build the next content payload: keep legacy v1 fields, graft v2 on top.
     const prevContent =
       typeof rep.content === "object" && rep.content !== null
         ? (rep.content as Record<string, unknown>)
         : {};
+
+    const prevInputs = isV2(prevContent)
+      ? (prevContent as { inputs_used?: InputsUsed }).inputs_used
+      : undefined;
+    const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
+
     const nextContent: Record<string, unknown> = {
       ...prevContent,
       ...v2,
       schema_version: 2,
       missing_information_v2: mergedGaps,
       inputs_used,
+      student_snapshot,
+      readiness_indicators: readiness_indicators.length > 0 ? readiness_indicators : v2.readiness_indicators,
+      change_summary,
     };
 
     // Snapshot + overwrite via updateReportContent path (manual to avoid round-trip).
@@ -970,10 +1014,6 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const nextVersion =
       ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
 
-    const prevInputs = isV2(prevContent)
-      ? (prevContent as { inputs_used?: InputsUsed }).inputs_used
-      : undefined;
-    const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
 
     const { error: vErr } = await supabase
       .from("pathway_report_versions")
