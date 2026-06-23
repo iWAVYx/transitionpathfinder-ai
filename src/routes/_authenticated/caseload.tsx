@@ -535,9 +535,6 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
             </SelectContent>
           </Select>
           <div className="ml-auto flex gap-2">
-            <Button asChild size="sm" variant="outline">
-              <Link to="/students/$studentId" params={{ studentId: row.id }}>View Transition Details</Link>
-            </Button>
             <Button type="submit" size="sm" disabled={savingAction || !actionTitle.trim()}>
               {savingAction ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Assign
             </Button>
