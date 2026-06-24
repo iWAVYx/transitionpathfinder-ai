@@ -1,4 +1,4 @@
-import { DEMO_FEATURE_MAP, type DemoElementId } from "@/lib/demo/feature-map";
+import { getDemoFeature, type DemoElementId, type DemoFeatureEntry } from "@/lib/demo/feature-map";
 import { cn } from "@/lib/utils";
 
 interface FeatureFootnoteProps {
@@ -24,7 +24,7 @@ const STATUS_CLASS: Record<string, string> = {
  * sync with the audit registry.
  */
 export function FeatureFootnote({ elementId, className }: FeatureFootnoteProps) {
-  const entry = DEMO_FEATURE_MAP[elementId];
+  const entry: DemoFeatureEntry | undefined = getDemoFeature(elementId);
   if (!entry) return null;
 
   return (
