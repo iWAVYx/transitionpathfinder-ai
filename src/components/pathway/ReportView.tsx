@@ -1755,6 +1755,7 @@ export function ReportView({
         }
       `}</style>
     </section>
+    </div>
   );
 }
 
