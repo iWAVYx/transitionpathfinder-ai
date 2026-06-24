@@ -90,17 +90,56 @@ export const registerDocument = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Hard partner deny — RLS would block this anyway, but we want a clean error.
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const roleList = (roles ?? []).map((r) => r.role as string);
+    const isPartnerOnly =
+      roleList.includes("partner") &&
+      !roleList.some((r) =>
+        ["student","parent","guardian","educator","teacher","case_manager","school_admin","district_admin","admin"].includes(r),
+      );
+    if (isPartnerOnly) {
+      throw new Error("Partner accounts cannot upload documents to student records.");
+    }
+
+    // Pick the most specific uploader role for audit metadata.
+    const priority = ["student","parent","guardian","case_manager","educator","teacher","school_admin","district_admin","admin"];
+    const uploaderRole = priority.find((r) => roleList.includes(r)) ?? roleList[0] ?? null;
+
+    // Find an active org membership to stamp on the doc (best-effort).
+    const { data: org } = await supabase
+      .from("organization_memberships")
+      .select("organization_id")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+
+    // Sensitive document types require an explicit consent acknowledgment.
+    const sensitive = ["iep","current-iep","previous-iep","evaluation","transition-plan"];
+    if (sensitive.includes(data.doc_type) && !data.consent_acknowledged) {
+      throw new Error("Please confirm you are authorized to upload this document before continuing.");
+    }
+
     const { data: row, error } = await supabase
       .from("documents")
       .insert({
         student_id: data.student_id,
         uploaded_by: userId,
+        uploaded_by_role: uploaderRole,
+        organization_id: org?.organization_id ?? null,
         title: data.title,
         storage_path: data.storage_path,
         mime_type: data.mime_type ?? null,
         size_bytes: data.size_bytes ?? null,
         doc_type: data.doc_type,
         visibility: data.visibility,
+        review_status: "pending_review",
+        consent_required: sensitive.includes(data.doc_type),
         school_year: data.school_year ?? null,
         meeting_date: data.meeting_date ?? null,
         effective_date: data.effective_date ?? null,
@@ -145,29 +184,139 @@ export const registerDocument = createServerFn({ method: "POST" })
         doc_type: data.doc_type,
         visibility: data.visibility,
         consent: data.consent_acknowledged,
+        uploader_role: uploaderRole,
+        organization_id: org?.organization_id ?? null,
       },
+    });
+
+    // Structured document access log
+    await supabase.from("document_access_log").insert({
+      document_id: row.id,
+      student_id: data.student_id,
+      actor_id: userId,
+      actor_role: uploaderRole,
+      action: "upload",
+      metadata: { doc_type: data.doc_type, visibility: data.visibility },
     });
 
     return row as DocumentRow;
   });
 
-
-
-export const deleteDocument = createServerFn({ method: "POST" })
+/**
+ * Soft-archive a document. The file is retained but hidden from active views.
+ * Editors can restore via the same fn with `restore: true`. Hard delete is
+ * reserved to platform admins via `hardDeleteDocument`.
+ */
+export const archiveDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().uuid(),
+    reason: z.string().trim().max(500).optional(),
+    restore: z.boolean().optional(),
+  }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: row } = await supabase
+    const { supabase, userId } = context;
+    const { data: row, error: readErr } = await supabase
       .from("documents")
-      .select("storage_path")
+      .select("id, student_id")
       .eq("id", data.id)
       .maybeSingle();
-    if (row?.storage_path) {
-      await supabase.storage.from("student-documents").remove([row.storage_path]);
+    if (readErr || !row) throw new Error("Document not found or access denied.");
+
+    const patch = data.restore
+      ? { archived_at: null, archived_by: null, archive_reason: null }
+      : { archived_at: new Date().toISOString(), archived_by: userId, archive_reason: data.reason ?? null };
+
+    const { error } = await supabase.from("documents").update(patch).eq("id", data.id);
+    if (error) throw new Error("Could not update document.");
+
+    await supabase.from("document_access_log").insert({
+      document_id: row.id,
+      student_id: row.student_id,
+      actor_id: userId,
+      action: data.restore ? "restore" : "archive",
+      reason: data.reason ?? null,
+    });
+
+    return { ok: true };
+  });
+
+/**
+ * Hard delete — restricted to platform admins, requires a reason, fully audited.
+ * Removes the storage object and the DB row.
+ */
+export const hardDeleteDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    id: z.string().uuid(),
+    reason: z.string().trim().min(8, "Reason must be at least 8 characters.").max(500),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("is_platform_admin", { _user_id: userId });
+    if (!isAdmin) throw new Error("Only platform admins may permanently delete documents.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: doc } = await supabaseAdmin
+      .from("documents")
+      .select("id, student_id, storage_path")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!doc) throw new Error("Document not found.");
+
+    if (doc.storage_path) {
+      await supabaseAdmin.storage.from("student-documents").remove([doc.storage_path]);
     }
-    const { error } = await supabase.from("documents").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("documents").delete().eq("id", data.id);
     if (error) throw new Error("Could not delete document.");
+
+    await supabaseAdmin.from("document_access_log").insert({
+      document_id: doc.id,
+      student_id: doc.student_id,
+      actor_id: userId,
+      action: "hard_delete",
+      reason: data.reason,
+    });
+    await supabaseAdmin.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.hard_delete",
+      entity_type: "document",
+      entity_id: doc.id,
+      student_id: doc.student_id,
+      metadata: { reason: data.reason },
+    });
+
+    return { ok: true };
+  });
+
+/**
+ * Back-compat shim: existing UI call sites use `deleteDocument`.
+ * Soft-archive instead of hard-delete by default.
+ */
+export const deleteDocument = archiveDocument;
+
+/**
+ * Server-side guard for the upload flow: confirm the caller has edit access
+ * on the student before they begin uploading bytes into storage. This gives
+ * a clean error UX rather than a raw storage 403 if the relationship was
+ * revoked between page load and submit.
+ */
+export const assertCanUploadForStudent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: ok } = await supabase.rpc("can_edit_student", {
+      _user_id: userId,
+      _student_id: data.student_id,
+    });
+    const { data: partner } = await supabase.rpc("is_partner_only", { _user_id: userId });
+    if (partner) {
+      throw new Error("Partner accounts cannot upload documents to student records.");
+    }
+    if (!ok) {
+      throw new Error("You don't have permission to upload documents for this student.");
+    }
     return { ok: true };
   });
 
@@ -266,7 +415,73 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
       },
     });
 
+    await supabase.from("document_access_log").insert({
+      document_id: row.id,
+      student_id: row.student_id,
+      actor_id: userId,
+      actor_role: role,
+      action: "download",
+      metadata: { doc_type: row.doc_type, ttl_seconds: 300 },
+    });
+
     return { url: signed.signedUrl };
+  });
+
+/**
+ * Platform-admin override: create a short-lived (15 min) grant that allows
+ * the admin to read a single student document. RLS reads `admin_doc_access_grants`
+ * to permit the row + storage object. Every override is logged.
+ */
+export const requestAdminDocAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    document_id: z.string().uuid(),
+    reason: z.string().trim().min(8, "Please describe why this access is needed.").max(500),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("is_platform_admin", { _user_id: userId });
+    if (!isAdmin) throw new Error("Only platform admins may request override access.");
+
+    const { error: grantErr } = await supabase.from("admin_doc_access_grants").insert({
+      actor_id: userId,
+      document_id: data.document_id,
+      reason: data.reason,
+    });
+    if (grantErr) throw new Error("Could not record override grant.");
+
+    // Now that the grant exists, RLS lets us load metadata + mint a URL.
+    const { data: doc } = await supabase
+      .from("documents")
+      .select("id, student_id, storage_path, doc_type, title")
+      .eq("id", data.document_id)
+      .maybeSingle();
+    if (!doc) throw new Error("Document not found.");
+
+    const { data: signed, error: signErr } = await supabase.storage
+      .from("student-documents")
+      .createSignedUrl(doc.storage_path, 300);
+    if (signErr || !signed) throw new Error("Could not generate link.");
+
+    await supabase.from("document_access_log").insert({
+      document_id: doc.id,
+      student_id: doc.student_id,
+      actor_id: userId,
+      actor_role: "platform_admin",
+      action: "admin_override",
+      reason: data.reason,
+      metadata: { doc_type: doc.doc_type, ttl_seconds: 300 },
+    });
+    await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.admin_override",
+      entity_type: "document",
+      entity_id: doc.id,
+      student_id: doc.student_id,
+      metadata: { reason: data.reason, doc_type: doc.doc_type, title: doc.title },
+    });
+
+    return { url: signed.signedUrl, expiresInSeconds: 300 };
   });
 
 /* ---------- AI: extract goals from IEP text ---------- */

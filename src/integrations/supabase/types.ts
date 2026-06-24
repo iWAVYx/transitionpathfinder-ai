@@ -223,6 +223,41 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_doc_access_grants: {
+        Row: {
+          actor_id: string
+          created_at: string
+          document_id: string
+          expires_at: string
+          id: string
+          reason: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          document_id: string
+          expires_at?: string
+          id?: string
+          reason: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          document_id?: string
+          expires_at?: string
+          id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_doc_access_grants_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_invitations: {
         Row: {
           accepted_at: string | null
@@ -1426,6 +1461,57 @@ export type Database = {
         }
         Relationships: []
       }
+      document_access_log: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_role: string | null
+          created_at: string
+          document_id: string
+          id: string
+          metadata: Json | null
+          reason: string | null
+          student_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          actor_role?: string | null
+          created_at?: string
+          document_id: string
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          student_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_role?: string | null
+          created_at?: string
+          document_id?: string
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_log_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_log_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_extractions: {
         Row: {
           created_at: string
@@ -1618,8 +1704,15 @@ export type Database = {
       documents: {
         Row: {
           annual_review_date: string | null
+          archive_reason: string | null
+          archived_at: string | null
+          archived_by: string | null
           consent_acknowledged_at: string | null
+          consent_required: boolean
           created_at: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           doc_type: string
           document_category: string
           effective_date: string | null
@@ -1630,9 +1723,11 @@ export type Database = {
           meeting_date: string | null
           mime_type: string | null
           notes: string | null
+          organization_id: string | null
           parsed_summary: Json | null
           reevaluation_date: string | null
           review_date: string | null
+          review_status: string
           school_year: string | null
           size_bytes: number | null
           source: string | null
@@ -1642,12 +1737,20 @@ export type Database = {
           title: string
           updated_at: string
           uploaded_by: string
+          uploaded_by_role: string | null
           visibility: string
         }
         Insert: {
           annual_review_date?: string | null
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           consent_acknowledged_at?: string | null
+          consent_required?: boolean
           created_at?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           doc_type?: string
           document_category?: string
           effective_date?: string | null
@@ -1658,9 +1761,11 @@ export type Database = {
           meeting_date?: string | null
           mime_type?: string | null
           notes?: string | null
+          organization_id?: string | null
           parsed_summary?: Json | null
           reevaluation_date?: string | null
           review_date?: string | null
+          review_status?: string
           school_year?: string | null
           size_bytes?: number | null
           source?: string | null
@@ -1670,12 +1775,20 @@ export type Database = {
           title: string
           updated_at?: string
           uploaded_by: string
+          uploaded_by_role?: string | null
           visibility?: string
         }
         Update: {
           annual_review_date?: string | null
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           consent_acknowledged_at?: string | null
+          consent_required?: boolean
           created_at?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           doc_type?: string
           document_category?: string
           effective_date?: string | null
@@ -1686,9 +1799,11 @@ export type Database = {
           meeting_date?: string | null
           mime_type?: string | null
           notes?: string | null
+          organization_id?: string | null
           parsed_summary?: Json | null
           reevaluation_date?: string | null
           review_date?: string | null
+          review_status?: string
           school_year?: string | null
           size_bytes?: number | null
           source?: string | null
@@ -1698,9 +1813,17 @@ export type Database = {
           title?: string
           updated_at?: string
           uploaded_by?: string
+          uploaded_by_role?: string | null
           visibility?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "documents_student_id_fkey"
             columns: ["student_id"]
@@ -6274,6 +6397,10 @@ export type Database = {
         Args: { _audience: string; _user_id: string }
         Returns: boolean
       }
+      has_recent_admin_doc_access: {
+        Args: { _document_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -6290,6 +6417,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      is_partner_only: { Args: { _user_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
@@ -6327,6 +6455,10 @@ export type Database = {
           created_at: string
           report_id: string
         }[]
+      }
+      storage_can_read_student_doc: {
+        Args: { _path: string; _user_id: string }
+        Returns: boolean
       }
       track_share_view: { Args: { _token: string }; Returns: undefined }
       user_has_feature: {
@@ -6404,6 +6536,9 @@ export type Database = {
         | "view_document"
         | "edit_metadata"
         | "manage"
+        | "download_document"
+        | "request_summary"
+        | "review_document"
       partner_opportunity_type:
         | "internship"
         | "job_shadowing"
@@ -6697,6 +6832,9 @@ export const Constants = {
         "view_document",
         "edit_metadata",
         "manage",
+        "download_document",
+        "request_summary",
+        "review_document",
       ],
       partner_opportunity_type: [
         "internship",
