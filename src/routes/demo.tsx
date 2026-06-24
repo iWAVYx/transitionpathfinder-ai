@@ -20,7 +20,11 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DEMO_STUDENTS, getDemoStudent, type DemoStudentId } from "@/lib/demo-data";
-import { validateStudentSearch } from "@/components/site/DemoStepBar";
+import {
+  DEFAULT_DEMO_STUDENT,
+  demoStudentSearch,
+  validateStudentSearch,
+} from "@/components/site/DemoStepBar";
 import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/demo")({
@@ -127,7 +131,9 @@ const STEPS = [
 ];
 
 function DemoIndex() {
-  const { s = "maya" as const } = Route.useSearch();
+  const search = Route.useSearch();
+  const s = search.s ?? DEFAULT_DEMO_STUDENT;
+  const preservedStudentSearch = demoStudentSearch(search.s);
   const bundle = getDemoStudent(s);
   const { profile: student } = bundle;
 
@@ -222,7 +228,7 @@ function DemoIndex() {
               <Link
                 key={step.title}
                 to={step.to}
-                search={{ s }}
+                {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
                 className="group block w-full rounded-3xl border bg-card p-6 shadow-soft transition-shadow hover:shadow-lift sm:flex-1 sm:min-w-[280px] sm:max-w-sm"
               >
                 <div className="flex items-center justify-between">
@@ -258,7 +264,7 @@ function DemoIndex() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="lg">
-              <Link to="/demo/intake" search={{ s }}>
+              <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
                 Start the demo <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

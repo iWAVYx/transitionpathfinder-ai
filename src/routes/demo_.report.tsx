@@ -5,6 +5,7 @@ import { useRef } from "react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import {
+  DEFAULT_DEMO_STUDENT,
   DemoStepBar,
   DemoStepFooter,
   validateStudentSearch,
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/demo_/report")({
 });
 
 function DemoReportPage() {
-  const { s = "maya" as const } = Route.useSearch();
+  const { s = DEFAULT_DEMO_STUDENT } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile: student, report, reportId, issued } = bundle;
 

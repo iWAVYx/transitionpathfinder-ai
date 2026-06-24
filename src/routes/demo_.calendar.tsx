@@ -14,8 +14,10 @@ import {
 
 import { SiteShell } from "@/components/site/SiteShell";
 import {
+  DEFAULT_DEMO_STUDENT,
   DemoStepBar,
   DemoStepFooter,
+  demoStudentSearch,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +53,9 @@ export const Route = createFileRoute("/demo_/calendar")({
 });
 
 function DemoCalendarPage() {
-  const { s = "maya" as const } = Route.useSearch();
+  const search = Route.useSearch();
+  const s = search.s ?? DEFAULT_DEMO_STUDENT;
+  const preservedStudentSearch = demoStudentSearch(search.s);
   const bundle = getDemoStudent(s);
   const { profile, nextMeetingDate } = bundle;
   const events = buildDemoCalendarEvents(bundle);
@@ -84,7 +88,7 @@ function DemoCalendarPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link to="/demo/meeting" search={{ s }}>
+                <Link to="/demo/meeting" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
                   <Users className="h-4 w-4" /> Open Meeting Prep
                 </Link>
               </Button>
@@ -163,7 +167,7 @@ function DemoCalendarPage() {
                 </li>
               </ul>
               <Button asChild variant="outline" size="sm" className="mt-4 w-full">
-                <Link to="/demo/plan" search={{ s }}>
+                <Link to="/demo/plan" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
                   See the 30-Day Plan <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

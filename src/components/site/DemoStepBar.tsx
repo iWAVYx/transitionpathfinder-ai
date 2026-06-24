@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -59,12 +59,9 @@ interface Props {
 }
 
 export function DemoStepBar({ current, student }: Props) {
-  const idx = DEMO_STEPS.findIndex((s) => s.id === current);
-  const prev = idx > 0 ? DEMO_STEPS[idx - 1] : null;
-  const next = idx < DEMO_STEPS.length - 1 ? DEMO_STEPS[idx + 1] : null;
-  const bundle = DEMO_STUDENTS[student];
-  const otherId: DemoStudentId = student === "maya" ? "jordan" : "maya";
-  const other = DEMO_STUDENTS[otherId];
+  const location = useLocation();
+  const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
+  const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
 
   return (
     <div className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-16 z-30">
@@ -113,7 +110,7 @@ export function DemoStepBar({ current, student }: Props) {
               <Link
                 key={s.id}
                 to={s.to}
-                search={{ s: student }}
+                {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
                 className={`group inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors snap-start ${
                   active
                     ? "border-primary bg-primary text-primary-foreground"
@@ -137,10 +134,13 @@ interface FooterProps {
 }
 
 export function DemoStepFooter({ current, student }: FooterProps) {
+  const location = useLocation();
   const idx = DEMO_STEPS.findIndex((s) => s.id === current);
   const prev = idx > 0 ? DEMO_STEPS[idx - 1] : null;
   const next = idx < DEMO_STEPS.length - 1 ? DEMO_STEPS[idx + 1] : null;
   const bundle = DEMO_STUDENTS[student];
+  const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
+  const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
 
   return (
     <div className="mx-auto mt-12 max-w-6xl border-t border-border/60 px-4 sm:px-6 lg:px-8">
@@ -153,7 +153,7 @@ export function DemoStepFooter({ current, student }: FooterProps) {
         <div className="flex gap-2">
           {prev ? (
             <Button asChild variant="outline" size="sm">
-              <Link to={prev.to} search={{ s: student }}>
+              <Link to={prev.to} {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
                 <ArrowLeft className="h-4 w-4" /> {prev.label}
               </Link>
             </Button>
@@ -166,7 +166,7 @@ export function DemoStepFooter({ current, student }: FooterProps) {
           )}
           {next ? (
             <Button asChild size="sm">
-              <Link to={next.to} search={{ s: student }}>
+              <Link to={next.to} {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
                 {next.label} <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -186,6 +186,16 @@ export function DemoStepFooter({ current, student }: FooterProps) {
 /** Default demo student when no `?s=` is present on the URL. */
 export const DEFAULT_DEMO_STUDENT: DemoStudentId = "maya";
 
+export function getExplicitDemoStudent(search: { s?: unknown }): DemoStudentId | undefined {
+  if (search?.s === "jordan") return "jordan";
+  if (search?.s === "maya") return "maya";
+  return undefined;
+}
+
+export function demoStudentSearch(student?: DemoStudentId): { s: DemoStudentId } | undefined {
+  return student ? { s: student } : undefined;
+}
+
 /**
  * Shared search validator for `?s=maya|jordan`.
  *
@@ -195,7 +205,6 @@ export const DEFAULT_DEMO_STUDENT: DemoStudentId = "maya";
  * when `s` is omitted.
  */
 export function validateStudentSearch(s: { s?: unknown }): { s?: DemoStudentId } {
-  if (s?.s === "jordan") return { s: "jordan" };
-  if (s?.s === "maya") return { s: "maya" };
-  return {};
+  const student = getExplicitDemoStudent(s);
+  return student ? { s: student } : {};
 }
