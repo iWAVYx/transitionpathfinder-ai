@@ -385,3 +385,451 @@ export const DEMO_ROLE_VIEWS: { id: DemoRoleView; label: string; tagline: string
   { id: "partner", label: "Partner", tagline: "Opportunities, statuses, incentives — no PII." },
   { id: "platform", label: "Platform Admin", tagline: "Queues, approvals, moderation, system health." },
 ];
+
+// ---------------------------------------------------------------------------
+// Per-step × per-role lens content
+//
+// Used by <DemoRoleLens /> on every demo step so the same role choice
+// changes what each step emphasizes. Copy is intentionally short — the
+// lens reframes, it doesn't replace the page body.
+// ---------------------------------------------------------------------------
+
+export type DemoLensStep =
+  | "intake"
+  | "report"
+  | "resources"
+  | "opportunities"
+  | "plan"
+  | "hub";
+
+export interface DemoLensContent {
+  /** One-sentence framing of what this role sees on this step. */
+  headline: string;
+  /** 3 short bullets — what this role is looking at / can do here. */
+  bullets: string[];
+  /** Short "why this matters for this role" line. */
+  why: string;
+  /** Optional privacy note when the role is intentionally restricted. */
+  privacy?: string;
+}
+
+export const DEMO_STEP_LENSES: Record<
+  DemoLensStep,
+  Record<DemoRoleView, DemoLensContent>
+> = {
+  intake: {
+    student: {
+      headline: "These answers are in your voice — you can change anything before it gets shared.",
+      bullets: [
+        "Read what your team wrote about your strengths and interests.",
+        "Add or correct anything that doesn't sound like you.",
+        "Pick the answers you want to share at your next meeting.",
+      ],
+      why: "Your voice anchors the plan — everything downstream weighs it first.",
+    },
+    parent: {
+      headline: "The full guided intake your family filled out, in one scrollable view.",
+      bullets: [
+        "Confirm strengths, supports, and family concerns are accurate.",
+        "Flag anything you want the case manager to revisit.",
+        "Add a note before the next meeting if priorities have shifted.",
+      ],
+      why: "Families stay informed without having to retype answers across forms.",
+    },
+    educator: {
+      headline: "Intake highlights the inputs you'll use to draft the Pathway Report.",
+      bullets: [
+        "Cross-check student voice against IEP goals and observations.",
+        "Note gaps (missing transportation, communication preference, etc.).",
+        "Add your educator input — it shows up labeled in the report.",
+      ],
+      why: "Fewer duplicated questionnaires. The team starts from one source.",
+    },
+    school: {
+      headline: "Aggregate view — intake completion rates and missing fields across caseloads.",
+      bullets: [
+        "See completion percentage by grade band and case manager.",
+        "Identify fields most often left blank (transportation, self-advocacy).",
+        "No private answers surfaced at this level.",
+      ],
+      why: "Spot implementation gaps without ever opening an individual student.",
+      privacy: "Private intake content is hidden at the school level.",
+    },
+    district: {
+      headline: "School-by-school intake adoption — same shape, district-wide.",
+      bullets: [
+        "Adoption rates per school and per grade band.",
+        "Where families need more outreach to complete intake.",
+        "Trends over time, no PII.",
+      ],
+      why: "Decide where to direct support resources, with evidence.",
+      privacy: "District view is aggregate only — no student answers.",
+    },
+    partner: {
+      headline: "Partners don't see intake.",
+      bullets: [
+        "Partners receive opportunity-level interest, not private answers.",
+        "Profile data flowing from intake is shielded.",
+        "If a student opts in to an opportunity, only the named contact is shared.",
+      ],
+      why: "Partners stay outside the consent boundary by default.",
+      privacy: "Intake answers are never shared with partners.",
+    },
+    platform: {
+      headline: "Intake throughput, validation errors, and onboarding funnel.",
+      bullets: [
+        "Submission counts, drop-off steps, validation failures.",
+        "Spot fields where wording or examples need revision.",
+        "Admin access is logged for every aggregate query.",
+      ],
+      why: "Keep the intake form working for everyone, everywhere.",
+      privacy: "Operational metrics only — no student answers exposed.",
+    },
+  },
+  report: {
+    student: {
+      headline: "Your Pathway Report, in plain language — built from your voice first.",
+      bullets: [
+        "Read your strengths, interests, and recommended next pathways.",
+        "Expand any section to see what backs the recommendation.",
+        "Save what you want to bring to your next meeting.",
+      ],
+      why: "Confidence comes from understanding why the plan looks the way it does.",
+    },
+    parent: {
+      headline: "The shared Pathway Report — read it like a letter, not a form.",
+      bullets: [
+        "Family Priorities sit at the top, alongside student voice.",
+        "Source labels show what came from the IEP vs. the family.",
+        "Use 'Open Meeting Prep' to walk into the next PPT prepared.",
+      ],
+      why: "Families don't have to translate jargon to participate fully.",
+    },
+    educator: {
+      headline: "Educator review queue — flag, edit, or approve before sharing.",
+      bullets: [
+        "Each section is editable with rationale fields.",
+        "Compare AI draft vs. last version side-by-side.",
+        "Approve once — family + student see the same version.",
+      ],
+      why: "Cuts report drafting time so you can focus on planning.",
+    },
+    school: {
+      headline: "Implementation snapshot — reports completed, in review, overdue.",
+      bullets: [
+        "Counts by case manager, grade, and report status.",
+        "Time-to-complete trends over the last quarter.",
+        "Drill-down opens an educator view, not a private profile.",
+      ],
+      why: "Confirm reports are moving without reading their contents.",
+      privacy: "Report content is hidden at the school admin level.",
+    },
+    district: {
+      headline: "Report adoption + completion across schools.",
+      bullets: [
+        "School-by-school report completion rates.",
+        "Equity view: which student groups have completed reports.",
+        "Aggregate — no individual report contents.",
+      ],
+      why: "Make district-wide rollout decisions from real evidence.",
+      privacy: "District view never exposes report contents.",
+    },
+    partner: {
+      headline: "Partners don't see the Pathway Report.",
+      bullets: [
+        "Partners only see opportunity-level interest signals.",
+        "No goals, no IEP language, no health information.",
+        "If shared, only the fields the family explicitly opts in.",
+      ],
+      why: "Partners stay outside the report consent boundary by default.",
+      privacy: "Reports are never shared with partners.",
+    },
+    platform: {
+      headline: "Report generation health — model latency, error rates, version drift.",
+      bullets: [
+        "Draft-time and approval-time percentiles.",
+        "Failed generations + retry queue.",
+        "Version comparison sampling for quality.",
+      ],
+      why: "Keep the report engine reliable and reviewable.",
+      privacy: "Operational metrics only — no report contents.",
+    },
+  },
+  resources: {
+    student: {
+      headline: "Resources matched to you — what it is, why it helps, how to use it.",
+      bullets: [
+        "Save the ones you want to come back to.",
+        "Each card explains 'why this matches me'.",
+        "Filter by what you're working on right now.",
+      ],
+      why: "You can use a resource without asking 'what is this?' first.",
+    },
+    parent: {
+      headline: "Resources for your family — picked to match the plan.",
+      bullets: [
+        "Filter to family-facing materials and CT-specific services.",
+        "Save resources to revisit with your student.",
+        "Each card shows 'how to use it' so you're not guessing.",
+      ],
+      why: "Less time researching, more time supporting.",
+    },
+    educator: {
+      headline: "Resources you can assign or share into the action plan.",
+      bullets: [
+        "Filter by category, format, and grade band.",
+        "Attach a resource directly to a goal or 30-day step.",
+        "Sample worksheets and family-friendly explainers built in.",
+      ],
+      why: "Spend planning time on the student, not on link hunting.",
+    },
+    school: {
+      headline: "Which resources caseloads are actually using.",
+      bullets: [
+        "Top-used resources by category.",
+        "Coverage gaps (categories with no engagement).",
+        "Aggregate — no per-student detail.",
+      ],
+      why: "Invest staff time in the resources teams already trust.",
+      privacy: "Aggregate use only — no student-level activity.",
+    },
+    district: {
+      headline: "Resource adoption across schools — see what's working district-wide.",
+      bullets: [
+        "Compare resource use by school.",
+        "Spot equity gaps in resource reach.",
+        "Plan PD or family events around top categories.",
+      ],
+      why: "Spread what works, replace what doesn't.",
+      privacy: "Aggregate use only.",
+    },
+    partner: {
+      headline: "Partner-contributed resources show up here too.",
+      bullets: [
+        "See which of your resources are surfacing to which categories.",
+        "Update your descriptions and next-step instructions.",
+        "Anonymous engagement counts — no student identities.",
+      ],
+      why: "Improve the resources you offer based on real engagement.",
+      privacy: "No student identifying information.",
+    },
+    platform: {
+      headline: "Resource catalog moderation + quality.",
+      bullets: [
+        "Approve, edit, or retire submitted resources.",
+        "Flagged content queue.",
+        "Engagement trends by category.",
+      ],
+      why: "Keep the catalog trustworthy and current.",
+      privacy: "Operational metrics only.",
+    },
+  },
+  opportunities: {
+    student: {
+      headline: "Real programs, apprenticeships, and shadow days matched to your goals.",
+      bullets: [
+        "Each card shows eligibility and the very next step.",
+        "Save ones you want to discuss with family.",
+        "Opt in to share interest — only then is your name shared.",
+      ],
+      why: "See what's actually available, not just what's in a brochure.",
+    },
+    parent: {
+      headline: "Opportunities matched to your child — with eligibility in plain language.",
+      bullets: [
+        "Filter by program type and location.",
+        "Bookmark for the next conversation with the case manager.",
+        "You control whether interest is shared with the partner.",
+      ],
+      why: "Families compare options without having to call each provider.",
+    },
+    educator: {
+      headline: "Opportunities to fold into goals, the action plan, or meeting prep.",
+      bullets: [
+        "Attach an opportunity directly to a 30/60/90-day step.",
+        "See match rationale (what in the plan triggered it).",
+        "Track which referrals have moved into next-step status.",
+      ],
+      why: "Turn matches into measurable action quickly.",
+    },
+    school: {
+      headline: "Opportunity engagement across the caseload.",
+      bullets: [
+        "Counts of matches, saves, and outreach by category.",
+        "Trends by partner type (apprenticeship, employment, college).",
+        "Aggregate — no per-student detail.",
+      ],
+      why: "Confirm partners are reaching students in the right mix.",
+      privacy: "Aggregate only.",
+    },
+    district: {
+      headline: "Opportunity reach across schools — and where the gaps are.",
+      bullets: [
+        "Compare match volume school-by-school.",
+        "Identify partner-thin geographies.",
+        "Plan partner recruitment with evidence.",
+      ],
+      why: "Build a partner network that matches student demand.",
+      privacy: "Aggregate only.",
+    },
+    partner: {
+      headline: "Your opportunities — how many students are matched, saved, or interested.",
+      bullets: [
+        "Edit eligibility, location, and next steps.",
+        "Anonymous interest counts at the opportunity level.",
+        "PartnerForward incentives surface here.",
+      ],
+      why: "Reach more of the right students without ever seeing private data.",
+      privacy: "Strict opportunity-level privacy — no PII.",
+    },
+    platform: {
+      headline: "Opportunity catalog operations.",
+      bullets: [
+        "Approval queue for new partner opportunities.",
+        "Flagged content moderation.",
+        "Match volume and quality metrics.",
+      ],
+      why: "Keep the partner catalog clean and credible.",
+      privacy: "Operational metrics only.",
+    },
+  },
+  plan: {
+    student: {
+      headline: "Your 30 / 60 / 90-day plan — one step at a time.",
+      bullets: [
+        "Each step lists who owns it and when it's done.",
+        "Check off completed steps to see your progress.",
+        "Steps trace back to your voice and your goals.",
+      ],
+      why: "Big plans feel doable when broken into small, dated steps.",
+    },
+    parent: {
+      headline: "The family's 30 / 60 / 90-day plan — clear owners, clear timing.",
+      bullets: [
+        "Family-owned steps surface first.",
+        "Each step shows the source (voice, IEP, educator).",
+        "Print or share to the family calendar in one click.",
+      ],
+      why: "Families know exactly what's theirs and what's the team's.",
+    },
+    educator: {
+      headline: "Action plan by horizon — assign, adjust, and track from one view.",
+      bullets: [
+        "Reassign owners as roles shift.",
+        "Attach resources or opportunities to a step.",
+        "Mark complete to update the student's overall progress.",
+      ],
+      why: "Less spreadsheet juggling between meetings.",
+    },
+    school: {
+      headline: "Plan-completion trends across the caseload.",
+      bullets: [
+        "Percent of 30-day steps completed on time.",
+        "Bottlenecks by category (transportation, self-advocacy).",
+        "Aggregate — no per-step content.",
+      ],
+      why: "Spot where caseloads need more support.",
+      privacy: "Aggregate only.",
+    },
+    district: {
+      headline: "Plan adoption + completion across schools.",
+      bullets: [
+        "School-by-school plan completion.",
+        "Equity view: completion by student group.",
+        "No individual plan contents at this level.",
+      ],
+      why: "Direct district support where plans stall.",
+      privacy: "Aggregate only.",
+    },
+    partner: {
+      headline: "Partners don't see the action plan.",
+      bullets: [
+        "Partners only see steps the family explicitly opts to share.",
+        "Even then, only the opportunity-level next step is visible.",
+        "No goals, IEP language, or owner details surfaced.",
+      ],
+      why: "Plans stay inside the care-team consent boundary.",
+      privacy: "Plans are never shared with partners by default.",
+    },
+    platform: {
+      headline: "Plan-engine health — generation, completion, and drift.",
+      bullets: [
+        "Average steps per plan, by horizon.",
+        "Time-to-first-completed-step.",
+        "Failures or stuck plans.",
+      ],
+      why: "Keep the plan engine giving useful next steps.",
+      privacy: "Operational metrics only.",
+    },
+  },
+  hub: {
+    student: {
+      headline: "Your hub — one place for goals, documents, meetings, and what's next.",
+      bullets: [
+        "Pick up where you left off.",
+        "Open the report, plan, or calendar from one screen.",
+        "Saved opportunities and resources live here.",
+      ],
+      why: "One screen, not seven tabs.",
+    },
+    parent: {
+      headline: "Family hub — every active thread for your student in one view.",
+      bullets: [
+        "See document status, upcoming meetings, and active goals.",
+        "Open meeting prep before the next PPT.",
+        "Invite a co-parent or trusted adult into the care team.",
+      ],
+      why: "Stay informed without becoming the case manager.",
+    },
+    educator: {
+      headline: "Caseload-aware hub for this student.",
+      bullets: [
+        "Quick switch between students on your caseload.",
+        "Action items, review queue, and case notes side-by-side.",
+        "Private notes stay with you.",
+      ],
+      why: "Less time hunting, more time planning.",
+    },
+    school: {
+      headline: "School-level implementation snapshot — not a private student view.",
+      bullets: [
+        "Reports completed, plans active, follow-ups due.",
+        "Coverage and staffing indicators.",
+        "Drill-downs open educator views, not private profiles.",
+      ],
+      why: "Verify implementation health without invading privacy.",
+      privacy: "Private student detail is hidden here.",
+    },
+    district: {
+      headline: "District-level snapshot — adoption, progress, equity.",
+      bullets: [
+        "School-by-school progress.",
+        "Where implementation support is needed.",
+        "Aggregate transition reporting.",
+      ],
+      why: "Make rollout decisions on real evidence.",
+      privacy: "District view never exposes private student detail.",
+    },
+    partner: {
+      headline: "Partner workspace — profile, opportunities, incentives.",
+      bullets: [
+        "See opportunity-level interest, never student detail.",
+        "Update your listings and next-step instructions.",
+        "Track PartnerForward incentives.",
+      ],
+      why: "Reach the right students without ever seeing private data.",
+      privacy: "Strict opportunity-level privacy.",
+    },
+    platform: {
+      headline: "Operator hub — queues, approvals, system health.",
+      bullets: [
+        "Waitlist and partner approval pipelines.",
+        "Resource moderation queue.",
+        "Launch-readiness checklist.",
+      ],
+      why: "Operate the network safely and transparently.",
+      privacy: "Admin access is logged.",
+    },
+  },
+};
+
