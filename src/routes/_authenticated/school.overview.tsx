@@ -11,8 +11,11 @@ import { GradeBandBreakdown } from "@/components/dashboard/GradeBandBreakdown";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 
+import { ensureRoleAccess } from "@/lib/route-role-guard";
+
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
+  beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   component: withRoleGuard(["school_admin", "admin"], SchoolOverviewPage),
 });
 
