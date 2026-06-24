@@ -1,148 +1,116 @@
-## Goal
+# Demo-to-Product Connection Audit
 
-Turn `/demo` into a deep, polished, guided walkthrough that mirrors the real product (intake → Student Voice → document insights → Pathway Report → role dashboards → resources → opportunities → action plan → meeting prep), using fictional sample data and never touching real accounts, storage, or signed-in routes.
+Make every public `/demo/*` element answer: what feature, where it lives, which role, what data, next action, available now vs. future-phase. No new private surfaces, no fake buttons, no auth changes.
 
-## Sample Persona (single canonical fixture)
+## 1. Single source of truth for the mapping
 
-One shared fixture powers every demo screen so the story stays coherent.
-
-- **Jordan Rivera**, Grade 11, fictional CT public high school
-- Focus: career training, community college exploration, supported employment, self-advocacy, transportation, independent living
-- Strengths: hands-on learning, visual problem solving, consistent attendance, interest in media/tech
-- Support needs: executive functioning, transportation planning, interview prep, complex forms, meeting self-advocacy
-- Family priority: clear next steps + confidence navigating options
-- Educator priority: connect goals/accommodations/services to real opportunities
-
-All copy stamped “Sample data — fictional student for demonstration only.”
-
-## Routes (additive only — no signed-in routes touched)
+Create `src/lib/demo/feature-map.ts` exporting one typed registry:
 
 ```text
-/demo                  Start Demo (overview + role picker + step nav)
-/demo/intake           Intake depth (categorized sample answers)
-/demo/voice            Student Voice prompts + sample responses (NEW)
-/demo/documents        IEP/document insights with “planning companion” banner (NEW)
-/demo/report           Pathway Report (expanded with all sections)
-/demo/plan             30/60/90 day action plan + responsible role
-/demo/resources        Sample resource matches with rationale
-/demo/opportunities    Partner opportunity matches (NEW)
-/demo/meeting          Meeting prep checklist + sample summary
-/demo/calendar         Sample milestones + meetings
-/demo/hub              Role dashboard previews (student/parent/educator/school/district/partner/platform tabs)
-/demo/next             What Happens Next + conversion CTAs (NEW)
+DEMO_FEATURE_MAP: Record<DemoElementId, {
+  element:        string   // human label shown in demo
+  product:        string   // real feature name
+  livesAt:        string   // signed-in route (or "future-phase")
+  roles:          RoleAudience[]
+  dataSource:     string   // intake | voice | document | report | ...
+  nextAction:     string   // what the user does next
+  status:         "live" | "partial" | "future-phase"
+  notes?:         string
+}>
 ```
 
-Existing `/demo/*` routes stay; new routes added; broken/duplicate links removed.
+One entry per demo surface: intake step, voice prompt block, doc-insight panel,
+each Pathway Report section, each resource/opportunity card type, action plan,
+meeting prep, calendar, each role-dashboard panel, partner workspace block,
+admin hub block, and every CTA. The map drives:
 
-## Shared Demo Shell
+- a small `<FeatureFootnote elementId="..." />` component rendered at the
+  bottom of each demo panel (collapsible "Where this lives in the product"),
+- a public-facing checklist at `/demo/connection` (audit-only page),
+- a console-time sanity test that fails if a demo route renders an element
+  whose id is missing from the map (vitest).
 
-A new `DemoShell` adds:
-- Persistent **sample-data banner** (“Fictional sample. Not a real student.”)
-- **Step rail** with progress (1 Start → 9 Next Steps), keyboard + mobile-friendly
-- **Role view switcher** (Student / Parent / Educator / School Admin / District Admin / Partner / Platform Admin) stored in URL `?view=` so views are shareable
-- **Prev / Next** controls and breadcrumbs
-- Read-only locks: any form/save action shows a tooltip “Sample only — sign in to save.”
+## 2. Per-step audit + fixes
 
-## Pathway Report Demo (flagship)
+For each route, verify every interactive element + connect to a `DemoElementId`.
+Where a button is currently inert or misleading, replace with one of:
+- a read-only sample state with a "Sample · sign in to act" pill,
+- a clear CTA routed to `/waitlist`, `/get-started`, `/contact`, or `/pricing`,
+- removal.
 
-`/demo/report` rebuilt as the centerpiece with collapsible sections in this order:
+Routes touched:
+- `demo.tsx` (overview grid)
+- `demo_.intake.tsx`
+- `demo_.voice.tsx`
+- `demo_.documents.tsx`
+- `demo_.report.tsx` + `ReportView` source chips
+- `demo_.resources.tsx`
+- `demo_.opportunities.tsx`
+- `demo_.plan.tsx`
+- `demo_.meeting.tsx`
+- `demo_.calendar.tsx`
+- `demo_.hub.tsx`
+- `demo_.next.tsx`
 
-1. Student Snapshot
-2. Plain-Language Summary
-3. Key Next Steps (top 3)
-4. Student Voice Summary
-5. Family Priorities
-6. Educator Input
-7. IEP / Document Insights (with “needs review” flags)
-8. Strengths, Preferences, Interests, Needs
-9. Readiness Indicators
-10. Recommended Pathways (with “why this was recommended”)
-11. Education / Training Options
-12. Career / Program Matches
-13. Independent Living Supports
-14. Self-Advocacy Supports
-15. Matched Resources
-16. Matched Partner Opportunities
-17. Meeting Prep Questions
-18. 30 / 60 / 90 Day Action Plan (with responsible role per step)
-19. Source / Input Labels
-20. What Changed Since Last Report
-21. Professional Meeting Summary
+No auth-gated routes added. All CTAs that suggest a signed-in action become
+either `/get-started` (with explanation) or `/waitlist`.
 
-Audience toggle (Family / Student / Educator) re-skins tone + visible sections, mirroring real ReportView affordances but read-only.
+## 3. Pathway Report source labels
 
-## Role Dashboard Previews (`/demo/hub`)
+Audit `ReportView` + `ReportV2Sections` to ensure every section in the user's
+list has a visible source label (Student Voice, Family Priorities, Educator
+Input, Document Insight, Saved Resource, Partner Opportunity, Action Item,
+Meeting Prep). Add the small `<SourceChips />` row to any section missing it
+(demo mode only — the signed-in report layout is untouched). Add the
+"Needs Review Flags" and "What Changed Since Last Report" panels in demo
+mode if absent; both already exist as data on the sample report.
 
-Tabs render distinct sample widgets per role, matching real dashboard intent without exposing private internals:
+## 4. Read-only safety pass
 
-- **Student**: My next step, Voice, plain-language report link, action items, meeting prep, saved opportunities
-- **Parent**: Family priorities, document review status, report review, meeting prep, resources
-- **Educator/Case Manager**: Sample caseload (3 fictional students), missing-doc status, report review, action items, notes
-- **School Admin**: Aggregate snapshot, caseload coverage, reports completed, students needing follow-up (no doc detail)
-- **District Admin**: Adoption snapshot, school-by-school progress, implementation support, aggregate reporting
-- **Partner**: Partner profile, opportunity listings, statuses, PartnerForward incentives, no private student data
-- **Platform Admin**: Waitlist queue, partner approvals, resource moderation, system health, launch readiness
+Sweep every `<Button>` / `<Link>` inside `/demo/*` for:
+- `onClick` no-ops → replace with `disabled` + "Sample · sign in to act" tooltip,
+- links to protected routes (`/dashboard`, `/caseload`, `/admin`, `/school/*`,
+  `/district/*`, `/partners-manage`) → reroute to `/get-started?intent=<role>`
+  with a tiny explainer card on `/get-started` matching `intent`.
 
-Each tab includes a one-line “Why this matters for this role.”
+Add a single `DemoActionPill` component to keep this consistent.
 
-## Intake, Voice, Documents
+## 5. Sample-data consolidation
 
-- **Intake**: stepped category list (strengths, interests, postsecondary goals, work, education/training, independent living, transportation, self-advocacy, support prefs, meeting confidence, family priorities, educator notes, documents available, urgent next steps). Each answer card shows “→ flows into Pathway Report: [section name].”
-- **Student Voice**: 7 sample prompts with example responses, plus “How this affects recommendations” callouts.
-- **Documents**: Fictional “IEP detected” summary card with transition goal areas, accommodations, services, missing/needs-review flags, source labels, and the planning-companion language. No upload UI in demo.
+Confirm `src/lib/demo-data.ts` + `src/lib/demo-extras.ts` cover the named
+fixtures (`sampleStudent`, `sampleStudentVoice`, ...). Add thin re-export
+barrels (`src/lib/demo/index.ts`) so future contributors find one entry
+point. No data rewrites — just renames + re-exports.
 
-## Resources & Opportunities
+## 6. Internal connection checklist
 
-- `/demo/resources`: enrich existing list with rationale per match (“Recommended because Jordan…”), filters, and a “view sample resource detail” modal.
-- `/demo/opportunities` (new): 4 fictional partner programs (community college pathway, supported employment pilot, culinary apprenticeship, media internship) with eligibility, location, next step, and saved status.
+Two artifacts:
+- `docs/demo-feature-map.md` — generated-by-hand markdown table from the
+  registry above, with the seven status columns the user listed.
+- `/demo/connection` route (public, simple table) — same data, rendered for
+  internal verification. No sensitive info.
 
-## Action Plan, Meeting Prep, Calendar
+## 7. Verification
 
-- `/demo/plan`: 30/60/90 day table — task, owner role, target date, source (Voice/Family/IEP/Educator).
-- `/demo/meeting`: agenda, student talking points, family questions, educator notes, sample meeting summary export preview.
-- `/demo/calendar`: month view with sample milestones + transition meeting, click → drawer with details (read-only).
+- Add a vitest case `tests/unit/demo-feature-map.test.ts` asserting every
+  `DemoElementId` referenced by demo pages exists in the map and has a
+  non-empty `product`, `nextAction`, and `status`.
+- Run: `bun run test:unit`, `bunx playwright test --project=dashboard-setup`,
+  `--project=role-access`, `--project=dashboard-regression`.
+- Manual signed-out walk on mobile + desktop: no inert buttons, no protected
+  routes hit, role lens persists across all six steps (already shipped).
 
-## Conversion (`/demo/next`)
+## What is explicitly NOT changed
 
-Single page with role-targeted CTAs:
-- Families/Students → Join Waitlist / Request Family Access
-- Educators → Request Demo / Bring To My School
-- School Admins → Explore School Pilot
-- District Admins → Explore District Access
-- Partners → Apply As Partner
-- Invited users → Create Account / Sign In
+- `src/routes/_authenticated/**`, role guards, route audiences.
+- Owner / 2FA flows, dashboard test IDs, E2E setup, signed-in `ReportView`
+  layout outside demo mode.
+- Auth, RLS, server functions, edge functions.
 
-Clear copy: **Create Account = invited/approved; Join Waitlist = request access.**
+## Technical notes
 
-## Safety & Privacy Guarantees
-
-- All demo data is module-level fixtures in `src/lib/demo/fixtures.ts` — no DB reads, no server fns gated by auth, no real storage paths.
-- Every page renders the sample-data banner.
-- No upload, no signed URL, no `createServerFn` calls that touch user data.
-- Demo never persists; any “Save” shows the read-only tooltip.
-- Partner role view shows zero private student fields.
-
-## Design & Polish
-
-- Reuse `SiteShell`, `CardGrid`, `CollapsibleSection`, `Breadcrumbs`, `InfoBox`, `HeroCTAs` for visual consistency with the rest of the site.
-- Mobile-first; verify the step rail collapses to a top dropdown < `sm`.
-- Title Case headings via `src/lib/title-case.ts`.
-- Strong empty/loading/error states aren’t needed (static fixtures) but each section has a non-empty default.
-
-## Verification
-
-- `bun run test:unit`
-- `bunx playwright test --project=dashboard-setup`
-- `bunx playwright test --project=role-access`
-- `bunx playwright test --project=dashboard-regression`
-- Manual: signed-out load of every `/demo/*` route on mobile + desktop; role switcher; collapsible Pathway sections; CTA routing; no duplicate `<main>` links.
-
-## Technical Notes
-
-- **No changes** to `src/routes/_authenticated/**`, role guards, dashboard test IDs, owner 2FA, or auth flows.
-- New fixture module `src/lib/demo/fixtures.ts` owns Jordan + sample caseload + opportunities + resources.
-- New shared components: `src/components/demo/DemoShell.tsx`, `DemoStepRail.tsx`, `RoleViewSwitcher.tsx`, `SampleDataBanner.tsx`, `SourceLabel.tsx`.
-- New `src/lib/demo/steps.ts` defines step order so rail + Prev/Next stay in sync.
-- All new routes are public (top-level files), SSR on, with their own `head()` meta (title, description, og:title, og:description).
-- Role switcher state in URL search params; default `view=family` to preserve existing `/demo/report?view=family` links.
-- `DemoBanner` / `DemoStepBar` components already exist — refactor `DemoStepBar` into the new step rail instead of duplicating.
+- Registry is plain TS, tree-shaken into each demo route via direct imports.
+- `<FeatureFootnote>` uses an accessible `<details>` so it's keyboard-friendly
+  and adds no JS state.
+- `DemoActionPill` is a thin wrapper around shadcn `<Button variant="outline" disabled>` + tooltip.
+- The vitest case statically imports demo pages — no DOM needed.
