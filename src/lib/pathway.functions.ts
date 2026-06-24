@@ -981,6 +981,99 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       last_updated: new Date().toISOString().slice(0, 10),
     };
 
+    // --- v2.1 deterministic backfills (grounding > AI guesses) ---
+    // Confidence: clamp AI 'overall' against actual input completeness.
+    const inputSignals = [
+      true, // profile always present
+      !!ctx.intake,
+      ctx.voice.length > 0,
+      ctx.iep_docs.length > 0,
+      ctx.iep_extractions.length > 0,
+      ctx.goals.length > 0,
+      ctx.readiness.length > 0,
+    ];
+    const signalRatio = inputSignals.filter(Boolean).length / inputSignals.length;
+    const computedOverall: "low" | "medium" | "high" =
+      signalRatio >= 0.75 ? "high" : signalRatio >= 0.45 ? "medium" : "low";
+    const aiConfidence = v2.confidence;
+    const order = { low: 0, medium: 1, high: 2 } as const;
+    const overall: "low" | "medium" | "high" =
+      aiConfidence?.overall && order[aiConfidence.overall] <= order[computedOverall]
+        ? aiConfidence.overall
+        : computedOverall;
+    const baseCaveats: string[] = [];
+    if (ctx.voice.length === 0) baseCaveats.push("No student voice responses on file.");
+    if (ctx.iep_docs.length === 0) baseCaveats.push("No IEP or transition document uploaded.");
+    if (ctx.iep_extractions.length === 0 && ctx.iep_docs.length > 0)
+      baseCaveats.push("IEP uploaded but not yet extracted — some sections may be thin.");
+    if (ctx.readiness.length === 0) baseCaveats.push("No readiness scores yet.");
+    const mergedCaveats = Array.from(
+      new Set([...(aiConfidence?.caveats ?? []), ...baseCaveats]),
+    ).slice(0, 8);
+    const confidence = {
+      overall,
+      rationale:
+        aiConfidence?.rationale ??
+        `Based on ${inputSignals.filter(Boolean).length} of ${inputSignals.length} expected inputs.`,
+      caveats: mergedCaveats.length > 0 ? mergedCaveats : undefined,
+    };
+
+    // needs_review_flags: ensure baseline flags for known gaps.
+    const baseFlags: Array<{ section: string; reason: string; owner_role?: string }> = [];
+    if (ctx.iep_extractions.length > 0)
+      baseFlags.push({
+        section: "iep_summary",
+        reason: "AI-extracted IEP content — verify goals, services, and accommodations with the team.",
+        owner_role: "case_manager",
+      });
+    if (ctx.voice.length === 0)
+      baseFlags.push({
+        section: "student_voice",
+        reason: "No Student Voice responses on file — please capture before the next meeting.",
+        owner_role: "student",
+      });
+    if (ctx.readiness.length === 0)
+      baseFlags.push({
+        section: "readiness_indicators",
+        reason: "Readiness scores have not been entered — indicators are placeholders.",
+        owner_role: "case_manager",
+      });
+    const aiFlags = v2.needs_review_flags ?? [];
+    const seenFlagKeys = new Set(aiFlags.map((f) => f.section.toLowerCase()));
+    const needs_review_flags = [
+      ...aiFlags,
+      ...baseFlags.filter((f) => !seenFlagKeys.has(f.section.toLowerCase())),
+    ].slice(0, 20);
+
+    // SPIN backfill from profile when AI returns nothing usable.
+    const cleanList = (arr: unknown): string[] =>
+      Array.isArray(arr)
+        ? arr
+            .map((s) => (typeof s === "string" ? s.trim() : ""))
+            .filter((s) => s.length > 0 && s.length < 200)
+            .slice(0, 8)
+        : [];
+    const aiSpin = v2.spin ?? {};
+    const spin = {
+      strengths: aiSpin.strengths?.length ? aiSpin.strengths : cleanList(ctx.student.strengths),
+      preferences: aiSpin.preferences,
+      interests: aiSpin.interests?.length ? aiSpin.interests : cleanList(ctx.student.interests),
+      needs: aiSpin.needs?.length ? aiSpin.needs : cleanList(ctx.student.needs),
+    };
+
+    // Plain-language + professional summary fallbacks.
+    const studentName = ctx.student.first_name ?? "this student";
+    const topInterest = spin.interests?.[0];
+    const topStrength = spin.strengths?.[0];
+    const plain_language_summary =
+      v2.plain_language_summary?.trim() ||
+      `This report gathers what we know about ${studentName} and turns it into next steps the family and team can act on.${
+        topStrength ? ` ${studentName}'s strengths include ${topStrength}.` : ""
+      }${topInterest ? ` Interests like ${topInterest} are shaping the recommended pathways.` : ""} Review the flagged sections with the team before the next meeting.`;
+    const professional_summary =
+      v2.professional_summary?.trim() ||
+      `Synthesized from ${inputSignals.filter(Boolean).length}/${inputSignals.length} input sources (profile, intake, student voice, IEP docs, extractions, goals, readiness). Confidence: ${overall}. ${baseCaveats[0] ?? "Use as supportive planning input alongside team judgment and Indicator 13 requirements."}`;
+
     // Build the next content payload: keep legacy v1 fields, graft v2 on top.
     const prevContent =
       typeof rep.content === "object" && rep.content !== null
@@ -1000,8 +1093,14 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       inputs_used,
       student_snapshot,
       readiness_indicators: readiness_indicators.length > 0 ? readiness_indicators : v2.readiness_indicators,
+      spin,
+      confidence,
+      needs_review_flags,
+      plain_language_summary,
+      professional_summary,
       change_summary,
     };
+
 
     // Snapshot + overwrite via updateReportContent path (manual to avoid round-trip).
     const { data: maxRow } = await supabase
