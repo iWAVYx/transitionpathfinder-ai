@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DEMO_FEATURE_MAP, type DemoElementId } from "@/lib/demo/feature-map";
 
-export const Route = createFileRoute("/demo/connection")({
+export const Route = createFileRoute("/demo_/connection")({
   head: () => ({
     meta: [
       { title: "Demo Feature Connection Checklist — TransitionForward" },
