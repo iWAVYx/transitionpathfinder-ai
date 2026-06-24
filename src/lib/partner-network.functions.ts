@@ -171,9 +171,19 @@ export const listOpportunitiesForPartner = createServerFn({ method: "POST" })
     return { opportunities: rows ?? [] };
   });
 
+// Schema for upsert: every opportunity column the owner UI is allowed to
+// write, including partner_id. Prevents writes to arbitrary columns even
+// if a platform-admin session is compromised.
+const upsertOpportunityInput = z.object({
+  id: z.string().uuid().optional(),
+  values: opportunityItemSchema.extend({
+    partner_id: z.string().uuid(),
+  }),
+});
+
 export const upsertOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id?: string; values: Record<string, unknown> }) => d)
+  .inputValidator((d: unknown) => upsertOpportunityInput.parse(d))
   .handler(async ({ data, context }) => {
     if (data.id) {
       const { error } = await context.supabase
