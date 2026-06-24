@@ -502,3 +502,192 @@ export const getSchoolReadiness = createServerFn({ method: "POST" })
       avg_open_actions_per_student: ids.length ? Math.round((totalOpen / ids.length) * 10) / 10 : 0,
     };
   });
+
+/* ---------- date-windowed report metrics ---------- */
+
+export type SchoolReportWindow = {
+  from: string | null;
+  to: string | null;
+  metrics: {
+    students_count: number;
+    reports_count: number;
+    open_actions: number;
+    active_goals: number;
+    pct_with_report: number;
+    pct_with_goals: number;
+    pct_with_actions: number;
+    avg_open_actions_per_student: number;
+  };
+  students: Array<{
+    id: string;
+    name: string;
+    grade_band: string | null;
+    reports_count: number;
+    open_actions: number;
+    active_goals: number;
+    has_report: boolean;
+  }>;
+};
+
+export const getSchoolReportMetrics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        organization_id: z.string().uuid(),
+        from: z.string().datetime().optional(),
+        to: z.string().datetime().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }): Promise<SchoolReportWindow> => {
+    const { supabase } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: mem } = await supabase
+      .from("organization_memberships")
+      .select("id")
+      .eq("organization_id", data.organization_id)
+      .eq("user_id", context.userId)
+      .eq("status", "active")
+      .in("role_within_org", ["admin", "owner", "school_admin"])
+      .maybeSingle();
+    if (!mem) {
+      return {
+        from: data.from ?? null,
+        to: data.to ?? null,
+        metrics: {
+          students_count: 0,
+          reports_count: 0,
+          open_actions: 0,
+          active_goals: 0,
+          pct_with_report: 0,
+          pct_with_goals: 0,
+          pct_with_actions: 0,
+          avg_open_actions_per_student: 0,
+        },
+        students: [],
+      };
+    }
+
+    const { data: studentRows } = await supabaseAdmin
+      .from("students")
+      .select("id, first_name, last_name, preferred_name, grade_band")
+      .eq("organization_id", data.organization_id)
+      .order("created_at", { ascending: false });
+
+    const students = (studentRows ?? []) as Array<{
+      id: string;
+      first_name: string | null;
+      last_name: string | null;
+      preferred_name: string | null;
+      grade_band: string | null;
+    }>;
+    const ids = students.map((s) => s.id);
+
+    if (ids.length === 0) {
+      return {
+        from: data.from ?? null,
+        to: data.to ?? null,
+        metrics: {
+          students_count: 0,
+          reports_count: 0,
+          open_actions: 0,
+          active_goals: 0,
+          pct_with_report: 0,
+          pct_with_goals: 0,
+          pct_with_actions: 0,
+          avg_open_actions_per_student: 0,
+        },
+        students: [],
+      };
+    }
+
+    const applyWindow = (q: any) => {
+      let out = q;
+      if (data.from) out = out.gte("created_at", data.from);
+      if (data.to) out = out.lte("created_at", data.to);
+      return out;
+    };
+
+    const [reportsRes, actionsRes, goalsRes] = await Promise.all([
+      applyWindow(
+        supabaseAdmin.from("pathway_reports").select("student_id, created_at").in("student_id", ids),
+      ),
+      applyWindow(
+        supabaseAdmin
+          .from("action_items")
+          .select("student_id, status, created_at")
+          .in("student_id", ids),
+      ),
+      applyWindow(
+        supabaseAdmin
+          .from("goals")
+          .select("student_id, status, created_at")
+          .in("student_id", ids),
+      ),
+    ]);
+
+    const reportRows = (reportsRes.data ?? []) as Array<{ student_id: string | null }>;
+    const actionRows = (actionsRes.data ?? []) as Array<{
+      student_id: string | null;
+      status: string;
+    }>;
+    const goalRows = (goalsRes.data ?? []) as Array<{
+      student_id: string | null;
+      status: string;
+    }>;
+
+    const reportsByStudent = new Map<string, number>();
+    for (const r of reportRows) {
+      if (!r.student_id) continue;
+      reportsByStudent.set(r.student_id, (reportsByStudent.get(r.student_id) ?? 0) + 1);
+    }
+    const openActionsByStudent = new Map<string, number>();
+    for (const a of actionRows) {
+      if (!a.student_id || a.status === "complete") continue;
+      openActionsByStudent.set(a.student_id, (openActionsByStudent.get(a.student_id) ?? 0) + 1);
+    }
+    const activeGoalsByStudent = new Map<string, number>();
+    for (const g of goalRows) {
+      if (!g.student_id || g.status === "met") continue;
+      activeGoalsByStudent.set(g.student_id, (activeGoalsByStudent.get(g.student_id) ?? 0) + 1);
+    }
+
+    const perStudent = students.map((s) => {
+      const rc = reportsByStudent.get(s.id) ?? 0;
+      return {
+        id: s.id,
+        name: `${s.preferred_name ?? s.first_name ?? "Student"} ${s.last_name ?? ""}`.trim(),
+        grade_band: s.grade_band,
+        reports_count: rc,
+        open_actions: openActionsByStudent.get(s.id) ?? 0,
+        active_goals: activeGoalsByStudent.get(s.id) ?? 0,
+        has_report: rc > 0,
+      };
+    });
+
+    const reportsTotal = perStudent.reduce((n, s) => n + s.reports_count, 0);
+    const openActionsTotal = perStudent.reduce((n, s) => n + s.open_actions, 0);
+    const activeGoalsTotal = perStudent.reduce((n, s) => n + s.active_goals, 0);
+    const withReport = perStudent.filter((s) => s.has_report).length;
+    const withGoals = perStudent.filter((s) => s.active_goals > 0).length;
+    const withActions = perStudent.filter((s) => s.open_actions > 0).length;
+
+    return {
+      from: data.from ?? null,
+      to: data.to ?? null,
+      metrics: {
+        students_count: ids.length,
+        reports_count: reportsTotal,
+        open_actions: openActionsTotal,
+        active_goals: activeGoalsTotal,
+        pct_with_report: Math.round((withReport / ids.length) * 100),
+        pct_with_goals: Math.round((withGoals / ids.length) * 100),
+        pct_with_actions: Math.round((withActions / ids.length) * 100),
+        avg_open_actions_per_student:
+          Math.round((openActionsTotal / ids.length) * 10) / 10,
+      },
+      students: perStudent,
+    };
+  });
