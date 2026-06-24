@@ -44,6 +44,7 @@ import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSugg
 import { ConnectToPlan } from "@/components/pathway/ConnectToPlan";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/hooks/use-auth";
 import {
   getReportViewerPrefs,
   updateReportViewerPrefs,
