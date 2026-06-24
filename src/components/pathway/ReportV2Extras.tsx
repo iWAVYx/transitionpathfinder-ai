@@ -19,7 +19,11 @@ import {
   CircleDashed,
   Circle,
   CircleDot,
+  Database,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   isV2,
@@ -28,6 +32,7 @@ import {
   type ReadinessIndicator,
   type ConfidenceInfo,
   type NeedsReviewFlag,
+  type InputsUsed,
 } from "@/lib/pathway-v2";
 import type { V2Audience } from "@/components/pathway/ReportV2Sections";
 
@@ -362,5 +367,155 @@ function SpinList({
         ))}
       </ul>
     </div>
+  );
+}
+
+/**
+ * ReportV2InputsUsed — collapsed-by-default panel showing which data sources
+ * the AI used to generate this report. Hides itself completely if the
+ * report has no `inputs_used` block (e.g. legacy reports).
+ */
+export function ReportV2InputsUsed({ content }: { content: unknown }) {
+  const [open, setOpen] = useState(false);
+  if (!isV2(content)) return null;
+  const r = content as Record<string, unknown>;
+  const inputs = r.inputs_used as InputsUsed | undefined;
+  if (!inputs) return null;
+
+  type Row = { label: string; hint?: string; present: boolean };
+  const rows: Row[] = [
+    { label: "Student profile", present: Boolean(inputs.profile) },
+    { label: "Intake responses", present: Boolean(inputs.intake) },
+    {
+      label: "Student Voice",
+      hint: inputs.student_voice_keys?.length
+        ? `${inputs.student_voice_keys.length} response${inputs.student_voice_keys.length === 1 ? "" : "s"}`
+        : undefined,
+      present: !!inputs.student_voice_keys?.length,
+    },
+    {
+      label: "IEP documents",
+      hint: inputs.iep_doc_ids?.length
+        ? `${inputs.iep_doc_ids.length} document${inputs.iep_doc_ids.length === 1 ? "" : "s"}`
+        : undefined,
+      present: !!inputs.iep_doc_ids?.length,
+    },
+    {
+      label: "IEP extractions",
+      hint: inputs.iep_extraction_ids?.length
+        ? `${inputs.iep_extraction_ids.length} extraction${inputs.iep_extraction_ids.length === 1 ? "" : "s"}`
+        : undefined,
+      present: !!inputs.iep_extraction_ids?.length,
+    },
+    {
+      label: "Transition goals",
+      hint: inputs.goal_ids?.length ? `${inputs.goal_ids.length} goal${inputs.goal_ids.length === 1 ? "" : "s"}` : undefined,
+      present: !!inputs.goal_ids?.length,
+    },
+    {
+      label: "Readiness check",
+      hint: inputs.readiness_category_count
+        ? `${inputs.readiness_category_count} domain${inputs.readiness_category_count === 1 ? "" : "s"}`
+        : inputs.readiness_at
+          ? "Captured"
+          : undefined,
+      present: Boolean(inputs.readiness_at || inputs.readiness_category_count),
+    },
+    {
+      label: "Action items in flight",
+      hint: inputs.action_item_ids?.length ? `${inputs.action_item_ids.length} open` : undefined,
+      present: !!inputs.action_item_ids?.length,
+    },
+    {
+      label: "Meeting prep notes",
+      hint: inputs.meeting_prep_ids?.length ? `${inputs.meeting_prep_ids.length} note${inputs.meeting_prep_ids.length === 1 ? "" : "s"}` : undefined,
+      present: !!inputs.meeting_prep_ids?.length,
+    },
+    {
+      label: "Saved resources",
+      hint: inputs.saved_resource_ids?.length ? `${inputs.saved_resource_ids.length} saved` : undefined,
+      present: !!inputs.saved_resource_ids?.length,
+    },
+    {
+      label: "Partner matches",
+      hint: inputs.partner_match_ids?.length ? `${inputs.partner_match_ids.length} matched` : undefined,
+      present: !!inputs.partner_match_ids?.length,
+    },
+    {
+      label: "Family priorities",
+      hint: inputs.family_priorities_count ? `${inputs.family_priorities_count} on file` : undefined,
+      present: !!inputs.family_priorities_count,
+    },
+  ];
+
+  const presentCount = rows.filter((r) => r.present).length;
+  const generatedAt = inputs.generated_at
+    ? new Date(inputs.generated_at).toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : null;
+
+  return (
+    <section
+      id="v2-inputs-used"
+      aria-label="Sources used in this report"
+      className="no-print rounded-3xl border bg-card p-5 shadow-soft sm:p-6"
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-start gap-3 text-left"
+        aria-expanded={open}
+        aria-controls="v2-inputs-used-body"
+      >
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Database className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-lg sm:text-xl">Sources Used in This Report</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {presentCount} of {rows.length} data sources contributed
+            {generatedAt ? ` · generated ${generatedAt}` : ""}.
+          </p>
+        </div>
+        <span className="ml-2 inline-flex h-8 w-8 flex-none items-center justify-center rounded-full border bg-background text-muted-foreground">
+          {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </span>
+      </button>
+
+      {open && (
+        <ul id="v2-inputs-used-body" className="mt-4 grid gap-2 sm:grid-cols-2">
+          {rows.map((row, i) => (
+            <li
+              key={i}
+              className={`flex items-start justify-between gap-3 rounded-xl border bg-background p-3 ${
+                row.present ? "" : "opacity-60"
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                {row.present ? (
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <Circle className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                )}
+                <div>
+                  <p className="text-sm font-medium">{row.label}</p>
+                  {row.hint && (
+                    <p className="text-[11px] text-muted-foreground">{row.hint}</p>
+                  )}
+                  {!row.present && !row.hint && (
+                    <p className="text-[11px] text-muted-foreground">Not provided</p>
+                  )}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
