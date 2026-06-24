@@ -19,7 +19,7 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
   try {
     let page = 1;
     while (true) {
-      const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({
+      const { data: list, error } = await (await getAdmin()).auth.admin.listUsers({
         page,
         perPage: 200,
       });
@@ -204,7 +204,7 @@ export const acceptInvite = createServerFn({ method: "POST" })
     const email = (claims.email as string | undefined)?.toLowerCase();
 
     // Use admin client: row may have user_id=null and RLS would block the update.
-    const { data: row, error: fetchErr } = await supabaseAdmin
+    const { data: row, error: fetchErr } = await (await getAdmin())
       .from("student_collaborators")
       .select("id, invited_email, user_id, status")
       .eq("id", data.id)
@@ -218,7 +218,7 @@ export const acceptInvite = createServerFn({ method: "POST" })
       throw new Error("This invite isn't addressed to you.");
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await (await getAdmin())
       .from("student_collaborators")
       .update({ status: "accepted", user_id: userId })
       .eq("id", data.id);
@@ -296,7 +296,7 @@ export const listMyInvites = createServerFn({ method: "GET" })
     if (!email) return { invites: [] as InviteWithStudent[] };
 
     // Use admin client: RLS would hide invites whose user_id isn't yet linked.
-    const { data: rows, error } = await supabaseAdmin
+    const { data: rows, error } = await (await getAdmin())
       .from("student_collaborators")
       .select("*, student:students(first_name, last_name), inviter:profiles!student_collaborators_invited_by_fkey(full_name)")
       .eq("status", "pending")
@@ -304,7 +304,7 @@ export const listMyInvites = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     if (error) {
       // Fallback without the join (FK aliases may differ)
-      const { data: plain } = await supabaseAdmin
+      const { data: plain } = await (await getAdmin())
         .from("student_collaborators")
         .select("*, student:students(first_name, last_name)")
         .eq("status", "pending")

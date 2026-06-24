@@ -31,7 +31,7 @@ async function logActivity(
   details: Record<string, unknown> = {},
 ) {
   try {
-    await supabaseAdmin.from("admin_activity_logs").insert({
+    await (await getAdmin()).from("admin_activity_logs").insert({
       admin_user_id: userId,
       action_type,
       target_type,
@@ -63,7 +63,7 @@ export const platformListOrganizations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    const { data: orgs, error } = await supabaseAdmin
+    const { data: orgs, error } = await (await getAdmin())
       .from("organizations")
       .select("id, name, type, city, state, website, contact_email, verified_status, created_at")
       .order("created_at", { ascending: false })
@@ -75,14 +75,14 @@ export const platformListOrganizations = createServerFn({ method: "GET" })
     const ids = (orgs ?? []).map((o: any) => o.id);
     const [{ data: members }, { data: opps }] = await Promise.all([
       ids.length
-        ? supabaseAdmin
+        ? (await getAdmin())
             .from("organization_memberships")
             .select("organization_id")
             .in("organization_id", ids)
             .eq("status", "active")
         : Promise.resolve({ data: [] as any[] }),
       ids.length
-        ? supabaseAdmin
+        ? (await getAdmin())
             .from("partner_opportunities")
             .select("organization_id")
             .in("organization_id", ids)
@@ -113,7 +113,7 @@ export const platformDecideOrganization = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    const { error } = await supabaseAdmin
+    const { error } = await (await getAdmin())
       .from("organizations")
       .update({ verified_status: data.decision, updated_at: new Date().toISOString() })
       .eq("id", data.id);
@@ -150,7 +150,7 @@ export const platformListOpportunities = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    let q = supabaseAdmin
+    let q = (await getAdmin())
       .from("partner_opportunities")
       .select("id, title, opportunity_type, status, location, organization_id, created_at, updated_at")
       .order("updated_at", { ascending: false })
@@ -163,7 +163,7 @@ export const platformListOpportunities = createServerFn({ method: "POST" })
     }
     const orgIds = Array.from(new Set((rows ?? []).map((r: any) => r.organization_id)));
     const { data: orgs } = orgIds.length
-      ? await supabaseAdmin
+      ? await (await getAdmin())
           .from("organizations")
           .select("id, name, verified_status")
           .in("id", orgIds)
@@ -191,7 +191,7 @@ export const platformDecideOpportunity = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    const { error } = await supabaseAdmin
+    const { error } = await (await getAdmin())
       .from("partner_opportunities")
       .update({ status: data.decision, updated_at: new Date().toISOString() })
       .eq("id", data.id);
@@ -223,7 +223,7 @@ export const platformListUsers = createServerFn({ method: "POST" })
     try {
       let page = 1;
       while (true) {
-        const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+        const { data: list, error } = await (await getAdmin()).auth.admin.listUsers({ page, perPage: 200 });
         if (error) break;
         for (const u of list.users) {
           map.set(u.id, {
@@ -242,9 +242,9 @@ export const platformListUsers = createServerFn({ method: "POST" })
     const ids = Array.from(map.keys());
     if (!ids.length) return { users: [] as PlatformUserRow[] };
     const [{ data: profiles }, { data: userRoles }, { data: adminRoles }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, full_name").in("id", ids),
-      supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids),
-      supabaseAdmin.from("admin_roles").select("user_id, role").in("user_id", ids),
+      (await getAdmin()).from("profiles").select("id, full_name").in("id", ids),
+      (await getAdmin()).from("user_roles").select("user_id, role").in("user_id", ids),
+      (await getAdmin()).from("admin_roles").select("user_id, role").in("user_id", ids),
     ]);
     const nameMap = new Map<string, string | null>();
     for (const p of profiles ?? []) nameMap.set(p.id, p.full_name ?? null);
