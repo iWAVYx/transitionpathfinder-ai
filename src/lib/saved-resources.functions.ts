@@ -93,7 +93,7 @@ export const updateSavedResource = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: { collection_name?: string; notes?: string | null } = {};
     if (data.collection_name !== undefined) patch.collection_name = data.collection_name;
     if (data.notes !== undefined) patch.notes = data.notes;
     if (Object.keys(patch).length === 0) return { ok: true };
