@@ -94,26 +94,26 @@ const Schema = z.object({
   district_name: z.string().trim().max(200).optional(),
   school_name: z.string().trim().max(200).optional(),
   reason: z.string().trim().max(2000).optional(),
+
+  // New routing fields collected per role
+  wants_demo: z.boolean().optional().default(false),
+  connected_to_student: z.boolean().optional(),
+  urgency: z.enum(["exploring", "this_quarter", "this_year", "asap"]).optional(),
+  referral_source: z.string().trim().max(200).optional(),
+  caseload_size: z.coerce.number().int().min(0).max(100000).optional(),
+  estimated_student_count: z.coerce.number().int().min(0).max(10000000).optional(),
+  estimated_school_count: z.coerce.number().int().min(0).max(100000).optional(),
+  service_area: z.string().trim().max(500).optional(),
+  populations_supported: z.string().trim().max(1000).optional(),
+  services_offered: z.string().trim().max(2000).optional(),
+
+  // Required consent — the public waitlist RLS policy also enforces this.
+  consent_to_contact: z.literal(true, {
+    errorMap: () => ({ message: "Please confirm we can contact you." }),
+  }),
 });
 
 type FormValues = z.infer<typeof Schema>;
-
-// Maps the selected "door" to the canonical interest_type stored on the
-// waitlist row. Owner Hub triages by this enum, not by free-text role.
-function deriveInterestType(role: RoleKey): string {
-  switch (role) {
-    case "family":
-      return "family_early_access";
-    case "student":
-      return "family_early_access";
-    case "educator":
-      return "educator_access";
-    case "district":
-      return "school_pilot"; // refined below if district_name is filled
-    case "partner":
-      return "partner_interest";
-  }
-}
 
 export const Route = createFileRoute("/waitlist")({
   head: () => ({
