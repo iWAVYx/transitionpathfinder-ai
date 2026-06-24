@@ -2405,7 +2405,7 @@ function ReportTOC({
               role="listbox"
               aria-label="Report sections"
               aria-activedescendant={activeDescendantId}
-              className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2 py-3 text-sm"
+              className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3 text-sm [scrollbar-width:thin]"
             >
               {filteredItems.map((it, i) => {
                 const isActive = activeId === it.id;
