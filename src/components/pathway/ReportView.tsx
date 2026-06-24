@@ -44,6 +44,7 @@ import { ReportPartnerSuggestions } from "@/components/pathway/ReportPartnerSugg
 import { ConnectToPlan } from "@/components/pathway/ConnectToPlan";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/hooks/use-auth";
 import {
   getReportViewerPrefs,
   updateReportViewerPrefs,
@@ -169,6 +170,7 @@ export function ReportView({
   const headerRef = useRef<HTMLElement | null>(null);
   const [parallaxY, setParallaxY] = useState(0);
   const [density, setDensity] = useState<"compact" | "comfortable">("compact");
+  const { user } = useAuth();
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
 
@@ -220,6 +222,7 @@ export function ReportView({
 
   // Configure the debounced server pusher, then hydrate once from server.
   useEffect(() => {
+    if (!user) return;
     configureReportPrefsPusher((patch) => pushPrefs({ data: patch }));
     let cancelled = false;
     fetchPrefs()
@@ -256,7 +259,8 @@ export function ReportView({
       cancelled = true;
       flushReportPrefs();
     };
-  }, [fetchPrefs, pushPrefs]);
+  }, [user, fetchPrefs, pushPrefs]);
+
 
   // Mirror user-driven density changes to the server (skips initial mount).
   const densityHydrated = useRef(false);
