@@ -565,7 +565,7 @@ function ContactSection() {
           </p>
         </header>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 flex flex-wrap justify-center gap-4 [&>*]:basis-full sm:[&>*]:basis-[calc(50%-0.5rem)] lg:[&>*]:basis-[calc(25%-0.75rem)]">
           {SUPPORT_CATEGORIES.map((c) => (
             <button
               key={c.topic}
