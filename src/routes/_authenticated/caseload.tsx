@@ -197,12 +197,26 @@ function CaseloadPage() {
               value={summary.open}
               tone={summary.open > 0 ? "warn" : "default"}
             />
-            <StatCard
-              icon={<FileText className="h-3.5 w-3.5" />}
-              label="Missing Pathway Report"
-              value={summary.missingReport}
-              tone={summary.missingReport > 0 ? "warn" : "default"}
-            />
+            <button
+              type="button"
+              onClick={() => {
+                setFilter("no-report");
+                setQuery("");
+                if (typeof window !== "undefined") {
+                  document.getElementById("caseload-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+              className="text-left rounded-2xl transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label="Filter to students missing a Pathway Report"
+            >
+              <StatCard
+                icon={<FileText className="h-3.5 w-3.5" />}
+                label="Missing Pathway Report"
+                value={summary.missingReport}
+                tone={summary.missingReport > 0 ? "warn" : "default"}
+                hint={summary.missingReport > 0 ? "Tap to filter" : undefined}
+              />
+            </button>
           </StatGrid>
 
           {/* Educator quick links — surfaces tied to caseload work */}
@@ -253,7 +267,7 @@ function CaseloadPage() {
           </div>
 
           {/* Caseload list */}
-          <div className="rounded-2xl border bg-card shadow-soft">
+          <div id="caseload-list" className="rounded-2xl border bg-card shadow-soft scroll-mt-24">
             {loading ? (
               <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
@@ -441,8 +455,13 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
 
   useEffect(() => {
     (async () => {
-      const { notes } = await fetchNotes({ data: { student_id: row.id } });
-      setNotes(notes);
+      try {
+        const { notes } = await fetchNotes({ data: { student_id: row.id } });
+        setNotes(notes);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not load notes.");
+        setNotes([]);
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [row.id]);
