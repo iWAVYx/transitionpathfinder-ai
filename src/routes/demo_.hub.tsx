@@ -29,6 +29,7 @@ import { Progress } from "@/components/ui/progress";
 import { getDemoStudent } from "@/lib/demo-data";
 import { toTitleCase } from "@/lib/title-case";
 import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
+import { DemoRoleSwitcher } from "@/components/demo/DemoRoleSwitcher";
 
 export const Route = createFileRoute("/demo_/hub")({
   validateSearch: validateStudentSearch,
