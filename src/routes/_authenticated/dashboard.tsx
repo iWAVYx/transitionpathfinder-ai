@@ -857,6 +857,14 @@ function DashboardPage() {
               actionHref="/resources"
               actionLabel="Browse all"
             >
+              <div className="mb-2 flex justify-end">
+                <Link
+                  to="/resources/saved"
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  View saved →
+                </Link>
+              </div>
               {snap.recommendedResources.length === 0 ? (
                 <EmptyMini label="No resources yet." />
               ) : (
