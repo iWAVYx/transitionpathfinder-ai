@@ -124,8 +124,12 @@ test.describe("Student grade-band tools", () => {
   test.use({ storageState: student.storageState });
 
   test("BridgeForward shown only for 6-8; TransitionForward only for 9-12", async ({ page }) => {
-    await page.goto("/dashboard", { waitUntil: "networkidle" });
-    const text = (await page.locator("main").innerText()).toLowerCase();
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    const main = page.locator('main[data-testid="student-dashboard-main"]');
+    await main.waitFor({ state: "attached", timeout: 30_000 });
+    // Give the dashboard a moment to hydrate the student snapshot.
+    await page.waitForLoadState("networkidle").catch(() => {});
+    const text = (await main.innerText()).toLowerCase();
     const grade = text.match(/grade\s*\n?\s*(6-8|9-10|11-12)/)?.[1];
     test.skip(!grade, "seeded student has no grade_band — coupling check skipped");
     const isMiddle = grade === "6-8";
