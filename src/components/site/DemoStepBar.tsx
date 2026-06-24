@@ -22,8 +22,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
-import { FeatureFootnote } from "@/components/demo/FeatureFootnote";
-import type { DemoElementId } from "@/lib/demo/feature-map";
+// FeatureFootnote intentionally not rendered on public demo pages.
+// It is kept for the internal /demo/connection audit page.
 
 const STEP_FEATURE: Record<string, DemoElementId> = {
   intake: "intake.categories",
