@@ -82,15 +82,37 @@ export function DemoStepBar({ current, student }: Props) {
       active: true,
       moved: false,
       startX: e.clientX,
+      startY: e.clientY,
       startLeft: el.scrollLeft,
       pointerId: e.pointerId,
+      pointerType: e.pointerType,
     };
-    el.setPointerCapture(e.pointerId);
+    // For mouse/pen, capture immediately. For touch, defer capture until we
+    // confirm horizontal intent so vertical page scroll still works.
+    if (e.pointerType !== "touch") {
+      el.setPointerCapture(e.pointerId);
+    }
   };
   const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
     const s = dragState.current;
     if (!s.active || !railRef.current) return;
     const dx = e.clientX - s.startX;
+    const dy = e.clientY - s.startY;
+    if (s.pointerType === "touch" && !s.moved) {
+      // Decide gesture direction once movement exceeds threshold.
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        // Vertical scroll intent — bail out, let the page scroll.
+        s.active = false;
+        return;
+      }
+      // Horizontal drag confirmed — capture so we own subsequent events.
+      try {
+        railRef.current.setPointerCapture(s.pointerId!);
+      } catch {
+        // ignore
+      }
+    }
     if (Math.abs(dx) > 4) s.moved = true;
     railRef.current.scrollLeft = s.startLeft - dx;
   };
