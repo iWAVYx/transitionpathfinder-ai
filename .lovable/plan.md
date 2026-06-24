@@ -1,152 +1,108 @@
-# TransitionForward — Readiness Audit, Safe Improvements, and Roadmap
 
-I ran a full static audit across every signed-in role and the Pathway Report surface. Most primary flows already round-trip real data to the backend. The platform is in much better shape than its surface suggests — the work below is targeted polish + a handful of real GAPs, not a rewrite.
+## Goal
 
-This plan has three parts:
-1. **What I found** (per role, condensed).
-2. **What I will change now** (safe, high-value, non-breaking).
-3. **What goes in the roadmap** (P0 / P1 / P2) — delivered as a checked-in markdown doc.
+Make Signup and Waitlist mean different things on TransitionForward. Signup is for users who already have a valid access path (invite, active org, approved pilot, partner approval, internal admin, approved early access). Waitlist is an **access-routing and demand-qualification layer** for everyone else, with role-aware routing, structured fields, and an admin workflow that can convert qualified entries into invitations.
 
-I will not touch: the integration-managed `_authenticated/route.tsx`, role guards (`withRoleGuard`, `has_role`), owner 2FA, `/auth`, dashboard `<main>` test IDs, or anything the dashboard-regression / role-access E2E projects assert on.
+Nothing in auth, role guards, dashboard routes, dashboard test IDs, or E2E suites changes.
 
----
+## 1. Decision gate (new)
 
-## 1. Audit Findings (condensed)
+New route `/get-started` (and a CTA replacement in the marketing nav):
 
-### Student
-WORKS: action items, BridgeForward save, JourneyStrip/Checklist persistence, age-band split (6–8 → BridgeForward, 9–12 → Pathway).
-GAP: A signed-in student with no linked student record sees an instructional empty state and has no way to self-connect — they're blocked until someone else acts.
-POLISH: JourneyStrip and OnboardingChecklist track the same milestones twice on student/family dashboards.
+```text
+        Get Started
+        /        \
+   "I have an    "I want to
+    invite or     request
+    approved      access"
+    access"          |
+       |             v
+       v          /waitlist?audience=…
+   /login
+```
 
-### Parent / Guardian
-WORKS: document upload + parse, generate / regenerate / share / link Pathway Report, invite people, family priorities, accept proposed goals.
-POLISH: Pathway Report has three entry points (dashboard, `/reports`, `/students/$id`) — noisy but not broken.
+- Copy makes the distinction explicit:
+  - **Create Account** — "For invited users, approved pilots, active schools/districts, approved partners, and approved early-access families."
+  - **Join the Waitlist** — "For requesting access, demo interest, school/district pilot interest, partner review, or future availability."
+- Existing `/login` and `/waitlist` keep working. Old `Sign up` CTAs that pointed straight at login get pointed at `/get-started` so the choice is surfaced.
 
-### Educator / Case Manager
-WORKS: caseload search/filter, notes, quick-assign action item, teacher portal milestones, calendar.
-GAP: "Missing Pathway Report" KPI is a dead-end number — no drill-down to the affected students.
-GAP: `listStudentNotes` errors are swallowed silently.
-POLISH: `/teacher-portal` appears in both quick links and SiteShell nav.
+## 2. Waitlist form — role-aware routing
 
-### School Admin
-WORKS: org switcher, team, date-windowed reports (just shipped), KPIs, grade-band breakdown, compliance & milestones anchor.
-GAP: `/school/implementation` content depth not verified end-to-end.
-POLISH: Pathway-report count shown on both Overview and Reports.
+Rewrite `src/routes/waitlist.tsx` around a role picker that drives the subsequent fields and the routing category we save:
 
-### District Admin
-WORKS: district switcher, KPIs, school-by-school table, CSV/PDF export, follow-up list.
-GAP: `/district/reports` already polished; need spot-check that all CTAs land.
-POLISH: same metric (reports / open actions) duplicated between progress bars and implementation tiles.
+| Role chosen | Extra fields collected | Routing category saved |
+|---|---|---|
+| Student | grade band, school, district, has invite? | `family_early_access` if no school/district match, else nudged to signup |
+| Parent/Guardian | student grade band, school, district, connected to student now? | same as student |
+| Educator / Case Manager | school, district, caseload size, wants demo? | `educator_demo` |
+| School Admin | school, district, est. student count, implementation timeline | `school_pilot` |
+| District Admin | district, # schools, est. students, timeline | `district_pilot` |
+| Partner | org name, services offered, service area, populations supported, incentive interest | `partner_review` + explicit notice that partners never get student-data access |
+| Just want updates | (minimal) | `future_updates` |
 
-### Partner
-WORKS: org setup, opportunity CRUD with full status lifecycle (draft → pending_review → approved → inactive), PartnerForward incentives entry point.
-GAP: `/partners-manage/impact` depth not verified.
-POLISH: opportunity status stats appear both as widget and tab counts.
+Shared fields on every submission: full name, email, city/state, reason, desired access type, urgency, referred by, wants demo, optional note, **consent to be contacted** (required checkbox).
 
-### Platform Admin / Owner
-WORKS: KPIs, review queues, owner analytics, system health checklist (with honest `coming_soon` labels), 2FA, `/admin` alias to `/owner`.
-RISK: `src/routes/index.tsx:779` has a `{/* Right: mock hub */}` comment on the live landing page — misleading; will rename to "Right: feature preview" so future agents don't think it's inert.
+Role-specific outcome messages match the spec ("Families can join through an active school/district connection or approved early access.", etc.).
 
-### Pathway Report (flagship)
-Nearly every v2.1 field is surfaced. Single real GAP:
-- **`inputs_used` is populated during generation but never rendered.** Users cannot see what data went into the report (intake, voice, IEP extractions, readiness, goals, etc.). This is the single highest-value Report fix available.
+If a role+org combination indicates the user *should* be signing up (e.g. educator who says "I have an invite"), inline-redirect them to `/login` with a short explainer instead of writing a waitlist row.
 
-Smaller POLISH: after restoring a version, the version panel doesn't auto-refresh until the user reloads.
+## 3. Backend — fields, statuses, conversion
 
----
+Most fields already exist on `public.waitlist`. One migration adds what's missing and tightens the status vocabulary:
 
-## 2. Safe High-Value Improvements I Will Implement Now
+- Add columns: `routing_category text`, `urgency text`, `wants_demo boolean default false`, `connected_to_student boolean`, `assigned_admin_id uuid references auth.users`, `converted_to_user_id uuid references auth.users`, `converted_invitation_id uuid references public.invitations`, `caseload_size int`, `estimated_student_count int`, `estimated_school_count int`, `timeline text`, `service_area text`, `populations_supported text`, `services_offered text`.
+- New CHECK on `status` covering: `new`, `needs_review`, `routed_family_early_access`, `routed_educator_demo`, `routed_school_pilot`, `routed_district_pilot`, `routed_partner_review`, `invited`, `converted`, `not_eligible_yet`, `archived`.
+- Tighten the public `INSERT` policy length checks for the new text columns; keep `anon` insert (this is a public form) gated by the consent boolean (`consent_to_contact = true`).
+- Keep all `SELECT`/`UPDATE`/`DELETE` admin-only via `is_platform_admin`. No new `anon` SELECT.
 
-Each item is scoped, persistence-aware, and respects the stability constraints.
+Server-side:
+- Extend `src/lib/waitlist.functions.ts` Zod schema with the new fields, default `status='new'`, and **derive** `routing_category` server-side from `role` + flags — never trust a client-supplied routing category.
+- Reject `role = 'admin'` / `platform_admin` / anything that maps to the platform-admin audience. Platform admins cannot self-register *or* self-waitlist publicly.
+- Keep using the anon publishable client (RLS-gated insert), no service role.
 
-### A. Pathway Report — Render "Inputs Used"
-File: `src/components/pathway/ReportV2Extras.tsx` (+ small wiring in `ReportView.tsx`).
-- Add a collapsed-by-default "Sources Used in This Report" panel showing each `inputs_used` entry (intake, voice, IEP docs, IEP extractions, goals, readiness, prior report) with the label, count/timestamp where available, and a tone indicator (✓ available / – missing).
-- Pure presentation — no schema changes, no new server fn.
+Conversion (already partially implemented in `src/lib/owner/waitlist-conversion.functions.ts`):
+- Update `convertWaitlistToInvitation` to also stamp `converted_invitation_id` and set waitlist `status = 'invited'`.
+- Add a sibling `linkConvertedAccount` server fn that platform admins can call (or wire into the invitation-accept path) to stamp `converted_to_user_id` and flip `status = 'converted'`.
 
-### B. Pathway Report — Refresh Version Panel After Restore
-File: `src/routes/_authenticated/reports.$reportId.tsx`.
-- Wire `onRestored` to bump a `versionsKey` state so `ReportVersionsPanel` remounts and shows the restored version at the top.
+## 4. Admin handling
 
-### C. Caseload — "Missing Pathway Report" KPI becomes a real filter
-Files: `src/routes/_authenticated/caseload.tsx`.
-- Make the KPI tile a button that sets the existing `no-report` filter chip (already implemented) and scrolls to the list.
-- Wrap `listStudentNotes` in a try/catch + `toast.error("Could not load notes")` so the failure isn't silent.
+`src/routes/_authenticated/owner.waitlist.tsx` gains:
+- Status filter chips reflecting the new vocabulary.
+- Role + routing-category filter.
+- Per-row badge for routing category.
+- "Convert to invitation" button (uses existing `convertWaitlistToInvitation`) with role/org pre-filled from the row.
+- "Assign to me" / status dropdown wired to a small `updateWaitlistTriage` server fn (platform-admin only, RLS already enforces).
 
-### D. Student — Self-connect CTA when not linked
-File: `src/components/dashboard/StudentDashboard.tsx`.
-- In the no-student empty state, add a primary CTA: "Ask a guardian or case manager to invite me" that opens a `mailto:` prefilled invite blurb plus a "Copy invite text" button. No backend change; unblocks the student immediately and avoids fake buttons.
+## 5. Frontend copy & nav
 
-### E. Family / Student — De-duplicate JourneyStrip vs OnboardingChecklist
-Files: `src/components/dashboard/StudentDashboard.tsx`, family dashboard surfaces.
-- Show `OnboardingChecklist` only while there is at least one unchecked step; once complete, collapse it into a single "Onboarding complete ✓" pill and keep `JourneyStrip` as the ongoing-journey view. No data loss, no test-id change.
+- Marketing nav: replace ambiguous "Sign up" with **Get Started** → `/get-started`. Keep "Sign in" pointing at `/login`.
+- `/login` page gets a small helper line: "Don't have an invite yet? **Join the waitlist** →".
+- `/waitlist` hero copy is rewritten to lead with the access-routing framing.
+- Partner waitlist branch shows the explicit notice: "Partner accounts manage opportunities and PartnerForward resources. Partners never see private student data."
 
-### F. Landing page — Remove misleading "mock hub" comment
-File: `src/routes/index.tsx:779`.
-- Rename the comment to `{/* Right: feature preview (live composition) */}` so the live landing block is never mistaken for placeholder by a future agent.
+## 6. Tests
 
-### G. School / District / Partner — Drill-down hardening
-- School `StatCard` "Pathway Reports" on `/school/overview` → wrap in a `<Link to="/school/reports" hash="reports-list">` so the number is actionable.
-- District follow-up "View all" already works; verify partner `/partners-manage/impact` either renders real data or shows a calm "No impact events yet" empty state — patch only if it currently renders nothing.
+- Unit (vitest): waitlist Zod validator — each role builds the right routing category; admin roles are rejected; consent required.
+- Unit: conversion fn stamps `converted_invitation_id` + flips status.
+- Existing E2E suites untouched. Add one light Playwright smoke against `/get-started` and `/waitlist?audience=partner` that the form renders the partner branch (skipped if no base URL).
 
-### H. Verification scaffolding
-- After changes, run the requested test commands:
-  - `bun run test:unit`
-  - `bunx playwright test --project=dashboard-setup`
-  - `bunx playwright test --project=role-access`
-  - `bunx playwright test --project=dashboard-regression`
-- Fix any direct regressions caused by the above changes. I will NOT chase pre-existing flakes or unrelated failures beyond reporting them.
+## Files touched (planned)
 
-I am explicitly NOT going to:
-- Rewrite dashboards.
-- Touch role guards, auth, 2FA, or the managed `_authenticated` layout.
-- Change dashboard `<main>` test IDs.
-- Add new top-level routes.
-- Introduce new tables or migrations in this slice.
+- `supabase/migrations/<new>.sql` — columns, CHECK, INSERT policy tightening.
+- `src/lib/waitlist.functions.ts` — schema + server-side routing derivation + admin-role rejection.
+- `src/lib/owner/waitlist-conversion.functions.ts` — stamp `converted_invitation_id`.
+- `src/lib/owner/waitlist-triage.functions.ts` *(new)* — assign / set status.
+- `src/routes/waitlist.tsx` — role-aware form, routing messages, partner notice.
+- `src/routes/get-started.tsx` *(new)* — decision gate.
+- `src/routes/_authenticated/owner.waitlist.tsx` — new filters, convert/assign actions.
+- `src/routes/login.index.tsx` — small helper line.
+- `src/components/site/SiteHeader.tsx` — nav CTA → Get Started.
+- `tests/unit/waitlist-routing.test.ts` *(new)*.
 
----
+## Out of scope (explicit)
 
-## 3. Roadmap Deliverable
+- No changes to auth providers, role guards, `_authenticated` layout, dashboards, or any `data-testid` used by E2E.
+- No changes to `user_roles` or `admin_roles` schema.
+- No new billing/entitlement logic — the entitlement guard added earlier already covers active-org gating; signup eligibility check just consults it.
 
-I will create `docs/READINESS_ROADMAP.md` containing:
-
-### P0 — Required Before Market Release
-- Billing / entitlement enforcement on protected actions (today entitlement checks gate visibility, not write paths in every server fn) — add server-side `requireEntitlement` middleware for create/generate paths.
-- Notifications: wire the in-app notifications bell to a real read/unread store (table exists: `in_app_notifications`) with deep-link targets for invitations, share-link views, report regenerations, and admin review actions.
-- Consent + sharing: surface a single "Who can see this?" panel on each student profile combining `student_collaborators`, `student_relationships`, and active `share_tokens`.
-- Document review workflow: explicit reviewer queue states (uploaded → AI-extracted → human-reviewed → linked to report) backed by `document_summaries.review_status`.
-- Report export: produce a deterministic PDF (not just `window.print()`) for at least the educator audience, with audience watermark.
-- Launch readiness criteria checklist materialized on `/owner/launch` (already has skeleton) tied to `system_health_checks` outcomes.
-
-### P1 — Important Shortly After Release
-- District-paid access model: enforce that connected schools/families inherit entitlement from district org via `effective_entitlement_for_user` in the UI (gate "Add Student" by entitlement, not role).
-- Family early-access flow: separate pilot vs post-pilot copy + invite codes.
-- Partner moderation: dedicated owner review queue with diff view between previous and pending opportunity edits.
-- AI-generated content review: add a "Was this helpful?" thumbs row on each Pathway Report section that writes to `admin_audit_reviews` for owner QA.
-- Opportunity inquiry workflow: a partner-safe "Interest received" inbox that exposes counts + first name only, never IEP / Pathway / voice data.
-- Student rights at 18: surface `rights_transfer_status` on student profile and Pathway Report header with the recommended action.
-- Notifications email digest: daily/weekly summary built from `in_app_notifications` + `notification_prefs`.
-
-### P2 — Future Expansion
-- Public-facing partner directory with vetted listings.
-- District benchmarks across CT districts (anonymized).
-- Multi-language Pathway Report (already have AI assist scaffolding).
-- Mobile-first parent app shell (PWA).
-- Long-form analytics for districts (cohort trends, year-over-year).
-- Archive / data-deletion lifecycle with audit trail (`audit_log` table exists; needs UI).
-- Support / help center beyond `/help` placeholder.
-
-The doc will also list what was changed in this turn (A–G above) and explicitly mark items remaining as future-phase, so it doubles as a release-readiness ledger.
-
----
-
-## Technical Notes (for review)
-
-- All changes use existing server functions; no schema migrations in this slice.
-- No new packages required.
-- The `inputs_used` panel reads from the report's existing `content` JSON — purely additive in `ReportV2Extras.tsx`. If the field is empty on a legacy report, the panel hides itself.
-- The caseload `no-report` filter already exists in `caseload.tsx`; the KPI becomes a button that calls the same setter — zero new logic.
-- Onboarding/JourneyStrip de-dup is CSS/conditional only; both components keep persisting their own state.
-- `mailto:` self-connect is the only user-facing flow that doesn't write to the DB; this is intentional — a fake "Send invite" button would violate the no-inert-button rule, and a real self-invite needs a Phase-1 invitation flow (covered in P1 roadmap).
-
-Approve this and I'll implement A–H, write `docs/READINESS_ROADMAP.md`, and run the four verification commands.
+Approve and I'll start with the migration, then ship the form + decision gate + admin updates in order.

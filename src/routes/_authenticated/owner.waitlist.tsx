@@ -23,6 +23,7 @@ import {
   ownerAddWaitlistNote,
   ownerDeleteWaitlistEntry,
   WAITLIST_STATUSES,
+  WAITLIST_STATUS_LABELS,
   type WaitlistEntry,
   type WaitlistNote,
   type WaitlistStatus,
@@ -46,10 +47,15 @@ export const Route = createFileRoute("/_authenticated/owner/waitlist")({
 
 const STATUS_COLORS: Record<WaitlistStatus, "default" | "secondary" | "outline" | "destructive"> = {
   new: "default",
-  reviewed: "secondary",
-  contacted: "secondary",
+  needs_review: "destructive",
+  routed_family_early_access: "secondary",
+  routed_educator_demo: "secondary",
+  routed_school_pilot: "secondary",
+  routed_district_pilot: "secondary",
+  routed_partner_review: "secondary",
   invited: "default",
   converted: "default",
+  not_eligible_yet: "outline",
   archived: "outline",
 };
 
@@ -294,7 +300,7 @@ function WaitlistPage() {
             <SelectItem value="all">All statuses</SelectItem>
             {WAITLIST_STATUSES.map((s) => (
               <SelectItem key={s} value={s}>
-                {s}
+                {WAITLIST_STATUS_LABELS[s]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -404,7 +410,7 @@ function WaitlistPage() {
                       </td>
                       <td className="px-3 py-2.5 text-muted-foreground">{e.role}</td>
                       <td className="px-3 py-2.5">
-                        <Badge variant={STATUS_COLORS[e.status]}>{e.status}</Badge>
+                        <Badge variant={STATUS_COLORS[e.status]}>{WAITLIST_STATUS_LABELS[e.status]}</Badge>
                       </td>
                       <td className="px-3 py-2.5 text-xs text-muted-foreground">
                         {new Date(e.created_at).toLocaleDateString()}
@@ -567,7 +573,7 @@ function WaitlistDetailDrawer({
                 <SelectContent>
                   {WAITLIST_STATUSES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {s}
+                      {WAITLIST_STATUS_LABELS[s]}
                     </SelectItem>
                   ))}
                 </SelectContent>

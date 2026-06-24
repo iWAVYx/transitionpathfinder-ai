@@ -6013,11 +6013,18 @@ export type Database = {
       waitlist: {
         Row: {
           admin_notes: string | null
+          assigned_admin_id: string | null
+          caseload_size: number | null
           city: string | null
+          connected_to_student: boolean | null
           consent_to_contact: boolean
+          converted_invitation_id: string | null
+          converted_to_user_id: string | null
           created_at: string
           district_name: string | null
           email: string
+          estimated_school_count: number | null
+          estimated_student_count: number | null
           first_name: string | null
           full_name: string
           id: string
@@ -6028,26 +6035,40 @@ export type Database = {
           organization: string | null
           organization_name: string | null
           organization_type: string | null
+          populations_supported: string | null
           reason: string | null
           referral_source: string | null
           requested_role: string | null
           role: string
+          routing_category: string | null
           school_name: string | null
+          service_area: string | null
+          services_offered: string | null
           source: string | null
           source_page: string | null
           state: string | null
           status: string
           student_connection_interest: string | null
           student_grade_band: string | null
+          timeline: string | null
           updated_at: string
+          urgency: string | null
+          wants_demo: boolean
         }
         Insert: {
           admin_notes?: string | null
+          assigned_admin_id?: string | null
+          caseload_size?: number | null
           city?: string | null
+          connected_to_student?: boolean | null
           consent_to_contact?: boolean
+          converted_invitation_id?: string | null
+          converted_to_user_id?: string | null
           created_at?: string
           district_name?: string | null
           email: string
+          estimated_school_count?: number | null
+          estimated_student_count?: number | null
           first_name?: string | null
           full_name: string
           id?: string
@@ -6058,26 +6079,40 @@ export type Database = {
           organization?: string | null
           organization_name?: string | null
           organization_type?: string | null
+          populations_supported?: string | null
           reason?: string | null
           referral_source?: string | null
           requested_role?: string | null
           role: string
+          routing_category?: string | null
           school_name?: string | null
+          service_area?: string | null
+          services_offered?: string | null
           source?: string | null
           source_page?: string | null
           state?: string | null
           status?: string
           student_connection_interest?: string | null
           student_grade_band?: string | null
+          timeline?: string | null
           updated_at?: string
+          urgency?: string | null
+          wants_demo?: boolean
         }
         Update: {
           admin_notes?: string | null
+          assigned_admin_id?: string | null
+          caseload_size?: number | null
           city?: string | null
+          connected_to_student?: boolean | null
           consent_to_contact?: boolean
+          converted_invitation_id?: string | null
+          converted_to_user_id?: string | null
           created_at?: string
           district_name?: string | null
           email?: string
+          estimated_school_count?: number | null
+          estimated_student_count?: number | null
           first_name?: string | null
           full_name?: string
           id?: string
@@ -6088,20 +6123,35 @@ export type Database = {
           organization?: string | null
           organization_name?: string | null
           organization_type?: string | null
+          populations_supported?: string | null
           reason?: string | null
           referral_source?: string | null
           requested_role?: string | null
           role?: string
+          routing_category?: string | null
           school_name?: string | null
+          service_area?: string | null
+          services_offered?: string | null
           source?: string | null
           source_page?: string | null
           state?: string | null
           status?: string
           student_connection_interest?: string | null
           student_grade_band?: string | null
+          timeline?: string | null
           updated_at?: string
+          urgency?: string | null
+          wants_demo?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_converted_invitation_id_fkey"
+            columns: ["converted_invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       waitlist_admin_notes: {
         Row: {

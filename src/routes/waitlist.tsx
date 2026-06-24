@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { submitWaitlist } from "@/lib/waitlist.functions";
 
 import { toTitleCase } from "@/lib/title-case";
@@ -94,26 +95,26 @@ const Schema = z.object({
   district_name: z.string().trim().max(200).optional(),
   school_name: z.string().trim().max(200).optional(),
   reason: z.string().trim().max(2000).optional(),
+
+  // New routing fields collected per role
+  wants_demo: z.boolean().optional(),
+  connected_to_student: z.boolean().optional(),
+  urgency: z.enum(["exploring", "this_quarter", "this_year", "asap"]).optional(),
+  referral_source: z.string().trim().max(200).optional(),
+  caseload_size: z.coerce.number().int().min(0).max(100000).optional(),
+  estimated_student_count: z.coerce.number().int().min(0).max(10000000).optional(),
+  estimated_school_count: z.coerce.number().int().min(0).max(100000).optional(),
+  service_area: z.string().trim().max(500).optional(),
+  populations_supported: z.string().trim().max(1000).optional(),
+  services_offered: z.string().trim().max(2000).optional(),
+
+  // Required consent — the public waitlist RLS policy also enforces this.
+  consent_to_contact: z
+    .boolean()
+    .refine((v) => v === true, "Please confirm we can contact you."),
 });
 
 type FormValues = z.infer<typeof Schema>;
-
-// Maps the selected "door" to the canonical interest_type stored on the
-// waitlist row. Owner Hub triages by this enum, not by free-text role.
-function deriveInterestType(role: RoleKey): string {
-  switch (role) {
-    case "family":
-      return "family_early_access";
-    case "student":
-      return "family_early_access";
-    case "educator":
-      return "educator_access";
-    case "district":
-      return "school_pilot"; // refined below if district_name is filled
-    case "partner":
-      return "partner_interest";
-  }
-}
 
 export const Route = createFileRoute("/waitlist")({
   head: () => ({
@@ -310,6 +311,8 @@ function WaitlistPage() {
       state: "CT",
       student_grade_band: undefined,
       reason: "",
+      wants_demo: false,
+      consent_to_contact: false,
     },
   });
 
@@ -320,27 +323,12 @@ function WaitlistPage() {
   const onSubmit = async (values: FormValues) => {
     try {
       const role = (selected ?? values.role) as RoleKey;
-      let interest_type = deriveInterestType(role);
-      // If a school-or-district submitter typed a district name (with no
-      // single school), treat it as district_pilot interest.
-      if (
-        role === "district" &&
-        (values.district_name?.trim()?.length ?? 0) > 0 &&
-        !(values.school_name?.trim()?.length ?? 0)
-      ) {
-        interest_type = "district_pilot";
-      }
       await submit({
         data: {
           ...values,
+          role,
           source: "waitlist-tiles",
-          interest_type: interest_type as
-            | "family_early_access"
-            | "educator_access"
-            | "school_pilot"
-            | "district_pilot"
-            | "partner_interest"
-            | "demo_request",
+          consent_to_contact: true,
         },
       });
       setDone(true);
@@ -381,10 +369,18 @@ function WaitlistPage() {
               You don't have to figure this out alone.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Pick the door that fits you best. We're opening separate seats for families,
-              students, educators, school leaders, and partner organizations.
+              The waitlist is how we route access — for families, students,
+              educators, school and district leaders, and partner
+              organizations. Pick the door that fits you and we'll qualify
+              the right next step (early access, demo, pilot, or partner review).
             </p>
             <p className="mx-auto mt-3 max-w-xl text-xs text-muted-foreground/80">
+              Already have an invitation or active access?{" "}
+              <a href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+                Sign in instead →
+              </a>
+            </p>
+            <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground/80">
               A real person on our Connecticut team reads every submission — usually within two school days.
             </p>
           </header>
@@ -520,8 +516,76 @@ function WaitlistPage() {
                 )}
 
                 {current.key === "partner" && (
-                  <Field label="Organization">
-                    <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
+                  <>
+                    <Field label="Organization">
+                      <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
+                    </Field>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field label="Services offered">
+                        <Input {...form.register("services_offered")} placeholder="e.g. paid internships, mentorship, training" maxLength={2000} />
+                      </Field>
+                      <Field label="Service area">
+                        <Input {...form.register("service_area")} placeholder="e.g. Hartford County, statewide" maxLength={500} />
+                      </Field>
+                    </div>
+                    <Field label="Populations supported (optional)">
+                      <Input {...form.register("populations_supported")} placeholder="e.g. students 16–22 with IEPs" maxLength={1000} />
+                    </Field>
+                    <p className="rounded-md border border-amber-500/30 bg-amber-50/60 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                      Partner accounts manage opportunities and PartnerForward resources.
+                      Partners never see private student data.
+                    </p>
+                  </>
+                )}
+
+                {current.key === "educator" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Caseload size (approx.)">
+                      <Input type="number" min={0} {...form.register("caseload_size")} placeholder="e.g. 18" />
+                    </Field>
+                    <Field label="Wants a demo?">
+                      <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+                        <Checkbox
+                          checked={!!form.watch("wants_demo")}
+                          onCheckedChange={(v) => form.setValue("wants_demo", v === true)}
+                        />
+                        Yes, schedule a walkthrough
+                      </label>
+                    </Field>
+                  </div>
+                )}
+
+                {current.key === "district" && (
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <Field label="Est. students">
+                      <Input type="number" min={0} {...form.register("estimated_student_count")} placeholder="e.g. 4200" />
+                    </Field>
+                    <Field label="Est. schools">
+                      <Input type="number" min={0} {...form.register("estimated_school_count")} placeholder="e.g. 7" />
+                    </Field>
+                    <Field label="Timeline">
+                      <Select onValueChange={(v) => form.setValue("urgency", v as FormValues["urgency"])}>
+                        <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="exploring">Just exploring</SelectItem>
+                          <SelectItem value="this_quarter">This quarter</SelectItem>
+                          <SelectItem value="this_year">This school year</SelectItem>
+                          <SelectItem value="asap">As soon as possible</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                )}
+
+                {(current.key === "family" || current.key === "student") && (
+                  <Field label="Are you currently connected to a student in an active school?">
+                    <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+                      <Checkbox
+                        checked={!!form.watch("connected_to_student")}
+                        onCheckedChange={(v) => form.setValue("connected_to_student", v === true)}
+                      />
+                      Yes, the student has an active school or district
+                    </label>
                   </Field>
                 )}
 
@@ -549,9 +613,26 @@ function WaitlistPage() {
                   />
                 </Field>
 
+                <Field
+                  label=""
+                  error={form.formState.errors.consent_to_contact?.message as string | undefined}
+                >
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={!!form.watch("consent_to_contact")}
+                      onCheckedChange={(v) => form.setValue("consent_to_contact", v === true, { shouldValidate: true })}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      I consent to be contacted by the TransitionForward team
+                      about my request. (Required)
+                    </span>
+                  </label>
+                </Field>
+
                 <Button
                   type="submit"
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || !form.watch("consent_to_contact")}
                   className="w-full"
                 >
                   {form.formState.isSubmitting ? "Submitting…" : current.cta}

@@ -215,8 +215,16 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
                   </p>
                 </TabsContent>
                 <TabsContent value="signup" className="mt-6">
-                  <p className="mb-5 text-sm text-muted-foreground">
-                    No pressure, no spam. Just a quiet place to plan.
+                  <p className="mb-3 text-sm text-muted-foreground">
+                    Create your account if you have an invitation or your
+                    school, district, or partner organization is already
+                    active.
+                  </p>
+                  <p className="mb-5 rounded-md border border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                    Don't have an invitation yet?{" "}
+                    <a href="/waitlist" className="font-semibold text-primary underline-offset-4 hover:underline">
+                      Join the waitlist →
+                    </a>
                   </p>
                   <SignUpForm />
                 </TabsContent>

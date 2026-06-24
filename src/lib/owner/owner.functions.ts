@@ -23,13 +23,32 @@ export const ADMIN_ROLE_LABELS: Record<AdminRole, string> = {
 
 export const WAITLIST_STATUSES = [
   "new",
-  "reviewed",
-  "contacted",
+  "needs_review",
+  "routed_family_early_access",
+  "routed_educator_demo",
+  "routed_school_pilot",
+  "routed_district_pilot",
+  "routed_partner_review",
   "invited",
   "converted",
+  "not_eligible_yet",
   "archived",
 ] as const;
 export type WaitlistStatus = (typeof WAITLIST_STATUSES)[number];
+
+export const WAITLIST_STATUS_LABELS: Record<WaitlistStatus, string> = {
+  new: "New",
+  needs_review: "Needs Review",
+  routed_family_early_access: "Family Early Access",
+  routed_educator_demo: "Educator Demo",
+  routed_school_pilot: "School Pilot",
+  routed_district_pilot: "District Pilot",
+  routed_partner_review: "Partner Review",
+  invited: "Invited",
+  converted: "Converted",
+  not_eligible_yet: "Not Eligible Yet",
+  archived: "Archived",
+};
 
 export const CONTACT_STATUSES = ["new", "reviewed", "replied", "archived"] as const;
 export type ContactStatus = (typeof CONTACT_STATUSES)[number];
@@ -57,6 +76,20 @@ export type WaitlistEntry = {
   source_page: string | null;
   consent_to_contact: boolean;
   status: WaitlistStatus;
+  routing_category: string | null;
+  urgency: string | null;
+  wants_demo: boolean;
+  connected_to_student: boolean | null;
+  assigned_admin_id: string | null;
+  converted_to_user_id: string | null;
+  converted_invitation_id: string | null;
+  caseload_size: number | null;
+  estimated_student_count: number | null;
+  estimated_school_count: number | null;
+  timeline: string | null;
+  service_area: string | null;
+  populations_supported: string | null;
+  services_offered: string | null;
   admin_notes: string | null;
   created_at: string;
   updated_at: string | null;
