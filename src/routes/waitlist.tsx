@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { submitWaitlist } from "@/lib/waitlist.functions";
 
 import { toTitleCase } from "@/lib/title-case";
