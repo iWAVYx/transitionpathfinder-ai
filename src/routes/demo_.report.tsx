@@ -13,6 +13,7 @@ import { ReportView } from "@/components/pathway/ReportView";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
 import { EXTENDED_PLANS } from "@/lib/demo-extended-plans";
+import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/report")({
   validateSearch: validateStudentSearch,
@@ -155,6 +156,10 @@ function DemoReportPage() {
             </div>
           </motion.div>
         </motion.div>
+      </section>
+
+      <section className="mx-auto max-w-[92rem] px-4 pt-2 sm:px-6 lg:px-8">
+        <DemoRoleLens step="report" student={s} />
       </section>
 
       <ReportView

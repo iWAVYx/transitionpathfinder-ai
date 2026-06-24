@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_OPPORTUNITIES } from "@/lib/demo-extras";
+import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/opportunities")({
   validateSearch: validateStudentSearch,
@@ -61,7 +62,11 @@ function DemoOpportunitiesPage() {
           see opportunity-level interest — never private student information.
         </p>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <div className="mt-8">
+          <DemoRoleLens step="opportunities" student={s} />
+        </div>
+
+        <div className="mt-8 grid gap-5 sm:grid-cols-2">
           {opps.map((o) => (
             <article
               key={o.id}

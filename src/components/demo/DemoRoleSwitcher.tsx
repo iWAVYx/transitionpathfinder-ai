@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useDemoRoleView } from "@/hooks/use-demo-role-view";
 import {
   Users,
   GraduationCap,
@@ -29,7 +29,7 @@ interface Props {
 }
 
 export function DemoRoleSwitcher({ student }: Props) {
-  const [view, setView] = useState<DemoRoleView>("student");
+  const [view, setView] = useDemoRoleView();
   const bundle = getDemoStudent(student);
   const first = bundle.profile.first_name;
   const active = DEMO_ROLE_VIEWS.find((r) => r.id === view) ?? DEMO_ROLE_VIEWS[0];
