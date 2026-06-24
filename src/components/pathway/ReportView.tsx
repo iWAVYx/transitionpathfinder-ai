@@ -170,6 +170,7 @@ export function ReportView({
   const headerRef = useRef<HTMLElement | null>(null);
   const [parallaxY, setParallaxY] = useState(0);
   const [density, setDensity] = useState<"compact" | "comfortable">("compact");
+  const { user } = useAuth();
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
 
