@@ -99,9 +99,11 @@ modifications to `_authenticated/route.tsx`, auth, or 2FA.
   release. Remaining work: extend guard to `updateOpportunity` once partner
   pricing is locked, plus a friendly upsell screen for the
   `EntitlementRequiredError` thrown to clients.
-- **Notifications.** Wire the in-app bell to `in_app_notifications` with
-  deep links for invitations, share-link views, report regenerations, and
-  review-queue actions.
+- **Notifications.** 🟡 In-app bell now resolves a deep link per row via
+  `src/lib/notification-links.ts` (reports, students, documents, meetings,
+  messages, goals, invitations) and auto-marks-read on click. Remaining:
+  ensure server-side writers populate `related_record_type`/`_id` for every
+  emitted notification, and add an email digest fallback (P1).
 - **Consent & sharing panel.** One "Who can see this?" panel per student
   profile combining `student_collaborators`, `student_relationships`, and
   active `share_tokens`.
