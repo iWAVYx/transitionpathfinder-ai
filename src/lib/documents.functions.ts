@@ -415,7 +415,73 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
       },
     });
 
+    await supabase.from("document_access_log").insert({
+      document_id: row.id,
+      student_id: row.student_id,
+      actor_id: userId,
+      actor_role: role,
+      action: "download",
+      metadata: { doc_type: row.doc_type, ttl_seconds: 300 },
+    });
+
     return { url: signed.signedUrl };
+  });
+
+/**
+ * Platform-admin override: create a short-lived (15 min) grant that allows
+ * the admin to read a single student document. RLS reads `admin_doc_access_grants`
+ * to permit the row + storage object. Every override is logged.
+ */
+export const requestAdminDocAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({
+    document_id: z.string().uuid(),
+    reason: z.string().trim().min(8, "Please describe why this access is needed.").max(500),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("is_platform_admin", { _user_id: userId });
+    if (!isAdmin) throw new Error("Only platform admins may request override access.");
+
+    const { error: grantErr } = await supabase.from("admin_doc_access_grants").insert({
+      actor_id: userId,
+      document_id: data.document_id,
+      reason: data.reason,
+    });
+    if (grantErr) throw new Error("Could not record override grant.");
+
+    // Now that the grant exists, RLS lets us load metadata + mint a URL.
+    const { data: doc } = await supabase
+      .from("documents")
+      .select("id, student_id, storage_path, doc_type, title")
+      .eq("id", data.document_id)
+      .maybeSingle();
+    if (!doc) throw new Error("Document not found.");
+
+    const { data: signed, error: signErr } = await supabase.storage
+      .from("student-documents")
+      .createSignedUrl(doc.storage_path, 300);
+    if (signErr || !signed) throw new Error("Could not generate link.");
+
+    await supabase.from("document_access_log").insert({
+      document_id: doc.id,
+      student_id: doc.student_id,
+      actor_id: userId,
+      actor_role: "platform_admin",
+      action: "admin_override",
+      reason: data.reason,
+      metadata: { doc_type: doc.doc_type, ttl_seconds: 300 },
+    });
+    await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.admin_override",
+      entity_type: "document",
+      entity_id: doc.id,
+      student_id: doc.student_id,
+      metadata: { reason: data.reason, doc_type: doc.doc_type, title: doc.title },
+    });
+
+    return { url: signed.signedUrl, expiresInSeconds: 300 };
   });
 
 /* ---------- AI: extract goals from IEP text ---------- */
