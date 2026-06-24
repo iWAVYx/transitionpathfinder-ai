@@ -2,29 +2,71 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { FileText, FolderOpen, Search, Sparkles, CheckCircle2, Clock } from "lucide-react";
+import {
+  FileText,
+  FolderOpen,
+  Search,
+  Sparkles,
+  CheckCircle2,
+  UploadCloud,
+  Eye,
+} from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { listAllDocuments, type CrossDocumentRow } from "@/lib/cross-docs.functions";
+import {
+  listAllDocuments,
+  type CrossDocumentRow,
+  type DocumentReviewStatus,
+} from "@/lib/cross-docs.functions";
 
 export const Route = createFileRoute("/_authenticated/documents")({
   head: () => ({ meta: [{ title: "Documents — TransitionForward" }] }),
-  component: () => (<RoleGuard path="/documents"><DocumentsHubPage /></RoleGuard>),
+  component: () => (
+    <RoleGuard path="/documents">
+      <DocumentsHubPage />
+    </RoleGuard>
+  ),
 });
 
-type StatusKey = "needs-review" | "summarized" | "all";
+type FilterKey = "all" | DocumentReviewStatus;
 
-function statusFor(d: CrossDocumentRow): "summarized" | "needs-review" {
-  return d.has_summary ? "summarized" : "needs-review";
-}
+const STATUS_META: Record<
+  DocumentReviewStatus,
+  { label: string; tone: string; icon: React.ComponentType<{ className?: string }>; description: string }
+> = {
+  uploaded: {
+    label: "Uploaded",
+    tone: "bg-muted text-muted-foreground",
+    icon: UploadCloud,
+    description: "File saved. No AI draft yet — open the student to run extraction.",
+  },
+  ai_extracted: {
+    label: "AI Drafted",
+    tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
+    icon: Sparkles,
+    description: "AI produced a draft. A human still needs to triage each section.",
+  },
+  in_review: {
+    label: "In Review",
+    tone: "bg-blue-100 text-blue-900 dark:bg-blue-500/15 dark:text-blue-300",
+    icon: Eye,
+    description: "Reviewer has started accepting / editing sections.",
+  },
+  linked: {
+    label: "Linked",
+    tone: "bg-primary/10 text-primary",
+    icon: CheckCircle2,
+    description: "Accepted fields have been saved to the student profile.",
+  },
+};
 
 function DocumentsHubPage() {
   const fetchAll = useServerFn(listAllDocuments);
   const [rows, setRows] = useState<CrossDocumentRow[] | null>(null);
-  const [filter, setFilter] = useState<StatusKey>("all");
+  const [filter, setFilter] = useState<FilterKey>("all");
   const [q, setQ] = useState("");
 
   useEffect(() => {
@@ -36,15 +78,25 @@ function DocumentsHubPage() {
   const filtered = useMemo(() => {
     if (!rows) return [];
     return rows.filter((d) => {
-      if (filter !== "all" && statusFor(d) !== filter) return false;
+      if (filter !== "all" && d.review_status !== filter) return false;
       if (q && !`${d.title} ${d.student_first_name}`.toLowerCase().includes(q.toLowerCase()))
         return false;
       return true;
     });
   }, [rows, filter, q]);
 
-  const summarized = rows?.filter((d) => d.has_summary).length ?? 0;
-  const needsReview = (rows?.length ?? 0) - summarized;
+  const counts = useMemo(() => {
+    const base: Record<DocumentReviewStatus, number> = {
+      uploaded: 0,
+      ai_extracted: 0,
+      in_review: 0,
+      linked: 0,
+    };
+    (rows ?? []).forEach((d) => {
+      base[d.review_status] += 1;
+    });
+    return base;
+  }, [rows]);
 
   return (
     <SiteShell>
@@ -61,14 +113,15 @@ function DocumentsHubPage() {
             Every Iep, Evaluation, and Plan — in One Calm Place.
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-            Documents you upload on each student page show up here too, so you can quickly find
-            anything across your roster. Status reflects whether we've turned the document into
-            structured goals yet.
+            Each document moves through four steps: <strong>Uploaded</strong> →{" "}
+            <strong>AI Drafted</strong> → <strong>In Review</strong> →{" "}
+            <strong>Linked</strong>. You see exactly where every file stands and
+            who still needs to look at it.
           </p>
         </header>
 
-        {/* Status summary */}
-        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        {/* Status pipeline */}
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <StatChip
             label="All documents"
             value={rows?.length ?? 0}
@@ -76,21 +129,27 @@ function DocumentsHubPage() {
             onClick={() => setFilter("all")}
             icon={<FolderOpen className="h-4 w-4" />}
           />
-          <StatChip
-            label="Needs review"
-            value={needsReview}
-            active={filter === "needs-review"}
-            onClick={() => setFilter("needs-review")}
-            icon={<Clock className="h-4 w-4" />}
-          />
-          <StatChip
-            label="Summarized"
-            value={summarized}
-            active={filter === "summarized"}
-            onClick={() => setFilter("summarized")}
-            icon={<CheckCircle2 className="h-4 w-4" />}
-          />
+          {(Object.keys(STATUS_META) as DocumentReviewStatus[]).map((key) => {
+            const meta = STATUS_META[key];
+            const Icon = meta.icon;
+            return (
+              <StatChip
+                key={key}
+                label={meta.label}
+                value={counts[key]}
+                active={filter === key}
+                onClick={() => setFilter(key)}
+                icon={<Icon className="h-4 w-4" />}
+              />
+            );
+          })}
         </div>
+
+        {filter !== "all" && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {STATUS_META[filter].description}
+          </p>
+        )}
 
         <div className="mt-6 flex items-center gap-3">
           <div className="relative flex-1">
@@ -111,26 +170,25 @@ function DocumentsHubPage() {
             <EmptyState />
           ) : (
             <ul className="divide-y">
-              {filtered.map((d) => {
-                const status = statusFor(d);
-                return (
-                  <li
-                    key={d.id}
-                    className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{d.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {d.student_first_name} ·{" "}
-                          <span className="capitalize">{d.doc_type}</span> ·{" "}
-                          {new Date(d.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
+              {filtered.map((d) => (
+                <li
+                  key={d.id}
+                  className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{d.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {d.student_first_name} ·{" "}
+                        <span className="capitalize">{d.doc_type}</span> ·{" "}
+                        {new Date(d.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={status} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={d.review_status} />
+                    {d.review_status === "uploaded" || d.review_status === "linked" ? (
                       <Button asChild size="sm" variant="outline">
                         <Link
                           to="/students/$studentId"
@@ -139,10 +197,19 @@ function DocumentsHubPage() {
                           Open student
                         </Link>
                       </Button>
-                    </div>
-                  </li>
-                );
-              })}
+                    ) : (
+                      <Button asChild size="sm">
+                        <Link
+                          to="/documents/$documentId/review"
+                          params={{ documentId: d.id }}
+                        >
+                          Continue review
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              ))}
             </ul>
           )}
         </div>
@@ -183,17 +250,14 @@ function StatChip({
   );
 }
 
-function StatusBadge({ status }: { status: "summarized" | "needs-review" }) {
-  if (status === "summarized") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
-        <Sparkles className="h-3 w-3" /> Summarized
-      </span>
-    );
-  }
+function StatusBadge({ status }: { status: DocumentReviewStatus }) {
+  const meta = STATUS_META[status];
+  const Icon = meta.icon;
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-      <Clock className="h-3 w-3" /> Needs review
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${meta.tone}`}
+    >
+      <Icon className="h-3 w-3" /> {meta.label}
     </span>
   );
 }
@@ -215,3 +279,4 @@ function EmptyState() {
     </div>
   );
 }
+
