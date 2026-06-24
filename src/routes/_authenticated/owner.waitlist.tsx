@@ -23,6 +23,7 @@ import {
   ownerAddWaitlistNote,
   ownerDeleteWaitlistEntry,
   WAITLIST_STATUSES,
+  WAITLIST_STATUS_LABELS,
   type WaitlistEntry,
   type WaitlistNote,
   type WaitlistStatus,
