@@ -2,8 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getAppBaseUrl } from "@/lib/app-url.server";
+
+// SECURITY: lazy-load service-role client to keep `client.server` out of client bundle graph.
+let _supabaseAdmin: any;
+async function getAdmin() {
+  if (!_supabaseAdmin) {
+    const m = await import("@/integrations/supabase/client.server");
+    _supabaseAdmin = m.supabaseAdmin;
+  }
+  return _supabaseAdmin;
+}
 
 async function findUserIdByEmail(email: string): Promise<string | null> {
   const lower = email.toLowerCase();
