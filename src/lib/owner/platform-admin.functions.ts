@@ -15,7 +15,6 @@ async function getAdmin() {
 async function requirePlatformAdmin(supabase: any, userId: string) {
   const { data } = await supabase
     .from("admin_roles")
-  const supabaseAdmin = await getAdmin();
     .select("role")
     .eq("user_id", userId)
     .in("role", ["platform_owner", "platform_admin"])
@@ -54,7 +53,6 @@ export type OrgRow = {
   state: string | null;
   website: string | null;
   contact_email: string | null;
-    const supabaseAdmin = await getAdmin();
   verified_status: "pending" | "verified" | "rejected";
   created_at: string;
   member_count: number;
@@ -105,7 +103,6 @@ export const platformListOrganizations = createServerFn({ method: "GET" })
 
 export const platformDecideOrganization = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-    const supabaseAdmin = await getAdmin();
   .inputValidator((i: unknown) =>
     z
       .object({
@@ -143,7 +140,6 @@ export type OpportunityRow = {
 export const platformListOpportunities = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) =>
-    const supabaseAdmin = await getAdmin();
     z
       .object({
         status: z
@@ -185,7 +181,6 @@ export const platformListOpportunities = createServerFn({ method: "POST" })
 
 export const platformDecideOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-    const supabaseAdmin = await getAdmin();
   .inputValidator((i: unknown) =>
     z
       .object({
@@ -214,7 +209,6 @@ export type PlatformUserRow = {
   created_at: string;
   last_sign_in_at: string | null;
   roles: string[];
-    const supabaseAdmin = await getAdmin();
   admin_roles: string[];
 };
 

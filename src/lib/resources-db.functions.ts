@@ -36,7 +36,6 @@ const RESOURCE_COLS =
 
 export const listVerifiedResources = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabaseAdmin = await getAdmin();
     const { data, error } = await supabaseAdmin
       .from("resources")
       .select(RESOURCE_COLS)
@@ -53,7 +52,6 @@ export const listVerifiedResources = createServerFn({ method: "GET" })
 
 export const listFeaturedResources = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabaseAdmin = await getAdmin();
     const { data, error } = await supabaseAdmin
       .from("resources")
       .select(RESOURCE_COLS)
@@ -82,7 +80,6 @@ export type ResourceSourcePublic = {
 
 export const listSourceLibraries = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabaseAdmin = await getAdmin();
     const { data: sources, error } = await supabaseAdmin
       .from("resource_sources")
       .select(
