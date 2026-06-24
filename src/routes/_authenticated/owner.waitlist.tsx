@@ -410,7 +410,7 @@ function WaitlistPage() {
                       </td>
                       <td className="px-3 py-2.5 text-muted-foreground">{e.role}</td>
                       <td className="px-3 py-2.5">
-                        <Badge variant={STATUS_COLORS[e.status]}>{e.status}</Badge>
+                        <Badge variant={STATUS_COLORS[e.status]}>{WAITLIST_STATUS_LABELS[e.status]}</Badge>
                       </td>
                       <td className="px-3 py-2.5 text-xs text-muted-foreground">
                         {new Date(e.created_at).toLocaleDateString()}
