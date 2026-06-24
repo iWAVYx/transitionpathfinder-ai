@@ -6,6 +6,7 @@ import { getAppBaseUrl } from "@/lib/app-url.server";
 
 // SECURITY: lazy-load service-role client to keep `client.server` out of client bundle graph.
 let _supabaseAdmin: any;
+  const supabaseAdmin = await getAdmin();
 async function getAdmin() {
   if (!_supabaseAdmin) {
     const m = await import("@/integrations/supabase/client.server");
@@ -191,6 +192,7 @@ export const removeCollaborator = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("student_collaborators")
       .delete()
+    const supabaseAdmin = await getAdmin();
       .eq("id", data.id);
     if (error) throw new Error("Could not remove collaborator.");
     return { ok: true };
@@ -282,6 +284,7 @@ export const resendCollaboratorInvite = createServerFn({ method: "POST" })
 
 
 
+    const supabaseAdmin = await getAdmin();
 export type InviteWithStudent = Collaborator & {
   student_first_name: string | null;
   student_last_name: string | null;
