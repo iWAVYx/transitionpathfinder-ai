@@ -1344,8 +1344,7 @@ export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
     let emailStatus: "sent" | "failed" | "skipped" = "skipped";
     let emailError: string | null = null;
     try {
-      const req = getRequest();
-      const origin = new URL(req.url).origin;
+      const origin = getAppBaseUrl();
       const authHeader = getRequestHeader("Authorization") ?? "";
 
       // Look up inviter display name
