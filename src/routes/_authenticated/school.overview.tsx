@@ -67,9 +67,7 @@ function SchoolOverviewPage() {
                 <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                   <Link to="/school/team"><Users className="h-4 w-4" /> Manage Team</Link>
                 </Button>
-                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
-                  <Link to="/school/reports" hash="reports-list" aria-label="Go to Pathway Reports list"><FileText className="h-4 w-4" /> View Reports</Link>
-                </Button>
+
                 <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                   <Link to="/school/reports" hash="compliance-milestones" aria-label="Go to Compliance and Milestones"><ShieldAlert className="h-4 w-4" /> Compliance & Milestones</Link>
                 </Button>
