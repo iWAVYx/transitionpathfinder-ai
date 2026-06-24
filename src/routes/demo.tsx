@@ -10,6 +10,10 @@ import {
   CalendarDays,
   ShieldCheck,
   ArrowRight,
+  Mic,
+  FileSearch,
+  Briefcase,
+  Compass,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
