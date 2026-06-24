@@ -22,6 +22,7 @@ import {
 } from "@/components/students/FamilyDocumentUpload";
 import { Button } from "@/components/ui/button";
 import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
+import { WhoCanSeeThisPanel } from "@/components/students/WhoCanSeeThisPanel";
 import { GoalsEditor } from "@/components/students/GoalsEditor";
 import { MembershipPanel } from "@/components/students/MembershipPanel";
 import { PathwayProgress } from "@/components/students/PathwayProgress";
@@ -383,6 +384,10 @@ function StudentDetailPage() {
 
         <div className="mt-6">
           <MembershipPanel studentId={studentId} />
+        </div>
+
+        <div className="mt-6">
+          <WhoCanSeeThisPanel studentId={studentId} />
         </div>
 
         <div className="mt-6">
