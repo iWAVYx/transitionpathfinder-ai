@@ -9,6 +9,7 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
+import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_DOCUMENT_INSIGHTS } from "@/lib/demo-extras";
 
 export const Route = createFileRoute("/demo_/documents")({
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/demo_/documents")({
 });
 
 function DemoDocumentsPage() {
-  const { s } = Route.useSearch();
+  const { s } = Route.useSearch() as { s: DemoStudentId };
   const bundle = getDemoStudent(s);
   const insights = DEMO_DOCUMENT_INSIGHTS[s];
   const flagged = insights.filter((i) => i.needsReview);

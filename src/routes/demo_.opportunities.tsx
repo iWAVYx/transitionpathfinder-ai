@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
+import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_OPPORTUNITIES } from "@/lib/demo-extras";
 
 export const Route = createFileRoute("/demo_/opportunities")({
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/demo_/opportunities")({
 });
 
 function DemoOpportunitiesPage() {
-  const { s } = Route.useSearch();
+  const { s } = Route.useSearch() as { s: DemoStudentId };
   const bundle = getDemoStudent(s);
   const opps = DEMO_OPPORTUNITIES[s];
 

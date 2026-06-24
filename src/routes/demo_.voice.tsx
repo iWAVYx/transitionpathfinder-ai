@@ -9,6 +9,7 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
+import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_VOICE } from "@/lib/demo-extras";
 import { toTitleCase } from "@/lib/title-case";
 
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/demo_/voice")({
 });
 
 function DemoVoicePage() {
-  const { s } = Route.useSearch();
+  const { s } = Route.useSearch() as { s: DemoStudentId };
   const bundle = getDemoStudent(s);
   const prompts = DEMO_VOICE[s];
   const first = bundle.profile.first_name;
