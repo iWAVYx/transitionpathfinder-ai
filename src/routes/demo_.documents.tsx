@@ -36,7 +36,7 @@ export const Route = createFileRoute("/demo_/documents")({
 });
 
 function DemoDocumentsPage() {
-  const { s } = Route.useSearch() as { s: DemoStudentId };
+  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
   const bundle = getDemoStudent(s);
   const insights = DEMO_DOCUMENT_INSIGHTS[s];
   const flagged = insights.filter((i) => i.needsReview);

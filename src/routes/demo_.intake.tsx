@@ -30,7 +30,7 @@ export const Route = createFileRoute("/demo_/intake")({
 });
 
 function DemoIntakePage() {
-  const { s } = Route.useSearch();
+  const { s = "maya" as const } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile: student, intake } = bundle;
 

@@ -127,7 +127,7 @@ const STEPS = [
 ];
 
 function DemoIndex() {
-  const { s } = Route.useSearch();
+  const { s = "maya" as const } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile: student } = bundle;
 

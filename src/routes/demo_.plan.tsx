@@ -46,7 +46,7 @@ export const Route = createFileRoute("/demo_/plan")({
 });
 
 function DemoPlanPage() {
-  const { s } = Route.useSearch();
+  const { s = "maya" as const } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile, report } = bundle;
   const familyPlan = report.family_action_plan;
