@@ -460,39 +460,38 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
  * tokens (Sky & Peach + Cormorant/Karla) remain unchanged.
  * =========================================================================== */
 :root {
-  --demo-primary: oklch(0.45 0.07 200);        /* Horizon Teal deep #0B3B49 */
-  --demo-primary-bright: oklch(0.62 0.09 195); /* Teal mid #1F8A8A */
-  --demo-accent: oklch(0.78 0.14 60);          /* Sunrise #F4A24C */
-  --demo-accent-soft: oklch(0.92 0.07 60);
-  --demo-surface-warm: oklch(0.96 0.04 75);    /* Cream #FFE2C2 */
-  --demo-ink: oklch(0.22 0.04 220);
-  --demo-muted: oklch(0.5 0.03 210);
-  --demo-border: oklch(0.88 0.03 200);
-  --demo-card: oklch(1 0 0);
+  /* Demo + Pathway Report color tokens — aligned to the site's Sky & Peach palette.
+   * Typography and motion remain scoped to .demo-shell / .report-shell. */
+  --demo-primary: var(--primary);              /* Sky deep */
+  --demo-primary-bright: var(--sky);           /* Sky mid */
+  --demo-accent: var(--peach);                 /* Peach */
+  --demo-accent-soft: var(--peach-soft);
+  --demo-surface-warm: var(--sky-soft);
+  --demo-ink: var(--foreground);
+  --demo-muted: var(--muted-foreground);
+  --demo-border: var(--border);
+  --demo-card: var(--card);
 
-  --gradient-horizon: linear-gradient(135deg, var(--demo-primary) 0%, var(--demo-primary-bright) 100%);
-  --gradient-sunrise: linear-gradient(135deg, var(--demo-accent-soft) 0%, var(--demo-accent) 100%);
-  --gradient-demo-hero: linear-gradient(140deg,
-    oklch(0.96 0.03 200) 0%,
-    oklch(0.94 0.05 75) 60%,
-    oklch(0.92 0.07 60) 100%);
+  --gradient-horizon: var(--gradient-sky);
+  --gradient-sunrise: var(--gradient-peach);
+  --gradient-demo-hero: var(--gradient-hero);
 
-  --shadow-demo-lift: 0 2px 6px oklch(0.45 0.07 200 / 0.10), 0 18px 44px oklch(0.45 0.07 200 / 0.14);
-  --shadow-report: 0 4px 12px oklch(0.45 0.07 200 / 0.08), 0 24px 60px oklch(0.45 0.07 200 / 0.16);
+  --shadow-demo-lift: var(--shadow-lift);
+  --shadow-report: var(--shadow-lift);
 
   --font-demo-display: "Urbanist", ui-sans-serif, system-ui, sans-serif;
   --font-demo-body: "Epilogue", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
-  --demo-primary: oklch(0.78 0.09 195);
-  --demo-primary-bright: oklch(0.82 0.10 190);
-  --demo-accent: oklch(0.80 0.14 60);
-  --demo-accent-soft: oklch(0.42 0.08 60);
-  --demo-surface-warm: oklch(0.28 0.04 75);
-  --demo-ink: oklch(0.96 0.01 210);
-  --demo-muted: oklch(0.78 0.02 210);
-  --demo-border: oklch(1 0 0 / 14%);
+  --demo-primary: var(--primary);
+  --demo-primary-bright: var(--sky);
+  --demo-accent: var(--peach);
+  --demo-accent-soft: var(--peach-soft);
+  --demo-surface-warm: var(--sky-soft);
+  --demo-ink: var(--foreground);
+  --demo-muted: var(--muted-foreground);
+  --demo-border: var(--border);
   --demo-card: oklch(0.22 0.04 220);
   --gradient-demo-hero: linear-gradient(140deg, oklch(0.28 0.05 200), oklch(0.30 0.06 60));
 }
