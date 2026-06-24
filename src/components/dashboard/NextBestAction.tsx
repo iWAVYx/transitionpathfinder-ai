@@ -171,7 +171,7 @@ export function NextBestAction({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Next best step
+            Next Best Step
           </p>
           <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
             {action.headline}
@@ -179,7 +179,12 @@ export function NextBestAction({
           <p className="mt-1.5 text-sm leading-relaxed text-foreground/75">
             {action.body}
           </p>
-          <div className="mt-4">
+          {action.reason ? (
+            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
+              {action.reason}
+            </p>
+          ) : null}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => navigate({ to: action.ctaHref })}
@@ -195,6 +200,15 @@ export function NextBestAction({
               {action.ctaLabel}
               <ArrowRight className="h-4 w-4" />
             </button>
+            {action.secondaryHref && action.secondaryLabel ? (
+              <button
+                type="button"
+                onClick={() => navigate({ to: action.secondaryHref! })}
+                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background"
+              >
+                {action.secondaryLabel}
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
