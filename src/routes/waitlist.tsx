@@ -605,9 +605,26 @@ function WaitlistPage() {
                   />
                 </Field>
 
+                <Field
+                  label=""
+                  error={form.formState.errors.consent_to_contact?.message as string | undefined}
+                >
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={!!form.watch("consent_to_contact")}
+                      onCheckedChange={(v) => form.setValue("consent_to_contact", v === true, { shouldValidate: true })}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      I consent to be contacted by the TransitionForward team
+                      about my request. (Required)
+                    </span>
+                  </label>
+                </Field>
+
                 <Button
                   type="submit"
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || !form.watch("consent_to_contact")}
                   className="w-full"
                 >
                   {form.formState.isSubmitting ? "Submitting…" : current.cta}
