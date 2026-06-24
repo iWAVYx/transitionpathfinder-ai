@@ -310,6 +310,8 @@ function WaitlistPage() {
       state: "CT",
       student_grade_band: undefined,
       reason: "",
+      wants_demo: false,
+      consent_to_contact: false as unknown as true,
     },
   });
 
