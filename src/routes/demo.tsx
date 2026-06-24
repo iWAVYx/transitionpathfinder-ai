@@ -267,6 +267,14 @@ function DemoIndex() {
             </Button>
           </div>
         </div>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Internal audit:{" "}
+          <Link to="/demo/connection" className="underline hover:text-foreground">
+            Demo Feature Connection Checklist
+          </Link>{" "}
+          — every demo element mapped to its real product feature, role, and status.
+        </p>
       </section>
     </SiteShell>
   );

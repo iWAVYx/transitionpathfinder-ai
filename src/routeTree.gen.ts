@@ -55,6 +55,7 @@ import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
 import { Route as DemoDocumentsRouteImport } from './routes/demo_.documents'
+import { Route as DemoConnectionRouteImport } from './routes/demo_.connection'
 import { Route as DemoCalendarRouteImport } from './routes/demo_.calendar'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
@@ -381,6 +382,11 @@ const DemoHubRoute = DemoHubRouteImport.update({
 const DemoDocumentsRoute = DemoDocumentsRouteImport.update({
   id: '/demo_/documents',
   path: '/demo/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoConnectionRoute = DemoConnectionRouteImport.update({
+  id: '/demo_/connection',
+  path: '/demo/connection',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoCalendarRoute = DemoCalendarRouteImport.update({
@@ -982,6 +988,7 @@ export interface FileRoutesByFullPath {
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/calendar': typeof DemoCalendarRoute
+  '/demo/connection': typeof DemoConnectionRoute
   '/demo/documents': typeof DemoDocumentsRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
@@ -1123,6 +1130,7 @@ export interface FileRoutesByTo {
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/calendar': typeof DemoCalendarRoute
+  '/demo/connection': typeof DemoConnectionRoute
   '/demo/documents': typeof DemoDocumentsRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
@@ -1268,6 +1276,7 @@ export interface FileRoutesById {
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo_/calendar': typeof DemoCalendarRoute
+  '/demo_/connection': typeof DemoConnectionRoute
   '/demo_/documents': typeof DemoDocumentsRoute
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
@@ -1413,6 +1422,7 @@ export interface FileRouteTypes {
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/calendar'
+    | '/demo/connection'
     | '/demo/documents'
     | '/demo/hub'
     | '/demo/intake'
@@ -1554,6 +1564,7 @@ export interface FileRouteTypes {
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/calendar'
+    | '/demo/connection'
     | '/demo/documents'
     | '/demo/hub'
     | '/demo/intake'
@@ -1698,6 +1709,7 @@ export interface FileRouteTypes {
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo_/calendar'
+    | '/demo_/connection'
     | '/demo_/documents'
     | '/demo_/hub'
     | '/demo_/intake'
@@ -1815,6 +1827,7 @@ export interface RootRouteChildren {
   WaitlistRoute: typeof WaitlistRoute
   AdminInviteTokenRoute: typeof AdminInviteTokenRoute
   DemoCalendarRoute: typeof DemoCalendarRoute
+  DemoConnectionRoute: typeof DemoConnectionRoute
   DemoDocumentsRoute: typeof DemoDocumentsRoute
   DemoHubRoute: typeof DemoHubRoute
   DemoIntakeRoute: typeof DemoIntakeRoute
@@ -2160,6 +2173,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/documents'
       fullPath: '/demo/documents'
       preLoaderRoute: typeof DemoDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/connection': {
+      id: '/demo_/connection'
+      path: '/demo/connection'
+      fullPath: '/demo/connection'
+      preLoaderRoute: typeof DemoConnectionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/calendar': {
@@ -3159,6 +3179,7 @@ const rootRouteChildren: RootRouteChildren = {
   WaitlistRoute: WaitlistRoute,
   AdminInviteTokenRoute: AdminInviteTokenRoute,
   DemoCalendarRoute: DemoCalendarRoute,
+  DemoConnectionRoute: DemoConnectionRoute,
   DemoDocumentsRoute: DemoDocumentsRoute,
   DemoHubRoute: DemoHubRoute,
   DemoIntakeRoute: DemoIntakeRoute,

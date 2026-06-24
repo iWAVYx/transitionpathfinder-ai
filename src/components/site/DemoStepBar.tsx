@@ -20,6 +20,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
+import { FeatureFootnote } from "@/components/demo/FeatureFootnote";
+import type { DemoElementId } from "@/lib/demo/feature-map";
+
+const STEP_FEATURE: Record<string, DemoElementId> = {
+  intake: "intake.categories",
+  voice: "voice.prompts",
+  documents: "documents.insights",
+  report: "report.snapshot",
+  opportunities: "opportunities.cards",
+  resources: "resources.cards",
+  meeting: "meeting.agenda",
+  calendar: "calendar.month",
+  plan: "plan.timeline",
+  hub: "hub.educator",
+  next: "cta.getStarted",
+};
 
 export const DEMO_STEPS = [
   { id: "intake", to: "/demo/intake", label: "Intake", icon: ClipboardList },
@@ -127,38 +143,41 @@ export function DemoStepFooter({ current, student }: FooterProps) {
   const bundle = DEMO_STUDENTS[student];
 
   return (
-    <div className="mx-auto mt-12 flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-border/60 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="text-xs text-muted-foreground">
-        Walking with{" "}
-        <span className="font-medium text-foreground">{bundle.profile.first_name}</span>
-      </div>
-      <div className="flex gap-2">
-        {prev ? (
-          <Button asChild variant="outline" size="sm">
-            <Link to={prev.to} search={{ s: student }}>
-              <ArrowLeft className="h-4 w-4" /> {prev.label}
-            </Link>
-          </Button>
-        ) : (
-          <Button asChild variant="outline" size="sm">
-            <Link to="/demo">
-              <ArrowLeft className="h-4 w-4" /> Demo overview
-            </Link>
-          </Button>
-        )}
-        {next ? (
-          <Button asChild size="sm">
-            <Link to={next.to} search={{ s: student }}>
-              {next.label} <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        ) : (
-          <Button asChild size="sm">
-            <Link to="/waitlist">
-              Join the waitlist <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        )}
+    <div className="mx-auto mt-12 max-w-6xl border-t border-border/60 px-4 sm:px-6 lg:px-8">
+      <FeatureFootnote elementId={STEP_FEATURE[current]} className="mt-6" />
+      <div className="flex flex-wrap items-center justify-between gap-3 py-6">
+        <div className="text-xs text-muted-foreground">
+          Walking with{" "}
+          <span className="font-medium text-foreground">{bundle.profile.first_name}</span>
+        </div>
+        <div className="flex gap-2">
+          {prev ? (
+            <Button asChild variant="outline" size="sm">
+              <Link to={prev.to} search={{ s: student }}>
+                <ArrowLeft className="h-4 w-4" /> {prev.label}
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline" size="sm">
+              <Link to="/demo">
+                <ArrowLeft className="h-4 w-4" /> Demo overview
+              </Link>
+            </Button>
+          )}
+          {next ? (
+            <Button asChild size="sm">
+              <Link to={next.to} search={{ s: student }}>
+                {next.label} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="sm">
+              <Link to="/waitlist">
+                Join the waitlist <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
