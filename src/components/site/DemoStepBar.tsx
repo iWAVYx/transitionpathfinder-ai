@@ -1,4 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
+import { useRef } from "react";
+
 import {
   LayoutDashboard,
   ClipboardList,
