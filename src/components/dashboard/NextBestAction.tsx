@@ -29,16 +29,21 @@ export function NextBestAction({
   const fetchAction = useServerFn(getNextBestAction);
   const [action, setAction] = useState<NBA | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errored, setErrored] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let alive = true;
     setLoading(true);
+    setErrored(false);
     fetchAction({ data: { surface } })
       .then((res) => {
-        if (alive) setAction(res);
+        if (!alive) return;
+        setAction(res);
       })
       .catch(() => {
-        if (alive) setAction(null);
+        if (!alive) return;
+        setAction(null);
+        setErrored(true);
       })
       .finally(() => {
         if (alive) setLoading(false);
@@ -48,6 +53,8 @@ export function NextBestAction({
     };
   }, [fetchAction, surface]);
 
+  useEffect(() => load(), [load]);
+
   if (loading) {
     return (
       <section
@@ -56,14 +63,45 @@ export function NextBestAction({
           className,
         )}
         aria-label="Next best step"
+        aria-busy="true"
       >
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Next best step
+          Next Best Step
         </p>
         <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
           Finding your next best step…
         </h3>
         <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-muted" />
+      </section>
+    );
+  }
+
+  if (errored) {
+    return (
+      <section
+        className={cn(
+          "rounded-3xl border border-amber-200 bg-amber-50/60 p-5 shadow-soft sm:p-6 dark:bg-amber-950/20",
+          className,
+        )}
+        aria-label="Next best step"
+      >
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Next Best Step
+        </p>
+        <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
+          Couldn't load your next step
+        </h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-foreground/75">
+          Check your connection and try again. Your data is safe.
+        </p>
+        <button
+          type="button"
+          onClick={() => load()}
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-amber-700"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Try again
+        </button>
       </section>
     );
   }
@@ -78,7 +116,7 @@ export function NextBestAction({
         aria-label="Next best step"
       >
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Next best step
+          Next Best Step
         </p>
         <h3 className="mt-1 font-display text-xl font-medium leading-snug tracking-tight">
           You're all caught up
@@ -89,6 +127,7 @@ export function NextBestAction({
       </section>
     );
   }
+
 
   const Icon =
     action.tone === "success"
