@@ -369,10 +369,18 @@ function WaitlistPage() {
               You don't have to figure this out alone.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Pick the door that fits you best. We're opening separate seats for families,
-              students, educators, school leaders, and partner organizations.
+              The waitlist is how we route access — for families, students,
+              educators, school and district leaders, and partner
+              organizations. Pick the door that fits you and we'll qualify
+              the right next step (early access, demo, pilot, or partner review).
             </p>
             <p className="mx-auto mt-3 max-w-xl text-xs text-muted-foreground/80">
+              Already have an invitation or active access?{" "}
+              <a href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+                Sign in instead →
+              </a>
+            </p>
+            <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground/80">
               A real person on our Connecticut team reads every submission — usually within two school days.
             </p>
           </header>
