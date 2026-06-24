@@ -65,16 +65,17 @@ export function DemoStepBar({ current, student }: Props) {
   const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
   const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
   const railRef = useRef<HTMLElement | null>(null);
-  const dragState = useRef<{ active: boolean; moved: boolean; startX: number; startLeft: number; pointerId: number | null }>({
+  const dragState = useRef<{ active: boolean; moved: boolean; startX: number; startY: number; startLeft: number; pointerId: number | null; pointerType: string }>({
     active: false,
     moved: false,
     startX: 0,
+    startY: 0,
     startLeft: 0,
     pointerId: null,
+    pointerType: "",
   });
 
   const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
-    if (e.pointerType === "touch") return; // let native touch scrolling work
     const el = railRef.current;
     if (!el) return;
     dragState.current = {
