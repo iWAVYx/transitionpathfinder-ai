@@ -1,5 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+// SECURITY: Top-level `import { supabaseAdmin } from "@/integrations/supabase/client.server"`
+// would pull the service-role module into the client bundle graph. Lazy-load inside handlers.
+let _supabaseAdmin: any;
+async function getAdmin() {
+  if (!_supabaseAdmin) {
+    const m = await import("@/integrations/supabase/client.server");
+    _supabaseAdmin = m.supabaseAdmin;
+  }
+  return _supabaseAdmin;
+}
 
 export type DbResource = {
   id: string;
