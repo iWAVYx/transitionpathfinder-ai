@@ -111,9 +111,16 @@ modifications to `_authenticated/route.tsx`, auth, or 2FA.
   `getStudentAccessOverview` in `src/lib/sharing.functions.ts`. Granular
   management stays in the existing panels. Remaining: per-row revoke
   shortcut and an inline consent revocation flow.
-- **Document review workflow.** Explicit reviewer states (uploaded →
-  AI-extracted → human-reviewed → linked) backed by
-  `document_summaries.review_status`.
+- **Document review workflow.** 🟡 Documents hub at `/documents` now surfaces
+  an explicit 4-step reviewer pipeline (`uploaded` → `ai_extracted` →
+  `in_review` → `linked`) derived from `document_extractions.status` in
+  `src/lib/cross-docs.functions.ts`. Each stage has its own filter chip,
+  badge, and CTA: `ai_extracted` / `in_review` rows deep-link to
+  `/documents/$documentId/review` ("Continue review"), while `uploaded` /
+  `linked` rows still open the student. Legacy docs with a `parsed_summary`
+  but no extraction row keep their old "summarized" behavior by mapping to
+  `linked`. Remaining: a small "Run extraction" CTA on `uploaded` rows so
+  the hub can kick off review without bouncing to the student page (P1).
 - **Deterministic PDF export.** Server-rendered PDF for at least the
   educator audience, with audience watermark — replace `window.print()`
   for the share/export path.
