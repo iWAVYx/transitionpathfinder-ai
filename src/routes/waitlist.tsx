@@ -311,7 +311,7 @@ function WaitlistPage() {
       student_grade_band: undefined,
       reason: "",
       wants_demo: false,
-      consent_to_contact: false as unknown as true,
+      consent_to_contact: false,
     },
   });
 
