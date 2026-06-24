@@ -56,6 +56,7 @@ import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
 import { Route as DemoDocumentsRouteImport } from './routes/demo_.documents'
 import { Route as DemoCalendarRouteImport } from './routes/demo_.calendar'
+import { Route as DemoConnectionRouteImport } from './routes/demo.connection'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
@@ -387,6 +388,11 @@ const DemoCalendarRoute = DemoCalendarRouteImport.update({
   id: '/demo_/calendar',
   path: '/demo/calendar',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DemoConnectionRoute = DemoConnectionRouteImport.update({
+  id: '/connection',
+  path: '/connection',
+  getParentRoute: () => DemoRoute,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -930,7 +936,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
-  '/demo': typeof DemoRoute
+  '/demo': typeof DemoRouteWithChildren
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
@@ -981,6 +987,7 @@ export interface FileRoutesByFullPath {
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/connection': typeof DemoConnectionRoute
   '/demo/calendar': typeof DemoCalendarRoute
   '/demo/documents': typeof DemoDocumentsRoute
   '/demo/hub': typeof DemoHubRoute
@@ -1073,7 +1080,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogRouteWithChildren
   '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
-  '/demo': typeof DemoRoute
+  '/demo': typeof DemoRouteWithChildren
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
@@ -1122,6 +1129,7 @@ export interface FileRoutesByTo {
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/connection': typeof DemoConnectionRoute
   '/demo/calendar': typeof DemoCalendarRoute
   '/demo/documents': typeof DemoDocumentsRoute
   '/demo/hub': typeof DemoHubRoute
@@ -1216,7 +1224,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/bridgeforward': typeof BridgeforwardRoute
   '/contact': typeof ContactRoute
-  '/demo': typeof DemoRoute
+  '/demo': typeof DemoRouteWithChildren
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
@@ -1267,6 +1275,7 @@ export interface FileRoutesById {
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/connection': typeof DemoConnectionRoute
   '/demo_/calendar': typeof DemoCalendarRoute
   '/demo_/documents': typeof DemoDocumentsRoute
   '/demo_/hub': typeof DemoHubRoute
@@ -1412,6 +1421,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
+    | '/demo/connection'
     | '/demo/calendar'
     | '/demo/documents'
     | '/demo/hub'
@@ -1553,6 +1563,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
+    | '/demo/connection'
     | '/demo/calendar'
     | '/demo/documents'
     | '/demo/hub'
@@ -1697,6 +1708,7 @@ export interface FileRouteTypes {
     | '/_authenticated/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
+    | '/demo/connection'
     | '/demo_/calendar'
     | '/demo_/documents'
     | '/demo_/hub'
@@ -1791,7 +1803,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   BridgeforwardRoute: typeof BridgeforwardRoute
   ContactRoute: typeof ContactRoute
-  DemoRoute: typeof DemoRoute
+  DemoRoute: typeof DemoRouteWithChildren
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
@@ -2168,6 +2180,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/calendar'
       preLoaderRoute: typeof DemoCalendarRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/demo/connection': {
+      id: '/demo/connection'
+      path: '/connection'
+      fullPath: '/demo/connection'
+      preLoaderRoute: typeof DemoConnectionRouteImport
+      parentRoute: typeof DemoRoute
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -3104,6 +3123,16 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface DemoRouteChildren {
+  DemoConnectionRoute: typeof DemoConnectionRoute
+}
+
+const DemoRouteChildren: DemoRouteChildren = {
+  DemoConnectionRoute: DemoConnectionRoute,
+}
+
+const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
+
 interface LoginRouteChildren {
   Login2faRoute: typeof Login2faRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -3135,7 +3164,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   BridgeforwardRoute: BridgeforwardRoute,
   ContactRoute: ContactRoute,
-  DemoRoute: DemoRoute,
+  DemoRoute: DemoRouteWithChildren,
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
