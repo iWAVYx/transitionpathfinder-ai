@@ -79,7 +79,7 @@ export const convertWaitlistToInvitation = createServerFn({ method: "POST" })
         token,
         expires_at,
       } as never)
-      .select("id, token")
+      .select("id")
       .single();
     if (invErr) {
       console.error("convertWaitlistToInvitation: invite insert failed", invErr);
@@ -92,5 +92,8 @@ export const convertWaitlistToInvitation = createServerFn({ method: "POST" })
       .eq("id", data.waitlist_id);
     if (updErr) console.error("convertWaitlistToInvitation: waitlist update failed", updErr);
 
-    return { ok: true, invitation: invite as { id: string; token: string } };
+    // Token comes from the locally generated value rather than re-reading it
+    // from the row — the `token` column is no longer SELECT-able directly
+    // through RLS by non-platform-admin clients.
+    return { ok: true, invitation: { id: (invite as { id: string }).id, token } };
   });
