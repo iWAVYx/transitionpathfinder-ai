@@ -243,12 +243,27 @@ BEGIN
     SELECT label, uid, override_grant FROM __doc_actors
     UNION ALL SELECT 'anon', NULL, false
   ),
+  doc AS (SELECT * FROM public.documents WHERE id = ctx.doc_id),
+  other AS (SELECT * FROM public.documents WHERE id = ctx.other_doc_id),
   probes AS (
     SELECT v.label AS viewer,
       json_build_object(
-        -- VIEW metadata on the connected doc.
-        'view_metadata',
-          (v.uid IS NOT NULL AND public.can_view_document(v.uid, ctx.doc_id)),
+        -- VIEW metadata on the connected doc — mirrors the THREE documents
+        -- SELECT policies OR'd together (active / archived_editors / admin).
+        'view_metadata', (
+          v.uid IS NOT NULL AND (
+            (doc.archived_at IS NULL AND doc.deleted_at IS NULL
+              AND NOT public.is_partner_only(v.uid)
+              AND (public.can_access_student(v.uid, ctx.student_id)
+                   OR public.can_view_document(v.uid, ctx.doc_id)))
+            OR
+            (doc.archived_at IS NOT NULL AND doc.deleted_at IS NULL
+              AND NOT public.is_partner_only(v.uid)
+              AND public.can_edit_student(v.uid, ctx.student_id))
+            OR
+            public.has_recent_admin_doc_access(v.uid, ctx.doc_id)
+          )
+        ),
         -- DOWNLOAD: storage SELECT eligibility through bucket policy helper.
         'download',
           (v.uid IS NOT NULL AND public.storage_can_read_student_doc(v.uid, ctx.path)),
@@ -265,15 +280,22 @@ BEGIN
           (v.uid IS NOT NULL
             AND public.can_edit_student(v.uid, ctx.student_id)
             AND NOT public.is_partner_only(v.uid)),
-        -- LEAK probes against the unrelated student's active doc — these
-        -- must ALL be false for everyone except platform admins acting
-        -- via an explicit override grant they don't currently hold.
-        'leak_view_unrelated',
-          (v.uid IS NOT NULL AND public.can_view_document(v.uid, ctx.other_doc_id)),
+        -- LEAK probes against the unrelated student's ACTIVE doc — mirror
+        -- the same three-policy disjunction on a doc the actor has no
+        -- relationship with.
+        'leak_view_unrelated', (
+          v.uid IS NOT NULL AND (
+            (other.archived_at IS NULL AND other.deleted_at IS NULL
+              AND NOT public.is_partner_only(v.uid)
+              AND (public.can_access_student(v.uid, other.student_id)
+                   OR public.can_view_document(v.uid, ctx.other_doc_id)))
+            OR public.has_recent_admin_doc_access(v.uid, ctx.other_doc_id)
+          )
+        ),
         'leak_download_unrelated',
           (v.uid IS NOT NULL AND public.storage_can_read_student_doc(v.uid, ctx.other_path))
       ) AS perms
-    FROM viewers v
+    FROM viewers v CROSS JOIN doc CROSS JOIN other
   )
   SELECT json_object_agg(viewer, perms ORDER BY viewer) INTO result FROM probes;
   RETURN result;
