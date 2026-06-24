@@ -1,14 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
-// SECURITY: Top-level `import { supabaseAdmin } from "@/integrations/supabase/client.server"`
-// would pull the service-role module into the client bundle graph. Lazy-load inside handlers.
-let _supabaseAdmin: any;
-async function getAdmin() {
-  if (!_supabaseAdmin) {
-    const m = await import("@/integrations/supabase/client.server");
-    _supabaseAdmin = m.supabaseAdmin;
+// SECURITY (Phase 2): These are public read-only endpoints. They previously
+// used the service-role client, which bypasses RLS entirely. Now they use a
+// publishable-key client constrained by narrow `TO anon` SELECT policies
+// (published/featured/approved resources; non-archived resource_sources).
+// See migration: "Public reads published resources" / "Public reads non-archived sources".
+let _supabasePublic: ReturnType<typeof createClient<Database>> | undefined;
+function getPublic() {
+  if (!_supabasePublic) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+    if (!url || !key) {
+      throw new Error("SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY are not configured.");
+    }
+    _supabasePublic = createClient<Database>(url, key, {
+      auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    });
   }
-  return _supabaseAdmin;
+  return _supabasePublic;
 }
 
 export type DbResource = {
@@ -36,7 +47,7 @@ const RESOURCE_COLS =
 
 export const listVerifiedResources = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await (await getAdmin())
+    const { data, error } = await getPublic()
       .from("resources")
       .select(RESOURCE_COLS)
       .in("published_status", ["published", "featured", "approved"])
@@ -52,7 +63,7 @@ export const listVerifiedResources = createServerFn({ method: "GET" })
 
 export const listFeaturedResources = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await (await getAdmin())
+    const { data, error } = await getPublic()
       .from("resources")
       .select(RESOURCE_COLS)
       .eq("featured", true)
@@ -80,7 +91,8 @@ export type ResourceSourcePublic = {
 
 export const listSourceLibraries = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data: sources, error } = await (await getAdmin())
+    const client = getPublic();
+    const { data: sources, error } = await client
       .from("resource_sources")
       .select(
         "id,source_name,source_url,organization_name,description,source_type,audience_focus,topic_focus,location_scope,review_status,last_reviewed_at",
@@ -94,7 +106,7 @@ export const listSourceLibraries = createServerFn({ method: "GET" })
     const ids = sources.map((s: { id: string }) => s.id);
     const counts = new Map<string, number>();
     if (ids.length) {
-      const { data: rows } = await (await getAdmin())
+      const { data: rows } = await client
         .from("resources")
         .select("source_id")
         .in("source_id", ids)
