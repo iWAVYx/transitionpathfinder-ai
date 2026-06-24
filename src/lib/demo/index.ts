@@ -4,7 +4,7 @@
  * `src/lib/demo-*.ts` files individually.
  */
 export * from "./feature-map";
-export * from "../demo-data";
-export * from "../demo-extras";
-export * from "../demo-extended-plans";
-export * from "../demo-fixture";
+export { DEMO_STUDENT } from "../demo-data";
+export * as DemoExtras from "../demo-extras";
+export * as DemoExtendedPlans from "../demo-extended-plans";
+export * as DemoFixture from "../demo-fixture";

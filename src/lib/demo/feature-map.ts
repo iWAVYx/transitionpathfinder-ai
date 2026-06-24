@@ -424,7 +424,7 @@ export const DEMO_FEATURE_MAP = {
     nextAction: "TransitionForward team replies within 2 business days",
     status: "live",
   },
-} satisfies Record<string, DemoFeatureEntry>;
+} as const satisfies Record<string, DemoFeatureEntry>;
 
 export type DemoElementId = keyof typeof DEMO_FEATURE_MAP;
 
