@@ -215,7 +215,7 @@ function DemoIndex() {
         {/* 7-step spine */}
         <div className="mt-10">
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            The seven-step spine
+            The full walkthrough
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-4">
             {STEPS.map((step) => (
