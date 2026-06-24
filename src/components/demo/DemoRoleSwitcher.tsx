@@ -35,19 +35,19 @@ export function DemoRoleSwitcher({ student }: Props) {
   const active = DEMO_ROLE_VIEWS.find((r) => r.id === view) ?? DEMO_ROLE_VIEWS[0];
 
   return (
-    <section className="rounded-3xl border bg-card p-5 shadow-soft sm:p-7">
+    <section className="demo-shell demo-reveal rounded-3xl border border-demo bg-card p-5 shadow-demo-lift sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
             Role Dashboards
           </p>
-          <h2 className="mt-1 font-display text-2xl">See {first}'s plan from any role.</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="mt-1 text-2xl font-semibold">See {first}'s plan from any role.</h2>
+          <p className="mt-1 text-sm text-foreground/75">
             Same student, role-aware view. Private detail is shielded from roles that
             don't need it.
           </p>
         </div>
-        <Badge variant="outline" className="gap-1">
+        <Badge variant="outline" className="gap-1 border-demo">
           <ShieldCheck className="h-3 w-3" /> Role-scoped sample
         </Badge>
       </div>
@@ -55,7 +55,7 @@ export function DemoRoleSwitcher({ student }: Props) {
       <div
         role="tablist"
         aria-label="Demo role view"
-        className="no-scrollbar mt-5 -mx-1 flex flex-nowrap gap-1 overflow-x-auto px-1 pb-2"
+        className="no-scrollbar mt-5 -mx-1 flex flex-nowrap gap-1.5 overflow-x-auto px-1 pb-2"
       >
         {DEMO_ROLE_VIEWS.map((r) => {
           const isActive = r.id === view;
@@ -66,10 +66,10 @@ export function DemoRoleSwitcher({ student }: Props) {
               aria-selected={isActive}
               type="button"
               onClick={() => setView(r.id)}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
                 isActive
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                  ? "demo-chip-active border-transparent"
+                  : "border-demo/60 bg-background text-foreground/70 hover:text-foreground hover:border-demo"
               }`}
             >
               {ICONS[r.id]}
@@ -79,22 +79,22 @@ export function DemoRoleSwitcher({ student }: Props) {
         })}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-border/60 bg-background p-4 sm:p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+      <div className="mt-4 rounded-2xl border border-demo/60 bg-demo-surface-warm/40 p-4 sm:p-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
           {active.label}
         </p>
-        <p className="mt-1 font-display text-base">{active.tagline}</p>
+        <p className="mt-1 text-base font-semibold">{active.tagline}</p>
         <ul className="mt-3 grid gap-2 text-sm text-foreground/85 sm:grid-cols-2">
           {ROLE_PANELS[view].map((line) => (
             <li key={line} className="flex items-start gap-2">
-              <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+              <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--demo-accent)]" />
               <span>{line}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="mt-3 text-xs text-foreground/70">
           Why this matters for this role:{" "}
-          <span className="text-foreground/80">{ROLE_WHY[view]}</span>
+          <span className="text-foreground/85">{ROLE_WHY[view]}</span>
         </p>
       </div>
     </section>
