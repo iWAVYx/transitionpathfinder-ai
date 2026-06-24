@@ -8,6 +8,9 @@ export type NextBestAction = {
   ctaLabel: string;
   ctaHref: string;
   tone?: "primary" | "success" | "warning";
+  reason?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
 };
 
 const SurfaceSchema = z.object({
