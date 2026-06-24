@@ -46,10 +46,15 @@ export const Route = createFileRoute("/_authenticated/owner/waitlist")({
 
 const STATUS_COLORS: Record<WaitlistStatus, "default" | "secondary" | "outline" | "destructive"> = {
   new: "default",
-  reviewed: "secondary",
-  contacted: "secondary",
+  needs_review: "destructive",
+  routed_family_early_access: "secondary",
+  routed_educator_demo: "secondary",
+  routed_school_pilot: "secondary",
+  routed_district_pilot: "secondary",
+  routed_partner_review: "secondary",
   invited: "default",
   converted: "default",
+  not_eligible_yet: "outline",
   archived: "outline",
 };
 
