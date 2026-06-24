@@ -581,12 +581,12 @@ export function SiteHeader() {
               ) : user ? null : (
                 <div className="space-y-2">
                   <SmartLink
-                    to="/waitlist"
+                    to="/get-started"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
                   >
                     <Sparkles className="h-4 w-4" />
-                    Join the Waitlist
+                    Get Started
                   </SmartLink>
                   <SmartLink
                     to="/login"
