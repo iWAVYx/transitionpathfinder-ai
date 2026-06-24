@@ -127,6 +127,13 @@ BEGIN
         SELECT 1 FROM public.user_roles ur
         WHERE ur.user_id=p.id AND ur.role IN ('admin','partner')
       )
+      -- Must have NO pre-existing relationship to either student so the
+      -- leak probes are meaningful. (Seed data sometimes wires the same
+      -- profile to multiple students; without this filter the editor/
+      -- viewer pick could already own/collaborate on the "unrelated"
+      -- student and the leak invariant would fire on healthy schemas.)
+      AND NOT public.can_access_student(p.id, v_student)
+      AND NOT public.can_access_student(p.id, v_other_student)
   )
   SELECT (SELECT id FROM picks WHERE rn=1),
          (SELECT id FROM picks WHERE rn=2),
