@@ -1,5 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+// SECURITY: Top-level `import { supabaseAdmin } from "@/integrations/supabase/client.server"`
+// would pull the service-role module into the client bundle graph. Lazy-load inside handlers.
+let _supabaseAdmin: any;
+async function getAdmin() {
+  if (!_supabaseAdmin) {
+    const m = await import("@/integrations/supabase/client.server");
+    _supabaseAdmin = m.supabaseAdmin;
+  }
+  return _supabaseAdmin;
+}
 
 export type DbResource = {
   id: string;
@@ -26,7 +36,7 @@ const RESOURCE_COLS =
 
 export const listVerifiedResources = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (await getAdmin())
       .from("resources")
       .select(RESOURCE_COLS)
       .in("published_status", ["published", "featured", "approved"])
@@ -42,7 +52,7 @@ export const listVerifiedResources = createServerFn({ method: "GET" })
 
 export const listFeaturedResources = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (await getAdmin())
       .from("resources")
       .select(RESOURCE_COLS)
       .eq("featured", true)
@@ -70,7 +80,7 @@ export type ResourceSourcePublic = {
 
 export const listSourceLibraries = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data: sources, error } = await supabaseAdmin
+    const { data: sources, error } = await (await getAdmin())
       .from("resource_sources")
       .select(
         "id,source_name,source_url,organization_name,description,source_type,audience_focus,topic_focus,location_scope,review_status,last_reviewed_at",
@@ -84,7 +94,7 @@ export const listSourceLibraries = createServerFn({ method: "GET" })
     const ids = sources.map((s: { id: string }) => s.id);
     const counts = new Map<string, number>();
     if (ids.length) {
-      const { data: rows } = await supabaseAdmin
+      const { data: rows } = await (await getAdmin())
         .from("resources")
         .select("source_id")
         .in("source_id", ids)

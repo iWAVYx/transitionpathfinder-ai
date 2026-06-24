@@ -1,7 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+// SECURITY: lazy-load service-role client to keep `client.server` out of client bundle graph.
+let _supabaseAdmin: any;
+async function getAdmin() {
+  if (!_supabaseAdmin) {
+    const m = await import("@/integrations/supabase/client.server");
+    _supabaseAdmin = m.supabaseAdmin;
+  }
+  return _supabaseAdmin;
+}
 
 export const APP_ROLES = [
   "student",
@@ -63,7 +72,7 @@ export const createAnnouncement = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
-    const { data: row, error } = await supabaseAdmin
+    const { data: row, error } = await (await getAdmin())
       .from("announcements")
       .insert({
         title: data.title,
@@ -86,7 +95,7 @@ export const listAnnouncements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (await getAdmin())
       .from("announcements")
       .select("*")
       .order("created_at", { ascending: false })
@@ -100,7 +109,7 @@ export const deleteAnnouncement = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    const { error } = await supabaseAdmin.from("announcements").delete().eq("id", data.id);
+    const { error } = await (await getAdmin()).from("announcements").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -112,7 +121,7 @@ export const togglePublishAnnouncement = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
-    const { error } = await supabaseAdmin
+    const { error } = await (await getAdmin())
       .from("announcements")
       .update({ published: data.published })
       .eq("id", data.id);
@@ -144,7 +153,7 @@ export const exportRecipientsByRole = createServerFn({ method: "POST" })
     await requirePlatformAdmin(context.supabase, context.userId);
 
     // Find user_ids with at least one of the requested roles
-    const { data: roleRows, error: roleErr } = await supabaseAdmin
+    const { data: roleRows, error: roleErr } = await (await getAdmin())
       .from("user_roles")
       .select("user_id, role")
       .in("role", data.roles as any);
@@ -159,7 +168,7 @@ export const exportRecipientsByRole = createServerFn({ method: "POST" })
     const userIds = Array.from(byUser.keys());
     if (userIds.length === 0) return { recipients: [] as RecipientRow[] };
 
-    const { data: profiles, error: profErr } = await supabaseAdmin
+    const { data: profiles, error: profErr } = await (await getAdmin())
       .from("profiles")
       .select("id, email, full_name, first_name, last_name")
       .in("id", userIds);
@@ -176,7 +185,7 @@ export const exportRecipientsByRole = createServerFn({ method: "POST" })
 
     // Try to log activity (best-effort)
     try {
-      await supabaseAdmin.from("admin_activity_logs").insert({
+      await (await getAdmin()).from("admin_activity_logs").insert({
         admin_user_id: context.userId,
         action_type: "broadcast.export_recipients",
         target_type: "user_roles",
@@ -233,7 +242,7 @@ export const dismissAnnouncement = createServerFn({ method: "POST" })
 // ---------- Engagement tracking ----------
 
 async function primaryRoleFor(userId: string): Promise<string | null> {
-  const { data } = await supabaseAdmin
+  const { data } = await (await getAdmin())
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
@@ -250,7 +259,7 @@ export const trackAnnouncementView = createServerFn({ method: "POST" })
     const role = await primaryRoleFor(userId);
     // Unique index on (announcement_id, user_id) WHERE event_type='view'
     // makes duplicate views a no-op.
-    await supabaseAdmin
+    await (await getAdmin())
       .from("announcement_events")
       .insert({
         announcement_id: data.id,
@@ -274,7 +283,7 @@ export const trackAnnouncementClick = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const role = await primaryRoleFor(userId);
-    await supabaseAdmin.from("announcement_events").insert({
+    await (await getAdmin()).from("announcement_events").insert({
       announcement_id: data.id,
       user_id: userId,
       event_type: "click",
@@ -347,7 +356,7 @@ export const getAnnouncementEngagement = createServerFn({ method: "POST" })
     const startIso = start.toISOString();
     const endIso = new Date(end.getTime() + 86_400_000 - 1).toISOString();
 
-    let query = supabaseAdmin
+    let query = (await getAdmin())
       .from("announcement_events")
       .select("user_id, event_type, role, created_at")
       .eq("announcement_id", data.id)
@@ -411,7 +420,7 @@ export const getAnnouncementEngagement = createServerFn({ method: "POST" })
     const userIds = Array.from(new Set(recentRows.map((r) => r.user_id)));
     const profileMap = new Map<string, { email: string | null; full_name: string | null }>();
     if (userIds.length > 0) {
-      const { data: profs } = await supabaseAdmin
+      const { data: profs } = await (await getAdmin())
         .from("profiles")
         .select("id, email, full_name")
         .in("id", userIds);
