@@ -96,7 +96,7 @@ const Schema = z.object({
   reason: z.string().trim().max(2000).optional(),
 
   // New routing fields collected per role
-  wants_demo: z.boolean().optional().default(false),
+  wants_demo: z.boolean().optional(),
   connected_to_student: z.boolean().optional(),
   urgency: z.enum(["exploring", "this_quarter", "this_year", "asap"]).optional(),
   referral_source: z.string().trim().max(200).optional(),
@@ -108,9 +108,9 @@ const Schema = z.object({
   services_offered: z.string().trim().max(2000).optional(),
 
   // Required consent — the public waitlist RLS policy also enforces this.
-  consent_to_contact: z.literal(true, {
-    errorMap: () => ({ message: "Please confirm we can contact you." }),
-  }),
+  consent_to_contact: z
+    .boolean()
+    .refine((v) => v === true, "Please confirm we can contact you."),
 });
 
 type FormValues = z.infer<typeof Schema>;
