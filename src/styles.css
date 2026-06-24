@@ -529,7 +529,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .demo-shell .text-demo-accent,
 .report-shell .text-demo-accent { color: var(--demo-accent); }
 .demo-shell .bg-demo-primary,
-.report-shell .bg-demo-primary { background-color: var(--demo-primary); color: oklch(0.99 0.01 200); }
+.report-shell .bg-demo-primary { background-color: var(--demo-primary); color: var(--primary-foreground); }
 .demo-shell .bg-demo-surface-warm,
 .report-shell .bg-demo-surface-warm { background-color: var(--demo-surface-warm); }
 .demo-shell .border-demo,
