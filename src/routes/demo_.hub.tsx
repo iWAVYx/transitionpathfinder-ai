@@ -236,6 +236,10 @@ function DemoHubPage() {
           </div>
         </div>
 
+        <div className="mt-8">
+          <DemoRoleSwitcher student={s} />
+        </div>
+
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
           {/* Main column */}
           <div className="space-y-10">
