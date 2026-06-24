@@ -411,10 +411,10 @@ export function SiteHeader() {
                 Sign In
               </SmartLink>
               <SmartLink
-                to="/waitlist"
+                to="/get-started"
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift lg:px-3.5"
               >
-                Join the Waitlist
+                Get Started
               </SmartLink>
             </>
           )}

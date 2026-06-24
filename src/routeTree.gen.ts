@@ -26,6 +26,7 @@ import { Route as PartnerInterestRouteImport } from './routes/partner-interest'
 import { Route as PartnerDirectoryRouteImport } from './routes/partner-directory'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as GetStartedRouteImport } from './routes/get-started'
 import { Route as FrameworkRouteImport } from './routes/framework'
 import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
@@ -230,6 +231,11 @@ const LoginRoute = LoginRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetStartedRoute = GetStartedRouteImport.update({
+  id: '/get-started',
+  path: '/get-started',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FrameworkRoute = FrameworkRouteImport.update({
@@ -904,6 +910,7 @@ export interface FileRoutesByFullPath {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
+  '/get-started': typeof GetStartedRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
@@ -1042,6 +1049,7 @@ export interface FileRoutesByTo {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
+  '/get-started': typeof GetStartedRoute
   '/help': typeof HelpRoute
   '/partner-directory': typeof PartnerDirectoryRoute
   '/partner-interest': typeof PartnerInterestRoute
@@ -1180,6 +1188,7 @@ export interface FileRoutesById {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
+  '/get-started': typeof GetStartedRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
@@ -1320,6 +1329,7 @@ export interface FileRouteTypes {
     | '/educators'
     | '/families'
     | '/framework'
+    | '/get-started'
     | '/help'
     | '/login'
     | '/partner-directory'
@@ -1458,6 +1468,7 @@ export interface FileRouteTypes {
     | '/educators'
     | '/families'
     | '/framework'
+    | '/get-started'
     | '/help'
     | '/partner-directory'
     | '/partner-interest'
@@ -1595,6 +1606,7 @@ export interface FileRouteTypes {
     | '/educators'
     | '/families'
     | '/framework'
+    | '/get-started'
     | '/help'
     | '/login'
     | '/partner-directory'
@@ -1735,6 +1747,7 @@ export interface RootRouteChildren {
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
+  GetStartedRoute: typeof GetStartedRoute
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRouteWithChildren
   PartnerDirectoryRoute: typeof PartnerDirectoryRoute
@@ -1892,6 +1905,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get-started': {
+      id: '/get-started'
+      path: '/get-started'
+      fullPath: '/get-started'
+      preLoaderRoute: typeof GetStartedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/framework': {
@@ -3039,6 +3059,7 @@ const rootRouteChildren: RootRouteChildren = {
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
+  GetStartedRoute: GetStartedRoute,
   HelpRoute: HelpRoute,
   LoginRoute: LoginRouteWithChildren,
   PartnerDirectoryRoute: PartnerDirectoryRoute,
