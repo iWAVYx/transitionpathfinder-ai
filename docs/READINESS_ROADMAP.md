@@ -88,9 +88,17 @@ modifications to `_authenticated/route.tsx`, auth, or 2FA.
 
 ## 3. Roadmap
 
-### P0 — Required Before Market Release ⬜
-- **Entitlement enforcement on writes.** Server-side `requireEntitlement`
-  middleware on create/regenerate/share endpoints, not just UI gating.
+### P0 — Required Before Market Release
+- 🟡 **Entitlement enforcement on writes.** Server-side `requireFeatureEntitlement`
+  helper (`src/lib/entitlement-guard.ts`) calls `user_has_feature` and is now
+  invoked at the top of `createPathwayReport`, `regeneratePathwayReport`,
+  `createShareToken`, and `createOpportunity`. Platform admins bypass.
+  **Warn-only by default** so current pilot users without entitlement rows
+  are not broken. Set `TF_ENFORCE_ENTITLEMENTS=1` in the server environment
+  to flip the guard from warn to throw — no code change required at market
+  release. Remaining work: extend guard to `updateOpportunity` once partner
+  pricing is locked, plus a friendly upsell screen for the
+  `EntitlementRequiredError` thrown to clients.
 - **Notifications.** Wire the in-app bell to `in_app_notifications` with
   deep links for invitations, share-link views, report regenerations, and
   review-queue actions.

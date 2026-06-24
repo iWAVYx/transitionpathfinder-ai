@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { requireFeatureEntitlement } from "./entitlement-guard";
 import {
   PathwayReportV2,
   computeDeterministicGaps,
@@ -341,6 +342,9 @@ export const createPathwayReport = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("AI service is not configured.");
 
     const { supabase, userId } = context;
+    await requireFeatureEntitlement(supabase, userId, "family");
+
+
 
     const { data: intake, error: intakeErr } = await supabase
       .from("student_intakes")
@@ -844,6 +848,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
     const { supabase, userId } = context;
+    await requireFeatureEntitlement(supabase, userId, "family");
+
 
     // Load report + verify ownership + linked student
     const { data: report, error: rErr } = await supabase

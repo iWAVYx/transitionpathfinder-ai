@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireFeatureEntitlement } from "./entitlement-guard";
 
 /* ---------- STUDENTS ---------- */
 
@@ -277,6 +278,7 @@ export const createShareToken = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await requireFeatureEntitlement(supabase, userId, "family");
     const token = randomToken();
     const expires_at = data.expires_in_days
       ? new Date(Date.now() + data.expires_in_days * 86_400_000).toISOString()

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireFeatureEntitlement } from "./entitlement-guard";
 
 export type PartnerOrg = {
   id: string;
@@ -133,7 +134,8 @@ export const createOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => opportunitySchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await requireFeatureEntitlement(supabase, userId, "partner");
     const { data: row, error } = await supabase
       .from("partner_opportunities")
       .insert({ ...data, status: "draft" })
