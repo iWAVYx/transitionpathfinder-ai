@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 
 import {
   getNextBestAction,
