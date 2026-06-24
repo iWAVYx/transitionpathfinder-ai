@@ -10,6 +10,10 @@ import {
   CalendarDays,
   ShieldCheck,
   ArrowRight,
+  Mic,
+  FileSearch,
+  Briefcase,
+  Compass,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -45,52 +49,80 @@ export const Route = createFileRoute("/demo")({
 const STEPS = [
   {
     n: "1",
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    title: "Student Hub",
-    body: "The ongoing workspace where the family, case manager, and team see goals, documents, and progress at a glance.",
-    to: "/demo/hub" as const,
-  },
-  {
-    n: "2",
     icon: <ClipboardList className="h-5 w-5" />,
     title: "Intake",
     body: "The guided transition-planning interview — strengths, interests, supports, three-voice input.",
     to: "/demo/intake" as const,
   },
   {
+    n: "2",
+    icon: <Mic className="h-5 w-5" />,
+    title: "Student Voice",
+    body: "Sample student answers and how each one shapes the recommendations.",
+    to: "/demo/voice" as const,
+  },
+  {
     n: "3",
+    icon: <FileSearch className="h-5 w-5" />,
+    title: "Document Insights",
+    body: "How TransitionForward organizes IEP content as a planning companion — with needs-review flags.",
+    to: "/demo/documents" as const,
+  },
+  {
+    n: "4",
     icon: <FileText className="h-5 w-5" />,
     title: "Pathway Report",
     body: "The full report — pathways, IEP translation, accommodations, and a clear plan.",
     to: "/demo/report" as const,
   },
   {
-    n: "4",
+    n: "5",
+    icon: <Briefcase className="h-5 w-5" />,
+    title: "Opportunity Matches",
+    body: "Sample partner programs, apprenticeships, internships, and community supports.",
+    to: "/demo/opportunities" as const,
+  },
+  {
+    n: "6",
+    icon: <BookOpen className="h-5 w-5" />,
+    title: "Resource Matches",
+    body: "Curated, student-matched resources with what it is, who it helps, and how to use it.",
+    to: "/demo/resources" as const,
+  },
+  {
+    n: "7",
     icon: <Users className="h-5 w-5" />,
     title: "Meeting Prep",
     body: "A PPT/IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.",
     to: "/demo/meeting" as const,
   },
   {
-    n: "5",
-    icon: <BookOpen className="h-5 w-5" />,
-    title: "Resource Matches",
-    body: "Curated, student-matched resources with what it is, who it helps, why it matters, how to use it.",
-    to: "/demo/resources" as const,
-  },
-  {
-    n: "6",
+    n: "8",
     icon: <CalendarDays className="h-5 w-5" />,
     title: "Calendar",
-    body: "One shared Calendar for families and educators — meetings, deadlines, tours, and weekly action steps.",
+    body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.",
     to: "/demo/calendar" as const,
   },
   {
-    n: "7",
+    n: "9",
     icon: <CalendarRange className="h-5 w-5" />,
-    title: "30-Day Plan",
-    body: "One focused, doable step per week — small enough to do, big enough to matter.",
+    title: "30 / 60 / 90 Day Plan",
+    body: "Doable steps with the responsible role and source labeled.",
     to: "/demo/plan" as const,
+  },
+  {
+    n: "10",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+    title: "Role Dashboards",
+    body: "See the same student plan from student, family, educator, school, district, partner, and platform views.",
+    to: "/demo/hub" as const,
+  },
+  {
+    n: "11",
+    icon: <Compass className="h-5 w-5" />,
+    title: "What's Next",
+    body: "Clear paths for families, educators, schools, districts, and partners.",
+    to: "/demo/next" as const,
   },
 ];
 
@@ -114,7 +146,7 @@ function DemoIndex() {
           See exactly how TransitionForward works.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Pick a fictional student and walk the full seven-step product spine.
+          Pick a fictional student and walk every step of the platform — from intake and Student Voice to the Pathway Report, partner opportunities, role dashboards, and what happens next.
           No account, no setup — everything you'd see on day one with a real student.
         </p>
 
@@ -183,7 +215,7 @@ function DemoIndex() {
         {/* 7-step spine */}
         <div className="mt-10">
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            The seven-step spine
+            The full walkthrough
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-4">
             {STEPS.map((step) => (
@@ -218,7 +250,7 @@ function DemoIndex() {
               Start the walkthrough
             </p>
             <p className="mt-2 font-display text-2xl">
-              Begin with {student.first_name}'s Student Hub.
+              Begin with {student.first_name}'s intake.
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               You can switch students any time using the bar at the top.
@@ -226,7 +258,7 @@ function DemoIndex() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="lg">
-              <Link to="/demo/hub" search={{ s }}>
+              <Link to="/demo/intake" search={{ s }}>
                 Start the demo <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

@@ -45,12 +45,16 @@ import { Route as PartnerforwardIncentivesRouteImport } from './routes/partnerfo
 import { Route as Login2faRouteImport } from './routes/login.2fa'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as DemoVoiceRouteImport } from './routes/demo_.voice'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
 import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
+import { Route as DemoOpportunitiesRouteImport } from './routes/demo_.opportunities'
+import { Route as DemoNextRouteImport } from './routes/demo_.next'
 import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
+import { Route as DemoDocumentsRouteImport } from './routes/demo_.documents'
 import { Route as DemoCalendarRouteImport } from './routes/demo_.calendar'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
@@ -329,6 +333,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoVoiceRoute = DemoVoiceRouteImport.update({
+  id: '/demo_/voice',
+  path: '/demo/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoResourcesRoute = DemoResourcesRouteImport.update({
   id: '/demo_/resources',
   path: '/demo/resources',
@@ -344,6 +353,16 @@ const DemoPlanRoute = DemoPlanRouteImport.update({
   path: '/demo/plan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoOpportunitiesRoute = DemoOpportunitiesRouteImport.update({
+  id: '/demo_/opportunities',
+  path: '/demo/opportunities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoNextRoute = DemoNextRouteImport.update({
+  id: '/demo_/next',
+  path: '/demo/next',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoMeetingRoute = DemoMeetingRouteImport.update({
   id: '/demo_/meeting',
   path: '/demo/meeting',
@@ -357,6 +376,11 @@ const DemoIntakeRoute = DemoIntakeRouteImport.update({
 const DemoHubRoute = DemoHubRouteImport.update({
   id: '/demo_/hub',
   path: '/demo/hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoDocumentsRoute = DemoDocumentsRouteImport.update({
+  id: '/demo_/documents',
+  path: '/demo/documents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoCalendarRoute = DemoCalendarRouteImport.update({
@@ -958,12 +982,16 @@ export interface FileRoutesByFullPath {
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/calendar': typeof DemoCalendarRoute
+  '/demo/documents': typeof DemoDocumentsRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
+  '/demo/next': typeof DemoNextRoute
+  '/demo/opportunities': typeof DemoOpportunitiesRoute
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
+  '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
@@ -1095,12 +1123,16 @@ export interface FileRoutesByTo {
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/calendar': typeof DemoCalendarRoute
+  '/demo/documents': typeof DemoDocumentsRoute
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
+  '/demo/next': typeof DemoNextRoute
+  '/demo/opportunities': typeof DemoOpportunitiesRoute
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
+  '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
@@ -1236,12 +1268,16 @@ export interface FileRoutesById {
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo_/calendar': typeof DemoCalendarRoute
+  '/demo_/documents': typeof DemoDocumentsRoute
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
   '/demo_/meeting': typeof DemoMeetingRoute
+  '/demo_/next': typeof DemoNextRoute
+  '/demo_/opportunities': typeof DemoOpportunitiesRoute
   '/demo_/plan': typeof DemoPlanRoute
   '/demo_/report': typeof DemoReportRoute
   '/demo_/resources': typeof DemoResourcesRoute
+  '/demo_/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
@@ -1377,12 +1413,16 @@ export interface FileRouteTypes {
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/calendar'
+    | '/demo/documents'
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
+    | '/demo/next'
+    | '/demo/opportunities'
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
+    | '/demo/voice'
     | '/email/unsubscribe'
     | '/invite/$token'
     | '/login/2fa'
@@ -1514,12 +1554,16 @@ export interface FileRouteTypes {
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo/calendar'
+    | '/demo/documents'
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
+    | '/demo/next'
+    | '/demo/opportunities'
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
+    | '/demo/voice'
     | '/email/unsubscribe'
     | '/invite/$token'
     | '/login/2fa'
@@ -1654,12 +1698,16 @@ export interface FileRouteTypes {
     | '/admin-invite/$token'
     | '/blog/$slug'
     | '/demo_/calendar'
+    | '/demo_/documents'
     | '/demo_/hub'
     | '/demo_/intake'
     | '/demo_/meeting'
+    | '/demo_/next'
+    | '/demo_/opportunities'
     | '/demo_/plan'
     | '/demo_/report'
     | '/demo_/resources'
+    | '/demo_/voice'
     | '/email/unsubscribe'
     | '/invite/$token'
     | '/login/2fa'
@@ -1767,12 +1815,16 @@ export interface RootRouteChildren {
   WaitlistRoute: typeof WaitlistRoute
   AdminInviteTokenRoute: typeof AdminInviteTokenRoute
   DemoCalendarRoute: typeof DemoCalendarRoute
+  DemoDocumentsRoute: typeof DemoDocumentsRoute
   DemoHubRoute: typeof DemoHubRoute
   DemoIntakeRoute: typeof DemoIntakeRoute
   DemoMeetingRoute: typeof DemoMeetingRoute
+  DemoNextRoute: typeof DemoNextRoute
+  DemoOpportunitiesRoute: typeof DemoOpportunitiesRoute
   DemoPlanRoute: typeof DemoPlanRoute
   DemoReportRoute: typeof DemoReportRoute
   DemoResourcesRoute: typeof DemoResourcesRoute
+  DemoVoiceRoute: typeof DemoVoiceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   InviteTokenRoute: typeof InviteTokenRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
@@ -2040,6 +2092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo_/voice': {
+      id: '/demo_/voice'
+      path: '/demo/voice'
+      fullPath: '/demo/voice'
+      preLoaderRoute: typeof DemoVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo_/resources': {
       id: '/demo_/resources'
       path: '/demo/resources'
@@ -2061,6 +2120,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo_/opportunities': {
+      id: '/demo_/opportunities'
+      path: '/demo/opportunities'
+      fullPath: '/demo/opportunities'
+      preLoaderRoute: typeof DemoOpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/next': {
+      id: '/demo_/next'
+      path: '/demo/next'
+      fullPath: '/demo/next'
+      preLoaderRoute: typeof DemoNextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo_/meeting': {
       id: '/demo_/meeting'
       path: '/demo/meeting'
@@ -2080,6 +2153,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/hub'
       fullPath: '/demo/hub'
       preLoaderRoute: typeof DemoHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/documents': {
+      id: '/demo_/documents'
+      path: '/demo/documents'
+      fullPath: '/demo/documents'
+      preLoaderRoute: typeof DemoDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/calendar': {
@@ -3079,12 +3159,16 @@ const rootRouteChildren: RootRouteChildren = {
   WaitlistRoute: WaitlistRoute,
   AdminInviteTokenRoute: AdminInviteTokenRoute,
   DemoCalendarRoute: DemoCalendarRoute,
+  DemoDocumentsRoute: DemoDocumentsRoute,
   DemoHubRoute: DemoHubRoute,
   DemoIntakeRoute: DemoIntakeRoute,
   DemoMeetingRoute: DemoMeetingRoute,
+  DemoNextRoute: DemoNextRoute,
+  DemoOpportunitiesRoute: DemoOpportunitiesRoute,
   DemoPlanRoute: DemoPlanRoute,
   DemoReportRoute: DemoReportRoute,
   DemoResourcesRoute: DemoResourcesRoute,
+  DemoVoiceRoute: DemoVoiceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   InviteTokenRoute: InviteTokenRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,

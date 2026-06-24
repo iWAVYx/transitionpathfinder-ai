@@ -1,74 +1,148 @@
+## Goal
 
-## Audit findings (current state)
+Turn `/demo` into a deep, polished, guided walkthrough that mirrors the real product (intake → Student Voice → document insights → Pathway Report → role dashboards → resources → opportunities → action plan → meeting prep), using fictional sample data and never touching real accounts, storage, or signed-in routes.
 
-Reviewed `public.documents`, `public.document_permissions`, `public.audit_log`, `storage.objects` policies, `student-documents` bucket, and all `documents.functions.ts` / upload UI paths.
+## Sample Persona (single canonical fixture)
 
-**What is already correct**
-- Bucket `student-documents` is private; downloads use 5-min signed URLs.
-- `documents` RLS gates SELECT on `can_access_student(uid, student_id)` and INSERT/UPDATE/DELETE on `can_edit_student(...)`.
-- Storage object policies key off the first folder segment = `student_id`, mirroring DB access.
-- `can_access_student` = owner ∪ accepted collaborator ∪ approved `student_relationships` ∪ `has_role(uid,'admin')` — so school/district admins get NO automatic document access (matches spec) and partners get none either.
-- Upload server fn writes an `audit_log` row with action `document.upload`.
+One shared fixture powers every demo screen so the story stays coherent.
 
-**Gaps vs. the spec**
-1. `has_role(uid,'admin')` (app role `admin` from `user_roles`) grants every admin broad raw-document access via `can_access_student` and storage policies. Spec wants platform-admin raw access *minimized, gated by explicit reason, and logged*.
-2. Partner role is not explicitly denied anywhere — it relies on absence of relationships. A future partner row in `student_relationships` would silently leak access. Need a hard "partners cannot access" guard.
-3. Missing metadata: `uploaded_by_role`, `organization_id`, `review_status` (separate from upload `status`), `consent_required`, `archived_at`, `deleted_at`.
-4. `deleteDocument` hard-deletes the row + storage object and writes no audit entry. Spec wants soft archive by default, hard delete only by platform admin with reason + audit.
-5. `getDocumentSignedUrl` (download/preview) and any AI summary trigger are not audited — only uploads are.
-6. `document_permissions.permission_level` enum doesn't carry `summarize` / `download` / `review` distinctions; spec lists those as separate permission types.
-7. `FamilyDocumentUpload` does the storage `upload` then calls `registerDocument`. There is no server-side check that the caller actually has a parent/guardian/student-self relationship to this student before the upload — RLS catches it, but the failure surface is the storage 403 rather than a clean "you don't have permission" message + confirmation step.
-8. No frontend role guard on `/documents` or `/documents/$id/review` rejecting partner role explicitly (today they'd hit empty lists, but the route renders).
+- **Jordan Rivera**, Grade 11, fictional CT public high school
+- Focus: career training, community college exploration, supported employment, self-advocacy, transportation, independent living
+- Strengths: hands-on learning, visual problem solving, consistent attendance, interest in media/tech
+- Support needs: executive functioning, transportation planning, interview prep, complex forms, meeting self-advocacy
+- Family priority: clear next steps + confidence navigating options
+- Educator priority: connect goals/accommodations/services to real opportunities
 
-## Plan
+All copy stamped “Sample data — fictional student for demonstration only.”
 
-### Phase 1 — Schema & policy hardening (single migration)
+## Routes (additive only — no signed-in routes touched)
 
-- **Extend `public.documents`** with: `uploaded_by_role text`, `organization_id uuid references public.organizations(id)`, `review_status text not null default 'pending_review' check (review_status in ('pending_review','in_review','reviewed','needs_followup','rejected'))`, `consent_required boolean not null default true`, `archived_at timestamptz`, `archived_by uuid references auth.users(id)`, `archive_reason text`, `deleted_at timestamptz` (soft-delete marker for admin hard-delete trail).
-- **Extend permission level enum** with `download_document`, `request_summary`, `review_document` values (keep existing).
-- **Tighten RLS on `public.documents`**:
-  - Replace SELECT policy: `archived_at IS NULL AND deleted_at IS NULL AND (can_access_student(uid, student_id) OR can_view_document(uid, id))`. Add a separate "archived docs visible to editors only" policy.
-  - Block app-role `admin` from auto-SELECT of raw docs; instead require `is_platform_admin(uid) AND <explicit access log row in last 5 minutes>` via a new `has_recent_admin_doc_access(uid, doc_id)` security-definer check. Educator/parent/student/case-manager access paths are unchanged.
-  - Add explicit `partner` deny: new `is_partner_only(uid)` helper; block SELECT/INSERT/UPDATE/DELETE whenever true.
-  - DELETE policy: only `is_platform_admin(uid)` (hard delete). Editors get UPDATE → archive instead.
-- **Storage policies on `storage.objects` for bucket `student-documents`**: mirror partner deny + archived/deleted filter via a new SECURITY DEFINER `storage_can_read_student_doc(uid, path)` helper that joins to `documents` so archived/deleted files become unreachable too.
-- **New table `public.document_access_log`** (id, document_id, student_id, actor_id, action ∈ {`view_metadata`,`download`,`preview`,`summarize`,`archive`,`restore`,`hard_delete`,`admin_override`}, reason text, ip text null, created_at). Insert-only for `authenticated`; SELECT only for `is_platform_admin`. Grants + RLS in the same migration.
-- **New table `public.admin_doc_access_grants`** (actor_id, document_id, reason, expires_at default now()+'15 min'). Powers `has_recent_admin_doc_access`. Insert-only by platform admin; SELECT by platform admin.
+```text
+/demo                  Start Demo (overview + role picker + step nav)
+/demo/intake           Intake depth (categorized sample answers)
+/demo/voice            Student Voice prompts + sample responses (NEW)
+/demo/documents        IEP/document insights with “planning companion” banner (NEW)
+/demo/report           Pathway Report (expanded with all sections)
+/demo/plan             30/60/90 day action plan + responsible role
+/demo/resources        Sample resource matches with rationale
+/demo/opportunities    Partner opportunity matches (NEW)
+/demo/meeting          Meeting prep checklist + sample summary
+/demo/calendar         Sample milestones + meetings
+/demo/hub              Role dashboard previews (student/parent/educator/school/district/partner/platform tabs)
+/demo/next             What Happens Next + conversion CTAs (NEW)
+```
 
-### Phase 2 — Server functions
+Existing `/demo/*` routes stay; new routes added; broken/duplicate links removed.
 
-- `src/lib/documents.functions.ts`:
-  - `registerDocument`: derive `uploaded_by_role` from caller's `user_roles` (refuse `partner`), set `organization_id` from caller's active org membership when present, default `consent_required=true`, require `consent_acknowledged` for IEP/evaluation/assessment/transition_plan types.
-  - Replace `deleteDocument` with `archiveDocument` (editor) — sets `archived_at`, writes `document_access_log` row `archive`. Add separate `hardDeleteDocument` requiring `is_platform_admin` + non-empty `reason`, logs `hard_delete`.
-  - `getDocumentSignedUrl`: insert `document_access_log` row (`download` or `preview` based on input flag) before returning URL; require `request_summary` permission to mint URLs used by AI summary path.
-  - New `requestAdminDocAccess({document_id, reason})` (platform-admin only): inserts a `admin_doc_access_grants` row, writes `admin_override` audit entry, returns a one-shot signed URL.
-- `src/lib/role-policy.ts`: add `assertNotPartner(role)` helper; call from `registerDocument`, `archiveDocument`, `requestSummary`, `getDocumentSignedUrl`.
+## Shared Demo Shell
 
-### Phase 3 — Frontend role/relationship guards
+A new `DemoShell` adds:
+- Persistent **sample-data banner** (“Fictional sample. Not a real student.”)
+- **Step rail** with progress (1 Start → 9 Next Steps), keyboard + mobile-friendly
+- **Role view switcher** (Student / Parent / Educator / School Admin / District Admin / Partner / Platform Admin) stored in URL `?view=` so views are shareable
+- **Prev / Next** controls and breadcrumbs
+- Read-only locks: any form/save action shows a tooltip “Sample only — sign in to save.”
 
-- `src/routes/_authenticated/documents.tsx` + `documents.$documentId.review.tsx`: add `beforeLoad` check via existing `useAudience`/`role-policy` to redirect partners to `/dashboard` with toast "Partner accounts cannot access student documents."
-- `FamilyDocumentUpload`: call new `assertCanUploadForStudent({student_id})` server fn before storage `upload()`; require explicit checkbox "I confirm I have permission to upload and share this document about <student name>." Block submit until checked.
-- Hide raw doc download buttons for school_admin / district_admin views; show review-status badges only. Already-existing aggregate views unchanged.
-- Pathway Report doc-source section: hide for partner audience; mark AI-extracted fields as `needs_review` until accepted, with accept/reject buttons that write `document_access_log` `summarize` + `audit_log` entries.
+## Pathway Report Demo (flagship)
 
-### Phase 4 — Tests
+`/demo/report` rebuilt as the centerpiece with collapsible sections in this order:
 
-- `tests/unit/documents-permissions.test.ts`: role→upload permission matrix, partner deny, consent gating, archive vs hard-delete, signed-URL audit insertion.
-- Extend Playwright `role-access` project: parent-vs-unrelated-student doc 403, educator caseload boundary, school_admin no raw download, district_admin no raw download, partner blocked from `/documents*`, signed URL expiry, archived doc invisible.
-- Run `bun run test:unit`, `bunx playwright test --project=dashboard-setup`, `--project=role-access`, `--project=dashboard-regression` per spec.
+1. Student Snapshot
+2. Plain-Language Summary
+3. Key Next Steps (top 3)
+4. Student Voice Summary
+5. Family Priorities
+6. Educator Input
+7. IEP / Document Insights (with “needs review” flags)
+8. Strengths, Preferences, Interests, Needs
+9. Readiness Indicators
+10. Recommended Pathways (with “why this was recommended”)
+11. Education / Training Options
+12. Career / Program Matches
+13. Independent Living Supports
+14. Self-Advocacy Supports
+15. Matched Resources
+16. Matched Partner Opportunities
+17. Meeting Prep Questions
+18. 30 / 60 / 90 Day Action Plan (with responsible role per step)
+19. Source / Input Labels
+20. What Changed Since Last Report
+21. Professional Meeting Summary
 
-### Out of scope (per "do not break" list)
+Audience toggle (Family / Student / Educator) re-skins tone + visible sections, mirroring real ReportView affordances but read-only.
 
-Auth flows, role guards on non-document routes, dashboard test IDs, owner 2FA, owner hub routes, billing/entitlement — untouched.
+## Role Dashboard Previews (`/demo/hub`)
 
-### Risks
+Tabs render distinct sample widgets per role, matching real dashboard intent without exposing private internals:
 
-- Tightening `can_access_student` for app-role `admin` may regress legitimate internal admin debugging until the new `admin_doc_access_grants` workflow ships. Mitigation: ship the grants table + helper in the same migration; existing platform-admin UI keeps working by going through `requestAdminDocAccess`.
-- Adding `archived_at IS NULL` to SELECT may hide rows currently shown. Mitigation: backfill is a no-op (column starts NULL); add explicit "Show archived" toggle for editors in a follow-up if needed.
+- **Student**: My next step, Voice, plain-language report link, action items, meeting prep, saved opportunities
+- **Parent**: Family priorities, document review status, report review, meeting prep, resources
+- **Educator/Case Manager**: Sample caseload (3 fictional students), missing-doc status, report review, action items, notes
+- **School Admin**: Aggregate snapshot, caseload coverage, reports completed, students needing follow-up (no doc detail)
+- **District Admin**: Adoption snapshot, school-by-school progress, implementation support, aggregate reporting
+- **Partner**: Partner profile, opportunity listings, statuses, PartnerForward incentives, no private student data
+- **Platform Admin**: Waitlist queue, partner approvals, resource moderation, system health, launch readiness
 
-### Deliverables
+Each tab includes a one-line “Why this matters for this role.”
 
-- 1 migration (schema + enum + RLS + new tables + storage helpers + grants)
-- Updates to `src/lib/documents.functions.ts`, `src/lib/role-policy.ts`, `src/lib/cross-docs.functions.ts` (summary path), `src/routes/_authenticated/documents*.tsx`, `src/components/students/FamilyDocumentUpload.tsx`, Pathway Report extras
-- New `src/lib/owner/admin-doc-access.functions.ts`
-- New unit + Playwright tests
+## Intake, Voice, Documents
+
+- **Intake**: stepped category list (strengths, interests, postsecondary goals, work, education/training, independent living, transportation, self-advocacy, support prefs, meeting confidence, family priorities, educator notes, documents available, urgent next steps). Each answer card shows “→ flows into Pathway Report: [section name].”
+- **Student Voice**: 7 sample prompts with example responses, plus “How this affects recommendations” callouts.
+- **Documents**: Fictional “IEP detected” summary card with transition goal areas, accommodations, services, missing/needs-review flags, source labels, and the planning-companion language. No upload UI in demo.
+
+## Resources & Opportunities
+
+- `/demo/resources`: enrich existing list with rationale per match (“Recommended because Jordan…”), filters, and a “view sample resource detail” modal.
+- `/demo/opportunities` (new): 4 fictional partner programs (community college pathway, supported employment pilot, culinary apprenticeship, media internship) with eligibility, location, next step, and saved status.
+
+## Action Plan, Meeting Prep, Calendar
+
+- `/demo/plan`: 30/60/90 day table — task, owner role, target date, source (Voice/Family/IEP/Educator).
+- `/demo/meeting`: agenda, student talking points, family questions, educator notes, sample meeting summary export preview.
+- `/demo/calendar`: month view with sample milestones + transition meeting, click → drawer with details (read-only).
+
+## Conversion (`/demo/next`)
+
+Single page with role-targeted CTAs:
+- Families/Students → Join Waitlist / Request Family Access
+- Educators → Request Demo / Bring To My School
+- School Admins → Explore School Pilot
+- District Admins → Explore District Access
+- Partners → Apply As Partner
+- Invited users → Create Account / Sign In
+
+Clear copy: **Create Account = invited/approved; Join Waitlist = request access.**
+
+## Safety & Privacy Guarantees
+
+- All demo data is module-level fixtures in `src/lib/demo/fixtures.ts` — no DB reads, no server fns gated by auth, no real storage paths.
+- Every page renders the sample-data banner.
+- No upload, no signed URL, no `createServerFn` calls that touch user data.
+- Demo never persists; any “Save” shows the read-only tooltip.
+- Partner role view shows zero private student fields.
+
+## Design & Polish
+
+- Reuse `SiteShell`, `CardGrid`, `CollapsibleSection`, `Breadcrumbs`, `InfoBox`, `HeroCTAs` for visual consistency with the rest of the site.
+- Mobile-first; verify the step rail collapses to a top dropdown < `sm`.
+- Title Case headings via `src/lib/title-case.ts`.
+- Strong empty/loading/error states aren’t needed (static fixtures) but each section has a non-empty default.
+
+## Verification
+
+- `bun run test:unit`
+- `bunx playwright test --project=dashboard-setup`
+- `bunx playwright test --project=role-access`
+- `bunx playwright test --project=dashboard-regression`
+- Manual: signed-out load of every `/demo/*` route on mobile + desktop; role switcher; collapsible Pathway sections; CTA routing; no duplicate `<main>` links.
+
+## Technical Notes
+
+- **No changes** to `src/routes/_authenticated/**`, role guards, dashboard test IDs, owner 2FA, or auth flows.
+- New fixture module `src/lib/demo/fixtures.ts` owns Jordan + sample caseload + opportunities + resources.
+- New shared components: `src/components/demo/DemoShell.tsx`, `DemoStepRail.tsx`, `RoleViewSwitcher.tsx`, `SampleDataBanner.tsx`, `SourceLabel.tsx`.
+- New `src/lib/demo/steps.ts` defines step order so rail + Prev/Next stay in sync.
+- All new routes are public (top-level files), SSR on, with their own `head()` meta (title, description, og:title, og:description).
+- Role switcher state in URL search params; default `view=family` to preserve existing `/demo/report?view=family` links.
+- `DemoBanner` / `DemoStepBar` components already exist — refactor `DemoStepBar` into the new step rail instead of duplicating.
