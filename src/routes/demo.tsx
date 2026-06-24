@@ -250,7 +250,7 @@ function DemoIndex() {
               Start the walkthrough
             </p>
             <p className="mt-2 font-display text-2xl">
-              Begin with {student.first_name}'s Student Hub.
+              Begin with {student.first_name}'s intake.
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               You can switch students any time using the bar at the top.
@@ -258,7 +258,7 @@ function DemoIndex() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="lg">
-              <Link to="/demo/hub" search={{ s }}>
+              <Link to="/demo/intake" search={{ s }}>
                 Start the demo <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
