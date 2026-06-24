@@ -9,6 +9,7 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { DemoStudentId } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo_/next")({
   validateSearch: validateStudentSearch,
