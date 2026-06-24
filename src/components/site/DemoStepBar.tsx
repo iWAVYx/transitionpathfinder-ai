@@ -25,20 +25,6 @@ import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
 // FeatureFootnote intentionally not rendered on public demo pages.
 // It is kept for the internal /demo/connection audit page.
 
-const STEP_FEATURE: Record<string, DemoElementId> = {
-  intake: "intake.categories",
-  voice: "voice.prompts",
-  documents: "documents.insights",
-  report: "report.snapshot",
-  opportunities: "opportunities.cards",
-  resources: "resources.cards",
-  meeting: "meeting.agenda",
-  calendar: "calendar.month",
-  plan: "plan.timeline",
-  hub: "hub.educator",
-  next: "cta.getStarted",
-};
-
 export const DEMO_STEPS = [
   { id: "intake", to: "/demo/intake", label: "Intake", icon: ClipboardList },
   { id: "voice", to: "/demo/voice", label: "Student Voice", icon: Mic },
