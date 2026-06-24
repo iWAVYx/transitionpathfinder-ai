@@ -102,8 +102,7 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
 
     // Send branded invite email (best-effort; never block the invite on email failure).
     try {
-      const req = getRequest();
-      const origin = new URL(req.url).origin;
+      const origin = getAppBaseUrl();
       const authHeader = getRequestHeader("Authorization") ?? "";
 
       const [{ data: inviter }, { data: student }] = await Promise.all([
