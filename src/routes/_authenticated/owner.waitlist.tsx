@@ -300,7 +300,7 @@ function WaitlistPage() {
             <SelectItem value="all">All statuses</SelectItem>
             {WAITLIST_STATUSES.map((s) => (
               <SelectItem key={s} value={s}>
-                {s}
+                {WAITLIST_STATUS_LABELS[s]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -573,7 +573,7 @@ function WaitlistDetailDrawer({
                 <SelectContent>
                   {WAITLIST_STATUSES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {s}
+                      {WAITLIST_STATUS_LABELS[s]}
                     </SelectItem>
                   ))}
                 </SelectContent>
