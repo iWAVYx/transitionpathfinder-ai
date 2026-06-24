@@ -234,8 +234,7 @@ export const resendCollaboratorInvite = createServerFn({ method: "POST" })
     }
 
     try {
-      const req = getRequest();
-      const origin = new URL(req.url).origin;
+      const origin = getAppBaseUrl();
       const authHeader = getRequestHeader("Authorization") ?? "";
       const [{ data: inviter }, { data: student }] = await Promise.all([
         supabase.from("profiles").select("full_name, first_name").eq("id", userId).maybeSingle(),
