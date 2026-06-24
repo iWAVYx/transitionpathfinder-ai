@@ -87,6 +87,7 @@ import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authenticated/school.reports'
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
+import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authenticated/resources.saved'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage_.impact'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
@@ -545,6 +546,12 @@ const AuthenticatedSchoolImplementationRoute =
   AuthenticatedSchoolImplementationRouteImport.update({
     id: '/school/implementation',
     path: '/school/implementation',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedResourcesSavedRoute =
+  AuthenticatedResourcesSavedRouteImport.update({
+    id: '/resources/saved',
+    path: '/resources/saved',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedReportsReportIdRoute =
@@ -1010,6 +1017,7 @@ export interface FileRoutesByFullPath {
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
@@ -1145,6 +1153,7 @@ export interface FileRoutesByTo {
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
@@ -1284,6 +1293,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/partners-manage_/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
+  '/_authenticated/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/_authenticated/school/reports': typeof AuthenticatedSchoolReportsRoute
@@ -1423,6 +1433,7 @@ export interface FileRouteTypes {
     | '/owner/waitlist'
     | '/partners-manage/impact'
     | '/reports/$reportId'
+    | '/resources/saved'
     | '/school/implementation'
     | '/school/overview'
     | '/school/reports'
@@ -1558,6 +1569,7 @@ export interface FileRouteTypes {
     | '/owner/waitlist'
     | '/partners-manage/impact'
     | '/reports/$reportId'
+    | '/resources/saved'
     | '/school/implementation'
     | '/school/overview'
     | '/school/reports'
@@ -1696,6 +1708,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/partners-manage_/impact'
     | '/_authenticated/reports/$reportId'
+    | '/_authenticated/resources/saved'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
     | '/_authenticated/school/reports'
@@ -2308,6 +2321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchoolImplementationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/resources/saved': {
+      id: '/_authenticated/resources/saved'
+      path: '/resources/saved'
+      fullPath: '/resources/saved'
+      preLoaderRoute: typeof AuthenticatedResourcesSavedRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/reports/$reportId': {
       id: '/_authenticated/reports/$reportId'
       path: '/$reportId'
@@ -2913,6 +2933,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
   AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
+  AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
@@ -2961,6 +2982,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
   AuthenticatedPartnersManageImpactRoute:
     AuthenticatedPartnersManageImpactRoute,
+  AuthenticatedResourcesSavedRoute: AuthenticatedResourcesSavedRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
