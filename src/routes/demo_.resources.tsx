@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getDemoStudent } from "@/lib/demo-data";
+import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/resources")({
   validateSearch: validateStudentSearch,
@@ -309,6 +310,9 @@ function DemoResourcesPage() {
       <DemoStepBar current="resources" student={s} />
 
       <section className={`mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "max-w-[88rem] py-6" : "max-w-6xl py-10"}`}>
+        <div className={compact ? "mb-4" : "mb-6"}>
+          <DemoRoleLens step="resources" student={s} />
+        </div>
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
             Resource Hub
