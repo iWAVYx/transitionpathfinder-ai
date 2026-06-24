@@ -79,3 +79,30 @@ export const unsaveResource = createServerFn({ method: "POST" })
     if (error) throw new Error("Could not remove saved resource.");
     return { ok: true };
   });
+
+export const updateSavedResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        collection_name: z.string().trim().min(1).max(80).optional(),
+        notes: z.string().trim().max(500).nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const patch: { collection_name?: string; notes?: string | null } = {};
+    if (data.collection_name !== undefined) patch.collection_name = data.collection_name;
+    if (data.notes !== undefined) patch.notes = data.notes;
+    if (Object.keys(patch).length === 0) return { ok: true };
+    const { error } = await supabase
+      .from("saved_resources")
+      .update(patch)
+      .eq("id", data.id)
+      .eq("user_id", userId);
+    if (error) throw new Error("Could not update saved resource.");
+    return { ok: true };
+  });
+
