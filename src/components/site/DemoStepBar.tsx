@@ -64,6 +64,52 @@ export function DemoStepBar({ current, student }: Props) {
   const location = useLocation();
   const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
   const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
+  const railRef = useRef<HTMLElement | null>(null);
+  const dragState = useRef<{ active: boolean; moved: boolean; startX: number; startLeft: number; pointerId: number | null }>({
+    active: false,
+    moved: false,
+    startX: 0,
+    startLeft: 0,
+    pointerId: null,
+  });
+
+  const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType === "touch") return; // let native touch scrolling work
+    const el = railRef.current;
+    if (!el) return;
+    dragState.current = {
+      active: true,
+      moved: false,
+      startX: e.clientX,
+      startLeft: el.scrollLeft,
+      pointerId: e.pointerId,
+    };
+    el.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    const s = dragState.current;
+    if (!s.active || !railRef.current) return;
+    const dx = e.clientX - s.startX;
+    if (Math.abs(dx) > 4) s.moved = true;
+    railRef.current.scrollLeft = s.startLeft - dx;
+  };
+  const endDrag = (e: React.PointerEvent<HTMLElement>) => {
+    const s = dragState.current;
+    if (!s.active) return;
+    if (railRef.current && s.pointerId !== null && railRef.current.hasPointerCapture(s.pointerId)) {
+      railRef.current.releasePointerCapture(s.pointerId);
+    }
+    s.active = false;
+    s.pointerId = null;
+  };
+  const onClickCapture = (e: React.MouseEvent<HTMLElement>) => {
+    if (dragState.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragState.current.moved = false;
+    }
+  };
+
 
   return (
     <div className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-16 z-30">
