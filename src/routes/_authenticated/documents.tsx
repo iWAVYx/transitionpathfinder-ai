@@ -8,7 +8,6 @@ import {
   Search,
   Sparkles,
   CheckCircle2,
-  Clock,
   UploadCloud,
   Eye,
 } from "lucide-react";
@@ -281,5 +280,3 @@ function EmptyState() {
   );
 }
 
-// Unused locally; kept for legacy callers importing the icon set.
-void Clock;
