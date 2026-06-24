@@ -77,15 +77,7 @@
   --radius: 1rem;
 
   /* Base */
-  --background: oklch(0.99 0.005 220);
-  --foreground: oklch(0.22 0.04 250);
-  --ink: oklch(0.22 0.04 250);
-
-  /* Cards / surfaces */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 250);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 250);
+  --background: oklch(0.99 0.005 200);
 
   /* Horizon Teal — deep anchor */
   --foreground: oklch(0.24 0.04 200);
