@@ -382,6 +382,7 @@ export function ReportView({
           : null;
 
   return (
+    <div className="report-shell">
     <section
       className={cn(
         "report-root mx-auto px-4 py-10 sm:px-6 lg:px-8",
