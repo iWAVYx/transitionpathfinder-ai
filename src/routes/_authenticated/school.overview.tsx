@@ -40,7 +40,14 @@ function SchoolOverviewPage() {
             <StatCard label="Active Staff" value={d.metrics.active_members} icon={<Users className="h-3.5 w-3.5" />} />
             <StatCard label="Pending Invites" value={d.metrics.pending_members} icon={<Mail className="h-3.5 w-3.5" />} />
             <StatCard label="Students" value={d.metrics.students_count} icon={<GraduationCap className="h-3.5 w-3.5" />} />
-            <StatCard label="Pathway Reports" value={d.metrics.reports_count} icon={<FileText className="h-3.5 w-3.5" />} />
+            <Link
+              to="/school/reports"
+              hash="reports-list"
+              aria-label="Open Pathway Reports list"
+              className="rounded-2xl transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <StatCard label="Pathway Reports" value={d.metrics.reports_count} icon={<FileText className="h-3.5 w-3.5" />} />
+            </Link>
           </StatGrid>
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">

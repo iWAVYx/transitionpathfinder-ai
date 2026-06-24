@@ -38,6 +38,7 @@ import {
   type Student,
 } from "@/lib/students.functions";
 import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
+import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
 import { isV2 } from "@/lib/pathway-v2";
 
 const SearchSchema = z.object({
@@ -85,6 +86,7 @@ function ReportDetailPage() {
   const [busy, setBusy] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
+  const [versionsKey, setVersionsKey] = useState(0);
   const [density, setDensity] = useState<"compact" | "comfortable">(() => {
     try {
       const v = typeof window !== "undefined" ? localStorage.getItem("tf.reportDensity") : null;
@@ -322,11 +324,16 @@ function ReportDetailPage() {
 
       {/* v2 additive sections — only render once the report has been regenerated into v2 */}
       {isV2(state.report) && (
-        <ReportV2Sections
-          content={state.report}
-          audience={audience}
-          studentName={state.name}
-        />
+        <>
+          <ReportV2Sections
+            content={state.report}
+            audience={audience}
+            studentName={state.name}
+          />
+          <section className={`mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
+            <ReportV2InputsUsed content={state.report} />
+          </section>
+        </>
       )}
 
       {/* Regenerate CTA */}
@@ -375,7 +382,27 @@ function ReportDetailPage() {
 
       {/* Version history */}
       <section className={`mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
-        <ReportVersionsPanel reportId={reportId} currentContent={state.report} />
+        <ReportVersionsPanel
+          key={versionsKey}
+          reportId={reportId}
+          currentContent={state.report}
+          onRestored={async () => {
+            try {
+              const fresh = await fetchReport({ data: { id: reportId } });
+              setState({
+                kind: "ok",
+                name: fresh.student_first_name,
+                report: fresh.report,
+                studentId: fresh.student_id,
+                reviewDate: (fresh as { review_date?: string | null }).review_date ?? null,
+                lastUpdated: fresh.created_at,
+              });
+            } catch {
+              /* toast already shown by panel */
+            }
+            setVersionsKey((k) => k + 1);
+          }}
+        />
       </section>
 
       {/* Share panel */}

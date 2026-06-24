@@ -776,7 +776,7 @@ function HomePage() {
             </dl>
           </div>
 
-          {/* Right: mock hub */}
+          {/* Right: feature preview (live composition) */}
           <div className="relative">
             <Sparkle className="absolute -top-4 -right-2 h-8 w-8 text-primary/60" />
 

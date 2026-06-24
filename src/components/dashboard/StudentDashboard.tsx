@@ -71,15 +71,35 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
               <li>You'll be able to see your goals, your meetings, and your action items.</li>
             </ol>
             <div className="mt-5 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={async () => {
+                  const text = `Hi — please invite me to my transition plan on TransitionForward. Sign in, open the Students page, and add me as a collaborator using this email address. Thank you!`;
+                  try {
+                    if (navigator.clipboard) {
+                      await navigator.clipboard.writeText(text);
+                    }
+                  } catch {
+                    /* noop — fallback to mailto */
+                  }
+                  window.location.href = `mailto:?subject=${encodeURIComponent(
+                    "Please invite me to my transition plan",
+                  )}&body=${encodeURIComponent(text)}`;
+                }}
+              >
+                <Mail className="mr-1.5 h-3.5 w-3.5" /> Email an invite request
+              </Button>
               <Button asChild variant="outline" size="sm">
-                <Link to="/help">
-                  <Mail className="mr-1.5 h-3.5 w-3.5" /> Get help
-                </Link>
+                <Link to="/help">Get help</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link to="/settings">Account settings</Link>
               </Button>
             </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              The button above copies a short message and opens your email app — no data is sent automatically.
+            </p>
           </div>
         </div>
       </SiteShell>
