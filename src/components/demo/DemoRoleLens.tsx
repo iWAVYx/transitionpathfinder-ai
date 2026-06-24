@@ -85,7 +85,7 @@ export function DemoRoleLens({ step, student, dense = false }: Props) {
       <div
         role="tablist"
         aria-label="Demo role view"
-        className={`no-scrollbar -mx-1 flex flex-nowrap gap-1 overflow-x-auto px-1 pb-2 ${
+        className={`no-scrollbar relative -mx-1 flex flex-nowrap gap-1 overflow-x-auto rounded-full border border-border/60 bg-muted/40 p-1 ${
           dense ? "" : "mt-4"
         }`}
       >
@@ -98,34 +98,37 @@ export function DemoRoleLens({ step, student, dense = false }: Props) {
               type="button"
               aria-selected={isActive}
               onClick={() => setView(r.id)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`relative inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-ring/60 ${
                 isActive
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                  ? "bg-gradient-horizon text-primary-foreground shadow-lift"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {ICONS[r.id]}
+              <span className={isActive ? "text-primary-foreground" : ""}>{ICONS[r.id]}</span>
               <span className="whitespace-nowrap">{r.label}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-border/60 bg-background p-4 sm:p-5">
+      <div
+        key={view}
+        className="tf-lift mt-4 rounded-2xl border border-border/60 bg-background p-4 sm:p-5"
+      >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+          <span className="inline-flex items-center gap-1 rounded-full bg-accent/30 px-2 py-0.5 text-[11px] font-semibold text-accent-foreground">
             <Sparkles className="h-3 w-3" />
             {role.label}
           </span>
           <span className="text-[11px] text-muted-foreground">{role.tagline}</span>
         </div>
-        <p className="mt-2 font-display text-base leading-snug">{content.headline}</p>
+        <p className="mt-2 font-display text-base font-semibold leading-snug">{content.headline}</p>
         <ul className="mt-3 grid gap-2 text-sm text-foreground/85 sm:grid-cols-2">
           {content.bullets.map((line) => (
             <li key={line} className="flex items-start gap-2">
               <span
                 aria-hidden
-                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-sunrise"
               />
               <span>{line}</span>
             </li>
