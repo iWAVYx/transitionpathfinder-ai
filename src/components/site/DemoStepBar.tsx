@@ -22,22 +22,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
-import { FeatureFootnote } from "@/components/demo/FeatureFootnote";
-import type { DemoElementId } from "@/lib/demo/feature-map";
-
-const STEP_FEATURE: Record<string, DemoElementId> = {
-  intake: "intake.categories",
-  voice: "voice.prompts",
-  documents: "documents.insights",
-  report: "report.snapshot",
-  opportunities: "opportunities.cards",
-  resources: "resources.cards",
-  meeting: "meeting.agenda",
-  calendar: "calendar.month",
-  plan: "plan.timeline",
-  hub: "hub.educator",
-  next: "cta.getStarted",
-};
+// FeatureFootnote intentionally not rendered on public demo pages.
+// It is kept for the internal /demo/connection audit page.
 
 export const DEMO_STEPS = [
   { id: "intake", to: "/demo/intake", label: "Intake", icon: ClipboardList },
@@ -287,7 +273,6 @@ export function DemoStepFooter({ current, student }: FooterProps) {
 
   return (
     <div className="mx-auto mt-12 max-w-6xl border-t border-border/60 px-4 sm:px-6 lg:px-8">
-      <FeatureFootnote elementId={STEP_FEATURE[current]} className="mt-6" />
       <div className="flex flex-wrap items-center justify-between gap-3 py-6">
         <div className="text-xs text-muted-foreground">
           Walking with{" "}

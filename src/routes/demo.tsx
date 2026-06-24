@@ -31,13 +31,13 @@ export const Route = createFileRoute("/demo")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "See a live demo — TransitionForward" },
+      { title: "See A Live Demo — TransitionForward" },
       {
         name: "description",
         content:
-          "Walk a fictional student through every step of TransitionForward — Hub, Intake, Pathway Report, Meeting Prep, Resources, shared Calendar, and a 30-Day Plan.",
+          "Walk a fictional student through every step of TransitionForward — intake, Pathway Report, meeting prep, resources, calendar, and a 30-day plan.",
       },
-      { property: "og:title", content: "See a live demo — TransitionForward" },
+      { property: "og:title", content: "See A Live Demo — TransitionForward" },
       {
         property: "og:description",
         content:
@@ -51,84 +51,32 @@ export const Route = createFileRoute("/demo")({
 });
 
 const STEPS = [
-  {
-    n: "1",
-    icon: <ClipboardList className="h-5 w-5" />,
-    title: "Intake",
-    body: "The guided transition-planning interview — strengths, interests, supports, three-voice input.",
-    to: "/demo/intake" as const,
-  },
-  {
-    n: "2",
-    icon: <Mic className="h-5 w-5" />,
-    title: "Student Voice",
-    body: "Sample student answers and how each one shapes the recommendations.",
-    to: "/demo/voice" as const,
-  },
-  {
-    n: "3",
-    icon: <FileSearch className="h-5 w-5" />,
-    title: "Document Insights",
-    body: "How TransitionForward organizes IEP content as a planning companion — with needs-review flags.",
-    to: "/demo/documents" as const,
-  },
-  {
-    n: "4",
-    icon: <FileText className="h-5 w-5" />,
-    title: "Pathway Report",
-    body: "The full report — pathways, IEP translation, accommodations, and a clear plan.",
-    to: "/demo/report" as const,
-  },
-  {
-    n: "5",
-    icon: <Briefcase className="h-5 w-5" />,
-    title: "Opportunity Matches",
-    body: "Sample partner programs, apprenticeships, internships, and community supports.",
-    to: "/demo/opportunities" as const,
-  },
-  {
-    n: "6",
-    icon: <BookOpen className="h-5 w-5" />,
-    title: "Resource Matches",
-    body: "Curated, student-matched resources with what it is, who it helps, and how to use it.",
-    to: "/demo/resources" as const,
-  },
-  {
-    n: "7",
-    icon: <Users className="h-5 w-5" />,
-    title: "Meeting Prep",
-    body: "A PPT/IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.",
-    to: "/demo/meeting" as const,
-  },
-  {
-    n: "8",
-    icon: <CalendarDays className="h-5 w-5" />,
-    title: "Calendar",
-    body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.",
-    to: "/demo/calendar" as const,
-  },
-  {
-    n: "9",
-    icon: <CalendarRange className="h-5 w-5" />,
-    title: "30 / 60 / 90 Day Plan",
-    body: "Doable steps with the responsible role and source labeled.",
-    to: "/demo/plan" as const,
-  },
-  {
-    n: "10",
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    title: "Role Dashboards",
-    body: "See the same student plan from student, family, educator, school, district, partner, and platform views.",
-    to: "/demo/hub" as const,
-  },
-  {
-    n: "11",
-    icon: <Compass className="h-5 w-5" />,
-    title: "What's Next",
-    body: "Clear paths for families, educators, schools, districts, and partners.",
-    to: "/demo/next" as const,
-  },
-];
+  { n: "01", icon: ClipboardList, title: "Intake", body: "A guided transition-planning conversation that captures strengths, interests, and supports." },
+  { n: "02", icon: Mic, title: "Student Voice", body: "Hear how the student's own words shape what the plan recommends." },
+  { n: "03", icon: FileSearch, title: "Document Insights", body: "See how the IEP becomes a clear planning companion, with anything that needs review flagged." },
+  { n: "04", icon: FileText, title: "Pathway Report", body: "An editorial report covering pathways, accommodations, and a plain-language plan." },
+  { n: "05", icon: Briefcase, title: "Opportunity Matches", body: "Sample partner programs, apprenticeships, internships, and community supports." },
+  { n: "06", icon: BookOpen, title: "Resource Matches", body: "Curated, student-matched resources with what it is, who it helps, and how to use it." },
+  { n: "07", icon: Users, title: "Meeting Prep", body: "A PPT/IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups." },
+  { n: "08", icon: CalendarDays, title: "Calendar", body: "One shared calendar — meetings, deadlines, tours, and weekly action steps." },
+  { n: "09", icon: CalendarRange, title: "30 / 60 / 90 Day Plan", body: "Doable steps with a clear owner for each one." },
+  { n: "10", icon: LayoutDashboard, title: "Role Dashboards", body: "See the same plan from student, family, educator, school, district, partner, and platform views." },
+  { n: "11", icon: Compass, title: "What's Next", body: "Clear paths forward for families, educators, schools, districts, and partners." },
+] as const;
+
+const STEP_PATHS = [
+  "/demo/intake",
+  "/demo/voice",
+  "/demo/documents",
+  "/demo/report",
+  "/demo/opportunities",
+  "/demo/resources",
+  "/demo/meeting",
+  "/demo/calendar",
+  "/demo/plan",
+  "/demo/hub",
+  "/demo/next",
+] as const;
 
 function DemoIndex() {
   const search = Route.useSearch();
@@ -139,26 +87,67 @@ function DemoIndex() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <Sparkles className="h-3 w-3" /> Live demo
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <ShieldCheck className="h-3 w-3" /> Fictional students · no real data
-          </Badge>
-        </div>
-        <h1 className="mt-4 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          See exactly how TransitionForward works.
-        </h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Pick a fictional student and walk every step of the platform — from intake and Student Voice to the Pathway Report, partner opportunities, role dashboards, and what happens next.
-          No account, no setup — everything you'd see on day one with a real student.
-        </p>
+      {/* Hero with horizon gradient + logo-safe brand mark */}
+      <section className="relative overflow-hidden">
+        <div aria-hidden className="absolute inset-0 bg-gradient-horizon opacity-95" />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent"
+        />
+        <div aria-hidden className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-gradient-sunrise opacity-40 blur-3xl" />
+        <div className="relative mx-auto max-w-5xl px-4 pt-16 pb-24 sm:px-6 sm:pt-20 lg:px-8 lg:pt-24">
+          {/* Logo-safe brand mark */}
+          <div className="tf-reveal flex items-center gap-3 text-primary-foreground/90">
+            <span
+              aria-hidden
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-primary-foreground/30 bg-primary-foreground/10 backdrop-blur"
+            >
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.22em]">
+              TransitionForward · Live Demo
+            </span>
+          </div>
 
+          <h1 className="tf-reveal tf-reveal-delay-1 mt-6 max-w-3xl font-display text-4xl font-semibold tracking-tight text-primary-foreground sm:text-5xl lg:text-6xl">
+            Walk a real transition plan, end to end.
+          </h1>
+          <p className="tf-reveal tf-reveal-delay-2 mt-5 max-w-2xl text-base leading-relaxed text-primary-foreground/85 sm:text-lg">
+            Pick a fictional student and follow the full pathway — intake, the report, partner
+            opportunities, role dashboards, and the next step. No account, no setup.
+          </p>
+
+          {/* Animated step ribbon */}
+          <div className="tf-reveal tf-reveal-delay-3 mt-8 flex items-center gap-3">
+            <div className="relative h-1.5 w-48 overflow-hidden rounded-full bg-primary-foreground/15 sm:w-72">
+              <span aria-hidden className="tf-step-fill block h-full w-full bg-gradient-sunrise" />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground/80">
+              11 Steps · ~6 Minutes
+            </span>
+          </div>
+
+          {/* Trust + CTA strip */}
+          <div className="tf-reveal tf-reveal-delay-4 mt-8 flex flex-wrap items-center gap-3">
+            <Badge variant="outline" className="gap-1 border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground">
+              <ShieldCheck className="h-3 w-3" /> Fictional Students · No Real Data
+            </Badge>
+            <Button asChild size="lg" variant="secondary" className="shadow-lift">
+              <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
+                Start The Walkthrough <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-primary-foreground/40 bg-primary-foreground/5 text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground">
+              <Link to="/waitlist">Join The Waitlist</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
         {/* Student picker */}
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {(["maya", "jordan"] as DemoStudentId[]).map((id) => {
+        <div className="-mt-12 grid gap-4 sm:grid-cols-2">
+          {(["maya", "jordan"] as DemoStudentId[]).map((id, i) => {
             const b = DEMO_STUDENTS[id];
             const active = id === s;
             return (
@@ -167,23 +156,19 @@ function DemoIndex() {
                 to="/demo"
                 search={{ s: id }}
                 resetScroll={false}
-                className={`group rounded-3xl border p-6 shadow-soft transition-shadow hover:shadow-lift ${
-                  active ? "border-primary bg-card ring-2 ring-primary/30" : "bg-card"
+                className={`tf-lift ${i === 1 ? "tf-reveal-delay-1" : ""} group rounded-3xl border bg-card p-6 shadow-soft tf-hover-lift ${
+                  active ? "border-primary ring-2 ring-primary/30" : ""
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                      {active ? "Walking with" : "Switch to"}
+                      {active ? "Walking With" : "Switch To"}
                     </p>
-                    <h2 className="mt-1 font-display text-2xl">{toTitleCase(b.profile.full_name)}</h2>
+                    <h2 className="mt-1 font-display text-2xl font-semibold">{toTitleCase(b.profile.full_name)}</h2>
                     <p className="mt-1 text-xs text-muted-foreground">{b.tagline}</p>
                   </div>
-                  {active ? (
-                    <Badge className="gap-1">Selected</Badge>
-                  ) : (
-                    <Badge variant="outline">Switch</Badge>
-                  )}
+                  {active ? <Badge className="gap-1">Selected</Badge> : <Badge variant="outline">Switch</Badge>}
                 </div>
                 <p className="mt-3 text-sm text-foreground/85">{b.headline}</p>
               </Link>
@@ -192,13 +177,13 @@ function DemoIndex() {
         </div>
 
         {/* Selected student card */}
-        <div className="mt-8 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+        <div className="tf-reveal tf-reveal-delay-2 mt-8 overflow-hidden rounded-3xl border bg-card p-6 shadow-report sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                You're walking with
+                You're Walking With
               </p>
-              <h2 className="mt-2 font-display text-3xl">{toTitleCase(student.full_name)}</h2>
+              <h2 className="mt-2 font-display text-3xl font-semibold">{toTitleCase(student.full_name)}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {student.pronouns} · {student.grade} · {student.school}
               </p>
@@ -207,56 +192,60 @@ function DemoIndex() {
               </p>
             </div>
             <Badge variant="outline" className="gap-1">
-              Case manager: {student.case_manager}
+              Case Manager: {toTitleCase(student.case_manager)}
             </Badge>
           </div>
-          <p className="mt-6 rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm italic leading-relaxed text-foreground/80">
+          <div aria-hidden className="my-5 h-px pathway-line" />
+          <p className="rounded-2xl border border-border/60 bg-muted/40 p-4 text-sm italic leading-relaxed text-foreground/85">
             "{bundle.report.student_snapshot?.student_voice_quote}"
             <span className="mt-2 block not-italic text-xs text-muted-foreground">
-              — in {student.first_name}'s voice (from the intake)
+              — in {student.first_name}'s words, from the intake
             </span>
           </p>
         </div>
 
-        {/* 7-step spine */}
-        <div className="mt-10">
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            The full walkthrough
+        {/* Step grid */}
+        <div className="mt-12">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            The Full Walkthrough
           </p>
-          <div className="mt-3 flex flex-wrap justify-center gap-4">
-            {STEPS.map((step) => (
-              <Link
-                key={step.title}
-                to={step.to}
-                {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-                className="group block w-full rounded-3xl border bg-card p-6 shadow-soft transition-shadow hover:shadow-lift sm:flex-1 sm:min-w-[280px] sm:max-w-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    {step.icon}
+          <div className="mx-auto mt-2 h-px w-24 pathway-line" />
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {STEPS.map((step, idx) => {
+              const Icon = step.icon;
+              return (
+                <Link
+                  key={step.title}
+                  to={STEP_PATHS[idx]}
+                  {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
+                  className="tf-lift group block rounded-3xl border bg-card p-6 shadow-soft tf-hover-lift"
+                  style={{ animationDelay: `${Math.min(idx * 40, 320)}ms` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="step-marker h-10 w-10 text-sm font-semibold">{step.n}</span>
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent/30 text-accent-foreground">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                  </div>
+                  <h3 className="mt-5 font-display text-xl font-semibold">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+                    Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </span>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Step {step.n}
-                  </span>
-                </div>
-                <h3 className="mt-4 font-display text-xl">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                  Open{" "}
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-border/60 bg-gradient-hero p-6 sm:p-8">
+        {/* Final CTA */}
+        <div className="tf-reveal mt-12 flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-3xl border border-border/60 bg-gradient-hero p-6 shadow-soft sm:p-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-              Start the walkthrough
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+              Start The Walkthrough
             </p>
-            <p className="mt-2 font-display text-2xl">
-              Begin with {student.first_name}'s intake.
+            <p className="mt-2 font-display text-2xl font-semibold">
+              Begin With {student.first_name}'s Intake.
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               You can switch students any time using the bar at the top.
@@ -265,21 +254,20 @@ function DemoIndex() {
           <div className="flex flex-wrap gap-2">
             <Button asChild size="lg">
               <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                Start the demo <ArrowRight className="h-4 w-4" />
+                Start The Demo <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link to="/waitlist">Join the waitlist</Link>
+              <Link to="/waitlist">Join The Waitlist</Link>
             </Button>
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <p className="mt-8 text-center text-xs text-muted-foreground">
           Internal audit:{" "}
           <Link to="/demo/connection" className="underline hover:text-foreground">
             Demo Feature Connection Checklist
-          </Link>{" "}
-          — every demo element mapped to its real product feature, role, and status.
+          </Link>
         </p>
       </section>
     </SiteShell>

@@ -21,8 +21,8 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Urbanist", ui-sans-serif, system-ui, sans-serif;
 
 
   --color-background: var(--background);
@@ -52,6 +52,10 @@
   --color-peach: var(--peach);
   --color-peach-soft: var(--peach-soft);
   --color-ink: var(--ink);
+  --color-horizon: var(--horizon);
+  --color-horizon-soft: var(--horizon-soft);
+  --color-sunrise: var(--sunrise);
+  --color-sunrise-soft: var(--sunrise-soft);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -73,51 +77,61 @@
   --radius: 1rem;
 
   /* Base */
-  --background: oklch(0.99 0.005 220);
-  --foreground: oklch(0.22 0.04 250);
-  --ink: oklch(0.22 0.04 250);
+  --background: oklch(0.99 0.005 200);
+
+  /* Horizon Teal — deep anchor */
+  --foreground: oklch(0.24 0.04 200);
+  --ink: oklch(0.24 0.04 200);
 
   /* Cards / surfaces */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 250);
+  --card-foreground: oklch(0.24 0.04 200);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 250);
+  --popover-foreground: oklch(0.24 0.04 200);
 
-  /* Sky (deep accent — buttons, links, focus) */
-  --primary: oklch(0.55 0.13 230);
+  /* Horizon Teal — primary (deep #0B3B49 → bright #1F8A8A) */
+  --primary: oklch(0.55 0.07 200);
   --primary-foreground: oklch(0.99 0.005 220);
 
-  /* Peach (warm accent — highlights, badges) */
-  --secondary: oklch(0.88 0.07 30);
-  --secondary-foreground: oklch(0.32 0.08 25);
+  /* Sunrise — secondary surface */
+  --secondary: oklch(0.92 0.06 65);
+  --secondary-foreground: oklch(0.34 0.09 55);
 
-  --muted: oklch(0.96 0.012 230);
-  --muted-foreground: oklch(0.5 0.03 240);
+  --muted: oklch(0.96 0.01 200);
+  --muted-foreground: oklch(0.5 0.025 210);
 
-  --accent: oklch(0.93 0.05 30);
-  --accent-foreground: oklch(0.32 0.08 25);
+  --accent: oklch(0.78 0.13 65);
+  --accent-foreground: oklch(0.24 0.06 50);
 
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0.005 220);
 
-  --border: oklch(0.92 0.02 230);
-  --input: oklch(0.92 0.02 230);
-  --ring: oklch(0.7 0.12 230);
+  --border: oklch(0.92 0.015 200);
+  --input: oklch(0.92 0.015 200);
+  --ring: oklch(0.65 0.09 200);
 
-  /* Named brand tokens (Sky & Peach) */
-  --sky: oklch(0.82 0.09 230);          /* #7dd3fc-ish */
-  --sky-soft: oklch(0.95 0.04 230);     /* #e0f2fe-ish */
-  --peach: oklch(0.82 0.07 25);         /* #f9a8a8-ish */
-  --peach-soft: oklch(0.92 0.05 25);    /* #fecaca-ish */
+  /* Named brand tokens — keep sky/peach as aliases of horizon/sunrise so
+     existing class usages migrate visually without component churn. */
+  --horizon: oklch(0.32 0.05 200);          /* #0B3B49 deep */
+  --horizon-soft: oklch(0.55 0.07 200);     /* #1F8A8A primary */
+  --sunrise: oklch(0.78 0.13 65);           /* #F4A24C accent */
+  --sunrise-soft: oklch(0.92 0.06 65);      /* #FFE2C2 warm cream */
+  --sky: var(--horizon-soft);
+  --sky-soft: oklch(0.95 0.025 200);
+  --peach: var(--sunrise);
+  --peach-soft: var(--sunrise-soft);
 
   /* Gradients & shadows */
-  --gradient-hero: linear-gradient(135deg, var(--sky-soft) 0%, var(--peach-soft) 100%);
-  --gradient-sky: linear-gradient(135deg, var(--sky-soft), var(--sky));
-  --gradient-peach: linear-gradient(135deg, var(--peach-soft), var(--peach));
-  --gradient-warm: linear-gradient(120deg, oklch(0.95 0.04 230), oklch(0.92 0.05 25));
-  --shadow-soft: 0 1px 2px oklch(0.55 0.13 230 / 0.06), 0 8px 24px oklch(0.55 0.13 230 / 0.06);
-  --shadow-lift: 0 2px 4px oklch(0.55 0.13 230 / 0.08), 0 16px 40px oklch(0.55 0.13 230 / 0.10);
-  --shadow-glow: 0 0 0 6px oklch(0.82 0.09 230 / 0.18);
+  --gradient-horizon: linear-gradient(135deg, var(--horizon) 0%, var(--horizon-soft) 100%);
+  --gradient-sunrise: linear-gradient(135deg, var(--sunrise-soft) 0%, var(--sunrise) 100%);
+  --gradient-hero: linear-gradient(135deg, var(--sky-soft) 0%, var(--sunrise-soft) 100%);
+  --gradient-sky: linear-gradient(135deg, var(--sky-soft), var(--horizon-soft));
+  --gradient-peach: linear-gradient(135deg, var(--sunrise-soft), var(--sunrise));
+  --gradient-warm: linear-gradient(120deg, oklch(0.95 0.025 200), oklch(0.92 0.06 65));
+  --shadow-soft: 0 1px 2px oklch(0.32 0.05 200 / 0.06), 0 8px 24px oklch(0.32 0.05 200 / 0.08);
+  --shadow-lift: 0 2px 6px oklch(0.32 0.05 200 / 0.10), 0 18px 44px oklch(0.32 0.05 200 / 0.14);
+  --shadow-report: 0 4px 12px oklch(0.32 0.05 200 / 0.08), 0 28px 60px oklch(0.32 0.05 200 / 0.16);
+  --shadow-glow: 0 0 0 6px oklch(0.78 0.13 65 / 0.25);
 
   /* Charts */
   --chart-1: oklch(0.7 0.12 230);
@@ -199,11 +213,66 @@
   .bg-gradient-sky { background-image: var(--gradient-sky); }
   .bg-gradient-peach { background-image: var(--gradient-peach); }
   .bg-gradient-warm { background-image: var(--gradient-warm); }
+  .bg-gradient-horizon { background-image: var(--gradient-horizon); }
+  .bg-gradient-sunrise { background-image: var(--gradient-sunrise); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .shadow-lift { box-shadow: var(--shadow-lift); }
+  .shadow-report { box-shadow: var(--shadow-report); }
   .font-display { font-family: var(--font-display); }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Pathway-line motif: a soft horizontal gradient line, used as a divider
+   * or behind step markers to suggest progression along a pathway. */
+  .pathway-line {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--horizon-soft) 35%, transparent) 20%,
+      color-mix(in oklab, var(--sunrise) 50%, transparent) 80%,
+      transparent 100%
+    );
+  }
+
+  /* Step marker: a circular pill used to number steps in the demo walkthrough. */
+  .step-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-image: var(--gradient-horizon);
+    color: var(--primary-foreground);
+    box-shadow: 0 6px 18px color-mix(in oklab, var(--horizon) 30%, transparent);
+  }
+}
+
+/* Reveal + lift motion (Phase 1 motion intensity 4/5). */
+@keyframes tf-reveal-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tf-lift-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tf-step-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.tf-reveal { animation: tf-reveal-up 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.tf-reveal-delay-1 { animation-delay: 80ms; }
+.tf-reveal-delay-2 { animation-delay: 160ms; }
+.tf-reveal-delay-3 { animation-delay: 240ms; }
+.tf-reveal-delay-4 { animation-delay: 320ms; }
+.tf-lift { animation: tf-lift-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.tf-hover-lift { transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease; }
+.tf-hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.tf-step-fill { transform-origin: left; animation: tf-step-fill 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tf-reveal, .tf-lift, .tf-step-fill { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .tf-hover-lift { transition: none !important; }
+  .tf-hover-lift:hover { transform: none !important; }
 }
 
 /* Fluid base scaling: the root font-size grows and shrinks with the viewport
