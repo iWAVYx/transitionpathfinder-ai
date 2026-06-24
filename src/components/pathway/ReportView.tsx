@@ -160,9 +160,14 @@ export function ReportView({
   refreshing?: boolean;
 }) {
   const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
-  const setAudience = (a: Audience) => {
+  const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
     setAudienceState(a);
     onAudienceChange?.(a);
+    if (options?.syncUrl && typeof window !== "undefined" && !onAudienceChange) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("view", a);
+      window.history.replaceState({}, "", url.toString());
+    }
   };
   const [copied, setCopied] = useState(false);
   const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
@@ -298,15 +303,8 @@ export function ReportView({
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const v = params.get("view") ?? params.get("audience");
-    if (v === "student" || v === "family" || v === "educator") setAudience(v);
+    if (v === "student" || v === "family" || v === "educator") setAudienceState(v);
   }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("view", audience);
-    window.history.replaceState({}, "", url.toString());
-  }, [audience]);
 
   const heading = useMemo(
     () =>
@@ -493,21 +491,21 @@ export function ReportView({
         >
           <AudienceTab
             active={audience === "student"}
-            onClick={() => setAudience("student")}
+            onClick={() => setAudience("student", { syncUrl: true })}
             icon={<MessageSquareQuote className="h-4 w-4" />}
             label="Student View"
             hint="For You"
           />
           <AudienceTab
             active={audience === "family"}
-            onClick={() => setAudience("family")}
+            onClick={() => setAudience("family", { syncUrl: true })}
             icon={<Users className="h-4 w-4" />}
             label="Family View"
             hint="Plain Language"
           />
           <AudienceTab
             active={audience === "educator"}
-            onClick={() => setAudience("educator")}
+            onClick={() => setAudience("educator", { syncUrl: true })}
             icon={<GraduationCap className="h-4 w-4" />}
             label="Educator View"
             hint="PPT Prep"
