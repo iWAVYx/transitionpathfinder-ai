@@ -1,108 +1,74 @@
 
-## Goal
+## Audit findings (current state)
 
-Make Signup and Waitlist mean different things on TransitionForward. Signup is for users who already have a valid access path (invite, active org, approved pilot, partner approval, internal admin, approved early access). Waitlist is an **access-routing and demand-qualification layer** for everyone else, with role-aware routing, structured fields, and an admin workflow that can convert qualified entries into invitations.
+Reviewed `public.documents`, `public.document_permissions`, `public.audit_log`, `storage.objects` policies, `student-documents` bucket, and all `documents.functions.ts` / upload UI paths.
 
-Nothing in auth, role guards, dashboard routes, dashboard test IDs, or E2E suites changes.
+**What is already correct**
+- Bucket `student-documents` is private; downloads use 5-min signed URLs.
+- `documents` RLS gates SELECT on `can_access_student(uid, student_id)` and INSERT/UPDATE/DELETE on `can_edit_student(...)`.
+- Storage object policies key off the first folder segment = `student_id`, mirroring DB access.
+- `can_access_student` = owner ∪ accepted collaborator ∪ approved `student_relationships` ∪ `has_role(uid,'admin')` — so school/district admins get NO automatic document access (matches spec) and partners get none either.
+- Upload server fn writes an `audit_log` row with action `document.upload`.
 
-## 1. Decision gate (new)
+**Gaps vs. the spec**
+1. `has_role(uid,'admin')` (app role `admin` from `user_roles`) grants every admin broad raw-document access via `can_access_student` and storage policies. Spec wants platform-admin raw access *minimized, gated by explicit reason, and logged*.
+2. Partner role is not explicitly denied anywhere — it relies on absence of relationships. A future partner row in `student_relationships` would silently leak access. Need a hard "partners cannot access" guard.
+3. Missing metadata: `uploaded_by_role`, `organization_id`, `review_status` (separate from upload `status`), `consent_required`, `archived_at`, `deleted_at`.
+4. `deleteDocument` hard-deletes the row + storage object and writes no audit entry. Spec wants soft archive by default, hard delete only by platform admin with reason + audit.
+5. `getDocumentSignedUrl` (download/preview) and any AI summary trigger are not audited — only uploads are.
+6. `document_permissions.permission_level` enum doesn't carry `summarize` / `download` / `review` distinctions; spec lists those as separate permission types.
+7. `FamilyDocumentUpload` does the storage `upload` then calls `registerDocument`. There is no server-side check that the caller actually has a parent/guardian/student-self relationship to this student before the upload — RLS catches it, but the failure surface is the storage 403 rather than a clean "you don't have permission" message + confirmation step.
+8. No frontend role guard on `/documents` or `/documents/$id/review` rejecting partner role explicitly (today they'd hit empty lists, but the route renders).
 
-New route `/get-started` (and a CTA replacement in the marketing nav):
+## Plan
 
-```text
-        Get Started
-        /        \
-   "I have an    "I want to
-    invite or     request
-    approved      access"
-    access"          |
-       |             v
-       v          /waitlist?audience=…
-   /login
-```
+### Phase 1 — Schema & policy hardening (single migration)
 
-- Copy makes the distinction explicit:
-  - **Create Account** — "For invited users, approved pilots, active schools/districts, approved partners, and approved early-access families."
-  - **Join the Waitlist** — "For requesting access, demo interest, school/district pilot interest, partner review, or future availability."
-- Existing `/login` and `/waitlist` keep working. Old `Sign up` CTAs that pointed straight at login get pointed at `/get-started` so the choice is surfaced.
+- **Extend `public.documents`** with: `uploaded_by_role text`, `organization_id uuid references public.organizations(id)`, `review_status text not null default 'pending_review' check (review_status in ('pending_review','in_review','reviewed','needs_followup','rejected'))`, `consent_required boolean not null default true`, `archived_at timestamptz`, `archived_by uuid references auth.users(id)`, `archive_reason text`, `deleted_at timestamptz` (soft-delete marker for admin hard-delete trail).
+- **Extend permission level enum** with `download_document`, `request_summary`, `review_document` values (keep existing).
+- **Tighten RLS on `public.documents`**:
+  - Replace SELECT policy: `archived_at IS NULL AND deleted_at IS NULL AND (can_access_student(uid, student_id) OR can_view_document(uid, id))`. Add a separate "archived docs visible to editors only" policy.
+  - Block app-role `admin` from auto-SELECT of raw docs; instead require `is_platform_admin(uid) AND <explicit access log row in last 5 minutes>` via a new `has_recent_admin_doc_access(uid, doc_id)` security-definer check. Educator/parent/student/case-manager access paths are unchanged.
+  - Add explicit `partner` deny: new `is_partner_only(uid)` helper; block SELECT/INSERT/UPDATE/DELETE whenever true.
+  - DELETE policy: only `is_platform_admin(uid)` (hard delete). Editors get UPDATE → archive instead.
+- **Storage policies on `storage.objects` for bucket `student-documents`**: mirror partner deny + archived/deleted filter via a new SECURITY DEFINER `storage_can_read_student_doc(uid, path)` helper that joins to `documents` so archived/deleted files become unreachable too.
+- **New table `public.document_access_log`** (id, document_id, student_id, actor_id, action ∈ {`view_metadata`,`download`,`preview`,`summarize`,`archive`,`restore`,`hard_delete`,`admin_override`}, reason text, ip text null, created_at). Insert-only for `authenticated`; SELECT only for `is_platform_admin`. Grants + RLS in the same migration.
+- **New table `public.admin_doc_access_grants`** (actor_id, document_id, reason, expires_at default now()+'15 min'). Powers `has_recent_admin_doc_access`. Insert-only by platform admin; SELECT by platform admin.
 
-## 2. Waitlist form — role-aware routing
+### Phase 2 — Server functions
 
-Rewrite `src/routes/waitlist.tsx` around a role picker that drives the subsequent fields and the routing category we save:
+- `src/lib/documents.functions.ts`:
+  - `registerDocument`: derive `uploaded_by_role` from caller's `user_roles` (refuse `partner`), set `organization_id` from caller's active org membership when present, default `consent_required=true`, require `consent_acknowledged` for IEP/evaluation/assessment/transition_plan types.
+  - Replace `deleteDocument` with `archiveDocument` (editor) — sets `archived_at`, writes `document_access_log` row `archive`. Add separate `hardDeleteDocument` requiring `is_platform_admin` + non-empty `reason`, logs `hard_delete`.
+  - `getDocumentSignedUrl`: insert `document_access_log` row (`download` or `preview` based on input flag) before returning URL; require `request_summary` permission to mint URLs used by AI summary path.
+  - New `requestAdminDocAccess({document_id, reason})` (platform-admin only): inserts a `admin_doc_access_grants` row, writes `admin_override` audit entry, returns a one-shot signed URL.
+- `src/lib/role-policy.ts`: add `assertNotPartner(role)` helper; call from `registerDocument`, `archiveDocument`, `requestSummary`, `getDocumentSignedUrl`.
 
-| Role chosen | Extra fields collected | Routing category saved |
-|---|---|---|
-| Student | grade band, school, district, has invite? | `family_early_access` if no school/district match, else nudged to signup |
-| Parent/Guardian | student grade band, school, district, connected to student now? | same as student |
-| Educator / Case Manager | school, district, caseload size, wants demo? | `educator_demo` |
-| School Admin | school, district, est. student count, implementation timeline | `school_pilot` |
-| District Admin | district, # schools, est. students, timeline | `district_pilot` |
-| Partner | org name, services offered, service area, populations supported, incentive interest | `partner_review` + explicit notice that partners never get student-data access |
-| Just want updates | (minimal) | `future_updates` |
+### Phase 3 — Frontend role/relationship guards
 
-Shared fields on every submission: full name, email, city/state, reason, desired access type, urgency, referred by, wants demo, optional note, **consent to be contacted** (required checkbox).
+- `src/routes/_authenticated/documents.tsx` + `documents.$documentId.review.tsx`: add `beforeLoad` check via existing `useAudience`/`role-policy` to redirect partners to `/dashboard` with toast "Partner accounts cannot access student documents."
+- `FamilyDocumentUpload`: call new `assertCanUploadForStudent({student_id})` server fn before storage `upload()`; require explicit checkbox "I confirm I have permission to upload and share this document about <student name>." Block submit until checked.
+- Hide raw doc download buttons for school_admin / district_admin views; show review-status badges only. Already-existing aggregate views unchanged.
+- Pathway Report doc-source section: hide for partner audience; mark AI-extracted fields as `needs_review` until accepted, with accept/reject buttons that write `document_access_log` `summarize` + `audit_log` entries.
 
-Role-specific outcome messages match the spec ("Families can join through an active school/district connection or approved early access.", etc.).
+### Phase 4 — Tests
 
-If a role+org combination indicates the user *should* be signing up (e.g. educator who says "I have an invite"), inline-redirect them to `/login` with a short explainer instead of writing a waitlist row.
+- `tests/unit/documents-permissions.test.ts`: role→upload permission matrix, partner deny, consent gating, archive vs hard-delete, signed-URL audit insertion.
+- Extend Playwright `role-access` project: parent-vs-unrelated-student doc 403, educator caseload boundary, school_admin no raw download, district_admin no raw download, partner blocked from `/documents*`, signed URL expiry, archived doc invisible.
+- Run `bun run test:unit`, `bunx playwright test --project=dashboard-setup`, `--project=role-access`, `--project=dashboard-regression` per spec.
 
-## 3. Backend — fields, statuses, conversion
+### Out of scope (per "do not break" list)
 
-Most fields already exist on `public.waitlist`. One migration adds what's missing and tightens the status vocabulary:
+Auth flows, role guards on non-document routes, dashboard test IDs, owner 2FA, owner hub routes, billing/entitlement — untouched.
 
-- Add columns: `routing_category text`, `urgency text`, `wants_demo boolean default false`, `connected_to_student boolean`, `assigned_admin_id uuid references auth.users`, `converted_to_user_id uuid references auth.users`, `converted_invitation_id uuid references public.invitations`, `caseload_size int`, `estimated_student_count int`, `estimated_school_count int`, `timeline text`, `service_area text`, `populations_supported text`, `services_offered text`.
-- New CHECK on `status` covering: `new`, `needs_review`, `routed_family_early_access`, `routed_educator_demo`, `routed_school_pilot`, `routed_district_pilot`, `routed_partner_review`, `invited`, `converted`, `not_eligible_yet`, `archived`.
-- Tighten the public `INSERT` policy length checks for the new text columns; keep `anon` insert (this is a public form) gated by the consent boolean (`consent_to_contact = true`).
-- Keep all `SELECT`/`UPDATE`/`DELETE` admin-only via `is_platform_admin`. No new `anon` SELECT.
+### Risks
 
-Server-side:
-- Extend `src/lib/waitlist.functions.ts` Zod schema with the new fields, default `status='new'`, and **derive** `routing_category` server-side from `role` + flags — never trust a client-supplied routing category.
-- Reject `role = 'admin'` / `platform_admin` / anything that maps to the platform-admin audience. Platform admins cannot self-register *or* self-waitlist publicly.
-- Keep using the anon publishable client (RLS-gated insert), no service role.
+- Tightening `can_access_student` for app-role `admin` may regress legitimate internal admin debugging until the new `admin_doc_access_grants` workflow ships. Mitigation: ship the grants table + helper in the same migration; existing platform-admin UI keeps working by going through `requestAdminDocAccess`.
+- Adding `archived_at IS NULL` to SELECT may hide rows currently shown. Mitigation: backfill is a no-op (column starts NULL); add explicit "Show archived" toggle for editors in a follow-up if needed.
 
-Conversion (already partially implemented in `src/lib/owner/waitlist-conversion.functions.ts`):
-- Update `convertWaitlistToInvitation` to also stamp `converted_invitation_id` and set waitlist `status = 'invited'`.
-- Add a sibling `linkConvertedAccount` server fn that platform admins can call (or wire into the invitation-accept path) to stamp `converted_to_user_id` and flip `status = 'converted'`.
+### Deliverables
 
-## 4. Admin handling
-
-`src/routes/_authenticated/owner.waitlist.tsx` gains:
-- Status filter chips reflecting the new vocabulary.
-- Role + routing-category filter.
-- Per-row badge for routing category.
-- "Convert to invitation" button (uses existing `convertWaitlistToInvitation`) with role/org pre-filled from the row.
-- "Assign to me" / status dropdown wired to a small `updateWaitlistTriage` server fn (platform-admin only, RLS already enforces).
-
-## 5. Frontend copy & nav
-
-- Marketing nav: replace ambiguous "Sign up" with **Get Started** → `/get-started`. Keep "Sign in" pointing at `/login`.
-- `/login` page gets a small helper line: "Don't have an invite yet? **Join the waitlist** →".
-- `/waitlist` hero copy is rewritten to lead with the access-routing framing.
-- Partner waitlist branch shows the explicit notice: "Partner accounts manage opportunities and PartnerForward resources. Partners never see private student data."
-
-## 6. Tests
-
-- Unit (vitest): waitlist Zod validator — each role builds the right routing category; admin roles are rejected; consent required.
-- Unit: conversion fn stamps `converted_invitation_id` + flips status.
-- Existing E2E suites untouched. Add one light Playwright smoke against `/get-started` and `/waitlist?audience=partner` that the form renders the partner branch (skipped if no base URL).
-
-## Files touched (planned)
-
-- `supabase/migrations/<new>.sql` — columns, CHECK, INSERT policy tightening.
-- `src/lib/waitlist.functions.ts` — schema + server-side routing derivation + admin-role rejection.
-- `src/lib/owner/waitlist-conversion.functions.ts` — stamp `converted_invitation_id`.
-- `src/lib/owner/waitlist-triage.functions.ts` *(new)* — assign / set status.
-- `src/routes/waitlist.tsx` — role-aware form, routing messages, partner notice.
-- `src/routes/get-started.tsx` *(new)* — decision gate.
-- `src/routes/_authenticated/owner.waitlist.tsx` — new filters, convert/assign actions.
-- `src/routes/login.index.tsx` — small helper line.
-- `src/components/site/SiteHeader.tsx` — nav CTA → Get Started.
-- `tests/unit/waitlist-routing.test.ts` *(new)*.
-
-## Out of scope (explicit)
-
-- No changes to auth providers, role guards, `_authenticated` layout, dashboards, or any `data-testid` used by E2E.
-- No changes to `user_roles` or `admin_roles` schema.
-- No new billing/entitlement logic — the entitlement guard added earlier already covers active-org gating; signup eligibility check just consults it.
-
-Approve and I'll start with the migration, then ship the form + decision gate + admin updates in order.
+- 1 migration (schema + enum + RLS + new tables + storage helpers + grants)
+- Updates to `src/lib/documents.functions.ts`, `src/lib/role-policy.ts`, `src/lib/cross-docs.functions.ts` (summary path), `src/routes/_authenticated/documents*.tsx`, `src/components/students/FamilyDocumentUpload.tsx`, Pathway Report extras
+- New `src/lib/owner/admin-doc-access.functions.ts`
+- New unit + Playwright tests
