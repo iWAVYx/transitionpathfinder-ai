@@ -508,8 +508,76 @@ function WaitlistPage() {
                 )}
 
                 {current.key === "partner" && (
-                  <Field label="Organization">
-                    <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
+                  <>
+                    <Field label="Organization">
+                      <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
+                    </Field>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field label="Services offered">
+                        <Input {...form.register("services_offered")} placeholder="e.g. paid internships, mentorship, training" maxLength={2000} />
+                      </Field>
+                      <Field label="Service area">
+                        <Input {...form.register("service_area")} placeholder="e.g. Hartford County, statewide" maxLength={500} />
+                      </Field>
+                    </div>
+                    <Field label="Populations supported (optional)">
+                      <Input {...form.register("populations_supported")} placeholder="e.g. students 16–22 with IEPs" maxLength={1000} />
+                    </Field>
+                    <p className="rounded-md border border-amber-500/30 bg-amber-50/60 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                      Partner accounts manage opportunities and PartnerForward resources.
+                      Partners never see private student data.
+                    </p>
+                  </>
+                )}
+
+                {current.key === "educator" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Caseload size (approx.)">
+                      <Input type="number" min={0} {...form.register("caseload_size")} placeholder="e.g. 18" />
+                    </Field>
+                    <Field label="Wants a demo?">
+                      <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+                        <Checkbox
+                          checked={!!form.watch("wants_demo")}
+                          onCheckedChange={(v) => form.setValue("wants_demo", v === true)}
+                        />
+                        Yes, schedule a walkthrough
+                      </label>
+                    </Field>
+                  </div>
+                )}
+
+                {current.key === "district" && (
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <Field label="Est. students">
+                      <Input type="number" min={0} {...form.register("estimated_student_count")} placeholder="e.g. 4200" />
+                    </Field>
+                    <Field label="Est. schools">
+                      <Input type="number" min={0} {...form.register("estimated_school_count")} placeholder="e.g. 7" />
+                    </Field>
+                    <Field label="Timeline">
+                      <Select onValueChange={(v) => form.setValue("urgency", v as FormValues["urgency"])}>
+                        <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="exploring">Just exploring</SelectItem>
+                          <SelectItem value="this_quarter">This quarter</SelectItem>
+                          <SelectItem value="this_year">This school year</SelectItem>
+                          <SelectItem value="asap">As soon as possible</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                )}
+
+                {(current.key === "family" || current.key === "student") && (
+                  <Field label="Are you currently connected to a student in an active school?">
+                    <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+                      <Checkbox
+                        checked={!!form.watch("connected_to_student")}
+                        onCheckedChange={(v) => form.setValue("connected_to_student", v === true)}
+                      />
+                      Yes, the student has an active school or district
+                    </label>
                   </Field>
                 )}
 
