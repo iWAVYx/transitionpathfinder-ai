@@ -196,22 +196,28 @@ export function DemoStepBar({ current, student }: Props) {
   };
 
 
+  const currentIdx = DEMO_STEPS.findIndex((x) => x.id === current);
+  const progressPct = ((currentIdx + 1) / DEMO_STEPS.length) * 100;
+
   return (
-    <div className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-16 z-30">
+    <div className="demo-shell border-b border-demo/60 bg-background/85 backdrop-blur sticky top-16 z-30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Top row: student switcher + step counter */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-demo-surface-warm border-demo">
               <Sparkles className="h-3 w-3" /> Demo workspace
             </Badge>
-            <Badge variant="outline" className="gap-1">
+            <Badge variant="outline" className="gap-1 border-demo">
               <ShieldCheck className="h-3 w-3" /> Fictional student · no real data
             </Badge>
+            <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-demo-primary">
+              Step {currentIdx + 1} / {DEMO_STEPS.length}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="hidden text-muted-foreground sm:inline">Walking with</span>
-            <div className="inline-flex overflow-hidden rounded-full border border-border/60 bg-background">
+            <span className="hidden text-foreground/70 sm:inline">Walking with</span>
+            <div className="inline-flex overflow-hidden rounded-full border border-demo bg-background">
               {(["maya", "jordan"] as DemoStudentId[]).map((sid) => {
                 const currentStep = DEMO_STEPS.find((x) => x.id === current) ?? DEMO_STEPS[0];
                 return (
@@ -221,7 +227,7 @@ export function DemoStepBar({ current, student }: Props) {
                     search={{ s: sid }}
                     className={`px-3 py-1 text-xs font-medium transition-colors ${
                       student === sid
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-demo-primary"
                         : "text-foreground/70 hover:text-foreground"
                     }`}
                   >
@@ -232,6 +238,14 @@ export function DemoStepBar({ current, student }: Props) {
             </div>
 
           </div>
+        </div>
+
+        {/* Progress fill */}
+        <div className="mt-3 demo-stepper-track" aria-hidden>
+          <div
+            className="demo-stepper-fill"
+            style={{ transform: `scaleX(${progressPct / 100})` }}
+          />
         </div>
 
         {/* Step rail */}
@@ -254,10 +268,10 @@ export function DemoStepBar({ current, student }: Props) {
                 key={s.id}
                 to={s.to}
                 {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-                className={`group inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors snap-start ${
+                className={`group inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all snap-start ${
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                    ? "demo-chip-active border-transparent"
+                    : "border-demo/60 bg-background text-foreground/70 hover:text-foreground hover:border-demo"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />

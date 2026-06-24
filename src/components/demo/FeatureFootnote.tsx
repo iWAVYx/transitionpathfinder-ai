@@ -4,6 +4,13 @@ import { cn } from "@/lib/utils";
 interface FeatureFootnoteProps {
   elementId: DemoElementId;
   className?: string;
+  /**
+   * The public demo no longer surfaces "Where this lives in the product"
+   * copy — that language reads as internal engineering and dilutes the
+   * pitch. Pass `internal` to render the disclosure (used only by the
+   * internal `/demo/connection` audit page).
+   */
+  internal?: boolean;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -20,10 +27,11 @@ const STATUS_CLASS: Record<string, string> = {
 
 /**
  * Renders a small "Where this lives in the product" disclosure under a demo
- * panel. Pulls all copy from DEMO_FEATURE_MAP so the demo cannot drift out of
- * sync with the audit registry.
+ * panel. Hidden by default on the public demo (Phase 1 polish). Pulls all
+ * copy from DEMO_FEATURE_MAP so the audit page cannot drift out of sync.
  */
-export function FeatureFootnote({ elementId, className }: FeatureFootnoteProps) {
+export function FeatureFootnote({ elementId, className, internal = false }: FeatureFootnoteProps) {
+  if (!internal) return null;
   const entry: DemoFeatureEntry | undefined = getDemoFeature(elementId);
   if (!entry) return null;
 
