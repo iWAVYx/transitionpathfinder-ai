@@ -222,6 +222,7 @@ export function ReportView({
 
   // Configure the debounced server pusher, then hydrate once from server.
   useEffect(() => {
+    if (!user) return;
     configureReportPrefsPusher((patch) => pushPrefs({ data: patch }));
     let cancelled = false;
     fetchPrefs()
@@ -258,7 +259,8 @@ export function ReportView({
       cancelled = true;
       flushReportPrefs();
     };
-  }, [fetchPrefs, pushPrefs]);
+  }, [user, fetchPrefs, pushPrefs]);
+
 
   // Mirror user-driven density changes to the server (skips initial mount).
   const densityHydrated = useRef(false);
