@@ -23,13 +23,32 @@ export const ADMIN_ROLE_LABELS: Record<AdminRole, string> = {
 
 export const WAITLIST_STATUSES = [
   "new",
-  "reviewed",
-  "contacted",
+  "needs_review",
+  "routed_family_early_access",
+  "routed_educator_demo",
+  "routed_school_pilot",
+  "routed_district_pilot",
+  "routed_partner_review",
   "invited",
   "converted",
+  "not_eligible_yet",
   "archived",
 ] as const;
 export type WaitlistStatus = (typeof WAITLIST_STATUSES)[number];
+
+export const WAITLIST_STATUS_LABELS: Record<WaitlistStatus, string> = {
+  new: "New",
+  needs_review: "Needs Review",
+  routed_family_early_access: "Family Early Access",
+  routed_educator_demo: "Educator Demo",
+  routed_school_pilot: "School Pilot",
+  routed_district_pilot: "District Pilot",
+  routed_partner_review: "Partner Review",
+  invited: "Invited",
+  converted: "Converted",
+  not_eligible_yet: "Not Eligible Yet",
+  archived: "Archived",
+};
 
 export const CONTACT_STATUSES = ["new", "reviewed", "replied", "archived"] as const;
 export type ContactStatus = (typeof CONTACT_STATUSES)[number];
