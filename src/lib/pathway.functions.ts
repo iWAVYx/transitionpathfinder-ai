@@ -1046,20 +1046,19 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     ].slice(0, 20);
 
     // SPIN backfill from profile when AI returns nothing usable.
-    const splitField = (v: string | null | undefined): string[] =>
-      typeof v === "string"
-        ? v
-            .split(/[\n,;]+/)
-            .map((s) => s.trim())
+    const cleanList = (arr: unknown): string[] =>
+      Array.isArray(arr)
+        ? arr
+            .map((s) => (typeof s === "string" ? s.trim() : ""))
             .filter((s) => s.length > 0 && s.length < 200)
             .slice(0, 8)
         : [];
     const aiSpin = v2.spin ?? {};
     const spin = {
-      strengths: aiSpin.strengths?.length ? aiSpin.strengths : splitField(ctx.student.strengths_summary),
+      strengths: aiSpin.strengths?.length ? aiSpin.strengths : cleanList(ctx.student.strengths),
       preferences: aiSpin.preferences,
-      interests: aiSpin.interests?.length ? aiSpin.interests : splitField(ctx.student.interests_summary),
-      needs: aiSpin.needs?.length ? aiSpin.needs : splitField(ctx.student.support_needs_summary),
+      interests: aiSpin.interests?.length ? aiSpin.interests : cleanList(ctx.student.interests),
+      needs: aiSpin.needs?.length ? aiSpin.needs : cleanList(ctx.student.needs),
     };
 
     // Plain-language + professional summary fallbacks.
