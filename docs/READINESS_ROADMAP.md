@@ -104,9 +104,13 @@ modifications to `_authenticated/route.tsx`, auth, or 2FA.
   messages, goals, invitations) and auto-marks-read on click. Remaining:
   ensure server-side writers populate `related_record_type`/`_id` for every
   emitted notification, and add an email digest fallback (P1).
-- **Consent & sharing panel.** One "Who can see this?" panel per student
-  profile combining `student_collaborators`, `student_relationships`, and
-  active `share_tokens`.
+- **Consent & sharing panel.** 🟡 New `WhoCanSeeThisPanel` on
+  `/students/$studentId` consolidates accepted collaborators, approved
+  family/case-manager relationships, and active (non-revoked, non-expired)
+  share tokens into one "Who Can See This?" view, backed by
+  `getStudentAccessOverview` in `src/lib/sharing.functions.ts`. Granular
+  management stays in the existing panels. Remaining: per-row revoke
+  shortcut and an inline consent revocation flow.
 - **Document review workflow.** Explicit reviewer states (uploaded →
   AI-extracted → human-reviewed → linked) backed by
   `document_summaries.review_status`.
