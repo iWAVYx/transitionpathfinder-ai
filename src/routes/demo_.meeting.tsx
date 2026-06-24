@@ -42,7 +42,7 @@ export const Route = createFileRoute("/demo_/meeting")({
 });
 
 function DemoMeetingPage() {
-  const { s } = Route.useSearch();
+  const { s = "maya" as const } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile, report, nextMeetingDate } = bundle;
   const prep = report.meeting_prep_toolkit;

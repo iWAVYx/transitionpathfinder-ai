@@ -275,7 +275,7 @@ const RESOURCES: Resource[] = [
 ];
 
 function DemoResourcesPage() {
-  const { s } = Route.useSearch();
+  const { s = "maya" as const } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile } = bundle;
   const [active, setActive] = useState<CategoryId>("all");

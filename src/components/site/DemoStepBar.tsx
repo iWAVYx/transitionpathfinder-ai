@@ -183,8 +183,19 @@ export function DemoStepFooter({ current, student }: FooterProps) {
   );
 }
 
-/** Shared search validator for `?s=maya|jordan` */
-export function validateStudentSearch(s: { s?: unknown }): { s: DemoStudentId } {
-  const id = s?.s === "jordan" ? "jordan" : "maya";
-  return { s: id };
+/** Default demo student when no `?s=` is present on the URL. */
+export const DEFAULT_DEMO_STUDENT: DemoStudentId = "maya";
+
+/**
+ * Shared search validator for `?s=maya|jordan`.
+ *
+ * Returns `{ s }` ONLY when the URL explicitly carries a valid value, so
+ * direct navigation to `/demo/intake` stays clean and is not rewritten to
+ * `/demo/intake?s=maya`. Components default to {@link DEFAULT_DEMO_STUDENT}
+ * when `s` is omitted.
+ */
+export function validateStudentSearch(s: { s?: unknown }): { s?: DemoStudentId } {
+  if (s?.s === "jordan") return { s: "jordan" };
+  if (s?.s === "maya") return { s: "maya" };
+  return {};
 }

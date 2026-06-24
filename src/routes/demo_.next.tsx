@@ -95,7 +95,7 @@ const CTAS: Cta[] = [
 ];
 
 function DemoNextPage() {
-  const { s } = Route.useSearch() as { s: DemoStudentId };
+  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
 
   return (
     <SiteShell>

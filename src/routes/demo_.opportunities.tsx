@@ -38,7 +38,7 @@ export const Route = createFileRoute("/demo_/opportunities")({
 });
 
 function DemoOpportunitiesPage() {
-  const { s } = Route.useSearch() as { s: DemoStudentId };
+  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
   const bundle = getDemoStudent(s);
   const opps = DEMO_OPPORTUNITIES[s];
 

@@ -37,7 +37,7 @@ export const Route = createFileRoute("/demo_/voice")({
 });
 
 function DemoVoicePage() {
-  const { s } = Route.useSearch() as { s: DemoStudentId };
+  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
   const bundle = getDemoStudent(s);
   const prompts = DEMO_VOICE[s];
   const first = bundle.profile.first_name;

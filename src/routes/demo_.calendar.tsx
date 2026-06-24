@@ -51,7 +51,7 @@ export const Route = createFileRoute("/demo_/calendar")({
 });
 
 function DemoCalendarPage() {
-  const { s } = Route.useSearch();
+  const { s = "maya" as const } = Route.useSearch();
   const bundle = getDemoStudent(s);
   const { profile, nextMeetingDate } = bundle;
   const events = buildDemoCalendarEvents(bundle);
