@@ -282,7 +282,7 @@ function DemoIndex() {
             </div>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-3xl border border-demo bg-gradient-horizon p-6 text-[oklch(0.99_0.01_200)] shadow-demo-lift sm:p-8">
+          <div className="mt-12 flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-3xl border border-demo bg-gradient-horizon p-6 text-primary-foreground shadow-demo-lift sm:p-8">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-80">
                 Start the walkthrough
