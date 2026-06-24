@@ -15,8 +15,8 @@
       "upload_new": true,
       "read_summary": true,
       "write_summary": true,
-      "leak_view_unrelated": true,
-      "leak_download_unrelated": true
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
     },
     "owner": {
       "view_metadata": true,
@@ -80,8 +80,8 @@
       "upload_new": true,
       "read_summary": true,
       "write_summary": true,
-      "leak_view_unrelated": true,
-      "leak_download_unrelated": true
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
     },
     "owner": {
       "view_metadata": true,
@@ -145,8 +145,8 @@
       "upload_new": true,
       "read_summary": true,
       "write_summary": true,
-      "leak_view_unrelated": true,
-      "leak_download_unrelated": true
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
     },
     "owner": {
       "view_metadata": false,
@@ -210,8 +210,8 @@
       "upload_new": true,
       "read_summary": true,
       "write_summary": true,
-      "leak_view_unrelated": true,
-      "leak_download_unrelated": true
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
     },
     "owner": {
       "view_metadata": false,
