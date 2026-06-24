@@ -220,30 +220,135 @@ export const getNextBestAction = createServerFn({ method: "POST" })
       };
     }
 
+    async function orgIdsForUser(types: string[]): Promise<string[]> {
+      const { data: memberships } = await supabase
+        .from("organization_memberships")
+        .select("organization_id, organizations:organizations!inner(id,type,parent_organization_id)")
+        .eq("user_id", userId)
+        .eq("status", "active");
+      const rows = (memberships ?? []) as unknown as Array<{
+        organization_id: string;
+        organizations: { id: string; type: string | null; parent_organization_id: string | null } | null;
+      }>;
+      return rows
+        .filter((r) => r.organizations && types.includes(r.organizations.type ?? ""))
+        .map((r) => r.organization_id);
+    }
+
     if (surface === "school_admin") {
+      const schoolIds = await orgIdsForUser(["school"]);
+      if (schoolIds.length === 0) {
+        return {
+          headline: "Connect to your school",
+          body: "Ask your district admin to add you to a school organization so you can see implementation data.",
+          ctaLabel: "Open school overview",
+          ctaHref: "/school/overview",
+          tone: "primary",
+        };
+      }
+      const { data: students } = await supabase
+        .from("students")
+        .select("id")
+        .in("organization_id", schoolIds);
+      const studentIds = (students ?? []).map((s) => s.id as string);
+      const totalStudents = studentIds.length;
+      if (totalStudents === 0) {
+        return {
+          headline: "No students linked yet",
+          body: "Once case managers add students to this school, you'll see readiness and report progress here.",
+          ctaLabel: "Open school overview",
+          ctaHref: "/school/overview",
+          reason: `${schoolIds.length} school${schoolIds.length === 1 ? "" : "s"} linked, 0 students`,
+          tone: "primary",
+        };
+      }
+      const { data: reports } = await supabase
+        .from("pathway_reports")
+        .select("student_id")
+        .in("student_id", studentIds);
+      const withReport = new Set((reports ?? []).map((r) => r.student_id as string));
+      const missing = totalStudents - withReport.size;
+      if (missing > 0) {
+        return {
+          headline: `${missing} of ${totalStudents} students missing a Pathway Report`,
+          body: "Review case manager progress and follow up where reports are still pending.",
+          ctaLabel: "Open school overview",
+          ctaHref: "/school/overview",
+          reason: `${withReport.size}/${totalStudents} have a report`,
+          tone: "warning",
+          secondaryLabel: "View readiness",
+          secondaryHref: "/school/readiness",
+        };
+      }
       return {
-        headline: "Review students missing reports",
-        body: "Check case manager progress and identify students still needing a completed Pathway Report.",
-        ctaLabel: "Open school overview",
-        ctaHref: "/school/overview",
-        tone: "primary",
+        headline: "Every student has a Pathway Report",
+        body: "Great work. Review trends and identify next-phase supports for the cohort.",
+        ctaLabel: "Open school readiness",
+        ctaHref: "/school/readiness",
+        reason: `${totalStudents}/${totalStudents} complete`,
+        tone: "success",
       };
     }
 
     if (surface === "district_admin") {
+      const districtIds = await orgIdsForUser(["district"]);
+      if (districtIds.length === 0) {
+        return {
+          headline: "Connect to your district",
+          body: "Ask the platform team to add you to a district organization to see school-by-school rollups.",
+          ctaLabel: "Open district overview",
+          ctaHref: "/district/overview",
+          tone: "primary",
+        };
+      }
+      const { data: schools } = await supabase
+        .from("organizations")
+        .select("id, name")
+        .eq("type", "school")
+        .in("parent_organization_id", districtIds);
+      const schoolIds = (schools ?? []).map((s) => s.id as string);
+      if (schoolIds.length === 0) {
+        return {
+          headline: "Add schools to this district",
+          body: "Schools you add will roll up into your district reports and readiness dashboards.",
+          ctaLabel: "Open district overview",
+          ctaHref: "/district/overview",
+          reason: `${districtIds.length} district${districtIds.length === 1 ? "" : "s"}, 0 schools`,
+          tone: "primary",
+        };
+      }
+      const { data: students } = await supabase
+        .from("students")
+        .select("id, organization_id")
+        .in("organization_id", schoolIds);
+      const studentIds = (students ?? []).map((s) => s.id as string);
+      const { data: reports } = studentIds.length
+        ? await supabase.from("pathway_reports").select("student_id").in("student_id", studentIds)
+        : { data: [] as Array<{ student_id: string }> };
+      const withReport = new Set((reports ?? []).map((r) => r.student_id as string));
+      const pct = studentIds.length
+        ? Math.round((withReport.size / studentIds.length) * 100)
+        : 0;
       return {
-        headline: "Review school-by-school implementation",
-        body: "Track transition readiness trends and identify schools that need additional support.",
+        headline: `District readiness: ${pct}% of students have a Pathway Report`,
+        body: "Drill into schools that are lagging and surface the supports that are working.",
         ctaLabel: "Open district reports",
         ctaHref: "/district/reports",
-        tone: "primary",
+        reason: `${schoolIds.length} schools · ${studentIds.length} students · ${withReport.size} with reports`,
+        tone: pct < 50 ? "warning" : pct === 100 ? "success" : "primary",
+        secondaryLabel: "School breakdown",
+        secondaryHref: "/district/overview",
       };
     }
 
     if (surface === "partner") {
-      const { count: opps } = await supabase
-        .from("partner_opportunities")
-        .select("id", { count: "exact", head: true });
+      const [{ count: opps }, { count: activeOpps }] = await Promise.all([
+        supabase.from("partner_opportunities").select("id", { count: "exact", head: true }),
+        supabase
+          .from("partner_opportunities")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "active"),
+      ]);
 
       if (!opps || opps === 0) {
         return {
@@ -254,14 +359,26 @@ export const getNextBestAction = createServerFn({ method: "POST" })
           tone: "primary",
         };
       }
+      if ((activeOpps ?? 0) === 0) {
+        return {
+          headline: "No active opportunities right now",
+          body: "Reactivate or refresh an opportunity so students can be matched.",
+          ctaLabel: "Manage opportunities",
+          ctaHref: "/partners-manage",
+          reason: `${opps} total · 0 active`,
+          tone: "warning",
+        };
+      }
       return {
         headline: "Keep opportunities current",
         body: "Review and refresh your active opportunities so student matches stay accurate.",
         ctaLabel: "Manage opportunities",
         ctaHref: "/partners-manage",
+        reason: `${activeOpps}/${opps} active`,
         tone: "success",
       };
     }
+
 
     if (surface === "admin") {
       const [
