@@ -24,7 +24,7 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
         perPage: 200,
       });
       if (error) return null;
-      const hit = list.users.find((u) => (u.email ?? "").toLowerCase() === lower);
+      const hit = list.users.find((u: { email?: string | null; id: string }) => (u.email ?? "").toLowerCase() === lower);
       if (hit) return hit.id;
       if (list.users.length < 200) return null;
       page++;
