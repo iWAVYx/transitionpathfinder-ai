@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
+import { getRequestHeader } from "@tanstack/react-start/server";
+import { getAppBaseUrl } from "@/lib/app-url.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -1343,8 +1344,7 @@ export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
     let emailStatus: "sent" | "failed" | "skipped" = "skipped";
     let emailError: string | null = null;
     try {
-      const req = getRequest();
-      const origin = new URL(req.url).origin;
+      const origin = getAppBaseUrl();
       const authHeader = getRequestHeader("Authorization") ?? "";
 
       // Look up inviter display name

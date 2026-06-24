@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getAppBaseUrl } from "@/lib/app-url.server";
 
 async function findUserIdByEmail(email: string): Promise<string | null> {
   const lower = email.toLowerCase();
@@ -101,8 +102,7 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
 
     // Send branded invite email (best-effort; never block the invite on email failure).
     try {
-      const req = getRequest();
-      const origin = new URL(req.url).origin;
+      const origin = getAppBaseUrl();
       const authHeader = getRequestHeader("Authorization") ?? "";
 
       const [{ data: inviter }, { data: student }] = await Promise.all([
@@ -234,8 +234,7 @@ export const resendCollaboratorInvite = createServerFn({ method: "POST" })
     }
 
     try {
-      const req = getRequest();
-      const origin = new URL(req.url).origin;
+      const origin = getAppBaseUrl();
       const authHeader = getRequestHeader("Authorization") ?? "";
       const [{ data: inviter }, { data: student }] = await Promise.all([
         supabase.from("profiles").select("full_name, first_name").eq("id", userId).maybeSingle(),
