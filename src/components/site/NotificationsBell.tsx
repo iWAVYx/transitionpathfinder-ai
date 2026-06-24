@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bell, Check, CheckCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import {
   markAllNotificationsRead,
   type NotificationRow,
 } from "@/lib/notifications.functions";
+import { resolveNotificationHref } from "@/lib/notification-links";
 
 function relTime(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -102,13 +104,9 @@ export function NotificationsBell({ userId }: { userId: string }) {
               You're all caught up.
             </p>
           ) : (
-            items.map((n) => (
-              <div
-                key={n.id}
-                className={`flex gap-2 border-b border-border/40 px-3 py-2.5 text-sm last:border-b-0 ${
-                  n.read_status ? "opacity-70" : "bg-primary/5"
-                }`}
-              >
+            items.map((n) => {
+              const href = resolveNotificationHref(n);
+              const body = (
                 <div className="min-w-0 flex-1">
                   <p className="font-medium leading-snug">{n.title}</p>
                   {n.message && (
@@ -120,17 +118,45 @@ export function NotificationsBell({ userId }: { userId: string }) {
                     {relTime(n.created_at)}
                   </p>
                 </div>
-                {!n.read_status && (
-                  <button
-                    onClick={() => handleMark(n.id)}
-                    aria-label="Mark read"
-                    className="shrink-0 self-start rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              );
+              const rowClass = `flex gap-2 border-b border-border/40 px-3 py-2.5 text-sm last:border-b-0 ${
+                n.read_status ? "opacity-70" : "bg-primary/5"
+              } ${href ? "hover:bg-muted/60 transition-colors" : ""}`;
+              const markBtn = !n.read_status ? (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleMark(n.id);
+                  }}
+                  aria-label="Mark read"
+                  className="shrink-0 self-start rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                </button>
+              ) : null;
+              if (href) {
+                return (
+                  <Link
+                    key={n.id}
+                    to={href}
+                    className={rowClass}
+                    onClick={() => {
+                      if (!n.read_status) handleMark(n.id);
+                    }}
                   >
-                    <Check className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-            ))
+                    {body}
+                    {markBtn}
+                  </Link>
+                );
+              }
+              return (
+                <div key={n.id} className={rowClass}>
+                  {body}
+                  {markBtn}
+                </div>
+              );
+            })
           )}
         </div>
       </DropdownMenuContent>
