@@ -65,7 +65,18 @@ export function DemoStepBar({ current, student }: Props) {
   const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
   const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
   const railRef = useRef<HTMLElement | null>(null);
-  const dragState = useRef<{ active: boolean; moved: boolean; startX: number; startY: number; startLeft: number; pointerId: number | null; pointerType: string }>({
+  const dragState = useRef<{
+    active: boolean;
+    moved: boolean;
+    startX: number;
+    startY: number;
+    startLeft: number;
+    pointerId: number | null;
+    pointerType: string;
+    lastX: number;
+    lastTime: number;
+    velocity: number; // px/ms, positive = moving content left (scrollLeft increasing)
+  }>({
     active: false,
     moved: false,
     startX: 0,
@@ -73,11 +84,52 @@ export function DemoStepBar({ current, student }: Props) {
     startLeft: 0,
     pointerId: null,
     pointerType: "",
+    lastX: 0,
+    lastTime: 0,
+    velocity: 0,
   });
+  const momentumRaf = useRef<number | null>(null);
+
+  const cancelMomentum = () => {
+    if (momentumRaf.current !== null) {
+      cancelAnimationFrame(momentumRaf.current);
+      momentumRaf.current = null;
+    }
+  };
+
+  const startMomentum = () => {
+    const el = railRef.current;
+    if (!el) return;
+    let velocity = dragState.current.velocity; // px/ms
+    if (Math.abs(velocity) < 0.05) return; // not enough to bother
+    const decay = 0.95; // per frame (~16ms)
+    let last = performance.now();
+    const step = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (!railRef.current) return;
+      // Apply velocity (scaled by dt to stay framerate-independent).
+      railRef.current.scrollLeft += velocity * dt;
+      // Decay proportional to dt/16 so it feels consistent.
+      velocity *= Math.pow(decay, dt / 16);
+      const max = railRef.current.scrollWidth - railRef.current.clientWidth;
+      if (railRef.current.scrollLeft <= 0 || railRef.current.scrollLeft >= max) {
+        momentumRaf.current = null;
+        return;
+      }
+      if (Math.abs(velocity) < 0.02) {
+        momentumRaf.current = null;
+        return;
+      }
+      momentumRaf.current = requestAnimationFrame(step);
+    };
+    momentumRaf.current = requestAnimationFrame(step);
+  };
 
   const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
     const el = railRef.current;
     if (!el) return;
+    cancelMomentum();
     dragState.current = {
       active: true,
       moved: false,
@@ -86,9 +138,10 @@ export function DemoStepBar({ current, student }: Props) {
       startLeft: el.scrollLeft,
       pointerId: e.pointerId,
       pointerType: e.pointerType,
+      lastX: e.clientX,
+      lastTime: performance.now(),
+      velocity: 0,
     };
-    // For mouse/pen, capture immediately. For touch, defer capture until we
-    // confirm horizontal intent so vertical page scroll still works.
     if (e.pointerType !== "touch") {
       el.setPointerCapture(e.pointerId);
     }
@@ -99,14 +152,11 @@ export function DemoStepBar({ current, student }: Props) {
     const dx = e.clientX - s.startX;
     const dy = e.clientY - s.startY;
     if (s.pointerType === "touch" && !s.moved) {
-      // Decide gesture direction once movement exceeds threshold.
       if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
       if (Math.abs(dy) > Math.abs(dx)) {
-        // Vertical scroll intent — bail out, let the page scroll.
         s.active = false;
         return;
       }
-      // Horizontal drag confirmed — capture so we own subsequent events.
       try {
         railRef.current.setPointerCapture(s.pointerId!);
       } catch {
@@ -115,8 +165,19 @@ export function DemoStepBar({ current, student }: Props) {
     }
     if (Math.abs(dx) > 4) s.moved = true;
     railRef.current.scrollLeft = s.startLeft - dx;
+
+    // Track velocity (px/ms). Negative dx => scrollLeft increased => positive velocity.
+    const now = performance.now();
+    const dt = now - s.lastTime;
+    if (dt > 0) {
+      const instant = -(e.clientX - s.lastX) / dt;
+      // Low-pass smoothing so the final velocity reflects the recent gesture.
+      s.velocity = s.velocity * 0.6 + instant * 0.4;
+      s.lastX = e.clientX;
+      s.lastTime = now;
+    }
   };
-  const endDrag = (e: React.PointerEvent<HTMLElement>) => {
+  const endDrag = (_e: React.PointerEvent<HTMLElement>) => {
     const s = dragState.current;
     if (!s.active) return;
     if (railRef.current && s.pointerId !== null && railRef.current.hasPointerCapture(s.pointerId)) {
@@ -124,6 +185,7 @@ export function DemoStepBar({ current, student }: Props) {
     }
     s.active = false;
     s.pointerId = null;
+    if (s.moved) startMomentum();
   };
   const onClickCapture = (e: React.MouseEvent<HTMLElement>) => {
     if (dragState.current.moved) {
