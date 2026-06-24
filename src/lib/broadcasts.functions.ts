@@ -1,7 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+// SECURITY: lazy-load service-role client to keep `client.server` out of client bundle graph.
+let _supabaseAdmin: any;
+async function getAdmin() {
+  if (!_supabaseAdmin) {
+    const m = await import("@/integrations/supabase/client.server");
+    _supabaseAdmin = m.supabaseAdmin;
+  }
+  return _supabaseAdmin;
+}
 
 export const APP_ROLES = [
   "student",
