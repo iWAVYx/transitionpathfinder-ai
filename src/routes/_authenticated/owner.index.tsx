@@ -161,16 +161,6 @@ export function OwnerDashboardPage() {
             defaultOpen={false}
           >
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              <Button asChild variant="default" size="sm" className="w-full justify-start">
-                <Link to="/owner/waitlist">
-                  <ClipboardList className="mr-1.5 h-3.5 w-3.5" /> View waitlist
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm" className="w-full justify-start">
-                <Link to="/owner/contacts">
-                  <Mail className="mr-1.5 h-3.5 w-3.5" /> Review contacts
-                </Link>
-              </Button>
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/resources">
                   <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Manage resources
@@ -187,11 +177,6 @@ export function OwnerDashboardPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
-                <Link to="/owner/admins">
-                  <Users className="mr-1.5 h-3.5 w-3.5" /> Manage admins
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/settings">
                   <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site settings
                 </Link>
@@ -202,6 +187,7 @@ export function OwnerDashboardPage() {
                 </Link>
               </Button>
             </div>
+
           </CollapsibleSection>
 
           {/* Recent activity */}
