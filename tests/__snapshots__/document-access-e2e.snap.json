@@ -1,0 +1,262 @@
+{
+  "active": {
+    "anon": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "editor_collab": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "owner": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "partner_only": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "platform_admin": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "unrelated": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "viewer_collab": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": false,
+      "read_summary": true,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    }
+  },
+  "archived": {
+    "anon": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "editor_collab": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "owner": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "partner_only": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "platform_admin": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "unrelated": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "viewer_collab": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": true,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    }
+  },
+  "deleted_no_grant": {
+    "anon": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "editor_collab": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "owner": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "partner_only": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "platform_admin": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "unrelated": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "viewer_collab": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": true,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    }
+  },
+  "deleted_with_grant": {
+    "anon": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "editor_collab": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "owner": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "partner_only": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "platform_admin": {
+      "view_metadata": true,
+      "download": true,
+      "upload_new": true,
+      "read_summary": true,
+      "write_summary": true,
+      "leak_view_unrelated": true,
+      "leak_download_unrelated": true
+    },
+    "unrelated": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": false,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    },
+    "viewer_collab": {
+      "view_metadata": false,
+      "download": false,
+      "upload_new": false,
+      "read_summary": true,
+      "write_summary": false,
+      "leak_view_unrelated": false,
+      "leak_download_unrelated": false
+    }
+  }
+}
