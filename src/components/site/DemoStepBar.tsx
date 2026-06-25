@@ -11,15 +11,12 @@ import {
   CalendarDays,
   ArrowLeft,
   ArrowRight,
-  ShieldCheck,
-  Sparkles,
   Mic,
   FileSearch,
   Briefcase,
   Compass,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
 import { FeatureFootnote } from "@/components/demo/FeatureFootnote";
