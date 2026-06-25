@@ -483,8 +483,10 @@ export function ReportView({
         </div>
       </div>
 
-      {/* Toolbar — hidden on print */}
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card p-2 shadow-soft">
+      {/* Toolbar — hidden on print. Document-integrated: no heavy border, sits
+          on the page background so it reads as part of the report, not chrome. */}
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
+
         <div
           role="tablist"
           aria-label="Choose a report view"
