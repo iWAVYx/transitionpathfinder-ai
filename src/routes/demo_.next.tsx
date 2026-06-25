@@ -99,7 +99,8 @@ function DemoNextPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="next" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="next" student={s} />
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1">
@@ -150,6 +151,7 @@ function DemoNextPage() {
 
         <DemoStepFooter current="next" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }

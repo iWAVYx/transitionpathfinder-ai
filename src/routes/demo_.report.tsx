@@ -49,7 +49,8 @@ function DemoReportPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="report" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="report" student={s} />
 
       {/* Cinematic hero intro */}
       <section ref={heroRef} className="relative isolate overflow-hidden">
@@ -182,6 +183,7 @@ function DemoReportPage() {
       <section className="mx-auto max-w-[92rem] px-4 pb-6 sm:px-6 lg:px-8">
         <DemoStepFooter current="report" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }

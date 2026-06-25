@@ -177,7 +177,8 @@ function DemoHubPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="hub" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="hub" student={s} />
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header card */}
@@ -444,6 +445,7 @@ function DemoHubPage() {
 
         <DemoStepFooter current="hub" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }

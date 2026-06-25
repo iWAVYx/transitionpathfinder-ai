@@ -307,7 +307,8 @@ function DemoResourcesPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="resources" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="resources" student={s} />
 
       <section className={`mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "max-w-[88rem] py-6" : "max-w-6xl py-10"}`}>
         <div className={compact ? "mb-4" : "mb-6"}>
@@ -401,6 +402,7 @@ function DemoResourcesPage() {
 
         <DemoStepFooter current="resources" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }
