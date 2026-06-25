@@ -133,6 +133,7 @@ export function ReportView({
   onAudienceChange,
   onRefresh,
   refreshing = false,
+  demoStudentId,
 }: {
   name: string;
   report: PathwayReport;
@@ -158,7 +159,10 @@ export function ReportView({
   /** Inline "Refresh report" action in the toolbar. */
   onRefresh?: () => void;
   refreshing?: boolean;
+  /** When set (demo only), render Phase 4 sections derived from demo extras. */
+  demoStudentId?: import("@/lib/demo-data").DemoStudentId;
 }) {
+
   const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
     setAudienceState(a);
