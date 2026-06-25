@@ -405,6 +405,8 @@ function OpportunitiesPage() {
           </p>
         </div>
       </section>
+      </section>
+      </div>
     </SiteShell>
   );
 }
