@@ -685,3 +685,355 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
     transparent
   );
 }
+
+/* ===========================================================================
+ * EDITORIAL OVERHAUL — Demo Workspace + Pathway Report v2
+ * ---------------------------------------------------------------------------
+ * Layered transformation on top of the existing scoped .demo-shell /
+ * .report-shell tokens. Goal: kill the boxy white-card grammar and replace
+ * it with editorial document rhythm — chapter bands, eyebrow rules,
+ * marginalia sidelines, pull-quotes, slim TOC. Scoped strictly inside
+ * .demo-shell / .report-shell so the rest of the site is unaffected.
+ * =========================================================================== */
+
+/* Paper-like surface tint */
+.demo-shell,
+.report-shell {
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--sky-soft) 30%, var(--background)),
+    var(--background) 220px);
+}
+
+/* Subtle dot-grid backdrop for the workspace hero/headers */
+.demo-shell .tf-paper {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--demo-primary) 14%, transparent) 1px,
+    transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: 0 0;
+}
+
+/* ---------- Eyebrow / rule / chapter numeral ---------- */
+.demo-shell .tf-eyebrow,
+.report-shell .tf-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-demo-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--demo-primary);
+}
+.demo-shell .tf-eyebrow::before,
+.report-shell .tf-eyebrow::before {
+  content: "";
+  width: 1.5rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--demo-primary), color-mix(in oklab, var(--demo-accent) 70%, transparent));
+  border-radius: 2px;
+}
+
+.demo-shell .tf-numeral,
+.report-shell .tf-numeral {
+  font-family: var(--font-demo-display);
+  font-weight: 200;
+  font-style: italic;
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--demo-primary), var(--demo-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Chapter (full editorial section) ---------- */
+.demo-shell .tf-chapter,
+.report-shell .tf-chapter {
+  position: relative;
+  padding: 2.5rem 0 2.75rem;
+}
+.demo-shell .tf-chapter + .tf-chapter,
+.report-shell .tf-chapter + .tf-chapter {
+  border-top: 1px solid color-mix(in oklab, var(--demo-primary) 14%, transparent);
+}
+.demo-shell .tf-chapter-rule,
+.report-shell .tf-chapter-rule {
+  position: absolute;
+  left: -1.25rem;
+  top: 2.5rem;
+  bottom: 2.75rem;
+  width: 2px;
+  background: linear-gradient(180deg, var(--demo-accent), color-mix(in oklab, var(--demo-accent) 0%, transparent));
+  border-radius: 2px;
+}
+
+/* ---------- Full-bleed editorial band ---------- */
+.demo-shell .tf-band,
+.report-shell .tf-band {
+  position: relative;
+  border-radius: 2rem;
+  padding: clamp(2rem, 4vw, 3.5rem);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in oklab, var(--demo-primary) 18%, transparent), transparent 60%),
+    radial-gradient(80% 60% at 0% 100%, color-mix(in oklab, var(--demo-accent) 22%, transparent), transparent 60%),
+    color-mix(in oklab, var(--sky-soft) 70%, white);
+}
+.demo-shell .tf-band--warm,
+.report-shell .tf-band--warm {
+  background:
+    radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--demo-accent) 28%, transparent), transparent 60%),
+    radial-gradient(80% 60% at 100% 100%, color-mix(in oklab, var(--demo-primary) 18%, transparent), transparent 60%),
+    color-mix(in oklab, var(--peach-soft) 60%, white);
+}
+.demo-shell .tf-band--ink,
+.report-shell .tf-band--ink {
+  background: linear-gradient(135deg, oklch(0.22 0.05 240), oklch(0.32 0.09 230));
+  color: oklch(0.98 0.005 220);
+}
+.demo-shell .tf-band--ink .tf-eyebrow,
+.report-shell .tf-band--ink .tf-eyebrow { color: color-mix(in oklab, var(--sky) 90%, white); }
+
+/* ---------- Pull quote ---------- */
+.demo-shell .tf-pull,
+.report-shell .tf-pull {
+  position: relative;
+  padding: 1.25rem 0 1.25rem 1.75rem;
+  font-family: var(--font-demo-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.25rem, 1.5vw, 1.625rem);
+  line-height: 1.35;
+  color: color-mix(in oklab, var(--demo-ink) 90%, transparent);
+  border-left: 3px solid var(--demo-accent);
+}
+.demo-shell .tf-pull cite,
+.report-shell .tf-pull cite {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: var(--font-demo-body);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--demo-primary);
+}
+
+/* ---------- Slim TOC rail (magazine-style) ---------- */
+.demo-shell .tf-rail,
+.report-shell .tf-rail {
+  border-left: 1px solid color-mix(in oklab, var(--demo-primary) 18%, transparent);
+}
+.demo-shell .tf-rail a,
+.report-shell .tf-rail a,
+.demo-shell .tf-rail-item,
+.report-shell .tf-rail-item {
+  display: block;
+  padding: 0.5rem 0 0.5rem 1rem;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: color-mix(in oklab, var(--demo-ink) 60%, transparent);
+  transition: color 180ms ease, border-color 180ms ease;
+}
+.demo-shell .tf-rail a:hover,
+.report-shell .tf-rail a:hover,
+.demo-shell .tf-rail-item:hover,
+.report-shell .tf-rail-item:hover {
+  color: var(--demo-primary);
+}
+.demo-shell .tf-rail .tf-rail-active,
+.report-shell .tf-rail .tf-rail-active {
+  border-left-color: var(--demo-primary);
+  color: var(--demo-ink);
+  font-weight: 600;
+}
+
+/* ---------- Audience tab pill (used inside report header) ---------- */
+.demo-shell .tf-audience,
+.report-shell .tf-audience {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--sky-soft) 80%, white);
+  border: 1px solid color-mix(in oklab, var(--demo-primary) 16%, transparent);
+}
+.demo-shell .tf-audience > *,
+.report-shell .tf-audience > * {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-family: var(--font-demo-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-primary) 70%, transparent);
+  transition: all 200ms ease;
+  text-decoration: none;
+}
+.demo-shell .tf-audience > [aria-selected="true"],
+.report-shell .tf-audience > [aria-selected="true"],
+.demo-shell .tf-audience > .is-active,
+.report-shell .tf-audience > .is-active {
+  background: var(--card);
+  color: var(--demo-primary);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 6px 16px oklch(0.45 0.07 200 / 0.18);
+}
+
+/* ---------- Journey ribbon (horizontal step timeline) ---------- */
+.demo-shell .tf-journey {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0;
+  padding: 1.25rem 0;
+}
+.demo-shell .tf-journey::before {
+  content: "";
+  position: absolute;
+  top: 2.35rem;
+  left: 1rem;
+  right: 1rem;
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--demo-primary) 0%,
+    var(--demo-accent) 100%);
+  opacity: 0.18;
+  border-radius: 2px;
+}
+.demo-shell .tf-journey-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 0.5rem;
+  z-index: 1;
+}
+.demo-shell .tf-journey-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--card);
+  border: 2px solid color-mix(in oklab, var(--demo-primary) 35%, transparent);
+  margin-bottom: 0.625rem;
+  transition: all 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.demo-shell .tf-journey-step.is-done .tf-journey-dot {
+  background: var(--demo-primary);
+  border-color: var(--demo-primary);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--demo-primary) 14%, transparent);
+}
+.demo-shell .tf-journey-step.is-current .tf-journey-dot {
+  background: var(--demo-accent);
+  border-color: var(--demo-accent);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--demo-accent) 22%, transparent);
+  transform: scale(1.15);
+}
+.demo-shell .tf-journey-label {
+  font-family: var(--font-demo-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklab, var(--demo-ink) 75%, transparent);
+}
+.demo-shell .tf-journey-step.is-current .tf-journey-label { color: var(--demo-ink); }
+
+/* ---------- De-card: soften the .rounded-3xl border bg-card pattern
+ * inside the demo/report shells so it reads as paper, not a tile grid. ---- */
+.demo-shell .rounded-3xl.border.bg-card,
+.report-shell .rounded-3xl.border.bg-card {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--card) 96%, var(--sky-soft));
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--demo-primary) 6%, transparent) inset,
+    0 1px 2px oklch(0 0 0 / 0.02),
+    0 18px 40px -28px color-mix(in oklab, var(--demo-primary) 24%, transparent);
+}
+.demo-shell .rounded-3xl.border-2.border-dashed,
+.report-shell .rounded-3xl.border-2.border-dashed {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--demo-accent) 55%, transparent);
+  background: color-mix(in oklab, var(--peach-soft) 30%, var(--card));
+}
+
+/* Slim, hairline rules between top-level <section> blocks in demo step pages */
+.demo-shell section + section { position: relative; }
+
+/* Editorial inset card (light right-side data panel) */
+.demo-shell .tf-inset,
+.report-shell .tf-inset {
+  background: var(--card);
+  border-top: 4px solid var(--demo-primary);
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 24px 60px -28px color-mix(in oklab, var(--demo-primary) 30%, transparent);
+  border-radius: 4px;
+}
+
+/* Cover gradient — used in report header and demo hero */
+.demo-shell .tf-cover,
+.report-shell .tf-cover {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2.25rem;
+  background:
+    radial-gradient(60% 70% at 90% 10%, color-mix(in oklab, var(--demo-primary) 22%, transparent), transparent 60%),
+    radial-gradient(70% 60% at 10% 90%, color-mix(in oklab, var(--demo-accent) 26%, transparent), transparent 60%),
+    linear-gradient(135deg, color-mix(in oklab, var(--sky-soft) 80%, white), color-mix(in oklab, var(--peach-soft) 30%, white));
+}
+.demo-shell .tf-cover::after,
+.report-shell .tf-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(color-mix(in oklab, var(--demo-primary) 8%, transparent) 1px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Readiness meter (horizontal bar) */
+.demo-shell .tf-meter,
+.report-shell .tf-meter {
+  position: relative;
+  height: 6px;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--demo-primary) 10%, transparent);
+  overflow: hidden;
+}
+.demo-shell .tf-meter > span,
+.report-shell .tf-meter > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--demo-primary), var(--demo-accent));
+  border-radius: 9999px;
+}
+
+/* Step bar slim chrome */
+.demo-shell .tf-stepbar {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--sky-soft) 60%, white) 0%, transparent 100%),
+    var(--background);
+  border-bottom: 1px solid color-mix(in oklab, var(--demo-primary) 14%, transparent);
+}
+
+/* Scroll-reveal */
+@keyframes tf-reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.demo-shell .tf-reveal,
+.report-shell .tf-reveal {
+  animation: tf-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-shell .tf-reveal, .report-shell .tf-reveal { animation: none !important; }
+}
