@@ -28,6 +28,15 @@ const IntakeSchema = z.object({
   student_voice: z.string().trim().max(2000).optional().default(""),
   family_voice: z.string().trim().max(2000).optional().default(""),
   educator_input: z.string().trim().max(2000).optional().default(""),
+  // Phase 1 — extended intake fields
+  communication_prefs: z.string().trim().max(1000).optional().default(""),
+  transportation_needs: z.string().trim().max(1000).optional().default(""),
+  family_priorities: z.string().trim().max(2000).optional().default(""),
+  family_concerns_extended: z.string().trim().max(2000).optional().default(""),
+  student_worries: z.string().trim().max(2000).optional().default(""),
+  services_received: z.string().trim().max(2000).optional().default(""),
+  desired_postsecondary_outcomes: z.string().trim().max(2000).optional().default(""),
+  upcoming_meetings: z.string().trim().max(1000).optional().default(""),
 });
 
 export type IntakeInput = z.infer<typeof IntakeSchema>;
