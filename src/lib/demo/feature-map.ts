@@ -328,6 +328,26 @@ export const DEMO_FEATURE_MAP = {
     status: "future-phase",
     notes: "AI summaries are drafts only — never replace official PPT minutes.",
   },
+  "meeting.minutes": {
+    element: "Previous meeting minutes (read-only)",
+    product: "PPT minutes capture",
+    livesAt: "/meetings/$id (signed-in, educator)",
+    roles: ["educator", "school", "parent"],
+    dataSource: "meetings + meeting_action_items",
+    nextAction: "Educator captures decisions during the live meeting",
+    status: "partial",
+    notes: "Demo shows the read-only display; live capture UI is being deepened.",
+  },
+  "meeting.reportLinks": {
+    element: "Agenda → Pathway Report linkage table",
+    product: "Single-source-of-truth between prep packet and report",
+    livesAt: "/meetings/$id (signed-in)",
+    roles: ["educator", "school", "parent"],
+    dataSource: "meeting_agenda_items → pathway_reports.content",
+    nextAction: "Decisions flow into the next report version + 30/60/90 plan",
+    status: "live",
+  },
+
 
   /* ---------- Calendar ---------- */
   "calendar.month": {
