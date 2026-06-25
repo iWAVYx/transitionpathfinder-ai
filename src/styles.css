@@ -563,6 +563,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .demo-shell .border-demo,
 .report-shell .border-demo { border-color: var(--demo-border); }
 
+/* Amber status pills hover at ~4.4:1 in the demo palette. Darken the
+ * Tailwind amber-700 token only inside the demo/report shells so we
+ * clear AA without touching the rest of the site. */
+.demo-shell .text-amber-700,
+.report-shell .text-amber-700 { color: oklch(0.48 0.14 60); }
+
 /* Pathway line motif — diagonal dashed sweep used as a subtle backdrop. */
 .demo-shell .pathway-line,
 .report-shell .pathway-line {
