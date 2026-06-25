@@ -52,7 +52,10 @@ function DemoMeetingPage() {
   const bundle = getDemoStudent(s);
   const { profile, report, nextMeetingDate } = bundle;
   const prep = report.meeting_prep_toolkit;
-  const minutes = DEMO_MEETING_MINUTES[s as keyof typeof DEMO_MEETING_MINUTES];
+  const { state: meetingEdits, updateMinuteEntry, updateAgendaItem, reset, isDirty } =
+    useDemoMeetingEdits(s as DemoStudentId);
+  const minutes = meetingEdits.minutes;
+  const agenda = meetingEdits.agenda;
 
   return (
     <SiteShell>
