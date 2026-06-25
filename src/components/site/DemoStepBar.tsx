@@ -142,9 +142,9 @@ export function DemoStepBar({ current, student }: Props) {
       lastTime: performance.now(),
       velocity: 0,
     };
-    if (e.pointerType !== "touch") {
-      el.setPointerCapture(e.pointerId);
-    }
+    // Don't capture the pointer up front — capturing redirects the subsequent
+    // click event to the nav element, preventing Link navigation. We only
+    // capture once an actual drag is detected (see onPointerMove).
   };
   const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
     const s = dragState.current;
@@ -163,7 +163,16 @@ export function DemoStepBar({ current, student }: Props) {
         // ignore
       }
     }
-    if (Math.abs(dx) > 4) s.moved = true;
+    if (Math.abs(dx) > 4 && !s.moved) {
+      s.moved = true;
+      if (s.pointerType !== "touch" && s.pointerId !== null) {
+        try {
+          railRef.current.setPointerCapture(s.pointerId);
+        } catch {
+          // ignore
+        }
+      }
+    }
     railRef.current.scrollLeft = s.startLeft - dx;
 
     // Track velocity (px/ms). Negative dx => scrollLeft increased => positive velocity.
