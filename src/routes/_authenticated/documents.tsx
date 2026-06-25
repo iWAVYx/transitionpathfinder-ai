@@ -100,25 +100,25 @@ function DocumentsHubPage() {
 
   return (
     <SiteShell>
+      <div className="demo-shell">
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Documents" }]} />
       </div>
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <header>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Your documents
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            Every Iep, Evaluation, and Plan — in One Calm Place.
+        <header className="tf-cover px-6 py-10 sm:px-10 sm:py-12">
+          <p className="tf-eyebrow">Your Documents</p>
+          <h1 className="mt-3 max-w-3xl font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
+            Every IEP, Evaluation, and Plan — in One Calm Place.
           </h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             Each document moves through four steps: <strong>Uploaded</strong> →{" "}
             <strong>AI Drafted</strong> → <strong>In Review</strong> →{" "}
             <strong>Linked</strong>. You see exactly where every file stands and
             who still needs to look at it.
           </p>
         </header>
+
 
         {/* Status pipeline */}
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
