@@ -2077,7 +2077,10 @@ function DocumentContents({
   items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
 
+  if (extraItems) items.push(...extraItems);
+
   return (
+
     <nav
       aria-label="Table of contents"
       className="no-print mt-8 rounded-2xl border bg-card"
