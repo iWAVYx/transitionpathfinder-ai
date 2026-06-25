@@ -105,6 +105,24 @@ export const DEMO_VOICE: Record<DemoStudentId, VoicePrompt[]> = {
         "Ready: when I've practiced the thing once. Not ready: when nobody told me the plan.",
       affects: "Triggers preview-first action items + clear next-step language across the plan.",
     },
+    {
+      prompt: "What can you already do on your own, and what do you still need help with?",
+      response:
+        "On my own: cooking simple stuff, my bus pass, basic banking app. Still need help: filling out forms, scheduling doctor appointments, knowing what's a scam.",
+      affects: "Populates Independent Living Readiness § with concrete strengths + targeted next skills.",
+    },
+    {
+      prompt: "How do you want to ask for help when you need it?",
+      response:
+        "Text first. If I have to say it out loud, give me the words to use. Don't make me explain it in front of a group.",
+      affects: "Adds a scripted self-advocacy plan + private check-in protocol to Meeting Prep.",
+    },
+    {
+      prompt: "Where do you feel most comfortable — and where do you struggle?",
+      response:
+        "Comfortable: small studio, one-on-one, headphones on. Struggle: loud open rooms, surprise group work, anything timed.",
+      affects: "Filters opportunity matches toward low-stim placements; flags accommodations to request.",
+    },
   ],
   maya: [
     {
@@ -141,6 +159,23 @@ export const DEMO_VOICE: Record<DemoStudentId, VoicePrompt[]> = {
       prompt: "What makes you feel ready — or not ready?",
       response: "Ready: when I've visited the place. Not ready: when it's brand new.",
       affects: "Adds a 'visit first' step to every new placement in the action plan.",
+    },
+    {
+      prompt: "What can you already do on your own, and what do you still need help with?",
+      response:
+        "On my own: feed and walk my neighbor's dog, ride the bus to school, make my lunch. Still need help: doctor appointments, figuring out paychecks, big crowds.",
+      affects: "Populates Independent Living Readiness § with current skills + supported next steps.",
+    },
+    {
+      prompt: "How do you want to ask for help when you need it?",
+      response:
+        "Tell me it's okay to ask. I like a quiet signal — a card or a thumbs-down — so I don't have to talk in front of people.",
+      affects: "Adds a non-verbal self-advocacy cue + trusted-adult protocol to Meeting Prep.",
+    },
+    {
+      prompt: "Where do you feel most comfortable — and where do you struggle?",
+      response: "Comfortable: small rooms, animals, my favorite teacher. Struggle: cafeteria, fire drills, new people all at once.",
+      affects: "Filters placements toward low-sensory environments; flags sensory accommodations.",
     },
   ],
 };

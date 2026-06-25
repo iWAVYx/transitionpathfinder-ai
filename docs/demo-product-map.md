@@ -117,4 +117,4 @@ All new columns: nullable, no default that would change existing rows. GRANTs un
 
 ---
 
-_Last updated: Phase 0 of "Deepen Demo + Pathway Report"._
+_Last updated: Phase 3 of "Deepen Demo + Pathway Report" — Voice prompts expanded from 7 → 10 per student (independence, advocacy, comfort) and intake step now surfaces family priorities + educator inputs as first-class sections._
