@@ -483,8 +483,10 @@ export function ReportView({
         </div>
       </div>
 
-      {/* Toolbar — hidden on print */}
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card p-2 shadow-soft">
+      {/* Toolbar — hidden on print. Document-integrated: no heavy border, sits
+          on the page background so it reads as part of the report, not chrome. */}
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
+
         <div
           role="tablist"
           aria-label="Choose a report view"
@@ -2339,119 +2341,57 @@ function ReportTOC({
         ? `No sections match ${query}`
         : `${filteredItems.length} of ${items.length} sections match`;
 
+  // Suppress unused (kept for backward compat with the prior search UX)
+  void query; void setQuery; void focusedIndex; void searchRef;
+  void onSearchKeyDown; void activeDescendantId; void resultsMessage;
+
   return (
     <nav
       aria-label="Report outline"
-      className={cn(
-        "no-print pointer-events-none fixed right-4 top-40 z-20 hidden lg:block",
-      )}
+      className="no-print pointer-events-none fixed right-4 top-44 z-20 hidden xl:block"
     >
-      <div className="pointer-events-auto flex max-h-[calc(100vh-11rem)] w-64 flex-col rounded-2xl border border-border/60 bg-card/95 shadow-soft backdrop-blur">
-
-        <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-            Report Outline
-          </p>
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="report-outline-list"
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <ChevronDown
-              aria-hidden
-              className={cn("h-4 w-4 transition-transform", open ? "rotate-0" : "-rotate-90")}
-            />
-            <span className="sr-only">{open ? "Hide outline" : "Show outline"}</span>
-          </button>
-        </div>
+      <div className="pointer-events-auto flex max-h-[calc(100vh-13rem)] w-44 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/90 shadow-sm backdrop-blur">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="report-outline-list"
+          className="flex items-center justify-between gap-2 border-b border-border/60 px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-muted/40"
+        >
+          On This Page
+          <ChevronDown
+            aria-hidden
+            className={cn("h-3.5 w-3.5 transition-transform", open ? "rotate-0" : "-rotate-90")}
+          />
+        </button>
         {open && (
-          <>
-            <div className="border-b border-border/60 px-3 py-2">
-              <label htmlFor="report-outline-search" className="sr-only">
-                Search report sections
-              </label>
-              <p id="report-outline-search-help" className="sr-only">
-                Type to filter sections. Use Up and Down arrow keys to move through results, Enter to jump to the selected section, Escape to clear.
-              </p>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
-                <input
-                  ref={searchRef}
-                  id="report-outline-search"
-                  type="text"
-                  role="combobox"
-                  aria-expanded={filteredItems.length > 0}
-                  aria-controls="report-outline-list"
-                  aria-autocomplete="list"
-                  aria-activedescendant={activeDescendantId}
-                  aria-describedby="report-outline-search-help report-outline-status"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={onSearchKeyDown}
-                  placeholder="Find section…"
-                  className="w-full rounded-md border border-border bg-background py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <p
-                id="report-outline-status"
-                role="status"
-                aria-live="polite"
-                className="sr-only"
-              >
-                {resultsMessage}
-              </p>
-            </div>
-            <ul
-              id="report-outline-list"
-              role="listbox"
-              aria-label="Report sections"
-              aria-activedescendant={activeDescendantId}
-              className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3 text-sm [scrollbar-width:thin]"
-            >
-              {filteredItems.map((it, i) => {
-                const isActive = activeId === it.id;
-                const isFocused = focusedIndex === i;
-                const optionId = `report-outline-opt-${it.id}`;
-                return (
-                  <li key={it.id} role="presentation">
-                    <a
-                      ref={(el) => { itemRefs.current[i] = el; }}
-                      id={optionId}
-                      href={`#${it.id}`}
-                      onClick={jumpTo(it.id)}
-                      role="option"
-                      aria-selected={isFocused}
-                      aria-current={isActive ? "location" : undefined}
-                      tabIndex={-1}
-                      className={cn(
-                        "flex items-baseline gap-2 rounded-md border-l-2 px-2 py-1.5 transition-colors outline-none",
-                        isActive
-                          ? "border-primary bg-primary/10 text-foreground"
-                          : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
-                        isFocused && "ring-1 ring-primary/60",
-                        "focus-visible:ring-2 focus-visible:ring-primary",
-                      )}
-                    >
-                      <span aria-hidden className="w-5 shrink-0 font-mono text-[10px] text-muted-foreground">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span className="leading-snug">
-                        {it.label}
-                        {isActive && <span className="sr-only"> (current section)</span>}
-                      </span>
-                    </a>
-                  </li>
-                );
-              })}
-              {filteredItems.length === 0 && (
-                <li role="presentation" className="px-2 py-4 text-center text-xs text-muted-foreground">
-                  No sections match “{query}”
+          <ul
+            id="report-outline-list"
+            aria-label="Report sections"
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1.5 py-1.5 text-[12px] [scrollbar-width:thin]"
+          >
+            {filteredItems.map((it, i) => {
+              const isActive = activeId === it.id;
+              return (
+                <li key={it.id}>
+                  <a
+                    ref={(el) => { itemRefs.current[i] = el; }}
+                    href={`#${it.id}`}
+                    onClick={jumpTo(it.id)}
+                    aria-current={isActive ? "location" : undefined}
+                    className={cn(
+                      "block rounded-md border-l-2 px-2 py-1 leading-snug transition-colors",
+                      isActive
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    {it.label}
+                  </a>
                 </li>
-              )}
-            </ul>
-          </>
+              );
+            })}
+          </ul>
         )}
       </div>
     </nav>

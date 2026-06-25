@@ -662,3 +662,26 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   .demo-shell .demo-lift:hover,
   .report-shell .demo-lift:hover { transform: none !important; }
 }
+
+/* ---------- Pathway Report visual rhythm ----------
+ * Soft section divider between top-level Block sections so the document
+ * scans as chapters, not a stack of cards. Scoped strictly to .report-shell. */
+.report-shell [id^="sec-"] + [id^="sec-"] {
+  position: relative;
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+}
+.report-shell [id^="sec-"] + [id^="sec-"]::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklab, var(--demo-primary) 22%, transparent) 18%,
+    color-mix(in oklab, var(--demo-primary) 22%, transparent) 82%,
+    transparent
+  );
+}
