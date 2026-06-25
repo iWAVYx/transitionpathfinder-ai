@@ -72,6 +72,24 @@ function DemoIntakePage() {
       ],
     },
     {
+      label: "Services & communication preferences",
+      fields: [
+        {
+          label: "Services currently received",
+          value: intake.services_received ?? "",
+          helper: "We surface the supports already in place so the plan builds on — not duplicates — them.",
+        },
+        {
+          label: "How the team prefers to communicate",
+          value: intake.communication_prefs ?? "",
+        },
+        {
+          label: "Transportation needs (detail)",
+          value: intake.transportation_needs ?? "",
+        },
+      ],
+    },
+    {
       label: "Current goals & concerns",
       fields: [
         {
@@ -80,6 +98,33 @@ function DemoIntakePage() {
           helper: "We translate these into plain English in the report.",
         },
         { label: "Family concerns", value: intake.family_concerns },
+        {
+          label: "Family concerns (in detail)",
+          value: intake.family_concerns_extended ?? "",
+        },
+        {
+          label: "What the student is worried about",
+          value: intake.student_worries ?? "",
+          helper: "Named directly so the team can plan around it.",
+        },
+      ],
+    },
+    {
+      label: "Looking ahead",
+      fields: [
+        {
+          label: "Family priorities for life after school",
+          value: intake.family_priorities ?? "",
+        },
+        {
+          label: "Desired postsecondary outcomes",
+          value: intake.desired_postsecondary_outcomes ?? "",
+          helper: "These anchor the recommended pathways and the 30-day plan.",
+        },
+        {
+          label: "Upcoming meetings & deadlines",
+          value: intake.upcoming_meetings ?? "",
+        },
       ],
     },
     {
