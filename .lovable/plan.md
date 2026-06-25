@@ -1,72 +1,64 @@
-# Deepen Demo + Pathway Report — Phased Plan
+# Strengthening Product Value Across TransitionForward
 
-This is a large, multi-system effort. To keep it safe (no regressions to auth, 2FA, role access, dashboard test IDs, demo/dashboard routing, partner privacy, document RLS), I'll ship it in **5 sequenced phases**, each landing as its own turn with build + targeted tests before moving on.
+Goal: make every section answer "what problem does this solve, what decision does it support, what's the next step?" — not just look polished.
 
-## Phase 0 — Audit & Product Map (this turn, after approval)
+## Foundations (shared)
 
-Deliverable: `docs/demo-product-map.md` + extend `src/lib/demo/feature-map.ts`.
+1. **`src/lib/value-lens.ts`** — single source of truth for the 7-question value test, plus a small `ValueCallout` type:
+   ```ts
+   { whatThisMeans, whyItMatters, recommendedNextStep, questionsForTeam, informationUsed[] }
+   ```
+   Every report section and dashboard card consumes this shape so the language stays consistent.
 
-For every demo step + every Pathway Report section, capture:
-- What the user provides · Which role · Where it's saved (table) · Which report/dashboard section consumes it · Who can view/edit · Output to user · Missing-data behavior · Demo sample shown.
+2. **`src/components/value/ValueCallout.tsx`** — compact, editorial callout block with 5 labeled rows (What This Means / Why It Matters / Recommended Next Step / Questions To Bring / Information Used). Used in both the Pathway Report and dashboards. Keeps tone warm + plain, ≤ 2 sentences per row.
 
-Used to prevent duplicate/orphan sections in later phases. No UI change.
+3. **`src/components/value/RoleValueStrip.tsx`** — per-role one-line "why this page matters to you" strip used at the top of each dashboard and demo step. Driven by a `ROLE_VALUE` map keyed by role.
 
-## Phase 1 — Intake Depth (real product + demo)
+## Pathway Report — decision-supportive layer
 
-Real product (`/_authenticated/intake/*`, `student_intakes`, `student_strengths_needs`, `student_voice_responses`):
-- Reorganize intake into chronological chapters: Profile → Context & Supports → Strengths/Interests → Academic/Independence/Communication/Transport → Family Priorities → Worries/Barriers → Services → Desired Outcomes → Upcoming Meetings.
-- Add missing fields (communication prefs, transport, family priorities, worries, services received, desired postsecondary outcomes, upcoming deadlines) — additive columns, never break existing.
-- Add per-question "why this matters → feeds X in your Pathway Report" microcopy.
+Edit `src/components/pathway/ReportView.tsx` and `ReportV2Sections.tsx`:
 
-Demo (`/demo/intake`): mirror new chapters with Jordan/Maya sample data; keep test IDs.
+- Add a **"Where Things Stand"** opener directly under the cover: 4 short cards — Where the student is now / What the student wants / Supports in place / Gaps still open. Pulled from existing intake, voice, goals, readiness, and document_extractions data — no new data.
+- After each existing chapter (Self-Determination, Education/Training, Employment, Independent Living, Community), append a `<ValueCallout>` populated from the chapter's own content + `informationUsed` source chips already wired via `SourceChips`.
+- Add a closing **"Bring To The Team"** chapter that aggregates `questionsForTeam` across chapters into a single printable checklist with owner suggestions (student / family / case manager / partner) and a "revisit by" date hint derived from `review_date`.
+- Replace generic "Next Steps" prose with `RecommendedNextStep` rows that include an explicit owner and timeframe.
 
-Migration: additive columns + GRANTs; existing RLS unchanged.
+No schema changes. All new content derives from data already loaded.
 
-## Phase 2 — Documents → Report Insights
+## Demo Workspace — sample planning story
 
-Real product:
-- In intake, add a "Planning Documents" step listing accepted doc types (IEP, transition assessment, report cards, transcripts, psychoed eval, work samples, attendance, behavior plan, interest inventory, agency docs).
-- Reuse existing `IepUpload` extraction pipeline + `documents` / `document_extractions` tables; broaden to doc_type tag.
-- Extracted fields routed into report as **review-before-accept** chips with source label ("From: Jordan's IEP, p.3").
-- Confirm RLS: `documents` policies + `can_view_document` already block partners — verify with existing snapshot tests, do not loosen.
+Edit demo routes (`demo.tsx`, `demo_.intake.tsx`, `demo_.documents.tsx`, `demo_.voice.tsx`, `demo_.report.tsx`, `demo_.opportunities.tsx`, `demo_.plan.tsx`, `demo_.meeting.tsx`) and `src/components/site/DemoStepBar.tsx`:
 
-Demo: `/demo/documents` shows sample uploaded docs + extracted insights with source chips; partner role view hides them.
+- Each step gets a short **"In this step"** header: the question it answers, the role(s) it helps, the inputs, and the output. Rendered via `RoleValueStrip` + a one-line story beat (e.g. "Maya's family uploads her IEP — TransitionForward extracts goals and surfaces gaps before the next PPT.").
+- Add a slim **story progress trail** in `DemoStepBar` showing how each step's output feeds the next (Intake → Documents → Voice → Report → Opportunities → Plan → Meeting).
+- The Demo Hub (`demo.tsx`) opens with a "The Planning Problem" → "What Changes With TransitionForward" framing instead of feature tiles.
+- Reuse existing fixtures; no new sample data files.
 
-## Phase 3 — Voice + Family + Educator Inputs
+## Role dashboards — command centers
 
-- **Student Voice**: expand `DEMO_VOICE` prompts to the 10 listed; add same prompts to real product voice form.
-- **Family input**: new section in intake/family hub for long-term hopes, concerns, home observations, support priorities, comm prefs, school-team questions, transport/independence concerns, consent prefs.
-- **Educator input**: meeting-prep form gains present levels, services, accommodations, progress, WBL readiness, self-advocacy readiness, attendance notes, planning concerns, recommended next steps.
+Each dashboard gets a `RoleValueStrip` at top + a reorganized **"What To Do Next"** block built from existing signals (intakes, readiness_scores, goals, meetings, action_items). No new tables.
 
-Each input visibly feeds a named Report section (chip linking input → report).
+- `src/routes/_authenticated/dashboard.tsx` (family) — surface: organized concerns, documents to upload, priorities, meeting prep, follow-through items.
+- `src/components/dashboard/StudentDashboard.tsx` — strengths / interests / goals / supports / next steps in motivating language.
+- `src/routes/_authenticated/caseload.tsx` (educator) — readiness gaps, doc insights, upcoming meetings, action items not yet owned.
+- `src/routes/_authenticated/school.overview.tsx` — caseload load, service gaps, planning consistency rollups (counts only, no PII beyond existing surface).
+- District overview (existing district route) — program-level readiness + partner gap signals.
+- `src/routes/_authenticated/partner/*` (existing partner surfaces) — opportunity posting health, PartnerForward incentives, "how to support pathways" without student PII.
+- Owner hub (`src/routes/_authenticated/owner.tsx` children) — waitlist, users, contacts, partner readiness, demos, ops — grouped into 4 plain-language sections.
 
-## Phase 4 — Pathway Report Expansion + Demo Polish
+## Tests
 
-`ReportView` + `ReportV2Sections`:
-- Add/strengthen sections: Executive Summary, Document-Based Insights, Self-Advocacy Readiness, Independent Living Readiness, Source Notes, Role-Specific Next Steps.
-- Keep three views (Student/Family/Educator) — same data, different framing.
-- Grade-band branching: 6–8 → BridgeForward block; 9–12 → TransitionForward block (existing logic preserved).
-- UI: Title Case headings everywhere, smaller TOC, more whitespace, equal-size tiles, images where they aid comprehension, less boxy.
+- `tests/unit/value-lens.test.ts` — every role and every report chapter has a non-empty `ValueCallout`.
+- Extend `tests/e2e/demo-signed-out.spec.ts` to assert each demo step renders its "In this step" strip and a `ValueCallout` in the report.
 
-Demo Overview (`/demo`): re-sequence the 11 steps to match the new real flow; each step card shows the **input → output** value.
+## Out of scope
 
-## Phase 5 — Validation
+- No DB schema changes, no new AI server functions, no new fixtures.
+- Visual system stays as-is (`.demo-shell`, `.report-shell`, editorial tokens). This pass is about meaning and structure, not new styling.
+- Auth, RLS, and role-guard behavior unchanged.
 
-- `bunx vitest run` (unit incl. `demo-feature-map.test.ts`, `dashboard-static.test.ts`, RLS snapshots).
-- Targeted Playwright: `demo-contrast`, `report-a11y`, `dashboard-regression`, `role-access-rules`, `demo-roles.signedin`.
-- Fix root causes, never weaken tests. Confirm partner role still blocked from docs/PII.
+## Acceptance
 
----
-
-## Technical guardrails (non-negotiable)
-
-- No edits to: `src/integrations/supabase/{client,client.server,auth-middleware,auth-attacher,types}.ts`, `_authenticated/route.tsx`, dashboard test IDs, demo route filenames, `routeTree.gen.ts`.
-- All new tables/columns: migration with `GRANT` + RLS + policies in same migration. Partners get **zero** SELECT on student PII/documents.
-- All new server fns use `requireSupabaseAuth`; admin client only inside handlers via `await import`.
-- Additive schema only — no destructive ALTERs on existing intake/report columns.
-
-## Scope this turn
-
-After you approve, I'll execute **Phase 0 (audit/map)** and **Phase 1 (intake depth)** in the same turn, then pause for review before Phase 2. That keeps each shipped change reviewable and keeps regression risk bounded.
-
-Reply **approve** to proceed, or tell me to reorder/trim phases (e.g. "skip the schema additions, demo-only").
+- Every report chapter and every dashboard card answers the 7 value questions in plain language.
+- Demo tells a connected Intake→Report→Action story end-to-end.
+- Each role's landing surface opens with a one-line "why this page matters to you" and a concrete next action.

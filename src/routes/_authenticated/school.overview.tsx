@@ -3,6 +3,7 @@ import { withRoleGuard } from "@/components/withRoleGuard";
 import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight, ShieldAlert } from "lucide-react";
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
+import { RoleValueStrip } from "@/components/value/RoleValueStrip";
 import { Button } from "@/components/ui/button";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
@@ -36,8 +37,10 @@ function SchoolOverviewPage() {
         // then org info / recent students, then secondary breakdown (collapsed
         // on mobile to reduce density).
         <div className="space-y-6 sm:space-y-8">
+          <RoleValueStrip role="school" />
           <NextBestAction surface="school_admin" /><div className="mt-4"><JourneyStrip surface="school_admin" /></div>
           <OnboardingChecklist surface="school_admin" />
+
 
           <StatGrid cols={4}>
             <StatCard label="Active Staff" value={d.metrics.active_members} icon={<Users className="h-3.5 w-3.5" />} />

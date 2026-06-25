@@ -75,6 +75,8 @@ import {
   ReportPhase4Sections,
   getPhase4TocItems,
 } from "@/components/pathway/ReportPhase4Sections";
+import { ValueCallout } from "@/components/value/ValueCallout";
+import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
 
 
 type Audience = "student" | "family" | "educator";
@@ -694,9 +696,29 @@ export function ReportView({
         today={today}
       />
 
+      {/* ============ Where Things Stand — decision-supportive opener ============ */}
+      <section className="mt-8 page-break">
+        <ValueCallout
+          data={{
+            whatThisMeans: `This report brings together everything we know about ${name} — intake answers, uploaded documents, ${name}'s own words, and family priorities — into one decision-supportive view.`,
+            whyItMatters:
+              "Transition planning fails most often because information is scattered across people and documents. This page is the shared starting point.",
+            recommendedNextStep: `Read the Executive Summary, then jump to "Bring To The Team" before the next meeting.`,
+            questionsForTeam: [
+              "Does this match what you're seeing day-to-day?",
+              "What's missing that we should add before the next meeting?",
+            ],
+            informationUsed: ["Intake", "Uploaded documents", "Student Voice", "Goals", "Readiness scores"],
+            owner: "team",
+            timeframe: "before the next PPT",
+          }}
+        />
+      </section>
+
       <div className="mt-8">
         <AIDisclaimer />
       </div>
+
 
       {/* ============ Inline numbered Table of Contents ============ */}
       <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
@@ -1401,6 +1423,34 @@ export function ReportView({
           reportId={meta?.reportId}
         />
       )}
+
+      {/* ============ Bring To The Team — consolidated decision checklist ============ */}
+      <section className="report-section mt-10 page-break">
+        <div className="mb-3 flex items-center gap-2">
+          <ListChecks className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>
+        </div>
+        <p className="mb-4 max-w-3xl text-sm text-muted-foreground">
+          Print this page and bring it to the next PPT. It pulls together every
+          open question and recommended next step from this report so the whole
+          team starts from the same list.
+        </p>
+        <ValueCallout
+          data={{
+            ...CHAPTER_VALUE_DEFAULTS.bring_to_team,
+            questionsForTeam: [
+              ...(r.family_questions_for_ppt ?? []),
+              ...(r.meeting_prep_toolkit?.questions_to_ask ?? []),
+            ].slice(0, 8),
+            recommendedNextStep: `Confirm an owner and a date for each next step before you leave the meeting.`,
+            informationUsed: [
+              "This report's recommendations",
+              "Open questions from each chapter",
+              meta?.reportId ? `Doc ${meta.reportId}` : "",
+            ].filter(Boolean) as string[],
+          }}
+        />
+      </section>
 
       {/* ============ Closing note (formal) ============ */}
       <section className="report-section mt-10">

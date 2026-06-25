@@ -26,6 +26,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { WelcomeBanner } from "@/components/site/WelcomeBanner";
+import { RoleValueStrip } from "@/components/value/RoleValueStrip";
 import { AnnouncementsBanner } from "@/components/site/AnnouncementsBanner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -527,7 +528,9 @@ function DashboardPage() {
         <div className="mt-4">
           <AnnouncementsBanner />
           <WelcomeBanner firstName={friendly} />
+          <RoleValueStrip role="family" className="mt-4" />
         </div>
+
 
         <div className="mt-4">
           <InvitesInbox />

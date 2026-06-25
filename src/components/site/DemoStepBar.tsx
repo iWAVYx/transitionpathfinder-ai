@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
 import { FeatureFootnote } from "@/components/demo/FeatureFootnote";
 import type { DemoElementId } from "@/lib/demo/feature-map";
+import { StepValueHeader } from "@/components/value/StepValueHeader";
+import { DEMO_STEP_VALUE } from "@/lib/demo/step-value";
 
 const STEP_FEATURE: Record<string, DemoElementId> = {
   intake: "intake.categories",
@@ -205,7 +207,9 @@ export function DemoStepBar({ current, student }: Props) {
   const progressPct = ((currentIdx + 1) / DEMO_STEPS.length) * 100;
   const currentStepObj = DEMO_STEPS[currentIdx] ?? DEMO_STEPS[0];
 
+  const stepValue = DEMO_STEP_VALUE[current];
   return (
+    <>
     <div className="demo-shell tf-stepbar sticky top-16 z-30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
         {/* Top row: chapter marker + student switcher */}
@@ -297,6 +301,18 @@ export function DemoStepBar({ current, student }: Props) {
         </nav>
       </div>
     </div>
+    {stepValue && (
+      <div className="demo-shell mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-12">
+        <StepValueHeader
+          question={stepValue.question}
+          storyBeat={stepValue.storyBeat}
+          inputs={stepValue.inputs}
+          output={stepValue.output}
+          rolesHelped={stepValue.rolesHelped}
+        />
+      </div>
+    )}
+    </>
   );
 }
 
