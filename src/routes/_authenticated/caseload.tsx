@@ -294,9 +294,11 @@ function CaseloadPage() {
       </PageContainer>
       </RoleGuard>
       </div>
+      </div>
 
     </SiteShell>
   );
+
 }
 
 function CaseloadRoleLandmark() {
