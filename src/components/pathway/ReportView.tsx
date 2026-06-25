@@ -71,6 +71,11 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
 import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
+import {
+  ReportPhase4Sections,
+  getPhase4TocItems,
+} from "@/components/pathway/ReportPhase4Sections";
+
 
 type Audience = "student" | "family" | "educator";
 
