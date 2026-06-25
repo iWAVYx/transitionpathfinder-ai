@@ -225,7 +225,9 @@ function ReportDetailPage() {
 
   return (
     <SiteShell>
+      <div className="report-shell">
       <div className={`mx-auto ${wrapWidth} px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10`}>
+
         <Breadcrumbs
           trail={[
             { label: "Reports", to: "/reports" },
@@ -462,9 +464,11 @@ function ReportDetailPage() {
           )}
         </div>
       </section>
+      </div>
     </SiteShell>
   );
 }
+
 
 function NextStep({
   icon,
