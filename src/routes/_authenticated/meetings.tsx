@@ -75,13 +75,14 @@ function MeetingsPage() {
 
   return (
     <SiteShell>
+      <div className="demo-shell">
       <div className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Meetings" }]} />
       </div>
-      <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+      <section className="tf-cover mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Meeting Center</p>
+            <p className="tf-eyebrow">Meeting Center</p>
             <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
               Walk Into Every PPT Prepared.
             </h1>
