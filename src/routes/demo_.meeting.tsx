@@ -13,6 +13,8 @@ import {
   Calendar,
   ClipboardList,
   Link2,
+  RotateCcw,
+  Save,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -23,9 +25,9 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getDemoStudent } from "@/lib/demo-data";
+import { getDemoStudent, type DemoStudentId } from "@/lib/demo-data";
 import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
-import { DEMO_AGENDA_REPORT_LINKS, DEMO_MEETING_MINUTES } from "@/lib/demo-extras";
+import { useDemoMeetingEdits } from "@/hooks/use-demo-meeting-edits";
 
 
 export const Route = createFileRoute("/demo_/meeting")({
