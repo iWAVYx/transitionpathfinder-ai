@@ -181,9 +181,10 @@ function PptPrepPage() {
 
   return (
     <SiteShell>
-      <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+      <div className="demo-shell">
+      <section className="tf-cover mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs trail={[{ label: "PPT Meeting Prep" }]} />
-        <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
+        <p className="tf-eyebrow mt-6">PPT Meeting Prep</p>
         <h1 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
           Walk in Calm. Walk Out Heard.
         </h1>
