@@ -28,6 +28,7 @@ import { MembershipPanel } from "@/components/students/MembershipPanel";
 import { PathwayProgress } from "@/components/students/PathwayProgress";
 import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
 import { RecommendedResourcesPanel } from "@/components/students/RecommendedResourcesPanel";
+import { ReadinessInsightsCard } from "@/components/students/ReadinessInsightsCard";
 import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartnersPanel";
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
 import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
