@@ -117,4 +117,4 @@ All new columns: nullable, no default that would change existing rows. GRANTs un
 
 ---
 
-_Last updated: Phase 4 of "Deepen Demo + Pathway Report" — Pathway Report now renders four new sections in the demo (Self-Advocacy Readiness, Independent Living Readiness, Role-Specific Next Steps, and Sources & Information Used). Sections derive from existing Phase 1–3 inputs (intake, voice, document sources) with no schema changes; TOC + Outline auto-extend when `demoStudentId` is set._
+_Last updated: Phase 5 of "Deepen Demo + Pathway Report" — `/demo/meeting` now shows a read-only **Previous meeting minutes** panel and a **Agenda → Pathway Report linkage** table; `/demo/opportunities` shows a 5-state **intro-request status** lifecycle plus a **Partner-side view** callout that names the PII boundary. Feature map gains `meeting.minutes`, `meeting.reportLinks`, `opportunities.introStatus`, and `opportunities.partnerSideView`. No schema or RLS changes._

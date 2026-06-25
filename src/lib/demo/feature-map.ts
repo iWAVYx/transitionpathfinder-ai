@@ -275,6 +275,27 @@ export const DEMO_FEATURE_MAP = {
     nextAction: "Sign in to send a real introduction request",
     status: "future-phase",
   },
+  "opportunities.introStatus": {
+    element: "Intro request status chip",
+    product: "Opportunity intro lifecycle (not started → connected)",
+    livesAt: "/opportunities (signed-in, family + educator)",
+    roles: ["parent", "educator"],
+    dataSource: "opportunity_intro_requests.status",
+    nextAction: "Family/educator advances the status through the lifecycle",
+    status: "future-phase",
+    notes: "Demo shows 5 states; signed-in product wires them to real intro request rows.",
+  },
+  "opportunities.partnerSideView": {
+    element: "Partner-side view callout",
+    product: "Partner workspace privacy boundary",
+    livesAt: "/partner (signed-in, partner)",
+    roles: ["partner"],
+    dataSource: "partner_opportunities + aggregate interest counts",
+    nextAction: "Partner sees matched interest and intro requests — never student PII",
+    status: "live",
+    notes: "Enforced by RLS on partner_opportunities + partner_organizations.",
+  },
+
 
   /* ---------- Action Plan ---------- */
   "plan.timeline": {
@@ -307,6 +328,26 @@ export const DEMO_FEATURE_MAP = {
     status: "future-phase",
     notes: "AI summaries are drafts only — never replace official PPT minutes.",
   },
+  "meeting.minutes": {
+    element: "Previous meeting minutes (read-only)",
+    product: "PPT minutes capture",
+    livesAt: "/meetings/$id (signed-in, educator)",
+    roles: ["educator", "school", "parent"],
+    dataSource: "meetings + meeting_action_items",
+    nextAction: "Educator captures decisions during the live meeting",
+    status: "partial",
+    notes: "Demo shows the read-only display; live capture UI is being deepened.",
+  },
+  "meeting.reportLinks": {
+    element: "Agenda → Pathway Report linkage table",
+    product: "Single-source-of-truth between prep packet and report",
+    livesAt: "/meetings/$id (signed-in)",
+    roles: ["educator", "school", "parent"],
+    dataSource: "meeting_agenda_items → pathway_reports.content",
+    nextAction: "Decisions flow into the next report version + 30/60/90 plan",
+    status: "live",
+  },
+
 
   /* ---------- Calendar ---------- */
   "calendar.month": {

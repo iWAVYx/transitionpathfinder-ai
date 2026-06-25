@@ -966,3 +966,144 @@ export const DEMO_STEP_LENSES: Record<
   },
 };
 
+// ---------------------------------------------------------------------------
+// Phase 5 — Meeting minutes + Agenda → Report linkage
+//
+// Read-only sample of the previous PPT meeting's minutes and decisions, plus
+// a mapping from suggested agenda items to the Pathway Report sections they
+// shape. Used on /demo/meeting only.
+// ---------------------------------------------------------------------------
+
+export interface MeetingMinuteEntry {
+  topic: string;
+  decision: string;
+  owner: "Student" | "Family" | "Case Manager" | "School" | "Partner";
+  followUp?: string;
+}
+
+export const DEMO_MEETING_MINUTES: Record<
+  DemoStudentId,
+  { date: string; attendees: string[]; entries: MeetingMinuteEntry[] }
+> = {
+  jordan: {
+    date: "Previous PPT · 11/14/2025",
+    attendees: ["Jordan R.", "Parent/Guardian", "Mr. Alvarez (CM)", "School Counselor"],
+    entries: [
+      {
+        topic: "Postsecondary direction",
+        decision: "Pursue audio/video credential before any 4-year college.",
+        owner: "Student",
+        followUp: "Confirm Gateway tour by next PPT.",
+      },
+      {
+        topic: "Executive function supports",
+        decision: "Shared digital planner; weekly 10-min check-in with CM.",
+        owner: "Case Manager",
+        followUp: "Log 4 weeks of planner use before reassessing.",
+      },
+      {
+        topic: "Driving / independence",
+        decision: "Family will start driver's-ed inquiry this semester.",
+        owner: "Family",
+      },
+    ],
+  },
+  maya: {
+    date: "Previous PPT · 10/02/2025",
+    attendees: ["Maya O.", "Parent/Guardian", "Ms. Chen (CM)", "OT consult"],
+    entries: [
+      {
+        topic: "Transportation training",
+        decision: "Pick one local bus route; caregiver attends first session.",
+        owner: "Family",
+        followUp: "Add starter route to shared calendar.",
+      },
+      {
+        topic: "Supported employment exploration",
+        decision: "Open BRS referral; identify potential job coach.",
+        owner: "Case Manager",
+        followUp: "Bring coach intro to next PPT.",
+      },
+      {
+        topic: "Self-advocacy at meetings",
+        decision: "Maya will open the next PPT with one sentence about her goals.",
+        owner: "Student",
+      },
+    ],
+  },
+};
+
+export interface AgendaReportLink {
+  agendaItem: string;
+  shapes: string; // Report section name
+  via: string;   // Data path explanation
+}
+
+export const DEMO_AGENDA_REPORT_LINKS: AgendaReportLink[] = [
+  {
+    agendaItem: "Student voice — what's working / what's hard",
+    shapes: "Pathway Report § Student Voice",
+    via: "student_voice_responses → report content (read-only at meeting).",
+  },
+  {
+    agendaItem: "Review strengths and current goals",
+    shapes: "Pathway Report § SPIN + § Goals to Review",
+    via: "student_strengths_needs + goals → meeting_prep_items.",
+  },
+  {
+    agendaItem: "Discuss recommended pathways + services",
+    shapes: "Pathway Report § Recommended Supports + § Pathways",
+    via: "pathway_recommendations + resources → meeting agenda.",
+  },
+  {
+    agendaItem: "Family questions + decisions",
+    shapes: "Pathway Report § Family Priorities + § Questions to Bring",
+    via: "meeting_questions + family_priorities (intake).",
+  },
+  {
+    agendaItem: "Action items + next meeting date",
+    shapes: "30 / 60 / 90 Day Action Plan + Calendar",
+    via: "meeting_action_items → action_items + calendar_events.",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Phase 5 — Opportunity intro-request status
+//
+// Read-only sample showing the state of a partner intro request from the
+// family/educator side. Partners only ever see matched interest counts and
+// the opportunity itself — never private student data.
+// ---------------------------------------------------------------------------
+
+export type OpportunityIntroStatus =
+  | "not_started"
+  | "interest_noted"
+  | "intro_requested"
+  | "awaiting_partner"
+  | "connected";
+
+export const OPPORTUNITY_INTRO_STATUS_LABEL: Record<OpportunityIntroStatus, string> = {
+  not_started: "Not started",
+  interest_noted: "Interest noted",
+  intro_requested: "Intro requested",
+  awaiting_partner: "Awaiting partner reply",
+  connected: "Connected",
+};
+
+/** Default intro-request state keyed by opportunity id from DEMO_OPPORTUNITIES. */
+export const DEMO_OPPORTUNITY_STATUS: Record<DemoStudentId, Record<string, OpportunityIntroStatus>> = {
+  jordan: {
+    "gw-audio": "intro_requested",
+    "studio-int": "interest_noted",
+    "media-intern": "not_started",
+    "fin-lit": "connected",
+  },
+  maya: {
+    "ec-program": "awaiting_partner",
+    "vet-shadow": "intro_requested",
+    "supp-emp": "interest_noted",
+    "bus-prac": "connected",
+  },
+};
+
+
