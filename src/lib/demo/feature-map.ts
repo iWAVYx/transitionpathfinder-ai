@@ -275,6 +275,27 @@ export const DEMO_FEATURE_MAP = {
     nextAction: "Sign in to send a real introduction request",
     status: "future-phase",
   },
+  "opportunities.introStatus": {
+    element: "Intro request status chip",
+    product: "Opportunity intro lifecycle (not started → connected)",
+    livesAt: "/opportunities (signed-in, family + educator)",
+    roles: ["parent", "educator"],
+    dataSource: "opportunity_intro_requests.status",
+    nextAction: "Family/educator advances the status through the lifecycle",
+    status: "future-phase",
+    notes: "Demo shows 5 states; signed-in product wires them to real intro request rows.",
+  },
+  "opportunities.partnerSideView": {
+    element: "Partner-side view callout",
+    product: "Partner workspace privacy boundary",
+    livesAt: "/partner (signed-in, partner)",
+    roles: ["partner"],
+    dataSource: "partner_opportunities + aggregate interest counts",
+    nextAction: "Partner sees matched interest and intro requests — never student PII",
+    status: "live",
+    notes: "Enforced by RLS on partner_opportunities + partner_organizations.",
+  },
+
 
   /* ---------- Action Plan ---------- */
   "plan.timeline": {
