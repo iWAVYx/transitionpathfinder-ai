@@ -14,11 +14,11 @@ import {
   FileSearch,
   Briefcase,
   Compass,
+  Quote,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { DEMO_STUDENTS, getDemoStudent, type DemoStudentId } from "@/lib/demo-data";
 import {
   DEFAULT_DEMO_STUDENT,
@@ -31,13 +31,13 @@ export const Route = createFileRoute("/demo")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "See a live demo — TransitionForward" },
+      { title: "See a Live Demo — TransitionForward" },
       {
         name: "description",
         content:
-          "Walk a fictional student through every step of TransitionForward — Hub, Intake, Pathway Report, Meeting Prep, Resources, shared Calendar, and a 30-Day Plan.",
+          "Walk a fictional student through every chapter of TransitionForward — Intake, Student Voice, the Pathway Report, partner opportunities, and a 30-Day Plan.",
       },
-      { property: "og:title", content: "See a live demo — TransitionForward" },
+      { property: "og:title", content: "See a Live Demo — TransitionForward" },
       {
         property: "og:description",
         content:
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoIndex,
 });
 
-type Step = {
+type Chapter = {
   n: string;
   icon: React.ReactNode;
   title: string;
@@ -67,88 +67,28 @@ type Step = {
     | "/demo/plan"
     | "/demo/hub"
     | "/demo/next";
+  group: "Foundation" | "Insight" | "Plan" | "Roles";
 };
 
-const FEATURED: Step = {
-  n: "1",
-  icon: <ClipboardList className="h-5 w-5" />,
-  title: "Intake",
-  body: "The guided transition-planning interview — strengths, interests, supports, three-voice input.",
-  to: "/demo/intake",
-};
-
-const STEPS: Step[] = [
-  {
-    n: "2",
-    icon: <Mic className="h-5 w-5" />,
-    title: "Student Voice",
-    body: "Sample student answers and how each one shapes the recommendations.",
-    to: "/demo/voice",
-  },
-  {
-    n: "3",
-    icon: <FileSearch className="h-5 w-5" />,
-    title: "Document Insights",
-    body: "How TransitionForward organizes IEP content as a planning companion — with needs-review flags.",
-    to: "/demo/documents",
-  },
-  {
-    n: "4",
-    icon: <FileText className="h-5 w-5" />,
-    title: "Pathway Report",
-    body: "The full report — pathways, IEP translation, accommodations, and a clear plan.",
-    to: "/demo/report",
-  },
-  {
-    n: "5",
-    icon: <Briefcase className="h-5 w-5" />,
-    title: "Opportunity Matches",
-    body: "Sample partner programs, apprenticeships, internships, and community supports.",
-    to: "/demo/opportunities",
-  },
-  {
-    n: "6",
-    icon: <BookOpen className="h-5 w-5" />,
-    title: "Resource Matches",
-    body: "Curated, student-matched resources with what it is, who it helps, and how to use it.",
-    to: "/demo/resources",
-  },
-  {
-    n: "7",
-    icon: <Users className="h-5 w-5" />,
-    title: "Meeting Prep",
-    body: "A PPT / IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.",
-    to: "/demo/meeting",
-  },
-  {
-    n: "8",
-    icon: <CalendarDays className="h-5 w-5" />,
-    title: "Calendar",
-    body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.",
-    to: "/demo/calendar",
-  },
-  {
-    n: "9",
-    icon: <CalendarRange className="h-5 w-5" />,
-    title: "30 / 60 / 90-Day Plan",
-    body: "Doable steps with the responsible role and source labeled.",
-    to: "/demo/plan",
-  },
-  {
-    n: "10",
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    title: "Role Dashboards",
-    body: "See the same plan from student, family, educator, school, district, and partner views.",
-    to: "/demo/hub",
-  },
+const CHAPTERS: Chapter[] = [
+  { n: "01", icon: <ClipboardList className="h-4 w-4" />, title: "Intake", body: "The guided transition-planning interview — strengths, interests, supports, three-voice input.", to: "/demo/intake", group: "Foundation" },
+  { n: "02", icon: <Mic className="h-4 w-4" />, title: "Student Voice", body: "Sample student answers and how each one shapes the recommendations.", to: "/demo/voice", group: "Foundation" },
+  { n: "03", icon: <FileSearch className="h-4 w-4" />, title: "Document Insights", body: "How TransitionForward organizes IEP content as a planning companion, with needs-review flags.", to: "/demo/documents", group: "Foundation" },
+  { n: "04", icon: <FileText className="h-4 w-4" />, title: "Pathway Report", body: "The full report — pathways, IEP translation, accommodations, and a clear plan.", to: "/demo/report", group: "Insight" },
+  { n: "05", icon: <Briefcase className="h-4 w-4" />, title: "Opportunity Matches", body: "Sample partner programs, apprenticeships, internships, and community supports.", to: "/demo/opportunities", group: "Insight" },
+  { n: "06", icon: <BookOpen className="h-4 w-4" />, title: "Resource Matches", body: "Curated, student-matched resources with what it is, who it helps, and how to use it.", to: "/demo/resources", group: "Insight" },
+  { n: "07", icon: <Users className="h-4 w-4" />, title: "Meeting Prep", body: "A PPT / IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.", to: "/demo/meeting", group: "Plan" },
+  { n: "08", icon: <CalendarDays className="h-4 w-4" />, title: "Calendar", body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.", to: "/demo/calendar", group: "Plan" },
+  { n: "09", icon: <CalendarRange className="h-4 w-4" />, title: "30 / 60 / 90-Day Plan", body: "Doable steps with the responsible role and source labeled.", to: "/demo/plan", group: "Plan" },
+  { n: "10", icon: <LayoutDashboard className="h-4 w-4" />, title: "Role Dashboards", body: "See the same plan from student, family, educator, school, district, and partner views.", to: "/demo/hub", group: "Roles" },
+  { n: "11", icon: <Compass className="h-4 w-4" />, title: "What's Next", body: "Clear paths for families, educators, schools, districts, and partners.", to: "/demo/next", group: "Roles" },
 ];
 
-const CLOSER: Step = {
-  n: "11",
-  icon: <Compass className="h-5 w-5" />,
-  title: "What's Next",
-  body: "Clear paths for families, educators, schools, districts, and partners.",
-  to: "/demo/next",
+const GROUP_META: Record<Chapter["group"], { eyebrow: string; tagline: string }> = {
+  Foundation: { eyebrow: "Part One", tagline: "Listening — the foundation that anchors every recommendation." },
+  Insight: { eyebrow: "Part Two", tagline: "Synthesis — the Pathway Report that turns inputs into a plan." },
+  Plan: { eyebrow: "Part Three", tagline: "Action — meeting prep, calendar, and a 30 / 60 / 90 plan." },
+  Roles: { eyebrow: "Part Four", tagline: "Together — one plan, six role-specific views." },
 };
 
 function DemoIndex() {
@@ -158,214 +98,193 @@ function DemoIndex() {
   const bundle = getDemoStudent(s);
   const { profile: student } = bundle;
 
+  const groups: Chapter["group"][] = ["Foundation", "Insight", "Plan", "Roles"];
+
   return (
     <SiteShell>
       <div className="demo-shell">
-        {/* ===== Hero ===== */}
-        <section className="relative overflow-hidden">
-          <div aria-hidden className="bg-gradient-demo-hero absolute inset-0 -z-10" />
-          <div aria-hidden className="pathway-line absolute inset-0 -z-10 opacity-60" />
-
-          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-            <div className="demo-reveal flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="gap-1 bg-demo-surface-warm border-demo">
-                <Sparkles className="h-3 w-3" /> Live Demo
-              </Badge>
-              <Badge variant="outline" className="gap-1 border-demo">
-                <ShieldCheck className="h-3 w-3" /> Fictional Students · No Real Data
-              </Badge>
-            </div>
-
-            <h1 className="demo-reveal demo-reveal-delay-1 mt-5 font-display text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-              See Exactly How TransitionForward Works.
-            </h1>
-            <p className="demo-reveal demo-reveal-delay-2 mt-5 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg">
-              Pick a fictional student and walk every step — Intake, Student Voice,
-              the Pathway Report, partner opportunities, role dashboards, and what
-              comes next. No account. No setup.
-            </p>
-
-            <div className="demo-reveal demo-reveal-delay-3 mt-7 max-w-xl">
-              <div className="demo-stepper-track">
-                <div className="demo-stepper-fill" />
-              </div>
-              <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-demo-primary">
-                11 Steps · About 5 Minutes
-              </p>
-            </div>
-
-            <div className="demo-reveal demo-reveal-delay-4 mt-7 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="bg-demo-primary hover:opacity-90">
-                <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                  Start the Walkthrough <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="border-demo">
-                <Link to="/waitlist">Join the Waitlist</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== Student picker + selected snapshot (single balanced row) ===== */}
-        <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
-            Choose Your Sample Student
-          </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {(["maya", "jordan"] as DemoStudentId[]).map((id) => {
-              const b = DEMO_STUDENTS[id];
-              const active = id === s;
-              return (
-                <Link
-                  key={id}
-                  to="/demo"
-                  search={{ s: id }}
-                  resetScroll={false}
-                  className={`demo-lift group flex h-full flex-col rounded-3xl border bg-card p-6 ${
-                    active
-                      ? "border-demo shadow-demo-lift ring-2 ring-[color:var(--demo-primary)]/25"
-                      : "border-demo/60"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
-                        {active ? "Walking With" : "Switch To"}
-                      </p>
-                      <h2 className="mt-1 truncate text-2xl">{toTitleCase(b.profile.full_name)}</h2>
-                      <p className="mt-1 text-xs text-foreground/70">{b.tagline}</p>
-                    </div>
-                    {active ? (
-                      <Badge className="shrink-0 gap-1 bg-demo-primary">Selected</Badge>
-                    ) : (
-                      <Badge variant="outline" className="shrink-0 border-demo">Switch</Badge>
-                    )}
-                  </div>
-                  <p className="mt-3 text-sm text-foreground/85">{b.headline}</p>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Selected student document-style band (not a card) */}
-          <div className="mt-10 border-l-2 border-[color:var(--demo-accent)] pl-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
-              You're Walking With
-            </p>
-            <h2 className="mt-2 font-display text-3xl">{toTitleCase(student.full_name)}</h2>
-            <p className="mt-1 text-sm text-foreground/70">
-              {student.pronouns} · {student.grade} · {student.school}
-            </p>
-            <p className="mt-1 text-sm text-foreground/70">
-              {student.disability_category} · Graduating {student.graduation_year}
-            </p>
-            <blockquote className="mt-5 max-w-2xl text-base italic leading-relaxed text-foreground/85">
-              "{bundle.report.student_snapshot?.student_voice_quote}"
-              <span className="mt-2 block not-italic text-xs text-foreground/65">
-                — In {student.first_name}'s voice (from the intake)
+        {/* ===================== EDITORIAL MASTHEAD ===================== */}
+        <section className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6 lg:px-12">
+          <div className="flex flex-col gap-6 border-b border-[color:var(--demo-primary)]/15 pb-8 md:flex-row md:items-end md:justify-between">
+            <div className="tf-reveal">
+              <span className="block font-display text-xl italic tracking-tight text-demo-primary">
+                TransitionForward
               </span>
-            </blockquote>
+              <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] tracking-tight text-foreground sm:text-6xl">
+                Demo Workspace
+                <span className="block text-foreground/40">A Live Walk-Through.</span>
+              </h1>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 tf-reveal">
+              <div className="tf-audience" role="tablist" aria-label="Sample student">
+                {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
+                  <Link
+                    key={id}
+                    to="/demo"
+                    search={{ s: id }}
+                    resetScroll={false}
+                    role="tab"
+                    aria-selected={id === s}
+                    className={id === s ? "is-active" : ""}
+                  >
+                    {DEMO_STUDENTS[id].profile.first_name}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ===== The walkthrough ===== */}
-        <section className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
-              The Full Walkthrough
-            </p>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl">
-              Eleven Steps, One Sample Plan
-            </h2>
-          </div>
-
-          {/* Featured step 1 — spotlight tile to break the card grid rhythm */}
-          <Link
-            to={FEATURED.to}
-            {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-            className="demo-lift demo-reveal group mt-8 grid gap-6 overflow-hidden rounded-3xl border border-demo bg-demo-primary p-7 text-primary-foreground shadow-demo-lift sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-9"
-          >
-            <span className="step-marker !h-12 !w-12 !text-base">{FEATURED.n}</span>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-85">
-                Start Here
+        {/* ===================== EDITORIAL COVER ===================== */}
+        <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-12">
+          <div className="tf-cover relative grid gap-10 p-8 sm:p-12 lg:grid-cols-[1.3fr_1fr] lg:p-16 tf-reveal">
+            <div className="relative z-10">
+              <span className="tf-eyebrow">Issue 01 · Live Demo</span>
+              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
+                A Planning Document<br />Built Around {student.first_name}.
+              </h2>
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground/75 sm:text-lg">
+                Eleven chapters that mirror the real product — intake, voice, documents,
+                the Pathway Report, partner matches, meeting prep, and a 30 / 60 / 90 plan.
+                No account, no setup.
               </p>
-              <h3 className="mt-1 font-display text-2xl sm:text-3xl">{FEATURED.title}</h3>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed opacity-90">{FEATURED.body}</p>
-            </div>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/15 px-4 py-2 text-sm font-medium backdrop-blur transition-transform group-hover:translate-x-0.5">
-              Open <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-
-          {/* Steps 2–10: balanced 3-column grid (9 items = 3 perfect rows) */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {STEPS.map((step, i) => (
-              <Link
-                key={step.title}
-                to={step.to}
-                {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-                className={`demo-lift demo-reveal demo-reveal-delay-${Math.min(4, Math.floor(i / 3) + 1)} group flex h-full flex-col rounded-3xl border border-demo/60 bg-card p-6`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="step-marker">{step.n}</span>
-                  <span className="text-demo-primary/70" aria-hidden>
-                    {step.icon}
-                  </span>
-                </div>
-                <h3 className="mt-4 text-xl">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/75">{step.body}</p>
-                <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-medium text-demo-primary">
-                  Open{" "}
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Button asChild size="lg" className="bg-demo-primary hover:opacity-90">
+                  <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
+                    Begin Chapter 01 <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="border-demo">
+                  <Link to="/waitlist">Join the Waitlist</Link>
+                </Button>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-medium text-demo-primary">
+                  <ShieldCheck className="h-3.5 w-3.5" /> Fictional Student · No Real Data
                 </span>
+              </div>
+            </div>
+
+            {/* Marginalia panel */}
+            <div className="relative z-10">
+              <div className="tf-inset">
+                <span className="tf-eyebrow">You're Walking With</span>
+                <h3 className="mt-3 font-display text-2xl font-bold leading-tight">
+                  {toTitleCase(student.full_name)}
+                </h3>
+                <p className="mt-1 text-sm text-foreground/65">
+                  {student.pronouns} · {student.grade} · {student.school}
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-foreground/10 pt-5">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-demo-primary">Category</p>
+                    <p className="mt-1 text-sm font-medium">{student.disability_category}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-demo-primary">Graduating</p>
+                    <p className="mt-1 text-sm font-medium">{student.graduation_year}</p>
+                  </div>
+                </div>
+                {bundle.report.student_snapshot?.student_voice_quote && (
+                  <figure className="mt-6 border-t border-foreground/10 pt-5">
+                    <Quote className="h-4 w-4 text-demo-accent" aria-hidden />
+                    <blockquote className="mt-2 font-display text-base italic leading-snug text-foreground/85">
+                      "{bundle.report.student_snapshot.student_voice_quote}"
+                    </blockquote>
+                    <figcaption className="mt-2 text-[11px] font-semibold uppercase tracking-widest text-demo-primary">
+                      — In {student.first_name}'s Words
+                    </figcaption>
+                  </figure>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===================== JOURNEY RIBBON ===================== */}
+        <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-12">
+          <div className="flex items-center justify-between gap-4 pb-3">
+            <span className="tf-eyebrow">The Journey</span>
+            <span className="text-xs text-foreground/60">Eleven chapters · about 5 minutes</span>
+          </div>
+          <div className="tf-journey">
+            {CHAPTERS.map((c, i) => (
+              <Link
+                key={c.n}
+                to={c.to}
+                {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
+                className={`tf-journey-step ${i === 0 ? "is-current" : ""}`}
+                aria-label={`Chapter ${c.n}: ${c.title}`}
+              >
+                <span className="tf-journey-dot" aria-hidden />
+                <span className="tf-journey-label">{c.title}</span>
               </Link>
             ))}
           </div>
+        </section>
 
-          {/* Closing step 11 — full-width band so no orphan tile is left dangling */}
-          <Link
-            to={CLOSER.to}
-            {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-            className="demo-lift demo-reveal group mt-6 flex flex-wrap items-center justify-between gap-6 rounded-3xl border-2 border-dashed border-demo bg-demo-surface-warm/40 p-7"
-          >
-            <div className="flex items-center gap-5 min-w-0">
-              <span className="step-marker shrink-0">{CLOSER.n}</span>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-demo-primary">
-                  Wrap-Up
-                </p>
-                <h3 className="mt-1 font-display text-2xl">{CLOSER.title}</h3>
-                <p className="mt-1 max-w-xl text-sm leading-relaxed text-foreground/75">{CLOSER.body}</p>
-              </div>
-            </div>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-demo bg-card px-4 py-2 text-sm font-medium text-demo-primary transition-transform group-hover:translate-x-0.5">
-              Open <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
+        {/* ===================== CHAPTERS (editorial groups, not card grid) ===================== */}
+        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-12">
+          {groups.map((g, gi) => {
+            const items = CHAPTERS.filter((c) => c.group === g);
+            const meta = GROUP_META[g];
+            return (
+              <article key={g} className="tf-chapter">
+                <div className="tf-chapter-rule" aria-hidden />
+                <div className="grid gap-10 lg:grid-cols-[1fr_2fr] lg:gap-16">
+                  <header>
+                    <span className="tf-eyebrow">{meta.eyebrow}</span>
+                    <div className="mt-4 flex items-baseline gap-4">
+                      <span className="tf-numeral">{String(gi + 1).padStart(2, "0")}</span>
+                      <h3 className="font-display text-3xl font-bold tracking-tight">{g}</h3>
+                    </div>
+                    <p className="mt-4 max-w-sm text-base leading-relaxed text-foreground/70">
+                      {meta.tagline}
+                    </p>
+                  </header>
+                  <ol className="space-y-3">
+                    {items.map((c) => (
+                      <li key={c.n}>
+                        <Link
+                          to={c.to}
+                          {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
+                          className="group flex items-start gap-5 rounded-2xl border border-transparent px-4 py-4 transition-all hover:border-[color:var(--demo-primary)]/15 hover:bg-white hover:shadow-[0_18px_40px_-28px_color-mix(in_oklab,var(--demo-primary)_40%,transparent)]"
+                        >
+                          <span className="mt-0.5 font-display text-2xl font-light italic text-demo-accent">{c.n}</span>
+                          <span className="flex-1 min-w-0">
+                            <span className="flex items-center gap-2">
+                              <span className="text-demo-primary/70" aria-hidden>{c.icon}</span>
+                              <span className="font-display text-lg font-semibold leading-tight">{c.title}</span>
+                            </span>
+                            <span className="mt-1 block text-sm leading-relaxed text-foreground/70">{c.body}</span>
+                          </span>
+                          <ArrowRight className="mt-1.5 h-4 w-4 shrink-0 text-demo-primary opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-1" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </article>
+            );
+          })}
 
-          {/* Final CTA — equal-size buttons */}
-          <div className="mt-12 overflow-hidden rounded-3xl border border-demo bg-demo-primary p-7 text-primary-foreground shadow-demo-lift sm:p-9">
-            <div className="flex flex-wrap items-end justify-between gap-6">
+          {/* Closing band */}
+          <div className="tf-band tf-band--ink mt-16 tf-reveal">
+            <div className="grid gap-8 lg:grid-cols-[2fr_1fr] lg:items-end">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-80">
-                  Start the Walkthrough
-                </p>
-                <p className="mt-2 font-display text-2xl">
-                  Begin with {student.first_name}'s intake.
-                </p>
-                <p className="mt-1 text-sm opacity-85">
-                  You can switch students any time using the bar at the top.
+                <span className="tf-eyebrow">Ready When You Are</span>
+                <h3 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
+                  Open Chapter 01 — {student.first_name}'s Intake.
+                </h3>
+                <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
+                  You can switch students or jump between chapters at any time from the bar at the top.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg" className="bg-[color:var(--demo-accent)] text-primary-foreground hover:opacity-90">
+              <div className="flex flex-wrap gap-3 lg:justify-end">
+                <Button asChild size="lg" className="bg-[color:var(--demo-accent)] text-white hover:opacity-90">
                   <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                    Start the Demo <ArrowRight className="h-4 w-4" />
+                    Begin the Walkthrough <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-white/40 bg-transparent text-white hover:bg-white/10">
+                <Button asChild variant="outline" size="lg" className="border-white/30 bg-transparent text-white hover:bg-white/10">
                   <Link to="/waitlist">Join the Waitlist</Link>
                 </Button>
               </div>
