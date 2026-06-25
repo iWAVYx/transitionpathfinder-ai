@@ -204,7 +204,8 @@ export function DemoStepBar({ current, student }: Props) {
     }
   };
 
-
+  const currentIdx = DEMO_STEPS.findIndex((x) => x.id === current);
+  const progressPct = ((currentIdx + 1) / DEMO_STEPS.length) * 100;
   const currentStepObj = DEMO_STEPS[currentIdx] ?? DEMO_STEPS[0];
 
   return (
