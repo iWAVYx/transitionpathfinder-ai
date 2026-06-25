@@ -376,8 +376,19 @@ function StudentDetailPage() {
         </div>
 
         <div className="mt-6">
+        {student && (
+          <div className="mt-6">
+            <ReadinessInsightsCard
+              studentId={studentId}
+              studentFirstName={student.first_name}
+            />
+          </div>
+        )}
+
+        <div className="mt-6">
           <RecommendedResourcesPanel studentId={studentId} />
         </div>
+
 
         <div className="mt-6">
           <RecommendedPartnersPanel studentId={studentId} />
