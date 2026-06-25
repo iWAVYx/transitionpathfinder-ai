@@ -284,7 +284,7 @@ function DemoIndex() {
           <Link
             to={FEATURED.to}
             {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-            className="demo-lift demo-reveal group mt-8 grid gap-6 overflow-hidden rounded-3xl border border-demo bg-gradient-horizon p-7 text-primary-foreground shadow-demo-lift sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-9"
+            className="demo-lift demo-reveal group mt-8 grid gap-6 overflow-hidden rounded-3xl border border-demo bg-demo-primary p-7 text-primary-foreground shadow-demo-lift sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-9"
           >
             <span className="step-marker !h-12 !w-12 !text-base">{FEATURED.n}</span>
             <div className="min-w-0">
@@ -346,7 +346,7 @@ function DemoIndex() {
           </Link>
 
           {/* Final CTA — equal-size buttons */}
-          <div className="mt-12 overflow-hidden rounded-3xl border border-demo bg-gradient-horizon p-7 text-primary-foreground shadow-demo-lift sm:p-9">
+          <div className="mt-12 overflow-hidden rounded-3xl border border-demo bg-demo-primary p-7 text-primary-foreground shadow-demo-lift sm:p-9">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-80">
