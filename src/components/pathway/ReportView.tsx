@@ -492,203 +492,197 @@ export function ReportView({
         </div>
       </div>
 
-      {/* Toolbar — hidden on print. Document-integrated: no heavy border, sits
-          on the page background so it reads as part of the report, not chrome. */}
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
-
-        <div
-          role="tablist"
-          aria-label="Choose a report view"
-          className="inline-flex rounded-xl bg-muted p-1"
-        >
-          <AudienceTab
-            active={audience === "student"}
-            onClick={() => setAudience("student", { syncUrl: true })}
-            icon={<MessageSquareQuote className="h-4 w-4" />}
-            label="Student View"
-            hint="For You"
-          />
-          <AudienceTab
-            active={audience === "family"}
-            onClick={() => setAudience("family", { syncUrl: true })}
-            icon={<Users className="h-4 w-4" />}
-            label="Family View"
-            hint="Plain Language"
-          />
-          <AudienceTab
-            active={audience === "educator"}
-            onClick={() => setAudience("educator", { syncUrl: true })}
-            icon={<GraduationCap className="h-4 w-4" />}
-            label="Educator View"
-            hint="PPT Prep"
-          />
+      {/* ============ EDITORIAL COVER + INTEGRATED ROLE TABS + TOOLBAR ============ */}
+      <header
+        ref={headerRef}
+        className="tf-cover no-print relative px-6 py-10 sm:px-10 sm:py-14"
+      >
+        {/* Doc meta strip */}
+        <div className="relative z-10 mb-8 flex flex-wrap items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/55">
+          <span>TransitionForward · Pathway Report</span>
+          <span className="font-mono normal-case tracking-normal text-foreground/55">
+            Doc {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
+          </span>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div
-            role="group"
-            aria-label="Report density"
-            className="inline-flex rounded-lg border bg-muted/50 p-0.5"
-          >
-            <button
-              type="button"
-              onClick={() => setDensity("compact")}
-              aria-pressed={density === "compact"}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                density === "compact"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
+
+        <div className="relative z-10 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+          <div>
+            <span className="tf-eyebrow">
+              {audience === "family"
+                ? "Personalized Transition Plan"
+                : audience === "student"
+                  ? "Your Plan, In Your Words"
+                  : "Planning & Placement Team Packet"}
+            </span>
+            <h1 className="mt-4 font-display text-4xl font-bold leading-[1.02] tracking-tight sm:text-5xl">
+              {toTitleCase(heading)}
+            </h1>
+            <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-foreground/75 sm:text-base">
+              {subheading}
+            </p>
+
+            {/* Integrated role-view tabs (replaces the standalone role-view strip) */}
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <div className="tf-audience" role="tablist" aria-label="Choose a report view">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={audience === "student"}
+                  onClick={() => setAudience("student", { syncUrl: true })}
+                  className={audience === "student" ? "is-active" : ""}
+                >
+                  Student
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={audience === "family"}
+                  onClick={() => setAudience("family", { syncUrl: true })}
+                  className={audience === "family" ? "is-active" : ""}
+                >
+                  Family
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={audience === "educator"}
+                  onClick={() => setAudience("educator", { syncUrl: true })}
+                  className={audience === "educator" ? "is-active" : ""}
+                >
+                  Educator
+                </button>
+              </div>
+              {confidenceLabel && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-primary">
+                  <ShieldCheck className="h-3.5 w-3.5" /> {confidenceLabel}
+                </span>
               )}
-            >
-              Compact
-            </button>
-            <button
-              type="button"
-              onClick={() => setDensity("comfortable")}
-              aria-pressed={density === "comfortable"}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                density === "comfortable"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Comfortable
-            </button>
-          </div>
-          <div className="inline-flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (typeof window !== "undefined")
-                  window.dispatchEvent(
-                    new CustomEvent("report-blocks-toggle", { detail: { open: true } }),
-                  );
-              }}
-              aria-label="Expand all sections"
-            >
-              <ChevronsUpDown className="h-4 w-4" /> Expand all
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (typeof window !== "undefined")
-                  window.dispatchEvent(
-                    new CustomEvent("report-blocks-toggle", { detail: { open: false } }),
-                  );
-              }}
-              aria-label="Collapse all sections"
-            >
-              <ChevronsDownUp className="h-4 w-4" /> Collapse all
-            </Button>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-foreground/65">
+                <Sparkles className="h-3.5 w-3.5" /> AI-Drafted · Educator-Reviewable
+              </span>
+            </div>
           </div>
 
+          {/* Marginalia: prepared for / by / date / confidentiality */}
+          <aside className="tf-inset relative z-10 self-start">
+            <span className="tf-eyebrow">At A Glance</span>
+            <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4">
+              <MetaField label="Prepared For" value={meta?.preparedFor ?? name} />
+              <MetaField label="Prepared By" value={(meta?.preparedBy ?? "TransitionForward").split("(")[0].trim()} />
+              <MetaField label="Date Issued" value={meta?.issued ?? today} />
+              <MetaField
+                label="Audience"
+                value={audience === "family" ? "Family-Friendly Language" : audience === "student" ? "Student View" : "PPT-Ready Format"}
+              />
+            </dl>
+            <p className="mt-5 border-t border-foreground/10 pt-4 text-[11px] leading-snug text-foreground/60">
+              {meta?.confidentiality ?? "Confidential — for the student, family, and authorized educators."}
+            </p>
+          </aside>
+        </div>
+      </header>
+
+      {/* ============ Slim editorial toolbar ============ */}
+      <div className="no-print mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-[color:var(--demo-primary)]/12 py-3">
+        <div
+          role="group"
+          aria-label="Report density"
+          className="inline-flex rounded-full bg-muted/60 p-0.5"
+        >
+          <button
+            type="button"
+            onClick={() => setDensity("compact")}
+            aria-pressed={density === "compact"}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              density === "compact"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Compact
+          </button>
+          <button
+            type="button"
+            onClick={() => setDensity("comfortable")}
+            aria-pressed={density === "comfortable"}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              density === "comfortable"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Comfortable
+          </button>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              if (typeof window !== "undefined")
+                window.dispatchEvent(
+                  new CustomEvent("report-blocks-toggle", { detail: { open: true } }),
+                );
+            }}
+            aria-label="Expand all sections"
+          >
+            <ChevronsUpDown className="h-4 w-4" /> Expand
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              if (typeof window !== "undefined")
+                window.dispatchEvent(
+                  new CustomEvent("report-blocks-toggle", { detail: { open: false } }),
+                );
+            }}
+            aria-label="Collapse all sections"
+          >
+            <ChevronsDownUp className="h-4 w-4" /> Collapse
+          </Button>
           {onSaveToProfile && (
             <Button
-              variant={saved ? "outline" : "secondary"}
+              variant={saved ? "outline" : "ghost"}
               size="sm"
               onClick={onSaveToProfile}
               disabled={saved}
               aria-label="Save to Student Profile"
             >
               {saved ? <Check className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
-              {saved ? "Saved" : saveLabel ?? "Save to Profile"}
+              {saved ? "Saved" : saveLabel ?? "Save"}
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={shareReport} aria-label="Share Pathway Report">
+          <Button variant="ghost" size="sm" onClick={shareReport} aria-label="Share Pathway Report">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "Copied" : "Share With Team"}
+            {copied ? "Copied" : "Share"}
           </Button>
           {onRefresh && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={onRefresh}
               disabled={refreshing}
               aria-label="Refresh Pathway Report"
             >
               <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-              {refreshing ? "Refreshing…" : "Refresh Report"}
+              {refreshing ? "Refreshing…" : "Refresh"}
             </Button>
           )}
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
             onClick={() => window.print()}
             aria-label="Download Pathway Report as PDF"
+            className="bg-demo-primary"
           >
-            <Download className="h-4 w-4" /> Download Pathway Report (PDF)
+            <Download className="h-4 w-4" /> Download PDF
           </Button>
         </div>
       </div>
 
-      {/* ============ Document header (formal) ============ */}
-      <header
-        ref={headerRef}
-        className="report-header relative overflow-hidden rounded-2xl border bg-card shadow-soft"
-      >
-        {/* Parallax glow layers (decorative) */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-0"
-          style={{ transform: `translate3d(0, ${parallaxY * 0.5}px, 0)` }}
-        >
-          <div className="absolute -top-32 -right-24 h-[22rem] w-[22rem] rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute -bottom-40 -left-20 h-[20rem] w-[20rem] rounded-full bg-sky-soft/40 blur-3xl" />
-        </div>
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-        />
-
-        <div className="relative border-b border-border/60 bg-muted/40 px-6 py-3 sm:px-10">
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            <span>TransitionForward · {audience === "family" ? "Pathway Report" : "Educator PPT Prep Packet"}</span>
-            <span className="font-mono normal-case tracking-normal text-foreground/70">
-              Doc ID {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"}
-            </span>
-          </div>
-        </div>
-
-        <div className="relative px-6 py-10 sm:px-10 sm:py-12">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            {audience === "family" ? "Personalized Transition Plan" : "Planning & Placement Team Packet"}
-          </p>
-          <h1 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-            {toTitleCase(heading)}
-          </h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-foreground/75">{subheading}</p>
-
-          <div className="mt-5 h-px w-16 bg-primary/70" />
-
-          <dl className="mt-8 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
-            <MetaField label="Prepared For" value={meta?.preparedFor ?? name} />
-            <MetaField label="Prepared By" value={meta?.preparedBy ?? "TransitionForward (AI-supported, human-led)"} />
-            <MetaField label="Date Issued" value={meta?.issued ?? today} />
-            <MetaField
-              label="Confidentiality"
-              value={meta?.confidentiality ?? "For the student, family, and authorized educators"}
-            />
-          </dl>
-
-          <div className="mt-8 flex flex-wrap items-center gap-2">
-            {confidenceLabel && (
-              <Badge variant="secondary" className="gap-1">
-                <ShieldCheck className="h-3 w-3" />
-                {confidenceLabel}
-              </Badge>
-            )}
-            <Badge variant="outline" className="gap-1">
-              <Sparkles className="h-3 w-3" /> AI-drafted · educator-reviewable
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <BookOpen className="h-3 w-3" /> {audience === "family" ? "Family-Friendly Language" : "PPT-Ready Format"}
-            </Badge>
-          </div>
-        </div>
-      </header>
 
       {/* ============ Student Snapshot summary card (top, all audiences) ============ */}
       <StudentSnapshotCard
