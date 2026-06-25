@@ -160,6 +160,23 @@ export const DEMO_VOICE: Record<DemoStudentId, VoicePrompt[]> = {
       response: "Ready: when I've visited the place. Not ready: when it's brand new.",
       affects: "Adds a 'visit first' step to every new placement in the action plan.",
     },
+    {
+      prompt: "What can you already do on your own, and what do you still need help with?",
+      response:
+        "On my own: feed and walk my neighbor's dog, ride the bus to school, make my lunch. Still need help: doctor appointments, figuring out paychecks, big crowds.",
+      affects: "Populates Independent Living Readiness § with current skills + supported next steps.",
+    },
+    {
+      prompt: "How do you want to ask for help when you need it?",
+      response:
+        "Tell me it's okay to ask. I like a quiet signal — a card or a thumbs-down — so I don't have to talk in front of people.",
+      affects: "Adds a non-verbal self-advocacy cue + trusted-adult protocol to Meeting Prep.",
+    },
+    {
+      prompt: "Where do you feel most comfortable — and where do you struggle?",
+      response: "Comfortable: small rooms, animals, my favorite teacher. Struggle: cafeteria, fire drills, new people all at once.",
+      affects: "Filters placements toward low-sensory environments; flags sensory accommodations.",
+    },
   ],
 };
 
