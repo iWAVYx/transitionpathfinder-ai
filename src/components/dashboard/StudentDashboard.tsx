@@ -302,7 +302,9 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           </div>
         </section>
       </div>
+      </div>
     </SiteShell>
+
   );
 }
 
