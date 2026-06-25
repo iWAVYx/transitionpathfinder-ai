@@ -441,7 +441,7 @@ export function ReportView({
         }
       `}</style>
 
-      <ReportTOC report={r} audience={audience} />
+      <ReportTOC report={r} audience={audience} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
 
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
       <div className="print-cover hidden print:block" aria-hidden>
