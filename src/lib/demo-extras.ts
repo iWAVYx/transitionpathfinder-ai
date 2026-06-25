@@ -14,11 +14,26 @@ export interface VoicePrompt {
   affects: string; // how this affects recommendations
 }
 
+export type DocumentType =
+  | "IEP"
+  | "Transition Assessment"
+  | "Psychoeducational Evaluation"
+  | "Vocational Profile"
+  | "504 Plan";
+
 export interface DocumentInsight {
   area: string;
   summary: string;
   source: string;
+  docType: DocumentType;
   needsReview?: boolean;
+}
+
+export interface DocumentSource {
+  docType: DocumentType;
+  label: string;
+  uploadedBy: string;
+  pages: number;
 }
 
 export interface PartnerOpportunity {
