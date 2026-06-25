@@ -464,9 +464,11 @@ function ReportDetailPage() {
           )}
         </div>
       </section>
+      </div>
     </SiteShell>
   );
 }
+
 
 function NextStep({
   icon,
