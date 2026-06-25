@@ -1,5 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Briefcase, MapPin, CheckCircle2, Bookmark, ShieldCheck } from "lucide-react";
+import {
+  Briefcase,
+  MapPin,
+  CheckCircle2,
+  Bookmark,
+  ShieldCheck,
+  Send,
+  Eye,
+} from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import {
@@ -11,7 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
-import { DEMO_OPPORTUNITIES } from "@/lib/demo-extras";
+import {
+  DEMO_OPPORTUNITIES,
+  DEMO_OPPORTUNITY_STATUS,
+  OPPORTUNITY_INTRO_STATUS_LABEL,
+  type OpportunityIntroStatus,
+} from "@/lib/demo-extras";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/opportunities")({
