@@ -1042,9 +1042,11 @@ function DashboardPage() {
           </div>
         </section>
       )}
+      </div>
     </SiteShell>
   );
 }
+
 
 /* ---------- Helpers ---------- */
 
