@@ -73,7 +73,7 @@ const FEATURED: Step = {
   n: "1",
   icon: <ClipboardList className="h-5 w-5" />,
   title: "Intake",
-  body: "The Guided Transition-Planning Interview — Strengths, Interests, Supports, and Three-Voice Input.",
+  body: "The guided transition-planning interview — strengths, interests, supports, three-voice input.",
   to: "/demo/intake",
 };
 
@@ -82,63 +82,63 @@ const STEPS: Step[] = [
     n: "2",
     icon: <Mic className="h-5 w-5" />,
     title: "Student Voice",
-    body: "Sample Student Answers and How Each One Shapes the Recommendations.",
+    body: "Sample student answers and how each one shapes the recommendations.",
     to: "/demo/voice",
   },
   {
     n: "3",
     icon: <FileSearch className="h-5 w-5" />,
     title: "Document Insights",
-    body: "How TransitionForward Organizes IEP Content as a Planning Companion — With Needs-Review Flags.",
+    body: "How TransitionForward organizes IEP content as a planning companion — with needs-review flags.",
     to: "/demo/documents",
   },
   {
     n: "4",
     icon: <FileText className="h-5 w-5" />,
     title: "Pathway Report",
-    body: "The Full Report — Pathways, IEP Translation, Accommodations, and a Clear Plan.",
+    body: "The full report — pathways, IEP translation, accommodations, and a clear plan.",
     to: "/demo/report",
   },
   {
     n: "5",
     icon: <Briefcase className="h-5 w-5" />,
     title: "Opportunity Matches",
-    body: "Sample Partner Programs, Apprenticeships, Internships, and Community Supports.",
+    body: "Sample partner programs, apprenticeships, internships, and community supports.",
     to: "/demo/opportunities",
   },
   {
     n: "6",
     icon: <BookOpen className="h-5 w-5" />,
     title: "Resource Matches",
-    body: "Curated, Student-Matched Resources With What It Is, Who It Helps, and How to Use It.",
+    body: "Curated, student-matched resources with what it is, who it helps, and how to use it.",
     to: "/demo/resources",
   },
   {
     n: "7",
     icon: <Users className="h-5 w-5" />,
     title: "Meeting Prep",
-    body: "A PPT / IEP Prep Packet: Agenda, Questions to Ask, Strengths to Highlight, Follow-Ups.",
+    body: "A PPT / IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.",
     to: "/demo/meeting",
   },
   {
     n: "8",
     icon: <CalendarDays className="h-5 w-5" />,
     title: "Calendar",
-    body: "One Shared Calendar — Meetings, Deadlines, Tours, and Weekly Action Steps.",
+    body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.",
     to: "/demo/calendar",
   },
   {
     n: "9",
     icon: <CalendarRange className="h-5 w-5" />,
     title: "30 / 60 / 90-Day Plan",
-    body: "Doable Steps With the Responsible Role and Source Labeled.",
+    body: "Doable steps with the responsible role and source labeled.",
     to: "/demo/plan",
   },
   {
     n: "10",
     icon: <LayoutDashboard className="h-5 w-5" />,
     title: "Role Dashboards",
-    body: "See the Same Plan From Student, Family, Educator, School, District, and Partner Views.",
+    body: "See the same plan from student, family, educator, school, district, and partner views.",
     to: "/demo/hub",
   },
 ];
@@ -147,7 +147,7 @@ const CLOSER: Step = {
   n: "11",
   icon: <Compass className="h-5 w-5" />,
   title: "What's Next",
-  body: "Clear Paths for Families, Educators, Schools, Districts, and Partners.",
+  body: "Clear paths for families, educators, schools, districts, and partners.",
   to: "/demo/next",
 };
 
@@ -263,7 +263,7 @@ function DemoIndex() {
             <blockquote className="mt-5 max-w-2xl text-base italic leading-relaxed text-foreground/85">
               "{bundle.report.student_snapshot?.student_voice_quote}"
               <span className="mt-2 block not-italic text-xs text-foreground/65">
-                — In {student.first_name}'s Voice (From the Intake)
+                — In {student.first_name}'s voice (from the intake)
               </span>
             </blockquote>
           </div>
@@ -353,10 +353,10 @@ function DemoIndex() {
                   Start the Walkthrough
                 </p>
                 <p className="mt-2 font-display text-2xl">
-                  Begin With {student.first_name}'s Intake.
+                  Begin with {student.first_name}'s intake.
                 </p>
                 <p className="mt-1 text-sm opacity-85">
-                  You Can Switch Students Any Time Using the Bar at the Top.
+                  You can switch students any time using the bar at the top.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
