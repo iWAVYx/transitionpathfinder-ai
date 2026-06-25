@@ -1424,6 +1424,34 @@ export function ReportView({
         />
       )}
 
+      {/* ============ Bring To The Team — consolidated decision checklist ============ */}
+      <section className="report-section mt-10 page-break">
+        <div className="mb-3 flex items-center gap-2">
+          <ListChecks className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>
+        </div>
+        <p className="mb-4 max-w-3xl text-sm text-muted-foreground">
+          Print this page and bring it to the next PPT. It pulls together every
+          open question and recommended next step from this report so the whole
+          team starts from the same list.
+        </p>
+        <ValueCallout
+          data={{
+            ...CHAPTER_VALUE_DEFAULTS.bring_to_team,
+            questionsForTeam: [
+              ...(r.family_questions_for_ppt ?? []),
+              ...(r.meeting_prep_toolkit?.questions_to_ask ?? []),
+            ].slice(0, 8),
+            recommendedNextStep: `Confirm an owner and a date for each next step before you leave the meeting.`,
+            informationUsed: [
+              "This report's recommendations",
+              "Open questions from each chapter",
+              meta?.reportId ? `Doc ${meta.reportId}` : "",
+            ].filter(Boolean) as string[],
+          }}
+        />
+      </section>
+
       {/* ============ Closing note (formal) ============ */}
       <section className="report-section mt-10">
         <div className="rounded-2xl border border-border/60 bg-gradient-hero p-8 sm:p-10">
