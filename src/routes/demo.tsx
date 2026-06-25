@@ -295,7 +295,7 @@ function DemoIndex() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button asChild size="lg" variant="secondary" className="bg-[color:var(--demo-accent)] text-[color:var(--demo-primary)] hover:opacity-90">
+              <Button asChild size="lg" variant="secondary" className="bg-[color:var(--demo-accent)] text-[color:var(--primary-foreground)] hover:opacity-90">
                 <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
                   Start the demo <ArrowRight className="h-4 w-4" />
                 </Link>
