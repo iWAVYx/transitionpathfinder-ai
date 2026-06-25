@@ -2048,11 +2048,14 @@ function DocumentContents({
   report,
   name,
   hasLinkedStudent,
+  extraItems,
 }: {
   report: PathwayReport;
   name: string;
   hasLinkedStudent?: boolean;
+  extraItems?: { id: string; label: string }[];
 }) {
+
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
   items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
