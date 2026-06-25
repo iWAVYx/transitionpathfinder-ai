@@ -255,5 +255,3 @@ export function useDemoMeetingEdits(student: DemoStudentId) {
   };
 }
 
-}
-
