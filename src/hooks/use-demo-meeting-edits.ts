@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { DemoStudentId } from "@/lib/demo-data";
 import {
@@ -6,6 +6,12 @@ import {
   DEMO_MEETING_MINUTES,
   type AgendaReportLink,
 } from "@/lib/demo-extras";
+import {
+  getDemoMeetingEdits,
+  resetDemoMeetingEdits,
+  saveDemoMeetingEdits,
+} from "@/lib/demo-meeting-edits.functions";
+import { useAuth } from "@/hooks/use-auth";
 
 export interface MeetingMinuteEntryEdit {
   topic: string;
@@ -49,11 +55,11 @@ function defaults(student: DemoStudentId): DemoMeetingState {
   };
 }
 
-function read(student: DemoStudentId): DemoMeetingState {
-  if (typeof window === "undefined") return defaults(student);
+function readLocal(student: DemoStudentId): DemoMeetingState | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(storageKey(student));
-    if (!raw) return defaults(student);
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<DemoMeetingState>;
     const base = defaults(student);
     return {
@@ -61,74 +67,197 @@ function read(student: DemoStudentId): DemoMeetingState {
       agenda: parsed.agenda ?? base.agenda,
     };
   } catch {
-    return defaults(student);
+    return null;
+  }
+}
+
+function writeLocal(student: DemoStudentId, state: DemoMeetingState) {
+  try {
+    window.localStorage.setItem(storageKey(student), JSON.stringify(state));
+    window.dispatchEvent(new CustomEvent(EVENT, { detail: { student } }));
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearLocal(student: DemoStudentId) {
+  try {
+    window.localStorage.removeItem(storageKey(student));
+    window.dispatchEvent(new CustomEvent(EVENT, { detail: { student } }));
+  } catch {
+    /* ignore */
   }
 }
 
 /**
  * Editable meeting minutes + agenda→report links for the demo.
- * Persists per-student overrides in localStorage so edits survive reloads
- * but never leave the browser. Demo-only — no server writes.
+ *
+ * Persistence strategy:
+ * - Signed-in users: rows in `demo_meeting_edits` (Supabase, scoped by RLS to
+ *   the user). Edits sync across devices. localStorage acts as an offline
+ *   mirror for instant reads.
+ * - Signed-out users: localStorage only.
+ *
+ * Demo-only data — no real student records.
  */
 export function useDemoMeetingEdits(student: DemoStudentId) {
-  const [state, setState] = useState<DemoMeetingState>(() => read(student));
+  const { user, loading: authLoading } = useAuth();
+  const [state, setState] = useState<DemoMeetingState>(
+    () => readLocal(student) ?? defaults(student),
+  );
+  const [isDirty, setIsDirty] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hydrated = useRef(false);
 
+  // Hydrate from backend when signed in / on student change.
   useEffect(() => {
-    setState(read(student));
-  }, [student]);
+    hydrated.current = false;
+    const local = readLocal(student);
+    setState(local ?? defaults(student));
+    setIsDirty(!!local);
 
+    if (authLoading) return;
+    if (!user) {
+      hydrated.current = true;
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const row = await getDemoMeetingEdits({ data: { student_key: student } });
+        if (cancelled) return;
+        if (row) {
+          const base = defaults(student);
+          const next: DemoMeetingState = {
+            minutes:
+              (row.minutes as MeetingMinutesEdit | undefined) ?? base.minutes,
+            agenda: (row.agenda as AgendaReportLink[] | undefined) ?? base.agenda,
+          };
+          setState(next);
+          setIsDirty(true);
+          writeLocal(student, next);
+        }
+      } catch (err) {
+        console.warn("[demo-meeting] backend hydrate failed", err);
+      } finally {
+        hydrated.current = true;
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [student, user, authLoading]);
+
+  // Listen for cross-tab/local edits.
   useEffect(() => {
     function handler(e: Event) {
       const detail = (e as CustomEvent<{ student: DemoStudentId }>).detail;
-      if (detail?.student === student) setState(read(student));
+      if (detail?.student !== student) return;
+      const local = readLocal(student);
+      if (local) {
+        setState(local);
+        setIsDirty(true);
+      }
     }
     window.addEventListener(EVENT, handler as EventListener);
     return () => window.removeEventListener(EVENT, handler as EventListener);
   }, [student]);
 
+  const scheduleBackendSave = useCallback(
+    (next: DemoMeetingState) => {
+      if (!user) return;
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(async () => {
+        setSyncing(true);
+        try {
+          await saveDemoMeetingEdits({
+            data: {
+              student_key: student,
+              minutes: next.minutes,
+              agenda: next.agenda,
+            },
+          });
+        } catch (err) {
+          console.warn("[demo-meeting] backend save failed", err);
+        } finally {
+          setSyncing(false);
+        }
+      }, 600);
+    },
+    [student, user],
+  );
+
   const persist = useCallback(
     (next: DemoMeetingState) => {
       setState(next);
-      try {
-        window.localStorage.setItem(storageKey(student), JSON.stringify(next));
-        window.dispatchEvent(new CustomEvent(EVENT, { detail: { student } }));
-      } catch {
-        /* ignore */
-      }
+      setIsDirty(true);
+      writeLocal(student, next);
+      scheduleBackendSave(next);
     },
-    [student],
+    [student, scheduleBackendSave],
   );
 
   const updateMinuteEntry = useCallback(
     (index: number, patch: Partial<MeetingMinuteEntryEdit>) => {
-      const entries = state.minutes.entries.map((e, i) =>
-        i === index ? { ...e, ...patch } : e,
-      );
-      persist({ ...state, minutes: { ...state.minutes, entries } });
+      setState((prev) => {
+        const entries = prev.minutes.entries.map((e, i) =>
+          i === index ? { ...e, ...patch } : e,
+        );
+        const next = { ...prev, minutes: { ...prev.minutes, entries } };
+        writeLocal(student, next);
+        scheduleBackendSave(next);
+        return next;
+      });
+      setIsDirty(true);
     },
-    [persist, state],
+    [student, scheduleBackendSave],
   );
 
   const updateAgendaItem = useCallback(
     (index: number, patch: Partial<AgendaReportLink>) => {
-      const agenda = state.agenda.map((a, i) => (i === index ? { ...a, ...patch } : a));
-      persist({ ...state, agenda });
+      setState((prev) => {
+        const agenda = prev.agenda.map((a, i) => (i === index ? { ...a, ...patch } : a));
+        const next = { ...prev, agenda };
+        writeLocal(student, next);
+        scheduleBackendSave(next);
+        return next;
+      });
+      setIsDirty(true);
     },
-    [persist, state],
+    [student, scheduleBackendSave],
   );
 
-  const reset = useCallback(() => {
-    try {
-      window.localStorage.removeItem(storageKey(student));
-      window.dispatchEvent(new CustomEvent(EVENT, { detail: { student } }));
-    } catch {
-      /* ignore */
-    }
+  const reset = useCallback(async () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    clearLocal(student);
     setState(defaults(student));
-  }, [student]);
+    setIsDirty(false);
+    if (user) {
+      setSyncing(true);
+      try {
+        await resetDemoMeetingEdits({ data: { student_key: student } });
+      } catch (err) {
+        console.warn("[demo-meeting] backend reset failed", err);
+      } finally {
+        setSyncing(false);
+      }
+    }
+  }, [student, user]);
 
-  const isDirty =
-    typeof window !== "undefined" && !!window.localStorage.getItem(storageKey(student));
+  return {
+    state,
+    updateMinuteEntry,
+    updateAgendaItem,
+    reset,
+    isDirty,
+    syncing,
+    syncedToBackend: !!user,
+  };
+}
 
-  return { state, updateMinuteEntry, updateAgendaItem, reset, isDirty };
+// suppress unused-var warning for hydrated ref in some builds
+void hydratedRefMarker;
+function hydratedRefMarker() {
+  return null;
 }
