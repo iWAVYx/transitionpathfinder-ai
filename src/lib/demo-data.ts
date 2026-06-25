@@ -39,6 +39,22 @@ export const DEMO_INTAKE: IntakeInput = {
     "We want Maya to feel proud of what she can do. We need a plan that builds her independence step by step — not all at once. We also want to know what supports are available after she ages out at 22.",
   educator_input:
     "Maya is making strong gains in self-advocacy this year. She volunteered at the school food pantry and was reliable every week. She struggles with unstructured time and benefits from job-embedded learning. Recommend exploring CT BRS pre-employment transition services this spring.",
+  communication_prefs:
+    "Texts and written notes preferred. Email works if it's short. Phone calls only with people she already trusts.",
+  transportation_needs:
+    "Will need travel-training support before riding city or regional transit independently. Family can drive to job-shadow sites within East Hartford.",
+  family_priorities:
+    "Independence built in small steps · Real, paying work she enjoys · Clear picture of adult services after age 21 · Protecting Maya's mental health throughout.",
+  family_concerns_extended:
+    "Worried about benefits cliffs if Maya earns income, navigating BRS/DDS intake, and what supported-living options actually look like in Hartford County.",
+  student_worries:
+    "Loud places, group interviews, being put on the spot. Doesn't want to disappoint her parents if a path doesn't work out.",
+  services_received:
+    "Special education (autism), speech-language services, school counseling check-ins (weekly), assistive tech (noise-reducing headphones), 1:1 paraprofessional during electives.",
+  desired_postsecondary_outcomes:
+    "Part-time paid work in animal care within 1 year of graduation. Community-college certificate (animal care or vet assistant) by age 21. Semi-independent apartment by age 23 with check-ins.",
+  upcoming_meetings:
+    "Annual PPT — April 8, 2026 · Transition planning meeting — May 2026 · BRS intake referral — Spring 2026.",
 };
 
 export const DEMO_REPORT: PathwayReport = {
@@ -820,6 +836,22 @@ export const JORDAN_INTAKE: IntakeInput = {
     "We want Jordan to see that his creative work is a real career path, not just a hobby. We need help connecting him to working creatives, getting organized, and building the adulting skills that don't come naturally — driving, deadlines, money.",
   educator_input:
     "Jordan is one of the most engaging students I have when the work connects to something he cares about. He produced an outstanding final project in Media Literacy. Executive function is the consistent barrier — not ability. Strongly recommend dual-enrollment at Gateway's audio engineering program and a structured internship.",
+  communication_prefs:
+    "Text first, always. Won't read long emails. Will absolutely talk in person once trust is built — short check-ins beat formal meetings.",
+  transportation_needs:
+    "Needs structured driver's ed practice and a plan for city-bus familiarity. Could realistically be driving solo by senior year with support.",
+  family_priorities:
+    "Take his creative work seriously as a career · Build adulting skills (deadlines, money, driving) · Avoid 'community college by default' if a better-fit path exists.",
+  family_concerns_extended:
+    "Worried grades will close doors that his portfolio could open. Concerned about income stability in creative fields and whether he can self-manage freelance work.",
+  student_worries:
+    "Being underestimated. Getting stuck doing 'boring' work that doesn't lead anywhere. Letting his mom down if school grades stay low.",
+  services_received:
+    "Special education (SLD), executive-function coaching (1x/week), extended time on tests, preferential seating, organizational checklists with case manager.",
+  desired_postsecondary_outcomes:
+    "Audio-engineering certificate or apprenticeship by age 20 · Steady freelance / studio work by age 22 · Driver's license + own transportation by graduation.",
+  upcoming_meetings:
+    "Annual PPT — April 11, 2026 · Dual-enrollment intake at Gateway — May 2026 · Internship interview at Soundbar Studios — June 2026.",
 };
 
 export const JORDAN_REPORT: PathwayReport = {

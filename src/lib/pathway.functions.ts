@@ -319,6 +319,16 @@ Student voice (in their own words): ${intake.student_voice || "(not provided)"}
 Family voice (hopes, worries, what they want the team to know): ${intake.family_voice || intake.family_concerns || "(not provided)"}
 Educator / case manager input (what they're seeing at school): ${intake.educator_input || "(not provided)"}
 
+CONTEXT FROM EXTENDED INTAKE
+Communication preferences: ${intake.communication_prefs || "(not provided)"}
+Transportation needs: ${intake.transportation_needs || "(not provided)"}
+Family priorities for postsecondary life: ${intake.family_priorities || "(not provided)"}
+Family concerns (detailed): ${intake.family_concerns_extended || "(not provided)"}
+What the student is worried about: ${intake.student_worries || "(not provided)"}
+Services currently received: ${intake.services_received || "(not provided)"}
+Desired postsecondary outcomes: ${intake.desired_postsecondary_outcomes || "(not provided)"}
+Upcoming meetings / deadlines: ${intake.upcoming_meetings || "(not provided)"}
+
 Generate the FULL TransitionForward Pathway Report — the flagship deliverable of this platform. It must feel personalized, professional, parent-friendly, student-centered, and teacher-usable. NEVER generic. Tie EVERY recommendation back to this student's specific interests, strengths, and stated needs.
 
 Fill in EVERY top-level field of the schema. The schema is large on purpose. Be specific, not exhaustive — short, concrete bullets are better than long abstract ones. Use Connecticut-aware language (CT community colleges, CT technical high schools, Bureau of Rehabilitation Services / BRS, DDS, Level Up) when reasonable, but never invent specific program names you cannot verify.
@@ -373,6 +383,14 @@ export const createPathwayReport = createServerFn({ method: "POST" })
         student_voice: data.student_voice || null,
         family_voice: data.family_voice || null,
         educator_input: data.educator_input || null,
+        communication_prefs: data.communication_prefs || null,
+        transportation_needs: data.transportation_needs || null,
+        family_priorities: data.family_priorities || null,
+        family_concerns_extended: data.family_concerns_extended || null,
+        student_worries: data.student_worries || null,
+        services_received: data.services_received || null,
+        desired_postsecondary_outcomes: data.desired_postsecondary_outcomes || null,
+        upcoming_meetings: data.upcoming_meetings || null,
       })
       .select("id")
       .single();
