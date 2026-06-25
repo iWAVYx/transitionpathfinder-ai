@@ -214,9 +214,11 @@ function DocumentsHubPage() {
           )}
         </div>
       </section>
+      </div>
     </SiteShell>
   );
 }
+
 
 function StatChip({
   label,
