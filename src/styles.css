@@ -864,8 +864,10 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   background: color-mix(in oklab, var(--sky-soft) 80%, white);
   border: 1px solid color-mix(in oklab, var(--demo-primary) 16%, transparent);
 }
-.demo-shell .tf-audience button,
-.report-shell .tf-audience button {
+.demo-shell .tf-audience > *,
+.report-shell .tf-audience > * {
+  display: inline-flex;
+  align-items: center;
   padding: 0.4rem 0.95rem;
   border-radius: 9999px;
   font-family: var(--font-demo-display);
@@ -875,11 +877,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   text-transform: uppercase;
   color: color-mix(in oklab, var(--demo-primary) 70%, transparent);
   transition: all 200ms ease;
+  text-decoration: none;
 }
-.demo-shell .tf-audience button[aria-selected="true"],
-.report-shell .tf-audience button[aria-selected="true"],
-.demo-shell .tf-audience button.is-active,
-.report-shell .tf-audience button.is-active {
+.demo-shell .tf-audience > [aria-selected="true"],
+.report-shell .tf-audience > [aria-selected="true"],
+.demo-shell .tf-audience > .is-active,
+.report-shell .tf-audience > .is-active {
   background: var(--card);
   color: var(--demo-primary);
   box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 6px 16px oklch(0.45 0.07 200 / 0.18);
