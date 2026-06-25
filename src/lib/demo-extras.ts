@@ -105,6 +105,24 @@ export const DEMO_VOICE: Record<DemoStudentId, VoicePrompt[]> = {
         "Ready: when I've practiced the thing once. Not ready: when nobody told me the plan.",
       affects: "Triggers preview-first action items + clear next-step language across the plan.",
     },
+    {
+      prompt: "What can you already do on your own, and what do you still need help with?",
+      response:
+        "On my own: cooking simple stuff, my bus pass, basic banking app. Still need help: filling out forms, scheduling doctor appointments, knowing what's a scam.",
+      affects: "Populates Independent Living Readiness § with concrete strengths + targeted next skills.",
+    },
+    {
+      prompt: "How do you want to ask for help when you need it?",
+      response:
+        "Text first. If I have to say it out loud, give me the words to use. Don't make me explain it in front of a group.",
+      affects: "Adds a scripted self-advocacy plan + private check-in protocol to Meeting Prep.",
+    },
+    {
+      prompt: "Where do you feel most comfortable — and where do you struggle?",
+      response:
+        "Comfortable: small studio, one-on-one, headphones on. Struggle: loud open rooms, surprise group work, anything timed.",
+      affects: "Filters opportunity matches toward low-stim placements; flags accommodations to request.",
+    },
   ],
   maya: [
     {
