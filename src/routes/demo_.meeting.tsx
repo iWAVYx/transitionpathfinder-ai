@@ -50,7 +50,7 @@ function DemoMeetingPage() {
   const bundle = getDemoStudent(s);
   const { profile, report, nextMeetingDate } = bundle;
   const prep = report.meeting_prep_toolkit;
-  const minutes = DEMO_MEETING_MINUTES[s];
+  const minutes = DEMO_MEETING_MINUTES[s as keyof typeof DEMO_MEETING_MINUTES];
 
   return (
     <SiteShell>
