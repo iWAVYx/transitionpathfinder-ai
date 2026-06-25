@@ -145,44 +145,92 @@ export const DEMO_VOICE: Record<DemoStudentId, VoicePrompt[]> = {
   ],
 };
 
+export const DEMO_DOCUMENT_SOURCES: Record<DemoStudentId, DocumentSource[]> = {
+  jordan: [
+    { docType: "IEP", label: "Sample IEP · 09/12/2025", uploadedBy: "Case Manager", pages: 18 },
+    { docType: "Transition Assessment", label: "Sample Transition Assessment · 09/05/2025", uploadedBy: "Case Manager", pages: 6 },
+    { docType: "Psychoeducational Evaluation", label: "Sample Psychoed Eval · 03/14/2024", uploadedBy: "School Psychologist", pages: 22 },
+  ],
+  maya: [
+    { docType: "IEP", label: "Sample IEP · 08/28/2025", uploadedBy: "Case Manager", pages: 21 },
+    { docType: "Transition Assessment", label: "Sample Transition Assessment · 08/20/2025", uploadedBy: "Transition Coordinator", pages: 5 },
+    { docType: "Vocational Profile", label: "Sample Vocational Profile · 05/02/2025", uploadedBy: "Job Coach", pages: 8 },
+  ],
+};
+
 export const DEMO_DOCUMENT_INSIGHTS: Record<DemoStudentId, DocumentInsight[]> = {
   jordan: [
     {
       area: "Transition Goal Areas",
       summary:
         "Postsecondary education (community college, credential program) · Employment (creative industry) · Independent living (transportation, money management).",
-      source: "IEP (sample) · 09/12/2025",
+      source: "Sample IEP · 09/12/2025",
+      docType: "IEP",
     },
     {
       area: "Accommodations Detected",
       summary:
         "Extended time on tests · Use of digital planner · Preferential seating · Pre-printed notes for executive-function support.",
-      source: "IEP (sample) · 09/12/2025",
+      source: "Sample IEP · 09/12/2025",
+      docType: "IEP",
     },
     {
       area: "Related Services",
       summary:
         "Direct instruction in self-advocacy (weekly) · Consultative transition planning (monthly) · Counseling check-ins as needed.",
-      source: "IEP (sample) · 09/12/2025",
+      source: "Sample IEP · 09/12/2025",
+      docType: "IEP",
     },
     {
-      area: "Strengths Cited In Document",
+      area: "Career Interest Inventory",
+      summary:
+        "Top Holland codes: Artistic, Enterprising. Surfaced career clusters: Arts/AV Technology, Marketing. Aligns with student-voice stated interests.",
+      source: "Sample Transition Assessment · 09/05/2025",
+      docType: "Transition Assessment",
+    },
+    {
+      area: "Independent Living Skills",
+      summary:
+        "Strengths: cooking, money handling. Emerging: scheduling appointments, refilling prescriptions, navigating public transit on a new route.",
+      source: "Sample Transition Assessment · 09/05/2025",
+      docType: "Transition Assessment",
+    },
+    {
+      area: "Cognitive & Processing Profile",
+      summary:
+        "Average verbal reasoning · Above-average visual-spatial · Slower processing speed → supports extended-time accommodation.",
+      source: "Sample Psychoed Eval · 03/14/2024",
+      docType: "Psychoeducational Evaluation",
+    },
+    {
+      area: "Strengths Cited Across Documents",
       summary:
         "Creative problem solving, strong adult communication, follow-through on projects he cares about.",
-      source: "IEP (sample) · 09/12/2025",
+      source: "Sample IEP + Transition Assessment",
+      docType: "IEP",
     },
     {
-      area: "Needs Review",
+      area: "Goal-Plan Mismatch",
       summary:
         "Transition goal #2 mentions 'job shadowing' but no provider or timeline is listed. Verify with case manager.",
-      source: "IEP (sample) · 09/12/2025",
+      source: "Sample IEP · 09/12/2025",
+      docType: "IEP",
       needsReview: true,
     },
     {
-      area: "Needs Review",
+      area: "Service Grid Mismatch",
       summary:
-        "Driver's-ed instruction referenced but not added to the services grid.",
-      source: "IEP (sample) · 09/12/2025",
+        "Driver's-ed instruction referenced in transition narrative but not added to the services grid.",
+      source: "Sample IEP · 09/12/2025",
+      docType: "IEP",
+      needsReview: true,
+    },
+    {
+      area: "Assessment Outdated",
+      summary:
+        "Psychoeducational evaluation is from 2024 — within reevaluation window, but recommend re-administering interest inventory before senior year.",
+      source: "Sample Psychoed Eval · 03/14/2024",
+      docType: "Psychoeducational Evaluation",
       needsReview: true,
     },
   ],
@@ -191,35 +239,70 @@ export const DEMO_DOCUMENT_INSIGHTS: Record<DemoStudentId, DocumentInsight[]> = 
       area: "Transition Goal Areas",
       summary:
         "Supported employment (early childhood / animal care) · Community participation · Independent living (transportation, daily routines).",
-      source: "IEP (sample) · 08/28/2025",
+      source: "Sample IEP · 08/28/2025",
+      docType: "IEP",
     },
     {
       area: "Accommodations Detected",
       summary:
         "Visual schedules · Processing-time prompts · Repeated directions in writing · Sensory breaks as needed.",
-      source: "IEP (sample) · 08/28/2025",
+      source: "Sample IEP · 08/28/2025",
+      docType: "IEP",
     },
     {
       area: "Related Services",
       summary:
         "Speech-language (weekly) · OT consult (monthly) · Job coaching at community placement (weekly).",
-      source: "IEP (sample) · 08/28/2025",
+      source: "Sample IEP · 08/28/2025",
+      docType: "IEP",
     },
     {
-      area: "Strengths Cited In Document",
+      area: "Workplace Skills Observed",
+      summary:
+        "Reliable attendance · Follows visual task list independently · Greets co-workers warmly · Asks for help when stuck (with prompt).",
+      source: "Sample Vocational Profile · 05/02/2025",
+      docType: "Vocational Profile",
+    },
+    {
+      area: "Job Coach Recommendations",
+      summary:
+        "Continue community-based instruction 2x/week · Pair with consistent co-worker mentor · Expand to a second site by spring.",
+      source: "Sample Vocational Profile · 05/02/2025",
+      docType: "Vocational Profile",
+    },
+    {
+      area: "Functional Skills Inventory",
+      summary:
+        "Independent: hygiene, meal prep with picture recipe. Emerging: bus route practice, money exchange. Needs support: scheduling.",
+      source: "Sample Transition Assessment · 08/20/2025",
+      docType: "Transition Assessment",
+    },
+    {
+      area: "Strengths Cited Across Documents",
       summary:
         "Patient with children and animals, dependable attendance, strong follow-through with a visual checklist.",
-      source: "IEP (sample) · 08/28/2025",
+      source: "Sample IEP + Vocational Profile",
+      docType: "IEP",
     },
     {
-      area: "Needs Review",
+      area: "Transportation Goal Gap",
       summary:
         "Transportation-training goal lists 'bus practice' but no instructor or route is named.",
-      source: "IEP (sample) · 08/28/2025",
+      source: "Sample IEP · 08/28/2025",
+      docType: "IEP",
+      needsReview: true,
+    },
+    {
+      area: "Reassessment Window",
+      summary:
+        "Vocational profile is over 6 months old — recommend a fresh employer observation before next PPT.",
+      source: "Sample Vocational Profile · 05/02/2025",
+      docType: "Vocational Profile",
       needsReview: true,
     },
   ],
 };
+
 
 export const DEMO_OPPORTUNITIES: Record<DemoStudentId, PartnerOpportunity[]> = {
   jordan: [
