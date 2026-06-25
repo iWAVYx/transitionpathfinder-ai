@@ -255,8 +255,5 @@ export function useDemoMeetingEdits(student: DemoStudentId) {
   };
 }
 
-// suppress unused-var warning for hydrated ref in some builds
-void hydratedRefMarker;
-function hydratedRefMarker() {
-  return null;
 }
+
