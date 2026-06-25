@@ -164,8 +164,10 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
     };
 
     const readinessSnapshot = (readiness ?? []).map((r) => ({
-      pillar: r.pillar,
+      pillar: r.category,
       score: r.score,
+      level: r.level_label,
+      recommendation: r.recommendation,
     }));
 
     const goalsSnapshot = (goals ?? []).map((g) => ({
@@ -184,13 +186,11 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
 
     const extractionSnapshot = extraction
       ? {
-          summary: extraction.summary,
-          key_points: extraction.key_points,
-          services: extraction.services,
-          accommodations: extraction.accommodations,
-          goal_count: Array.isArray(extraction.goals_extracted)
-            ? extraction.goals_extracted.length
-            : null,
+          doc_type: extraction.doc_type,
+          source_label: extraction.source_label,
+          sections: extraction.sections,
+          missing_information: extraction.missing_information,
+          suggested_questions: extraction.suggested_questions,
         }
       : null;
 
