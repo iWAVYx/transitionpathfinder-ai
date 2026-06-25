@@ -134,6 +134,36 @@ function DemoIndex() {
           </div>
         </section>
 
+        {/* ===================== THE PLANNING PROBLEM → WHAT CHANGES ===================== */}
+        <section className="mx-auto max-w-7xl px-4 pb-2 sm:px-6 lg:px-12">
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="rounded-3xl border border-border/60 bg-card/60 p-6 sm:p-8">
+              <span className="tf-eyebrow">The Planning Problem</span>
+              <p className="mt-3 font-display text-xl leading-snug text-foreground/85 sm:text-2xl">
+                Transition planning lives in scattered binders, separate inboxes, and meetings
+                that everyone arrives at unprepared.
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Families don't know what to ask. Students don't see themselves in the documents.
+                Educators duplicate work. Services get missed.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-primary/30 bg-primary/[0.04] p-6 sm:p-8">
+              <span className="tf-eyebrow">What Changes With TransitionForward</span>
+              <p className="mt-3 font-display text-xl leading-snug text-foreground/85 sm:text-2xl">
+                One shared planning surface — intake, voice, documents, and a decision-supportive
+                Pathway Report with clear next steps and owners.
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Everyone walks into the next meeting with the same list, in the same language,
+                with the same next steps.
+              </p>
+            </div>
+          </div>
+        </section>
+
+
+
         {/* ===================== EDITORIAL COVER ===================== */}
         <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-12">
           <div className="tf-cover relative grid gap-10 p-8 sm:p-12 lg:grid-cols-[1.3fr_1fr] lg:p-16 tf-reveal">
