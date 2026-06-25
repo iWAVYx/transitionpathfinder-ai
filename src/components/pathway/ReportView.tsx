@@ -1387,6 +1387,18 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ Phase 4 — Self-Advocacy + Independent Living + Role Next Steps + Sources ============ */}
+      {demoStudentId && (
+        <ReportPhase4Sections
+          studentId={demoStudentId}
+          audience={audience}
+          reportId={meta?.reportId}
+          preparedBy={meta?.preparedBy}
+          issued={meta?.issued}
+        />
+      )}
+
+
       {/* ============ Connect to plan: push items into Actions/Calendar ============ */}
       {!demo && (
         <ConnectToPlan
