@@ -375,7 +375,6 @@ function StudentDetailPage() {
           <ActionItemsPanel studentId={studentId} />
         </div>
 
-        <div className="mt-6">
         {student && (
           <div className="mt-6">
             <ReadinessInsightsCard
@@ -388,6 +387,7 @@ function StudentDetailPage() {
         <div className="mt-6">
           <RecommendedResourcesPanel studentId={studentId} />
         </div>
+
 
 
         <div className="mt-6">
