@@ -329,11 +329,35 @@ function DemoMeetingPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {DEMO_AGENDA_REPORT_LINKS.map((row) => (
-                  <tr key={row.agendaItem} className="align-top">
-                    <td className="px-3 py-2 text-foreground/85">{row.agendaItem}</td>
-                    <td className="px-3 py-2 text-foreground/85">{row.shapes}</td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">{row.via}</td>
+                {agenda.map((row, i) => (
+                  <tr key={i} className="align-top">
+                    <td className="px-3 py-2">
+                      <textarea
+                        rows={2}
+                        className="w-full resize-none bg-transparent text-foreground/85 outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                        value={row.agendaItem}
+                        onChange={(e) => updateAgendaItem(i, { agendaItem: e.target.value })}
+                        aria-label="Agenda item"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <textarea
+                        rows={2}
+                        className="w-full resize-none bg-transparent text-foreground/85 outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                        value={row.shapes}
+                        onChange={(e) => updateAgendaItem(i, { shapes: e.target.value })}
+                        aria-label="Report section it shapes"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <textarea
+                        rows={2}
+                        className="w-full resize-none bg-transparent text-xs text-muted-foreground outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                        value={row.via}
+                        onChange={(e) => updateAgendaItem(i, { via: e.target.value })}
+                        aria-label="Data path"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
