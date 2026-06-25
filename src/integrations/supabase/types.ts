@@ -1516,6 +1516,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          doc_type: string | null
           document_id: string
           id: string
           missing_information: string[]
@@ -1524,6 +1525,7 @@ export type Database = {
           reviewed_at: string | null
           reviewer_id: string | null
           sections: Json
+          source_label: string | null
           status: Database["public"]["Enums"]["document_extraction_status"]
           student_id: string
           suggested_questions: string[]
@@ -1532,6 +1534,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          doc_type?: string | null
           document_id: string
           id?: string
           missing_information?: string[]
@@ -1540,6 +1543,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewer_id?: string | null
           sections?: Json
+          source_label?: string | null
           status?: Database["public"]["Enums"]["document_extraction_status"]
           student_id: string
           suggested_questions?: string[]
@@ -1548,6 +1552,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          doc_type?: string | null
           document_id?: string
           id?: string
           missing_information?: string[]
@@ -1556,6 +1561,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewer_id?: string | null
           sections?: Json
+          source_label?: string | null
           status?: Database["public"]["Enums"]["document_extraction_status"]
           student_id?: string
           suggested_questions?: string[]
@@ -5155,64 +5161,88 @@ export type Database = {
       student_intakes: {
         Row: {
           communication: string | null
+          communication_prefs: string | null
           created_at: string
           current_goals: string | null
+          desired_postsecondary_outcomes: string | null
           educator_input: string | null
           family_concerns: string | null
+          family_concerns_extended: string | null
+          family_priorities: string | null
           family_voice: string | null
           grade_band: string | null
           id: string
           interests: string | null
           needs: string | null
+          services_received: string | null
           strengths: string | null
           student_first_name: string
           student_id: string | null
           student_voice: string | null
+          student_worries: string | null
           submitter_role: string
           supports: string | null
           transportation: string | null
+          transportation_needs: string | null
+          upcoming_meetings: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           communication?: string | null
+          communication_prefs?: string | null
           created_at?: string
           current_goals?: string | null
+          desired_postsecondary_outcomes?: string | null
           educator_input?: string | null
           family_concerns?: string | null
+          family_concerns_extended?: string | null
+          family_priorities?: string | null
           family_voice?: string | null
           grade_band?: string | null
           id?: string
           interests?: string | null
           needs?: string | null
+          services_received?: string | null
           strengths?: string | null
           student_first_name: string
           student_id?: string | null
           student_voice?: string | null
+          student_worries?: string | null
           submitter_role?: string
           supports?: string | null
           transportation?: string | null
+          transportation_needs?: string | null
+          upcoming_meetings?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           communication?: string | null
+          communication_prefs?: string | null
           created_at?: string
           current_goals?: string | null
+          desired_postsecondary_outcomes?: string | null
           educator_input?: string | null
           family_concerns?: string | null
+          family_concerns_extended?: string | null
+          family_priorities?: string | null
           family_voice?: string | null
           grade_band?: string | null
           id?: string
           interests?: string | null
           needs?: string | null
+          services_received?: string | null
           strengths?: string | null
           student_first_name?: string
           student_id?: string | null
           student_voice?: string | null
+          student_worries?: string | null
           submitter_role?: string
           supports?: string | null
           transportation?: string | null
+          transportation_needs?: string | null
+          upcoming_meetings?: string | null
           updated_at?: string
           user_id?: string
         }
