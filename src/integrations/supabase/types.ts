@@ -1461,6 +1461,36 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_meeting_edits: {
+        Row: {
+          agenda: Json
+          created_at: string
+          id: string
+          minutes: Json
+          student_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agenda?: Json
+          created_at?: string
+          id?: string
+          minutes?: Json
+          student_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agenda?: Json
+          created_at?: string
+          id?: string
+          minutes?: Json
+          student_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       document_access_log: {
         Row: {
           action: string
