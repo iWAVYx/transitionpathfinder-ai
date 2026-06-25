@@ -90,7 +90,7 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
         .limit(20),
       supabase
         .from("readiness_scores")
-        .select("pillar, score")
+        .select("category, score, level_label, recommendation")
         .eq("student_id", data.student_id),
       supabase
         .from("student_voice_responses")
@@ -107,7 +107,7 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
         .limit(10),
       supabase
         .from("document_extractions")
-        .select("summary, key_points, services, accommodations, goals_extracted")
+        .select("doc_type, source_label, sections, missing_information, suggested_questions")
         .eq("student_id", data.student_id)
         .order("created_at", { ascending: false })
         .limit(1)
