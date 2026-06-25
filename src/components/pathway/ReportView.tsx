@@ -71,6 +71,11 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
 import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
+import {
+  ReportPhase4Sections,
+  getPhase4TocItems,
+} from "@/components/pathway/ReportPhase4Sections";
+
 
 type Audience = "student" | "family" | "educator";
 
@@ -133,6 +138,7 @@ export function ReportView({
   onAudienceChange,
   onRefresh,
   refreshing = false,
+  demoStudentId,
 }: {
   name: string;
   report: PathwayReport;
@@ -158,7 +164,10 @@ export function ReportView({
   /** Inline "Refresh report" action in the toolbar. */
   onRefresh?: () => void;
   refreshing?: boolean;
+  /** When set (demo only), render Phase 4 sections derived from demo extras. */
+  demoStudentId?: import("@/lib/demo-data").DemoStudentId;
 }) {
+
   const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
     setAudienceState(a);
@@ -432,7 +441,7 @@ export function ReportView({
         }
       `}</style>
 
-      <ReportTOC report={r} audience={audience} />
+      <ReportTOC report={r} audience={audience} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
 
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
       <div className="print-cover hidden print:block" aria-hidden>
@@ -696,7 +705,7 @@ export function ReportView({
       </div>
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} />
+      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
 
 
       {/* ============ Executive Summary ============ */}
@@ -1378,6 +1387,18 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ Phase 4 — Self-Advocacy + Independent Living + Role Next Steps + Sources ============ */}
+      {demoStudentId && (
+        <ReportPhase4Sections
+          studentId={demoStudentId}
+          audience={audience}
+          reportId={meta?.reportId}
+          preparedBy={meta?.preparedBy}
+          issued={meta?.issued}
+        />
+      )}
+
+
       {/* ============ Connect to plan: push items into Actions/Calendar ============ */}
       {!demo && (
         <ConnectToPlan
@@ -2027,11 +2048,14 @@ function DocumentContents({
   report,
   name,
   hasLinkedStudent,
+  extraItems,
 }: {
   report: PathwayReport;
   name: string;
   hasLinkedStudent?: boolean;
+  extraItems?: { id: string; label: string }[];
 }) {
+
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
   items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
@@ -2053,7 +2077,10 @@ function DocumentContents({
   items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
 
+  if (extraItems) items.push(...extraItems);
+
   return (
+
     <nav
       aria-label="Table of contents"
       className="no-print mt-8 rounded-2xl border bg-card"
@@ -2177,9 +2204,11 @@ function ReadinessBadge({
 function ReportTOC({
   report,
   audience,
+  extraItems,
 }: {
   report: PathwayReport;
   audience: Audience;
+  extraItems?: { id: string; label: string }[];
 }) {
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
@@ -2200,7 +2229,9 @@ function ReportTOC({
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
   items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Human Review" });
+  if (extraItems) items.push(...extraItems);
   void audience;
+
 
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
   const [open, setOpen] = useState(true);

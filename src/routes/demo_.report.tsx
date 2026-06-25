@@ -68,7 +68,9 @@ function DemoReportPage() {
           name={student.first_name}
           report={report}
           demo
+          demoStudentId={bundle.id}
           extendedPlans={EXTENDED_PLANS[bundle.id]}
+
           meta={{
             reportId,
             preparedFor: `${student.full_name} · ${student.grade} · ${student.school}`,

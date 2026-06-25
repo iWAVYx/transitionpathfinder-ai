@@ -117,4 +117,4 @@ All new columns: nullable, no default that would change existing rows. GRANTs un
 
 ---
 
-_Last updated: Phase 3 of "Deepen Demo + Pathway Report" — Voice prompts expanded from 7 → 10 per student (independence, advocacy, comfort) and intake step now surfaces family priorities + educator inputs as first-class sections._
+_Last updated: Phase 4 of "Deepen Demo + Pathway Report" — Pathway Report now renders four new sections in the demo (Self-Advocacy Readiness, Independent Living Readiness, Role-Specific Next Steps, and Sources & Information Used). Sections derive from existing Phase 1–3 inputs (intake, voice, document sources) with no schema changes; TOC + Outline auto-extend when `demoStudentId` is set._
