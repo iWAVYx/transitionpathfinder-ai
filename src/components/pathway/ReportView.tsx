@@ -715,8 +715,10 @@ export function ReportView({
         />
       </section>
 
+      <div className="mt-8">
         <AIDisclaimer />
       </div>
+
 
       {/* ============ Inline numbered Table of Contents ============ */}
       <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
