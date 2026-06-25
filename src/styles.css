@@ -858,6 +858,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .demo-shell .tf-audience,
 .report-shell .tf-audience {
   display: inline-flex;
+  gap: 2px;
   padding: 4px;
   border-radius: 9999px;
   background: color-mix(in oklab, var(--sky-soft) 80%, white);
