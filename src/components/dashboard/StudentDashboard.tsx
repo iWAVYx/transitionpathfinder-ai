@@ -108,13 +108,14 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
 
   return (
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.student}>
+      <div className="demo-shell">
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
 
         <p
-          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
+          className="tf-eyebrow"
           data-dashboard-landmark="student"
         >
-          Next Best Step — Student Dashboard
+          Next Best Step · Student Dashboard
         </p>
         <Breadcrumbs trail={[{ label: "My plan" }]} />
 
@@ -123,24 +124,23 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           <OnboardingChecklist surface="student" className="mt-4" />
         </div>
 
-        <div className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Your transition plan
-          </p>
-          <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">
+        <div className="tf-cover mt-6 px-6 py-8 sm:px-10 sm:py-10">
+          <p className="tf-eyebrow">Your Transition Plan</p>
+          <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
             Hi, {toTitleCase(s.preferred_name ?? s.first_name)}.
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             This is your space. Here's what your team is working on with you —
             your goals, your meetings, and the next steps that move your plan forward.
           </p>
           {s.student_voice_statement && (
-            <blockquote className="mt-5 border-l-4 border-primary/40 bg-background/60 px-4 py-3 text-sm italic text-foreground/80">
+            <blockquote className="tf-pull mt-6">
               "{s.student_voice_statement}"
-              <span className="ml-2 text-xs not-italic text-muted-foreground">— in your words</span>
+              <cite>In Your Words</cite>
             </blockquote>
           )}
         </div>
+
 
         {/* Quick facts */}
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -302,7 +302,9 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           </div>
         </section>
       </div>
+      </div>
     </SiteShell>
+
   );
 }
 

@@ -503,14 +503,24 @@ function DashboardPage() {
   const s = snap.student;
   return (
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
+      <div className="demo-shell">
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
 
-        <p
-          className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
-          data-dashboard-landmark="family"
-        >
-          Pathway Progress
-        </p>
+        <div className="tf-cover px-6 py-8 sm:px-10 sm:py-10">
+          <p
+            className="tf-eyebrow"
+            data-dashboard-landmark="family"
+          >
+            Pathway Progress · {toTitleCase(friendly)}'s Workspace
+          </p>
+          <h1 className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
+            Welcome back, {toTitleCase(friendly)}.
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Everything you need to keep the plan moving — next best step, journey, documents, meetings, and the Pathway Report.
+          </p>
+        </div>
+
         
 
         <div className="mt-4">
@@ -1032,9 +1042,11 @@ function DashboardPage() {
           </div>
         </section>
       )}
+      </div>
     </SiteShell>
   );
 }
+
 
 /* ---------- Helpers ---------- */
 
