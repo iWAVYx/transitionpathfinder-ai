@@ -75,6 +75,8 @@ import {
   ReportPhase4Sections,
   getPhase4TocItems,
 } from "@/components/pathway/ReportPhase4Sections";
+import { ValueCallout } from "@/components/value/ValueCallout";
+import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
 
 
 type Audience = "student" | "family" | "educator";
@@ -694,7 +696,25 @@ export function ReportView({
         today={today}
       />
 
-      <div className="mt-8">
+      {/* ============ Where Things Stand — decision-supportive opener ============ */}
+      <section className="mt-8 page-break">
+        <ValueCallout
+          data={{
+            whatThisMeans: `This report brings together everything we know about ${name} — intake answers, uploaded documents, ${name}'s own words, and family priorities — into one decision-supportive view.`,
+            whyItMatters:
+              "Transition planning fails most often because information is scattered across people and documents. This page is the shared starting point.",
+            recommendedNextStep: `Read the Executive Summary, then jump to "Bring To The Team" before the next meeting.`,
+            questionsForTeam: [
+              "Does this match what you're seeing day-to-day?",
+              "What's missing that we should add before the next meeting?",
+            ],
+            informationUsed: ["Intake", "Uploaded documents", "Student Voice", "Goals", "Readiness scores"],
+            owner: "team",
+            timeframe: "before the next PPT",
+          }}
+        />
+      </section>
+
         <AIDisclaimer />
       </div>
 
