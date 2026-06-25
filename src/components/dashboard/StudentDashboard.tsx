@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { RoleValueStrip } from "@/components/value/RoleValueStrip";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functions";
@@ -118,6 +119,9 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           Next Best Step · Student Dashboard
         </p>
         <Breadcrumbs trail={[{ label: "My plan" }]} />
+        <RoleValueStrip role="student" className="mt-4" />
+
+
 
         <div className="mt-6">
           <NextBestAction surface="student" /><div className="mt-4"><JourneyStrip surface="student" /></div>

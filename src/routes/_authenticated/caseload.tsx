@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { RoleValueStrip } from "@/components/value/RoleValueStrip";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -170,6 +171,9 @@ function CaseloadPage() {
       <PageContainer>
 
         <Breadcrumbs trail={[{ label: "Caseload" }]} />
+        <RoleValueStrip role="educator" className="mt-4" />
+
+
 
 
         <div className="mt-4 space-y-6 sm:space-y-8">
