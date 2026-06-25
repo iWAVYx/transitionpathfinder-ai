@@ -221,6 +221,83 @@ function DemoMeetingPage() {
           </Panel>
         </div>
 
+        {/* Phase 5 — Previous meeting minutes (read-only) */}
+        <div className="mt-8 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                <ClipboardList className="mr-1 inline h-3.5 w-3.5" />
+                Previous meeting minutes
+              </p>
+              <h2 className="mt-1 font-display text-xl">{minutes.date}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Read-only sample. Real minutes capture in the signed-in app feeds the next prep packet and the
+                Pathway Report § Meeting Preparation section.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {minutes.attendees.map((a) => (
+                <Badge key={a} variant="outline" className="text-[11px]">{a}</Badge>
+              ))}
+            </div>
+          </div>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {minutes.entries.map((entry) => (
+              <li
+                key={entry.topic}
+                className="rounded-2xl border border-border/60 bg-background p-4 text-sm"
+              >
+                <p className="font-semibold text-foreground">{entry.topic}</p>
+                <p className="mt-1 text-foreground/85">{entry.decision}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                  <Badge variant="secondary" className="text-[11px]">Owner · {entry.owner}</Badge>
+                  {entry.followUp ? (
+                    <span className="text-muted-foreground">Follow-up: {entry.followUp}</span>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Phase 5 — Agenda → Pathway Report linkage */}
+        <div className="mt-8 rounded-3xl border border-primary/25 bg-primary/5 p-6 shadow-soft sm:p-8">
+          <div className="flex items-start gap-2">
+            <Link2 className="mt-0.5 h-5 w-5 text-primary" />
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                How this prep packet shapes the Pathway Report
+              </p>
+              <h2 className="mt-1 font-display text-xl">Every agenda item has a home in the report.</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                In the signed-in product, decisions captured here flow back into the report and 30/60/90 plan —
+                no double-entry.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 overflow-hidden rounded-2xl border border-border/60 bg-background">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2 font-semibold">Agenda item</th>
+                  <th className="px-3 py-2 font-semibold">Shapes</th>
+                  <th className="px-3 py-2 font-semibold">Via</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/60">
+                {DEMO_AGENDA_REPORT_LINKS.map((row) => (
+                  <tr key={row.agendaItem} className="align-top">
+                    <td className="px-3 py-2 text-foreground/85">{row.agendaItem}</td>
+                    <td className="px-3 py-2 text-foreground/85">{row.shapes}</td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground">{row.via}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
         <DemoStepFooter current="meeting" student={s} />
       </section>
       </div>
