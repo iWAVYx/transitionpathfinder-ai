@@ -705,7 +705,7 @@ export function ReportView({
       </div>
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} />
+      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
 
 
       {/* ============ Executive Summary ============ */}
