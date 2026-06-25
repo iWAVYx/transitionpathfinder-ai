@@ -130,9 +130,8 @@ export function useDemoMeetingEdits(student: DemoStudentId) {
         if (row) {
           const base = defaults(student);
           const next: DemoMeetingState = {
-            minutes:
-              (row.minutes as MeetingMinutesEdit | undefined) ?? base.minutes,
-            agenda: (row.agenda as AgendaReportLink[] | undefined) ?? base.agenda,
+            minutes: (row.minutes as unknown as MeetingMinutesEdit) ?? base.minutes,
+            agenda: (row.agenda as unknown as AgendaReportLink[]) ?? base.agenda,
           };
           setState(next);
           setIsDirty(true);
