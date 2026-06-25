@@ -55,6 +55,7 @@ import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
 import { InvitePeopleCard } from "@/components/dashboard/InvitePeopleCard";
+import { ReadinessInsightsCard } from "@/components/students/ReadinessInsightsCard";
 import { RoleGuard } from "@/components/RoleGuard";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { AccessPendingCard } from "@/components/access/AccessPendingCard";
@@ -691,6 +692,16 @@ function DashboardPage() {
               </p>
             )}
           </div>
+
+          {/* AI-driven readiness + next steps tailored to this student */}
+          <div className="mt-6">
+            <ReadinessInsightsCard
+              studentId={s.id}
+              studentFirstName={s.first_name}
+              compact
+            />
+          </div>
+
 
           {/* Two-column: Documents + Action Items */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
