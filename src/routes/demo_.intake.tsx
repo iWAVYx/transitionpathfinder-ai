@@ -98,7 +98,8 @@ function DemoIntakePage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="intake" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="intake" student={s} />
 
       <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         <div className="flex flex-wrap items-center gap-2">
@@ -155,6 +156,7 @@ function DemoIntakePage() {
 
         <DemoStepFooter current="intake" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }

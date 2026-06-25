@@ -44,7 +44,8 @@ function DemoOpportunitiesPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="opportunities" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="opportunities" student={s} />
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1">
@@ -124,6 +125,7 @@ function DemoOpportunitiesPage() {
 
         <DemoStepFooter current="opportunities" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }

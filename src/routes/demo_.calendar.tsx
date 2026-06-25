@@ -66,7 +66,8 @@ function DemoCalendarPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="calendar" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="calendar" student={s} />
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header */}
@@ -177,6 +178,7 @@ function DemoCalendarPage() {
 
         <DemoStepFooter current="calendar" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }

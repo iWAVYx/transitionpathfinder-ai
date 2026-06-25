@@ -499,6 +499,34 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .demo-shell,
 .report-shell {
   font-family: var(--font-demo-body);
+
+  /* WCAG AA contrast overrides — scoped so the marketing site palette
+   * is unaffected. The defaults (sky-mid primary + light peach accent)
+   * failed axe color-contrast on buttons, chips, and small uppercase
+   * labels because text-primary on peach / on bg-primary/15 / white-
+   * on-primary all landed between 2.6:1 and 4.4:1.
+   *
+   * - Deeper sky primary: ≥4.86:1 on peach, ~7:1 on white & sky-soft.
+   * - Deeper peach accent: white text on it now clears 4.5:1.
+   * - White primary-foreground stays inverted on the dark primary. */
+  --primary: oklch(0.4 0.14 235);
+  --primary-foreground: oklch(0.99 0.005 220);
+  --demo-primary: var(--primary);
+  --demo-accent: oklch(0.58 0.17 30);
+  --demo-accent-soft: oklch(0.92 0.05 25);
+  --peach: var(--demo-accent);
+  --peach-soft: var(--demo-accent-soft);
+}
+
+.dark .demo-shell,
+.dark .report-shell {
+  /* Inverted: light primary text on dark surfaces still needs to land
+   * AA against bg-primary/15 chips and the demo-card backdrop. */
+  --primary: oklch(0.85 0.11 230);
+  --primary-foreground: oklch(0.16 0.04 240);
+  --demo-primary: var(--primary);
+  --demo-accent: oklch(0.72 0.12 30);
+  --demo-accent-soft: oklch(0.34 0.06 25);
 }
 .demo-shell :where(h1, h2, h3, h4, h5, h6),
 .report-shell :where(h1, h2, h3, h4, h5, h6) {
@@ -534,6 +562,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .report-shell .bg-demo-surface-warm { background-color: var(--demo-surface-warm); }
 .demo-shell .border-demo,
 .report-shell .border-demo { border-color: var(--demo-border); }
+
+/* Amber status pills hover at ~4.4:1 in the demo palette. Darken the
+ * Tailwind amber-700 token only inside the demo/report shells so we
+ * clear AA without touching the rest of the site. */
+.demo-shell .text-amber-700,
+.report-shell .text-amber-700 { color: oklch(0.48 0.14 60); }
 
 /* Pathway line motif — diagonal dashed sweep used as a subtle backdrop. */
 .demo-shell .pathway-line,

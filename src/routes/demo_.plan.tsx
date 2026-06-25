@@ -65,7 +65,8 @@ function DemoPlanPage() {
 
   return (
     <SiteShell>
-      <DemoStepBar current="plan" student={s} />
+      <div className="demo-shell">
+        <DemoStepBar current="plan" student={s} />
 
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header */}
@@ -155,6 +156,7 @@ function DemoPlanPage() {
 
         <DemoStepFooter current="plan" student={s} />
       </section>
+      </div>
     </SiteShell>
   );
 }
