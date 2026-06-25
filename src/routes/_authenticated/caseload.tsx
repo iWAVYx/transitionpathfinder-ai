@@ -162,8 +162,10 @@ function CaseloadPage() {
 
   return (
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.educator}>
+      <div className="demo-shell">
       <CaseloadRoleLandmark />
       <div>
+
       <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
       <PageContainer>
 
