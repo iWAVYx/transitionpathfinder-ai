@@ -13,6 +13,8 @@ import {
   Calendar,
   ClipboardList,
   Link2,
+  RotateCcw,
+  Save,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -23,9 +25,9 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getDemoStudent } from "@/lib/demo-data";
+import { getDemoStudent, type DemoStudentId } from "@/lib/demo-data";
 import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
-import { DEMO_AGENDA_REPORT_LINKS, DEMO_MEETING_MINUTES } from "@/lib/demo-extras";
+import { useDemoMeetingEdits } from "@/hooks/use-demo-meeting-edits";
 
 
 export const Route = createFileRoute("/demo_/meeting")({
@@ -50,7 +52,10 @@ function DemoMeetingPage() {
   const bundle = getDemoStudent(s);
   const { profile, report, nextMeetingDate } = bundle;
   const prep = report.meeting_prep_toolkit;
-  const minutes = DEMO_MEETING_MINUTES[s as keyof typeof DEMO_MEETING_MINUTES];
+  const { state: meetingEdits, updateMinuteEntry, updateAgendaItem, reset, isDirty } =
+    useDemoMeetingEdits(s as DemoStudentId);
+  const minutes = meetingEdits.minutes;
+  const agenda = meetingEdits.agenda;
 
   return (
     <SiteShell>
@@ -241,24 +246,63 @@ function DemoMeetingPage() {
               ))}
             </div>
           </div>
+          <div className="mt-3 flex items-center gap-2">
+            {isDirty ? (
+              <Badge variant="secondary" className="gap-1 text-[11px]">
+                <Save className="h-3 w-3" /> Edits saved in this browser
+              </Badge>
+            ) : null}
+            {isDirty ? (
+              <Button size="sm" variant="ghost" onClick={reset} className="h-7 px-2 text-xs">
+                <RotateCcw className="mr-1 h-3 w-3" /> Reset to sample
+              </Button>
+            ) : null}
+          </div>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {minutes.entries.map((entry) => (
+            {minutes.entries.map((entry, i) => (
               <li
-                key={entry.topic}
+                key={i}
                 className="rounded-2xl border border-border/60 bg-background p-4 text-sm"
               >
-                <p className="font-semibold text-foreground">{entry.topic}</p>
-                <p className="mt-1 text-foreground/85">{entry.decision}</p>
+                <input
+                  className="w-full bg-transparent font-semibold text-foreground outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                  value={entry.topic}
+                  onChange={(e) => updateMinuteEntry(i, { topic: e.target.value })}
+                  aria-label="Minute topic"
+                />
+                <textarea
+                  className="mt-1 w-full resize-none bg-transparent text-foreground/85 outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                  rows={2}
+                  value={entry.decision}
+                  onChange={(e) => updateMinuteEntry(i, { decision: e.target.value })}
+                  aria-label="Decision"
+                />
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
-                  <Badge variant="secondary" className="text-[11px]">Owner · {entry.owner}</Badge>
-                  {entry.followUp ? (
-                    <span className="text-muted-foreground">Follow-up: {entry.followUp}</span>
-                  ) : null}
+                  <label className="inline-flex items-center gap-1">
+                    <span className="text-muted-foreground">Owner:</span>
+                    <select
+                      value={entry.owner}
+                      onChange={(e) => updateMinuteEntry(i, { owner: e.target.value })}
+                      className="rounded border border-border bg-background px-1 py-0.5 text-[11px]"
+                    >
+                      {["Student", "Family", "Case Manager", "School", "Partner"].map((o) => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <input
+                    className="flex-1 min-w-[10rem] rounded border border-border bg-background px-2 py-0.5 text-[11px] text-muted-foreground"
+                    placeholder="Follow-up (optional)"
+                    value={entry.followUp ?? ""}
+                    onChange={(e) => updateMinuteEntry(i, { followUp: e.target.value })}
+                    aria-label="Follow-up"
+                  />
                 </div>
               </li>
             ))}
           </ul>
         </div>
+
 
         {/* Phase 5 — Agenda → Pathway Report linkage */}
         <div className="mt-8 rounded-3xl border border-primary/25 bg-primary/5 p-6 shadow-soft sm:p-8">
@@ -285,11 +329,35 @@ function DemoMeetingPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {DEMO_AGENDA_REPORT_LINKS.map((row) => (
-                  <tr key={row.agendaItem} className="align-top">
-                    <td className="px-3 py-2 text-foreground/85">{row.agendaItem}</td>
-                    <td className="px-3 py-2 text-foreground/85">{row.shapes}</td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">{row.via}</td>
+                {agenda.map((row, i) => (
+                  <tr key={i} className="align-top">
+                    <td className="px-3 py-2">
+                      <textarea
+                        rows={2}
+                        className="w-full resize-none bg-transparent text-foreground/85 outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                        value={row.agendaItem}
+                        onChange={(e) => updateAgendaItem(i, { agendaItem: e.target.value })}
+                        aria-label="Agenda item"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <textarea
+                        rows={2}
+                        className="w-full resize-none bg-transparent text-foreground/85 outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                        value={row.shapes}
+                        onChange={(e) => updateAgendaItem(i, { shapes: e.target.value })}
+                        aria-label="Report section it shapes"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <textarea
+                        rows={2}
+                        className="w-full resize-none bg-transparent text-xs text-muted-foreground outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
+                        value={row.via}
+                        onChange={(e) => updateAgendaItem(i, { via: e.target.value })}
+                        aria-label="Data path"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
