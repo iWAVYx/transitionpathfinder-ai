@@ -2204,9 +2204,11 @@ function ReadinessBadge({
 function ReportTOC({
   report,
   audience,
+  extraItems,
 }: {
   report: PathwayReport;
   audience: Audience;
+  extraItems?: { id: string; label: string }[];
 }) {
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
@@ -2227,7 +2229,9 @@ function ReportTOC({
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
   items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Human Review" });
+  if (extraItems) items.push(...extraItems);
   void audience;
+
 
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
   const [open, setOpen] = useState(true);
