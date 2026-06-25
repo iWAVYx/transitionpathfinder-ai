@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Sparkles,
   ClipboardList,
   LayoutDashboard,
   FileText,
