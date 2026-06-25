@@ -163,7 +163,16 @@ export function DemoStepBar({ current, student }: Props) {
         // ignore
       }
     }
-    if (Math.abs(dx) > 4) s.moved = true;
+    if (Math.abs(dx) > 4 && !s.moved) {
+      s.moved = true;
+      if (s.pointerType !== "touch" && s.pointerId !== null) {
+        try {
+          railRef.current.setPointerCapture(s.pointerId);
+        } catch {
+          // ignore
+        }
+      }
+    }
     railRef.current.scrollLeft = s.startLeft - dx;
 
     // Track velocity (px/ms). Negative dx => scrollLeft increased => positive velocity.
