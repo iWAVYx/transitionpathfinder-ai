@@ -189,38 +189,38 @@ function PathwayPage() {
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-80" />
-        <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 md:block">
-          <img
-            src={pathwayHero}
-            alt=""
-            aria-hidden
-            width={1600}
-            height={900}
-            className="h-full w-full object-cover opacity-90 [mask-image:linear-gradient(to_right,transparent,black_35%)]"
-          />
-        </div>
-        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
-          <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
-        </div>
-        <div className="mx-auto max-w-7xl px-4 pt-6 pb-10 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Pathway Builder · Step {stepIndex + 1} of {STEPS.length} · {progressPct}% complete
-          </p>
-          <h1 className="mt-3 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-            {stepHeading(stepIndex, role)}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            {stepSubhead(stepIndex)}{" "}
-            <Link to="/reports" className="font-semibold text-foreground hover:underline">
-              See your saved reports →
-            </Link>
-          </p>
+      <div className="demo-shell">
+      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
+        <div className="tf-cover relative mt-5 overflow-hidden px-6 py-10 sm:px-10 sm:py-14">
+          <div className="absolute inset-y-0 right-0 hidden w-1/2 md:block">
+            <img
+              src={pathwayHero}
+              alt=""
+              aria-hidden
+              width={1600}
+              height={900}
+              className="h-full w-full object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black_45%)]"
+            />
+          </div>
+          <div className="relative">
+            <p className="tf-eyebrow">
+              Pathway Builder · Step {stepIndex + 1} of {STEPS.length} · {progressPct}% Complete
+            </p>
+            <h1 className="mt-4 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              {stepHeading(stepIndex, role)}
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              {stepSubhead(stepIndex)}{" "}
+              <Link to="/reports" className="font-semibold text-foreground hover:underline">
+                See your saved reports →
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-4xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
         <Stepper current={stepIndex} onJump={(i) => i < stepIndex && setStepIndex(i)} />
         <ProgressBar pct={progressPct} />
 
@@ -250,9 +250,11 @@ function PathwayPage() {
 
         <TrustRow />
       </section>
+      </div>
     </SiteShell>
   );
 }
+
 
 /* ---------- Merge helper ---------- */
 
