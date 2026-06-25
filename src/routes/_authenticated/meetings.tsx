@@ -199,6 +199,7 @@ function MeetingsPage() {
           </>
         )}
       </section>
+      </div>
     </SiteShell>
   );
 }
