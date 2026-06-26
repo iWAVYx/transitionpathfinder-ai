@@ -84,10 +84,10 @@ const CHAPTERS: Chapter[] = [
 ];
 
 const GROUP_META: Record<Chapter["group"], { eyebrow: string; tagline: string }> = {
-  Foundation: { eyebrow: "Part One", tagline: "Listening — the foundation that anchors every recommendation." },
-  Insight: { eyebrow: "Part Two", tagline: "Synthesis — the Pathway Report that turns inputs into a plan." },
-  Plan: { eyebrow: "Part Three", tagline: "Action — meeting prep, calendar, and a 30 / 60 / 90 plan." },
-  Roles: { eyebrow: "Part Four", tagline: "Together — one plan, six role-specific views." },
+  Foundation: { eyebrow: "Part One", tagline: "Listening — The Foundation That Anchors Every Recommendation." },
+  Insight: { eyebrow: "Part Two", tagline: "Synthesis — The Pathway Report That Turns Inputs Into a Plan." },
+  Plan: { eyebrow: "Part Three", tagline: "Action — Meeting Prep, Calendar, and a 30 / 60 / 90 Plan." },
+  Roles: { eyebrow: "Part Four", tagline: "Together — One Plan, Six Role-Specific Views." },
 };
 
 function DemoIndex() {
