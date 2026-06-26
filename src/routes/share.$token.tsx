@@ -67,7 +67,7 @@ function SharedReportPage() {
 
   return (
     <SiteShell>
-      <div className="report-shell">
+      <div className="report-shell eh-issue">
         <ReportChapterPager />
         <ReportView
           name="this student"
