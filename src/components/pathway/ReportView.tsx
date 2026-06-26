@@ -1601,8 +1601,8 @@ export function ReportView({
             {resetLabel}
           </Button>
         )}
-        <Button onClick={() => window.print()} aria-label="Download Pathway Report as PDF">
-          <Download className="h-4 w-4" /> Download Pathway Report (PDF)
+        <Button onClick={downloadMagazinePdf} aria-label="Download Pathway Report as PDF in magazine-handbook reader view">
+          <Download className="h-4 w-4" /> Download as PDF
         </Button>
       </div>
 
