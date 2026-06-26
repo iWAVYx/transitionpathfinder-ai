@@ -306,18 +306,18 @@ function DemoMeetingPage() {
         </div>
 
 
-        {/* Phase 5 — Agenda → Pathway Report linkage */}
+        {/* Agenda → Pathway Report linkage */}
         <div className="mt-8 rounded-3xl border border-primary/25 bg-primary/5 p-6 shadow-soft sm:p-8">
           <div className="flex items-start gap-2">
             <Link2 className="mt-0.5 h-5 w-5 text-primary" />
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-                How this prep packet shapes the Pathway Report
+                How This Prep Packet Shapes The Pathway Report
               </p>
-              <h2 className="mt-1 font-display text-xl">Every agenda item has a home in the report.</h2>
+              <h2 className="mt-1 font-display text-xl">Every Agenda Item Has A Home In The Report</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                In the signed-in product, decisions captured here flow back into the report and 30/60/90 plan —
-                no double-entry.
+                Decisions captured here flow back into the Pathway Report and the 30/60/90
+                plan, so families and educators never have to enter the same thing twice.
               </p>
             </div>
           </div>
@@ -325,9 +325,9 @@ function DemoMeetingPage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/40 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2 font-semibold">Agenda item</th>
+                  <th className="px-3 py-2 font-semibold">Agenda Item</th>
                   <th className="px-3 py-2 font-semibold">Shapes</th>
-                  <th className="px-3 py-2 font-semibold">Via</th>
+                  <th className="px-3 py-2 font-semibold">How</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -357,7 +357,7 @@ function DemoMeetingPage() {
                         className="w-full resize-none bg-transparent text-xs text-muted-foreground outline-none focus:ring-1 focus:ring-primary/40 rounded px-1 -mx-1"
                         value={row.via}
                         onChange={(e) => updateAgendaItem(i, { via: e.target.value })}
-                        aria-label="Data path"
+                        aria-label="How this connects"
                       />
                     </td>
                   </tr>
