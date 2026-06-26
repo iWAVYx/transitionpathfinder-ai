@@ -48,7 +48,7 @@ export const DEMO_STEPS = [
   { id: "meeting", to: "/demo/meeting", label: "Meeting Prep", icon: Users },
   { id: "calendar", to: "/demo/calendar", label: "Calendar", icon: CalendarDays },
   { id: "plan", to: "/demo/plan", label: "30-Day Plan", icon: CalendarRange },
-  { id: "hub", to: "/demo/hub", label: "Role Dashboards", icon: LayoutDashboard },
+  { id: "hub", to: "/demo/hub", label: "Student Hub", icon: LayoutDashboard },
   { id: "next", to: "/demo/next", label: "What's Next", icon: Compass },
 ] as const;
 
