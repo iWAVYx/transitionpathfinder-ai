@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, Sparkles } from "lucide-react";
 
@@ -142,8 +144,9 @@ function DemoIntakePage() {
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
         <DemoStepBar current="intake" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.intake.numeral} kicker={CHAPTER_META.intake.kicker} title={CHAPTER_META.intake.title} dek={CHAPTER_META.intake.dek} covers={CHAPTER_META.intake.covers} />
 
       <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         <div className="flex flex-wrap items-center gap-2">

@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Bookmark,
@@ -176,8 +178,9 @@ function DemoHubPage() {
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
         <DemoStepBar current="hub" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.hub.numeral} kicker={CHAPTER_META.hub.kicker} title={CHAPTER_META.hub.title} dek={CHAPTER_META.hub.dek} covers={CHAPTER_META.hub.covers} />
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header card */}

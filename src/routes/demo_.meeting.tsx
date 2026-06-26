@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Users,
@@ -59,8 +61,9 @@ function DemoMeetingPage() {
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
         <DemoStepBar current="meeting" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.meeting.numeral} kicker={CHAPTER_META.meeting.kicker} title={CHAPTER_META.meeting.title} dek={CHAPTER_META.meeting.dek} covers={CHAPTER_META.meeting.covers} />
 
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header */}

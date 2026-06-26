@@ -89,42 +89,38 @@ function DemoIndex() {
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
 
-        {/* =========== FLIPBOOK COVER =========== */}
-        <section className="mx-auto max-w-7xl px-4 pt-8 pb-10 sm:px-6 lg:px-12">
-          <div className="fb-cover tf-reveal">
-            <div className="fb-cover-spine">TransitionForward · Issue No. 01 · The Planning Edition</div>
-
-            <div className="fb-sticker" aria-hidden>
-              <span>Demo</span>
-              <span className="big">No. 01</span>
-              <span>Sample Issue</span>
-            </div>
-
-            <div className="fb-mast">
-              <span>TransitionForward · The Planning Edition</span>
-              <strong>Demo Issue · {student.graduation_year}</strong>
-            </div>
-
-            <div className="mt-6 grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+        {/* =========== ISSUE COVER (editorial hybrid) =========== */}
+        <section className="mx-auto max-w-7xl px-4 pt-10 pb-12 sm:px-6 lg:px-12">
+          <div className="eh-cover tf-reveal">
+            <header className="eh-cover-mast">
               <div>
-                <p className="fb-issue" aria-hidden>01</p>
-                <p className="font-display mt-4 text-[11px] font-bold uppercase tracking-[0.3em] text-[color:var(--demo-accent)]">
-                  A Sample Planning Journey · 11 Chapters
+                <span className="eh-issuenum">Issue No. 01 · The Planning Edition</span>
+                <p className="eh-edition">Academic Year {student.graduation_year}</p>
+              </div>
+              <div className="eh-monogram" aria-hidden>
+                <div className="h-6 w-6 rounded-full border-2 border-white/25" />
+              </div>
+            </header>
+
+            <div className="grid gap-12 lg:grid-cols-[1.45fr_1fr] lg:items-end">
+              <div>
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-[color:var(--eh-teal)]">
+                  A Sample Planning Issue · Eleven Chapters
                 </p>
-                <h1 className="fb-headline">
-                  Meet {student.first_name}.<br />
-                  <em>Walk Her Pathway.</em>
+                <h1 className="eh-cover-title mt-3">
+                  Transition<br />
+                  Forward
                 </h1>
-                <p className="fb-dek">
-                  An interactive transition-planning issue — Intake, Student Voice, the Pathway
-                  Report, and the next 90 days, presented as a guided magazine you can read
-                  cover to cover.
+                <div className="eh-cover-rule" />
+                <p className="eh-cover-dek">
+                  A personalized roadmap for agency, growth, and post-secondary success —
+                  read it cover to cover with {student.first_name}.
                 </p>
 
-                <div className="mt-7 flex flex-wrap items-center gap-3">
-                  <Button asChild size="lg" className="bg-[color:var(--demo-accent)] text-[#1a1208] hover:opacity-90">
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Button asChild size="lg" className="bg-[color:var(--eh-teal)] text-white hover:opacity-90">
                     <Link
                       to="/demo/intake"
                       {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
@@ -136,37 +132,41 @@ function DemoIndex() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="border-white/30 bg-transparent text-white hover:bg-white/10"
+                    className="border-[color:var(--eh-teal)]/30 bg-transparent text-[color:var(--eh-teal)] hover:bg-[color:var(--eh-teal)]/5"
                   >
                     <Link to="/waitlist">Join The Waitlist</Link>
                   </Button>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/85 ring-1 ring-white/20">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--eh-paper)] px-3 py-1.5 text-xs font-medium text-foreground/70 ring-1 ring-[color:var(--eh-rule)]">
                     <ShieldCheck className="h-3.5 w-3.5" /> Fictional Student · No Real Data
                   </span>
                 </div>
               </div>
 
-              {/* Featured-in column */}
               <aside>
-                <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-[color:var(--demo-accent)]">
+                <p className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-[color:var(--eh-teal)]">
                   Featured In This Issue
                 </p>
-                <h3 className="mt-3 font-display text-3xl font-bold leading-tight text-white">
+                <h3 className="mt-3 font-display text-3xl font-bold leading-tight text-[color:var(--eh-ink)]">
                   {toTitleCase(student.full_name)}
                 </h3>
-                <p className="mt-1 text-sm text-white/70">
+                <p className="mt-1 text-sm text-foreground/70">
                   {student.pronouns} · {student.grade} · {student.school}
                 </p>
 
                 {voiceQuote && (
-                  <figure className="fb-quote">
-                    {voiceQuote}
-                    <cite>— In {student.first_name}'s Words</cite>
+                  <figure className="mt-6 border-l-2 border-[color:var(--eh-peach)] pl-5">
+                    <Quote className="h-4 w-4 text-[color:var(--eh-peach)]" aria-hidden />
+                    <blockquote className="mt-2 font-display text-lg italic leading-snug text-[color:var(--eh-ink)]">
+                      {voiceQuote}
+                    </blockquote>
+                    <figcaption className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--eh-mute)]">
+                      — In {student.first_name}'s Words
+                    </figcaption>
                   </figure>
                 )}
 
-                <div className="mt-6">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/55">
+                <div className="mt-7">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--eh-mute)]">
                     Switch Featured Student
                   </p>
                   <div className="mt-2 tf-audience" role="tablist" aria-label="Sample student">
@@ -188,66 +188,64 @@ function DemoIndex() {
               </aside>
             </div>
 
-            <dl className="fb-meta">
+            <div className="eh-cover-foot">
               <div>
-                <dt>Category</dt>
-                <dd>{student.disability_category}</dd>
+                <p className="label">Student Dossier</p>
+                <p className="value">{toTitleCase(student.full_name)}</p>
               </div>
               <div>
-                <dt>Graduating</dt>
-                <dd>{student.graduation_year}</dd>
+                <p className="label">Category</p>
+                <p className="value">{student.disability_category}</p>
               </div>
               <div>
-                <dt>Prepared For</dt>
-                <dd>Families, Educators &amp; Partners</dd>
+                <p className="label">Graduating</p>
+                <p className="value">{student.graduation_year}</p>
               </div>
               <div>
-                <dt>Reading Time</dt>
-                <dd>About Five Minutes</dd>
+                <p className="label">Prepared For</p>
+                <p className="value">Families, Educators &amp; Partners</p>
               </div>
-              <div>
-                <dt>Chapters</dt>
-                <dd>Eleven · Intake → Next Steps</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
-
-        {/* =========== EDITOR'S NOTE / WHAT'S INSIDE =========== */}
-        <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-12">
-          <div className="mag-divider"><span>Editor's Note</span></div>
-          <div className="grid gap-10 md:grid-cols-[1fr_1fr] lg:gap-16">
-            <div className="mag-body has-dropcap">
-              <p>
-                Transition planning lives in three or four different places at once — binders,
-                inboxes, and a packed PPT meeting that everyone arrives at underprepared.
-                Families don't know what to ask. Students don't see themselves in the
-                documents. Educators duplicate work. Services get missed.
-              </p>
-              <p>
-                This demo edition walks you through how TransitionForward gathers each
-                voice, organizes the existing documents, and turns it all into one shared
-                planning document — written in plain language, with named owners and a
-                clear next meeting in view.
-              </p>
+              <p className="eh-cover-folio">01</p>
             </div>
-
-            <aside className="mag-sidebar">
-              <span className="mag-sidebar-label">What's Inside</span>
-              <h3 className="mag-sidebar-title">The Four Parts Of This Edition</h3>
-              <ul className="mag-sidebar-list">
-                {PARTS.map((p) => (
-                  <li key={p.key}>
-                    <span className="font-display text-sm font-semibold text-demo-ink">
-                      Part {p.numeral} — {p.title}.
-                    </span>{" "}
-                    <span className="text-foreground/75">{p.dek}</span>
-                  </li>
-                ))}
-              </ul>
-            </aside>
           </div>
         </section>
+
+        {/* =========== HOW TO USE THIS GUIDE (handbook welcome) =========== */}
+        <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-12">
+          <div className="eh-page">
+            
+            <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] lg:gap-16">
+              <div className="mag-body has-dropcap">
+                <p>
+                  Transition planning lives in three or four different places at once —
+                  binders, inboxes, and a packed PPT meeting that everyone arrives at
+                  underprepared. Families don't know what to ask. Students don't see
+                  themselves in the documents. Educators duplicate work. Services get missed.
+                </p>
+                <p>
+                  This demo issue walks you through how TransitionForward gathers each
+                  voice, organizes the existing documents, and turns it all into one shared
+                  planning document — written in plain language, with named owners and a
+                  clear next meeting in view.
+                </p>
+              </div>
+
+              <aside className="eh-sidebar">
+                <p className="eh-sidebar-label">How To Use This Guide</p>
+                <h3 className="mb-3 font-display text-xl font-semibold text-[color:var(--eh-ink)]">
+                  Read It Cover To Cover, Or Jump In
+                </h3>
+                <ul className="eh-sidebar-list">
+                  <li><span>Use the page indicator at the top to turn pages.</span></li>
+                  <li><span>Open the Contents panel to jump to any chapter.</span></li>
+                  <li><span>Each chapter ends with a "what to do next" callout.</span></li>
+                  <li><span>Switch the featured student at any time — the issue updates.</span></li>
+                </ul>
+              </aside>
+            </div>
+          </div>
+        </section>
+
 
         {/* =========== CONTENTS (magazine TOC) =========== */}
         <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-12">

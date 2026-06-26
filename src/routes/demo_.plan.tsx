@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -64,8 +66,9 @@ function DemoPlanPage() {
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
         <DemoStepBar current="plan" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.plan.numeral} kicker={CHAPTER_META.plan.kicker} title={CHAPTER_META.plan.title} dek={CHAPTER_META.plan.dek} covers={CHAPTER_META.plan.covers} />
 
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header */}

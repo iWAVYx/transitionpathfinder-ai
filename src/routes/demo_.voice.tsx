@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Mic, Sparkles, ShieldCheck } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import {
@@ -7,23 +6,30 @@ import {
   DemoStepFooter,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
-import { Badge } from "@/components/ui/badge";
+import {
+  ChapterOpener,
+  MagazinePage,
+  PullQuote,
+  SpreadHead,
+  HandbookCallout,
+  HandbookSidebar,
+} from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_VOICE } from "@/lib/demo-extras";
-import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/demo_/voice")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Student Voice — TransitionForward demo" },
+      { title: "Student Voice — TransitionForward Demo" },
       {
         name: "description",
         content:
           "See how a student's own answers shape the Pathway Report, action plan, and meeting prep.",
       },
-      { property: "og:title", content: "Student Voice — TransitionForward demo" },
+      { property: "og:title", content: "Student Voice — TransitionForward Demo" },
       {
         property: "og:description",
         content:
@@ -41,58 +47,126 @@ function DemoVoicePage() {
   const bundle = getDemoStudent(s);
   const prompts = DEMO_VOICE[s];
   const first = bundle.profile.first_name;
+  const meta = CHAPTER_META.voice;
+  const hero = prompts[0];
+
+  // Lightweight aspirations list pulled from the first prompts.
+  const aspirations = prompts.slice(0, 3).map((p) => p.affects);
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
         <DemoStepBar current="voice" student={s} />
-      <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <Mic className="h-3 w-3" /> Student Voice
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <ShieldCheck className="h-3 w-3" /> Sample answers — fictional student
-          </Badge>
-        </div>
-        <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-          {toTitleCase(first)}'s Voice, in {toTitleCase(first)}'s words.
-        </h1>
-        <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Student Voice is the foundation of every Pathway Report. Each answer below
-          shows the exact recommendation it shapes — so families and educators can see
-          why the plan looks the way it does.
-        </p>
+        <ChapterOpener
+          numeral={meta.numeral}
+          kicker={meta.kicker}
+          title={`${first}'s Voice, In ${first}'s Words`}
+          dek={meta.dek}
+          covers={meta.covers}
+        />
 
-        <div className="mt-10 space-y-5">
-          {prompts.map((p, i) => (
-            <article
-              key={p.prompt}
-              className="rounded-3xl border bg-card p-6 shadow-soft sm:p-7"
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                Prompt {i + 1}
-              </p>
-              <h2 className="mt-1 font-display text-xl">{p.prompt}</h2>
-              <blockquote className="mt-4 rounded-2xl border border-border/60 bg-muted/40 p-4 text-sm italic leading-relaxed text-foreground/85">
-                "{p.response}"
-                <span className="mt-2 block not-italic text-xs text-muted-foreground">
-                  — sample response in {first}'s voice
-                </span>
-              </blockquote>
-              <p className="mt-4 flex items-start gap-2 text-sm text-foreground/80">
-                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>
-                  <span className="font-semibold">How this affects recommendations:</span>{" "}
-                  {p.affects}
-                </span>
-              </p>
-            </article>
-          ))}
-        </div>
+        {/* ===== Page A — Feature interview opener with pull quote ===== */}
+        <MagazinePage folio={meta.page}>
+          <SpreadHead left={`${meta.numeral} — Student Voice`} />
 
-        <DemoStepFooter current="voice" student={s} />
-      </section>
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-12">
+            <div className="md:col-span-4">
+              <div className="aspect-square overflow-hidden bg-gradient-to-br from-[color:var(--demo-surface-warm)] to-[color:var(--demo-accent-soft)]">
+                <div className="grid h-full w-full place-items-center">
+                  <div className="h-24 w-24 rounded-full border border-[color:var(--eh-teal)]/15" />
+                </div>
+              </div>
+              <HandbookSidebar
+                label="Key Aspirations"
+                items={aspirations.map((a, i) => (
+                  <span key={i}>{a}</span>
+                ))}
+              />
+            </div>
+
+            <div className="md:col-span-8 md:pl-2">
+              {hero ? (
+                <PullQuote cite={`In ${first}'s Own Words`}>
+                  &ldquo;{hero.response}&rdquo;
+                </PullQuote>
+              ) : null}
+
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                <div>
+                  <p className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--eh-mute)]">
+                    What This Tells Us
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/80">
+                    {hero?.affects ??
+                      "These answers anchor every recommendation in the Pathway Report and meeting prep."}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--eh-mute)]">
+                    Where It Appears
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/80">
+                    Pull quotes appear inside the Pathway Report, the meeting agenda, and the
+                    family-facing summary so everyone hears {first} first.
+                  </p>
+                </div>
+              </div>
+
+              <HandbookCallout label={`What ${first} Wants You To Know`}>
+                {first} prefers a minute to think before answering. Sharing the agenda and
+                the main questions before the meeting helps {first} contribute fully — and
+                gives families a chance to prepare together.
+              </HandbookCallout>
+            </div>
+          </div>
+        </MagazinePage>
+
+        {/* ===== Page B — Interview transcript (Q&A spread) ===== */}
+        <MagazinePage folio={String(Number(meta.page) + 1).padStart(2, "0")}>
+          <SpreadHead left={`${meta.numeral} — The Full Interview`} />
+
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-12">
+            <div className="md:col-span-8">
+              {prompts.map((p, i) => (
+                <article key={p.prompt} className="eh-qa">
+                  <p className="q">Prompt {String(i + 1).padStart(2, "0")}</p>
+                  <p className="prompt">{p.prompt}</p>
+                  <p className="a">&ldquo;{p.response}&rdquo;</p>
+                  <p className="mt-3 text-xs italic text-[color:var(--eh-mute)]">
+                    Shapes the report → {p.affects}
+                  </p>
+                </article>
+              ))}
+            </div>
+
+            <div className="md:col-span-4">
+              <HandbookSidebar
+                label="How To Use This Page"
+                title="A Reading Guide"
+                items={[
+                  <span key="1">
+                    Read each prompt aloud with {first} — answers can be updated together.
+                  </span>,
+                  <span key="2">
+                    Highlight pull quotes the team should hear before the meeting.
+                  </span>,
+                  <span key="3">
+                    Note any prompts {first} would like a trusted adult to answer first.
+                  </span>,
+                ]}
+              />
+
+              <div className="mt-8">
+                <HandbookCallout label="What To Do Next">
+                  Bring two or three pull quotes into the meeting prep page. The Pathway
+                  Report will cite them automatically.
+                </HandbookCallout>
+              </div>
+            </div>
+          </div>
+
+          <DemoStepFooter current="voice" student={s} />
+        </MagazinePage>
       </div>
     </SiteShell>
   );
