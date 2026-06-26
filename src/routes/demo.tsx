@@ -232,7 +232,7 @@ function DemoIndex() {
         <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-12">
           <div className="flex items-center justify-between gap-4 pb-3">
             <span className="tf-eyebrow">The Journey</span>
-            <span className="text-xs text-foreground/60">Eleven chapters · about 5 minutes</span>
+            <span className="text-xs text-foreground/60">Eleven Chapters · About 5 Minutes</span>
           </div>
           <div className="tf-journey">
             {CHAPTERS.map((c, i) => (
