@@ -319,7 +319,7 @@ function DemoHubPage() {
             <section className="space-y-5">
               <SectionHeader label="Resources" />
               <div className="grid gap-6 sm:grid-cols-2">
-                <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved resources">
+                <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved Resources">
                   <ul className="space-y-3 text-sm">
                     <li className="rounded-2xl border border-border/60 bg-background p-3">
                       <p className="font-medium">Transition Planning 101</p>
@@ -332,7 +332,7 @@ function DemoHubPage() {
                   </ul>
                 </Panel>
 
-                <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended partners">
+                <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended Partners">
                   <ul className="space-y-3 text-sm">
                     <li className="rounded-2xl border border-border/60 bg-background p-3">
                       <p className="font-medium">The Kennedy Collective</p>
@@ -362,7 +362,7 @@ function DemoHubPage() {
 
             <section className="space-y-5">
               <SectionHeader label="People" align="start" />
-              <Panel icon={<Users className="h-5 w-5" />} title="Care team">
+              <Panel icon={<Users className="h-5 w-5" />} title="Care Team">
                 <ul className="space-y-3">
                   {collaborators.map((c) => (
                     <li key={c.name} className="flex items-center gap-3">
@@ -379,7 +379,7 @@ function DemoHubPage() {
                   ))}
                 </ul>
                 <Button variant="outline" size="sm" className="mt-4 w-full">
-                  Invite a team member
+                  Invite A Team Member
                 </Button>
               </Panel>
 
