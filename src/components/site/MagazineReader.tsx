@@ -236,16 +236,12 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
         )}
       </div>
 
-      {/* Slide direction marker — pages can opt-in via .mag-page wrapper */}
+      {/* Subtle fade on page change — no slide gimmick. */}
       <style>{`
-        .mag-page { animation: mag-turn-${direction === -1 ? "back" : "fwd"} 380ms ease-out both; }
-        @keyframes mag-turn-fwd {
-          from { opacity: 0; transform: translateX(28px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes mag-turn-back {
-          from { opacity: 0; transform: translateX(-28px); }
-          to   { opacity: 1; transform: translateX(0); }
+        .mag-page { animation: mag-fade 220ms ease-out both; }
+        @keyframes mag-fade {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>
