@@ -227,18 +227,19 @@ function DemoMeetingPage() {
           </Panel>
         </div>
 
-        {/* Phase 5 — Previous meeting minutes (read-only) */}
+        {/* Previous meeting minutes */}
         <div className="mt-8 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
                 <ClipboardList className="mr-1 inline h-3.5 w-3.5" />
-                Previous meeting minutes
+                Previous Meeting Minutes
               </p>
               <h2 className="mt-1 font-display text-xl">{minutes.date}</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Read-only sample. Real minutes capture in the signed-in app feeds the next prep packet and the
-                Pathway Report § Meeting Preparation section.
+                A sample of how decisions, owners, and follow-ups carry forward — so the
+                next prep packet and the Pathway Report stay in step with what the team
+                actually agreed to.
               </p>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -250,12 +251,12 @@ function DemoMeetingPage() {
           <div className="mt-3 flex items-center gap-2">
             {isDirty ? (
               <Badge variant="secondary" className="gap-1 text-[11px]">
-                <Save className="h-3 w-3" /> Edits saved in this browser
+                <Save className="h-3 w-3" /> Edits Saved In This Browser
               </Badge>
             ) : null}
             {isDirty ? (
               <Button size="sm" variant="ghost" onClick={reset} className="h-7 px-2 text-xs">
-                <RotateCcw className="mr-1 h-3 w-3" /> Reset to sample
+                <RotateCcw className="mr-1 h-3 w-3" /> Reset To Sample
               </Button>
             ) : null}
           </div>
