@@ -91,31 +91,40 @@ function DemoIndex() {
     <SiteShell>
       <div className="demo-shell">
 
-        {/* =========== COVER SPREAD =========== */}
+        {/* =========== FLIPBOOK COVER =========== */}
         <section className="mx-auto max-w-7xl px-4 pt-8 pb-10 sm:px-6 lg:px-12">
-          <div className="mag-cover tf-reveal">
-            <div className="mag-cover-mast">
-              <span>TransitionForward · The Planning Edition</span>
-              <span className="mast-edition">Issue No. 01 · Demo</span>
+          <div className="fb-cover tf-reveal">
+            <div className="fb-cover-spine">TransitionForward · Issue No. 01 · The Planning Edition</div>
+
+            <div className="fb-sticker" aria-hidden>
+              <span>Demo</span>
+              <span className="big">No. 01</span>
+              <span>Sample Issue</span>
             </div>
 
-            <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+            <div className="fb-mast">
+              <span>TransitionForward · The Planning Edition</span>
+              <strong>Demo Issue · {student.graduation_year}</strong>
+            </div>
+
+            <div className="mt-6 grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-end">
               <div>
-                <p className="font-display text-sm font-semibold uppercase tracking-[0.32em] text-demo-primary">
-                  A Sample Planning Journey
+                <p className="fb-issue" aria-hidden>01</p>
+                <p className="font-display mt-4 text-[11px] font-bold uppercase tracking-[0.3em] text-[color:var(--demo-accent)]">
+                  A Sample Planning Journey · 11 Chapters
                 </p>
-                <h1 className="mag-cover-headline mt-6">
+                <h1 className="fb-headline">
                   Meet {student.first_name}.<br />
-                  <em>Walk Through Her Pathway.</em>
+                  <em>Walk Her Pathway.</em>
                 </h1>
-                <p className="mag-cover-dek">
-                  Eleven chapters that show how TransitionForward turns scattered binders,
-                  separate inboxes, and a packed PPT meeting into one shared planning
-                  document a family can actually read.
+                <p className="fb-dek">
+                  An interactive transition-planning issue — Intake, Student Voice, the Pathway
+                  Report, and the next 90 days, presented as a guided magazine you can read
+                  cover to cover.
                 </p>
 
-                <div className="mt-9 flex flex-wrap items-center gap-3">
-                  <Button asChild size="lg" className="bg-demo-primary hover:opacity-90">
+                <div className="mt-7 flex flex-wrap items-center gap-3">
+                  <Button asChild size="lg" className="bg-[color:var(--demo-accent)] text-[#1a1208] hover:opacity-90">
                     <Link
                       to="/demo/intake"
                       {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
@@ -123,53 +132,41 @@ function DemoIndex() {
                       Open Chapter I <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="border-demo">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="border-white/30 bg-transparent text-white hover:bg-white/10"
+                  >
                     <Link to="/waitlist">Join The Waitlist</Link>
                   </Button>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/75 px-3 py-1.5 text-xs font-medium text-demo-primary">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/85 ring-1 ring-white/20">
                     <ShieldCheck className="h-3.5 w-3.5" /> Fictional Student · No Real Data
                   </span>
                 </div>
               </div>
 
-              {/* Edition meta column */}
-              <aside className="rounded-md border border-[color:var(--demo-ink)]/20 bg-white/70 p-6 backdrop-blur-sm">
-                <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-demo-primary">
+              {/* Featured-in column */}
+              <aside>
+                <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-[color:var(--demo-accent)]">
                   Featured In This Issue
                 </p>
-                <h3 className="mt-3 font-display text-2xl font-bold leading-tight text-demo-ink">
+                <h3 className="mt-3 font-display text-3xl font-bold leading-tight text-white">
                   {toTitleCase(student.full_name)}
                 </h3>
-                <p className="mt-1 text-sm text-foreground/65">
+                <p className="mt-1 text-sm text-white/70">
                   {student.pronouns} · {student.grade} · {student.school}
                 </p>
 
-                <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-[color:var(--demo-ink)]/12 pt-4 text-sm">
-                  <div>
-                    <dt className="text-[10px] font-bold uppercase tracking-[0.22em] text-demo-primary">Category</dt>
-                    <dd className="mt-0.5 font-medium text-demo-ink">{student.disability_category}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[10px] font-bold uppercase tracking-[0.22em] text-demo-primary">Graduating</dt>
-                    <dd className="mt-0.5 font-medium text-demo-ink">{student.graduation_year}</dd>
-                  </div>
-                </dl>
-
                 {voiceQuote && (
-                  <figure className="mt-5 border-t border-[color:var(--demo-ink)]/12 pt-4">
-                    <Quote className="h-4 w-4 text-demo-accent" aria-hidden />
-                    <blockquote className="mt-2 font-display text-base italic leading-snug text-demo-ink">
-                      "{voiceQuote}"
-                    </blockquote>
-                    <figcaption className="mt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-demo-primary">
-                      In {student.first_name}'s Words
-                    </figcaption>
+                  <figure className="fb-quote">
+                    {voiceQuote}
+                    <cite>— In {student.first_name}'s Words</cite>
                   </figure>
                 )}
 
-                {/* Student switcher */}
-                <div className="mt-6 border-t border-[color:var(--demo-ink)]/12 pt-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-demo-primary">
+                <div className="mt-6">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/55">
                     Switch Featured Student
                   </p>
                   <div className="mt-2 tf-audience" role="tablist" aria-label="Sample student">
@@ -191,20 +188,28 @@ function DemoIndex() {
               </aside>
             </div>
 
-            <div className="mag-cover-byline">
-              <span>
-                Prepared For
-                <strong>Families, Educators &amp; Partners</strong>
-              </span>
-              <span>
-                Reading Time
-                <strong>About Five Minutes</strong>
-              </span>
-              <span>
-                Chapters
-                <strong>Eleven · From Intake To Next Steps</strong>
-              </span>
-            </div>
+            <dl className="fb-meta">
+              <div>
+                <dt>Category</dt>
+                <dd>{student.disability_category}</dd>
+              </div>
+              <div>
+                <dt>Graduating</dt>
+                <dd>{student.graduation_year}</dd>
+              </div>
+              <div>
+                <dt>Prepared For</dt>
+                <dd>Families, Educators &amp; Partners</dd>
+              </div>
+              <div>
+                <dt>Reading Time</dt>
+                <dd>About Five Minutes</dd>
+              </div>
+              <div>
+                <dt>Chapters</dt>
+                <dd>Eleven · Intake → Next Steps</dd>
+              </div>
+            </dl>
           </div>
         </section>
 
