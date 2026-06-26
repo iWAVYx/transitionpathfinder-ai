@@ -191,6 +191,24 @@ export function ReportView({
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
 
+  /**
+   * "Download as PDF" — renders the magazine-handbook reader view rather
+   * than the plain document print. Adds `print-magazine` to <body> so the
+   * scoped print CSS below preserves chapter openers, paper sheets, pull
+   * quotes, and editorial typography. Cleans up after the print dialog.
+   */
+  const downloadMagazinePdf = useCallback(() => {
+    if (typeof window === "undefined") return;
+    document.body.classList.add("print-magazine");
+    const cleanup = () => {
+      document.body.classList.remove("print-magazine");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    // Allow the class to apply before invoking the print dialog.
+    window.setTimeout(() => window.print(), 60);
+  }, []);
+
   // Phase 6D — fetch the student's saved voice answers so the Student
   // audience tab can show "Your Voice in this plan" with their own words.
   const fetchVoice = useServerFn(getStudentVoiceResponses);
