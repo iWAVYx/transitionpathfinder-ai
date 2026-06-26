@@ -78,13 +78,13 @@ function DemoCalendarPage() {
                 Shared Calendar
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                Everything on one page — for everyone.
+                Everything On One Page — For Everyone
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Meetings, deadlines, tours, and the weekly action steps land
-                here automatically from {profile.first_name}'s Pathway Report
-                and Meeting Prep packet. Families and educators see the same
-                view — no double-booking, no surprises.
+                Meetings, deadlines, tours, and the weekly action steps land here
+                automatically from {profile.first_name}'s Pathway Report and Meeting
+                Prep packet. Families and educators see the same view — no double-booking,
+                no surprises.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -94,17 +94,17 @@ function DemoCalendarPage() {
                 </Link>
               </Button>
               <Button size="sm" disabled aria-label="Add event (demo)">
-                <Plus className="h-4 w-4" /> Add event
+                <Plus className="h-4 w-4" /> Add Event
               </Button>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="gap-1">
-              <CalendarDays className="h-3 w-3" /> {events.length} upcoming
+              <CalendarDays className="h-3 w-3" /> {events.length} Upcoming
             </Badge>
             <Badge variant="outline" className="gap-1">
-              <Users className="h-3 w-3" /> Visible to family + care team
+              <Users className="h-3 w-3" /> Visible To Family + Care Team
             </Badge>
             <Badge variant="outline" className="gap-1">
               <GraduationCap className="h-3 w-3" /> Next PPT: {nextMeetingDate}
