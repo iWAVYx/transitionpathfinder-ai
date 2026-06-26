@@ -213,7 +213,7 @@ function DemoIndex() {
         {/* =========== HOW TO USE THIS GUIDE (handbook welcome) =========== */}
         <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-12">
           <div className="eh-page">
-            <SpreadHead_Local />
+            
             <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] lg:gap-16">
               <div className="mag-body has-dropcap">
                 <p>
