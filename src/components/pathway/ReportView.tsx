@@ -77,6 +77,7 @@ import {
 } from "@/components/pathway/ReportPhase4Sections";
 import { ValueCallout } from "@/components/value/ValueCallout";
 import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
+import { ReportPartOpener } from "@/components/pathway/ReportPartOpener";
 
 
 type Audience = "student" | "family" | "educator";
@@ -822,6 +823,9 @@ export function ReportView({
       </section>
 
 
+      {/* ============ PART I · Student Snapshot ============ */}
+      <ReportPartOpener part="snapshot" />
+
       {/* ============ Student Snapshot ============ */}
       {r.student_snapshot && (
         <Block id="sec-snapshot" title="Student Snapshot" icon={<Compass className="h-5 w-5" />}>
@@ -941,6 +945,11 @@ export function ReportView({
             ))}
           </div>
         </Block>
+      )}
+
+      {/* ============ PART II · Pathways & Possibilities ============ */}
+      {r.recommended_pathways && r.recommended_pathways.length > 0 && (
+        <ReportPartOpener part="pathways" />
       )}
 
       {/* ============ Recommended Pathways ============ */}
@@ -1107,6 +1116,9 @@ export function ReportView({
         <BulletList items={r.life_skills_focus} />
       </Block>
 
+      {/* ============ PART III · Translate & Listen ============ */}
+      <ReportPartOpener part="translate" />
+
       {/* ============ IEP translator ============ */}
       {!hasV2 && r.iep_translator && r.iep_translator.length > 0 && (
         <Block id="sec-iep-translator" title="IEP / Transition Plan Translator" icon={<BookOpen className="h-5 w-5" />}>
@@ -1271,6 +1283,9 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ PART IV · For The Next Meeting ============ */}
+      <ReportPartOpener part="team" />
+
       {/* ============ Meeting prep toolkit ============ */}
       {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
@@ -1397,6 +1412,9 @@ export function ReportView({
           </ol>
         </Block>
       )}
+
+      {/* ============ PART V · The 30/60/90 Plan ============ */}
+      <ReportPartOpener part="next" />
 
       {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
       <PlanBlock report={r} extendedPlans={extendedPlans} />
