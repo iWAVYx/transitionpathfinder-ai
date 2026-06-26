@@ -3695,10 +3695,10 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --pub-display:      "Urbanist", "Epilogue", Inter, sans-serif;
   --pub-body:         "Inter", system-ui, sans-serif;
 
-  background:
-    radial-gradient(120% 90% at 50% 0%, color-mix(in oklab, var(--pub-paper) 100%, transparent) 0%, color-mix(in oklab, var(--pub-paper) 90%, transparent) 60%, transparent 100%),
-    var(--pub-paper) !important;
+  background-color: var(--pub-paper) !important;
+  background-image: radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 60%);
   background-attachment: fixed;
+
   color: var(--pub-ink);
   min-height: 100vh;
 }
