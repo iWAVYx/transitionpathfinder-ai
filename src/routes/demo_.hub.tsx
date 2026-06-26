@@ -31,7 +31,6 @@ import { Progress } from "@/components/ui/progress";
 import { getDemoStudent } from "@/lib/demo-data";
 import { toTitleCase } from "@/lib/title-case";
 import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
-import { DemoRoleSwitcher } from "@/components/demo/DemoRoleSwitcher";
 
 export const Route = createFileRoute("/demo_/hub")({
   validateSearch: validateStudentSearch,
@@ -242,7 +241,6 @@ function DemoHubPage() {
         </div>
 
         <div className="mt-8">
-          <DemoRoleSwitcher student={s} />
         </div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">

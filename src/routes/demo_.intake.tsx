@@ -9,7 +9,6 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({
@@ -164,7 +163,6 @@ function DemoIntakePage() {
         </p>
 
         <div className="mt-8">
-          <DemoRoleLens step="intake" student={s} />
         </div>
 
         <div className="mt-8 space-y-6">

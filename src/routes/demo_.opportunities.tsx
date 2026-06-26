@@ -25,7 +25,6 @@ import {
   OPPORTUNITY_INTRO_STATUS_LABEL,
   type OpportunityIntroStatus,
 } from "@/lib/demo-extras";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/opportunities")({
   validateSearch: validateStudentSearch,
@@ -86,7 +85,6 @@ function DemoOpportunitiesPage() {
         </p>
 
         <div className="mt-8">
-          <DemoRoleLens step="opportunities" student={s} />
         </div>
 
         {/* Phase 5 — Intro request status legend */}

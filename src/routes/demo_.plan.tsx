@@ -26,7 +26,6 @@ import {
   PlanHorizonTabs,
   RichPlanStepCard,
 } from "@/components/pathway/PlanHorizon";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/plan")({
   validateSearch: validateStudentSearch,
@@ -101,7 +100,6 @@ function DemoPlanPage() {
 
         {/* Role lens */}
         <div className="mt-8">
-          <DemoRoleLens step="plan" student={s} />
         </div>
 
         {/* Weekly timeline */}
