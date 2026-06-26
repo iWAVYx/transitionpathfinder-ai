@@ -248,8 +248,8 @@ function DemoHubPage() {
 
               <Panel
                 icon={<Target className="h-5 w-5" />}
-                title="Transition goals"
-                action={<span className="text-xs text-muted-foreground">From the Pathway Report</span>}
+                title="Transition Goals"
+                action={<span className="text-xs text-muted-foreground">From The Pathway Report</span>}
               >
                 <ul className="divide-y divide-border/60">
                   {goals.map((g) => (
@@ -299,8 +299,8 @@ function DemoHubPage() {
 
                 <Panel
                   icon={<Sparkles className="h-5 w-5" />}
-                  title="This week"
-                  action={<span className="text-xs text-muted-foreground">{student.first_name}'s plan</span>}
+                  title="This Week"
+                  action={<span className="text-xs text-muted-foreground">{student.first_name}'s Plan</span>}
                 >
                   <ol className="space-y-3">
                     {(report.family_action_plan?.this_week ?? []).map((step, i) => (
