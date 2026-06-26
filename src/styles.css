@@ -737,12 +737,18 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 
 .demo-shell .tf-numeral,
 .report-shell .tf-numeral {
+  display: inline-block;
   font-family: var(--font-demo-display);
   font-weight: 200;
   font-style: italic;
   font-size: clamp(3.5rem, 8vw, 6rem);
-  line-height: 0.85;
+  line-height: 1;
   letter-spacing: -0.04em;
+  /* Italic glyphs overhang their box; padding prevents the gradient text
+     clip from cutting off the top/right of "01", "02", etc. */
+  padding: 0.1em 0.25em 0.15em 0.05em;
+  margin: -0.1em -0.25em -0.15em -0.05em;
+  overflow: visible;
   background: linear-gradient(135deg, var(--demo-primary), var(--demo-accent));
   -webkit-background-clip: text;
   background-clip: text;
