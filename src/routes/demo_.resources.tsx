@@ -418,10 +418,10 @@ function ResourceCard({ r, compact = false }: { r: Resource; compact?: boolean }
         <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
       </div>
       <dl className={`text-sm ${compact ? "mt-2 space-y-1.5" : "mt-4 space-y-3"}`}>
-        <Row label="What it is" value={r.what_it_is} />
-        <Row label="Who it helps" value={r.who_it_helps} />
-        <Row label="Why it matters" value={r.why_it_matters} />
-        <Row label="How to use it" value={r.how_to_use} />
+        <Row label="What It Is" value={r.what_it_is} />
+        <Row label="Who It Helps" value={r.who_it_helps} />
+        <Row label="Why It Matters" value={r.why_it_matters} />
+        <Row label="How To Use It" value={r.how_to_use} />
       </dl>
       <p className={`text-[11px] text-muted-foreground ${compact ? "mt-2" : "mt-4"}`}>Source · {r.source}</p>
     </article>
