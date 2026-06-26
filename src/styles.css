@@ -3221,3 +3221,308 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .report-shell .text-demo-ink { color: var(--demo-ink); }
 
 /* End of WORKBOOK SYSTEM override layer */
+
+/* ===========================================================================
+ * EDITORIAL REPORT BODY — Pathway Report editorial refinement
+ * ---------------------------------------------------------------------------
+ * Goal: make the Pathway Report read like a polished planning magazine
+ * instead of a grid of tiles. Pure CSS override layer, scoped strictly to
+ * `.report-shell`. Does NOT touch JSX, test IDs, role views, dashboards,
+ * demo routing, or data flow. Wins on cascade by being last.
+ *
+ * Strategy:
+ *   1. Strip the boxy white-card grammar from the report body.
+ *   2. Replace tile borders/backgrounds with hairline rules + uppercase
+ *      labels (editorial column-list pattern).
+ *   3. Promote major sections to chapter-feature blocks with a left rule.
+ *   4. Convert pull quotes into magazine-style features.
+ *   5. Restyle the Executive Summary 3-up as flowed columns separated by
+ *      hairlines, not white boxes.
+ *   6. Reshape the readiness scorecard into row-style rather than tiles.
+ * =========================================================================== */
+
+/* ---- Body type rhythm: longer line measure, calmer leading ---- */
+.report-shell .report-block-content,
+.report-shell .report-block-content p,
+.report-shell .report-block-content li {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.report-shell .report-block-content > p:first-child {
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--demo-ink);
+}
+
+/* ---- Section heading: editorial weight with hairline underline ---- */
+.report-shell section[id^="sec-"] > div > .font-display,
+.report-shell section[id^="sec-"] h2.font-display {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.report-shell section[id^="sec-"] > div:first-child {
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--demo-rule);
+}
+
+/* Soften the inter-section rule from the prior layer (it doubles up now) */
+.report-shell [id^="sec-"] + [id^="sec-"]::before { display: none; }
+.report-shell [id^="sec-"] + [id^="sec-"] { margin-top: 3rem; }
+
+/* ============================================================
+ * 1. Kill the boxy white-card grammar inside the report body
+ *    The report body uses .rounded-2xl / .rounded-3xl / shadow-soft
+ *    everywhere. Flatten the outer "feature container" pattern into
+ *    a calm chapter block: no shadow, hairline border, modest radius.
+ * ============================================================ */
+.report-shell .report-block-content .rounded-3xl.border.bg-card,
+.report-shell .report-block-content .rounded-3xl.border.bg-card.shadow-soft {
+  border-radius: 4px;
+  border-color: var(--demo-rule);
+  background: #ffffff;
+  box-shadow: none;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+  position: relative;
+}
+.report-shell .report-block-content .rounded-3xl.border.bg-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--demo-accent);
+  border-radius: 4px 0 0 4px;
+}
+
+/* Decorative blurred blobs in the Executive Summary — remove the
+   marketing-y feel; the chapter rule does the work now. */
+.report-shell .report-block-content .blur-3xl,
+.report-shell .exec-summary .blur-3xl { display: none; }
+
+/* ============================================================
+ * 2. MiniCard / HorizonCard — the dominant "tile" pattern.
+ *    These render as `.rounded-2xl.border.bg-background.p-4` with an
+ *    uppercase label + bulleted list. Inside the report body, flatten
+ *    them into typographic column-lists: no border, no background, a
+ *    thin top rule + the label as a small caps heading.
+ * ============================================================ */
+.report-shell .report-block-content .rounded-2xl.border.bg-background,
+.report-shell .report-block-content .rounded-2xl.border.border-border\/60.bg-background {
+  border: 0;
+  background: transparent;
+  border-top: 1px solid var(--demo-rule);
+  border-radius: 0;
+  padding: 0.85rem 0 0.25rem;
+}
+.report-shell .report-block-content .rounded-2xl.border.bg-background > p:first-child,
+.report-shell .report-block-content .rounded-2xl.border.border-border\/60.bg-background > p:first-child {
+  font-family: var(--font-demo-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--demo-ink);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.report-shell .report-block-content .rounded-2xl.border.bg-background ul,
+.report-shell .report-block-content .rounded-2xl.border.border-border\/60.bg-background ul {
+  color: var(--demo-ink);
+}
+
+/* Accent MiniCard (Strengths) keeps a subtle wash, no full box */
+.report-shell .report-block-content .rounded-2xl.border.border-primary\/30.bg-primary\/5 {
+  border: 0;
+  background: transparent;
+  border-top: 2px solid var(--demo-accent);
+  border-radius: 0;
+  padding: 0.85rem 0 0.25rem;
+}
+
+/* Inset notes ("What this means", action steps wrapper) — soft paper,
+   no thick border, used as a true sidebar block. */
+.report-shell .report-block-content .rounded-2xl.bg-muted\/50,
+.report-shell .report-block-content .rounded-xl.bg-muted\/50 {
+  background: var(--demo-paper-warm);
+  border-left: 2px solid var(--demo-accent);
+  border-radius: 0 4px 4px 0;
+  padding: 0.9rem 1.1rem;
+}
+
+/* ============================================================
+ * 3. Lift-card hover: kill the dashboard-y hover lift inside body
+ * ============================================================ */
+.report-shell .report-block-content .lift-card { transition: none; box-shadow: none; }
+.report-shell .report-block-content .lift-card:hover { transform: none; box-shadow: none; }
+
+/* ============================================================
+ * 4. Pull quotes — promote <figure> to a real magazine quote
+ * ============================================================ */
+.report-shell .report-block-content figure.rounded-2xl.bg-muted\/30 {
+  background: transparent;
+  border: 0;
+  border-left: 3px solid var(--demo-accent);
+  border-radius: 0;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  margin: 1.75rem 0;
+}
+.report-shell .report-block-content figure.rounded-2xl.bg-muted\/30 blockquote {
+  font-family: var(--font-demo-display);
+  font-style: italic;
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  line-height: 1.35;
+  color: var(--demo-ink);
+  font-weight: 500;
+}
+.report-shell .report-block-content figure.rounded-2xl.bg-muted\/30 figcaption {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--demo-mute);
+}
+
+/* ============================================================
+ * 5. Executive Summary — turn the 3-tile grid into flowed columns
+ *    separated by a hairline. Outer container already de-boxed above.
+ * ============================================================ */
+.report-shell .exec-summary .grid.md\:grid-cols-3 {
+  gap: 0;
+  margin-top: 2rem;
+  border-top: 1px solid var(--demo-rule);
+  padding-top: 1.5rem;
+}
+.report-shell .exec-summary .grid.md\:grid-cols-3 > div {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0.25rem 1.25rem !important;
+  box-shadow: none !important;
+}
+@media (min-width: 768px) {
+  .report-shell .exec-summary .grid.md\:grid-cols-3 > div + div {
+    border-left: 1px solid var(--demo-rule) !important;
+  }
+  .report-shell .exec-summary .grid.md\:grid-cols-3 > div:first-child { padding-left: 0 !important; }
+  .report-shell .exec-summary .grid.md\:grid-cols-3 > div:last-child  { padding-right: 0 !important; }
+}
+.report-shell .exec-summary .grid.md\:grid-cols-3 > div > p:first-child {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--demo-accent);
+}
+
+/* Executive Summary body paragraph — generous narrative measure */
+.report-shell .exec-summary p.relative.mt-3 {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  max-width: 44rem;
+  color: var(--demo-ink);
+}
+
+/* ============================================================
+ * 6. Student Snapshot top card — make it a profile masthead, not a tile
+ * ============================================================ */
+.report-shell section[aria-label="Student Snapshot"] {
+  border: 0;
+  border-top: 4px solid var(--demo-ink);
+  border-bottom: 1px solid var(--demo-rule);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 1.25rem 0 1.25rem;
+}
+.report-shell section[aria-label="Student Snapshot"] > div:first-child > p {
+  font-family: var(--font-demo-display);
+  letter-spacing: 0.22em;
+  color: var(--demo-ink);
+}
+.report-shell section[aria-label="Student Snapshot"] dl {
+  border-top: 1px solid var(--demo-rule);
+  padding-top: 1rem;
+}
+
+/* ============================================================
+ * 7. Readiness Scorecard — convert grid tiles into row-style entries
+ *    (still two columns on wide screens, but flat, with side rule)
+ * ============================================================ */
+.report-shell #sec-readiness .report-block-content .grid > .rounded-2xl,
+.report-shell #sec-readiness .report-block-content .grid > div.rounded-2xl.border {
+  border: 0;
+  border-top: 1px solid var(--demo-rule);
+  background: transparent;
+  border-radius: 0;
+  padding: 1rem 0 0.5rem;
+  box-shadow: none;
+  position: relative;
+}
+.report-shell #sec-readiness .report-block-content .grid > div::before { display: none; }
+
+/* ============================================================
+ * 8. Recommended Pathways feature blocks — chapter-feature look
+ * ============================================================ */
+.report-shell #sec-pathways .report-block-content .rounded-3xl.border.bg-card {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+}
+.report-shell #sec-pathways .report-block-content .rounded-3xl.border.bg-card .font-display.text-2xl {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 600;
+}
+
+/* ============================================================
+ * 9. Inline table of contents — promote from boxed card to a calm
+ *    typographic contents page header.
+ * ============================================================ */
+.report-shell nav[aria-label="Table of contents"] {
+  border: 0;
+  border-top: 2px solid var(--demo-ink);
+  border-bottom: 1px solid var(--demo-rule);
+  background: transparent;
+  border-radius: 0;
+}
+.report-shell nav[aria-label="Table of contents"] > div:first-child {
+  border: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+.report-shell nav[aria-label="Table of contents"] ol {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ============================================================
+ * 10. Footer block — calmer, no large gradient panel
+ * ============================================================ */
+.report-shell footer.rounded-2xl.border.bg-card {
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid var(--demo-rule);
+  background: transparent;
+  box-shadow: none;
+}
+.report-shell .rounded-2xl.bg-gradient-hero {
+  background-image: none;
+  background: var(--demo-paper-warm);
+  border-radius: 4px;
+  border: 1px solid var(--demo-rule);
+}
+
+/* ============================================================
+ * 11. Audience tab strip — editorial pill row, not a chunky bar
+ * ============================================================ */
+.report-shell .inline-flex.rounded-full.bg-muted\/60 {
+  background: transparent;
+  border: 1px solid var(--demo-rule);
+  border-radius: 999px;
+  padding: 0.15rem;
+}
+.report-shell .inline-flex.rounded-full.bg-muted\/60 button[aria-selected="true"] {
+  background: var(--demo-ink);
+  color: #ffffff;
+}
+
+/* ============================================================
+ * 12. Restraint: any remaining stray .shadow-soft inside report body
+ * ============================================================ */
+.report-shell .report-block-content .shadow-soft { box-shadow: none; }
+
+/* End of EDITORIAL REPORT BODY layer */
