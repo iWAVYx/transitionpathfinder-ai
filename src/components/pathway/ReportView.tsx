@@ -494,37 +494,36 @@ export function ReportView({
         </div>
       </div>
 
-      {/* ============ EDITORIAL COVER + INTEGRATED ROLE TABS + TOOLBAR ============ */}
+      {/* ============ MAGAZINE COVER SPREAD ============ */}
       <header
         ref={headerRef}
-        className="tf-cover no-print relative px-6 py-10 sm:px-10 sm:py-14"
+        className="mag-cover no-print"
       >
-        {/* Doc meta strip */}
-        <div className="relative z-10 mb-8 flex flex-wrap items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/55">
-          <span>TransitionForward · Pathway Report</span>
-          <span className="font-mono normal-case tracking-normal text-foreground/55">
+        <div className="mag-cover-mast">
+          <span>TransitionForward · Pathway Edition</span>
+          <span className="mast-edition">
             Doc {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
           </span>
         </div>
 
-        <div className="relative z-10 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.55fr_1fr] lg:items-end">
           <div>
-            <span className="tf-eyebrow">
+            <p className="font-display text-[11px] font-bold uppercase tracking-[0.32em] text-demo-primary">
               {audience === "family"
-                ? "Personalized Transition Plan"
+                ? "A Personalized Transition Plan"
                 : audience === "student"
                   ? "Your Plan, In Your Words"
                   : "Planning & Placement Team Packet"}
-            </span>
-            <h1 className="mt-4 font-display text-4xl font-bold leading-[1.02] tracking-tight sm:text-5xl">
+            </p>
+            <h1 className="mag-cover-headline mt-5">
               {toTitleCase(heading)}
             </h1>
-            <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-foreground/75 sm:text-base">
+            <p className="mag-cover-dek">
               {subheading}
             </p>
 
-            {/* Integrated role-view tabs (replaces the standalone role-view strip) */}
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            {/* Audience tabs — flat magazine tabs */}
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <div className="tf-audience" role="tablist" aria-label="Choose a report view">
                 <button
                   type="button"
@@ -565,9 +564,11 @@ export function ReportView({
             </div>
           </div>
 
-          {/* Marginalia: prepared for / by / date / confidentiality */}
-          <aside className="tf-inset relative z-10 self-start">
-            <span className="tf-eyebrow">At A Glance</span>
+          {/* Edition meta column */}
+          <aside className="rounded-md border border-[color:var(--demo-ink)]/20 bg-white/70 p-6 backdrop-blur-sm">
+            <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-demo-primary">
+              At A Glance
+            </p>
             <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4">
               <MetaField label="Prepared For" value={meta?.preparedFor ?? name} />
               <MetaField label="Prepared By" value={(meta?.preparedBy ?? "TransitionForward").split("(")[0].trim()} />
@@ -581,6 +582,21 @@ export function ReportView({
               {meta?.confidentiality ?? "Confidential — for the student, family, and authorized educators."}
             </p>
           </aside>
+        </div>
+
+        <div className="mag-cover-byline">
+          <span>
+            Reading View
+            <strong>{audience === "family" ? "Family Edition" : audience === "student" ? "Student Edition" : "Educator Edition"}</strong>
+          </span>
+          <span>
+            Pathway Sections
+            <strong>Snapshot · Voice · Pathways · Plan</strong>
+          </span>
+          <span>
+            Last Updated
+            <strong>{meta?.lastUpdated ?? meta?.issued ?? today}</strong>
+          </span>
         </div>
       </header>
 

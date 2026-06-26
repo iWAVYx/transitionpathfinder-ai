@@ -262,7 +262,7 @@ export function DemoStepBar({ current, student }: Props) {
           />
         </div>
 
-        {/* Step rail — slim editorial chips */}
+        {/* Page-tab strip — flipbook chapter tabs */}
         <nav
           ref={railRef}
           aria-label="Demo walkthrough steps"
@@ -271,30 +271,19 @@ export function DemoStepBar({ current, student }: Props) {
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onClickCapture={onClickCapture}
-          className="-mx-1 mt-2.5 flex flex-nowrap justify-start gap-1 overflow-x-auto overflow-y-hidden scroll-smooth snap-x pb-3 px-1 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none cursor-grab active:cursor-grabbing touch-pan-x"
+          className="mag-pagetabs mt-3 select-none cursor-grab active:cursor-grabbing touch-pan-x"
         >
           {DEMO_STEPS.map((s, i) => {
-            const Icon = s.icon;
             const active = s.id === current;
-            const done = i < currentIdx;
             return (
               <Link
                 key={s.id}
                 to={s.to}
                 {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-                className={`group inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium snap-start transition-all ${
-                  active
-                    ? "bg-[color:var(--demo-primary)] text-white shadow-[0_8px_18px_-8px_color-mix(in_oklab,var(--demo-primary)_55%,transparent)]"
-                    : done
-                      ? "text-foreground/75 hover:text-demo-primary"
-                      : "text-foreground/55 hover:text-foreground"
-                }`}
+                className={`mag-pagetab ${active ? "is-active" : ""}`}
               >
-                <span className={`font-display text-[10px] font-bold tracking-widest ${active ? "opacity-90" : "text-demo-accent"}`}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <Icon className="h-3.5 w-3.5" />
-                <span className="whitespace-nowrap">{s.label}</span>
+                <span className="mag-pagetab-num">CH. {String(i + 1).padStart(2, "0")}</span>
+                <span className="mag-pagetab-label">{s.label}</span>
               </Link>
             );
           })}
