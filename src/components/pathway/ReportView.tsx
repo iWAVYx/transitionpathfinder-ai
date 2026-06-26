@@ -77,6 +77,7 @@ import {
 } from "@/components/pathway/ReportPhase4Sections";
 import { ValueCallout } from "@/components/value/ValueCallout";
 import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
+import { ReportPartOpener } from "@/components/pathway/ReportPartOpener";
 
 
 type Audience = "student" | "family" | "educator";
