@@ -282,14 +282,11 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
             <Link to="/demo" className="mag-pageturn-link">
               <span className="mag-pageturn-folio"><ArrowLeft className="h-3.5 w-3.5" /> Cover</span>
               <span className="mag-pageturn-kicker">Return To</span>
-              <span className="mag-pageturn-title">The Issue Cover</span>
+              <span className="mag-pageturn-title">Cover</span>
             </Link>
           )}
         </div>
 
-        <div className="mag-pageturn-spine" aria-hidden>
-          <span>Reading With {bundle.profile.first_name}</span>
-        </div>
 
         <div className="mag-pageturn-side mag-pageturn-side--next">
           {next ? (
