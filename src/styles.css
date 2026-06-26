@@ -892,9 +892,20 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .demo-shell .tf-journey {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(96px, 1fr);
   gap: 0;
-  padding: 1.25rem 0;
+  padding: 1.25rem 0 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 1024px) {
+  .demo-shell .tf-journey {
+    grid-auto-columns: minmax(0, 1fr);
+    overflow-x: visible;
+  }
 }
 .demo-shell .tf-journey::before {
   content: "";
@@ -915,7 +926,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 0 0.5rem;
+  padding: 0 0.375rem;
+  min-width: 0;
+  scroll-snap-align: start;
   z-index: 1;
 }
 .demo-shell .tf-journey-dot {
@@ -926,6 +939,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   border: 2px solid color-mix(in oklab, var(--demo-primary) 35%, transparent);
   margin-bottom: 0.625rem;
   transition: all 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  flex-shrink: 0;
 }
 .demo-shell .tf-journey-step.is-done .tf-journey-dot {
   background: var(--demo-primary);
@@ -940,10 +954,13 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .tf-journey-label {
   font-family: var(--font-demo-display);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
   color: color-mix(in oklab, var(--demo-ink) 75%, transparent);
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .demo-shell .tf-journey-step.is-current .tf-journey-label { color: var(--demo-ink); }
 
