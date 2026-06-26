@@ -348,7 +348,7 @@ export function DemoStepFooter({ current, student }: FooterProps) {
           ) : (
             <Button asChild variant="outline" size="sm">
               <Link to="/demo">
-                <ArrowLeft className="h-4 w-4" /> Demo overview
+                <ArrowLeft className="h-4 w-4" /> Demo Overview
               </Link>
             </Button>
           )}
