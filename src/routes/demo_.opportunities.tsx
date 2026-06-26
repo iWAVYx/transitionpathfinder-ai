@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Briefcase,
@@ -67,6 +69,7 @@ function DemoOpportunitiesPage() {
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="opportunities" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.opportunities.numeral} kicker={CHAPTER_META.opportunities.kicker} title={CHAPTER_META.opportunities.title} dek={CHAPTER_META.opportunities.dek} covers={CHAPTER_META.opportunities.covers} />
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1">

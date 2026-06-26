@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, ShieldCheck, Users, Building2, GraduationCap, School, Briefcase, UserCheck } from "lucide-react";
 
@@ -101,6 +103,7 @@ function DemoNextPage() {
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="next" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.next.numeral} kicker={CHAPTER_META.next.kicker} title={CHAPTER_META.next.title} dek={CHAPTER_META.next.dek} covers={CHAPTER_META.next.covers} />
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1">

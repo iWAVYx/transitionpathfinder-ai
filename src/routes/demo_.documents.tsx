@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileSearch, AlertTriangle, ShieldCheck, FileText, Files } from "lucide-react";
 
@@ -69,6 +71,7 @@ function DemoDocumentsPage() {
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="documents" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.documents.numeral} kicker={CHAPTER_META.documents.kicker} title={CHAPTER_META.documents.title} dek={CHAPTER_META.documents.dek} covers={CHAPTER_META.documents.covers} />
         <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="gap-1">

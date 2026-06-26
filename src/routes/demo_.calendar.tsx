@@ -1,3 +1,5 @@
+import { ChapterOpener } from "@/components/site/MagazinePage";
+import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarDays,
@@ -68,6 +70,7 @@ function DemoCalendarPage() {
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="calendar" student={s} />
+        <ChapterOpener numeral={CHAPTER_META.calendar.numeral} kicker={CHAPTER_META.calendar.kicker} title={CHAPTER_META.calendar.title} dek={CHAPTER_META.calendar.dek} covers={CHAPTER_META.calendar.covers} />
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
         {/* Header */}
