@@ -1917,3 +1917,229 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .report-shell .fb-cover dt { color: rgba(255,255,255,0.55) !important; }
 .demo-shell .fb-cover dd,
 .report-shell .fb-cover dd { color: rgba(255,255,255,0.95) !important; }
+
+/* ============================================================
+   Magazine Reader Chrome
+   Page-by-page reader frame (replaces the old tab strip).
+   ============================================================ */
+.demo-shell .mag-reader-bar,
+.report-shell .mag-reader-bar {
+  background: linear-gradient(180deg, rgba(255,253,248,0.96), rgba(255,253,248,0.92));
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid color-mix(in oklab, var(--demo-primary) 14%, transparent);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -20px rgba(20,30,55,0.18);
+}
+.demo-shell .mag-reader-arrow,
+.report-shell .mag-reader-arrow {
+  gap: 0.4rem;
+  font-family: var(--font-display, ui-sans-serif);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.demo-shell .mag-reader-arrow:disabled,
+.report-shell .mag-reader-arrow:disabled { opacity: 0.35; cursor: not-allowed; }
+.demo-shell .mag-reader-arrow--next,
+.report-shell .mag-reader-arrow--next {
+  background: var(--demo-primary, #0f5e6e);
+  color: white;
+}
+.demo-shell .mag-reader-arrow--next:hover,
+.report-shell .mag-reader-arrow--next:hover { opacity: 0.92; }
+
+.demo-shell .mag-reader-indicator,
+.report-shell .mag-reader-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 0.55rem;
+  border: 1px solid color-mix(in oklab, var(--demo-primary) 16%, transparent);
+  background: color-mix(in oklab, var(--demo-primary) 4%, white);
+  transition: background-color 160ms, border-color 160ms;
+}
+.demo-shell .mag-reader-indicator:hover,
+.report-shell .mag-reader-indicator:hover {
+  background: color-mix(in oklab, var(--demo-primary) 8%, white);
+  border-color: color-mix(in oklab, var(--demo-primary) 26%, transparent);
+}
+.demo-shell .mag-reader-folio,
+.report-shell .mag-reader-folio { display: block; min-width: 0; }
+
+.demo-shell .mag-reader-drawer,
+.report-shell .mag-reader-drawer {
+  background: linear-gradient(180deg, #fffdf6, #fbf5e8);
+  border-top: 1px solid color-mix(in oklab, var(--demo-primary) 14%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--demo-primary) 14%, transparent);
+  box-shadow: 0 16px 40px -24px rgba(20,30,55,0.25);
+  animation: mag-drawer 220ms ease-out;
+}
+@keyframes mag-drawer { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+
+.demo-shell .mag-toc-grid,
+.report-shell .mag-toc-grid {
+  display: grid; gap: 0.6rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+@media (min-width: 640px) { .demo-shell .mag-toc-grid, .report-shell .mag-toc-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (min-width: 1024px) { .demo-shell .mag-toc-grid, .report-shell .mag-toc-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+
+.demo-shell .mag-toc-card,
+.report-shell .mag-toc-card {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: #fff;
+  border: 1px solid color-mix(in oklab, var(--demo-primary) 10%, transparent);
+  border-radius: 0.7rem;
+  transition: transform 160ms ease, border-color 160ms, box-shadow 160ms;
+}
+.demo-shell .mag-toc-card:hover,
+.report-shell .mag-toc-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--demo-primary) 30%, transparent);
+  box-shadow: 0 12px 28px -22px rgba(20,30,55,0.35);
+}
+.demo-shell .mag-toc-card.is-active,
+.report-shell .mag-toc-card.is-active {
+  background: color-mix(in oklab, var(--demo-primary) 8%, white);
+  border-color: color-mix(in oklab, var(--demo-primary) 40%, transparent);
+}
+.demo-shell .mag-toc-card-num,
+.report-shell .mag-toc-card-num {
+  font-family: var(--font-display, ui-serif);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--demo-accent, #c66a3c);
+  text-align: right;
+}
+
+/* ===== Page-turn spread ===== */
+.demo-shell .mag-pageturn,
+.report-shell .mag-pageturn {
+  display: grid;
+  grid-template-columns: 1fr 2rem 1fr;
+  align-items: stretch;
+  gap: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(0,0,0,0.08), transparent 60%),
+    linear-gradient(135deg, #fffdf6 0%, #fbf3e5 100%);
+  box-shadow: 0 30px 60px -40px rgba(20,30,55,0.35),
+              0 1px 0 rgba(255,255,255,0.6) inset;
+  border: 1px solid color-mix(in oklab, var(--demo-primary) 16%, transparent);
+  min-height: 9rem;
+}
+@media (max-width: 720px) {
+  .demo-shell .mag-pageturn,
+  .report-shell .mag-pageturn { grid-template-columns: 1fr; }
+  .demo-shell .mag-pageturn-spine,
+  .report-shell .mag-pageturn-spine { display: none; }
+}
+.demo-shell .mag-pageturn-spine,
+.report-shell .mag-pageturn-spine {
+  position: relative;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.10), rgba(0,0,0,0.02) 40%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0.10));
+  border-left: 1px solid rgba(0,0,0,0.06);
+  border-right: 1px solid rgba(0,0,0,0.06);
+  display: flex; align-items: center; justify-content: center;
+}
+.demo-shell .mag-pageturn-spine span,
+.report-shell .mag-pageturn-spine span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-display, ui-serif);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-primary) 70%, transparent);
+}
+.demo-shell .mag-pageturn-side,
+.report-shell .mag-pageturn-side { display: flex; }
+.demo-shell .mag-pageturn-link,
+.report-shell .mag-pageturn-link {
+  display: flex; flex-direction: column; gap: 0.35rem;
+  padding: 1.75rem 1.75rem;
+  width: 100%;
+  transition: background 200ms ease, transform 200ms ease;
+}
+.demo-shell .mag-pageturn-link:hover,
+.report-shell .mag-pageturn-link:hover {
+  background: color-mix(in oklab, var(--demo-primary) 5%, transparent);
+}
+.demo-shell .mag-pageturn-link.is-next,
+.report-shell .mag-pageturn-link.is-next { text-align: right; align-items: flex-end; }
+.demo-shell .mag-pageturn-folio,
+.report-shell .mag-pageturn-folio {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--font-display, ui-sans-serif);
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-primary) 80%, transparent);
+}
+.demo-shell .mag-pageturn-kicker,
+.report-shell .mag-pageturn-kicker {
+  font-family: var(--font-display, ui-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--demo-accent, #c66a3c);
+}
+.demo-shell .mag-pageturn-title,
+.report-shell .mag-pageturn-title {
+  font-family: var(--font-display, ui-serif);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--demo-ink, #161616);
+}
+.demo-shell .mag-pageturn-dek,
+.report-shell .mag-pageturn-dek {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: color-mix(in oklab, var(--demo-ink) 65%, transparent);
+  max-width: 26ch;
+}
+
+/* ===== In-report chapter pager (floats above the report) ===== */
+.report-shell .mag-reportpager {
+  position: sticky;
+  top: calc(4rem + 64px);
+  z-index: 20;
+  margin: 0 auto 1.25rem;
+  max-width: 92rem;
+  padding: 0 1rem;
+}
+@media (min-width: 640px) { .report-shell .mag-reportpager { padding: 0 1.5rem; } }
+.report-shell .mag-reportpager-inner {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255,253,248,0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in oklab, var(--demo-primary) 18%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 14px 36px -22px rgba(20,30,55,0.35);
+}
+.report-shell .mag-reportpager-folio {
+  flex: 1; min-width: 0;
+  font-family: var(--font-display, ui-serif);
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--demo-ink, #161616);
+  display: flex; align-items: center; gap: 0.45rem;
+}
+.report-shell .mag-reportpager-folio em {
+  font-style: italic;
+  color: var(--demo-accent, #c66a3c);
+}
+.report-shell .mag-reportpager-counter {
+  font-family: var(--font-display, ui-sans-serif);
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-primary) 80%, transparent);
+  white-space: nowrap;
+}

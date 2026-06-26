@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { ReportView } from "@/components/pathway/ReportView";
+import { ReportChapterPager } from "@/components/pathway/ReportChapterPager";
 import { resolveShareToken } from "@/lib/share.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
@@ -66,11 +67,14 @@ function SharedReportPage() {
 
   return (
     <SiteShell>
-      <ReportView
-        name="this student"
-        report={state.report}
-        initialAudience={state.audience}
-      />
+      <div className="report-shell">
+        <ReportChapterPager />
+        <ReportView
+          name="this student"
+          report={state.report}
+          initialAudience={state.audience}
+        />
+      </div>
     </SiteShell>
   );
 }

@@ -21,6 +21,7 @@ import { z } from "zod";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ReportView } from "@/components/pathway/ReportView";
+import { ReportChapterPager } from "@/components/pathway/ReportChapterPager";
 import { ReportVersionsPanel } from "@/components/pathway/ReportVersionsPanel";
 import { Button } from "@/components/ui/button";
 import {
@@ -292,6 +293,7 @@ function ReportDetailPage() {
         </div>
       )}
 
+      <ReportChapterPager />
       <ReportView
         name={state.name}
         report={state.report}
