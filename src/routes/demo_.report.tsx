@@ -9,6 +9,7 @@ import {
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
 import { ReportView } from "@/components/pathway/ReportView";
+import { ReportChapterPager } from "@/components/pathway/ReportChapterPager";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
 import { EXTENDED_PLANS } from "@/lib/demo-extended-plans";
@@ -63,6 +64,8 @@ function DemoReportPage() {
             views inside the document below.
           </p>
         </section>
+
+        <ReportChapterPager />
 
         <ReportView
           name={student.first_name}
