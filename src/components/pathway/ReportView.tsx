@@ -1879,12 +1879,12 @@ export function ReportView({
 
         /* =========================================================================
          * Magazine-handbook PDF mode — activated by the "Download as PDF" button.
-         * Body class `print-magazine` switches the print output from the plain
+         * Body class print-magazine switches the print output from the plain
          * document layout above to the editorial reader view: warm paper
          * background, full-bleed teal chapter openers (ReportPartOpener), eh-page
          * sheets, peach handbook callouts, italic pull quotes and Urbanist /
          * Instrument Serif typography — i.e. what readers see on screen.
-         * High specificity (`body.print-magazine ...`) + !important to win over
+         * High specificity (body.print-magazine ...) + !important to win over
          * the classic-print overrides above.
          * ========================================================================= */
         @media print {
