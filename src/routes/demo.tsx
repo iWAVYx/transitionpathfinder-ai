@@ -250,7 +250,7 @@ function DemoIndex() {
               Contents
             </h2>
             <p className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-demo-primary">
-              Eleven Chapters · One Pathway
+              Eleven Sections · One Pathway
             </p>
           </div>
 
@@ -258,15 +258,15 @@ function DemoIndex() {
             const items = CHAPTERS.filter((c) => c.part === part.key);
             return (
               <div key={part.key} className="mt-10 first:mt-6">
-                <div className="mb-3 flex items-baseline gap-5">
-                  <span className="font-display text-3xl font-light italic text-demo-accent">
-                    {part.numeral}
+                <div className="mb-3 flex items-baseline gap-4">
+                  <span className="font-display text-xs font-bold uppercase tracking-[0.22em] text-demo-primary">
+                    Part {part.numeral}
                   </span>
-                  <h3 className="font-display text-2xl font-bold tracking-tight text-demo-ink">
-                    Part {part.numeral} · {part.title}
+                  <h3 className="font-display text-2xl font-semibold tracking-tight text-demo-ink">
+                    {part.title}
                   </h3>
                 </div>
-                <p className="mb-4 max-w-2xl font-display text-base italic text-foreground/70">
+                <p className="mb-4 max-w-2xl text-base leading-relaxed text-foreground/70">
                   {part.dek}
                 </p>
                 <div className="mag-toc">
