@@ -36,11 +36,11 @@ export const Route = createFileRoute("/demo_/hub")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Sample Student Hub — TransitionForward demo" },
+      { title: "Sample Student Hub — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "The ongoing student workspace where families and educators track goals, documents, and progress.",
+          "The ongoing student workspace where families and educators track goals, documents, and progress in one place.",
       },
       { property: "og:url", content: "/demo/hub" },
     ],
