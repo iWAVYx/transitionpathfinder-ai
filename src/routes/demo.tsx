@@ -170,7 +170,7 @@ function DemoIndex() {
             <div className="relative z-10">
               <span className="tf-eyebrow">Issue 01 · Live Demo</span>
               <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
-                A Planning Document<br />Built Around {student.first_name}.
+                A Planning Document<br />Built Around {student.first_name}
               </h2>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground/75 sm:text-lg">
                 Eleven chapters that mirror the real product — intake, voice, documents,
