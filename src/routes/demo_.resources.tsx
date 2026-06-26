@@ -393,7 +393,7 @@ function DemoResourcesPage() {
           ))}
           {matched.length === 0 && (
             <div className="col-span-full rounded-3xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
-              No matches yet — try clearing the search or switching categories.
+              No Matches Yet — Try Clearing The Search Or Switching Categories.
             </div>
           )}
         </div>
