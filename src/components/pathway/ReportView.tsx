@@ -714,11 +714,12 @@ export function ReportView({
           <Button
             variant="default"
             size="sm"
-            onClick={() => window.print()}
-            aria-label="Download Pathway Report as PDF"
+            onClick={downloadMagazinePdf}
+            aria-label="Download Pathway Report as PDF in magazine-handbook reader view"
             className="bg-demo-primary"
+            title="Renders the magazine-handbook reader view: chapter openers, pull quotes, and editorial layout."
           >
-            <Download className="h-4 w-4" /> Download PDF
+            <Download className="h-4 w-4" /> Download as PDF
           </Button>
         </div>
       </div>
