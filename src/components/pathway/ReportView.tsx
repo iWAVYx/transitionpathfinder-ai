@@ -1413,6 +1413,9 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ PART V · The 30/60/90 Plan ============ */}
+      <ReportPartOpener part="next" />
+
       {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
       <PlanBlock report={r} extendedPlans={extendedPlans} />
 
