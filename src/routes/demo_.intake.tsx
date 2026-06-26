@@ -9,7 +9,6 @@ import {
 } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({
@@ -162,10 +161,6 @@ function DemoIntakePage() {
           This is what the guided transition-planning interview looks like once a family or
           educator finishes. We use this to draft the Pathway Report on the next screen.
         </p>
-
-        <div className="mt-8">
-          <DemoRoleLens step="intake" student={s} />
-        </div>
 
         <div className="mt-8 space-y-6">
           {sections.map((section, i) => (

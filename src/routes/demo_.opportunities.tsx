@@ -25,7 +25,6 @@ import {
   OPPORTUNITY_INTRO_STATUS_LABEL,
   type OpportunityIntroStatus,
 } from "@/lib/demo-extras";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
 export const Route = createFileRoute("/demo_/opportunities")({
   validateSearch: validateStudentSearch,
@@ -84,10 +83,6 @@ function DemoOpportunitiesPage() {
           Each match shows what it is, who it's for, and why it fits. Partners only
           see opportunity-level interest — never private student information.
         </p>
-
-        <div className="mt-8">
-          <DemoRoleLens step="opportunities" student={s} />
-        </div>
 
         {/* Phase 5 — Intro request status legend */}
         <div className="mt-8 rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
