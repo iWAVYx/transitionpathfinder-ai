@@ -1911,3 +1911,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   font-size: 18px;
   letter-spacing: 0;
 }
+
+/* MetaField inside fb-cover uses light text on dark */
+.demo-shell .fb-cover dt,
+.report-shell .fb-cover dt { color: rgba(255,255,255,0.55) !important; }
+.demo-shell .fb-cover dd,
+.report-shell .fb-cover dd { color: rgba(255,255,255,0.95) !important; }
