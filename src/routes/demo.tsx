@@ -140,8 +140,8 @@ function DemoIndex() {
               </div>
 
               <aside>
-                <p className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-[color:var(--eh-teal)]">
-                  Featured In This Issue
+                <p className="font-display text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--eh-teal)]">
+                  Featured Student
                 </p>
                 <h3 className="mt-3 font-display text-3xl font-bold leading-tight text-[color:var(--eh-ink)]">
                   {toTitleCase(student.full_name)}
