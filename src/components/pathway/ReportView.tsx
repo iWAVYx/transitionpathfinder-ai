@@ -494,36 +494,39 @@ export function ReportView({
         </div>
       </div>
 
-      {/* ============ MAGAZINE COVER SPREAD ============ */}
-      <header
-        ref={headerRef}
-        className="mag-cover no-print"
-      >
-        <div className="mag-cover-mast">
-          <span>TransitionForward · Pathway Edition</span>
-          <span className="mast-edition">
-            Doc {meta?.reportId ?? "—"} · v{meta?.version ?? "1.0"} · {meta?.issued ?? today}
-          </span>
+      {/* ============ FLIPBOOK COVER ============ */}
+      <header ref={headerRef} className="fb-cover no-print">
+        <div className="fb-cover-spine">
+          TransitionForward · Pathway Report · Doc {meta?.reportId ?? "—"}
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[1.55fr_1fr] lg:items-end">
+        <div className="fb-sticker" aria-hidden>
+          <span>Pathway</span>
+          <span className="big">v{meta?.version ?? "1.0"}</span>
+          <span>{audience === "family" ? "Family" : audience === "student" ? "Student" : "Educator"}</span>
+        </div>
+
+        <div className="fb-mast">
+          <span>TransitionForward · Pathway Edition</span>
+          <strong>{meta?.issued ?? today}</strong>
+        </div>
+
+        <div className="mt-6 grid gap-10 lg:grid-cols-[1.55fr_1fr] lg:items-end">
           <div>
-            <p className="font-display text-[11px] font-bold uppercase tracking-[0.32em] text-demo-primary">
+            <p className="fb-issue" aria-hidden>
+              {(meta?.reportId ?? "01").toString().slice(-2)}
+            </p>
+            <p className="font-display mt-4 text-[11px] font-bold uppercase tracking-[0.3em] text-[color:var(--demo-accent)]">
               {audience === "family"
                 ? "A Personalized Transition Plan"
                 : audience === "student"
                   ? "Your Plan, In Your Words"
                   : "Planning & Placement Team Packet"}
             </p>
-            <h1 className="mag-cover-headline mt-5">
-              {toTitleCase(heading)}
-            </h1>
-            <p className="mag-cover-dek">
-              {subheading}
-            </p>
+            <h1 className="fb-headline">{toTitleCase(heading)}</h1>
+            <p className="fb-dek">{subheading}</p>
 
-            {/* Audience tabs — flat magazine tabs */}
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <div className="tf-audience" role="tablist" aria-label="Choose a report view">
                 <button
                   type="button"
@@ -554,22 +557,22 @@ export function ReportView({
                 </button>
               </div>
               {confidenceLabel && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-primary">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/85 ring-1 ring-white/20">
                   <ShieldCheck className="h-3.5 w-3.5" /> {confidenceLabel}
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-foreground/65">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/75 ring-1 ring-white/20">
                 <Sparkles className="h-3.5 w-3.5" /> AI-Drafted · Educator-Reviewable
               </span>
             </div>
           </div>
 
-          {/* Edition meta column */}
-          <aside className="rounded-md border border-[color:var(--demo-ink)]/20 bg-white/70 p-6 backdrop-blur-sm">
-            <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-demo-primary">
+          {/* At-a-glance */}
+          <aside>
+            <p className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-[color:var(--demo-accent)]">
               At A Glance
             </p>
-            <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4">
+            <dl className="mt-3 grid grid-cols-2 gap-x-5 gap-y-4 text-white">
               <MetaField label="Prepared For" value={meta?.preparedFor ?? name} />
               <MetaField label="Prepared By" value={(meta?.preparedBy ?? "TransitionForward").split("(")[0].trim()} />
               <MetaField label="Date Issued" value={meta?.issued ?? today} />
@@ -578,26 +581,26 @@ export function ReportView({
                 value={audience === "family" ? "Family-Friendly Language" : audience === "student" ? "Student View" : "PPT-Ready Format"}
               />
             </dl>
-            <p className="mt-5 border-t border-foreground/10 pt-4 text-[11px] leading-snug text-foreground/60">
+            <p className="mt-5 border-t border-white/15 pt-4 text-[11px] leading-snug text-white/65">
               {meta?.confidentiality ?? "Confidential — for the student, family, and authorized educators."}
             </p>
           </aside>
         </div>
 
-        <div className="mag-cover-byline">
-          <span>
-            Reading View
-            <strong>{audience === "family" ? "Family Edition" : audience === "student" ? "Student Edition" : "Educator Edition"}</strong>
-          </span>
-          <span>
-            Pathway Sections
-            <strong>Snapshot · Voice · Pathways · Plan</strong>
-          </span>
-          <span>
-            Last Updated
-            <strong>{meta?.lastUpdated ?? meta?.issued ?? today}</strong>
-          </span>
-        </div>
+        <dl className="fb-meta">
+          <div>
+            <dt>Reading View</dt>
+            <dd>{audience === "family" ? "Family Edition" : audience === "student" ? "Student Edition" : "Educator Edition"}</dd>
+          </div>
+          <div>
+            <dt>Sections</dt>
+            <dd>Snapshot · Voice · Pathways · Plan</dd>
+          </div>
+          <div>
+            <dt>Last Updated</dt>
+            <dd>{meta?.lastUpdated ?? meta?.issued ?? today}</dd>
+          </div>
+        </dl>
       </header>
 
       {/* ============ Slim editorial toolbar ============ */}
