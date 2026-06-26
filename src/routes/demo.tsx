@@ -301,7 +301,7 @@ function DemoIndex() {
               <div>
                 <span className="tf-eyebrow">Ready When You Are</span>
                 <h3 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                  Open Chapter 01 — {student.first_name}'s Intake.
+                  Open Chapter 01 — {student.first_name}'s Intake
                 </h3>
                 <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
                   You can switch students or jump between chapters at any time from the bar at the top.
@@ -310,11 +310,11 @@ function DemoIndex() {
               <div className="flex flex-wrap gap-3 lg:justify-end">
                 <Button asChild size="lg" className="bg-[color:var(--demo-accent)] text-white hover:opacity-90">
                   <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                    Begin the Walkthrough <ArrowRight className="h-4 w-4" />
+                    Begin The Walkthrough <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-white/30 bg-transparent text-white hover:bg-white/10">
-                  <Link to="/waitlist">Join the Waitlist</Link>
+                  <Link to="/waitlist">Join The Waitlist</Link>
                 </Button>
               </div>
             </div>
