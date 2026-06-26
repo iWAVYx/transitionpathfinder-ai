@@ -162,9 +162,6 @@ function DemoIntakePage() {
           educator finishes. We use this to draft the Pathway Report on the next screen.
         </p>
 
-        <div className="mt-8">
-        </div>
-
         <div className="mt-8 space-y-6">
           {sections.map((section, i) => (
             <div key={section.label} className="rounded-3xl border bg-card shadow-soft">

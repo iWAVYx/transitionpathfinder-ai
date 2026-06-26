@@ -84,9 +84,6 @@ function DemoOpportunitiesPage() {
           see opportunity-level interest — never private student information.
         </p>
 
-        <div className="mt-8">
-        </div>
-
         {/* Phase 5 — Intro request status legend */}
         <div className="mt-8 rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">

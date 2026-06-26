@@ -99,8 +99,6 @@ function DemoPlanPage() {
         </div>
 
         {/* Role lens */}
-        <div className="mt-8">
-        </div>
 
         {/* Weekly timeline */}
         <div className="mt-8">
