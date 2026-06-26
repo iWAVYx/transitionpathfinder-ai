@@ -317,7 +317,7 @@ function DemoResourcesPage() {
             Resource Hub
           </p>
           <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-            Matches for {profile.first_name}
+            Matches For {profile.first_name}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Every resource is tagged with what it is, who it helps, why it matters, and how to use
@@ -331,7 +331,7 @@ function DemoResourcesPage() {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search resources…"
+                placeholder="Search Resources…"
                 className="pl-9"
               />
             </div>
@@ -341,7 +341,7 @@ function DemoResourcesPage() {
               onClick={() => setShowAll((v) => !v)}
             >
               <Filter className="h-4 w-4" />
-              {showAll ? "Showing all" : `Matched to ${profile.first_name}`}
+              {showAll ? "Showing All" : `Matched To ${profile.first_name}`}
             </Button>
             <div className="ml-auto inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
               <button
