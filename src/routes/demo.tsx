@@ -122,7 +122,7 @@ function DemoIndex() {
                       to="/demo/intake"
                       {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
                     >
-                      Open Chapter I <ArrowRight className="h-4 w-4" />
+                      Begin The Report <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button
