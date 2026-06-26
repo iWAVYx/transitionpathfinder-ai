@@ -1116,6 +1116,9 @@ export function ReportView({
         <BulletList items={r.life_skills_focus} />
       </Block>
 
+      {/* ============ PART III · Translate & Listen ============ */}
+      <ReportPartOpener part="translate" />
+
       {/* ============ IEP translator ============ */}
       {!hasV2 && r.iep_translator && r.iep_translator.length > 0 && (
         <Block id="sec-iep-translator" title="IEP / Transition Plan Translator" icon={<BookOpen className="h-5 w-5" />}>
