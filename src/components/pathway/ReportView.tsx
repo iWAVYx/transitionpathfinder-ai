@@ -947,6 +947,11 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ PART II · Pathways & Possibilities ============ */}
+      {r.recommended_pathways && r.recommended_pathways.length > 0 && (
+        <ReportPartOpener part="pathways" />
+      )}
+
       {/* ============ Recommended Pathways ============ */}
       {r.recommended_pathways && r.recommended_pathways.length > 0 && (
         <Block id="sec-pathways" title="Recommended Pathways" icon={<RouteIcon className="h-5 w-5" />}>
