@@ -298,11 +298,11 @@ function DemoIndex() {
               <div>
                 <span className="tf-eyebrow">Ready When You Are</span>
                 <h3 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                  Open Chapter I — {student.first_name}'s Intake
+                  Begin {student.first_name}'s Pathway Report
                 </h3>
                 <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
-                  You can move between chapters or switch students at any time from the
-                  page-tab strip above each chapter.
+                  Move between sections from the top reader bar, or jump in from
+                  the table of contents at any time.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3 lg:justify-end">
@@ -311,7 +311,7 @@ function DemoIndex() {
                     to="/demo/intake"
                     {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
                   >
-                    Begin The Walkthrough <ArrowRight className="h-4 w-4" />
+                    Begin The Report <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button
