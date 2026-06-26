@@ -3821,3 +3821,53 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .pub-page-body p + p { margin-top: 0.9em; }
 .pub-page-body h2 {
   font-family: var(--pub-serif);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+  color: var(--pub-ink);
+}
+.pub-page-body h3 {
+  font-family: var(--pub-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--pub-ink);
+}
+
+/* Spread */
+.pub-spread {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 880px) {
+  .pub-spread { grid-template-columns: 1.55fr 1fr; gap: 3rem; }
+}
+.pub-spread-side {
+  border-top: 1px solid var(--pub-rule);
+  padding-top: 1.25rem;
+}
+@media (min-width: 880px) {
+  .pub-spread-side {
+    border-top: 0;
+    border-left: 1px solid var(--pub-rule);
+    padding-top: 0;
+    padding-left: 2rem;
+  }
+}
+
+/* Pull quote */
+.pub-pullquote {
+  margin: 2.25rem 0;
+  padding: 0 0 0 1.25rem;
+  border-left: 3px solid var(--pub-accent);
+}
+.pub-pullquote blockquote {
+  font-family: var(--pub-serif);
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  line-height: 1.3;
