@@ -91,21 +91,24 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
 
   return (
     <>
-      <div className="demo-shell mag-reader-bar sticky top-16 z-30">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-12">
-          {/* Prev */}
+      <nav
+        aria-label="Reader navigation"
+        className="demo-shell mag-reader-bar sticky top-16 z-30"
+      >
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3 lg:px-12">
+          {/* Prev — shows destination on desktop */}
           <Button
             asChild={!!prev}
             variant="ghost"
             size="sm"
             disabled={!prev}
-            className="mag-reader-arrow"
-            aria-label={prev ? `Previous page — ${prev.label}` : "No previous page"}
+            className="mag-reader-arrow min-h-11 shrink-0"
+            aria-label={prev ? `Previous: ${prev.label}` : "No previous page"}
           >
             {prev ? (
               <Link to={prev.to} search={search}>
                 <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Prev</span>
+                <span className="hidden md:inline">Prev</span>
               </Link>
             ) : (
               <span><ArrowLeft className="h-4 w-4" /></span>
@@ -122,9 +125,9 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
           >
             <span className="mag-reader-folio">
               <span className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-demo-primary/80">
-                {current.kicker} · Page {String(idx + 1).padStart(2, "0")} / {total}
+                {current.kicker} · {String(idx + 1).padStart(2, "0")} / {total}
               </span>
-              <span className="block truncate font-display text-base font-semibold text-demo-ink">
+              <span className="block truncate font-display text-sm font-semibold text-demo-ink sm:text-base">
                 {current.label}
               </span>
             </span>
@@ -133,8 +136,8 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             />
           </button>
 
-          {/* Student switcher (compact) */}
-          <div className="tf-audience hidden sm:flex" role="tablist" aria-label="Sample student">
+          {/* Student switcher (compact, desktop only) */}
+          <div className="tf-audience hidden lg:flex" role="tablist" aria-label="Sample student">
             {(["maya", "jordan"] as DemoStudentId[]).map((sid) => (
               <Link
                 key={sid}
@@ -154,12 +157,12 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             asChild={!!next}
             size="sm"
             disabled={!next}
-            className="mag-reader-arrow mag-reader-arrow--next"
-            aria-label={next ? `Next page — ${next.label}` : "End of issue"}
+            className="mag-reader-arrow mag-reader-arrow--next min-h-11 shrink-0"
+            aria-label={next ? `Next: ${next.label}` : "End of report"}
           >
             {next ? (
               <Link to={next.to} search={search}>
-                <span className="hidden sm:inline">Next</span>
+                <span className="hidden md:inline">Next</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
@@ -182,6 +185,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             id="mag-toc-drawer"
             role="dialog"
             aria-label="Table of contents"
+            aria-modal="false"
             className="mag-reader-drawer"
           >
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-12">
@@ -189,13 +193,13 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-demo-primary" />
                   <span className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-demo-primary">
-                    Contents
+                    Jump To Section
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setTocOpen(false)}
-                  className="rounded-full p-1.5 text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+                  className="rounded-full p-2 text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
                   aria-label="Close contents"
                 >
                   <X className="h-4 w-4" />
@@ -211,6 +215,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                         search={search}
                         onClick={() => setTocOpen(false)}
                         className={`mag-toc-card group ${active ? "is-active" : ""}`}
+                        aria-current={active ? "page" : undefined}
                       >
                         <span className="mag-toc-card-num">
                           {String(i + 1).padStart(2, "0")}
@@ -234,9 +239,50 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             </div>
           </div>
         )}
-      </div>
+      </nav>
 
-      {/* Subtle fade on page change — no slide gimmick. */}
+      {/* Mobile sticky bottom nav — always visible Prev | Contents | Next.
+          Hidden on tablet+ since the top bar's arrows are reachable there. */}
+      <nav
+        aria-label="Reader navigation (mobile)"
+        className="demo-shell mag-mobile-nav md:hidden"
+      >
+        <div className="grid grid-cols-3">
+          {prev ? (
+            <Link to={prev.to} search={search} className="mag-mobile-nav-btn">
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              <span className="mag-mobile-nav-label">{prev.label}</span>
+            </Link>
+          ) : (
+            <span className="mag-mobile-nav-btn is-disabled">
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              <span className="mag-mobile-nav-label">Start</span>
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setTocOpen((v) => !v)}
+            className="mag-mobile-nav-btn is-center"
+            aria-label="Open contents"
+          >
+            <BookOpen className="h-4 w-4" aria-hidden />
+            <span className="mag-mobile-nav-label">{String(idx + 1).padStart(2, "0")} / {total}</span>
+          </button>
+          {next ? (
+            <Link to={next.to} search={search} className="mag-mobile-nav-btn">
+              <ArrowRight className="h-4 w-4" aria-hidden />
+              <span className="mag-mobile-nav-label">{next.label}</span>
+            </Link>
+          ) : (
+            <span className="mag-mobile-nav-btn is-disabled">
+              <ArrowRight className="h-4 w-4" aria-hidden />
+              <span className="mag-mobile-nav-label">End</span>
+            </span>
+          )}
+        </div>
+      </nav>
+
+      {/* Subtle fade on page change. */}
       <style>{`
         .mag-page { animation: mag-fade 220ms ease-out both; }
         @keyframes mag-fade {
