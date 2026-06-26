@@ -15,13 +15,13 @@ export const Route = createFileRoute("/demo_/next")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "What Happens Next — TransitionForward demo" },
+      { title: "What Happens Next — TransitionForward Demo" },
       {
         name: "description",
         content:
           "Choose the path that fits you: family access, school pilot, district access, or partner application.",
       },
-      { property: "og:title", content: "What Happens Next — TransitionForward demo" },
+      { property: "og:title", content: "What Happens Next — TransitionForward Demo" },
       {
         property: "og:description",
         content:
