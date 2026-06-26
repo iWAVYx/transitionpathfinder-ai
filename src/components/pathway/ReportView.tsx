@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
   Download,
@@ -190,6 +190,24 @@ export function ReportView({
   const { user } = useAuth();
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
+
+  /**
+   * "Download as PDF" — renders the magazine-handbook reader view rather
+   * than the plain document print. Adds `print-magazine` to <body> so the
+   * scoped print CSS below preserves chapter openers, paper sheets, pull
+   * quotes, and editorial typography. Cleans up after the print dialog.
+   */
+  const downloadMagazinePdf = useCallback(() => {
+    if (typeof window === "undefined") return;
+    document.body.classList.add("print-magazine");
+    const cleanup = () => {
+      document.body.classList.remove("print-magazine");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    // Allow the class to apply before invoking the print dialog.
+    window.setTimeout(() => window.print(), 60);
+  }, []);
 
   // Phase 6D — fetch the student's saved voice answers so the Student
   // audience tab can show "Your Voice in this plan" with their own words.
@@ -696,11 +714,12 @@ export function ReportView({
           <Button
             variant="default"
             size="sm"
-            onClick={() => window.print()}
-            aria-label="Download Pathway Report as PDF"
+            onClick={downloadMagazinePdf}
+            aria-label="Download Pathway Report as PDF in magazine-handbook reader view"
             className="bg-demo-primary"
+            title="Renders the magazine-handbook reader view: chapter openers, pull quotes, and editorial layout."
           >
-            <Download className="h-4 w-4" /> Download PDF
+            <Download className="h-4 w-4" /> Download as PDF
           </Button>
         </div>
       </div>
@@ -1582,8 +1601,8 @@ export function ReportView({
             {resetLabel}
           </Button>
         )}
-        <Button onClick={() => window.print()} aria-label="Download Pathway Report as PDF">
-          <Download className="h-4 w-4" /> Download Pathway Report (PDF)
+        <Button onClick={downloadMagazinePdf} aria-label="Download Pathway Report as PDF in magazine-handbook reader view">
+          <Download className="h-4 w-4" /> Download as PDF
         </Button>
       </div>
 
@@ -1855,6 +1874,144 @@ export function ReportView({
             background: transparent !important;
             border: 1px solid #d1d5db !important;
             color: #111 !important;
+          }
+        }
+
+        /* =========================================================================
+         * Magazine-handbook PDF mode — activated by the "Download as PDF" button.
+         * Body class print-magazine switches the print output from the plain
+         * document layout above to the editorial reader view: warm paper
+         * background, full-bleed teal chapter openers (ReportPartOpener), eh-page
+         * sheets, peach handbook callouts, italic pull quotes and Urbanist /
+         * Instrument Serif typography — i.e. what readers see on screen.
+         * High specificity (body.print-magazine ...) + !important to win over
+         * the classic-print overrides above.
+         * ========================================================================= */
+        @media print {
+          /* Hide the classic typeset cover; the editorial cover (eh-cover / fb-cover) is the issue cover. */
+          body.print-magazine .print-cover { display: none !important; }
+
+          /* Issue-paper background carries through the printed pages. */
+          body.print-magazine .report-shell {
+            background: #F4F2EF !important;
+          }
+          body.print-magazine .report-root {
+            padding: 0.4in !important;
+            max-width: 100% !important;
+          }
+
+          /* Restore editorial typography (override the Georgia stack from above). */
+          body.print-magazine .report-root,
+          body.print-magazine .report-root p,
+          body.print-magazine .report-root li,
+          body.print-magazine .report-root span,
+          body.print-magazine .report-root div {
+            font-family: "Epilogue", "Urbanist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+          }
+          body.print-magazine .report-root h1,
+          body.print-magazine .report-root h2,
+          body.print-magazine .report-root h3,
+          body.print-magazine .report-root h4 {
+            font-family: "Urbanist", -apple-system, BlinkMacSystemFont, sans-serif !important;
+            color: #0b1220 !important;
+          }
+
+          /* Editorial paper sheets — keep the rounded card feel, lose the screen shadow. */
+          body.print-magazine .eh-page {
+            background: #ffffff !important;
+            border: 1px solid #e7e3dc !important;
+            border-radius: 6px !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+
+          /* Chapter openers (Part I–V) — each gets its own full-bleed teal page. */
+          body.print-magazine .eh-chapter {
+            background: #006666 !important;
+            color: #ffffff !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            min-height: 8.5in !important;
+            padding: 0.9in !important;
+            page-break-before: always;
+            break-before: page;
+            page-break-after: always;
+            break-after: page;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          body.print-magazine .eh-chapter,
+          body.print-magazine .eh-chapter * {
+            color: #ffffff !important;
+          }
+          body.print-magazine .eh-chapter h1,
+          body.print-magazine .eh-chapter h2 {
+            font-family: "Instrument Serif", "Cormorant Garamond", Georgia, serif !important;
+            font-style: italic !important;
+            color: #ffffff !important;
+          }
+          body.print-magazine .eh-chapter .eh-chapter-num {
+            color: rgba(255,255,255,0.18) !important;
+            font-family: "Instrument Serif", Georgia, serif !important;
+          }
+
+          /* Editorial pull quote — keep the italic serif voice. */
+          body.print-magazine .eh-pullquote {
+            font-family: "Instrument Serif", "Cormorant Garamond", Georgia, serif !important;
+            font-style: italic !important;
+            font-size: 18pt !important;
+            line-height: 1.3 !important;
+            color: #0b1220 !important;
+            border-left: 3px solid #006666 !important;
+            padding-left: 0.5in !important;
+            margin: 0.3in 0 !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+
+          /* Handbook callout — peach rule + warm fill. */
+          body.print-magazine .eh-callout {
+            background: #FFF6EE !important;
+            border-left: 4px solid #FFCCAA !important;
+            border-radius: 2px !important;
+            padding: 12pt 14pt !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          body.print-magazine .eh-callout-label {
+            color: #b45309 !important;
+          }
+
+          /* Handbook sidebar. */
+          body.print-magazine .eh-sidebar {
+            background: #fafaf7 !important;
+            border: 1px solid #e7e3dc !important;
+            border-radius: 4px !important;
+            padding: 12pt 14pt !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+
+          /* Folio page-number badges. */
+          body.print-magazine .eh-folio {
+            color: #006666 !important;
+          }
+
+          /* Keep the issue's warm rules visible in print. */
+          body.print-magazine .eh-cover-rule,
+          body.print-magazine .eh-chapter-rule {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          /* Restore color on accent backgrounds the classic block flattens. */
+          body.print-magazine .report-root [class*="bg-gradient-"] {
+            background: transparent !important;
           }
         }
       `}</style>
