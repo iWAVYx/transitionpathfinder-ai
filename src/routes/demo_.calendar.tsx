@@ -33,17 +33,17 @@ export const Route = createFileRoute("/demo_/calendar")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Shared Calendar — TransitionForward demo" },
+      { title: "Shared Calendar — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "See how meetings, deadlines, tours, and weekly action steps land on one shared Calendar that the whole care team can see.",
+          "See how meetings, deadlines, tours, and weekly action steps land on one shared calendar that families and the whole care team can see.",
       },
-      { property: "og:title", content: "Shared Calendar — TransitionForward demo" },
+      { property: "og:title", content: "Shared Calendar — TransitionForward Demo" },
       {
         property: "og:description",
         content:
-          "One shared Calendar for families and educators — meetings, deadlines, tours, and the 30-day plan in one place.",
+          "One shared calendar for families and educators — meetings, deadlines, tours, and the 30-day plan in one place.",
       },
       { property: "og:url", content: "/demo/calendar" },
     ],
