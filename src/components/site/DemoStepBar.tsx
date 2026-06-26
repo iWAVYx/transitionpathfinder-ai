@@ -1,6 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import { useRef } from "react";
-
+import { useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -9,20 +7,22 @@ import {
   BookOpen,
   CalendarRange,
   CalendarDays,
-  ArrowLeft,
-  ArrowRight,
   Mic,
   FileSearch,
   Briefcase,
   Compass,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
+import { type DemoStudentId } from "@/lib/demo-data";
 import { FeatureFootnote } from "@/components/demo/FeatureFootnote";
 import type { DemoElementId } from "@/lib/demo/feature-map";
 import { StepValueHeader } from "@/components/value/StepValueHeader";
 import { DEMO_STEP_VALUE } from "@/lib/demo/step-value";
+import {
+  MagazineReader,
+  MagazinePageTurn,
+  type MagazinePageId,
+} from "@/components/site/MagazineReader";
 
 const STEP_FEATURE: Record<string, DemoElementId> = {
   intake: "intake.categories",
@@ -38,6 +38,10 @@ const STEP_FEATURE: Record<string, DemoElementId> = {
   next: "cta.getStarted",
 };
 
+/**
+ * Preserved for routes/tests that import this list. Mirrors the chapter
+ * subset of the canonical {@link MAGAZINE_PAGES} order.
+ */
 export const DEMO_STEPS = [
   { id: "intake", to: "/demo/intake", label: "Intake", icon: ClipboardList },
   { id: "voice", to: "/demo/voice", label: "Student Voice", icon: Mic },
@@ -59,248 +63,37 @@ interface Props {
   student: DemoStudentId;
 }
 
+/**
+ * Top reader chrome shown above every demo chapter page. Renders the
+ * magazine reader frame (prev/next, page indicator, drawer Table of
+ * Contents, keyboard nav) plus the per-step "value header" beneath it.
+ *
+ * The previous implementation (a horizontally-scrolling tab strip with
+ * pointer-driven inertial momentum) was replaced by {@link MagazineReader}
+ * to make the demo read page-by-page rather than as a long scroll.
+ */
 export function DemoStepBar({ current, student }: Props) {
   const location = useLocation();
-  const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
-  const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
-  const railRef = useRef<HTMLElement | null>(null);
-  const dragState = useRef<{
-    active: boolean;
-    moved: boolean;
-    startX: number;
-    startY: number;
-    startLeft: number;
-    pointerId: number | null;
-    pointerType: string;
-    lastX: number;
-    lastTime: number;
-    velocity: number; // px/ms, positive = moving content left (scrollLeft increasing)
-  }>({
-    active: false,
-    moved: false,
-    startX: 0,
-    startY: 0,
-    startLeft: 0,
-    pointerId: null,
-    pointerType: "",
-    lastX: 0,
-    lastTime: 0,
-    velocity: 0,
-  });
-  const momentumRaf = useRef<number | null>(null);
-
-  const cancelMomentum = () => {
-    if (momentumRaf.current !== null) {
-      cancelAnimationFrame(momentumRaf.current);
-      momentumRaf.current = null;
-    }
-  };
-
-  const startMomentum = () => {
-    const el = railRef.current;
-    if (!el) return;
-    let velocity = dragState.current.velocity; // px/ms
-    if (Math.abs(velocity) < 0.05) return; // not enough to bother
-    const decay = 0.95; // per frame (~16ms)
-    let last = performance.now();
-    const step = (now: number) => {
-      const dt = now - last;
-      last = now;
-      if (!railRef.current) return;
-      // Apply velocity (scaled by dt to stay framerate-independent).
-      railRef.current.scrollLeft += velocity * dt;
-      // Decay proportional to dt/16 so it feels consistent.
-      velocity *= Math.pow(decay, dt / 16);
-      const max = railRef.current.scrollWidth - railRef.current.clientWidth;
-      if (railRef.current.scrollLeft <= 0 || railRef.current.scrollLeft >= max) {
-        momentumRaf.current = null;
-        return;
-      }
-      if (Math.abs(velocity) < 0.02) {
-        momentumRaf.current = null;
-        return;
-      }
-      momentumRaf.current = requestAnimationFrame(step);
-    };
-    momentumRaf.current = requestAnimationFrame(step);
-  };
-
-  const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
-    const el = railRef.current;
-    if (!el) return;
-    cancelMomentum();
-    dragState.current = {
-      active: true,
-      moved: false,
-      startX: e.clientX,
-      startY: e.clientY,
-      startLeft: el.scrollLeft,
-      pointerId: e.pointerId,
-      pointerType: e.pointerType,
-      lastX: e.clientX,
-      lastTime: performance.now(),
-      velocity: 0,
-    };
-    // Don't capture the pointer up front — capturing redirects the subsequent
-    // click event to the nav element, preventing Link navigation. We only
-    // capture once an actual drag is detected (see onPointerMove).
-  };
-  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    const s = dragState.current;
-    if (!s.active || !railRef.current) return;
-    const dx = e.clientX - s.startX;
-    const dy = e.clientY - s.startY;
-    if (s.pointerType === "touch" && !s.moved) {
-      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-      if (Math.abs(dy) > Math.abs(dx)) {
-        s.active = false;
-        return;
-      }
-      try {
-        railRef.current.setPointerCapture(s.pointerId!);
-      } catch {
-        // ignore
-      }
-    }
-    if (Math.abs(dx) > 4 && !s.moved) {
-      s.moved = true;
-      if (s.pointerType !== "touch" && s.pointerId !== null) {
-        try {
-          railRef.current.setPointerCapture(s.pointerId);
-        } catch {
-          // ignore
-        }
-      }
-    }
-    railRef.current.scrollLeft = s.startLeft - dx;
-
-    // Track velocity (px/ms). Negative dx => scrollLeft increased => positive velocity.
-    const now = performance.now();
-    const dt = now - s.lastTime;
-    if (dt > 0) {
-      const instant = -(e.clientX - s.lastX) / dt;
-      // Low-pass smoothing so the final velocity reflects the recent gesture.
-      s.velocity = s.velocity * 0.6 + instant * 0.4;
-      s.lastX = e.clientX;
-      s.lastTime = now;
-    }
-  };
-  const endDrag = (_e: React.PointerEvent<HTMLElement>) => {
-    const s = dragState.current;
-    if (!s.active) return;
-    if (railRef.current && s.pointerId !== null && railRef.current.hasPointerCapture(s.pointerId)) {
-      railRef.current.releasePointerCapture(s.pointerId);
-    }
-    s.active = false;
-    s.pointerId = null;
-    if (s.moved) startMomentum();
-  };
-  const onClickCapture = (e: React.MouseEvent<HTMLElement>) => {
-    if (dragState.current.moved) {
-      e.preventDefault();
-      e.stopPropagation();
-      dragState.current.moved = false;
-    }
-  };
-
-  const currentIdx = DEMO_STEPS.findIndex((x) => x.id === current);
-  const progressPct = ((currentIdx + 1) / DEMO_STEPS.length) * 100;
-  const currentStepObj = DEMO_STEPS[currentIdx] ?? DEMO_STEPS[0];
-
+  const preserveStudent = !!getExplicitDemoStudent(location.search as { s?: unknown });
   const stepValue = DEMO_STEP_VALUE[current];
   return (
     <>
-    <div className="demo-shell tf-stepbar sticky top-16 z-30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
-        {/* Top row: chapter marker + student switcher */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="tf-eyebrow">
-              Chapter {String(currentIdx + 1).padStart(2, "0")}
-            </span>
-            <span className="hidden sm:inline-block h-3 w-px bg-[color:var(--demo-primary)]/25" aria-hidden />
-            <span className="hidden truncate font-display text-sm font-semibold sm:inline">
-              {currentStepObj.label}
-            </span>
-          </div>
-          <div className="flex items-center gap-3 text-xs">
-            <Link
-              to="/demo"
-              {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-              className="hidden font-display text-xs font-semibold tracking-wider uppercase text-foreground/55 hover:text-demo-primary md:inline"
-            >
-              ← Workspace
-            </Link>
-            <div className="tf-audience" role="tablist" aria-label="Sample student">
-              {(["maya", "jordan"] as DemoStudentId[]).map((sid) => {
-                const cs = DEMO_STEPS.find((x) => x.id === current) ?? DEMO_STEPS[0];
-                return (
-                  <Link
-                    key={sid}
-                    to={cs.to}
-                    search={{ s: sid }}
-                    role="tab"
-                    aria-selected={student === sid}
-                    className={student === sid ? "is-active" : ""}
-                  >
-                    {DEMO_STUDENTS[sid].profile.first_name}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Hairline progress */}
-        <div
-          className="mt-3 h-[2px] w-full overflow-hidden rounded-full bg-[color:var(--demo-primary)]/10"
-          aria-hidden
-        >
-          <div
-            className="h-full bg-gradient-to-r from-[color:var(--demo-primary)] to-[color:var(--demo-accent)] transition-transform duration-700 ease-out origin-left"
-            style={{ transform: `scaleX(${progressPct / 100})` }}
+      <MagazineReader
+        currentId={current as MagazinePageId}
+        student={student}
+        preserveStudent={preserveStudent}
+      />
+      {stepValue && (
+        <div className="demo-shell mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-12">
+          <StepValueHeader
+            question={stepValue.question}
+            storyBeat={stepValue.storyBeat}
+            inputs={stepValue.inputs}
+            output={stepValue.output}
+            rolesHelped={stepValue.rolesHelped}
           />
         </div>
-
-        {/* Page-tab strip — flipbook chapter tabs */}
-        <nav
-          ref={railRef}
-          aria-label="Demo walkthrough steps"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onClickCapture={onClickCapture}
-          className="mag-pagetabs mt-3 select-none cursor-grab active:cursor-grabbing touch-pan-x"
-        >
-          {DEMO_STEPS.map((s, i) => {
-            const active = s.id === current;
-            return (
-              <Link
-                key={s.id}
-                to={s.to}
-                {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
-                className={`mag-pagetab ${active ? "is-active" : ""}`}
-              >
-                <span className="mag-pagetab-num">CH. {String(i + 1).padStart(2, "0")}</span>
-                <span className="mag-pagetab-label">{s.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-    </div>
-    {stepValue && (
-      <div className="demo-shell mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-12">
-        <StepValueHeader
-          question={stepValue.question}
-          storyBeat={stepValue.storyBeat}
-          inputs={stepValue.inputs}
-          output={stepValue.output}
-          rolesHelped={stepValue.rolesHelped}
-        />
-      </div>
-    )}
+      )}
     </>
   );
 }
@@ -310,53 +103,23 @@ interface FooterProps {
   student: DemoStudentId;
 }
 
+/**
+ * Page-turn spread shown at the foot of every demo chapter page. Replaces
+ * the previous minimal prev/next strip with a magazine-style "turn the
+ * page" affordance that previews the next chapter.
+ */
 export function DemoStepFooter({ current, student }: FooterProps) {
   const location = useLocation();
-  const idx = DEMO_STEPS.findIndex((s) => s.id === current);
-  const prev = idx > 0 ? DEMO_STEPS[idx - 1] : null;
-  const next = idx < DEMO_STEPS.length - 1 ? DEMO_STEPS[idx + 1] : null;
-  const bundle = DEMO_STUDENTS[student];
-  const explicitStudent = getExplicitDemoStudent(location.search as { s?: unknown });
-  const preservedStudentSearch = demoStudentSearch(explicitStudent ? student : undefined);
-
+  const preserveStudent = !!getExplicitDemoStudent(location.search as { s?: unknown });
   return (
-    <div className="mx-auto mt-12 max-w-6xl border-t border-border/60 px-4 sm:px-6 lg:px-8">
-      <FeatureFootnote elementId={STEP_FEATURE[current]} className="mt-6" />
-      <div className="flex flex-wrap items-center justify-between gap-3 py-6">
-        <div className="text-xs text-muted-foreground">
-          Walking with{" "}
-          <span className="font-medium text-foreground">{bundle.profile.first_name}</span>
-        </div>
-        <div className="flex gap-2">
-          {prev ? (
-            <Button asChild variant="outline" size="sm">
-              <Link to={prev.to} {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                <ArrowLeft className="h-4 w-4" /> {prev.label}
-              </Link>
-            </Button>
-          ) : (
-            <Button asChild variant="outline" size="sm">
-              <Link to="/demo">
-                <ArrowLeft className="h-4 w-4" /> Demo Overview
-              </Link>
-            </Button>
-          )}
-          {next ? (
-            <Button asChild size="sm">
-              <Link to={next.to} {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                {next.label} <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          ) : (
-            <Button asChild size="sm">
-              <Link to="/waitlist">
-                Join the waitlist <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    <>
+      <FeatureFootnote elementId={STEP_FEATURE[current]} className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-12" />
+      <MagazinePageTurn
+        currentId={current as MagazinePageId}
+        student={student}
+        preserveStudent={preserveStudent}
+      />
+    </>
   );
 }
 
