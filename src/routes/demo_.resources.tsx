@@ -29,7 +29,7 @@ export const Route = createFileRoute("/demo_/resources")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Resource Matches — TransitionForward demo" },
+      { title: "Resource Matches — TransitionForward Demo" },
       {
         name: "description",
         content:
@@ -317,7 +317,7 @@ function DemoResourcesPage() {
             Resource Hub
           </p>
           <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-            Matches for {profile.first_name}
+            Matches For {profile.first_name}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Every resource is tagged with what it is, who it helps, why it matters, and how to use
@@ -331,7 +331,7 @@ function DemoResourcesPage() {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search resources…"
+                placeholder="Search Resources…"
                 className="pl-9"
               />
             </div>
@@ -341,7 +341,7 @@ function DemoResourcesPage() {
               onClick={() => setShowAll((v) => !v)}
             >
               <Filter className="h-4 w-4" />
-              {showAll ? "Showing all" : `Matched to ${profile.first_name}`}
+              {showAll ? "Showing All" : `Matched To ${profile.first_name}`}
             </Button>
             <div className="ml-auto inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
               <button
@@ -393,7 +393,7 @@ function DemoResourcesPage() {
           ))}
           {matched.length === 0 && (
             <div className="col-span-full rounded-3xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
-              No matches yet — try clearing the search or switching categories.
+              No Matches Yet — Try Clearing The Search Or Switching Categories.
             </div>
           )}
         </div>
@@ -418,10 +418,10 @@ function ResourceCard({ r, compact = false }: { r: Resource; compact?: boolean }
         <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
       </div>
       <dl className={`text-sm ${compact ? "mt-2 space-y-1.5" : "mt-4 space-y-3"}`}>
-        <Row label="What it is" value={r.what_it_is} />
-        <Row label="Who it helps" value={r.who_it_helps} />
-        <Row label="Why it matters" value={r.why_it_matters} />
-        <Row label="How to use it" value={r.how_to_use} />
+        <Row label="What It Is" value={r.what_it_is} />
+        <Row label="Who It Helps" value={r.who_it_helps} />
+        <Row label="Why It Matters" value={r.why_it_matters} />
+        <Row label="How To Use It" value={r.how_to_use} />
       </dl>
       <p className={`text-[11px] text-muted-foreground ${compact ? "mt-2" : "mt-4"}`}>Source · {r.source}</p>
     </article>

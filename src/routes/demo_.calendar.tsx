@@ -33,17 +33,17 @@ export const Route = createFileRoute("/demo_/calendar")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Shared Calendar — TransitionForward demo" },
+      { title: "Shared Calendar — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "See how meetings, deadlines, tours, and weekly action steps land on one shared Calendar that the whole care team can see.",
+          "See how meetings, deadlines, tours, and weekly action steps land on one shared calendar that families and the whole care team can see.",
       },
-      { property: "og:title", content: "Shared Calendar — TransitionForward demo" },
+      { property: "og:title", content: "Shared Calendar — TransitionForward Demo" },
       {
         property: "og:description",
         content:
-          "One shared Calendar for families and educators — meetings, deadlines, tours, and the 30-day plan in one place.",
+          "One shared calendar for families and educators — meetings, deadlines, tours, and the 30-day plan in one place.",
       },
       { property: "og:url", content: "/demo/calendar" },
     ],
@@ -78,13 +78,13 @@ function DemoCalendarPage() {
                 Shared Calendar
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                Everything on one page — for everyone.
+                Everything On One Page — For Everyone
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Meetings, deadlines, tours, and the weekly action steps land
-                here automatically from {profile.first_name}'s Pathway Report
-                and Meeting Prep packet. Families and educators see the same
-                view — no double-booking, no surprises.
+                Meetings, deadlines, tours, and the weekly action steps land here
+                automatically from {profile.first_name}'s Pathway Report and Meeting
+                Prep packet. Families and educators see the same view — no double-booking,
+                no surprises.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -94,17 +94,17 @@ function DemoCalendarPage() {
                 </Link>
               </Button>
               <Button size="sm" disabled aria-label="Add event (demo)">
-                <Plus className="h-4 w-4" /> Add event
+                <Plus className="h-4 w-4" /> Add Event
               </Button>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="gap-1">
-              <CalendarDays className="h-3 w-3" /> {events.length} upcoming
+              <CalendarDays className="h-3 w-3" /> {events.length} Upcoming
             </Badge>
             <Badge variant="outline" className="gap-1">
-              <Users className="h-3 w-3" /> Visible to family + care team
+              <Users className="h-3 w-3" /> Visible To Family + Care Team
             </Badge>
             <Badge variant="outline" className="gap-1">
               <GraduationCap className="h-3 w-3" /> Next PPT: {nextMeetingDate}
@@ -115,7 +115,7 @@ function DemoCalendarPage() {
         {/* Up next */}
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div className="space-y-6">
-            <Panel title="This week" icon={<Sparkles className="h-5 w-5" />}>
+            <Panel title="This Week" icon={<Sparkles className="h-5 w-5" />}>
               <ul className="space-y-3">
                 {upNext.map((e, i) => (
                   <EventRow key={i} {...e} />
@@ -123,7 +123,7 @@ function DemoCalendarPage() {
               </ul>
             </Panel>
 
-            <Panel title="Coming up" icon={<CalendarDays className="h-5 w-5" />}>
+            <Panel title="Coming Up" icon={<CalendarDays className="h-5 w-5" />}>
               <ul className="space-y-3">
                 {later.map((e, i) => (
                   <EventRow key={i} {...e} />
@@ -150,7 +150,7 @@ function DemoCalendarPage() {
             </Panel>
 
             <Panel
-              title="Where do events come from?"
+              title="Where Do Events Come From?"
               icon={<ClipboardList className="h-5 w-5" />}
             >
               <ul className="space-y-2 text-sm text-foreground/85">
@@ -169,7 +169,7 @@ function DemoCalendarPage() {
               </ul>
               <Button asChild variant="outline" size="sm" className="mt-4 w-full">
                 <Link to="/demo/plan" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                  See the 30-Day Plan <ArrowRight className="h-4 w-4" />
+                  See The 30-Day Plan <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
             </Panel>

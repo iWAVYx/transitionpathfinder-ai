@@ -73,28 +73,29 @@ function DemoOpportunitiesPage() {
             <Briefcase className="h-3 w-3" /> Opportunity Matches
           </Badge>
           <Badge variant="outline" className="gap-1">
-            <ShieldCheck className="h-3 w-3" /> Sample partners — fictional
+            <ShieldCheck className="h-3 w-3" /> Sample Partners — Fictional
           </Badge>
         </div>
         <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-          Opportunities matched to {bundle.profile.first_name}.
+          Opportunities Matched To {bundle.profile.first_name}
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Each match shows what it is, who it's for, and why it fits. Partners only
-          see opportunity-level interest — never private student information.
+          Each match shows what it is, who it's for, and why it fits this student's
+          interests, strengths, and goals. Partner organizations only see opportunity-level
+          interest — never private student information.
         </p>
 
-        {/* Phase 5 — Intro request status legend */}
+        {/* Intro request status legend */}
         <div className="mt-8 rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                <Send className="mr-1 inline h-3.5 w-3.5" /> Intro request status
+                <Send className="mr-1 inline h-3.5 w-3.5" /> Intro Request Status
               </p>
-              <h2 className="mt-1 font-display text-lg">From shortlist to connection.</h2>
+              <h2 className="mt-1 font-display text-lg">From Shortlist To Connection</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Families and educators drive each intro request. Partners only see matched interest
-                counts — never the student name or IEP.
+                Families and educators drive each intro request. Partner organizations
+                only see how many families flagged interest — never names or private plans.
               </p>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -148,13 +149,13 @@ function DemoOpportunitiesPage() {
                   </div>
                   <div>
                     <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      Why this match
+                      Why This Match
                     </dt>
                     <dd className="mt-0.5 text-foreground/85">{o.why}</dd>
                   </div>
                   <div>
                     <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      Next step
+                      Next Step
                     </dt>
                     <dd className="mt-0.5 flex items-start gap-1.5 text-foreground/85">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
@@ -165,12 +166,12 @@ function DemoOpportunitiesPage() {
 
                 <div className="mt-auto flex gap-2 pt-5">
                   <Button size="sm" variant="outline" disabled>
-                    Save (demo only)
+                    Save (Demo Only)
                   </Button>
                   <Button size="sm" disabled>
                     {status === "not_started" || status === "interest_noted"
-                      ? "Request intro (sign in)"
-                      : "Open (sign in to act)"}
+                      ? "Request Intro (Sign In)"
+                      : "Open (Sign In To Act)"}
                   </Button>
                 </div>
               </article>
@@ -178,26 +179,27 @@ function DemoOpportunitiesPage() {
           })}
         </div>
 
-        {/* Phase 5 — Partner-side view */}
+        {/* Partner-side view */}
         <div className="mt-10 rounded-3xl border border-emerald-500/25 bg-emerald-500/5 p-6 shadow-soft sm:p-8">
           <div className="flex items-start gap-2">
             <Eye className="mt-0.5 h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
-                What the partner sees
+                What The Partner Sees
               </p>
               <h2 className="mt-1 font-display text-xl">
-                Matched interest, never private student data.
+                Matched Interest, Never Private Student Data
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Partners view their own opportunities and aggregate interest signals. They never see
-                names, IEPs, intake answers, or voice responses.
+                Partner organizations view their own opportunities and aggregate interest
+                signals. They never see student names, IEPs, intake answers, or Student
+                Voice responses.
               </p>
             </div>
           </div>
           <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
             {[
-              "Opportunity title, eligibility, location",
+              "Opportunity title, eligibility, and location",
               "Number of families that flagged interest",
               "Number of formal intro requests received",
               "Aggregate interest by region or grade band (when 5+ families)",
@@ -209,8 +211,7 @@ function DemoOpportunitiesPage() {
             ))}
           </ul>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Backed by RLS: <code>partner_opportunities</code> denies SELECT on student-identifying
-            columns to the partner role.
+            Student identifying details are never shared with partner organizations.
           </p>
         </div>
 

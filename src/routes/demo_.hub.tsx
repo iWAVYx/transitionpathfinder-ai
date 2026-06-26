@@ -36,11 +36,11 @@ export const Route = createFileRoute("/demo_/hub")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Sample Student Hub — TransitionForward demo" },
+      { title: "Sample Student Hub — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "The ongoing student workspace where families and educators track goals, documents, and progress.",
+          "The ongoing student workspace where families and educators track goals, documents, and progress in one place.",
       },
       { property: "og:url", content: "/demo/hub" },
     ],
@@ -211,19 +211,19 @@ function DemoHubPage() {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatTile
-              label="Active goals"
+              label="Active Goals"
               value={String(goals.length)}
-              hint={`${avgGoalProgress}% avg progress`}
+              hint={`${avgGoalProgress}% Avg Progress`}
               progress={avgGoalProgress}
             />
-            <StatTile label="Documents" value={String(documents.length)} hint="IEP up to date" icon={<FileText className="h-4 w-4" />} />
+            <StatTile label="Documents" value={String(documents.length)} hint="IEP Up To Date" icon={<FileText className="h-4 w-4" />} />
             <StatTile
-              label="Overall readiness"
+              label="Overall Readiness"
               value={toTitleCase(readinessLevel)}
-              hint="Trending up"
+              hint="Trending Up"
               progress={readinessPct}
             />
-            <StatTile label="Privacy" value="Family-led" hint="3 collaborators" icon={<Lock className="h-4 w-4" />} />
+            <StatTile label="Privacy" value="Family-Led" hint="3 Collaborators" icon={<Lock className="h-4 w-4" />} />
           </div>
 
 
@@ -248,8 +248,8 @@ function DemoHubPage() {
 
               <Panel
                 icon={<Target className="h-5 w-5" />}
-                title="Transition goals"
-                action={<span className="text-xs text-muted-foreground">From the Pathway Report</span>}
+                title="Transition Goals"
+                action={<span className="text-xs text-muted-foreground">From The Pathway Report</span>}
               >
                 <ul className="divide-y divide-border/60">
                   {goals.map((g) => (
@@ -299,8 +299,8 @@ function DemoHubPage() {
 
                 <Panel
                   icon={<Sparkles className="h-5 w-5" />}
-                  title="This week"
-                  action={<span className="text-xs text-muted-foreground">{student.first_name}'s plan</span>}
+                  title="This Week"
+                  action={<span className="text-xs text-muted-foreground">{student.first_name}'s Plan</span>}
                 >
                   <ol className="space-y-3">
                     {(report.family_action_plan?.this_week ?? []).map((step, i) => (
@@ -319,7 +319,7 @@ function DemoHubPage() {
             <section className="space-y-5">
               <SectionHeader label="Resources" />
               <div className="grid gap-6 sm:grid-cols-2">
-                <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved resources">
+                <Panel icon={<Bookmark className="h-5 w-5" />} title="Saved Resources">
                   <ul className="space-y-3 text-sm">
                     <li className="rounded-2xl border border-border/60 bg-background p-3">
                       <p className="font-medium">Transition Planning 101</p>
@@ -332,7 +332,7 @@ function DemoHubPage() {
                   </ul>
                 </Panel>
 
-                <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended partners">
+                <Panel icon={<Building2 className="h-5 w-5" />} title="Recommended Partners">
                   <ul className="space-y-3 text-sm">
                     <li className="rounded-2xl border border-border/60 bg-background p-3">
                       <p className="font-medium">The Kennedy Collective</p>
@@ -362,7 +362,7 @@ function DemoHubPage() {
 
             <section className="space-y-5">
               <SectionHeader label="People" align="start" />
-              <Panel icon={<Users className="h-5 w-5" />} title="Care team">
+              <Panel icon={<Users className="h-5 w-5" />} title="Care Team">
                 <ul className="space-y-3">
                   {collaborators.map((c) => (
                     <li key={c.name} className="flex items-center gap-3">
@@ -379,7 +379,7 @@ function DemoHubPage() {
                   ))}
                 </ul>
                 <Button variant="outline" size="sm" className="mt-4 w-full">
-                  Invite a team member
+                  Invite A Team Member
                 </Button>
               </Panel>
 

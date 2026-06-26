@@ -79,7 +79,7 @@ const CHAPTERS: Chapter[] = [
   { n: "07", icon: <Users className="h-4 w-4" />, title: "Meeting Prep", body: "A PPT / IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.", to: "/demo/meeting", group: "Plan" },
   { n: "08", icon: <CalendarDays className="h-4 w-4" />, title: "Calendar", body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.", to: "/demo/calendar", group: "Plan" },
   { n: "09", icon: <CalendarRange className="h-4 w-4" />, title: "30 / 60 / 90-Day Plan", body: "Doable steps with the responsible role and source labeled.", to: "/demo/plan", group: "Plan" },
-  { n: "10", icon: <LayoutDashboard className="h-4 w-4" />, title: "Role Dashboards", body: "See the same plan from student, family, educator, school, district, and partner views.", to: "/demo/hub", group: "Roles" },
+  { n: "10", icon: <LayoutDashboard className="h-4 w-4" />, title: "Student Hub", body: "The ongoing workspace where families and the care team track goals, documents, and progress together.", to: "/demo/hub", group: "Roles" },
   { n: "11", icon: <Compass className="h-4 w-4" />, title: "What's Next", body: "Clear paths for families, educators, schools, districts, and partners.", to: "/demo/next", group: "Roles" },
 ];
 
@@ -87,7 +87,7 @@ const GROUP_META: Record<Chapter["group"], { eyebrow: string; tagline: string }>
   Foundation: { eyebrow: "Part One", tagline: "Listening — The Foundation That Anchors Every Recommendation." },
   Insight: { eyebrow: "Part Two", tagline: "Synthesis — The Pathway Report That Turns Inputs Into a Plan." },
   Plan: { eyebrow: "Part Three", tagline: "Action — Meeting Prep, Calendar, and a 30 / 60 / 90 Plan." },
-  Roles: { eyebrow: "Part Four", tagline: "Together — One Plan, Six Role-Specific Views." },
+  Roles: { eyebrow: "Part Four", tagline: "Together — The Shared Workspace That Keeps Everyone Aligned." },
 };
 
 function DemoIndex() {
@@ -111,7 +111,7 @@ function DemoIndex() {
               </span>
               <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] tracking-tight text-foreground sm:text-6xl">
                 Demo Workspace
-                <span className="block text-foreground/40">A Live Walk-Through.</span>
+                <span className="block text-foreground/40">A Live Walk-Through</span>
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-3 tf-reveal">
@@ -170,7 +170,7 @@ function DemoIndex() {
             <div className="relative z-10">
               <span className="tf-eyebrow">Issue 01 · Live Demo</span>
               <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
-                A Planning Document<br />Built Around {student.first_name}.
+                A Planning Document<br />Built Around {student.first_name}
               </h2>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground/75 sm:text-lg">
                 Eleven chapters that mirror the real product — intake, voice, documents,
@@ -184,7 +184,7 @@ function DemoIndex() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-demo">
-                  <Link to="/waitlist">Join the Waitlist</Link>
+                  <Link to="/waitlist">Join The Waitlist</Link>
                 </Button>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-medium text-demo-primary">
                   <ShieldCheck className="h-3.5 w-3.5" /> Fictional Student · No Real Data
@@ -232,7 +232,7 @@ function DemoIndex() {
         <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-12">
           <div className="flex items-center justify-between gap-4 pb-3">
             <span className="tf-eyebrow">The Journey</span>
-            <span className="text-xs text-foreground/60">Eleven chapters · about 5 minutes</span>
+            <span className="text-xs text-foreground/60">Eleven Chapters · About 5 Minutes</span>
           </div>
           <div className="tf-journey">
             {CHAPTERS.map((c, i) => (
@@ -301,7 +301,7 @@ function DemoIndex() {
               <div>
                 <span className="tf-eyebrow">Ready When You Are</span>
                 <h3 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                  Open Chapter 01 — {student.first_name}'s Intake.
+                  Open Chapter 01 — {student.first_name}'s Intake
                 </h3>
                 <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
                   You can switch students or jump between chapters at any time from the bar at the top.
@@ -310,11 +310,11 @@ function DemoIndex() {
               <div className="flex flex-wrap gap-3 lg:justify-end">
                 <Button asChild size="lg" className="bg-[color:var(--demo-accent)] text-white hover:opacity-90">
                   <Link to="/demo/intake" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                    Begin the Walkthrough <ArrowRight className="h-4 w-4" />
+                    Begin The Walkthrough <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-white/30 bg-transparent text-white hover:bg-white/10">
-                  <Link to="/waitlist">Join the Waitlist</Link>
+                  <Link to="/waitlist">Join The Waitlist</Link>
                 </Button>
               </div>
             </div>
