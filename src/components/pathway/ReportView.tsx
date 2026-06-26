@@ -823,6 +823,9 @@ export function ReportView({
       </section>
 
 
+      {/* ============ PART I · Student Snapshot ============ */}
+      <ReportPartOpener part="snapshot" />
+
       {/* ============ Student Snapshot ============ */}
       {r.student_snapshot && (
         <Block id="sec-snapshot" title="Student Snapshot" icon={<Compass className="h-5 w-5" />}>
