@@ -89,7 +89,7 @@ function DemoIndex() {
 
   return (
     <SiteShell>
-      <div className="demo-shell">
+      <div className="demo-shell eh-issue">
 
         {/* =========== FLIPBOOK COVER =========== */}
         <section className="mx-auto max-w-7xl px-4 pt-8 pb-10 sm:px-6 lg:px-12">
