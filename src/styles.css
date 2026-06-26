@@ -2143,3 +2143,371 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   color: color-mix(in oklab, var(--demo-primary) 80%, transparent);
   white-space: nowrap;
 }
+
+/* ===========================================================================
+ * EDITORIAL HYBRID — Magazine-Handbook Issue System (selected direction v3)
+ * ---------------------------------------------------------------------------
+ * Scoped to .demo-shell and .report-shell. Provides a cohesive issue look:
+ *   .eh-paper        — warm off-white page background
+ *   .eh-page         — single white "page" inside the issue (paper sheet)
+ *   .eh-cover        — issue cover composition
+ *   .eh-chapter      — full-bleed teal chapter opener
+ *   .eh-spread       — interior page header rule + folio
+ *   .eh-folio        — circular page-number footer
+ *   .eh-pullquote    — oversized serif pull quote
+ *   .eh-callout      — peach-accented handbook callout
+ *   .eh-sidebar      — handbook sidebar with rule + list
+ *   .eh-meter        — thin horizontal meter
+ * =========================================================================== */
+
+.demo-shell,
+.report-shell {
+  --eh-paper: #F4F2EF;
+  --eh-page: #ffffff;
+  --eh-teal: #006666;
+  --eh-peach: #FFCCAA;
+  --eh-ink: #111827;
+  --eh-rule: #e7e3dc;
+  --eh-mute: #6b6f76;
+  --font-eh-serif: "Instrument Serif", "Cormorant Garamond", ui-serif, Georgia, serif;
+}
+
+/* Issue background — warm paper tone wraps every demo + report page. */
+.demo-shell.eh-issue,
+.report-shell.eh-issue {
+  background: var(--eh-paper);
+}
+
+/* A single sheet-of-paper page inside the issue. */
+.demo-shell .eh-page,
+.report-shell .eh-page {
+  background: var(--eh-page);
+  box-shadow: 0 30px 60px -25px rgba(0,0,0,0.18);
+  border-radius: 6px;
+  padding: clamp(2rem, 5vw, 4rem);
+  position: relative;
+}
+
+/* Cover — used by /demo hub. Slightly tinted teal corner. */
+.demo-shell .eh-cover,
+.report-shell .eh-cover {
+  background: var(--eh-page);
+  color: var(--eh-ink);
+  border-radius: 8px;
+  padding: clamp(2.5rem, 6vw, 5rem);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,0.22);
+}
+.demo-shell .eh-cover::before,
+.report-shell .eh-cover::before {
+  content: "";
+  position: absolute; inset: 0 0 0 50%;
+  background: var(--eh-teal);
+  opacity: 0.03;
+  pointer-events: none;
+}
+.demo-shell .eh-cover > *,
+.report-shell .eh-cover > * { position: relative; z-index: 1; }
+
+.demo-shell .eh-cover-mast,
+.report-shell .eh-cover-mast {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 1.5rem; margin-bottom: clamp(2rem, 5vw, 4rem);
+}
+.demo-shell .eh-cover-mast .eh-issuenum,
+.report-shell .eh-cover-mast .eh-issuenum {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--eh-teal);
+}
+.demo-shell .eh-cover-mast .eh-edition,
+.report-shell .eh-cover-mast .eh-edition {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.625rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #94a3b8; margin-top: 0.25rem;
+}
+.demo-shell .eh-cover-mast .eh-monogram,
+.report-shell .eh-cover-mast .eh-monogram {
+  width: 3rem; height: 3rem;
+  background: var(--eh-teal);
+  display: grid; place-items: center; flex-shrink: 0;
+  color: rgba(255,255,255,0.55);
+}
+
+.demo-shell .eh-cover-title,
+.report-shell .eh-cover-title {
+  font-family: var(--font-eh-serif);
+  font-style: italic;
+  font-size: clamp(3rem, 9vw, 8rem);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  color: var(--eh-ink);
+  margin-bottom: 1.25rem;
+}
+.demo-shell .eh-cover-dek,
+.report-shell .eh-cover-dek {
+  font-family: "Epilogue", sans-serif;
+  font-size: clamp(1rem, 1.6vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.4;
+  max-width: 32rem;
+}
+.demo-shell .eh-cover-rule,
+.report-shell .eh-cover-rule {
+  height: 2px; width: 6rem;
+  background: var(--eh-peach);
+  margin: 1.5rem 0;
+}
+.demo-shell .eh-cover-foot,
+.report-shell .eh-cover-foot {
+  margin-top: clamp(2rem, 5vw, 4rem);
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 1.5rem; flex-wrap: wrap;
+  border-top: 1px solid var(--eh-rule); padding-top: 1.5rem;
+}
+.demo-shell .eh-cover-foot .label,
+.report-shell .eh-cover-foot .label {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--eh-teal); margin-bottom: 0.2rem;
+}
+.demo-shell .eh-cover-foot .value,
+.report-shell .eh-cover-foot .value {
+  font-family: "Urbanist", sans-serif;
+  font-size: 1.05rem; font-weight: 600; color: var(--eh-ink);
+}
+.demo-shell .eh-cover-folio,
+.report-shell .eh-cover-folio {
+  font-family: var(--font-eh-serif);
+  font-size: 2.5rem; color: var(--eh-teal); line-height: 1;
+}
+
+/* Chapter opener — full-bleed teal page with oversized italic numeral. */
+.demo-shell .eh-chapter,
+.report-shell .eh-chapter {
+  background: var(--eh-teal);
+  color: #fff;
+  border-radius: 8px;
+  padding: clamp(2.5rem, 6vw, 5rem);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -25px rgba(0,40,40,0.35);
+  min-height: clamp(20rem, 40vw, 32rem);
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.demo-shell .eh-chapter::before,
+.report-shell .eh-chapter::before {
+  content: ""; position: absolute;
+  top: -5rem; right: -5rem; width: 24rem; height: 24rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%; filter: blur(3rem);
+}
+.demo-shell .eh-chapter .eh-chapter-num,
+.report-shell .eh-chapter .eh-chapter-num {
+  position: absolute; bottom: -2rem; right: 1rem;
+  font-family: var(--font-eh-serif);
+  font-size: clamp(8rem, 22vw, 18rem);
+  line-height: 1;
+  color: rgba(255,255,255,0.1);
+  pointer-events: none;
+  user-select: none;
+}
+.demo-shell .eh-chapter > .eh-chapter-inner,
+.report-shell .eh-chapter > .eh-chapter-inner {
+  position: relative; z-index: 1; max-width: 36rem;
+}
+.demo-shell .eh-chapter .eh-chapter-rule,
+.report-shell .eh-chapter .eh-chapter-rule {
+  height: 4px; width: 4rem; background: var(--eh-peach); margin-bottom: 1.5rem;
+}
+.demo-shell .eh-chapter .eh-chapter-kicker,
+.report-shell .eh-chapter .eh-chapter-kicker {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(170,235,235,0.95);
+  margin-bottom: 0.8rem; display: block;
+}
+.demo-shell .eh-chapter h1,
+.demo-shell .eh-chapter h2,
+.report-shell .eh-chapter h1,
+.report-shell .eh-chapter h2 {
+  font-family: var(--font-eh-serif);
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  line-height: 0.95;
+  margin-bottom: 1.25rem;
+  color: #fff;
+}
+.demo-shell .eh-chapter p,
+.report-shell .eh-chapter p {
+  font-family: "Epilogue", sans-serif;
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+  font-weight: 300; line-height: 1.55;
+  color: #d6f0f0;
+}
+
+/* Interior spread header rule + folio footer. */
+.demo-shell .eh-spread-head,
+.report-shell .eh-spread-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 1.5rem; margin-bottom: 2rem;
+  border-bottom: 1px solid var(--eh-rule);
+}
+.demo-shell .eh-spread-head .left,
+.report-shell .eh-spread-head .left {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: #94a3b8;
+}
+.demo-shell .eh-spread-head .right,
+.report-shell .eh-spread-head .right {
+  font-family: var(--font-eh-serif); font-style: italic;
+  font-size: 1.1rem; color: var(--eh-teal);
+}
+.demo-shell .eh-folio,
+.report-shell .eh-folio {
+  display: flex; justify-content: center; margin-top: 3rem;
+}
+.demo-shell .eh-folio span,
+.report-shell .eh-folio span {
+  width: 2.2rem; height: 2.2rem; border-radius: 999px;
+  border: 1px solid var(--eh-rule);
+  display: grid; place-items: center;
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.7rem; font-weight: 700;
+  color: #94a3b8;
+}
+
+/* Editorial pull quote — oversized italic serif. */
+.demo-shell .eh-pullquote,
+.report-shell .eh-pullquote {
+  font-family: var(--font-eh-serif);
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
+  line-height: 1.1;
+  color: var(--eh-ink);
+  letter-spacing: -0.01em;
+  margin: 0 0 2rem;
+}
+.demo-shell .eh-pullquote em,
+.report-shell .eh-pullquote em {
+  color: var(--eh-teal); font-style: italic;
+}
+.demo-shell .eh-pullquote cite,
+.report-shell .eh-pullquote cite {
+  display: block;
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: #94a3b8; font-style: normal;
+  margin-top: 1rem;
+}
+
+/* Handbook callout — peach left rule, paper background. */
+.demo-shell .eh-callout,
+.report-shell .eh-callout {
+  background: var(--eh-paper);
+  border-left: 4px solid var(--eh-peach);
+  padding: 1.5rem 1.75rem;
+  margin: 1.5rem 0;
+}
+.demo-shell .eh-callout-label,
+.report-shell .eh-callout-label {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--eh-ink); margin-bottom: 0.6rem;
+}
+.demo-shell .eh-callout p,
+.report-shell .eh-callout p {
+  font-family: "Epilogue", sans-serif;
+  font-size: 0.95rem; line-height: 1.6;
+  color: rgba(17,24,39,0.82);
+}
+
+/* Handbook sidebar — small heading + list with peach slash bullets. */
+.demo-shell .eh-sidebar,
+.report-shell .eh-sidebar {
+  border-left: 1px solid var(--eh-rule);
+  padding-left: 1.5rem;
+}
+.demo-shell .eh-sidebar-label,
+.report-shell .eh-sidebar-label {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--eh-teal); margin-bottom: 1rem;
+}
+.demo-shell .eh-sidebar-list,
+.report-shell .eh-sidebar-list {
+  font-family: "Epilogue", sans-serif;
+  font-size: 0.92rem; color: var(--eh-ink);
+  list-style: none; padding: 0; margin: 0;
+}
+.demo-shell .eh-sidebar-list > li,
+.report-shell .eh-sidebar-list > li {
+  display: flex; gap: 0.6rem;
+  padding: 0.55rem 0;
+  border-top: 1px dotted var(--eh-rule);
+}
+.demo-shell .eh-sidebar-list > li:first-child,
+.report-shell .eh-sidebar-list > li:first-child { border-top: 0; }
+.demo-shell .eh-sidebar-list > li::before,
+.report-shell .eh-sidebar-list > li::before {
+  content: "/"; color: var(--eh-peach); font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Thin horizontal meter — used in Readiness / Self-Advocacy contexts. */
+.demo-shell .eh-meter,
+.report-shell .eh-meter {
+  height: 4px; width: 100%; background: #eef0f3; position: relative;
+  border-radius: 2px; overflow: hidden;
+}
+.demo-shell .eh-meter > span,
+.report-shell .eh-meter > span {
+  position: absolute; left: 0; top: 0; height: 100%;
+  background: var(--eh-teal);
+}
+.demo-shell .eh-meter--peach > span,
+.report-shell .eh-meter--peach > span { background: var(--eh-peach); }
+
+/* Q&A interview block — used by Student Voice spread. */
+.demo-shell .eh-qa,
+.report-shell .eh-qa {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--eh-rule);
+}
+.demo-shell .eh-qa:first-child,
+.report-shell .eh-qa:first-child { border-top: 0; padding-top: 0; }
+.demo-shell .eh-qa .q,
+.report-shell .eh-qa .q {
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--eh-teal); margin-bottom: 0.4rem;
+}
+.demo-shell .eh-qa .prompt,
+.report-shell .eh-qa .prompt {
+  font-family: "Urbanist", sans-serif;
+  font-size: 1.05rem; font-weight: 600; color: var(--eh-ink);
+  margin-bottom: 0.6rem;
+}
+.demo-shell .eh-qa .a,
+.report-shell .eh-qa .a {
+  font-family: var(--font-eh-serif); font-style: italic;
+  font-size: 1.1rem; line-height: 1.5; color: rgba(17,24,39,0.85);
+}
+
+/* Tighter responsive paddings */
+@media (max-width: 640px) {
+  .demo-shell .eh-page,
+  .report-shell .eh-page { padding: 1.5rem 1.25rem; border-radius: 4px; }
+  .demo-shell .eh-cover,
+  .report-shell .eh-cover { padding: 2rem 1.5rem; }
+  .demo-shell .eh-chapter,
+  .report-shell .eh-chapter { padding: 2.5rem 1.5rem; min-height: 18rem; }
+}
