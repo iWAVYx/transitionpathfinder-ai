@@ -1283,6 +1283,9 @@ export function ReportView({
         </Block>
       )}
 
+      {/* ============ PART IV · For The Next Meeting ============ */}
+      <ReportPartOpener part="team" />
+
       {/* ============ Meeting prep toolkit ============ */}
       {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
