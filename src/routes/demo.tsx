@@ -184,7 +184,7 @@ function DemoIndex() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-demo">
-                  <Link to="/waitlist">Join the Waitlist</Link>
+                  <Link to="/waitlist">Join The Waitlist</Link>
                 </Button>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-medium text-demo-primary">
                   <ShieldCheck className="h-3.5 w-3.5" /> Fictional Student · No Real Data
