@@ -87,7 +87,7 @@ const GROUP_META: Record<Chapter["group"], { eyebrow: string; tagline: string }>
   Foundation: { eyebrow: "Part One", tagline: "Listening — The Foundation That Anchors Every Recommendation." },
   Insight: { eyebrow: "Part Two", tagline: "Synthesis — The Pathway Report That Turns Inputs Into a Plan." },
   Plan: { eyebrow: "Part Three", tagline: "Action — Meeting Prep, Calendar, and a 30 / 60 / 90 Plan." },
-  Roles: { eyebrow: "Part Four", tagline: "Together — One Plan, Six Role-Specific Views." },
+  Roles: { eyebrow: "Part Four", tagline: "Together — The Shared Workspace That Keeps Everyone Aligned." },
 };
 
 function DemoIndex() {
