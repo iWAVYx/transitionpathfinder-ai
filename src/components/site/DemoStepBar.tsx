@@ -77,26 +77,14 @@ export function DemoStepBar({ current, student }: Props) {
   const preserveStudent = !!getExplicitDemoStudent(location.search as { s?: unknown });
   const stepValue = DEMO_STEP_VALUE[current];
   return (
-    <>
-      <MagazineReader
-        currentId={current as MagazinePageId}
-        student={student}
-        preserveStudent={preserveStudent}
-      />
-      {stepValue && (
-        <div className="demo-shell mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-12">
-          <StepValueHeader
-            question={stepValue.question}
-            storyBeat={stepValue.storyBeat}
-            inputs={stepValue.inputs}
-            output={stepValue.output}
-            rolesHelped={stepValue.rolesHelped}
-          />
-        </div>
-      )}
-    </>
+    <MagazineReader
+      currentId={current as MagazinePageId}
+      student={student}
+      preserveStudent={preserveStudent}
+    />
   );
 }
+
 
 interface FooterProps {
   current: DemoStepId;
