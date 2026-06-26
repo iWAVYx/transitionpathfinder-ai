@@ -38,7 +38,7 @@ function DemoReportPage() {
 
   return (
     <SiteShell>
-      <div className="demo-shell report-shell">
+      <div className="demo-shell report-shell eh-issue">
         <DemoStepBar current="report" student={s} />
 
         {/* Slim intro band — no oversized hero, no floating role-view block.
