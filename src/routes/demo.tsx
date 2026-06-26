@@ -187,7 +187,7 @@ function DemoIndex() {
 
             <div className="eh-cover-foot">
               <div>
-                <p className="label">Student Dossier</p>
+                <p className="label">Student</p>
                 <p className="value">{toTitleCase(student.full_name)}</p>
               </div>
               <div>
@@ -202,7 +202,6 @@ function DemoIndex() {
                 <p className="label">Prepared For</p>
                 <p className="value">Families, Educators &amp; Partners</p>
               </div>
-              <p className="eh-cover-folio">01</p>
             </div>
           </div>
         </section>
