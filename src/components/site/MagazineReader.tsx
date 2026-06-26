@@ -263,7 +263,7 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
   const idx = MAGAZINE_PAGES.findIndex((p) => p.id === currentId);
   const prev = idx > 0 ? MAGAZINE_PAGES[idx - 1] : null;
   const next = idx < MAGAZINE_PAGES.length - 1 ? MAGAZINE_PAGES[idx + 1] : null;
-  const bundle = DEMO_STUDENTS[student];
+  void DEMO_STUDENTS[student];
   const search = preserveStudent ? { s: student } : undefined;
 
   return (
