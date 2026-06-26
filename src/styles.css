@@ -500,33 +500,44 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .report-shell {
   font-family: var(--font-demo-body);
 
-  /* WCAG AA contrast overrides — scoped so the marketing site palette
-   * is unaffected. The defaults (sky-mid primary + light peach accent)
-   * failed axe color-contrast on buttons, chips, and small uppercase
-   * labels because text-primary on peach / on bg-primary/15 / white-
-   * on-primary all landed between 2.6:1 and 4.4:1.
-   *
-   * - Deeper sky primary: ≥4.86:1 on peach, ~7:1 on white & sky-soft.
-   * - Deeper peach accent: white text on it now clears 4.5:1.
-   * - White primary-foreground stays inverted on the dark primary. */
-  --primary: oklch(0.4 0.14 235);
-  --primary-foreground: oklch(0.99 0.005 220);
+  /* OCEAN DEEP palette — premium, calm, district-ready.
+   *   ink   #0c2340   deep navy, primary text + dark surfaces
+   *   deep  #1a4a6e   working blue, primary buttons + rules
+   *   teal  #2d8a9e   accent + interactive
+   *   mint  #5cbdb9   soft accent + meters
+   *   paper #f7f5f0   warm off-white background
+   *   rule  rgba ink  hairlines + dividers
+   * All values cleared WCAG AA against paper/white surfaces. */
+  --primary: oklch(0.32 0.07 248);            /* deep #1a4a6e */
+  --primary-foreground: oklch(0.985 0.004 90);
   --demo-primary: var(--primary);
-  --demo-accent: oklch(0.58 0.17 30);
-  --demo-accent-soft: oklch(0.92 0.05 25);
+  --demo-primary-bright: oklch(0.55 0.08 220);
+  --demo-accent: oklch(0.55 0.08 220);        /* teal #2d8a9e */
+  --demo-accent-soft: oklch(0.78 0.07 200);   /* mint #5cbdb9 */
+  --demo-ink: oklch(0.20 0.05 250);           /* ink #0c2340 */
+  --demo-mute: oklch(0.45 0.02 250);
+  --demo-paper: oklch(0.97 0.006 85);         /* paper #f7f5f0 */
+  --demo-paper-warm: oklch(0.95 0.012 80);
+  --demo-rule: color-mix(in oklab, oklch(0.20 0.05 250) 14%, transparent);
+  --demo-surface-warm: var(--demo-paper-warm);
+  --demo-border: var(--demo-rule);
+  --demo-card: #ffffff;
   --peach: var(--demo-accent);
   --peach-soft: var(--demo-accent-soft);
 }
 
 .dark .demo-shell,
 .dark .report-shell {
-  /* Inverted: light primary text on dark surfaces still needs to land
-   * AA against bg-primary/15 chips and the demo-card backdrop. */
-  --primary: oklch(0.85 0.11 230);
-  --primary-foreground: oklch(0.16 0.04 240);
+  --primary: oklch(0.78 0.08 220);
+  --primary-foreground: oklch(0.18 0.04 250);
   --demo-primary: var(--primary);
-  --demo-accent: oklch(0.72 0.12 30);
-  --demo-accent-soft: oklch(0.34 0.06 25);
+  --demo-accent: oklch(0.72 0.08 200);
+  --demo-accent-soft: oklch(0.45 0.06 220);
+  --demo-ink: oklch(0.96 0.01 220);
+  --demo-mute: oklch(0.72 0.02 220);
+  --demo-paper: oklch(0.18 0.03 250);
+  --demo-paper-warm: oklch(0.21 0.03 250);
+  --demo-rule: color-mix(in oklab, white 12%, transparent);
 }
 .demo-shell :where(h1, h2, h3, h4, h5, h6),
 .report-shell :where(h1, h2, h3, h4, h5, h6) {
@@ -2574,3 +2585,639 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   .demo-shell .eh-chapter,
   .report-shell .eh-chapter { padding: 1.5rem 1.25rem; }
 }
+
+/* ===========================================================================
+ * WORKBOOK SYSTEM — Final override layer
+ * ---------------------------------------------------------------------------
+ * Premium interactive pathway workbook. Ocean Deep palette on warm paper.
+ * Scoped to .demo-shell / .report-shell so the marketing site is untouched.
+ * Wins on cascade by being last; overrides the prior .eh-*, .mag-*, .fb-*,
+ * .tf-* visual treatments with calm, district-ready styling.
+ * =========================================================================== */
+
+.demo-shell,
+.report-shell {
+  background: var(--demo-paper);
+  color: var(--demo-ink);
+}
+
+/* Neutralize older decorative backgrounds */
+.demo-shell.eh-issue,
+.report-shell.eh-issue { background: var(--demo-paper); }
+.demo-shell .eh-page,
+.report-shell .eh-page,
+.demo-shell .mag-page,
+.report-shell .mag-page {
+  background: #ffffff;
+  border: 1px solid var(--demo-rule);
+  border-radius: 6px;
+  box-shadow: 0 1px 0 rgba(12,35,64,0.02), 0 8px 24px -16px rgba(12,35,64,0.10);
+  padding: clamp(1.75rem, 4vw, 3rem);
+}
+.demo-shell .eh-folio,
+.report-shell .eh-folio { display: none; }
+
+/* ===== Reader chrome (top bar) — calm Ocean Deep ===== */
+.demo-shell .mag-reader-bar,
+.report-shell .mag-reader-bar {
+  background: rgba(247,245,240,0.96);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--demo-rule);
+  box-shadow: none;
+}
+.demo-shell .mag-reader-indicator,
+.report-shell .mag-reader-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background: transparent;
+  transition: background 120ms ease;
+}
+.demo-shell .mag-reader-indicator:hover,
+.report-shell .mag-reader-indicator:hover { background: rgba(12,35,64,0.04); }
+.demo-shell .mag-reader-folio,
+.report-shell .mag-reader-folio { display: block; min-width: 0; }
+.demo-shell .mag-reader-arrow,
+.report-shell .mag-reader-arrow {
+  border-radius: 4px;
+  background: transparent;
+  color: var(--demo-ink);
+  border: 1px solid var(--demo-rule);
+}
+.demo-shell .mag-reader-arrow:hover,
+.report-shell .mag-reader-arrow:hover {
+  background: var(--demo-ink);
+  color: #ffffff;
+  border-color: var(--demo-ink);
+}
+.demo-shell .mag-reader-arrow--next,
+.report-shell .mag-reader-arrow--next {
+  background: var(--demo-ink);
+  color: #ffffff;
+  border-color: var(--demo-ink);
+}
+.demo-shell .mag-reader-arrow--next:hover,
+.report-shell .mag-reader-arrow--next:hover {
+  background: var(--demo-accent);
+  border-color: var(--demo-accent);
+}
+
+/* TOC drawer */
+.demo-shell .mag-reader-drawer,
+.report-shell .mag-reader-drawer {
+  background: #ffffff;
+  border-bottom: 1px solid var(--demo-rule);
+  box-shadow: 0 10px 30px -20px rgba(12,35,64,0.20);
+}
+.demo-shell .mag-toc-grid,
+.report-shell .mag-toc-grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .demo-shell .mag-toc-grid,
+  .report-shell .mag-toc-grid { grid-template-columns: 1fr 1fr; }
+}
+.demo-shell .mag-toc-card,
+.report-shell .mag-toc-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.95rem 0.5rem;
+  border-top: 1px solid var(--demo-rule);
+  background: transparent;
+  border-radius: 0;
+  transition: background 120ms ease, color 120ms ease;
+}
+.demo-shell .mag-toc-card:hover,
+.report-shell .mag-toc-card:hover { background: rgba(12,35,64,0.03); }
+.demo-shell .mag-toc-card.is-active,
+.report-shell .mag-toc-card.is-active {
+  background: transparent;
+  box-shadow: inset 3px 0 0 var(--demo-accent);
+  padding-left: calc(0.5rem + 0.5rem);
+}
+.demo-shell .mag-toc-card-num,
+.report-shell .mag-toc-card-num {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--demo-accent);
+  font-variant-numeric: tabular-nums;
+  width: 2rem;
+}
+
+/* ===== Inline progress bar ===== */
+.demo-shell .mag-reader-bar > div[aria-hidden],
+.report-shell .mag-reader-bar > div[aria-hidden] {
+  background: var(--demo-rule) !important;
+}
+.demo-shell .mag-reader-bar > div[aria-hidden] > div,
+.report-shell .mag-reader-bar > div[aria-hidden] > div {
+  background: var(--demo-accent) !important;
+}
+
+/* ===== Cover — neutralized eh-cover, restrained typography ===== */
+.demo-shell .eh-cover,
+.report-shell .eh-cover {
+  background: #ffffff;
+  border: 1px solid var(--demo-rule);
+  border-top: 6px solid var(--demo-ink);
+  border-radius: 6px;
+  padding: clamp(2rem, 5vw, 4rem);
+  box-shadow: 0 1px 0 rgba(12,35,64,0.02), 0 20px 50px -40px rgba(12,35,64,0.25);
+}
+.demo-shell .eh-cover-mast,
+.report-shell .eh-cover-mast {
+  padding-bottom: 1.25rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--demo-rule);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.demo-shell .eh-issuenum,
+.report-shell .eh-issuenum {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-accent);
+}
+.demo-shell .eh-edition,
+.report-shell .eh-edition {
+  font-size: 0.8rem;
+  color: var(--demo-mute);
+  margin-top: 0.25rem;
+}
+.demo-shell .eh-cover-title,
+.report-shell .eh-cover-title {
+  font-family: var(--font-demo-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--demo-ink);
+}
+.demo-shell .eh-cover-rule,
+.report-shell .eh-cover-rule {
+  width: 3.5rem;
+  height: 3px;
+  background: var(--demo-accent);
+  margin: 1.5rem 0 1.25rem;
+}
+.demo-shell .eh-cover-dek,
+.report-shell .eh-cover-dek {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--demo-mute);
+  max-width: 36rem;
+}
+.demo-shell .eh-cover-foot,
+.report-shell .eh-cover-foot {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--demo-rule);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem 2rem;
+}
+@media (min-width: 768px) {
+  .demo-shell .eh-cover-foot,
+  .report-shell .eh-cover-foot { grid-template-columns: repeat(4, 1fr); }
+}
+.demo-shell .eh-cover-foot .label,
+.report-shell .eh-cover-foot .label {
+  font-family: var(--font-demo-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-mute);
+}
+.demo-shell .eh-cover-foot .value,
+.report-shell .eh-cover-foot .value {
+  margin-top: 0.35rem;
+  font-family: var(--font-demo-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--demo-ink);
+}
+
+/* ===== Chapter opener — calm, no oversized italic numerals ===== */
+.demo-shell .eh-chapter,
+.report-shell .eh-chapter {
+  position: relative;
+  background: var(--demo-ink);
+  color: #ffffff;
+  border-radius: 6px;
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 3rem);
+  overflow: hidden;
+  box-shadow: 0 20px 60px -30px rgba(12,35,64,0.45);
+}
+.demo-shell .eh-chapter::before,
+.report-shell .eh-chapter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), transparent 40%),
+    linear-gradient(90deg, transparent, rgba(45,138,158,0.10));
+  pointer-events: none;
+}
+.demo-shell .eh-chapter-num,
+.report-shell .eh-chapter-num {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  font-family: var(--font-demo-display);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+.demo-shell .eh-chapter-inner,
+.report-shell .eh-chapter-inner { position: relative; max-width: 44rem; }
+.demo-shell .eh-chapter-rule,
+.report-shell .eh-chapter-rule {
+  width: 2.5rem;
+  height: 2px;
+  background: var(--demo-accent-soft);
+  margin-bottom: 1.25rem;
+}
+.demo-shell .eh-chapter-kicker,
+.report-shell .eh-chapter-kicker {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--demo-accent-soft);
+}
+.demo-shell .eh-chapter h1,
+.report-shell .eh-chapter h1 {
+  font-family: var(--font-demo-display);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin-top: 0.75rem;
+}
+.demo-shell .eh-chapter p,
+.report-shell .eh-chapter p {
+  margin-top: 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.82);
+  max-width: 36rem;
+}
+
+/* ===== Pull quote — calm serif moment ===== */
+.demo-shell .eh-pullquote,
+.report-shell .eh-pullquote {
+  margin: 2rem 0;
+  padding: 0 0 0 1.5rem;
+  border-left: 3px solid var(--demo-accent);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  line-height: 1.4;
+  font-style: italic;
+  color: var(--demo-ink);
+}
+.demo-shell .eh-pullquote cite,
+.report-shell .eh-pullquote cite {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: var(--font-demo-display);
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-mute);
+}
+
+/* ===== Sidebar + callout ===== */
+.demo-shell .eh-sidebar,
+.report-shell .eh-sidebar {
+  background: var(--demo-paper-warm);
+  border: 1px solid var(--demo-rule);
+  border-left: 3px solid var(--demo-accent);
+  border-radius: 4px;
+  padding: 1.5rem;
+}
+.demo-shell .eh-sidebar-label,
+.report-shell .eh-sidebar-label {
+  font-family: var(--font-demo-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-accent);
+  margin-bottom: 0.5rem;
+}
+.demo-shell .eh-sidebar-list,
+.report-shell .eh-sidebar-list { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.demo-shell .eh-sidebar-list li,
+.report-shell .eh-sidebar-list li {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--demo-rule);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--demo-ink);
+}
+.demo-shell .eh-sidebar-list li:first-child,
+.report-shell .eh-sidebar-list li:first-child { border-top: 0; padding-top: 0; }
+.demo-shell .eh-callout,
+.report-shell .eh-callout {
+  background: #ffffff;
+  border: 1px solid var(--demo-rule);
+  border-top: 3px solid var(--demo-accent);
+  border-radius: 4px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.demo-shell .eh-callout-label,
+.report-shell .eh-callout-label {
+  font-family: var(--font-demo-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-accent);
+  margin-bottom: 0.5rem;
+}
+
+/* ===== Readiness meters ===== */
+.demo-shell .eh-meter,
+.report-shell .eh-meter {
+  height: 6px;
+  background: var(--demo-rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.demo-shell .eh-meter > span,
+.report-shell .eh-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--demo-accent);
+  border-radius: 999px;
+}
+.demo-shell .eh-meter--peach > span,
+.report-shell .eh-meter--peach > span { background: var(--demo-accent-soft); }
+
+/* ===== Section bands (ink) ===== */
+.demo-shell .tf-band,
+.report-shell .tf-band {
+  background: var(--demo-paper-warm);
+  border: 1px solid var(--demo-rule);
+  border-radius: 6px;
+  padding: clamp(2rem, 4vw, 3rem);
+  color: var(--demo-ink);
+}
+.demo-shell .tf-band--ink,
+.report-shell .tf-band--ink {
+  background: var(--demo-ink);
+  color: #ffffff;
+  border-color: var(--demo-ink);
+}
+.demo-shell .tf-band--ink .tf-eyebrow,
+.report-shell .tf-band--ink .tf-eyebrow { color: var(--demo-accent-soft); }
+.demo-shell .tf-eyebrow,
+.report-shell .tf-eyebrow {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-accent);
+}
+.demo-shell .tf-eyebrow::before,
+.report-shell .tf-eyebrow::before { display: none; }
+
+/* ===== Audience tabs (student switcher etc.) ===== */
+.demo-shell .tf-audience,
+.report-shell .tf-audience {
+  display: inline-flex;
+  gap: 0;
+  padding: 0.2rem;
+  background: var(--demo-paper-warm);
+  border: 1px solid var(--demo-rule);
+  border-radius: 4px;
+}
+.demo-shell .tf-audience a,
+.report-shell .tf-audience a,
+.demo-shell .tf-audience button,
+.report-shell .tf-audience button {
+  padding: 0.4rem 0.85rem;
+  font-family: var(--font-demo-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--demo-mute);
+  border-radius: 3px;
+  transition: all 120ms ease;
+}
+.demo-shell .tf-audience .is-active,
+.report-shell .tf-audience .is-active,
+.demo-shell .tf-audience [aria-selected="true"],
+.report-shell .tf-audience [aria-selected="true"] {
+  background: var(--demo-ink);
+  color: #ffffff;
+}
+
+/* ===== Magazine TOC rows (cover-page Contents list) ===== */
+.demo-shell .mag-toc,
+.report-shell .mag-toc {
+  border-top: 1px solid var(--demo-rule);
+}
+.demo-shell .mag-toc-row,
+.report-shell .mag-toc-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 1.25rem;
+  align-items: baseline;
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid var(--demo-rule);
+  transition: background 120ms ease, padding-left 120ms ease;
+}
+.demo-shell .mag-toc-row:hover,
+.report-shell .mag-toc-row:hover {
+  background: rgba(12,35,64,0.03);
+  padding-left: 1rem;
+}
+.demo-shell .mag-toc-num,
+.report-shell .mag-toc-num {
+  font-family: var(--font-demo-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--demo-accent);
+  font-variant-numeric: tabular-nums;
+}
+.demo-shell .mag-toc-title,
+.report-shell .mag-toc-title {
+  font-family: var(--font-demo-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--demo-ink);
+  letter-spacing: -0.01em;
+}
+.demo-shell .mag-toc-dek,
+.report-shell .mag-toc-dek {
+  margin-top: 0.2rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--demo-mute);
+}
+.demo-shell .mag-toc-page,
+.report-shell .mag-toc-page {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--demo-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Page-turn footer — restrained ===== */
+.demo-shell .mag-pageturn,
+.report-shell .mag-pageturn {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .demo-shell .mag-pageturn,
+  .report-shell .mag-pageturn { grid-template-columns: 1fr 2fr; }
+}
+.demo-shell .mag-pageturn-side,
+.report-shell .mag-pageturn-side {
+  background: #ffffff;
+  border: 1px solid var(--demo-rule);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.demo-shell .mag-pageturn-link,
+.report-shell .mag-pageturn-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.5rem;
+  height: 100%;
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+.demo-shell .mag-pageturn-link:hover,
+.report-shell .mag-pageturn-link:hover { background: var(--demo-paper-warm); }
+.demo-shell .mag-pageturn-link.is-next,
+.report-shell .mag-pageturn-link.is-next {
+  background: var(--demo-ink);
+  color: #ffffff;
+}
+.demo-shell .mag-pageturn-link.is-next:hover,
+.report-shell .mag-pageturn-link.is-next:hover { background: var(--demo-accent); }
+.demo-shell .mag-pageturn-folio,
+.report-shell .mag-pageturn-folio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: inherit;
+  opacity: 0.7;
+}
+.demo-shell .mag-pageturn-kicker,
+.report-shell .mag-pageturn-kicker {
+  font-family: var(--font-demo-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--demo-accent);
+}
+.demo-shell .mag-pageturn-link.is-next .mag-pageturn-kicker,
+.report-shell .mag-pageturn-link.is-next .mag-pageturn-kicker { color: var(--demo-accent-soft); }
+.demo-shell .mag-pageturn-title,
+.report-shell .mag-pageturn-title {
+  font-family: var(--font-demo-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.demo-shell .mag-pageturn-dek,
+.report-shell .mag-pageturn-dek {
+  margin-top: 0.4rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+/* ===== Neutralize loud decorative grammars ===== */
+.demo-shell .tf-numeral,
+.report-shell .tf-numeral,
+.demo-shell .fb-cover,
+.report-shell .fb-cover,
+.demo-shell .fb-cover *,
+.report-shell .fb-cover * { /* leave alone if not present */ }
+.demo-shell .has-dropcap p:first-of-type::first-letter,
+.report-shell .has-dropcap p:first-of-type::first-letter {
+  /* Restrained drop cap — no oversized italic */
+  float: left;
+  font-family: var(--font-demo-display);
+  font-weight: 700;
+  font-size: 3.2rem;
+  line-height: 0.95;
+  padding: 0.25rem 0.5rem 0 0;
+  color: var(--demo-ink);
+}
+.demo-shell .mag-body,
+.report-shell .mag-body {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--demo-ink);
+}
+.demo-shell .mag-body p + p,
+.report-shell .mag-body p + p { margin-top: 1rem; }
+
+/* ===== Buttons inside workbook get Ocean Deep treatment ===== */
+.demo-shell .demo-chip-active,
+.report-shell .demo-chip-active {
+  background: var(--demo-ink);
+  color: #ffffff;
+  border-color: var(--demo-ink);
+}
+
+/* ===== Page-fade animation kept subtle ===== */
+.demo-shell .mag-page,
+.report-shell .mag-page { animation: wb-fade 180ms ease-out both; }
+@keyframes wb-fade {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ===== Reader chrome — fix mag-reader-chev color ===== */
+.demo-shell .mag-reader-chev,
+.report-shell .mag-reader-chev { color: var(--demo-mute); }
+
+/* ===== Demo-ink / demo-primary helper utilities ===== */
+.demo-shell .text-demo-ink,
+.report-shell .text-demo-ink { color: var(--demo-ink); }
+
+/* End of WORKBOOK SYSTEM override layer */

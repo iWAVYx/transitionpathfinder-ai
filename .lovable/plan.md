@@ -1,121 +1,74 @@
-# Magazine-Style Redesign: Demo Workspace + Pathway Report
 
-This is a true visual replacement, not a polish pass. New design language, new layout primitives, same features/routes/roles/tests/IDs.
+# Rebuild: Premium Interactive Pathway Workbook
 
-## New Visual Language (scoped to `.demo-shell` and `.tf-report`)
+Replaces the current Demo Workspace + Pathway Report presentation with one shared "Pathway Issue" reader. Same data, same routes, same role rules, same test IDs — new experience model and presentation layer only.
 
-Introduce a magazine system in `src/styles.css`:
-- **Type scale**: serif display for chapter titles (existing Epilogue), generous editorial sizes (clamp 2.5–4.5rem), tighter tracking, larger leading on body (1.7), max measure ~62ch for readability.
-- **Paper surfaces**: warm off-white `--paper`, soft cream sidebars `--paper-cream`, ink `--ink` text, rule lines via 1px borders + hairline dividers.
-- **Layout primitives** (new utility classes):
-  - `.mag-cover` — full-bleed cover spread with overlay kicker / oversized headline / byline strip / page number marker
-  - `.mag-spread` — two-column editorial spread, asymmetric (7/5 split desktop, stacked mobile)
-  - `.mag-chapter-opener` — large numeral, hairline rule, chapter title, dek
-  - `.mag-pullquote` — oversized quote with vertical bar accent
-  - `.mag-sidebar` — cream box w/ label ("What This Means", "Questions To Bring") and rule top
-  - `.mag-callout` — inline tinted block for plain-language summaries
-  - `.mag-page-marker` — running header w/ student name + page X / total
-  - `.mag-timeline` — horizontal magazine timeline (uniform row, single-row desktop with snap-scroll on mobile)
-  - `.mag-toc` — sticky compact table of contents (left rail desktop, top accordion mobile)
-  - `.mag-tab-strip` — flat editorial tabs for role views (no boxy card)
-  - `.mag-drop-cap` — first-letter drop cap for opening paragraphs
-  - `.mag-rule` — hairline section divider with optional centered label
-- Soft section backgrounds (alternating paper / cream bands) using `nth-of-type` on `.mag-section`.
-- Illustration accents using existing assets (e.g. `framework-hero-graduation`, `mom-daughter-homework`) as full-bleed band imagery, not card thumbnails.
+## Direction (locked from your picks)
 
-## Demo Workspace Redesign
+- Reader model: One page at a time. Prev/Next + table-of-contents drawer + progress indicator. No long stacked pages.
+- Palette: Ocean Deep — `#0c2340` (ink), `#1a4a6e` (deep), `#2d8a9e` (accent), `#5cbdb9` (mint), on warm off-white `#f7f5f0` paper. No gradients, no decorative blobs, no fake page curls.
+- Type: Instrument Serif (display only, restrained), Urbanist (UI/body). Generous line length, calm hierarchy, Title Case throughout.
 
-Files: `src/routes/demo.tsx` (hub) + each `src/routes/demo_.{intake,voice,documents,report,resources,opportunities,plan,meeting,calendar,hub,next}.tsx`.
+## What gets built
 
-- **Hub (`demo.tsx`)** → guidebook cover:
-  - `.mag-cover` with kicker "A Sample Planning Journey", oversized title "Meet Maya. Walk Through Her Pathway.", byline "TransitionForward Demo Edition · 2026", student photo/illustration band.
-  - Followed by a compact `.mag-toc` listing the 11 chapters with page numbers and 1-line deks.
-  - Journey timeline rebuilt as `.mag-timeline` (one row desktop, uniform tile widths, snap scroll mobile).
-  - Removes the four big italic numeral bands as the *primary* layout — convert them into chapter dividers instead.
-- **Chapter pages** all share:
-  - `.mag-page-marker` running header (Chapter N · Demo · Maya)
-  - `.mag-chapter-opener` with numeral + title + dek
-  - `.mag-spread` for main content (body left, `.mag-sidebar` right with "What This Means" / "Questions To Bring")
-  - `.mag-pullquote` where student/family voice exists
-  - Footer "Continue To Chapter N+1 →" + "Back To Contents" (replaces current DemoStepFooter visual; keep component + nav logic, restyle).
-- DemoStepBar restyled as flat `.mag-tab-strip` w/ chapter numerals — same IDs, same nav.
+### 1. Shared reader shell (new)
 
-## Pathway Report Redesign
+`src/components/workbook/` — one reader used by demo, signed-in report, and `/share/$token`:
 
-File: `src/components/pathway/ReportView.tsx` (presentational only; do not change data shape, audience tabs API, version logic, or extras components).
+- `WorkbookReader.tsx` — page-at-a-time controller, keyboard arrows, URL `?page=` deep links, prev/next, progress bar, TOC drawer, print mode hooks.
+- `WorkbookCover.tsx`, `WorkbookPage.tsx`, `WorkbookSpread.tsx`, `WorkbookTOC.tsx`, `WorkbookFooter.tsx` — page primitives.
+- `WorkbookPrimitives.tsx` — `SectionHeader`, `Kicker`, `PullQuote`, `Callout`, `Sidebar`, `Checklist`, `ReadinessBar`, `TimelineRow`, `EvidenceRow`, `ActionRow`, `QuestionGroup`, `RoleTabs`.
 
-- **Cover spread**: kicker "Pathway Report", oversized student name, dek summary, "Prepared for…" byline, edition/date marker. Replaces current top hero.
-- **Compact outline / TOC** as left-rail sticky on desktop (`.mag-toc`), accordion on mobile. Replaces current scroll-clip TOC styling.
-- **Audience tabs** moved inline into the report header band (flat strip), removing the large floating role block.
-- **Sections rebuilt as editorial spreads**:
-  - Student Snapshot — magazine bio spread w/ image accent
-  - Student Voice — featured pullquote spread, large quote + attribution
-  - Family Priorities — warm cream sidebar layout
-  - Educator Insights — paper layout w/ source labels
-  - Document Insights — keep type chips + source metadata, restyled as editorial callouts
-  - Readiness — visual indicators (horizontal progress bars w/ labels, not card grid)
-  - BridgeForward / Transition Roadmap — timeline spread
-  - 30/60/90 Plan — magazine timeline w/ owners
-  - Questions For The Team — checklist sidebar
-- Existing sub-components (`ReportV2Sections`, `ReportV2Extras`, `ReportPhase4Sections`, `MeetingPrepPartners`, `ReportPartnerSuggestions`, `ReportVersionsPanel`, `PlanHorizon`, `SourceChips`, `ConnectToPlan`) keep their APIs; wrap or re-skin via new utility classes.
+### 2. Page-specific layouts (one per chapter, not repeated)
 
-## What Stays Untouched (hard guarantees)
+Cover · Welcome / How To Use · Table Of Contents · Student Snapshot · Intake And Starting Point · Student Voice · Family Priorities · Educator Insights · Documents And Evidence · Readiness Profile · Pathway Roadmap (BridgeForward or TransitionForward by grade band) · Questions For The Team · 30/60/90 Day Plan · Role-Specific Views · Next Steps.
 
-- Routes, search params, navigation order, step IDs (`intake`, `voice`, `documents`, `report`, `resources`, `opportunities`, `plan`, `meeting`, `calendar`, `hub`, `next`).
-- `data-testid` attributes, ARIA labels, role names tests assert on.
-- Auth, 2FA, RLS, role gates, server functions, migrations, admin/seed code.
-- Signed-in product surfaces, dashboards, BridgeForward grade-band logic, partner privacy.
-- Pathway Report data structures, share tokens, audience types, version persistence.
-- `/demo/connection` audit page (internal-only; restyled lightly to match but not in scope as a chapter).
+Each layout is purpose-built — profile spread, quote feature page, evidence list, readiness bars, timeline, action grid, etc. No repeated white cards.
 
-## Files Touched
+### 3. Demo wiring
 
-Styles:
-- `src/styles.css` — add `.mag-*` system inside the existing `.demo-shell` + `.tf-report` scopes; alternating section backgrounds; serif drop caps; pullquote treatment; timeline grid.
+- `/demo` becomes the workbook cover + TOC for sample student Maya.
+- Existing `demo_.*` step routes become thin redirects to `/demo?page=<slug>` so old links keep working and tests pass.
+- Sample data continues to come from `getDemoStudent` / `EXTENDED_PLANS`.
 
-Demo chapters (re-skin, keep components/logic):
-- `src/routes/demo.tsx`
-- `src/routes/demo_.intake.tsx`
-- `src/routes/demo_.voice.tsx`
-- `src/routes/demo_.documents.tsx`
-- `src/routes/demo_.report.tsx`
-- `src/routes/demo_.resources.tsx`
-- `src/routes/demo_.opportunities.tsx`
-- `src/routes/demo_.plan.tsx`
-- `src/routes/demo_.meeting.tsx`
-- `src/routes/demo_.calendar.tsx`
-- `src/routes/demo_.hub.tsx`
-- `src/routes/demo_.next.tsx`
-- `src/components/site/DemoStepBar.tsx` (restyle only; keep nav, step IDs, click + drag scroll)
+### 4. Signed-in + share wiring
 
-Report:
-- `src/components/pathway/ReportView.tsx`
-- Light wrappers in `src/components/pathway/ReportV2Sections.tsx`, `ReportV2Extras.tsx`, `ReportPhase4Sections.tsx`, `PlanHorizon.tsx` if needed to apply new classes without changing props.
+- `_authenticated/reports.$reportId.tsx` renders `<WorkbookReader />` with real `PathwayReport` data.
+- `/share/$token` uses the same reader with the resolved audience pinned.
+- `ReportView.tsx` is kept as a thin adapter (maps existing data shape into workbook pages) so role tests, 2FA flows, and `data-testid`s stay intact.
+- Existing `downloadMagazinePdf` print mode is replaced by a workbook print mode: each chapter = a printed page, Ocean Deep ink on paper, color-exact accents.
 
-New components (presentational only):
-- `src/components/magazine/MagCover.tsx`
-- `src/components/magazine/MagChapterOpener.tsx`
-- `src/components/magazine/MagSpread.tsx`
-- `src/components/magazine/MagSidebar.tsx`
-- `src/components/magazine/MagPullquote.tsx`
-- `src/components/magazine/MagTimeline.tsx`
-- `src/components/magazine/MagToc.tsx`
-- `src/components/magazine/MagPageMarker.tsx`
+### 5. Visual system
 
-## Verification
+- New `.workbook-*` CSS layer in `src/styles.css` scoped to `.workbook-shell`. Removes/supersedes the `.eh-*` and `.mag-*` layers used by the old reader.
+- Tokens: paper, ink, deep, accent, mint, rule, mute. Single rule weight, single radius, single shadow.
+- No animations beyond a 120ms cross-fade on page change.
 
-1. Auto build + typecheck.
-2. `bunx vitest run tests/unit/demo-feature-map.test.ts tests/unit/value-lens.test.ts`
-3. Playwright at 390 / 820 / 1440 against `/demo`, `/demo/report`, `/demo/plan`, `/demo/intake` — screenshot each, verify no horizontal overflow, timeline single-row desktop, no clipped numerals/labels.
-4. Spot-check existing demo regression specs (`demo-signed-out`, `demo-roles.signedin`, `demo-layout`, `demo-contrast`) — these assert structure/contrast/test IDs, not exact copy, so should pass.
+## Preserved (non-negotiable)
 
-## Out Of Scope
+- Auth + 2FA gates, `requireSupabaseAuth`, role policy, `can_access_student`.
+- All existing dashboard/report `data-testid`s and routes.
+- Demo routing surface (old `demo_.*` URLs still resolve).
+- BridgeForward (PK–8) vs TransitionForward (9–21) grade-band logic.
+- Document signed-URL + partner privacy restrictions.
+- Existing regression / access / a11y specs.
 
-- Signed-in dashboards (family/student/educator/admin) — value strips and readiness cards stay as-is.
-- Auth, RLS, server fns, migrations, edge functions.
-- `/demo/connection` internal audit page beyond inheriting `.demo-shell`.
-- Renaming any step ID, route, or test selector.
+## Out of scope
 
-## Risk
+- No schema changes.
+- No new server functions.
+- No copy rewrites beyond what the new layouts require.
+- Role lens / view-as-role logic stays as today (now embedded inside the Role-Specific Views chapter, not floating on top).
 
-Re-skinning `ReportView.tsx` is the largest blast radius — it's also rendered at `/share/$token`. Mitigation: keep all props, audience tabs, and section IDs; only swap surrounding markup and classes.
+## Risks & verification
+
+- Risk: deep links into old demo step pages. Mitigation: each old route becomes a redirect to the matching workbook page.
+- Risk: regression tests asserting old DOM. Mitigation: keep dashboard/report test IDs and key headings; run `tests/e2e/demo-*`, `dashboard-regression`, `role-access-rules`, `report-a11y` after build.
+- Verify: build clean, `tsgo` clean, demo pages render on mobile/tablet/desktop, print preview renders chapter-per-page.
+
+## Technical notes
+
+- Reader state: URL `?page=<slug>` is source of truth; `sessionStorage` only for last-visited fallback.
+- Pages are React components in `src/components/workbook/pages/` mapped by slug; demo and real-report variants share layout components and differ only in data adapters in `src/lib/workbook/`.
+- Print mode: `body.workbook-print` class with `@page` + `break-before: page` per chapter; no special PDF library.
+- Removed after migration: `MagazineReader.tsx`, `MagazinePage.tsx`, `ReportChapterPager.tsx`, `ReportPartOpener.tsx`, and the `.eh-*` / `.mag-*` CSS layers.
