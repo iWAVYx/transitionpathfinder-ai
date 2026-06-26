@@ -3526,3 +3526,147 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .report-shell .report-block-content .shadow-soft { box-shadow: none; }
 
 /* End of EDITORIAL REPORT BODY layer */
+
+/* ============================================================
+ * READER UX POLISH (mobile nav, report TOC drawer, readability)
+ * Appended to refine usability of the shared reader chrome.
+ * Scoped to .demo-shell / .report-shell — never affects dashboards.
+ * ============================================================ */
+
+/* --- Mobile sticky bottom nav (Prev | Contents | Next) ----- */
+.mag-mobile-nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 40;
+  background: color-mix(in oklab, var(--demo-paper, #f7f5f0) 96%, transparent);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-top: 1px solid var(--demo-rule, #e4e0d6);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 -8px 24px -16px rgba(12, 35, 64, 0.18);
+}
+.mag-mobile-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 52px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--demo-ink, #0c2340);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--demo-rule, #e4e0d6);
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+.mag-mobile-nav-btn:last-child { border-right: 0; }
+.mag-mobile-nav-btn.is-center {
+  background: color-mix(in oklab, var(--demo-accent, #2d8a9e) 6%, transparent);
+}
+.mag-mobile-nav-btn.is-disabled {
+  color: var(--demo-mute, #6b7280);
+  opacity: 0.55;
+  cursor: default;
+}
+.mag-mobile-nav-label {
+  max-width: 11ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Add bottom padding to demo/report shell on mobile so the fixed bar
+   never covers content. */
+@media (max-width: 767px) {
+  .demo-shell, .report-shell { padding-bottom: 72px; }
+}
+
+/* --- Report chapter pager: sticky + drawer ----------------- */
+.report-shell .mag-reportpager {
+  position: sticky;
+  top: 64px;
+  z-index: 25;
+  margin: 0 auto;
+  max-width: 92rem;
+  padding: 0.5rem 1rem 0;
+}
+@media (min-width: 640px) {
+  .report-shell .mag-reportpager { padding: 0.5rem 1.5rem 0; }
+}
+.report-shell .mag-reportpager-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in oklab, var(--demo-paper, #f7f5f0) 94%, transparent);
+  backdrop-filter: saturate(140%) blur(6px);
+  border: 1px solid var(--demo-rule, #e4e0d6);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px -16px rgba(12, 35, 64, 0.25);
+}
+.report-shell .mag-reportpager-folio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: var(--demo-ink, #0c2340);
+}
+.report-shell .mag-reportpager-folio em {
+  font-style: italic;
+  color: var(--demo-mute, #5b6770);
+}
+.report-shell .mag-reportpager-counter {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--demo-accent, #2d8a9e);
+}
+.report-shell .mag-reportpager-drawer {
+  margin-top: 0.4rem;
+  border: 1px solid var(--demo-rule, #e4e0d6);
+  border-radius: 10px;
+  background: var(--demo-paper, #f7f5f0);
+  box-shadow: 0 16px 40px -20px rgba(12, 35, 64, 0.25);
+  max-height: min(70vh, 540px);
+  overflow-y: auto;
+}
+.report-shell .mag-reportpager-drawer-inner {
+  padding: 1rem 1.25rem;
+}
+
+/* --- Readability defaults inside the reader ---------------- */
+.demo-shell .mag-body p,
+.report-shell .report-block-content p {
+  font-size: 1.0625rem;     /* 17px */
+  line-height: 1.65;
+  max-width: 68ch;
+}
+.demo-shell .mag-body p + p,
+.report-shell .report-block-content p + p { margin-top: 0.9em; }
+
+/* Headings inside report body: predictable scale */
+.report-shell h1 { font-size: 2.25rem; line-height: 1.1; }
+.report-shell h2 { font-size: 1.5rem; line-height: 1.2; }
+.report-shell h3 { font-size: 1.125rem; line-height: 1.3; }
+@media (max-width: 640px) {
+  .report-shell h1 { font-size: 1.75rem; }
+  .report-shell h2 { font-size: 1.25rem; }
+  .report-shell h3 { font-size: 1rem; }
+}
+
+/* --- Tap target floor for nav arrows on small screens ------ */
+.demo-shell .mag-reader-arrow,
+.report-shell .mag-reader-arrow { min-width: 44px; }
+
+/* --- Hide mobile bottom nav and report pager when printing - */
+@media print {
+  .mag-mobile-nav,
+  .report-shell .mag-reportpager { display: none !important; }
+  .demo-shell, .report-shell { padding-bottom: 0 !important; }
+}
+
+/* End of READER UX POLISH layer */
