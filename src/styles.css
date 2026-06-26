@@ -3671,6 +3671,272 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 
 /* End of READER UX POLISH layer */
 
+/* ============================================================
+ * PUBLICATION SYSTEM (final)
+ *
+ * Turns `.eh-issue` (already applied on every demo + report shell)
+ * into a contained magazine-handbook reader. Scoped strictly to
+ * `.eh-issue` so dashboards and other product surfaces are not
+ * affected. Layered last so it wins over older Workbook/Editorial
+ * tweaks where it overlaps.
+ * ============================================================ */
+
+/* Reader canvas — soft outer paper tone, page is a real card */
+.eh-issue {
+  --pub-paper:        #f6f1e7;
+  --pub-page:         #fdfbf6;
+  --pub-ink:          #0c2340;
+  --pub-mute:         #5b6470;
+  --pub-accent:       #1a4a6e;
+  --pub-accent-soft:  #2d8a9e;
+  --pub-rule:         #d9d3c4;
+  --pub-rule-soft:    #ece6d6;
+  --pub-serif:        "Instrument Serif", "Cormorant Garamond", Georgia, serif;
+  --pub-display:      "Urbanist", "Epilogue", Inter, sans-serif;
+  --pub-body:         "Inter", system-ui, sans-serif;
+
+  background-color: var(--pub-paper) !important;
+  background-image: radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 60%);
+  background-attachment: fixed;
+
+  color: var(--pub-ink);
+  min-height: 100vh;
+}
+
+/* Top of the issue gets a hairline rule so the reader feels framed */
+.eh-issue::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: var(--pub-rule);
+  margin: 0 auto;
+  max-width: 92rem;
+}
+
+/* === Reader bar refinement — flatter, more editorial =============== */
+.eh-issue .mag-reader-bar {
+  background: color-mix(in oklab, var(--pub-page) 92%, transparent);
+  backdrop-filter: saturate(160%) blur(8px);
+  border-bottom: 1px solid var(--pub-rule);
+  box-shadow: none;
+}
+.eh-issue .mag-reader-indicator { padding: 0.25rem 0.5rem; border-radius: 6px; }
+.eh-issue .mag-reader-indicator:hover { background: color-mix(in oklab, var(--pub-rule) 35%, transparent); }
+.eh-issue .mag-reader-folio .font-display { font-family: var(--pub-display); color: var(--pub-ink); }
+.eh-issue .mag-reader-arrow { border-radius: 6px; }
+.eh-issue .mag-reader-arrow--next { background: var(--pub-ink); color: #fff; }
+.eh-issue .mag-reader-arrow--next:hover { background: var(--pub-accent); }
+
+/* === The page card itself ========================================== */
+/* Treat each top-level <section> directly inside the issue as a paper
+   page so all existing routes inherit the publication chrome without
+   per-route rewrites. */
+.eh-issue > section {
+  position: relative;
+  margin: 1.5rem auto 0;
+  padding: clamp(1.25rem, 3vw, 2.75rem) clamp(1rem, 4vw, 3.5rem);
+  max-width: 76rem;
+  background: var(--pub-page);
+  border: 1px solid var(--pub-rule);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 0 var(--pub-rule-soft),
+    0 30px 50px -38px rgba(12, 35, 64, 0.22);
+}
+.eh-issue > section + section { margin-top: 1.25rem; }
+.eh-issue > section:last-of-type { margin-bottom: 3rem; }
+
+/* Subtle folio bar at top of each page-section */
+.eh-issue > section::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--pub-accent) 0%, var(--pub-accent-soft) 60%, transparent 100%);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+/* === Publication primitives ====================================== */
+.pub-page {
+  position: relative;
+  font-family: var(--pub-body);
+  color: var(--pub-ink);
+}
+.pub-page-runninghead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--pub-rule);
+  font-family: var(--pub-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pub-mute);
+}
+.pub-page-issue { color: var(--pub-accent); }
+.pub-page-part  { flex: 1; text-align: center; opacity: 0.8; }
+.pub-page-folio { font-variant-numeric: tabular-nums; }
+
+.pub-page-opener { margin-bottom: 1.75rem; }
+.pub-page-kicker {
+  font-family: var(--pub-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--pub-accent);
+  margin-bottom: 0.5rem;
+}
+.pub-page-title {
+  font-family: var(--pub-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--pub-ink);
+  margin: 0;
+}
+.pub-page-dek {
+  margin-top: 0.85rem;
+  font-family: var(--pub-serif);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.45;
+  color: var(--pub-mute);
+  max-width: 56ch;
+}
+.pub-page-rule {
+  height: 1px;
+  background: var(--pub-rule);
+  margin-top: 1.5rem;
+}
+.pub-page-body { font-size: 1.0625rem; line-height: 1.65; }
+.pub-page-body p { max-width: 68ch; }
+.pub-page-body p + p { margin-top: 0.9em; }
+.pub-page-body h2 {
+  font-family: var(--pub-serif);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+  color: var(--pub-ink);
+}
+.pub-page-body h3 {
+  font-family: var(--pub-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--pub-ink);
+}
+
+/* Spread */
+.pub-spread {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 880px) {
+  .pub-spread { grid-template-columns: 1.55fr 1fr; gap: 3rem; }
+}
+.pub-spread-side {
+  border-top: 1px solid var(--pub-rule);
+  padding-top: 1.25rem;
+}
+@media (min-width: 880px) {
+  .pub-spread-side {
+    border-top: 0;
+    border-left: 1px solid var(--pub-rule);
+    padding-top: 0;
+    padding-left: 2rem;
+  }
+}
+
+/* Pull quote */
+.pub-pullquote {
+  margin: 2.25rem 0;
+  padding: 0 0 0 1.25rem;
+  border-left: 3px solid var(--pub-accent);
+}
+.pub-pullquote blockquote {
+  font-family: var(--pub-serif);
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  line-height: 1.3;
+  color: var(--pub-ink);
+  margin: 0;
+}
+.pub-pullquote figcaption {
+  margin-top: 0.6rem;
+  font-family: var(--pub-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pub-mute);
+}
+
+/* Sidebar */
+.pub-sidebar {
+  background: color-mix(in oklab, var(--pub-paper) 70%, var(--pub-page));
+  border: 1px solid var(--pub-rule);
+  border-radius: 4px;
+  padding: 1.25rem 1.35rem;
+}
+.pub-sidebar-label {
+  font-family: var(--pub-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pub-accent);
+  margin: 0 0 0.65rem 0;
+}
+.pub-sidebar-body { font-size: 0.95rem; line-height: 1.55; color: var(--pub-ink); }
+
+/* Callouts (means / matters / next / source) */
+.pub-callout {
+  border-left: 3px solid var(--pub-accent-soft);
+  padding: 0.4rem 0 0.4rem 1rem;
+  margin: 1.5rem 0;
+}
+.pub-callout--matters { border-left-color: #b08436; }
+.pub-callout--next    { border-left-color: var(--pub-ink); }
+.pub-callout--source  { border-left-color: var(--pub-mute); }
+.pub-callout-label {
+  font-family: var(--pub-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pub-mute);
+  margin: 0 0 0.35rem 0;
+}
+.pub-callout-body { font-size: 0.98rem; line-height: 1.55; color: var(--pub-ink); }
+
+/* Checklist */
+.pub-checklist { margin: 1.25rem 0; }
+.pub-checklist-title {
+  font-family: var(--pub-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pub-mute);
+  margin-bottom: 0.5rem;
+}
+.pub-checklist ul { list-style: none; padding: 0; margin: 0; }
+.pub-checklist li {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
   align-items: start;
   gap: 0.6rem;
   padding: 0.45rem 0;
