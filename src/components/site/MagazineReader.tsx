@@ -16,17 +16,17 @@ import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
  * TOC) and the cover/closing pages. Indexes are 1-based for display.
  */
 export const MAGAZINE_PAGES = [
-  { id: "cover",        to: "/demo",               label: "Cover",                  kicker: "The Issue",        dek: "An interactive transition-planning issue." },
-  { id: "intake",       to: "/demo/intake",        label: "Starting Point",         kicker: "Chapter 01",       dek: "Strengths, interests, supports — three voices." },
-  { id: "voice",        to: "/demo/voice",         label: "Student Voice",          kicker: "Chapter 02",       dek: "In the student's own words — eight short prompts." },
-  { id: "documents",    to: "/demo/documents",     label: "Documents & Evidence",   kicker: "Chapter 03",       dek: "The IEP, evaluations and 504 — organized into one planning companion." },
-  { id: "report",       to: "/demo/report",        label: "The Pathway Report",     kicker: "Feature Issue",    dek: "Pathways, supports, accommodations — written in plain language." },
-  { id: "opportunities",to: "/demo/opportunities", label: "Opportunity Matches",    kicker: "Chapter 05",       dek: "Apprenticeships, internships and community programs that fit." },
-  { id: "resources",    to: "/demo/resources",     label: "Resource Matches",       kicker: "Chapter 06",       dek: "Curated supports — what it is, who it helps, how to use it." },
-  { id: "meeting",      to: "/demo/meeting",       label: "Questions For The Team", kicker: "Chapter 07",       dek: "A PPT-ready packet with agenda, questions and follow-ups." },
-  { id: "calendar",     to: "/demo/calendar",      label: "Shared Calendar",        kicker: "Chapter 08",       dek: "Meetings, deadlines, tours — everyone on one page." },
-  { id: "plan",         to: "/demo/plan",          label: "30 / 60 / 90-Day Plan",  kicker: "Chapter 09",       dek: "Doable steps with named owners and clear success markers." },
-  { id: "hub",          to: "/demo/hub",           label: "The Student Hub",        kicker: "Chapter 10",       dek: "The ongoing workspace for families and the care team." },
+  { id: "cover",        to: "/demo",               label: "Cover",                  kicker: "Overview",         dek: "An interactive transition-planning report." },
+  { id: "intake",       to: "/demo/intake",        label: "Starting Point",         kicker: "Section 01",       dek: "Strengths, interests, supports — three voices." },
+  { id: "voice",        to: "/demo/voice",         label: "Student Voice",          kicker: "Section 02",       dek: "In the student's own words — eight short prompts." },
+  { id: "documents",    to: "/demo/documents",     label: "Documents & Evidence",   kicker: "Section 03",       dek: "The IEP, evaluations and 504 — organized into one planning companion." },
+  { id: "report",       to: "/demo/report",        label: "The Pathway Report",     kicker: "Section 04",       dek: "Pathways, supports, accommodations — written in plain language." },
+  { id: "opportunities",to: "/demo/opportunities", label: "Opportunity Matches",    kicker: "Section 05",       dek: "Apprenticeships, internships and community programs that fit." },
+  { id: "resources",    to: "/demo/resources",     label: "Resource Matches",       kicker: "Section 06",       dek: "Curated supports — what it is, who it helps, how to use it." },
+  { id: "meeting",      to: "/demo/meeting",       label: "Questions For The Team", kicker: "Section 07",       dek: "A PPT-ready packet with agenda, questions and follow-ups." },
+  { id: "calendar",     to: "/demo/calendar",      label: "Shared Calendar",        kicker: "Section 08",       dek: "Meetings, deadlines, tours — everyone on one page." },
+  { id: "plan",         to: "/demo/plan",          label: "30 / 60 / 90-Day Plan",  kicker: "Section 09",       dek: "Doable steps with named owners and clear success markers." },
+  { id: "hub",          to: "/demo/hub",           label: "The Student Hub",        kicker: "Section 10",       dek: "The ongoing workspace for families and the care team." },
   { id: "next",         to: "/demo/next",          label: "What Comes Next",        kicker: "Closing",          dek: "Clear paths for families, educators, schools and partners." },
 ] as const;
 
