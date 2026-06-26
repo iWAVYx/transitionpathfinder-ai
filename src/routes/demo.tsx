@@ -219,23 +219,23 @@ function DemoIndex() {
                   themselves in the documents. Educators duplicate work. Services get missed.
                 </p>
                 <p>
-                  This demo issue walks you through how TransitionForward gathers each
-                  voice, organizes the existing documents, and turns it all into one shared
+                  This sample report shows how TransitionForward gathers each voice,
+                  organizes the existing documents, and turns it all into one shared
                   planning document — written in plain language, with named owners and a
                   clear next meeting in view.
                 </p>
               </div>
 
               <aside className="eh-sidebar">
-                <p className="eh-sidebar-label">How To Use This Guide</p>
+                <p className="eh-sidebar-label">How To Use This Report</p>
                 <h3 className="mb-3 font-display text-xl font-semibold text-[color:var(--eh-ink)]">
-                  Read It Cover To Cover, Or Jump In
+                  Read End To End, Or Jump In
                 </h3>
                 <ul className="eh-sidebar-list">
-                  <li><span>Use the page indicator at the top to turn pages.</span></li>
-                  <li><span>Open the Contents panel to jump to any chapter.</span></li>
-                  <li><span>Each chapter ends with a "what to do next" callout.</span></li>
-                  <li><span>Switch the featured student at any time — the issue updates.</span></li>
+                  <li><span>Use the page indicator at the top to move between sections.</span></li>
+                  <li><span>Open the Contents panel to jump to any section.</span></li>
+                  <li><span>Each section ends with a "what to do next" callout.</span></li>
+                  <li><span>Switch the featured student at any time — the report updates.</span></li>
                 </ul>
               </aside>
             </div>
