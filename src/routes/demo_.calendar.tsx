@@ -115,7 +115,7 @@ function DemoCalendarPage() {
         {/* Up next */}
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div className="space-y-6">
-            <Panel title="This week" icon={<Sparkles className="h-5 w-5" />}>
+            <Panel title="This Week" icon={<Sparkles className="h-5 w-5" />}>
               <ul className="space-y-3">
                 {upNext.map((e, i) => (
                   <EventRow key={i} {...e} />
@@ -123,7 +123,7 @@ function DemoCalendarPage() {
               </ul>
             </Panel>
 
-            <Panel title="Coming up" icon={<CalendarDays className="h-5 w-5" />}>
+            <Panel title="Coming Up" icon={<CalendarDays className="h-5 w-5" />}>
               <ul className="space-y-3">
                 {later.map((e, i) => (
                   <EventRow key={i} {...e} />
@@ -150,7 +150,7 @@ function DemoCalendarPage() {
             </Panel>
 
             <Panel
-              title="Where do events come from?"
+              title="Where Do Events Come From?"
               icon={<ClipboardList className="h-5 w-5" />}
             >
               <ul className="space-y-2 text-sm text-foreground/85">
@@ -169,7 +169,7 @@ function DemoCalendarPage() {
               </ul>
               <Button asChild variant="outline" size="sm" className="mt-4 w-full">
                 <Link to="/demo/plan" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                  See the 30-Day Plan <ArrowRight className="h-4 w-4" />
+                  See The 30-Day Plan <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
             </Panel>
