@@ -79,7 +79,7 @@ const CHAPTERS: Chapter[] = [
   { n: "07", icon: <Users className="h-4 w-4" />, title: "Meeting Prep", body: "A PPT / IEP prep packet: agenda, questions to ask, strengths to highlight, follow-ups.", to: "/demo/meeting", group: "Plan" },
   { n: "08", icon: <CalendarDays className="h-4 w-4" />, title: "Calendar", body: "One shared calendar — meetings, deadlines, tours, and weekly action steps.", to: "/demo/calendar", group: "Plan" },
   { n: "09", icon: <CalendarRange className="h-4 w-4" />, title: "30 / 60 / 90-Day Plan", body: "Doable steps with the responsible role and source labeled.", to: "/demo/plan", group: "Plan" },
-  { n: "10", icon: <LayoutDashboard className="h-4 w-4" />, title: "Role Dashboards", body: "See the same plan from student, family, educator, school, district, and partner views.", to: "/demo/hub", group: "Roles" },
+  { n: "10", icon: <LayoutDashboard className="h-4 w-4" />, title: "Student Hub", body: "The ongoing workspace where families and the care team track goals, documents, and progress together.", to: "/demo/hub", group: "Roles" },
   { n: "11", icon: <Compass className="h-4 w-4" />, title: "What's Next", body: "Clear paths for families, educators, schools, districts, and partners.", to: "/demo/next", group: "Roles" },
 ];
 
