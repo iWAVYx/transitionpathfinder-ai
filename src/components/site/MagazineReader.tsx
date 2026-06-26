@@ -16,17 +16,17 @@ import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
  * TOC) and the cover/closing pages. Indexes are 1-based for display.
  */
 export const MAGAZINE_PAGES = [
-  { id: "cover",        to: "/demo",               label: "Cover",                  kicker: "The Issue",        dek: "An interactive transition-planning issue." },
-  { id: "intake",       to: "/demo/intake",        label: "Starting Point",         kicker: "Chapter 01",       dek: "Strengths, interests, supports — three voices." },
-  { id: "voice",        to: "/demo/voice",         label: "Student Voice",          kicker: "Chapter 02",       dek: "In the student's own words — eight short prompts." },
-  { id: "documents",    to: "/demo/documents",     label: "Documents & Evidence",   kicker: "Chapter 03",       dek: "The IEP, evaluations and 504 — organized into one planning companion." },
-  { id: "report",       to: "/demo/report",        label: "The Pathway Report",     kicker: "Feature Issue",    dek: "Pathways, supports, accommodations — written in plain language." },
-  { id: "opportunities",to: "/demo/opportunities", label: "Opportunity Matches",    kicker: "Chapter 05",       dek: "Apprenticeships, internships and community programs that fit." },
-  { id: "resources",    to: "/demo/resources",     label: "Resource Matches",       kicker: "Chapter 06",       dek: "Curated supports — what it is, who it helps, how to use it." },
-  { id: "meeting",      to: "/demo/meeting",       label: "Questions For The Team", kicker: "Chapter 07",       dek: "A PPT-ready packet with agenda, questions and follow-ups." },
-  { id: "calendar",     to: "/demo/calendar",      label: "Shared Calendar",        kicker: "Chapter 08",       dek: "Meetings, deadlines, tours — everyone on one page." },
-  { id: "plan",         to: "/demo/plan",          label: "30 / 60 / 90-Day Plan",  kicker: "Chapter 09",       dek: "Doable steps with named owners and clear success markers." },
-  { id: "hub",          to: "/demo/hub",           label: "The Student Hub",        kicker: "Chapter 10",       dek: "The ongoing workspace for families and the care team." },
+  { id: "cover",        to: "/demo",               label: "Cover",                  kicker: "Overview",         dek: "An interactive transition-planning report." },
+  { id: "intake",       to: "/demo/intake",        label: "Starting Point",         kicker: "Section 01",       dek: "Strengths, interests, supports — three voices." },
+  { id: "voice",        to: "/demo/voice",         label: "Student Voice",          kicker: "Section 02",       dek: "In the student's own words — eight short prompts." },
+  { id: "documents",    to: "/demo/documents",     label: "Documents & Evidence",   kicker: "Section 03",       dek: "The IEP, evaluations and 504 — organized into one planning companion." },
+  { id: "report",       to: "/demo/report",        label: "The Pathway Report",     kicker: "Section 04",       dek: "Pathways, supports, accommodations — written in plain language." },
+  { id: "opportunities",to: "/demo/opportunities", label: "Opportunity Matches",    kicker: "Section 05",       dek: "Apprenticeships, internships and community programs that fit." },
+  { id: "resources",    to: "/demo/resources",     label: "Resource Matches",       kicker: "Section 06",       dek: "Curated supports — what it is, who it helps, how to use it." },
+  { id: "meeting",      to: "/demo/meeting",       label: "Questions For The Team", kicker: "Section 07",       dek: "A PPT-ready packet with agenda, questions and follow-ups." },
+  { id: "calendar",     to: "/demo/calendar",      label: "Shared Calendar",        kicker: "Section 08",       dek: "Meetings, deadlines, tours — everyone on one page." },
+  { id: "plan",         to: "/demo/plan",          label: "30 / 60 / 90-Day Plan",  kicker: "Section 09",       dek: "Doable steps with named owners and clear success markers." },
+  { id: "hub",          to: "/demo/hub",           label: "The Student Hub",        kicker: "Section 10",       dek: "The ongoing workspace for families and the care team." },
   { id: "next",         to: "/demo/next",          label: "What Comes Next",        kicker: "Closing",          dek: "Clear paths for families, educators, schools and partners." },
 ] as const;
 
@@ -189,7 +189,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-demo-primary" />
                   <span className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-demo-primary">
-                    Contents — Demo Issue No. 01
+                    Contents
                   </span>
                 </div>
                 <button
@@ -236,16 +236,12 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
         )}
       </div>
 
-      {/* Slide direction marker — pages can opt-in via .mag-page wrapper */}
+      {/* Subtle fade on page change — no slide gimmick. */}
       <style>{`
-        .mag-page { animation: mag-turn-${direction === -1 ? "back" : "fwd"} 380ms ease-out both; }
-        @keyframes mag-turn-fwd {
-          from { opacity: 0; transform: translateX(28px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes mag-turn-back {
-          from { opacity: 0; transform: translateX(-28px); }
-          to   { opacity: 1; transform: translateX(0); }
+        .mag-page { animation: mag-fade 220ms ease-out both; }
+        @keyframes mag-fade {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>
@@ -267,7 +263,7 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
   const idx = MAGAZINE_PAGES.findIndex((p) => p.id === currentId);
   const prev = idx > 0 ? MAGAZINE_PAGES[idx - 1] : null;
   const next = idx < MAGAZINE_PAGES.length - 1 ? MAGAZINE_PAGES[idx + 1] : null;
-  const bundle = DEMO_STUDENTS[student];
+  
   const search = preserveStudent ? { s: student } : undefined;
 
   return (
@@ -286,14 +282,11 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
             <Link to="/demo" className="mag-pageturn-link">
               <span className="mag-pageturn-folio"><ArrowLeft className="h-3.5 w-3.5" /> Cover</span>
               <span className="mag-pageturn-kicker">Return To</span>
-              <span className="mag-pageturn-title">The Issue Cover</span>
+              <span className="mag-pageturn-title">Cover</span>
             </Link>
           )}
         </div>
 
-        <div className="mag-pageturn-spine" aria-hidden>
-          <span>Reading With {bundle.profile.first_name}</span>
-        </div>
 
         <div className="mag-pageturn-side mag-pageturn-side--next">
           {next ? (

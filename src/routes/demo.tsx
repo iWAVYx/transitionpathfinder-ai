@@ -96,18 +96,15 @@ function DemoIndex() {
           <div className="eh-cover tf-reveal">
             <header className="eh-cover-mast">
               <div>
-                <span className="eh-issuenum">Issue No. 01 · The Planning Edition</span>
-                <p className="eh-edition">Academic Year {student.graduation_year}</p>
-              </div>
-              <div className="eh-monogram" aria-hidden>
-                <div className="h-6 w-6 rounded-full border-2 border-white/25" />
+                <span className="eh-issuenum">TransitionForward · Pathway Report</span>
+                <p className="eh-edition">Sample Edition · Academic Year {student.graduation_year}</p>
               </div>
             </header>
 
             <div className="grid gap-12 lg:grid-cols-[1.45fr_1fr] lg:items-end">
               <div>
-                <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-[color:var(--eh-teal)]">
-                  A Sample Planning Issue · Eleven Chapters
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.22em] text-[color:var(--eh-teal)]">
+                  An Interactive Planning Report · Eleven Sections
                 </p>
                 <h1 className="eh-cover-title mt-3">
                   Transition<br />
@@ -125,7 +122,7 @@ function DemoIndex() {
                       to="/demo/intake"
                       {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
                     >
-                      Open Chapter I <ArrowRight className="h-4 w-4" />
+                      Begin The Report <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button
@@ -143,8 +140,8 @@ function DemoIndex() {
               </div>
 
               <aside>
-                <p className="font-display text-[10px] font-bold uppercase tracking-[0.28em] text-[color:var(--eh-teal)]">
-                  Featured In This Issue
+                <p className="font-display text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--eh-teal)]">
+                  Featured Student
                 </p>
                 <h3 className="mt-3 font-display text-3xl font-bold leading-tight text-[color:var(--eh-ink)]">
                   {toTitleCase(student.full_name)}
@@ -190,7 +187,7 @@ function DemoIndex() {
 
             <div className="eh-cover-foot">
               <div>
-                <p className="label">Student Dossier</p>
+                <p className="label">Student</p>
                 <p className="value">{toTitleCase(student.full_name)}</p>
               </div>
               <div>
@@ -205,7 +202,6 @@ function DemoIndex() {
                 <p className="label">Prepared For</p>
                 <p className="value">Families, Educators &amp; Partners</p>
               </div>
-              <p className="eh-cover-folio">01</p>
             </div>
           </div>
         </section>
@@ -223,23 +219,23 @@ function DemoIndex() {
                   themselves in the documents. Educators duplicate work. Services get missed.
                 </p>
                 <p>
-                  This demo issue walks you through how TransitionForward gathers each
-                  voice, organizes the existing documents, and turns it all into one shared
+                  This sample report shows how TransitionForward gathers each voice,
+                  organizes the existing documents, and turns it all into one shared
                   planning document — written in plain language, with named owners and a
                   clear next meeting in view.
                 </p>
               </div>
 
               <aside className="eh-sidebar">
-                <p className="eh-sidebar-label">How To Use This Guide</p>
+                <p className="eh-sidebar-label">How To Use This Report</p>
                 <h3 className="mb-3 font-display text-xl font-semibold text-[color:var(--eh-ink)]">
-                  Read It Cover To Cover, Or Jump In
+                  Read End To End, Or Jump In
                 </h3>
                 <ul className="eh-sidebar-list">
-                  <li><span>Use the page indicator at the top to turn pages.</span></li>
-                  <li><span>Open the Contents panel to jump to any chapter.</span></li>
-                  <li><span>Each chapter ends with a "what to do next" callout.</span></li>
-                  <li><span>Switch the featured student at any time — the issue updates.</span></li>
+                  <li><span>Use the page indicator at the top to move between sections.</span></li>
+                  <li><span>Open the Contents panel to jump to any section.</span></li>
+                  <li><span>Each section ends with a "what to do next" callout.</span></li>
+                  <li><span>Switch the featured student at any time — the report updates.</span></li>
                 </ul>
               </aside>
             </div>
@@ -254,7 +250,7 @@ function DemoIndex() {
               Contents
             </h2>
             <p className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-demo-primary">
-              Eleven Chapters · One Pathway
+              Eleven Sections · One Pathway
             </p>
           </div>
 
@@ -262,15 +258,15 @@ function DemoIndex() {
             const items = CHAPTERS.filter((c) => c.part === part.key);
             return (
               <div key={part.key} className="mt-10 first:mt-6">
-                <div className="mb-3 flex items-baseline gap-5">
-                  <span className="font-display text-3xl font-light italic text-demo-accent">
-                    {part.numeral}
+                <div className="mb-3 flex items-baseline gap-4">
+                  <span className="font-display text-xs font-bold uppercase tracking-[0.22em] text-demo-primary">
+                    Part {part.numeral}
                   </span>
-                  <h3 className="font-display text-2xl font-bold tracking-tight text-demo-ink">
-                    Part {part.numeral} · {part.title}
+                  <h3 className="font-display text-2xl font-semibold tracking-tight text-demo-ink">
+                    {part.title}
                   </h3>
                 </div>
-                <p className="mb-4 max-w-2xl font-display text-base italic text-foreground/70">
+                <p className="mb-4 max-w-2xl text-base leading-relaxed text-foreground/70">
                   {part.dek}
                 </p>
                 <div className="mag-toc">
@@ -302,11 +298,11 @@ function DemoIndex() {
               <div>
                 <span className="tf-eyebrow">Ready When You Are</span>
                 <h3 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                  Open Chapter I — {student.first_name}'s Intake
+                  Begin {student.first_name}'s Pathway Report
                 </h3>
                 <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
-                  You can move between chapters or switch students at any time from the
-                  page-tab strip above each chapter.
+                  Move between sections from the top reader bar, or jump in from
+                  the table of contents at any time.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3 lg:justify-end">
@@ -315,7 +311,7 @@ function DemoIndex() {
                     to="/demo/intake"
                     {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}
                   >
-                    Begin The Walkthrough <ArrowRight className="h-4 w-4" />
+                    Begin The Report <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button
