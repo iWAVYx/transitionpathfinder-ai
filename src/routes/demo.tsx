@@ -111,7 +111,7 @@ function DemoIndex() {
               </span>
               <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] tracking-tight text-foreground sm:text-6xl">
                 Demo Workspace
-                <span className="block text-foreground/40">A Live Walk-Through.</span>
+                <span className="block text-foreground/40">A Live Walk-Through</span>
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-3 tf-reveal">
