@@ -96,18 +96,15 @@ function DemoIndex() {
           <div className="eh-cover tf-reveal">
             <header className="eh-cover-mast">
               <div>
-                <span className="eh-issuenum">Issue No. 01 · The Planning Edition</span>
-                <p className="eh-edition">Academic Year {student.graduation_year}</p>
-              </div>
-              <div className="eh-monogram" aria-hidden>
-                <div className="h-6 w-6 rounded-full border-2 border-white/25" />
+                <span className="eh-issuenum">TransitionForward · Pathway Report</span>
+                <p className="eh-edition">Sample Edition · Academic Year {student.graduation_year}</p>
               </div>
             </header>
 
             <div className="grid gap-12 lg:grid-cols-[1.45fr_1fr] lg:items-end">
               <div>
-                <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-[color:var(--eh-teal)]">
-                  A Sample Planning Issue · Eleven Chapters
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.22em] text-[color:var(--eh-teal)]">
+                  An Interactive Planning Report · Eleven Sections
                 </p>
                 <h1 className="eh-cover-title mt-3">
                   Transition<br />
