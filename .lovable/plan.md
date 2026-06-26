@@ -1,64 +1,70 @@
-# Strengthening Product Value Across TransitionForward
 
-Goal: make every section answer "what problem does this solve, what decision does it support, what's the next step?" — not just look polished.
+# Demo Workspace Premium Polish Pass
 
-## Foundations (shared)
+Goal: refine the existing Demo Workspace (no restructure) so it reads as a polished, family-and-educator-facing product walkthrough — consistent Title Case, warm specific copy, no developer language, uniform cards/buttons/timelines, responsive across mobile/tablet/desktop.
 
-1. **`src/lib/value-lens.ts`** — single source of truth for the 7-question value test, plus a small `ValueCallout` type:
-   ```ts
-   { whatThisMeans, whyItMatters, recommendedNextStep, questionsForTeam, informationUsed[] }
-   ```
-   Every report section and dashboard card consumes this shape so the language stays consistent.
+Scope is the visible Demo Workspace only. Signed-in product routes, auth, RLS, server functions, and tests are not touched except to verify nothing regresses.
 
-2. **`src/components/value/ValueCallout.tsx`** — compact, editorial callout block with 5 labeled rows (What This Means / Why It Matters / Recommended Next Step / Questions To Bring / Information Used). Used in both the Pathway Report and dashboards. Keeps tone warm + plain, ≤ 2 sentences per row.
+## Files In Scope
 
-3. **`src/components/value/RoleValueStrip.tsx`** — per-role one-line "why this page matters to you" strip used at the top of each dashboard and demo step. Driven by a `ROLE_VALUE` map keyed by role.
+Demo chapters (user-facing copy + layout polish):
+- `src/routes/demo.tsx` (Hub / masthead)
+- `src/routes/demo_.intake.tsx`
+- `src/routes/demo_.voice.tsx`
+- `src/routes/demo_.documents.tsx`
+- `src/routes/demo_.report.tsx` (intro band only)
+- `src/routes/demo_.resources.tsx`
+- `src/routes/demo_.opportunities.tsx`
+- `src/routes/demo_.plan.tsx`
+- `src/routes/demo_.meeting.tsx`
+- `src/routes/demo_.calendar.tsx`
+- `src/routes/demo_.hub.tsx`
+- `src/routes/demo_.next.tsx`
+- `src/components/site/DemoStepBar.tsx` (chapter labels, footer CTAs)
+- `src/components/demo/FeatureFootnote.tsx` (rewrite as a warm "What This Reflects" caption — no route/component words)
 
-## Pathway Report — decision-supportive layer
+Excluded from this pass:
+- `src/routes/demo_.connection.tsx` — internal audit page, not part of the family-facing flow
+- `src/components/pathway/ReportView.tsx` — the Pathway Report itself; touch only headings/labels that are clearly demo-shell chrome, not the report's own content structure
+- Any signed-in route, hook, server function, migration, or test
 
-Edit `src/components/pathway/ReportView.tsx` and `ReportV2Sections.tsx`:
+## Work Plan
 
-- Add a **"Where Things Stand"** opener directly under the cover: 4 short cards — Where the student is now / What the student wants / Supports in place / Gaps still open. Pulled from existing intake, voice, goals, readiness, and document_extractions data — no new data.
-- After each existing chapter (Self-Determination, Education/Training, Employment, Independent Living, Community), append a `<ValueCallout>` populated from the chapter's own content + `informationUsed` source chips already wired via `SourceChips`.
-- Add a closing **"Bring To The Team"** chapter that aggregates `questionsForTeam` across chapters into a single printable checklist with owner suggestions (student / family / case manager / partner) and a "revisit by" date hint derived from `review_date`.
-- Replace generic "Next Steps" prose with `RecommendedNextStep` rows that include an explicit owner and timeframe.
+### 1. Title Case Pass
+Apply `toTitleCase` (from `src/lib/title-case.ts`) or hand-cased strings to every visible heading, subheading, card title, tile title, tab label, button label, timeline label, badge label, and nav label across the in-scope files. Preserve: TransitionForward, BridgeForward, PartnerForward, Pathway Report, Student Voice, IEP, CT-SEDS, 504, 30/60/90. Body paragraphs stay sentence case.
 
-No schema changes. All new content derives from data already loaded.
+### 2. Strip Developer Language
+Remove from visible copy: route names (`/demo/...`), file names, "maps to", "feature flag", "seeded data", "test id", "regression", "component", "backend", "frontend", "database", "table", "auth flow", "endpoint". Rewrite the `FeatureFootnote` caption (currently exposes "lives at /route" and product slugs) as a single warm line such as *"Reflects the [Feature] experience in TransitionForward."*
 
-## Demo Workspace — sample planning story
+### 3. Copy Strengthening
+Rewrite generic or thin copy on each chapter so each one names the concrete TransitionForward value: Intake (what we gather and why), Student Voice (how answers shape recommendations), Documents (IEP + CT-SEDS + assessments, secure handling), Pathway Report (sections + role views), Readiness Insights, Questions For The Team, 30/60/90 Plan, Calendar follow-through, Resources, Opportunities, Meeting Prep, What's Next.
 
-Edit demo routes (`demo.tsx`, `demo_.intake.tsx`, `demo_.documents.tsx`, `demo_.voice.tsx`, `demo_.report.tsx`, `demo_.opportunities.tsx`, `demo_.plan.tsx`, `demo_.meeting.tsx`) and `src/components/site/DemoStepBar.tsx`:
+Keep paragraphs short, warm, and specific. No "Lorem"-style filler, no marketing puffery.
 
-- Each step gets a short **"In this step"** header: the question it answers, the role(s) it helps, the inputs, and the output. Rendered via `RoleValueStrip` + a one-line story beat (e.g. "Maya's family uploads her IEP — TransitionForward extracts goals and surfaces gaps before the next PPT.").
-- Add a slim **story progress trail** in `DemoStepBar` showing how each step's output feeds the next (Intake → Documents → Voice → Report → Opportunities → Plan → Meeting).
-- The Demo Hub (`demo.tsx`) opens with a "The Planning Problem" → "What Changes With TransitionForward" framing instead of feature tiles.
-- Reuse existing fixtures; no new sample data files.
+### 4. Visual Uniformity
+Per chapter, normalize:
+- Card grids → equal heights via `flex flex-col` + `mt-auto` CTAs (pattern already used in `demo_.next.tsx`)
+- Padding: `p-6 sm:p-7` on cards, `rounded-3xl border bg-card shadow-soft`
+- Section rhythm: `py-10 sm:py-14`, consistent max-width (`max-w-5xl` chapter, `max-w-[92rem]` report)
+- Badge row pattern (Step N · Title + Fictional Student) consistent across every chapter intro
+- Icon sizing: `h-5 w-5` in card heads, `h-3 w-3` in badges, `h-4 w-4` in inline accents
+- Buttons: `size="sm"` in card CTAs, primary + outline pairing
 
-## Role dashboards — command centers
+### 5. Responsive QA
+After edits, drive Playwright at 390×844, 820×1180, 1440×900 against each chapter route. Capture screenshots, check for horizontal overflow, wrapped timeline rows, mismatched card heights. Fix issues found.
 
-Each dashboard gets a `RoleValueStrip` at top + a reorganized **"What To Do Next"** block built from existing signals (intakes, readiness_scores, goals, meetings, action_items). No new tables.
+### 6. Verification
+- Build (auto)
+- `bunx vitest run tests/unit/demo-feature-map.test.ts tests/unit/value-lens.test.ts`
+- Spot-check Playwright on `/demo`, `/demo/report`, `/demo/plan` (the three densest pages)
 
-- `src/routes/_authenticated/dashboard.tsx` (family) — surface: organized concerns, documents to upload, priorities, meeting prep, follow-through items.
-- `src/components/dashboard/StudentDashboard.tsx` — strengths / interests / goals / supports / next steps in motivating language.
-- `src/routes/_authenticated/caseload.tsx` (educator) — readiness gaps, doc insights, upcoming meetings, action items not yet owned.
-- `src/routes/_authenticated/school.overview.tsx` — caseload load, service gaps, planning consistency rollups (counts only, no PII beyond existing surface).
-- District overview (existing district route) — program-level readiness + partner gap signals.
-- `src/routes/_authenticated/partner/*` (existing partner surfaces) — opportunity posting health, PartnerForward incentives, "how to support pathways" without student PII.
-- Owner hub (`src/routes/_authenticated/owner.tsx` children) — waitlist, users, contacts, partner readiness, demos, ops — grouped into 4 plain-language sections.
+Tests covering the demo flow (`demo-signed-out`, `demo-roles.signedin`, `demo-layout`, `demo-contrast`) target structure and contrast, not exact copy strings — they should pass unchanged. If any test asserts a specific old string, fix the underlying cause (revert that one string) rather than weaken the test.
 
-## Tests
+## Out Of Scope (will not change)
+- Route paths, search params, navigation order
+- Auth, RLS, role gates, server functions, migrations
+- Pathway Report content sections inside `ReportView.tsx`
+- Signed-in product surfaces
 
-- `tests/unit/value-lens.test.ts` — every role and every report chapter has a non-empty `ValueCallout`.
-- Extend `tests/e2e/demo-signed-out.spec.ts` to assert each demo step renders its "In this step" strip and a `ValueCallout` in the report.
-
-## Out of scope
-
-- No DB schema changes, no new AI server functions, no new fixtures.
-- Visual system stays as-is (`.demo-shell`, `.report-shell`, editorial tokens). This pass is about meaning and structure, not new styling.
-- Auth, RLS, and role-guard behavior unchanged.
-
-## Acceptance
-
-- Every report chapter and every dashboard card answers the 7 value questions in plain language.
-- Demo tells a connected Intake→Report→Action story end-to-end.
-- Each role's landing surface opens with a one-line "why this page matters to you" and a concrete next action.
+## Risk
+Largest risk is accidentally renaming a chapter step label that a test asserts on. Mitigation: keep the canonical step ids (`intake`, `voice`, `documents`, `report`, `resources`, `opportunities`, `plan`, `meeting`, `calendar`, `hub`, `next`) intact in `DemoStepBar`; only the human-readable display strings change.

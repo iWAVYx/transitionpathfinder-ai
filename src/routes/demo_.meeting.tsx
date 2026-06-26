@@ -34,11 +34,11 @@ export const Route = createFileRoute("/demo_/meeting")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Meeting Center — TransitionForward demo" },
+      { title: "Meeting Center — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "See the PPT/IEP meeting prep packet TransitionForward generates: questions, documents, student voice, agenda, and follow-ups.",
+          "See the PPT/IEP prep packet TransitionForward generates: agenda, questions to ask, strengths to highlight, documents to bring, and follow-ups.",
       },
       { property: "og:url", content: "/demo/meeting" },
     ],
@@ -71,11 +71,12 @@ function DemoMeetingPage() {
                 Meeting Center
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {profile.first_name}'s next PPT meeting
+                {profile.first_name}'s Next PPT Meeting
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Everything {profile.first_name}'s family and team need to walk in prepared — pulled
-                directly from the Pathway Report.
+                Everything {profile.first_name}'s family and team need to walk in
+                prepared — drawn directly from the Pathway Report so no one has to
+                rebuild it the night before.
               </p>
             </div>
             <div className="flex flex-col items-end gap-2">
@@ -84,10 +85,10 @@ function DemoMeetingPage() {
               </Badge>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
-                  <Printer className="h-4 w-4" /> Print packet
+                  <Printer className="h-4 w-4" /> Print Packet
                 </Button>
                 <Button size="sm">
-                  <Download className="h-4 w-4" /> Export prep packet
+                  <Download className="h-4 w-4" /> Export Prep Packet
                 </Button>
               </div>
             </div>
@@ -96,16 +97,16 @@ function DemoMeetingPage() {
           {/* Suggested agenda */}
           <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              Suggested agenda · 45 min
+              Suggested Agenda · 45 Min
             </p>
             <ol className="mt-3 grid gap-2 sm:grid-cols-2">
               {[
-                "Welcome + introductions (5 min)",
-                `${profile.first_name}'s voice — what's working / what's hard (8 min)`,
-                "Review strengths and current goals (10 min)",
-                "Discuss recommended pathways + services (12 min)",
-                "Family questions + decisions (8 min)",
-                "Action items + next meeting date (2 min)",
+                "Welcome + Introductions (5 Min)",
+                `${profile.first_name}'s Voice — What's Working / What's Hard (8 Min)`,
+                "Review Strengths And Current Goals (10 Min)",
+                "Discuss Recommended Pathways + Services (12 Min)",
+                "Family Questions + Decisions (8 Min)",
+                "Action Items + Next Meeting Date (2 Min)",
               ].map((item, i) => (
                 <li key={item} className="flex items-start gap-2 text-sm">
                   <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
@@ -122,7 +123,7 @@ function DemoMeetingPage() {
         <div className="mt-8">
           <DemoCalendarPreview
             student={s}
-            title="On the shared calendar"
+            title="On The Shared Calendar"
             subtitle="What the family and care team will see in the days around this meeting."
             limit={4}
           />
@@ -130,7 +131,7 @@ function DemoMeetingPage() {
 
         {/* Two-column grids */}
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Panel icon={<HelpCircle className="h-5 w-5" />} title="Questions to ask" tone="primary">
+          <Panel icon={<HelpCircle className="h-5 w-5" />} title="Questions To Ask" tone="primary">
             <ul className="space-y-2.5">
               {prep?.questions_to_ask.map((q) => (
                 <li key={q} className="flex gap-2 text-sm leading-relaxed">
@@ -141,7 +142,7 @@ function DemoMeetingPage() {
             </ul>
           </Panel>
 
-          <Panel icon={<Sparkles className="h-5 w-5" />} title="Strengths to highlight" tone="emerald">
+          <Panel icon={<Sparkles className="h-5 w-5" />} title="Strengths To Highlight" tone="emerald">
             <ul className="space-y-2.5">
               {prep?.strengths_to_highlight.map((q) => (
                 <li key={q} className="flex gap-2 text-sm leading-relaxed">
@@ -152,7 +153,7 @@ function DemoMeetingPage() {
             </ul>
           </Panel>
 
-          <Panel icon={<AlertTriangle className="h-5 w-5" />} title="Concerns to raise" tone="amber">
+          <Panel icon={<AlertTriangle className="h-5 w-5" />} title="Concerns To Raise" tone="amber">
             <ul className="space-y-2.5">
               {prep?.concerns_to_raise.map((q) => (
                 <li key={q} className="flex gap-2 text-sm leading-relaxed">
@@ -163,7 +164,7 @@ function DemoMeetingPage() {
             </ul>
           </Panel>
 
-          <Panel icon={<Target className="h-5 w-5" />} title="Goals to review">
+          <Panel icon={<Target className="h-5 w-5" />} title="Goals To Review">
             <ul className="space-y-2.5">
               {prep?.goals_to_review.map((q) => (
                 <li key={q} className="flex gap-2 text-sm leading-relaxed">
@@ -174,7 +175,7 @@ function DemoMeetingPage() {
             </ul>
           </Panel>
 
-          <Panel icon={<FileText className="h-5 w-5" />} title="Documents to bring">
+          <Panel icon={<FileText className="h-5 w-5" />} title="Documents To Bring">
             <ul className="space-y-2">
               {prep?.documents_to_bring.map((q) => (
                 <li
@@ -188,7 +189,7 @@ function DemoMeetingPage() {
             </ul>
           </Panel>
 
-          <Panel icon={<MessageCircle className="h-5 w-5" />} title={`${profile.first_name}'s voice prompts`}>
+          <Panel icon={<MessageCircle className="h-5 w-5" />} title={`${profile.first_name}'s Voice Prompts`}>
             <ul className="space-y-2.5">
               {prep?.student_voice_prompts.map((q) => (
                 <li
@@ -201,7 +202,7 @@ function DemoMeetingPage() {
             </ul>
           </Panel>
 
-          <Panel icon={<Users className="h-5 w-5" />} title="Services to discuss">
+          <Panel icon={<Users className="h-5 w-5" />} title="Services To Discuss">
             <div className="flex flex-wrap gap-2">
               {prep?.services_to_discuss.map((q) => (
                 <span
@@ -214,7 +215,7 @@ function DemoMeetingPage() {
             </div>
           </Panel>
 
-          <Panel icon={<CheckSquare className="h-5 w-5" />} title="Follow-up items">
+          <Panel icon={<CheckSquare className="h-5 w-5" />} title="Follow-Up Items">
             <ul className="space-y-2.5">
               {prep?.follow_up_items.map((q) => (
                 <li key={q} className="flex items-start gap-2 text-sm leading-relaxed">

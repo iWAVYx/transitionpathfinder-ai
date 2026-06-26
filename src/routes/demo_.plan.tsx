@@ -31,11 +31,11 @@ export const Route = createFileRoute("/demo_/plan")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "30 / 60 / 90-Day Action Plan — TransitionForward demo" },
+      { title: "30 / 60 / 90-Day Action Plan — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "Switch between 30, 60, and 90-day action plans TransitionForward generates from the Pathway Report — comprehensive, week-by-week, with owners and outcomes.",
+          "Switch between 30-, 60-, and 90-day action plans drawn straight from the Pathway Report — week-by-week, with named owners and clear outcomes.",
       },
       { property: "og:url", content: "/demo/plan" },
     ],
@@ -76,7 +76,7 @@ function DemoPlanPage() {
                 {meta.label}
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {profile.first_name}'s next {meta.days} days
+                {profile.first_name}'s Next {meta.days} Days
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{meta.tagline}</p>
             </div>
@@ -85,7 +85,7 @@ function DemoPlanPage() {
                 <Printer className="h-4 w-4" /> Print
               </Button>
               <Button size="sm">
-                <Download className="h-4 w-4" /> Export plan
+                <Download className="h-4 w-4" /> Export Plan
               </Button>
             </div>
           </div>
@@ -93,7 +93,7 @@ function DemoPlanPage() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
             <p className="text-xs text-muted-foreground">
-              Each step has an owner, a time estimate, and what success looks like.
+              Each step has a named owner, a time estimate, and what success looks like.
             </p>
           </div>
         </div>
@@ -113,12 +113,12 @@ function DemoPlanPage() {
         {familyPlan && (
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <Panel
-              title="Then this school year"
+              title="Then This School Year"
               icon={<Sparkles className="h-4 w-4" />}
               items={familyPlan.this_school_year}
             />
             <Panel
-              title="Before graduation"
+              title="Before Graduation"
               icon={<CalendarRange className="h-4 w-4" />}
               items={familyPlan.before_graduation}
             />
@@ -129,10 +129,10 @@ function DemoPlanPage() {
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-border/60 bg-gradient-hero p-6 sm:p-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              You've seen the full TransitionForward flow
+              You've Seen The Full TransitionForward Flow
             </p>
             <p className="mt-1 font-display text-2xl">
-              Hub → Intake → Report → Meeting Prep → Resources → Calendar → Plan.
+              Workspace → Intake → Pathway Report → Meeting Prep → Resources → Calendar → Plan
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Ready to build one for a real student?
@@ -140,11 +140,11 @@ function DemoPlanPage() {
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline">
-              <Link to="/demo">Restart demo</Link>
+              <Link to="/demo">Restart Demo</Link>
             </Button>
             <Button asChild>
               <Link to="/waitlist">
-                Join the waitlist <ArrowRight className="h-4 w-4" />
+                Join The Waitlist <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>

@@ -75,17 +75,17 @@ function DemoDocumentsPage() {
               <FileSearch className="h-3 w-3" /> Document Insights
             </Badge>
             <Badge variant="outline" className="gap-1">
-              <ShieldCheck className="h-3 w-3" /> Sample documents — not a real IEP
+              <ShieldCheck className="h-3 w-3" /> Sample Documents — Not A Real IEP
             </Badge>
           </div>
           <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-            A Planning Companion, Not the Official Record.
+            A Planning Companion, Not The Official Record.
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
             TransitionForward reads IEPs, evaluations, transition assessments, and
-            vocational profiles to organize the planning-relevant parts for the team —
-            and always flags items for human review. Every insight links back to its
-            source document.
+            vocational profiles to organize the planning-relevant pieces for the team —
+            and always flags items that need human review. Every insight links back to
+            the document it came from.
           </p>
 
           <div className="mt-8 rounded-3xl border border-amber-500/30 bg-amber-50/60 p-5 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-950/30 dark:text-amber-200">
@@ -93,15 +93,15 @@ function DemoDocumentsPage() {
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
                 This sample shows how TransitionForward presents document-informed
-                planning. It is fictional. We do not generate, replace, or substitute
-                for official IEPs, evaluations, or transition plans.
+                planning. It is fictional. TransitionForward does not generate, replace,
+                or substitute for official IEPs, evaluations, or transition plans.
               </p>
             </div>
           </div>
 
           {/* Sources detected */}
           <h2 className="mt-10 font-display text-xl">
-            Documents detected for {bundle.profile.first_name}
+            Documents For {bundle.profile.first_name}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {sources.length} sample documents · {insights.length} planning insights
@@ -130,10 +130,10 @@ function DemoDocumentsPage() {
             ))}
           </ul>
 
-          <h2 className="mt-10 font-display text-xl">Planning insights</h2>
+          <h2 className="mt-10 font-display text-xl">Planning Insights</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Every insight is tagged with the document type it came from. Teams should
-            verify every detail against official school records.
+            verify every detail against official school records before relying on it.
           </p>
 
           <div className="mt-6 space-y-4">
