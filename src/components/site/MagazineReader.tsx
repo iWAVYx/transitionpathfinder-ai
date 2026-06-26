@@ -189,7 +189,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-demo-primary" />
                   <span className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-demo-primary">
-                    Contents — Demo Issue No. 01
+                    Contents
                   </span>
                 </div>
                 <button
