@@ -1,11 +1,11 @@
 import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 
 import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { getDemoStudent } from "@/lib/demo-data";
 import {
   PublicationCallout, PublicationPullQuote,
-import { StudioPage } from "@/studio/StudioPage";
 } from "@/components/publication/PublicationPage";
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({

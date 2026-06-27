@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   BookOpen,
   Compass,
-import { StudioPage } from "@/studio/StudioPage";
   Briefcase,
   GraduationCap,
   HeartHandshake,

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import { ArrowRight, Users, Building2, GraduationCap, School, Briefcase, UserCheck } from "lucide-react";
 
 import { validateStudentSearch } from "@/components/site/DemoStepBar";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import type { DemoStudentId } from "@/lib/demo-data";
 import {
   PublicationCallout,
-import { StudioPage } from "@/studio/StudioPage";
 } from "@/components/publication/PublicationPage";
 export const Route = createFileRoute("/demo_/next")({
   validateSearch: validateStudentSearch,

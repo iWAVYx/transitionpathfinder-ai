@@ -1,5 +1,6 @@
 import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import { AlertTriangle, FileText, Files } from "lucide-react";
 
 import { validateStudentSearch } from "@/components/site/DemoStepBar";
@@ -9,7 +10,6 @@ import {
   DEMO_DOCUMENT_INSIGHTS,
   DEMO_DOCUMENT_SOURCES,
   type DocumentType,
-import { StudioPage } from "@/studio/StudioPage";
 } from "@/lib/demo-extras";
 import {
   PublicationCallout, PublicationSource, PublicationSpread, PublicationSidebar,

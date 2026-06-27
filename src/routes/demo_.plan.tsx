@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   CalendarRange,
   CheckCircle2,
   Sparkles,
-import { StudioPage } from "@/studio/StudioPage";
   ArrowRight,
   Download,
   Printer,

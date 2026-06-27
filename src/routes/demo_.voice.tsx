@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 
 import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { CHAPTER_META } from "@/lib/demo-chapters";
@@ -7,7 +8,6 @@ import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_VOICE } from "@/lib/demo-extras";
 import {
   PublicationSpread, PublicationPullQuote, PublicationCallout, PublicationSidebar,
-import { StudioPage } from "@/studio/StudioPage";
 } from "@/components/publication/PublicationPage";
 export const Route = createFileRoute("/demo_/voice")({
   validateSearch: validateStudentSearch,

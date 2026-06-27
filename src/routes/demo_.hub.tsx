@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   ClipboardList,
   Mic,
   FileSearch,
-import { StudioPage } from "@/studio/StudioPage";
   FileText,
   Briefcase,
   BookOpen,

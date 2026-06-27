@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   CalendarDays,
   ClipboardList,
   Users,
-import { StudioPage } from "@/studio/StudioPage";
   GraduationCap,
   Sparkles,
   Plus,

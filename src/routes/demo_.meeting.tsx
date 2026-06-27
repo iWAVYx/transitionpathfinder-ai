@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   Users,
   HelpCircle,
   Sparkles,
-import { StudioPage } from "@/studio/StudioPage";
   AlertTriangle,
   Target,
   FileText,

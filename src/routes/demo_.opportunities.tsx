@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import { Briefcase, MapPin, CheckCircle2, Bookmark, Send, Eye } from "lucide-react";
 
 import { validateStudentSearch } from "@/components/site/DemoStepBar";
@@ -7,7 +8,6 @@ import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
 import {
   DEMO_OPPORTUNITIES, DEMO_OPPORTUNITY_STATUS, OPPORTUNITY_INTRO_STATUS_LABEL, type OpportunityIntroStatus,
-import { StudioPage } from "@/studio/StudioPage";
 } from "@/lib/demo-extras";
 import {
   PublicationCallout, PublicationSource,
