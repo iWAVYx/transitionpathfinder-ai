@@ -24,6 +24,13 @@ interface PublicationPageProps {
   folio?: string;
   /** Optional kicker shown above the chapter title (e.g. "Section 02"). */
   kicker?: string;
+  /**
+   * Title visual treatment. "auto" (default) renders one-word chapter
+   * titles as the oversized all-caps editorial display; multi-word
+   * titles use the standard Title Case display. "mono" forces the
+   * editorial all-caps treatment; "title" forces the standard one.
+   */
+  displayStyle?: "auto" | "mono" | "title";
   /** Page body. */
   children: ReactNode;
 }
@@ -36,8 +43,13 @@ export function PublicationPage({
   dek,
   folio,
   kicker,
+  displayStyle = "auto",
   children,
 }: PublicationPageProps) {
+  const isOneWord = chapter.trim().split(/\s+/).length === 1;
+  const useMono =
+    displayStyle === "mono" || (displayStyle === "auto" && isOneWord);
+
   return (
     <article className="pub-page">
       <header className="pub-page-runninghead" aria-hidden={false}>
@@ -48,7 +60,12 @@ export function PublicationPage({
 
       <div className="pub-page-opener">
         {kicker && <p className="pub-page-kicker">{kicker}</p>}
-        <h1 className="pub-page-title">{chapter}</h1>
+        <h1
+          className="pub-page-title"
+          data-display={useMono ? "mono" : "title"}
+        >
+          {chapter}
+        </h1>
         {dek && <p className="pub-page-dek">{dek}</p>}
         <div className="pub-page-rule" aria-hidden />
       </div>
