@@ -5045,3 +5045,152 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 
 /* End of PERSONALITY REFRESH (v6) */
+
+/* ============================================================
+   MILESTONE ART (v7) — warm chapter illustrations + icons.
+   Scoped to .demo-shell / .report-shell / .eh-issue.
+   ------------------------------------------------------------ */
+
+/* Spine: render the milestone icon inside each node's dot. */
+.eh-issue .pathway-spine-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: color-mix(in oklch, var(--spine-ink) 55%, transparent);
+  background: var(--demo-paper, #f7f5f0);
+  border-color: color-mix(in oklch, var(--node-hue, var(--spine-rule)) 55%, var(--spine-rule));
+}
+.eh-issue .pathway-spine-node.is-done .pathway-spine-dot {
+  background: var(--node-hue, var(--spine-ink));
+  border-color: var(--node-hue, var(--spine-ink));
+  color: #fff;
+}
+.eh-issue .pathway-spine-node.is-now .pathway-spine-dot {
+  width: 26px;
+  height: 26px;
+  background: var(--node-soft, var(--demo-paper, #f7f5f0));
+  border: 2px solid var(--node-hue, var(--spine-ink));
+  color: var(--node-hue, var(--spine-ink));
+  transform: none;
+  box-shadow: 0 0 0 4px var(--demo-paper, #f7f5f0), 0 4px 10px -4px color-mix(in oklch, var(--node-hue, #000) 45%, transparent);
+}
+.eh-issue .pathway-spine-node.is-now .pathway-spine-dot::after {
+  inset: -5px;
+  border-color: color-mix(in oklch, var(--node-hue, var(--spine-accent)) 55%, transparent);
+  opacity: 0.5;
+}
+.eh-issue .pathway-spine-icon { display: block; }
+
+/* Filled rail uses the active node's warm hue for the last segment. */
+.eh-issue .pathway-spine-rail::after {
+  background: linear-gradient(
+    to right,
+    var(--spine-ink) 0%,
+    var(--spine-ink) calc(100% - 14%),
+    color-mix(in oklch, var(--spine-accent) 70%, var(--spine-ink)) 100%
+  );
+}
+
+/* --- Milestone Badge ------------------------------------------ */
+.milestone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  padding: 6px 12px 6px 6px;
+  font-family: var(--font-display, "Urbanist"), system-ui, sans-serif;
+  line-height: 1.1;
+  background: var(--mb-soft, #fbe2c4);
+  color: color-mix(in oklch, var(--mb-hue, #0c2340) 70%, #0c2340);
+  border: 1px solid color-mix(in oklch, var(--mb-hue, #0c2340) 35%, transparent);
+  max-width: 100%;
+}
+.milestone-badge--dark {
+  background: color-mix(in oklch, var(--mb-hue, #0c2340) 22%, transparent);
+  color: #fff;
+  border-color: color-mix(in oklch, var(--mb-hue, #fff) 55%, #ffffff20);
+  backdrop-filter: blur(2px);
+}
+.milestone-badge-art {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #fff;
+  color: var(--mb-hue, #0c2340);
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  box-shadow: 0 1px 0 color-mix(in oklch, var(--mb-hue, #000) 18%, transparent);
+}
+.milestone-badge--lg .milestone-badge-art {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  box-shadow:
+    0 6px 14px -8px color-mix(in oklch, var(--mb-hue, #000) 55%, transparent),
+    0 0 0 1px color-mix(in oklch, var(--mb-hue, #000) 18%, transparent);
+}
+.milestone-badge--lg .milestone-badge-art > svg { width: 44px; height: 44px; }
+.milestone-badge--lg { padding: 8px 16px 8px 8px; border-radius: 18px; }
+
+.milestone-badge-text {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.milestone-badge-kicker {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.milestone-badge-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.milestone-badge--lg .milestone-badge-label { font-size: 16px; }
+.milestone-badge--lg .milestone-badge-kicker { font-size: 10.5px; }
+
+/* --- Spine update warm tint when milestone is supplied -------- */
+.eh-issue .spine-update:has(.spine-update-icon) {
+  border-top-color: color-mix(in oklch, var(--spine-update-hue, var(--demo-accent)) 45%, transparent);
+  background: linear-gradient(
+    to right,
+    color-mix(in oklch, var(--spine-update-soft, transparent) 60%, transparent),
+    transparent 65%
+  );
+  border-radius: 6px;
+  padding-left: 14px;
+}
+.eh-issue .spine-update-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--spine-update-hue, var(--demo-accent));
+  border: 1px solid color-mix(in oklch, var(--spine-update-hue, var(--demo-accent)) 35%, transparent);
+  flex-shrink: 0;
+  transform: translateY(-3px);
+}
+.eh-issue .spine-update:has(.spine-update-icon) .spine-update-label {
+  color: var(--spine-update-hue, var(--demo-accent));
+}
+
+/* Mobile: keep the spine dots round + readable. */
+@media (max-width: 640px) {
+  .eh-issue .pathway-spine-dot { width: 14px; height: 14px; }
+  .eh-issue .pathway-spine-dot > svg { width: 9px; height: 9px; }
+  .eh-issue .pathway-spine-node.is-now .pathway-spine-dot { width: 20px; height: 20px; }
+  .eh-issue .pathway-spine-node.is-now .pathway-spine-dot > svg { width: 12px; height: 12px; }
+}
+
+/* End of MILESTONE ART (v7) */
