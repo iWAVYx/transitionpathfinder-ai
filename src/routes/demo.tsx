@@ -66,8 +66,7 @@ function DemoIssueCover() {
             <div style={{ position: "relative", zIndex: 2 }}>
               <p className="tf-v2-cover-kicker">The Personal Planning Issue Of</p>
               <h1 className="tf-v2-cover-title">
-                {toTitleCase(student.first_name)}<br />
-                {toTitleCase(student.last_name)}
+                {toTitleCase(student.full_name)}
               </h1>
             </div>
 
