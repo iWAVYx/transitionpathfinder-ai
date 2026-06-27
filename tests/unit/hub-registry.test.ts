@@ -3,7 +3,6 @@ import {
   HUBS,
   HUB_IDS,
   PARTNER_FORBIDDEN_SPOKE_TOPICS,
-  publicHubs,
 } from "@/lib/hubs/registry";
 
 describe("hub registry", () => {
@@ -30,9 +29,10 @@ describe("hub registry", () => {
     }
   });
 
-  it("at least one public hub exists and links to a demo report next step", () => {
-    const pubs = publicHubs();
-    expect(pubs.length).toBeGreaterThan(0);
+  it("all hubs are signed-in product hubs (no public hubs)", () => {
+    for (const id of HUB_IDS) {
+      expect(HUBS[id].signedIn, `${id} must be signed-in only`).toBe(true);
+    }
   });
 
   it("related hub ids resolve", () => {
@@ -53,6 +53,8 @@ describe("hub registry", () => {
           PARTNER_FORBIDDEN_SPOKE_TOPICS,
           `${id}/${spoke.id} topic "${spoke.topic}" must not appear in a partner hub`,
         ).not.toContain(spoke.topic);
+        // Partner spokes also must never link into PII surfaces.
+        expect(spoke.to).not.toMatch(/^\/(students|documents|reports|goals|student-voice|ppt-prep|meetings|pathway)/);
       }
     }
   });
