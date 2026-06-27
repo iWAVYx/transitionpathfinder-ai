@@ -48,7 +48,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Career and life-pathway matches",
       "Goals broken down into doable steps",
     ],
-    milestone: \"pathway",
+    milestone: "pathway",
   },
   translate: {
     numeral: "III",
@@ -60,7 +60,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Student voice — quotes pulled directly from intake",
       "Where the document and the student agree (and don't)",
     ],
-    milestone: \"documents",
+    milestone: "documents",
   },
   team: {
     numeral: "IV",
@@ -72,7 +72,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Family action plan and follow-ups",
       "Opportunities and partners to consider",
     ],
-    milestone: \"family",
+    milestone: "family",
   },
   next: {
     numeral: "V",
@@ -84,7 +84,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "60- and 90-day milestones",
       "Owner, due date, and success marker for each step",
     ],
-    milestone: \"plan",
+    milestone: "plan",
   },
 };
 
