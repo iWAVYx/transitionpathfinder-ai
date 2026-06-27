@@ -1,72 +1,117 @@
+# The Pathway Issue — Editorial Rebuild
 
-# TransitionForward Content Hub Architecture
+A focused rebuild of the Demo Workspace, demo Pathway Report, and signed-in Pathway Report views as one publication system. Lessons drawn from Pitch (prove the product), Stripe Press (tactile editorial), SEBTO/Ellipsus/MORAL/Gemnote (typography carries the design), Ventriloc (data woven into story), Fluent (humane complexity).
 
-This is a large, cross-cutting reorganization. I'll do it in **phases** with your approval between each so we don't destabilize auth, routes, demo, or the Pathway Report. Each phase ships value on its own.
+The non-negotiable new layer: a **visible Pathway Spine** that threads every page so the user sees scattered inputs becoming a direction.
 
-## Guiding principles
+---
 
-- **Reorganize, don't rewrite.** Keep current routes, RLS, role guards, demo flow, and the Pathway Report intact. Add a hub layer *on top* and rewire navigation/linking.
-- **One shared hub primitive.** Every hub answers the same six questions (Who / Problem / Tools / Related / Next step / How it feeds the Pathway Report) using one component, so hubs feel like a system, not 15 bespoke pages.
-- **Pathway Report = center of gravity.** Every hub shows its contribution to the report; the report links back to its sources.
-- **No private data leaks.** Public hubs use demo/sample data only. Signed-in hubs stay behind existing role guards. Partner hub never references private student data.
+## 1. New publication shell (`src/components/publication/`)
 
-## Phase 1 — Hub foundation (ship first)
+One shell, used by demo + signed-in reports.
 
-Goal: introduce the hub model and the shared chrome, with **two reference hubs** wired end-to-end so we can validate the pattern before scaling.
+- `IssueShell` — paper canvas, masthead ("The Pathway Issue · Vol. {student initial}"), generous gutters via `clamp()`, hairline rules instead of borders, no card shadows.
+- `IssueCover` — full-bleed cover spread (title, dek, student initial monogram, issue number, contributors line). Replaces current `/demo` hero and report cover.
+- `IssueContents` — typographic TOC: roman-numeral Parts → chapter rows with folio numbers and one-line deks. Replaces tile TOC.
+- `ChapterOpener` — kicker · part · chapter title · dek · opening rule. Used at the top of every page.
+- `ChapterNav` — sticky thin nav: « Previous Chapter | Part II · Synthesize | Next Chapter ». Replaces existing pager.
+- `PathwayProgress` — a single horizontal rule with 8 milestone ticks (Intake → Voice → Family → Educator → Documents → Readiness → Pathway → Plan). Filled to current chapter. Sits under ChapterNav.
+- Editorial primitives kept/refined: `Spread`, `PullQuote`, `Sidebar`, `Callout`, `Checklist`, `SourceNote`, plus new `EvidenceMargin` (margin annotation rail), `Timeline`, `ReadinessMap`, `RecommendationRow`.
 
-1. **Shared primitives** in `src/components/hub/`:
-   - `HubShell` — pillar header (who/problem), section bands, related-links rail.
-   - `HubSpokeGrid` — uniform spoke cards (title, 1-line value, "feeds the report" tag, CTA).
-   - `RelatedLinksRail` — "Related Planning Tools / For Families / For Educators / Next Step / Use This In The Pathway Report".
-   - `FeedsReportBadge` — small label + tooltip explaining which Pathway Report section this informs.
-2. **Hub registry** `src/lib/hubs/registry.ts` — single source of truth: id, audience, pillar copy, spokes (each with `feedsReport: ReportSectionId | null`), related hub ids, signed-in vs public. Drives nav, footers, and the resource filter facets.
-3. **Two reference hubs built on the primitives**:
-   - Public: **Transition Planning Hub** at `/hubs/transition-planning` (pillar + spokes: Student Voice, Family Priorities, Educator Input, Documents, Readiness, Pathway Report, 30/60/90, Questions For The Team).
-   - Signed-in: **Student Planning Hub** at `/_authenticated/hubs/student` (pillar + spokes pointing to real product surfaces).
-4. **Site nav + footer**: add a "Hubs" menu grouped by audience, sourced from the registry. Existing top-nav links stay.
+All Tailwind via the existing `.eh-issue` scope in `src/styles.css`; we replace the current `pub-*` layer with a tighter `issue-*` layer (paper #f7f5f0, ink #0c2340, accent teal #2d8a9e — Ocean Deep is kept, it tested well).
 
-Exit criteria: both hubs render, link to each other and to the Pathway Report, and the registry test confirms every spoke has audience + report mapping.
+## 2. The Pathway Spine (the new big idea)
 
-## Phase 2 — Public hub buildout
+A continuous left-rail SVG line on desktop, top progress bar on mobile. It threads every chapter and shows:
 
-Build the remaining public hubs against the registry, reusing existing route content where it already exists (BridgeForward, PartnerForward, Families, Educators, Pricing, Demo). Each becomes a true pillar page with spokes pulled from existing routes — no duplicate pages, mostly redirects + improved pillar/intro and "Related" rails.
+- where the student starts (intake node)
+- which inputs have contributed (voice, family, educator, documents) — each node lights as the reader passes its chapter
+- where the line currently is
+- where it's going (readiness → pathway → plan)
 
-Hubs: BridgeForward Middle School, Family Resource, Student Readiness, School & District, PartnerForward, Demo / Sample Pathway, Pricing / Pilot / Waitlist.
+Implemented once in `IssueShell`, driven by `currentChapter` prop. Functional, not decorative: clicking a node jumps to that chapter; hovering shows the one-line contribution ("Family priorities — 3 hopes, 2 concerns").
 
-## Phase 3 — Signed-in hub buildout
+Each chapter also ends with a small "Spine update" line: *"Adds to the pathway: Maya's preference for hands-on learning →"* — making the threading legible in prose.
 
-Layer hub pages over the existing role dashboards (don't replace them — link into them). Routes under `/_authenticated/hubs/{role}` for Family, Educator/Case Manager, School Admin, District Admin, Partner, Owner. Each role's hub respects existing `RoleGuard` / `beforeLoad` checks. Partner hub explicitly excludes private student data; we'll add a unit test asserting the partner hub registry entry contains no student-PII spoke ids.
+## 3. Each chapter gets its own layout (no shared template)
 
-## Phase 4 — Resource library upgrade
+| Chapter | Layout |
+|---|---|
+| Cover | Full-bleed monogram + issue meta |
+| Contents | Typographic TOC, two columns desktop |
+| Intake | Profile spread — portrait column + facts column |
+| Student Voice | Interview spread — large pull quotes, plain-language reflection, audio-note marks |
+| Family Priorities | Letter-style page — hopes / concerns / questions as running prose with margin tags |
+| Educator Insights | Planning memo — observations, services table (hairline rows, not card), readiness notes |
+| Documents & Evidence | Evidence review — document strip with extracted insights pulled into margin annotations |
+| Readiness Profile | Readiness map — horizontal bars on a single axis, not tiles; strengths above the line, growth areas below |
+| Recommended Pathway | Roadmap spread — the Spine becomes the hero, branches show options, recommended branch emphasized |
+| 30 / 60 / 90 Plan | Workbook spread — three columns of action rows (owner · date · follow-up), hairline ruled |
+| Questions for the Team | Meeting-prep checklist, printable |
+| Closing | Contributors + source notes |
 
-Promote `/resources` into a true filterable library: facets for role, grade band, topic, planning stage, resource type, document type, readiness area, BridgeForward vs TransitionForward, public vs signed-in. Facets are derived from the hub registry + existing resource metadata, so adding a resource auto-populates filters. URL-synced filters via TanStack search params.
+Role lenses (Student / Family / Educator) become **inline tabs inside the chapter body** — labeled "Read as…" — not floating chrome.
 
-## Phase 5 — Pathway Report ↔ hub wiring
+## 4. Signed-in parity
 
-- Each report chapter gets a "Sources" footer listing the hubs/inputs that fed it (Intake, Voice, Documents, Readiness, Partners, BridgeForward/TF roadmap).
-- Each hub spoke that feeds the report gets a "Use This In The Pathway Report" CTA deep-linking to the right chapter.
-- Demo workspace gets a "Sample Hub Map" overlay on `/demo` showing the same connections, so the demo mirrors the real ecosystem.
+The same `IssueShell` wraps:
 
-## Phase 6 — Internal linking + dead-end audit
+- `src/components/pathway/ReportView.tsx` (already shared by demo + signed-in)
+- `/reports/$reportId`
+- Dashboard report previews use a compact `IssuePreview` (cover + first spread + open-in-issue link), replacing current tile previews.
 
-Sweep every public and signed-in page; add the standard `RelatedLinksRail` so no page is a dead end. Add a vitest that walks the registry and asserts every hub has ≥3 related links and ≥1 next-step CTA.
+`PathwayReportCard.tsx` keeps its function but loses the card-y styling — becomes an editorial "Latest Issue" block.
 
-## Out of scope (explicitly)
+## 5. Motion (sparing)
 
-- No changes to auth, RLS, migrations, or role guards beyond using existing ones.
-- No content rewrite of the Pathway Report chapters; only adds the Sources footer and back-links.
-- No SEO filler. Public pillar copy stays human and useful.
-- No new backend tables. The hub registry is static TS.
+- Chapter change: 180ms cross-fade + 8px upward shift on the chapter opener only.
+- Spine node fill: 240ms ease when its chapter becomes current.
+- Evidence margin notes: fade in on scroll into view (IntersectionObserver, once).
+- Nothing else. No page curls, no parallax, no decorative loops.
 
-## Technical notes
+## 6. Routes / files touched
 
-- New files only under `src/components/hub/`, `src/lib/hubs/`, `src/routes/hubs.*.tsx`, `src/routes/_authenticated/hubs.*.tsx`. Existing routes get small edits to add the `RelatedLinksRail` and `FeedsReportBadge`.
-- Hub routes are normal TanStack file routes; signed-in hubs live under `_authenticated/` and inherit the managed gate.
-- Registry-driven nav means future hubs are a data change, not a code change.
-- Tests: `tests/unit/hub-registry.test.ts` (shape, audience, report mapping, partner safety), `tests/e2e/hubs-signed-out.spec.ts` (public hubs render + cross-link), extend `demo-roles.signedin.spec.ts` for signed-in hubs.
+**New**
+- `src/components/publication/IssueShell.tsx`, `IssueCover.tsx`, `IssueContents.tsx`, `ChapterOpener.tsx`, `ChapterNav.tsx`, `PathwayProgress.tsx`, `PathwaySpine.tsx`, `EvidenceMargin.tsx`, `ReadinessMap.tsx`, `RoadmapSpread.tsx`, `ActionWorkbook.tsx`
+- `src/lib/publication/chapters.ts` — single source of truth for chapter order, folios, part grouping, spine nodes. Used by demo + signed-in.
 
-## What I need from you
+**Rewritten**
+- `src/routes/demo.tsx` (cover + contents)
+- `src/routes/demo_.{intake,voice,documents,plan,meeting,calendar,opportunities,resources,next,hub}.tsx` — swap PublicationPage for new chapter components
+- `src/routes/demo_.report.tsx`
+- `src/components/pathway/ReportView.tsx` and `ReportChapterPager.tsx`
+- `src/components/site/DemoStepBar.tsx` → becomes `ChapterNav` consumer
+- `src/components/students/PathwayReportCard.tsx`
+- `src/styles.css` — replace `PUBLICATION SYSTEM` + `EDITORIAL REPORT BODY` layers with a single `ISSUE SYSTEM` layer
 
-1. **Approve the phased approach** (or tell me to compress / reorder).
-2. **Phase 1 scope check**: OK to start with Transition Planning Hub (public) + Student Planning Hub (signed-in) as the two reference hubs? If you'd rather the first signed-in reference be Educator or Family, say which.
-3. **Nav placement**: add a "Hubs" top-nav menu, or surface hubs only from the homepage + footer + contextual rails? I recommend the top-nav menu so the architecture is visible.
+**Deleted**
+- `src/components/publication/PublicationPage.tsx` (replaced)
+- Any remaining `.mag-*`, `.eh-*` legacy utilities not used by ISSUE SYSTEM
+
+**Untouched (per requirements)**
+- Auth, 2FA, `_authenticated` guards, role middleware
+- RLS migrations, server functions, demo data fixtures
+- Test IDs in existing specs, role-access tests
+- Hub registry (stays signed-in only)
+- BridgeForward / grade-band logic
+
+## 7. Verification
+
+- Playwright walk of all 13 demo URLs + `/reports/$reportId` at 390/834/1280 widths; screenshot every chapter; assert no horizontal overflow and Spine progress matches chapter.
+- Re-run existing specs: `tests/e2e/demo-signed-out.spec.ts`, `demo-roles.signedin.spec.ts`, `demo-layout.spec.ts`, `demo-contrast.spec.ts`, `role-access-rules.signedin.spec.ts`, `role-leak-nav.signedin.spec.ts`, `report-a11y.spec.ts`.
+- New `tests/unit/publication-chapters.test.ts` — chapter registry order, spine nodes 1:1 with chapters.
+- New `tests/e2e/issue-pathway-spine.spec.ts` — spine fills as user navigates chapters; node click navigates; mobile shows top bar.
+- Title Case lint (existing `src/lib/title-case.ts`) applied to all new headings.
+
+## 8. Out of scope (explicitly)
+
+- No new public hubs, no public route changes outside `/demo/*`.
+- No data model changes, no migrations.
+- No new dependencies (uses existing Tailwind v4, Motion already in tree if needed).
+- No edits to auto-generated Supabase files.
+
+---
+
+**Estimated scope:** ~25 file rewrites, ~12 new files, 1 styles.css layer swap, 2 new test files. Single pass, no incremental "polish" follow-ups — this replaces the publication layer end-to-end.
+
+Approve and I'll build it straight through.
