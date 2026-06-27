@@ -1,12 +1,13 @@
 import { ChapterOpener } from "@/components/site/MagazinePage";
+import type { PathwayMilestoneId } from "@/lib/publication/chapters";
 
 /**
  * Pathway Report — Editorial part dividers.
  *
  * Each part opens with a full-bleed `ChapterOpener` matching the publication
  * system: oversized Instrument Serif italic numeral, Urbanist kicker,
- * hairline rule, teal background. Keeps the part-break role (page-break +
- * scroll anchor) while reading as a page inside the magazine-handbook issue.
+ * hairline rule, teal background, plus a warm milestone badge so families
+ * can recognise each part visually.
  */
 export type ReportPart =
   | "snapshot"
@@ -21,6 +22,7 @@ interface PartMeta {
   title: string;
   dek: string;
   covers: string[];
+  milestone: PathwayMilestoneId;
 }
 
 const REPORT_PARTS: Record<ReportPart, PartMeta> = {
