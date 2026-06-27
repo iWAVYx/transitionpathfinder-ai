@@ -353,7 +353,7 @@ function DemoMeetingPage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-5 overflow-hidden rounded-2xl border border-border/60 bg-background">
+              <div className="mt-5 overflow-hidden border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
                     <tr>
