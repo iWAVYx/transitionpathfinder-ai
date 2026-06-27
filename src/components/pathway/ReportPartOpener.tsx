@@ -36,6 +36,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Strengths, interests, and needs at a glance",
       "Current readiness across the transition areas",
     ],
+    milestone: "intake",
   },
   pathways: {
     numeral: "II",
