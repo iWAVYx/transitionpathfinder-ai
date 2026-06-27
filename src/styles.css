@@ -4564,3 +4564,218 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 
 /* End of PAGE-FRAME & DE-TILE POLISH */
+
+/* ================================================================
+ * ISSUE SYSTEM — Pathway Spine + editorial parity (v5)
+ *
+ * Layered on top of PAGE-FRAME & DE-TILE POLISH. Adds the visible
+ * Pathway Spine used by the demo reader chrome and the signed-in
+ * Pathway Report pager, plus a few additional de-tile rules that
+ * unify the two surfaces into one publication.
+ *
+ * Scoped strictly to `.eh-issue` so the rest of the app is untouched.
+ * ================================================================ */
+
+/* --- Pathway Spine -------------------------------------------- */
+.pathway-spine {
+  --spine-ink: var(--demo-ink, #0c2340);
+  --spine-mute: color-mix(in oklch, var(--spine-ink) 24%, transparent);
+  --spine-rule: color-mix(in oklch, var(--spine-ink) 14%, transparent);
+  --spine-accent: var(--demo-accent, #2d8a9e);
+  position: relative;
+  padding: 4px 0 6px;
+  font-family: var(--font-display, "Urbanist"), system-ui, sans-serif;
+}
+
+.pathway-spine-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.4rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--spine-ink);
+  opacity: 0.7;
+}
+.pathway-spine-eyebrow > span[aria-hidden] {
+  color: var(--spine-accent);
+  font-size: 8px;
+  transform: translateY(-1px);
+}
+
+.pathway-spine-rail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 14px 0 4px;
+  list-style: none;
+  isolation: isolate;
+}
+/* The hairline that connects every milestone. */
+.pathway-spine-rail::before {
+  content: "";
+  position: absolute;
+  left: calc(100% / 16);
+  right: calc(100% / 16);
+  top: 20px;
+  height: 1px;
+  background: var(--spine-rule);
+  z-index: 0;
+}
+/* Filled portion — runs from start to (and including) the active node. */
+.pathway-spine-rail::after {
+  content: "";
+  position: absolute;
+  left: calc(100% / 16);
+  top: 20px;
+  height: 1px;
+  background: var(--spine-ink);
+  z-index: 1;
+  width: var(--spine-fill, 0%);
+  transition: width 600ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.pathway-spine-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+  z-index: 2;
+  text-align: center;
+}
+.pathway-spine-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--demo-paper, #f7f5f0);
+  border: 1px solid var(--spine-rule);
+  box-shadow: 0 0 0 3px var(--demo-paper, #f7f5f0);
+  transition: background 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+.pathway-spine-node.is-done .pathway-spine-dot { background: var(--spine-ink); border-color: var(--spine-ink); }
+.pathway-spine-node.is-now  .pathway-spine-dot {
+  background: var(--spine-paper, #f7f5f0);
+  border: 2px solid var(--spine-ink);
+  transform: scale(1.25);
+}
+.pathway-spine-node.is-now  .pathway-spine-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid var(--spine-accent);
+  opacity: 0.35;
+}
+.pathway-spine-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--spine-mute);
+  white-space: nowrap;
+}
+.pathway-spine-node.is-done .pathway-spine-label,
+.pathway-spine-node.is-now  .pathway-spine-label { color: var(--spine-ink); }
+.pathway-spine-node.is-now  .pathway-spine-label { font-weight: 700; }
+
+/* Tooltip — appears on hover/focus. Pure CSS, no JS. */
+.pathway-spine-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: max-content;
+  max-width: 18rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: var(--spine-ink);
+  color: var(--demo-paper, #f7f5f0);
+  font-size: 11px;
+  font-family: var(--font-body, "Inter"), system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 40;
+}
+.pathway-spine-node:hover .pathway-spine-tip,
+.pathway-spine-node:focus-within .pathway-spine-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Set the filled-rail width by counting "done" + "now" nodes. We use a
+   per-node custom property updated via :has() so the fill auto-tracks the
+   active milestone with no JS. Falls back to 0% in browsers without :has(). */
+.pathway-spine-rail:has(.is-now:nth-child(1)) { --spine-fill: calc((1 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(2)) { --spine-fill: calc((2 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(3)) { --spine-fill: calc((3 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(4)) { --spine-fill: calc((4 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(5)) { --spine-fill: calc((5 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(6)) { --spine-fill: calc((6 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(7)) { --spine-fill: calc((7 - 0.5) * (100% / 8)); }
+.pathway-spine-rail:has(.is-now:nth-child(8)) { --spine-fill: calc((8 - 0.5) * (100% / 8)); }
+
+/* Mobile: rail stays but labels collapse to dots only. */
+@media (max-width: 640px) {
+  .pathway-spine-label { display: none; }
+  .pathway-spine-rail { padding: 10px 0 2px; }
+  .pathway-spine-rail::before,
+  .pathway-spine-rail::after { top: 14px; }
+}
+
+/* --- Spine Update (chapter-end annotation) -------------------- */
+.spine-update {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 2.5rem auto 0;
+  padding: 14px 16px;
+  max-width: 68ch;
+  border-top: 1px solid color-mix(in oklch, var(--demo-ink, #0c2340) 14%, transparent);
+  font-family: var(--font-body, "Inter"), system-ui, sans-serif;
+  font-size: 0.92rem;
+  color: var(--demo-ink, #0c2340);
+}
+.spine-update-tick {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--demo-accent, #2d8a9e);
+  flex-shrink: 0;
+  transform: translateY(-2px);
+}
+.spine-update-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--demo-accent, #2d8a9e);
+  white-space: nowrap;
+}
+.spine-update-body { line-height: 1.55; }
+
+/* --- Additional de-tile pass for signed-in report parity ------ */
+/* The signed-in report shell wraps in `.eh-issue` so most polish is already
+   applied. This block strips a few remaining card affordances that survived
+   inside ReportView's section bodies. */
+.eh-issue .report-shell [class*="rounded-3xl"],
+.eh-issue .report-shell [class*="rounded-2xl"] {
+  border-radius: 4px;
+}
+.eh-issue .report-shell .shadow-soft,
+.eh-issue .report-shell [class*="shadow-"] {
+  box-shadow: none;
+}
+.eh-issue .report-shell .bg-card {
+  background-color: transparent;
+}
+
+/* End of ISSUE SYSTEM (v5) */
