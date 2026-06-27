@@ -26,16 +26,16 @@ export function DemoCalendarPreview({
   const total = buildDemoCalendarEvents(bundle).length;
 
   return (
-    <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
-      <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
-        <h2 className="flex items-center gap-2 font-display text-lg">
-          <span className="text-primary">
-            <CalendarDays className="h-5 w-5" />
+    <div className="border-y border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 sm:py-6">
+      <div className="flex items-baseline justify-between gap-3 border-b border-dotted border-[color:var(--pub-rule-soft,theme(colors.border))] pb-2">
+        <h2 className="flex items-baseline gap-2 font-display text-base">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+            <CalendarDays className="inline h-3.5 w-3.5 mr-1 -translate-y-px" />
+            {title}
           </span>
-          {title}
         </h2>
         {showOpenLink && (
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="ghost" size="sm" className="-mr-2 h-7">
             <Link to="/demo/calendar" search={{ s: bundle.id }}>
               Open <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -45,13 +45,13 @@ export function DemoCalendarPreview({
       {subtitle && (
         <p className="pt-3 text-xs text-muted-foreground">{subtitle}</p>
       )}
-      <ul className="space-y-2.5 pt-4">
+      <ul className="divide-y divide-dotted divide-[color:var(--pub-rule-soft,theme(colors.border))] pt-2">
         {events.map((e, i) => (
           <MiniEventRow key={i} {...e} />
         ))}
       </ul>
       {total > limit && (
-        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+        <p className="mt-3 text-[11px] text-muted-foreground">
           + {total - limit} more on the full Calendar
         </p>
       )}
