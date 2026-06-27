@@ -175,10 +175,237 @@ const TRANSITION_PLANNING: HubDefinition = {
       resourceType: "questions",
     },
   ],
-  // NOTE: bridgeforward / family-resource / school-district / demo-sample
-  // hubs land in Phase 2. Only include resolvable ids here so the registry
-  // test stays honest.
-  related: ["student-planning"],
+  related: ["bridgeforward", "family-resource", "school-district", "partner-network", "student-planning"],
+};
+
+const BRIDGEFORWARD: HubDefinition = {
+  id: "bridgeforward",
+  slug: "bridgeforward",
+  audience: "public",
+  signedIn: false,
+  title: "BridgeForward Hub (Grades 6–8)",
+  who: "Middle-school students, their families, and the educators bridging them into high school.",
+  problem:
+    "The middle-to-high-school jump is where transition planning starts — but most families don't see it framed that way until grade 9. BridgeForward gathers the strengths-finding, high-school comparison, and early goal-setting work that makes grade 9 feel intentional.",
+  nextAction: { label: "Explore BridgeForward", to: "/bridgeforward" },
+  pathwayConnection:
+    "BridgeForward inputs (interests, strengths, preferred high-school environment) seed the Student Voice and Readiness chapters of the Pathway Report once a student moves into grade 9.",
+  spokes: [
+    {
+      id: "bridgeforward-overview",
+      title: "BridgeForward Overview",
+      description: "How the grade 6–8 bridge program connects to the full TransitionForward pathway.",
+      to: "/bridgeforward",
+      feedsReport: "snapshot",
+      topic: "bridgeforward",
+      resourceType: "guide",
+    },
+    {
+      id: "bridge-strengths",
+      title: "Strengths & Interests",
+      description: "Discover what a younger student loves and is good at — the seed of every plan.",
+      to: "/demo/voice",
+      feedsReport: "student_voice",
+      topic: "voice",
+      resourceType: "tool",
+    },
+    {
+      id: "bridge-readiness",
+      title: "Early Readiness",
+      description: "Independent living, self-advocacy, and learning habits that matter in high school.",
+      to: "/demo/intake",
+      feedsReport: "readiness",
+      topic: "readiness",
+      resourceType: "checklist",
+    },
+    {
+      id: "bridge-family-prep",
+      title: "Family Preparation",
+      description: "What families can do in grades 6–8 to set up a confident grade 9 PPT.",
+      to: "/families",
+      feedsReport: "family_priorities",
+      topic: "family",
+      resourceType: "guide",
+    },
+  ],
+  related: ["transition-planning", "family-resource"],
+};
+
+const FAMILY_RESOURCE: HubDefinition = {
+  id: "family-resource",
+  slug: "family-resource",
+  audience: "family",
+  signedIn: false,
+  title: "Family Resource Hub",
+  who: "Parents and caregivers of Connecticut students with IEPs or 504 plans.",
+  problem:
+    "Families often hear acronyms (PPT, IEP, transition plan) without a clear map of how the pieces fit together. This hub puts plain-language guides and meeting prep tools in one place.",
+  nextAction: { label: "Walk Through The Family View", to: "/families" },
+  pathwayConnection:
+    "Family Priorities and Questions For The Team draw directly from what families share through this hub.",
+  spokes: [
+    {
+      id: "family-overview",
+      title: "For Families",
+      description: "Plain-language tour of TransitionForward from a family's perspective.",
+      to: "/families",
+      feedsReport: "family_priorities",
+      topic: "family",
+      resourceType: "guide",
+    },
+    {
+      id: "family-priorities-input",
+      title: "Family Priorities",
+      description: "What matters most to your family for life after high school.",
+      to: "/demo/intake",
+      feedsReport: "family_priorities",
+      topic: "family",
+      resourceType: "tool",
+    },
+    {
+      id: "family-meeting-prep",
+      title: "PPT / IEP Meeting Prep",
+      description: "Walk into the next meeting with the questions you want answered.",
+      to: "/demo/meeting",
+      feedsReport: "questions_for_team",
+      topic: "meeting",
+      resourceType: "questions",
+    },
+    {
+      id: "family-report-sample",
+      title: "Sample Pathway Report",
+      description: "See what the family-friendly plan looks like before signing in.",
+      to: "/demo/report",
+      feedsReport: null,
+      topic: "report",
+      resourceType: "example",
+    },
+    {
+      id: "family-resources",
+      title: "Resource Library",
+      description: "Filterable library of guides, checklists, and templates.",
+      to: "/resources",
+      feedsReport: null,
+      topic: "resources",
+      resourceType: "guide",
+    },
+  ],
+  related: ["transition-planning", "bridgeforward", "school-district"],
+};
+
+const SCHOOL_DISTRICT: HubDefinition = {
+  id: "school-district",
+  slug: "school-district",
+  audience: "school_admin",
+  signedIn: false,
+  title: "School & District Hub",
+  who: "Special education leaders, transition coordinators, and district administrators.",
+  problem:
+    "Districts need a clear story for how TransitionForward supports educators, families, and compliance — without forcing a new system on top of the IEP.",
+  nextAction: { label: "See The Educator View", to: "/educators" },
+  pathwayConnection:
+    "Educator Input flows into every Pathway Report. District-wide adoption is what makes the Pathway Report a shared document instead of one more form.",
+  spokes: [
+    {
+      id: "educators-overview",
+      title: "For Educators",
+      description: "Less paperwork, more student support — tools built for CT special educators.",
+      to: "/educators",
+      feedsReport: "educator_input",
+      topic: "educator",
+      resourceType: "guide",
+    },
+    {
+      id: "platform-overview",
+      title: "The Platform",
+      description: "How the parts of TransitionForward fit together for a district.",
+      to: "/platform",
+      feedsReport: null,
+      topic: "platform",
+      resourceType: "guide",
+    },
+    {
+      id: "framework-overview",
+      title: "The Framework",
+      description: "The evidence-based framework behind every recommendation.",
+      to: "/framework",
+      feedsReport: null,
+      topic: "framework",
+      resourceType: "guide",
+    },
+    {
+      id: "district-pricing",
+      title: "Pricing & Implementation",
+      description: "What district adoption looks like, including funding and rollout.",
+      to: "/pricing",
+      feedsReport: null,
+      topic: "implementation",
+      resourceType: "implementation",
+    },
+    {
+      id: "research",
+      title: "Research",
+      description: "The evidence behind every suggestion in the Pathway Report.",
+      to: "/research",
+      feedsReport: null,
+      topic: "research",
+      resourceType: "guide",
+    },
+  ],
+  related: ["transition-planning", "partner-network", "family-resource"],
+};
+
+const PARTNER_NETWORK: HubDefinition = {
+  id: "partner-network",
+  slug: "partner-network",
+  audience: "partner",
+  signedIn: false,
+  title: "Partner Network Hub",
+  who: "Community partners, employers, agencies, and post-secondary programs serving CT youth.",
+  problem:
+    "Partners have programs that change students' lives but struggle to be discovered at the right moment. This hub explains how PartnerForward connects opportunities to readiness — without ever exposing student records.",
+  nextAction: { label: "Explore PartnerForward", to: "/partnerforward" },
+  pathwayConnection:
+    "Partner Matches in the Pathway Report surface opportunities to families and educators. Partners publish opportunities; the matching engine respects student privacy.",
+  spokes: [
+    {
+      id: "partnerforward-overview",
+      title: "PartnerForward",
+      description: "Incentives, tax credits, and supports for partners working with CT youth.",
+      to: "/partnerforward",
+      feedsReport: null,
+      topic: "partnerforward",
+      resourceType: "guide",
+    },
+    {
+      id: "partner-incentives",
+      title: "Incentives & Funding",
+      description: "Tax credits, grants, and sponsorship pathways for partner organizations.",
+      to: "/partnerforward/incentives",
+      feedsReport: null,
+      topic: "incentives",
+      resourceType: "funding",
+    },
+    {
+      id: "partner-directory",
+      title: "Partner Directory",
+      description: "Browse the public directory of approved community partners.",
+      to: "/partner-directory",
+      feedsReport: null,
+      topic: "partnerforward",
+      resourceType: "example",
+    },
+    {
+      id: "partner-interest",
+      title: "Join The Network",
+      description: "Apply to become a TransitionForward community partner.",
+      to: "/partner-interest",
+      feedsReport: null,
+      topic: "partnerforward",
+      resourceType: "implementation",
+    },
+  ],
+  related: ["school-district", "transition-planning"],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
