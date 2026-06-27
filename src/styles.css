@@ -479,8 +479,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --shadow-demo-lift: var(--shadow-lift);
   --shadow-report: var(--shadow-lift);
 
-  --font-demo-display: "Urbanist", ui-sans-serif, system-ui, sans-serif;
-  --font-demo-body: "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  --font-demo-display: "Fraunces", "Urbanist", ui-serif, Georgia, serif;
+  --font-demo-body: "Plus Jakarta Sans", "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  --font-demo-accent: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
