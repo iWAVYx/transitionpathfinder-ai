@@ -45,6 +45,10 @@ import { Route as PartnerforwardIncentivesRouteImport } from './routes/partnerfo
 import { Route as Login2faRouteImport } from './routes/login.2fa'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as HubsTransitionPlanningRouteImport } from './routes/hubs.transition-planning'
+import { Route as HubsSchoolDistrictRouteImport } from './routes/hubs.school-district'
+import { Route as HubsPartnerNetworkRouteImport } from './routes/hubs.partner-network'
+import { Route as HubsFamilyResourceRouteImport } from './routes/hubs.family-resource'
+import { Route as HubsBridgeforwardRouteImport } from './routes/hubs.bridgeforward'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoVoiceRouteImport } from './routes/demo_.voice'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
@@ -334,6 +338,26 @@ const InviteTokenRoute = InviteTokenRouteImport.update({
 const HubsTransitionPlanningRoute = HubsTransitionPlanningRouteImport.update({
   id: '/hubs/transition-planning',
   path: '/hubs/transition-planning',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubsSchoolDistrictRoute = HubsSchoolDistrictRouteImport.update({
+  id: '/hubs/school-district',
+  path: '/hubs/school-district',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubsPartnerNetworkRoute = HubsPartnerNetworkRouteImport.update({
+  id: '/hubs/partner-network',
+  path: '/hubs/partner-network',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubsFamilyResourceRoute = HubsFamilyResourceRouteImport.update({
+  id: '/hubs/family-resource',
+  path: '/hubs/family-resource',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubsBridgeforwardRoute = HubsBridgeforwardRouteImport.update({
+  id: '/hubs/bridgeforward',
+  path: '/hubs/bridgeforward',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -1013,6 +1037,10 @@ export interface FileRoutesByFullPath {
   '/demo/resources': typeof DemoResourcesRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
+  '/hubs/family-resource': typeof HubsFamilyResourceRoute
+  '/hubs/partner-network': typeof HubsPartnerNetworkRoute
+  '/hubs/school-district': typeof HubsSchoolDistrictRoute
   '/hubs/transition-planning': typeof HubsTransitionPlanningRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
@@ -1157,6 +1185,10 @@ export interface FileRoutesByTo {
   '/demo/resources': typeof DemoResourcesRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
+  '/hubs/family-resource': typeof HubsFamilyResourceRoute
+  '/hubs/partner-network': typeof HubsPartnerNetworkRoute
+  '/hubs/school-district': typeof HubsSchoolDistrictRoute
   '/hubs/transition-planning': typeof HubsTransitionPlanningRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
@@ -1305,6 +1337,10 @@ export interface FileRoutesById {
   '/demo_/resources': typeof DemoResourcesRoute
   '/demo_/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
+  '/hubs/family-resource': typeof HubsFamilyResourceRoute
+  '/hubs/partner-network': typeof HubsPartnerNetworkRoute
+  '/hubs/school-district': typeof HubsSchoolDistrictRoute
   '/hubs/transition-planning': typeof HubsTransitionPlanningRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
@@ -1453,6 +1489,10 @@ export interface FileRouteTypes {
     | '/demo/resources'
     | '/demo/voice'
     | '/email/unsubscribe'
+    | '/hubs/bridgeforward'
+    | '/hubs/family-resource'
+    | '/hubs/partner-network'
+    | '/hubs/school-district'
     | '/hubs/transition-planning'
     | '/invite/$token'
     | '/login/2fa'
@@ -1597,6 +1637,10 @@ export interface FileRouteTypes {
     | '/demo/resources'
     | '/demo/voice'
     | '/email/unsubscribe'
+    | '/hubs/bridgeforward'
+    | '/hubs/family-resource'
+    | '/hubs/partner-network'
+    | '/hubs/school-district'
     | '/hubs/transition-planning'
     | '/invite/$token'
     | '/login/2fa'
@@ -1744,6 +1788,10 @@ export interface FileRouteTypes {
     | '/demo_/resources'
     | '/demo_/voice'
     | '/email/unsubscribe'
+    | '/hubs/bridgeforward'
+    | '/hubs/family-resource'
+    | '/hubs/partner-network'
+    | '/hubs/school-district'
     | '/hubs/transition-planning'
     | '/invite/$token'
     | '/login/2fa'
@@ -1864,6 +1912,10 @@ export interface RootRouteChildren {
   DemoResourcesRoute: typeof DemoResourcesRoute
   DemoVoiceRoute: typeof DemoVoiceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  HubsBridgeforwardRoute: typeof HubsBridgeforwardRoute
+  HubsFamilyResourceRoute: typeof HubsFamilyResourceRoute
+  HubsPartnerNetworkRoute: typeof HubsPartnerNetworkRoute
+  HubsSchoolDistrictRoute: typeof HubsSchoolDistrictRoute
   HubsTransitionPlanningRoute: typeof HubsTransitionPlanningRoute
   InviteTokenRoute: typeof InviteTokenRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
@@ -2129,6 +2181,34 @@ declare module '@tanstack/react-router' {
       path: '/hubs/transition-planning'
       fullPath: '/hubs/transition-planning'
       preLoaderRoute: typeof HubsTransitionPlanningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hubs/school-district': {
+      id: '/hubs/school-district'
+      path: '/hubs/school-district'
+      fullPath: '/hubs/school-district'
+      preLoaderRoute: typeof HubsSchoolDistrictRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hubs/partner-network': {
+      id: '/hubs/partner-network'
+      path: '/hubs/partner-network'
+      fullPath: '/hubs/partner-network'
+      preLoaderRoute: typeof HubsPartnerNetworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hubs/family-resource': {
+      id: '/hubs/family-resource'
+      path: '/hubs/family-resource'
+      fullPath: '/hubs/family-resource'
+      preLoaderRoute: typeof HubsFamilyResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hubs/bridgeforward': {
+      id: '/hubs/bridgeforward'
+      path: '/hubs/bridgeforward'
+      fullPath: '/hubs/bridgeforward'
+      preLoaderRoute: typeof HubsBridgeforwardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -3233,6 +3313,10 @@ const rootRouteChildren: RootRouteChildren = {
   DemoResourcesRoute: DemoResourcesRoute,
   DemoVoiceRoute: DemoVoiceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  HubsBridgeforwardRoute: HubsBridgeforwardRoute,
+  HubsFamilyResourceRoute: HubsFamilyResourceRoute,
+  HubsPartnerNetworkRoute: HubsPartnerNetworkRoute,
+  HubsSchoolDistrictRoute: HubsSchoolDistrictRoute,
   HubsTransitionPlanningRoute: HubsTransitionPlanningRoute,
   InviteTokenRoute: InviteTokenRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
