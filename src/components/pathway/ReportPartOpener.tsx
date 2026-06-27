@@ -98,6 +98,7 @@ export function ReportPartOpener({ part }: { part: ReportPart }) {
         title={meta.title}
         dek={meta.dek}
         covers={meta.covers}
+        milestone={meta.milestone}
       />
     </div>
   );
