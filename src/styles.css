@@ -5562,3 +5562,276 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .tf-v2-foot .next { justify-content: end; }
 .tf-v2-foot .lbl { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; display: block; }
+
+/* ============================================================================
+ * V2 Boxed Workspace — selected direction.
+ * A persistent navy command rail on the left holds the vertical pathway and
+ * brand. The reading deck on the right is a contained cream surface with an
+ * optional evidence gutter and a sticky prev/next foot.
+ * Replaces the magazine masthead + horizontal thread shell on .tf-v2 pages.
+ * ========================================================================== */
+
+.tf-v2-shell {
+  width: 100%;
+  max-width: 84rem;
+  margin-inline: auto;
+  padding: clamp(0.75rem, 2vw, 1.75rem);
+}
+.tf-v2-workspace {
+  background: var(--v2-paper);
+  border: 1px solid color-mix(in oklab, #0c2340 12%, transparent);
+  border-radius: 18px;
+  box-shadow: 0 28px 60px -24px rgba(12,35,64,0.25), 0 2px 0 rgba(12,35,64,0.04);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: clamp(680px, 84vh, 920px);
+}
+@media (min-width: 960px) {
+  .tf-v2-workspace { grid-template-columns: 19rem 1fr; }
+}
+
+/* ---- Rail ---- */
+.tf-v2-rail {
+  background: var(--v2-ink);
+  color: var(--v2-paper);
+  display: flex; flex-direction: column;
+  font-family: var(--v2-sans);
+}
+.tf-v2-rail-brand {
+  padding: 1.75rem 1.85rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.tf-v2-rail-brand .kicker {
+  color: var(--v2-teal);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+.tf-v2-rail-brand h1 {
+  font-family: var(--v2-serif);
+  font-style: italic; font-weight: 400;
+  font-size: 1.55rem; line-height: 1;
+  margin: 0;
+}
+.tf-v2-rail-nav {
+  flex: 1; padding: 1.85rem;
+  overflow-y: auto; position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+.tf-v2-rail-thread {
+  position: absolute;
+  left: calc(1.85rem + 11px); top: 1.85rem; bottom: 1.85rem;
+  width: 1px; background: rgba(255,255,255,0.16);
+}
+.tf-v2-rail-list {
+  position: relative;
+  display: flex; flex-direction: column; gap: 1.4rem;
+  list-style: none; padding: 0; margin: 0;
+}
+.tf-v2-rail-stop {
+  display: flex; align-items: flex-start; gap: 1rem;
+  text-decoration: none; color: inherit;
+  font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+  font-weight: 600;
+  transition: opacity 180ms ease, color 180ms ease;
+}
+.tf-v2-rail-stop .dot {
+  flex: 0 0 auto;
+  width: 22px; height: 22px; border-radius: 999px;
+  background: var(--v2-paper);
+  border: 4px solid var(--v2-ink);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.25);
+  margin-top: 0.05rem;
+}
+.tf-v2-rail-stop .meta { padding-top: 0.15rem; }
+.tf-v2-rail-stop .meta .num {
+  display: inline-block;
+  font-family: var(--v2-serif); font-style: italic;
+  font-size: 11px; opacity: 0.55; letter-spacing: 0.05em;
+  margin-right: 0.45rem; text-transform: none;
+}
+.tf-v2-rail-stop[data-state="passed"]   { opacity: 0.45; }
+.tf-v2-rail-stop[data-state="passed"]   .dot { background: var(--v2-teal); box-shadow: 0 0 0 1px rgba(255,255,255,0.1); }
+.tf-v2-rail-stop[data-state="future"]   { opacity: 0.32; }
+.tf-v2-rail-stop[data-state="future"]   .dot { background: rgba(255,255,255,0.5); }
+.tf-v2-rail-stop[data-state="current"]  { opacity: 1; color: var(--v2-teal); }
+.tf-v2-rail-stop[data-state="current"]  .dot {
+  background: var(--v2-teal);
+  box-shadow: 0 0 0 2px var(--v2-teal), 0 0 0 6px rgba(45,138,158,0.18);
+}
+.tf-v2-rail-stop[data-state="current"] .meta .num { color: var(--v2-teal); opacity: 0.9; }
+.tf-v2-rail-stop[data-id="next"][data-state="future"] .dot { background: var(--v2-ember, #b85c38); box-shadow: 0 0 0 1px rgba(184,92,56,0.45); opacity: 0.7; }
+.tf-v2-rail-stop:hover { opacity: 1; }
+
+.tf-v2-rail-foot {
+  padding: 1.25rem 1.85rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* ---- Deck ---- */
+.tf-v2-deck {
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.tf-v2-deck-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem clamp(1.25rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--v2-rule-soft);
+  font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 700; color: color-mix(in oklab, #0c2340 55%, transparent);
+}
+.tf-v2-deck-topbar .vol { font-family: var(--v2-serif); font-style: italic; text-transform: none; letter-spacing: 0.04em; font-weight: 400; opacity: 0.7; }
+
+.tf-v2-deck-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 0;
+}
+.tf-v2-deck--with-evidence .tf-v2-deck-body { }
+@media (min-width: 1080px) {
+  .tf-v2-deck--with-evidence .tf-v2-deck-body { grid-template-columns: minmax(0,1fr) 20rem; }
+}
+.tf-v2-deck-main {
+  padding: clamp(2rem, 4vw, 3.75rem) clamp(1.5rem, 4vw, 3.5rem);
+  min-width: 0;
+}
+.tf-v2-evidence {
+  background: color-mix(in oklab, #0c2340 3%, transparent);
+  border-top: 1px solid var(--v2-rule-soft);
+  padding: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.25rem);
+  display: flex; flex-direction: column; gap: 2.25rem;
+}
+@media (min-width: 1080px) {
+  .tf-v2-evidence { border-top: 0; border-left: 1px solid var(--v2-rule-soft); }
+}
+.tf-v2-evidence-h {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  font-weight: 700; color: color-mix(in oklab, #0c2340 45%, transparent);
+  margin: 0 0 0.9rem;
+}
+
+/* ---- Cover hero inside the deck ---- */
+.tf-v2-hero {
+  display: grid; gap: 1.25rem;
+  padding-bottom: clamp(2rem, 3vw, 2.75rem);
+  border-bottom: 1px solid var(--v2-rule-soft);
+  margin-bottom: clamp(2rem, 3vw, 2.75rem);
+}
+.tf-v2-hero .ed {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 700; color: var(--v2-teal);
+}
+.tf-v2-hero h2 {
+  font-family: var(--v2-serif); font-weight: 400; margin: 0;
+  font-size: clamp(2.6rem, 6.5vw, 4.75rem);
+  line-height: 0.98; letter-spacing: -0.012em;
+  color: var(--v2-ink);
+}
+.tf-v2-hero h2 em { color: var(--v2-teal); font-style: italic; }
+.tf-v2-hero .dek {
+  font-family: var(--v2-serif); font-style: italic;
+  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+  line-height: 1.4; max-width: 56ch; margin: 0;
+  color: color-mix(in oklab, #0c2340 78%, transparent);
+}
+.tf-v2-hero-meta {
+  margin-top: 0.75rem;
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 1px;
+  background: var(--v2-rule-soft);
+  border: 1px solid var(--v2-rule-soft);
+}
+.tf-v2-hero-meta > div { background: var(--v2-paper); padding: 0.85rem 1rem; }
+.tf-v2-hero-meta .lbl { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; opacity: 0.55; }
+.tf-v2-hero-meta .val { font-family: var(--v2-serif); font-size: 1.05rem; margin-top: 0.15rem; }
+.tf-v2-hero-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+.tf-v2-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 1.25rem; text-decoration: none;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  border-radius: 0;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.tf-v2-btn--primary { background: var(--v2-teal); color: var(--v2-paper); }
+.tf-v2-btn--primary:hover { background: var(--v2-ink); }
+.tf-v2-btn--ghost { background: transparent; color: var(--v2-ink); border: 1px solid var(--v2-ink); }
+.tf-v2-btn--ghost:hover { background: var(--v2-ink); color: var(--v2-paper); }
+
+/* Cover body sections inside the deck */
+.tf-v2-welcome-block {
+  display: grid; gap: 1.25rem; margin-bottom: clamp(2.5rem, 4vw, 3.5rem);
+}
+@media (min-width: 760px) { .tf-v2-welcome-block { grid-template-columns: 1.2fr 1fr; gap: 2.5rem; } }
+.tf-v2-welcome-block h3 { font-family: var(--v2-serif); font-weight: 400; font-size: 1.65rem; margin: 0 0 0.5rem; }
+.tf-v2-welcome-block .lead { font-size: 1.02rem; line-height: 1.6; opacity: 0.85; }
+.tf-v2-welcome-block ul { list-style: none; padding: 0; margin: 0; }
+.tf-v2-welcome-block li {
+  display: flex; gap: 0.6rem; font-size: 0.95rem; padding: 0.3rem 0;
+}
+.tf-v2-welcome-block li::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: var(--v2-teal); margin-top: 0.55rem; flex-shrink: 0;
+}
+
+/* TOC inside the deck */
+.tf-v2-toc { padding-top: clamp(1.5rem, 3vw, 2.25rem); border-top: 3px solid var(--v2-ink); }
+.tf-v2-toc-h {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 700; color: var(--v2-teal); margin-bottom: 1.25rem;
+}
+.tf-v2-toc-part { padding: 0.5rem 0 1.25rem; }
+.tf-v2-toc-part-head { display: flex; align-items: baseline; gap: 0.85rem; margin-bottom: 0.35rem; }
+.tf-v2-toc-part-num { font-family: var(--v2-serif); font-size: 1.5rem; color: var(--v2-teal); font-style: italic; }
+.tf-v2-toc-part-title { font-family: var(--v2-serif); font-size: 1.15rem; margin: 0; }
+.tf-v2-toc-part-dek { font-size: 0.86rem; opacity: 0.7; margin: 0 0 0.5rem; padding-left: 2.55rem; }
+.tf-v2-toc-row {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 1rem; align-items: baseline;
+  padding: 0.7rem 0; border-bottom: 1px solid var(--v2-rule-soft);
+  text-decoration: none; color: inherit;
+}
+.tf-v2-toc-row:hover { color: var(--v2-teal); border-bottom-color: var(--v2-teal); }
+.tf-v2-toc-row .num { font-family: var(--v2-serif); font-style: italic; font-size: 1.05rem; color: var(--v2-teal); min-width: 2ch; }
+.tf-v2-toc-row .title { font-weight: 600; }
+.tf-v2-toc-row .dek { font-size: 0.83rem; opacity: 0.7; display: block; margin-top: 0.1rem; }
+.tf-v2-toc-row .page { font-family: var(--v2-serif); font-style: italic; opacity: 0.75; white-space: nowrap; font-size: 0.95rem; }
+
+/* Student switcher inside the deck */
+.tf-v2-switch { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.85rem; }
+.tf-v2-switch a {
+  padding: 0.5rem 0.85rem; text-decoration: none;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  border: 1px solid var(--v2-rule);
+  color: var(--v2-ink);
+}
+.tf-v2-switch a[aria-current="true"] { background: var(--v2-ink); color: var(--v2-paper); border-color: var(--v2-ink); }
+
+/* Deck foot */
+.tf-v2-deck-foot {
+  border-top: 1px solid var(--v2-rule-soft);
+  background: color-mix(in oklab, #f5f0e0 60%, white);
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 1rem;
+  padding: 1rem clamp(1.25rem, 3vw, 2.5rem);
+}
+.tf-v2-deck-foot a {
+  text-decoration: none; color: var(--v2-ink);
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 12px; font-weight: 700;
+}
+.tf-v2-deck-foot a .lbl { display: block; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.55; font-weight: 700; }
+.tf-v2-deck-foot a:hover { color: var(--v2-teal); }
+.tf-v2-deck-foot .arrow {
+  width: 32px; height: 32px; border-radius: 999px;
+  border: 1px solid currentColor;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.tf-v2-deck-foot .next { justify-self: end; }
+.tf-v2-deck-foot .folio { font-family: var(--v2-serif); font-style: italic; opacity: 0.6; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+

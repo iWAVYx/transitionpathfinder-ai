@@ -57,150 +57,156 @@ function DemoIssueCover() {
   const voiceQuote = bundle.report.student_snapshot?.student_voice_quote;
   const parts = pagesByPart().filter(p => p.pages.some(pg => pg.id !== "cover"));
 
-  return (
-    <IssueShell milestone="cover" partLabel="Volume 02 // Cover">
-      <div className="tf-v2-spread">
-        {/* ---------- Left: navy cover panel + meta ---------- */}
-        <div>
-          <div className="tf-v2-cover">
-            <div style={{ position: "relative", zIndex: 2 }}>
-              <p className="tf-v2-cover-kicker">The Personal Planning Issue Of</p>
-              <h1 className="tf-v2-cover-title">
-                {toTitleCase(student.full_name)}
-              </h1>
-            </div>
-
-            <div>
-              {voiceQuote && (
-                <blockquote className="tf-v2-cover-quote">“{voiceQuote}”</blockquote>
-              )}
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  to="/demo/intake"
-                  {...(preserved ? { search: preserved } : {})}
-                  className="tf-v2-cover-cta tf-v2-cover-cta--primary"
-                >
-                  Begin Reading
-                </Link>
-                <a href="#contents" className="tf-v2-cover-cta tf-v2-cover-cta--ghost">
-                  Open Contents
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="tf-v2-cover-meta">
-            <div>
-              <p className="lbl">Student</p>
-              <p className="val">{toTitleCase(student.full_name)}</p>
-            </div>
-            <div>
-              <p className="lbl">Grade · School</p>
-              <p className="val">{student.grade} · {student.school}</p>
-            </div>
-            <div>
-              <p className="lbl">Graduating</p>
-              <p className="val">{student.graduation_year}</p>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[color:var(--v2-teal)]">
-              Featured Student
-            </p>
-            <div className="mt-2 flex gap-2 flex-wrap">
-              {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
-                <Link
-                  key={id}
-                  to="/demo"
-                  search={{ s: id }}
-                  resetScroll={false}
-                  className={
-                    "px-3 py-1.5 text-xs font-semibold uppercase tracking-wider border " +
-                    (id === s
-                      ? "bg-[color:var(--v2-ink)] text-[color:var(--v2-paper)] border-[color:var(--v2-ink)]"
-                      : "bg-transparent text-[color:var(--v2-ink)] border-[color:var(--v2-rule)] hover:border-[color:var(--v2-ink)]")
-                  }
-                >
-                  {DEMO_STUDENTS[id].profile.first_name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ---------- Right: welcome + contents ---------- */}
-        <div>
-          {/* Welcome */}
-          <section className="tf-v2-welcome">
-            <h2>Welcome To Your Pathway</h2>
-            <div>
-              <p className="lead">
-                This publication is a synthesis of {student.first_name}'s goals, documents, and the
-                collective voice of {student.first_name === "Maya" ? "her" : "his"} support system.
-                It is designed to read like an issue — a contained planning document, not a
-                dashboard.
-              </p>
-              <p className="mt-3" style={{ opacity: 0.8 }}>
-                Use the pathway thread above to move between milestones. Each chapter ends with a
-                clear next step and a folio number so the team can reference it together.
-              </p>
-            </div>
-            <div>
-              <h3 className="how-h">How To Read This Issue</h3>
-              <p style={{ opacity: 0.8, fontSize: "0.92rem" }}>
-                Read cover to cover, or jump to the section that's useful right now. Switch
-                students at any time — the workbook updates.
-              </p>
-              <ul>
-                <li>Pathway thread shows where you are.</li>
-                <li>Each chapter is a short magazine spread.</li>
-                <li>Editorial sidebars surface evidence and quotes.</li>
-                <li>Prev / Next at the foot of every page.</li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Contents */}
-          <section id="contents" className="tf-v2-contents">
-            <h3 className="tf-v2-contents-h">Table Of Contents</h3>
-
-            {parts.map(({ part, pages }) => {
-              const items = pages.filter(p => p.id !== "cover");
-              if (!items.length) return null;
-              const meta = PART_META[part];
-              return (
-                <div key={part} className="tf-v2-contents-part">
-                  <div className="tf-v2-contents-part-head">
-                    <span className="tf-v2-contents-part-num">Part {meta.numeral}</span>
-                    <h4 className="tf-v2-contents-part-title">{part}</h4>
-                  </div>
-                  <p className="tf-v2-contents-part-dek">{meta.dek}</p>
-                  <ol className="tf-v2-contents-list" style={{ marginTop: "0.5rem" }}>
-                    {items.map((p, idx) => (
-                      <li key={p.id}>
-                        <Link
-                          to={p.route}
-                          {...(preserved ? { search: preserved } : {})}
-                          className="tf-v2-contents-row"
-                        >
-                          <span className="num">{String(PUBLICATION_PAGES.indexOf(p)).padStart(2, "0")}</span>
-                          <span>
-                            <span className="title">{p.title}</span>
-                            <span className="dek">{p.dek}</span>
-                          </span>
-                          <span className="page">p. {String(p.folio).padStart(2, "0")}</span>
-                        </Link>
-                        {idx === items.length - 1 ? null : null}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              );
-            })}
-          </section>
+  const evidence = (
+    <>
+      <div>
+        <h4 className="tf-v2-evidence-h">Featured Student</h4>
+        <div className="tf-v2-switch">
+          {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
+            <Link
+              key={id}
+              to="/demo"
+              search={{ s: id }}
+              resetScroll={false}
+              aria-current={id === s ? "true" : undefined}
+            >
+              {DEMO_STUDENTS[id].profile.first_name}
+            </Link>
+          ))}
         </div>
       </div>
+
+      {voiceQuote ? (
+        <div>
+          <h4 className="tf-v2-evidence-h">Student Voice</h4>
+          <blockquote
+            style={{
+              fontFamily: "var(--v2-serif)",
+              fontStyle: "italic",
+              fontSize: "1.05rem",
+              lineHeight: 1.4,
+              borderLeft: "2px solid var(--v2-teal)",
+              padding: "0.25rem 0 0.25rem 0.9rem",
+              margin: 0,
+              color: "var(--v2-ink)",
+            }}
+          >
+            “{voiceQuote}”
+          </blockquote>
+          <p style={{ marginTop: "0.6rem", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700, color: "var(--v2-teal)" }}>
+            — {student.first_name}, Grade {student.grade}
+          </p>
+        </div>
+      ) : null}
+
+      <div>
+        <h4 className="tf-v2-evidence-h">How To Read</h4>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.55rem", fontSize: "0.9rem" }}>
+          <li>Use the rail on the left to move between milestones.</li>
+          <li>Each chapter ends with a clear next step.</li>
+          <li>The deck below ends with prev / next page foot.</li>
+        </ul>
+      </div>
+    </>
+  );
+
+  return (
+    <IssueShell milestone="cover" partLabel="Cover · Pathway Issue" evidence={evidence}>
+      {/* Hero */}
+      <header className="tf-v2-hero">
+        <span className="ed">The Personal Planning Issue Of</span>
+        <h2>
+          {toTitleCase(student.full_name)} <em>—</em> A Pathway Forward
+        </h2>
+        <p className="dek">
+          A synthesis of {student.first_name}'s goals, documents, and the collective voice of {student.first_name === "Maya" ? "her" : "his"} support system — read it like an issue, not a dashboard.
+        </p>
+        <div className="tf-v2-hero-meta">
+          <div>
+            <p className="lbl">Student</p>
+            <p className="val">{toTitleCase(student.full_name)}</p>
+          </div>
+          <div>
+            <p className="lbl">Grade · School</p>
+            <p className="val">{student.grade} · {student.school}</p>
+          </div>
+          <div>
+            <p className="lbl">Graduating</p>
+            <p className="val">{student.graduation_year}</p>
+          </div>
+        </div>
+        <div className="tf-v2-hero-cta">
+          <Link
+            to="/demo/intake"
+            {...(preserved ? { search: preserved } : {})}
+            className="tf-v2-btn tf-v2-btn--primary"
+          >
+            Begin Reading
+          </Link>
+          <a href="#contents" className="tf-v2-btn tf-v2-btn--ghost">
+            Open Contents
+          </a>
+        </div>
+      </header>
+
+      {/* Welcome */}
+      <section className="tf-v2-welcome-block">
+        <div>
+          <h3>Welcome To Your Pathway</h3>
+          <p className="lead">
+            This workspace is a contained planning document. The navy rail on the left is the
+            pathway itself: every milestone, in order, with the active chapter highlighted in
+            teal. The deck on the right is where you read.
+          </p>
+        </div>
+        <div>
+          <h3>What's Inside</h3>
+          <ul>
+            <li>Intake, Voice, and Documents — what we heard.</li>
+            <li>The Pathway Report — what it means together.</li>
+            <li>A 30 / 60 / 90 plan and the next meeting agenda.</li>
+            <li>A shared Student Hub for staying in sync after.</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* TOC */}
+      <section id="contents" className="tf-v2-toc">
+        <h3 className="tf-v2-toc-h">Table Of Contents</h3>
+
+        {parts.map(({ part, pages }) => {
+          const items = pages.filter(p => p.id !== "cover");
+          if (!items.length) return null;
+          const meta = PART_META[part];
+          return (
+            <div key={part} className="tf-v2-toc-part">
+              <div className="tf-v2-toc-part-head">
+                <span className="tf-v2-toc-part-num">Part {meta.numeral}</span>
+                <h4 className="tf-v2-toc-part-title">{part}</h4>
+              </div>
+              <p className="tf-v2-toc-part-dek">{meta.dek}</p>
+              <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {items.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      to={p.route}
+                      {...(preserved ? { search: preserved } : {})}
+                      className="tf-v2-toc-row"
+                    >
+                      <span className="num">{String(PUBLICATION_PAGES.indexOf(p)).padStart(2, "0")}</span>
+                      <span>
+                        <span className="title">{p.title}</span>
+                        <span className="dek">{p.dek}</span>
+                      </span>
+                      <span className="page">p. {String(p.folio).padStart(2, "0")}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          );
+        })}
+      </section>
     </IssueShell>
   );
 }
