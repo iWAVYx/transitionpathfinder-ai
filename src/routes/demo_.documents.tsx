@@ -2,27 +2,18 @@ import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, FileText, Files } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
 import {
   DEMO_DOCUMENT_INSIGHTS,
   DEMO_DOCUMENT_SOURCES,
   type DocumentType,
+import { StudioPage } from "@/studio/StudioPage";
 } from "@/lib/demo-extras";
 import {
-  PublicationPage,
-  PublicationCallout,
-  PublicationSource,
-  PublicationSpread,
-  PublicationSidebar,
+  PublicationCallout, PublicationSource, PublicationSpread, PublicationSidebar,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/documents")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -74,17 +65,7 @@ function DemoDocumentsPage() {
   const meta = CHAPTER_META.documents;
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="documents" student={s} />
-
-        <PublicationPage
-          kicker={meta.kicker}
-          chapter="Documents & Evidence"
-          dek="A planning companion, not the official record — organized for the whole team."
-          part="Part One — Listen"
-          folio={`p. ${meta.page}`}
-        >
+    <StudioPage stage="documents" student={s} preserveStudent={!!search.s} title={"Documents & Evidence"} dek={"A planning companion, not the official record — organized for the whole team."}>
           <PublicationCallout kind="source" title="Sample Documents — Not A Real IEP">
             <span className="flex items-start gap-2">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />
@@ -198,10 +179,6 @@ function DemoDocumentsPage() {
             All document content shown here is fictional sample data created for the
             TransitionForward public demo. Nothing here represents a real student record.
           </PublicationSource>
-
-          <DemoStepFooter current="documents" student={s} />
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }

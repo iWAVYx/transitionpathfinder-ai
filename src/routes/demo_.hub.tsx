@@ -3,6 +3,7 @@ import {
   ClipboardList,
   Mic,
   FileSearch,
+import { StudioPage } from "@/studio/StudioPage";
   FileText,
   Briefcase,
   BookOpen,
@@ -13,25 +14,13 @@ import {
   Compass,
 } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DEFAULT_DEMO_STUDENT,
-  DEMO_STEPS,
-  DemoStepBar,
-  DemoStepFooter,
-  demoStudentSearch,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { getDemoStudent } from "@/lib/demo-data";
 import { CHAPTER_META } from "@/lib/demo-chapters";
 import { toTitleCase } from "@/lib/title-case";
 import {
-  PublicationPage,
-  PublicationCallout,
-  PublicationSpread,
-  PublicationSidebar,
+  PublicationCallout, PublicationSpread, PublicationSidebar,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/hub")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -71,17 +60,7 @@ function DemoHubPage() {
   const { profile: student } = bundle;
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="hub" student={s} />
-
-        <PublicationPage
-          kicker="Chapter Ten · Stay Together"
-          chapter="Workspace Index"
-          dek={`A guided tour of ${toTitleCase(student.full_name)}'s planning workspace — each chapter builds toward a complete transition plan.`}
-          part="Part Three — Stay Together"
-          folio="p. 78"
-        >
+    <StudioPage stage="hub" student={s} preserveStudent={!!search.s} title={"Workspace Index"} dek={`A guided tour of ${toTitleCase(student.full_name)}>
           <PublicationSpread
             lead={
               <>
@@ -161,10 +140,6 @@ function DemoHubPage() {
               </>
             }
           />
-
-          <DemoStepFooter current="hub" student={s} />
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }

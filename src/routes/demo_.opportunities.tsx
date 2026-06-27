@@ -1,18 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Briefcase, MapPin, CheckCircle2, Bookmark, Send, Eye } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import { DemoStepBar, DemoStepFooter, validateStudentSearch } from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
 import {
   DEMO_OPPORTUNITIES, DEMO_OPPORTUNITY_STATUS, OPPORTUNITY_INTRO_STATUS_LABEL, type OpportunityIntroStatus,
+import { StudioPage } from "@/studio/StudioPage";
 } from "@/lib/demo-extras";
 import {
-  PublicationPage, PublicationCallout, PublicationSource,
+  PublicationCallout, PublicationSource,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/opportunities")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -43,16 +42,7 @@ function DemoOpportunitiesPage() {
   const statuses = DEMO_OPPORTUNITY_STATUS[s];
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="opportunities" student={s} />
-        <PublicationPage
-          kicker="Step 05"
-          chapter="Opportunity Matches"
-          dek="Apprenticeships, internships, and community programs matched to the student's interests, needs, and supports."
-          part="Part Two — Synthesize"
-          folio="p. 44"
-        >
+    <StudioPage stage="opportunities" student={s} preserveStudent={!!search.s} title={"Opportunity Matches"} dek={"Apprenticeships, internships, and community programs matched to the student's interests, needs, and supports."}>
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="means">
@@ -169,11 +159,7 @@ function DemoOpportunitiesPage() {
               </div>
             </PublicationCallout>
             <PublicationSource>Student identifying details are never shared with partner organizations.</PublicationSource>
-
-            <DemoStepFooter current="opportunities" student={s} />
           </div>
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }

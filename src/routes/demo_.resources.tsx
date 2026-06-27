@@ -4,6 +4,7 @@ import {
   Search,
   BookOpen,
   Compass,
+import { StudioPage } from "@/studio/StudioPage";
   Briefcase,
   GraduationCap,
   HeartHandshake,
@@ -14,21 +15,13 @@ import {
   Filter,
 } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getDemoStudent } from "@/lib/demo-data";
 import {
-  PublicationPage,
-  PublicationCallout,
-  PublicationSource,
+  PublicationCallout, PublicationSource,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/resources")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -278,7 +271,7 @@ const RESOURCES: Resource[] = [
 ];
 
 function DemoResourcesPage() {
-  const { s = "maya" as const } = Route.useSearch();
+  const search = Route.useSearch(); const s = search.s ?? "maya";
   const bundle = getDemoStudent(s);
   const { profile } = bundle;
   const [active, setActive] = useState<CategoryId>("all");
@@ -309,16 +302,7 @@ function DemoResourcesPage() {
   }, [active, q, s, showAll]);
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="resources" student={s} />
-        <PublicationPage
-          kicker="Step 06"
-          chapter="Resource Matches"
-          dek="Curated supports — with what it is, who it helps, and how to use it — pulled from the planning library."
-          part="Part Two — Synthesize"
-          folio="p. 50"
-        >
+    <StudioPage stage="resources" student={s} preserveStudent={!!search.s} title={"Resource Matches"} dek={"Curated supports — with what it is, who it helps, and how to use it — pulled from the planning library."}>
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="means">
@@ -398,12 +382,8 @@ function DemoResourcesPage() {
                 <ResourceRow key={r.id} r={r} compact={compact} />
               ))}
             </div>
-
-            <DemoStepFooter current="resources" student={s} />
           </div>
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }
 
