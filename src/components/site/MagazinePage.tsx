@@ -48,6 +48,8 @@ interface ChapterOpenerProps {
   dek?: ReactNode;
   /** Optional handbook sidebar: a "What this chapter covers" block. */
   covers?: string[];
+  /** Optional pathway milestone — renders a warm badge above the kicker. */
+  milestone?: import("@/lib/publication/chapters").PathwayMilestoneId;
 }
 
 /**
@@ -56,7 +58,7 @@ interface ChapterOpenerProps {
  * page with oversized italic numeral, kicker, headline, dek, and an
  * optional "What This Chapter Covers" handbook checklist.
  */
-export function ChapterOpener({ numeral, kicker, title, dek, covers }: ChapterOpenerProps) {
+export function ChapterOpener({ numeral, kicker, title, dek, covers, milestone }: ChapterOpenerProps) {
   return (
     <section className="mx-auto max-w-5xl px-4 pt-10 sm:px-6 sm:pt-14">
       <div className="eh-chapter">
@@ -65,6 +67,11 @@ export function ChapterOpener({ numeral, kicker, title, dek, covers }: ChapterOp
         </span>
         <div className="eh-chapter-inner">
           <div className="eh-chapter-rule" aria-hidden />
+          {milestone ? (
+            <div className="mb-3">
+              <MilestoneBadge milestone={milestone} size="lg" tone="dark" />
+            </div>
+          ) : null}
           <span className="eh-chapter-kicker">{kicker}</span>
           <h1>{title}</h1>
           {dek ? <p>{dek}</p> : null}
