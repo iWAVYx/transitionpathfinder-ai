@@ -2048,21 +2048,21 @@ function StudentSnapshotCard({
   return (
     <section
       aria-label="Student Snapshot"
-      className="mt-6 rounded-2xl border border-primary/20 bg-card p-5 shadow-soft sm:p-6"
+      className="mt-8 border-y border-[color:var(--pub-rule-soft,theme(colors.border))] py-6"
     >
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-dotted border-[color:var(--pub-rule-soft,theme(colors.border))] pb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
           Student Snapshot
         </p>
         {readiness && <ReadinessBadge level={readiness} compact />}
       </div>
-      <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
         {visible.map((f) => (
-          <div key={f.label}>
-            <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div key={f.label} className="border-l border-[color:var(--pub-rule-soft,theme(colors.border))] pl-3">
+            <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               {f.label}
             </dt>
-            <dd className="mt-0.5 text-sm font-medium text-foreground/90">{f.value}</dd>
+            <dd className="mt-1 font-display text-base leading-snug text-foreground/90">{f.value}</dd>
           </div>
         ))}
       </dl>
