@@ -54,14 +54,14 @@ export function PlanHorizonTabs({
 
 export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
   return (
-    <li className="relative rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
+    <li className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
       <div className="flex flex-wrap items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
-          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-80">Week</span>
+        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center border border-primary/40 text-primary">
+          <span className="text-[8px] font-semibold uppercase tracking-[0.18em] opacity-80">Week</span>
           <span className="font-display text-xl leading-none">{step.week}</span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
             {step.focus}
           </p>
           <h3 className="mt-1 font-display text-lg leading-snug text-foreground">{step.action}</h3>
