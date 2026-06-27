@@ -31,6 +31,14 @@ type UserNavGroup = NavGroup & { roles: RoleAudience[] };
 
 const navGroups: NavGroup[] = [
   {
+    label: "Hubs",
+    items: [
+      { to: "/hubs/transition-planning", label: "Transition Planning Hub", desc: "The pillar page connecting every planning input to the Pathway Report." },
+      { to: "/demo", label: "Demo / Sample Pathway", desc: "A guided sample hub showing the whole ecosystem." },
+      { to: "/resources", label: "Resource Hub", desc: "Filterable library of planning tools and guides." },
+    ],
+  },
+  {
     label: "Product",
     items: [
       { to: "/platform", label: "The Platform", desc: "How TransitionForward fits together." },

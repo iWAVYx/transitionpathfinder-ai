@@ -44,6 +44,7 @@ import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwa
 import { Route as PartnerforwardIncentivesRouteImport } from './routes/partnerforward.incentives'
 import { Route as Login2faRouteImport } from './routes/login.2fa'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as HubsTransitionPlanningRouteImport } from './routes/hubs.transition-planning'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoVoiceRouteImport } from './routes/demo_.voice'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
@@ -136,6 +137,7 @@ import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authe
 import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenticated/owner.admins'
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
+import { Route as AuthenticatedHubsStudentRouteImport } from './routes/_authenticated/hubs.student'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
@@ -327,6 +329,11 @@ const Login2faRoute = Login2faRouteImport.update({
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubsTransitionPlanningRoute = HubsTransitionPlanningRouteImport.update({
+  id: '/hubs/transition-planning',
+  path: '/hubs/transition-planning',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -836,6 +843,12 @@ const AuthenticatedMeetingsMeetingIdRoute =
     path: '/$meetingId',
     getParentRoute: () => AuthenticatedMeetingsRoute,
   } as any)
+const AuthenticatedHubsStudentRoute =
+  AuthenticatedHubsStudentRouteImport.update({
+    id: '/hubs/student',
+    path: '/hubs/student',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -1000,6 +1013,7 @@ export interface FileRoutesByFullPath {
   '/demo/resources': typeof DemoResourcesRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/hubs/transition-planning': typeof HubsTransitionPlanningRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
@@ -1017,6 +1031,7 @@ export interface FileRoutesByFullPath {
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/hubs/student': typeof AuthenticatedHubsStudentRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
@@ -1142,6 +1157,7 @@ export interface FileRoutesByTo {
   '/demo/resources': typeof DemoResourcesRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/hubs/transition-planning': typeof HubsTransitionPlanningRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
@@ -1159,6 +1175,7 @@ export interface FileRoutesByTo {
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/hubs/student': typeof AuthenticatedHubsStudentRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/owner/admins': typeof AuthenticatedOwnerAdminsRoute
@@ -1288,6 +1305,7 @@ export interface FileRoutesById {
   '/demo_/resources': typeof DemoResourcesRoute
   '/demo_/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/hubs/transition-planning': typeof HubsTransitionPlanningRoute
   '/invite/$token': typeof InviteTokenRoute
   '/login/2fa': typeof Login2faRoute
   '/partnerforward/incentives': typeof PartnerforwardIncentivesRoute
@@ -1305,6 +1323,7 @@ export interface FileRoutesById {
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/_authenticated/hubs/student': typeof AuthenticatedHubsStudentRoute
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
   '/_authenticated/owner/admins': typeof AuthenticatedOwnerAdminsRoute
@@ -1434,6 +1453,7 @@ export interface FileRouteTypes {
     | '/demo/resources'
     | '/demo/voice'
     | '/email/unsubscribe'
+    | '/hubs/transition-planning'
     | '/invite/$token'
     | '/login/2fa'
     | '/partnerforward/incentives'
@@ -1451,6 +1471,7 @@ export interface FileRouteTypes {
     | '/district/schools'
     | '/district/team'
     | '/forms/$slug'
+    | '/hubs/student'
     | '/meetings/$meetingId'
     | '/owner/activity'
     | '/owner/admins'
@@ -1576,6 +1597,7 @@ export interface FileRouteTypes {
     | '/demo/resources'
     | '/demo/voice'
     | '/email/unsubscribe'
+    | '/hubs/transition-planning'
     | '/invite/$token'
     | '/login/2fa'
     | '/partnerforward/incentives'
@@ -1593,6 +1615,7 @@ export interface FileRouteTypes {
     | '/district/schools'
     | '/district/team'
     | '/forms/$slug'
+    | '/hubs/student'
     | '/meetings/$meetingId'
     | '/owner/activity'
     | '/owner/admins'
@@ -1721,6 +1744,7 @@ export interface FileRouteTypes {
     | '/demo_/resources'
     | '/demo_/voice'
     | '/email/unsubscribe'
+    | '/hubs/transition-planning'
     | '/invite/$token'
     | '/login/2fa'
     | '/partnerforward/incentives'
@@ -1738,6 +1762,7 @@ export interface FileRouteTypes {
     | '/_authenticated/district/schools'
     | '/_authenticated/district/team'
     | '/_authenticated/forms/$slug'
+    | '/_authenticated/hubs/student'
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
     | '/_authenticated/owner/admins'
@@ -1839,6 +1864,7 @@ export interface RootRouteChildren {
   DemoResourcesRoute: typeof DemoResourcesRoute
   DemoVoiceRoute: typeof DemoVoiceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  HubsTransitionPlanningRoute: typeof HubsTransitionPlanningRoute
   InviteTokenRoute: typeof InviteTokenRoute
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
@@ -2096,6 +2122,13 @@ declare module '@tanstack/react-router' {
       path: '/invite/$token'
       fullPath: '/invite/$token'
       preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hubs/transition-planning': {
+      id: '/hubs/transition-planning'
+      path: '/hubs/transition-planning'
+      fullPath: '/hubs/transition-planning'
+      preLoaderRoute: typeof HubsTransitionPlanningRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -2742,6 +2775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeetingsMeetingIdRouteImport
       parentRoute: typeof AuthenticatedMeetingsRoute
     }
+    '/_authenticated/hubs/student': {
+      id: '/_authenticated/hubs/student'
+      path: '/hubs/student'
+      fullPath: '/hubs/student'
+      preLoaderRoute: typeof AuthenticatedHubsStudentRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/forms/$slug': {
       id: '/_authenticated/forms/$slug'
       path: '/$slug'
@@ -3052,6 +3092,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
+  AuthenticatedHubsStudentRoute: typeof AuthenticatedHubsStudentRoute
   AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
@@ -3100,6 +3141,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
+  AuthenticatedHubsStudentRoute: AuthenticatedHubsStudentRoute,
   AuthenticatedPartnersManageImpactRoute:
     AuthenticatedPartnersManageImpactRoute,
   AuthenticatedResourcesSavedRoute: AuthenticatedResourcesSavedRoute,
@@ -3191,6 +3233,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoResourcesRoute: DemoResourcesRoute,
   DemoVoiceRoute: DemoVoiceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  HubsTransitionPlanningRoute: HubsTransitionPlanningRoute,
   InviteTokenRoute: InviteTokenRoute,
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
