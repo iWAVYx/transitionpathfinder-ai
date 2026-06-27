@@ -175,7 +175,10 @@ const TRANSITION_PLANNING: HubDefinition = {
       resourceType: "questions",
     },
   ],
-  related: ["bridgeforward", "family-resource", "demo-sample", "school-district"],
+  // NOTE: bridgeforward / family-resource / school-district / demo-sample
+  // hubs land in Phase 2. Only include resolvable ids here so the registry
+  // test stays honest.
+  related: ["student-planning"],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
