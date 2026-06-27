@@ -70,43 +70,6 @@ const navSingles: NavLink[] = [
 ];
 
 const userGroups: UserNavGroup[] = [
-  // Role-specific product hubs (signed-in only). One entry per audience —
-  // the dropdown is filtered by role downstream.
-  {
-    label: "My Hub",
-    roles: ["student"],
-    items: [{ to: "/hubs/student", label: "Student Planning Hub" }],
-  },
-  {
-    label: "My Hub",
-    roles: ["family"],
-    items: [{ to: "/hubs/family", label: "Family Planning Hub" }],
-  },
-  {
-    label: "My Hub",
-    roles: ["educator"],
-    items: [{ to: "/hubs/caseload", label: "Caseload Planning Hub" }],
-  },
-  {
-    label: "My Hub",
-    roles: ["school_admin"],
-    items: [{ to: "/hubs/school", label: "School Implementation Hub" }],
-  },
-  {
-    label: "My Hub",
-    roles: ["district_admin"],
-    items: [{ to: "/hubs/district", label: "District Strategy Hub" }],
-  },
-  {
-    label: "My Hub",
-    roles: ["partner"],
-    items: [{ to: "/hubs/partner", label: "Partner Opportunity Hub" }],
-  },
-  {
-    label: "My Hub",
-    roles: ["admin"],
-    items: [{ to: "/hubs/admin", label: "Platform Operations Hub" }],
-  },
   // Educator / Case Manager — direct student/caseload support
   {
     label: "Caseload",
@@ -118,6 +81,7 @@ const userGroups: UserNavGroup[] = [
       { to: "/documents", label: "Documents" },
     ],
   },
+
   // Family + Student — their own profile/students
   {
     label: "Students",
