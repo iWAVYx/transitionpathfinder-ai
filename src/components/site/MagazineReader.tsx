@@ -11,28 +11,37 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
 import { PathwaySpine } from "@/components/publication/PathwaySpine";
-import { DEMO_CHAPTER_TO_MILESTONE } from "@/lib/publication/chapters";
+import {
+  PUBLICATION_PAGES,
+  pagesByPart,
+  prevPage,
+  nextPage,
+  pageIndex,
+  firstPageForMilestone,
+  type PublicationPageId,
+} from "@/lib/publication/nav";
 
 /**
- * Canonical reader page order — used by both the chrome (prev/next, indicator,
- * TOC) and the cover/closing pages. Indexes are 1-based for display.
+ * Backwards-compatible export — derived from the canonical
+ * {@link PUBLICATION_PAGES} list in `src/lib/publication/nav.ts`. Existing
+ * imports and tests (`tests/unit/pathway-spine.test.ts`) iterate this array
+ * by shape, so keep the keys `{ id, to, label, kicker, dek }`.
  */
-export const MAGAZINE_PAGES = [
-  { id: "cover",        to: "/demo",               label: "Cover",                  kicker: "Overview",         dek: "An interactive transition-planning report." },
-  { id: "intake",       to: "/demo/intake",        label: "Starting Point",         kicker: "Section 01",       dek: "Strengths, interests, supports — three voices." },
-  { id: "voice",        to: "/demo/voice",         label: "Student Voice",          kicker: "Section 02",       dek: "In the student's own words — eight short prompts." },
-  { id: "documents",    to: "/demo/documents",     label: "Documents & Evidence",   kicker: "Section 03",       dek: "The IEP, evaluations and 504 — organized into one planning companion." },
-  { id: "report",       to: "/demo/report",        label: "The Pathway Report",     kicker: "Section 04",       dek: "Pathways, supports, accommodations — written in plain language." },
-  { id: "opportunities",to: "/demo/opportunities", label: "Opportunity Matches",    kicker: "Section 05",       dek: "Apprenticeships, internships and community programs that fit." },
-  { id: "resources",    to: "/demo/resources",     label: "Resource Matches",       kicker: "Section 06",       dek: "Curated supports — what it is, who it helps, how to use it." },
-  { id: "meeting",      to: "/demo/meeting",       label: "Questions For The Team", kicker: "Section 07",       dek: "A PPT-ready packet with agenda, questions and follow-ups." },
-  { id: "calendar",     to: "/demo/calendar",      label: "Shared Calendar",        kicker: "Section 08",       dek: "Meetings, deadlines, tours — everyone on one page." },
-  { id: "plan",         to: "/demo/plan",          label: "30 / 60 / 90-Day Plan",  kicker: "Section 09",       dek: "Doable steps with named owners and clear success markers." },
-  { id: "hub",          to: "/demo/hub",           label: "The Student Hub",        kicker: "Section 10",       dek: "The ongoing workspace for families and the care team." },
-  { id: "next",         to: "/demo/next",          label: "What Comes Next",        kicker: "Closing",          dek: "Clear paths for families, educators, schools and partners." },
-] as const;
+export const MAGAZINE_PAGES = PUBLICATION_PAGES.map((p) => ({
+  id: p.id,
+  to: p.route,
+  label: p.label,
+  kicker: p.kicker,
+  dek: p.dek,
+})) as ReadonlyArray<{
+  id: string;
+  to: string;
+  label: string;
+  kicker: string;
+  dek: string;
+}>;
 
-export type MagazinePageId = (typeof MAGAZINE_PAGES)[number]["id"];
+export type MagazinePageId = PublicationPageId;
 
 interface ReaderProps {
   currentId: MagazinePageId;
@@ -50,24 +59,17 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
   const location = useLocation();
   const navigate = useNavigate();
   const [tocOpen, setTocOpen] = useState(false);
-  const [direction, setDirection] = useState<1 | -1 | 0>(0);
   const prevPathRef = useRef(location.pathname);
   const search = preserveStudent ? { s: student } : undefined;
 
-  const idx = Math.max(0, MAGAZINE_PAGES.findIndex((p) => p.id === currentId));
-  const current = MAGAZINE_PAGES[idx];
-  const prev = idx > 0 ? MAGAZINE_PAGES[idx - 1] : null;
-  const next = idx < MAGAZINE_PAGES.length - 1 ? MAGAZINE_PAGES[idx + 1] : null;
-  const total = MAGAZINE_PAGES.length;
+  const idx = Math.max(0, pageIndex(currentId));
+  const current = PUBLICATION_PAGES[idx];
+  const prev = prevPage(currentId);
+  const next = nextPage(currentId);
+  const total = PUBLICATION_PAGES.length;
   const progressPct = ((idx + 1) / total) * 100;
 
-  // Track direction so the page-turn animation knows which way to slide.
   useEffect(() => {
-    const prevIdx = MAGAZINE_PAGES.findIndex((p) => p.to === prevPathRef.current);
-    const nowIdx = MAGAZINE_PAGES.findIndex((p) => p.to === location.pathname);
-    if (prevIdx >= 0 && nowIdx >= 0 && prevIdx !== nowIdx) {
-      setDirection(nowIdx > prevIdx ? 1 : -1);
-    }
     prevPathRef.current = location.pathname;
   }, [location.pathname]);
 
@@ -79,10 +81,10 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "ArrowRight" && next) {
         e.preventDefault();
-        void navigate({ to: next.to, search });
+        void navigate({ to: next.route, search });
       } else if (e.key === "ArrowLeft" && prev) {
         e.preventDefault();
-        void navigate({ to: prev.to, search });
+        void navigate({ to: prev.route, search });
       } else if (e.key === "Escape" && tocOpen) {
         setTocOpen(false);
       }
@@ -91,6 +93,12 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
     return () => window.removeEventListener("keydown", handler);
   }, [next, prev, navigate, search, tocOpen]);
 
+  // Resolve a milestone -> route for the clickable Pathway Spine.
+  const resolveSpineHref = (m: Parameters<typeof firstPageForMilestone>[0]) => {
+    const p = firstPageForMilestone(m);
+    return p ? p.route : undefined;
+  };
+
   return (
     <>
       <nav
@@ -98,7 +106,6 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
         className="demo-shell mag-reader-bar sticky top-16 z-30"
       >
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3 lg:px-12">
-          {/* Prev — shows destination on desktop */}
           <Button
             asChild={!!prev}
             variant="ghost"
@@ -108,7 +115,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             aria-label={prev ? `Previous: ${prev.label}` : "No previous page"}
           >
             {prev ? (
-              <Link to={prev.to} search={search}>
+              <Link to={prev.route} search={search}>
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden md:inline">Prev</span>
               </Link>
@@ -117,7 +124,6 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             )}
           </Button>
 
-          {/* TOC trigger / page indicator */}
           <button
             type="button"
             onClick={() => setTocOpen((v) => !v)}
@@ -138,12 +144,11 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             />
           </button>
 
-          {/* Student switcher (compact, desktop only) */}
           <div className="tf-audience hidden lg:flex" role="tablist" aria-label="Sample student">
             {(["maya", "jordan"] as DemoStudentId[]).map((sid) => (
               <Link
                 key={sid}
-                to={current.to}
+                to={current.route}
                 search={{ s: sid }}
                 role="tab"
                 aria-selected={student === sid}
@@ -154,7 +159,6 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             ))}
           </div>
 
-          {/* Next */}
           <Button
             asChild={!!next}
             size="sm"
@@ -163,7 +167,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             aria-label={next ? `Next: ${next.label}` : "End of report"}
           >
             {next ? (
-              <Link to={next.to} search={search}>
+              <Link to={next.route} search={search}>
                 <span className="hidden md:inline">Next</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -173,12 +177,13 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
           </Button>
         </div>
 
-        {/* Pathway Spine — the visible thread of the planning journey.
-            Replaces the old hairline progress with eight named milestones
-            so the user can see where the current chapter sits in the flow
-            from input → insight → action. */}
+        {/* Pathway Spine — clickable. Each milestone jumps to its first page. */}
         <div className="mx-auto max-w-7xl px-3 pb-2 pt-1 sm:px-6 lg:px-12">
-          <PathwaySpine active={DEMO_CHAPTER_TO_MILESTONE[currentId] ?? "intake"} />
+          <PathwaySpine
+            active={current.milestone}
+            resolveHref={resolveSpineHref}
+            search={search}
+          />
         </div>
         <div className="mx-auto h-[1px] max-w-7xl bg-[color:var(--demo-primary)]/10" aria-hidden>
           <div
@@ -187,7 +192,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
           />
         </div>
 
-        {/* TOC drawer */}
+        {/* TOC drawer — magazine-style contents, grouped by Part. */}
         {tocOpen && (
           <div
             id="mag-toc-drawer"
@@ -201,7 +206,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-demo-primary" />
                   <span className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-demo-primary">
-                    Jump To Section
+                    Table Of Contents
                   </span>
                 </div>
                 <button
@@ -213,51 +218,80 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <ol className="mag-toc-grid">
-                {MAGAZINE_PAGES.map((p, i) => {
-                  const active = p.id === currentId;
-                  return (
-                    <li key={p.id}>
-                      <Link
-                        to={p.to}
-                        search={search}
-                        onClick={() => setTocOpen(false)}
-                        className={`mag-toc-card group ${active ? "is-active" : ""}`}
-                        aria-current={active ? "page" : undefined}
-                      >
-                        <span className="mag-toc-card-num">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <span className="mag-toc-card-body">
-                          <span className="block font-display text-[10px] font-bold uppercase tracking-[0.22em] text-demo-primary/80">
-                            {p.kicker}
-                          </span>
-                          <span className="block font-display text-base font-semibold leading-tight text-demo-ink">
-                            {p.label}
-                          </span>
-                          <span className="mt-1 block text-xs leading-snug text-foreground/65">
-                            {p.dek}
-                          </span>
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ol>
+
+              <div className="space-y-6">
+                {pagesByPart().map(({ part, pages }) =>
+                  pages.length === 0 ? null : (
+                    <section key={part} className="border-t border-[color:var(--pub-rule-soft)] pt-4 first:border-t-0 first:pt-0">
+                      <p className="mb-3 font-display text-[10px] font-bold uppercase tracking-[0.28em] text-demo-accent">
+                        {part}
+                      </p>
+                      <ol className="divide-y divide-[color:var(--pub-rule-soft)]">
+                        {pages.map((p) => {
+                          const active = p.id === currentId;
+                          const done = pageIndex(p.id) < idx;
+                          return (
+                            <li key={p.id}>
+                              <Link
+                                to={p.route}
+                                search={search}
+                                onClick={() => setTocOpen(false)}
+                                aria-current={active ? "page" : undefined}
+                                className={`group flex items-baseline gap-4 py-3 transition-colors hover:bg-foreground/[0.03] ${
+                                  active ? "is-active" : ""
+                                }`}
+                              >
+                                <span
+                                  className={`w-10 shrink-0 font-display text-[11px] font-bold uppercase tracking-[0.18em] ${
+                                    active
+                                      ? "text-demo-ink"
+                                      : done
+                                        ? "text-demo-accent"
+                                        : "text-foreground/45"
+                                  }`}
+                                >
+                                  {p.numeral}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block font-display text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/55">
+                                    {p.kicker}
+                                  </span>
+                                  <span
+                                    className={`block font-display text-base font-semibold leading-snug ${
+                                      active ? "text-demo-ink" : "text-foreground/90 group-hover:text-demo-ink"
+                                    }`}
+                                  >
+                                    {p.title}
+                                  </span>
+                                  <span className="mt-0.5 block text-xs leading-snug text-foreground/65">
+                                    {p.dek}
+                                  </span>
+                                </span>
+                                <span className="ml-2 shrink-0 font-display text-xs tabular-nums text-foreground/45">
+                                  p.&nbsp;{String(p.folio).padStart(2, "0")}
+                                </span>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    </section>
+                  ),
+                )}
+              </div>
             </div>
           </div>
         )}
       </nav>
 
-      {/* Mobile sticky bottom nav — always visible Prev | Contents | Next.
-          Hidden on tablet+ since the top bar's arrows are reachable there. */}
+      {/* Mobile sticky bottom nav — always visible Prev | Contents | Next. */}
       <nav
         aria-label="Reader navigation (mobile)"
         className="demo-shell mag-mobile-nav md:hidden"
       >
         <div className="grid grid-cols-3">
           {prev ? (
-            <Link to={prev.to} search={search} className="mag-mobile-nav-btn">
+            <Link to={prev.route} search={search} className="mag-mobile-nav-btn">
               <ArrowLeft className="h-4 w-4" aria-hidden />
               <span className="mag-mobile-nav-label">{prev.label}</span>
             </Link>
@@ -277,7 +311,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             <span className="mag-mobile-nav-label">{String(idx + 1).padStart(2, "0")} / {total}</span>
           </button>
           {next ? (
-            <Link to={next.to} search={search} className="mag-mobile-nav-btn">
+            <Link to={next.route} search={search} className="mag-mobile-nav-btn">
               <ArrowRight className="h-4 w-4" aria-hidden />
               <span className="mag-mobile-nav-label">{next.label}</span>
             </Link>
@@ -290,7 +324,6 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
         </div>
       </nav>
 
-      {/* Subtle fade on page change. */}
       <style>{`
         .mag-page { animation: mag-fade 220ms ease-out both; }
         @keyframes mag-fade {
@@ -314,10 +347,9 @@ interface FooterProps {
  * that previews the next chapter's kicker + dek.
  */
 export function MagazinePageTurn({ currentId, student, preserveStudent }: FooterProps) {
-  const idx = MAGAZINE_PAGES.findIndex((p) => p.id === currentId);
-  const prev = idx > 0 ? MAGAZINE_PAGES[idx - 1] : null;
-  const next = idx < MAGAZINE_PAGES.length - 1 ? MAGAZINE_PAGES[idx + 1] : null;
-  
+  const idx = pageIndex(currentId);
+  const prev = prevPage(currentId);
+  const next = nextPage(currentId);
   const search = preserveStudent ? { s: student } : undefined;
 
   return (
@@ -325,9 +357,9 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
       <div className="mag-pageturn">
         <div className="mag-pageturn-side mag-pageturn-side--prev">
           {prev ? (
-            <Link to={prev.to} search={search} className="mag-pageturn-link">
+            <Link to={prev.route} search={search} className="mag-pageturn-link">
               <span className="mag-pageturn-folio">
-                <ArrowLeft className="h-3.5 w-3.5" /> Page {String(idx).padStart(2, "0")}
+                <ArrowLeft className="h-3.5 w-3.5" /> Page {String(prev.folio).padStart(2, "0")}
               </span>
               <span className="mag-pageturn-kicker">{prev.kicker}</span>
               <span className="mag-pageturn-title">{prev.label}</span>
@@ -341,12 +373,11 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
           )}
         </div>
 
-
         <div className="mag-pageturn-side mag-pageturn-side--next">
           {next ? (
-            <Link to={next.to} search={search} className="mag-pageturn-link is-next">
+            <Link to={next.route} search={search} className="mag-pageturn-link is-next">
               <span className="mag-pageturn-folio">
-                Page {String(idx + 2).padStart(2, "0")} <ArrowRight className="h-3.5 w-3.5" />
+                Page {String(next.folio).padStart(2, "0")} <ArrowRight className="h-3.5 w-3.5" />
               </span>
               <span className="mag-pageturn-kicker">{next.kicker}</span>
               <span className="mag-pageturn-title">{next.label}</span>
@@ -362,6 +393,8 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
           )}
         </div>
       </div>
+      {/* idx kept for backwards compatibility — used to be page label */}
+      <span className="sr-only">Currently on page {idx + 1}.</span>
     </div>
   );
 }
