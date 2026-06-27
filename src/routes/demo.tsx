@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { IssueShell } from "@/v2/IssueShell";
 import {
   DEMO_STUDENTS,
   getDemoStudent,
@@ -8,205 +7,200 @@ import {
 } from "@/lib/demo-data";
 import {
   DEFAULT_DEMO_STUDENT,
-  demoStudentSearch,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
 import { toTitleCase } from "@/lib/title-case";
+
+import { StudioShell, StudioHead, PathwayMap, StudioFrame, StudioAside } from "@/studio/StudioShell";
 import {
-  PUBLICATION_PAGES,
-  pagesByPart,
-  type PublicationPart,
-} from "@/lib/publication/nav";
+  CHAPTER_STAGES,
+  ACT_META,
+} from "@/studio/stages";
 
 export const Route = createFileRoute("/demo")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Pathway Issue — TransitionForward Demo" },
+      { title: "Pathway Studio — TransitionForward Demo" },
       {
         name: "description",
         content:
-          "Open the TransitionForward Pathway Issue: a guided publication that walks a fictional Connecticut high school student from Intake through the 30/60/90 Day Plan.",
+          "Step into the TransitionForward Pathway Studio: a guided workspace that turns scattered transition-planning inputs into a clear, shared pathway forward.",
       },
-      { property: "og:title", content: "Pathway Issue — TransitionForward Demo" },
+      { property: "og:title", content: "Pathway Studio — TransitionForward Demo" },
       {
         property: "og:description",
         content:
-          "A premium interactive publication that turns scattered transition-planning inputs into a clear pathway forward.",
+          "Walk a fictional Connecticut high school student from intake through a 30 / 60 / 90 plan inside the new TransitionForward Pathway Studio.",
       },
       { property: "og:url", content: "/demo" },
     ],
     links: [{ rel: "canonical", href: "/demo" }],
   }),
-  component: DemoIssueCover,
+  component: StudioCover,
 });
 
-const PART_META: Record<PublicationPart, { numeral: string; dek: string }> = {
-  "Listen":        { numeral: "One",   dek: "Three voices, three lenses. Every recommendation is grounded in what the student, family, and educators have said." },
-  "Synthesize":    { numeral: "Two",   dek: "The Pathway Report turns intake, voice, and documents into pathways, supports, and a shared next-meeting plan." },
-  "Plan":          { numeral: "Three", dek: "Meeting prep, a shared calendar, and a 30 / 60 / 90 plan move the conversation from a binder into the week ahead." },
-  "Stay Together": { numeral: "Four",  dek: "A Student Hub and clear next steps keep families, educators, and partners in sync after the meeting ends." },
-};
-
-function DemoIssueCover() {
+function StudioCover() {
   const search = Route.useSearch();
   const s = search.s ?? DEFAULT_DEMO_STUDENT;
-  const preserved = demoStudentSearch(search.s);
+  const preserve = !!search.s;
   const bundle = getDemoStudent(s);
   const { profile: student } = bundle;
   const voiceQuote = bundle.report.student_snapshot?.student_voice_quote;
-  const parts = pagesByPart().filter(p => p.pages.some(pg => pg.id !== "cover"));
-
-  const evidence = (
-    <>
-      <div>
-        <h4 className="tf-v2-evidence-h">Featured Student</h4>
-        <div className="tf-v2-switch">
-          {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
-            <Link
-              key={id}
-              to="/demo"
-              search={{ s: id }}
-              resetScroll={false}
-              aria-current={id === s ? "true" : undefined}
-            >
-              {DEMO_STUDENTS[id].profile.first_name}
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {voiceQuote ? (
-        <div>
-          <h4 className="tf-v2-evidence-h">Student Voice</h4>
-          <blockquote
-            style={{
-              fontFamily: "var(--v2-serif)",
-              fontStyle: "italic",
-              fontSize: "1.05rem",
-              lineHeight: 1.4,
-              borderLeft: "2px solid var(--v2-teal)",
-              padding: "0.25rem 0 0.25rem 0.9rem",
-              margin: 0,
-              color: "var(--v2-ink)",
-            }}
-          >
-            “{voiceQuote}”
-          </blockquote>
-          <p style={{ marginTop: "0.6rem", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700, color: "var(--v2-teal)" }}>
-            — {student.first_name}, Grade {student.grade}
-          </p>
-        </div>
-      ) : null}
-
-      <div>
-        <h4 className="tf-v2-evidence-h">How To Read</h4>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.55rem", fontSize: "0.9rem" }}>
-          <li>Use the rail on the left to move between milestones.</li>
-          <li>Each chapter ends with a clear next step.</li>
-          <li>The deck below ends with prev / next page foot.</li>
-        </ul>
-      </div>
-    </>
-  );
 
   return (
-    <IssueShell milestone="cover" partLabel="Cover · Pathway Issue" evidence={evidence}>
-      {/* Hero */}
-      <header className="tf-v2-hero">
-        <span className="ed">The Personal Planning Issue Of</span>
-        <h2>
-          {toTitleCase(student.full_name)} <em>—</em> A Pathway Forward
-        </h2>
-        <p className="dek">
-          A synthesis of {student.first_name}'s goals, documents, and the collective voice of {student.first_name === "Maya" ? "her" : "his"} support system — read it like an issue, not a dashboard.
-        </p>
-        <div className="tf-v2-hero-meta">
-          <div>
-            <p className="lbl">Student</p>
-            <p className="val">{toTitleCase(student.full_name)}</p>
-          </div>
-          <div>
-            <p className="lbl">Grade · School</p>
-            <p className="val">{student.grade} · {student.school}</p>
-          </div>
-          <div>
-            <p className="lbl">Graduating</p>
-            <p className="val">{student.graduation_year}</p>
-          </div>
-        </div>
-        <div className="tf-v2-hero-cta">
-          <Link
-            to="/demo/intake"
-            {...(preserved ? { search: preserved } : {})}
-            className="tf-v2-btn tf-v2-btn--primary"
-          >
-            Begin Reading
-          </Link>
-          <a href="#contents" className="tf-v2-btn tf-v2-btn--ghost">
-            Open Contents
-          </a>
-        </div>
-      </header>
+    <StudioShell stage="cover" student={s} preserveStudent={preserve}>
+      <StudioHead
+        title={
+          <>
+            {toTitleCase(student.full_name)} — <em>A pathway forward.</em>
+          </>
+        }
+        dek="The Pathway Studio is a guided workspace. The rail on the left is the path itself; this is your starting point — walk it stage by stage, or open the map for a bird's-eye view."
+      />
 
-      {/* Welcome */}
-      <section className="tf-v2-welcome-block">
-        <div>
-          <h3>Welcome To Your Pathway</h3>
-          <p className="lead">
-            This workspace is a contained planning document. The navy rail on the left is the
-            pathway itself: every milestone, in order, with the active chapter highlighted in
-            teal. The deck on the right is where you read.
+      {/* Cover spread */}
+      <div className="st-cover">
+        <div className="lead">
+          <p className="issue-line">Issue 01 · {student.school} · {student.graduation_year}</p>
+          <div className="ctas">
+            <Link
+              to="/demo/intake"
+              {...(preserve ? { search: { s } } : {})}
+              className="primary"
+            >
+              Begin the pathway →
+            </Link>
+            <a href="#overview" className="ghost">See the full map</a>
+          </div>
+        </div>
+
+        <aside className="side">
+          <h4>Featured student</h4>
+          <p style={{ margin: "0 0 18px", fontSize: 14, color: "var(--st-mute)" }}>
+            {toTitleCase(student.full_name)} · {student.pronouns} · Grade {student.grade}
           </p>
-        </div>
-        <div>
-          <h3>What's Inside</h3>
-          <ul>
-            <li>Intake, Voice, and Documents — what we heard.</li>
-            <li>The Pathway Report — what it means together.</li>
-            <li>A 30 / 60 / 90 plan and the next meeting agenda.</li>
-            <li>A shared Student Hub for staying in sync after.</li>
-          </ul>
-        </div>
-      </section>
+          {voiceQuote ? (
+            <blockquote className="quote">
+              “{voiceQuote}”
+              <cite>— {student.first_name}, in their own words</cite>
+            </blockquote>
+          ) : null}
 
-      {/* TOC */}
-      <section id="contents" className="tf-v2-toc">
-        <h3 className="tf-v2-toc-h">Table Of Contents</h3>
+          <h4>Switch sample</h4>
+          <div className="swap" role="tablist" aria-label="Sample student">
+            {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
+              <Link
+                key={id}
+                to="/demo"
+                search={{ s: id }}
+                resetScroll={false}
+                aria-current={id === s ? "true" : undefined}
+              >
+                {DEMO_STUDENTS[id].profile.first_name}
+              </Link>
+            ))}
+          </div>
+        </aside>
+      </div>
 
-        {parts.map(({ part, pages }) => {
-          const items = pages.filter(p => p.id !== "cover");
-          if (!items.length) return null;
-          const meta = PART_META[part];
-          return (
-            <div key={part} className="tf-v2-toc-part">
-              <div className="tf-v2-toc-part-head">
-                <span className="tf-v2-toc-part-num">Part {meta.numeral}</span>
-                <h4 className="tf-v2-toc-part-title">{part}</h4>
-              </div>
-              <p className="tf-v2-toc-part-dek">{meta.dek}</p>
-              <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {items.map((p) => (
-                  <li key={p.id}>
-                    <Link
-                      to={p.route}
-                      {...(preserved ? { search: preserved } : {})}
-                      className="tf-v2-toc-row"
-                    >
-                      <span className="num">{String(PUBLICATION_PAGES.indexOf(p)).padStart(2, "0")}</span>
-                      <span>
-                        <span className="title">{p.title}</span>
-                        <span className="dek">{p.dek}</span>
-                      </span>
-                      <span className="page">p. {String(p.folio).padStart(2, "0")}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          );
-        })}
-      </section>
-    </IssueShell>
+      {/* Visual pathway (waypoint route) */}
+      <StudioFrame title="The pathway, at a glance">
+        <p>
+          Every stage feeds the next. Intake, student voice, and documents
+          become a Pathway Report. The report becomes an agenda, a calendar,
+          and a 30 / 60 / 90 plan. The plan keeps living inside a shared
+          Student Hub. That's the whole loop.
+        </p>
+        <PathwayMap activeId="cover" preserveStudent={preserve} student={s} />
+      </StudioFrame>
+
+      {/* 11-step horizontal journey strip (locked by `/demo` layout test) */}
+      <nav className="tf-journey" aria-label="Eleven-stage pathway">
+        {CHAPTER_STAGES.map((stg, i) => (
+          <Link
+            key={stg.id}
+            to={stg.to}
+            {...(preserve ? { search: { s } } : {})}
+            className="tf-journey-step"
+            data-state={i === 0 ? "current" : "future"}
+          >
+            <span className="j-dot">{i + 1}</span>
+            <span className="j-lab">{stg.label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      {/* Acts overview */}
+      <StudioFrame title="What you'll walk through">
+        <p id="overview">
+          The studio is organized into four acts. Each act answers one
+          question the team is trying to make progress on together.
+        </p>
+        <div style={{ display: "grid", gap: 28, marginTop: 16 }}>
+          {(["I", "II", "III", "IV"] as const).map((act) => {
+            const stages = CHAPTER_STAGES.filter((x) => x.act === act);
+            const meta = ACT_META[act];
+            return (
+              <section key={act} style={{ borderTop: "1px solid var(--st-rule)", paddingTop: 22 }}>
+                <p
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    color: "var(--st-map-deep)",
+                    margin: 0,
+                    fontWeight: 700,
+                  }}
+                >
+                  Act {act}
+                </p>
+                <h3 style={{ margin: "4px 0 6px", fontFamily: "var(--st-serif)", color: "var(--st-ink)" }}>
+                  {meta.title.replace(/^Act [IVX]+ · /, "")}
+                </h3>
+                <p style={{ color: "var(--st-mute)", margin: "0 0 14px", maxWidth: "62ch" }}>{meta.dek}</p>
+                <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 0 }}>
+                  {stages.map((stg) => (
+                    <li key={stg.id}>
+                      <Link
+                        to={stg.to}
+                        {...(preserve ? { search: { s } } : {})}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "56px 1fr auto",
+                          gap: 16,
+                          padding: "12px 0",
+                          borderTop: "1px solid var(--st-rule-soft)",
+                          textDecoration: "none",
+                          color: "var(--st-ink)",
+                        }}
+                      >
+                        <span style={{ fontFamily: "var(--st-serif)", fontStyle: "italic", color: "var(--st-mute)" }}>
+                          p. {stg.folio}
+                        </span>
+                        <span>
+                          <span style={{ display: "block", fontFamily: "var(--st-serif)", fontSize: "1.1rem", color: "var(--st-ink)" }}>
+                            {stg.label}
+                          </span>
+                          <span style={{ display: "block", fontSize: 13, color: "var(--st-mute)" }}>
+                            {stg.produces}
+                          </span>
+                        </span>
+                        <span style={{ alignSelf: "center", color: "var(--st-map)" }}>→</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            );
+          })}
+        </div>
+      </StudioFrame>
+
+      <StudioAside kind="next" label="Begin">
+        Start with <strong>Starting Point</strong> — the family-completed
+        intake. Everything you'll read later is built on top of those answers.
+      </StudioAside>
+    </StudioShell>
   );
 }
