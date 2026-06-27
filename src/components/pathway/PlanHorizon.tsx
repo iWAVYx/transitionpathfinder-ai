@@ -16,7 +16,12 @@ export function PlanHorizonTabs({
 }) {
   const horizons: PlanHorizon[] = ["thirty", "sixty", "ninety"];
   return (
-    <div className={cn("inline-flex rounded-2xl border bg-card p-1 shadow-soft", className)}>
+    <div
+      className={cn(
+        "inline-flex divide-x divide-[color:var(--pub-rule-soft,theme(colors.border))] border-y border-[color:var(--pub-rule-soft,theme(colors.border))]",
+        className,
+      )}
+    >
       {horizons.map((h) => {
         const meta = HORIZON_META[h];
         const active = value === h;
@@ -27,14 +32,17 @@ export function PlanHorizonTabs({
             onClick={() => onChange(h)}
             aria-pressed={active}
             className={cn(
-              "flex flex-col items-start rounded-xl px-3 py-1.5 text-left transition-colors sm:px-4 sm:py-2",
+              "relative flex flex-col items-start px-4 py-2 text-left transition-colors",
               active
-                ? "bg-primary text-primary-foreground shadow-soft"
-                : "text-foreground/70 hover:text-foreground",
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <span className="font-display text-sm sm:text-base leading-tight">{meta.days} days</span>
-            <span className={cn("text-[10px] uppercase tracking-wider", active ? "opacity-85" : "text-muted-foreground")}>
+            {active && (
+              <span aria-hidden className="absolute inset-x-0 -top-px h-0.5 bg-primary" />
+            )}
+            <span className="font-display text-sm sm:text-base leading-tight">{meta.days} Days</span>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
               {counts[h]} weekly steps
             </span>
           </button>
@@ -46,14 +54,14 @@ export function PlanHorizonTabs({
 
 export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
   return (
-    <li className="relative rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
+    <li className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
       <div className="flex flex-wrap items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
-          <span className="text-[9px] font-semibold uppercase tracking-wider opacity-80">Week</span>
+        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center border border-primary/40 text-primary">
+          <span className="text-[8px] font-semibold uppercase tracking-[0.18em] opacity-80">Week</span>
           <span className="font-display text-xl leading-none">{step.week}</span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
             {step.focus}
           </p>
           <h3 className="mt-1 font-display text-lg leading-snug text-foreground">{step.action}</h3>

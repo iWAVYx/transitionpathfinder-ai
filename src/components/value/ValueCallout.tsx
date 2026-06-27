@@ -38,8 +38,9 @@ export function ValueCallout({ data, variant = "inline", className }: Props) {
     <aside
       aria-label="What this means and what to do next"
       className={cn(
-        "rounded-2xl border border-primary/15 bg-primary/[0.03] p-5 text-sm leading-relaxed sm:p-6",
-        variant === "card" && "shadow-soft",
+        variant === "card"
+          ? "rounded-2xl border border-primary/15 bg-primary/[0.03] p-5 text-sm leading-relaxed shadow-soft sm:p-6"
+          : "border-l-2 border-primary/40 pl-5 py-2 text-sm leading-relaxed",
         className,
       )}
     >
