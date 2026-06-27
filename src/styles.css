@@ -5224,3 +5224,341 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .pathway-spine-node.is-link:hover .pathway-spine-label {
   color: var(--spine-ink);
 }
+
+/* ============================================================================
+ * V2 — TransitionForward Pathway Issue (Architectural Editorial)
+ * Locked: Ocean Deep palette · DM Serif Display × Fira Sans · Magazine spread
+ * · Horizontal pathway thread across the top of every page.
+ * Scoped to .tf-v2 so the rest of the product is unaffected.
+ * ========================================================================== */
+
+.tf-v2 {
+  --v2-paper:       #f5f0e0;
+  --v2-paper-soft:  #efe9d7;
+  --v2-ink:         #0c2340;
+  --v2-ink-mid:     #1a4a6e;
+  --v2-teal:        #2d8a9e;
+  --v2-teal-soft:   color-mix(in oklab, #2d8a9e 14%, transparent);
+  --v2-rule:        color-mix(in oklab, #0c2340 20%, transparent);
+  --v2-rule-soft:   color-mix(in oklab, #0c2340 10%, transparent);
+  --v2-serif:       "DM Serif Display", "Cormorant Garamond", Georgia, serif;
+  --v2-sans:        "Fira Sans", "Plus Jakarta Sans", system-ui, sans-serif;
+  --v2-page-max:    72rem;
+
+  background: var(--v2-paper);
+  color: var(--v2-ink);
+  font-family: var(--v2-sans);
+  font-size: clamp(15px, 1.02vw, 17px);
+  line-height: 1.6;
+  font-feature-settings: "ss01", "ss02", "kern";
+}
+
+.tf-v2 ::selection { background: var(--v2-teal-soft); color: var(--v2-ink); }
+
+/* ---------------------- Page frame ---------------------- */
+.tf-v2-frame {
+  width: 100%;
+  max-width: var(--v2-page-max);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 3.5vw, 3rem);
+  padding-block: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* ---------------------- Masthead ------------------------ */
+.tf-v2-masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--v2-rule);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.tf-v2-masthead .vol { opacity: 0.6; font-style: italic; letter-spacing: 0.1em; }
+
+/* ---------------------- Pathway thread ------------------ */
+.tf-v2-thread { position: relative; }
+.tf-v2-thread-rail {
+  position: absolute; left: 0; right: 0; top: 8px; height: 1px;
+  background: var(--v2-rule);
+  z-index: 0;
+}
+.tf-v2-thread-fill {
+  position: absolute; left: 0; top: 8px; height: 1px;
+  background: var(--v2-teal);
+  z-index: 1;
+  transition: width 380ms ease;
+}
+.tf-v2-thread-list {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: start;
+  gap: 0.25rem;
+}
+.tf-v2-thread-node {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  background: transparent; border: 0;
+  color: inherit; cursor: pointer; padding: 0; text-decoration: none;
+}
+.tf-v2-thread-node .dot {
+  width: 12px; height: 12px; border-radius: 999px;
+  background: var(--v2-paper); border: 1px solid var(--v2-ink);
+  box-shadow: 0 0 0 4px var(--v2-paper);
+  transition: transform 180ms ease, background 180ms ease;
+}
+.tf-v2-thread-node[data-state="passed"] .dot { background: var(--v2-ink); border-color: var(--v2-ink); }
+.tf-v2-thread-node[data-state="current"] .dot {
+  width: 22px; height: 22px;
+  background: var(--v2-teal); border: 2px solid var(--v2-ink);
+  position: relative;
+}
+.tf-v2-thread-node[data-state="current"] .dot::after {
+  content: ""; position: absolute; inset: 6px; border-radius: 999px;
+  background: var(--v2-paper);
+}
+.tf-v2-thread-node .lbl {
+  font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase;
+  font-weight: 700; opacity: 0.45;
+  white-space: nowrap;
+}
+.tf-v2-thread-node[data-state="current"] .lbl { color: var(--v2-teal); opacity: 1; }
+.tf-v2-thread-node[data-state="passed"] .lbl { opacity: 0.85; color: var(--v2-ink); }
+.tf-v2-thread-node:hover .dot { transform: scale(1.15); }
+.tf-v2-thread-node:focus-visible { outline: 2px solid var(--v2-teal); outline-offset: 6px; border-radius: 2px; }
+
+@media (max-width: 720px) {
+  .tf-v2-thread-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tf-v2-thread { min-width: 640px; }
+  .tf-v2-thread-node .lbl { font-size: 9px; }
+}
+
+/* ---------------------- Cover spread -------------------- */
+.tf-v2-spread {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+@media (min-width: 1024px) {
+  .tf-v2-spread { grid-template-columns: 5fr 7fr; gap: 3rem; }
+}
+
+.tf-v2-cover {
+  position: relative;
+  background: var(--v2-ink);
+  color: var(--v2-paper);
+  aspect-ratio: 3 / 4;
+  padding: clamp(1.75rem, 3vw, 3rem);
+  display: flex; flex-direction: column; justify-content: space-between;
+  overflow: hidden;
+}
+.tf-v2-cover::before {
+  content: "";
+  position: absolute; right: -4rem; top: 25%;
+  width: 16rem; height: 16rem; border-radius: 999px;
+  border: 2px solid color-mix(in oklab, #2d8a9e 30%, transparent);
+  pointer-events: none;
+}
+.tf-v2-cover-kicker {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--v2-teal); font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+.tf-v2-cover-title {
+  font-family: var(--v2-serif);
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  position: relative; z-index: 2;
+}
+.tf-v2-cover-quote {
+  font-family: var(--v2-serif);
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+  line-height: 1.35;
+  border-left: 2px solid var(--v2-teal);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  margin: 0 0 1.5rem;
+  max-width: 28rem;
+  position: relative; z-index: 2;
+}
+.tf-v2-cover-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.85rem 1.25rem;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: none;
+  transition: background 180ms ease, color 180ms ease;
+}
+.tf-v2-cover-cta--primary { background: var(--v2-teal); color: var(--v2-paper); }
+.tf-v2-cover-cta--primary:hover { background: var(--v2-ink-mid); }
+.tf-v2-cover-cta--ghost {
+  background: transparent; color: var(--v2-paper);
+  border: 1px solid color-mix(in oklab, #f5f0e0 40%, transparent);
+}
+.tf-v2-cover-cta--ghost:hover { background: var(--v2-paper); color: var(--v2-ink); }
+
+.tf-v2-cover-meta {
+  margin-top: 1.5rem;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+}
+.tf-v2-cover-meta > div {
+  background: var(--v2-ink-mid); color: var(--v2-paper);
+  padding: 0.85rem 1rem;
+}
+.tf-v2-cover-meta .lbl {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  opacity: 0.6; margin-bottom: 0.2rem;
+}
+.tf-v2-cover-meta .val { font-weight: 600; font-size: 13px; }
+
+/* ---------------------- Welcome panel ------------------- */
+.tf-v2-welcome { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+@media (min-width: 720px) { .tf-v2-welcome { grid-template-columns: 1fr 1fr; gap: 2.5rem; } }
+.tf-v2-welcome h2 {
+  grid-column: 1 / -1;
+  font-family: var(--v2-serif); font-weight: 400;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--v2-ink);
+  margin: 0 0 1rem;
+}
+.tf-v2-welcome p.lead { font-size: 1.05rem; line-height: 1.6; }
+.tf-v2-welcome .how-h {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  font-weight: 700; color: var(--v2-teal); margin-bottom: 0.75rem;
+}
+.tf-v2-welcome ul { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+.tf-v2-welcome li {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  font-weight: 600; font-size: 0.95rem; padding: 0.25rem 0;
+}
+.tf-v2-welcome li::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: var(--v2-teal); margin-top: 0.55rem; flex-shrink: 0;
+}
+
+/* ---------------------- Contents page ------------------- */
+.tf-v2-contents {
+  margin-top: clamp(3rem, 6vw, 5rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 4px solid var(--v2-ink);
+}
+.tf-v2-contents-h {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 700; color: var(--v2-teal); margin-bottom: 2rem;
+}
+.tf-v2-contents-part { margin-top: 1.5rem; }
+.tf-v2-contents-part:first-of-type { margin-top: 0; }
+.tf-v2-contents-part-head {
+  display: flex; align-items: baseline; gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.tf-v2-contents-part-num {
+  font-family: var(--v2-serif); font-size: 1.85rem; color: var(--v2-teal);
+}
+.tf-v2-contents-part-title {
+  font-family: var(--v2-serif); font-size: 1.35rem;
+}
+.tf-v2-contents-part-dek {
+  font-size: 0.9rem; opacity: 0.7; margin: 0 0 0.75rem 0;
+  padding-left: 2.85rem;
+}
+.tf-v2-contents-list { list-style: none; padding: 0; margin: 0; }
+.tf-v2-contents-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 1.25rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--v2-rule-soft);
+  text-decoration: none; color: inherit;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+.tf-v2-contents-row:hover {
+  border-bottom-color: var(--v2-teal);
+  color: var(--v2-teal);
+}
+.tf-v2-contents-row .num {
+  font-family: var(--v2-serif); font-size: 1.5rem;
+  color: var(--v2-teal); min-width: 2ch;
+}
+.tf-v2-contents-row .title { font-weight: 600; font-size: 1.02rem; display: block; }
+.tf-v2-contents-row .dek { font-size: 0.88rem; opacity: 0.7; display: block; margin-top: 0.15rem; }
+.tf-v2-contents-row .page {
+  font-family: var(--v2-serif); font-style: italic; font-size: 1.05rem; opacity: 0.8;
+  white-space: nowrap;
+}
+
+/* ---------------------- Chapter spread (next pass) ------ */
+.tf-v2-chapter { margin-top: clamp(2rem, 4vw, 3.5rem); }
+.tf-v2-chapter-head {
+  display: grid; grid-template-columns: 1fr; gap: 0.75rem;
+  border-bottom: 1px solid var(--v2-ink);
+  padding-bottom: 1rem; margin-bottom: 1.75rem;
+}
+.tf-v2-chapter-kicker {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 700; color: var(--v2-teal);
+}
+.tf-v2-chapter-title {
+  font-family: var(--v2-serif); font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.05; letter-spacing: -0.005em;
+  margin: 0;
+}
+.tf-v2-chapter-dek {
+  font-family: var(--v2-serif); font-style: italic;
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  line-height: 1.4;
+  max-width: 56ch; opacity: 0.85; margin: 0;
+}
+.tf-v2-chapter-body {
+  display: grid; grid-template-columns: 1fr; gap: 2rem;
+}
+@media (min-width: 900px) {
+  .tf-v2-chapter-body { grid-template-columns: 7fr 5fr; gap: 3rem; }
+}
+.tf-v2-chapter-body p { max-width: 66ch; }
+.tf-v2-chapter-body p + p { margin-top: 1rem; }
+.tf-v2-sidebar {
+  background: var(--v2-paper-soft);
+  border-top: 3px solid var(--v2-teal);
+  padding: 1.25rem 1.4rem;
+}
+.tf-v2-sidebar-h {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  font-weight: 700; color: var(--v2-teal); margin-bottom: 0.6rem;
+}
+
+/* ---------------------- Folio / page foot --------------- */
+.tf-v2-foot {
+  margin-top: clamp(3rem, 6vw, 5rem);
+  padding-top: 1rem;
+  border-top: 1px solid var(--v2-rule);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  font-size: 12px;
+}
+.tf-v2-foot a {
+  text-decoration: none; color: var(--v2-ink); font-weight: 600;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  letter-spacing: 0.04em;
+}
+.tf-v2-foot a:hover { color: var(--v2-teal); }
+.tf-v2-foot .folio {
+  font-family: var(--v2-serif); font-style: italic; font-size: 1rem; opacity: 0.7;
+  text-align: center;
+}
+.tf-v2-foot .next { justify-content: end; }
+.tf-v2-foot .lbl { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; display: block; }
