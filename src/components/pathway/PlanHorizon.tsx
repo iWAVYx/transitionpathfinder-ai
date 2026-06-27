@@ -16,7 +16,12 @@ export function PlanHorizonTabs({
 }) {
   const horizons: PlanHorizon[] = ["thirty", "sixty", "ninety"];
   return (
-    <div className={cn("inline-flex rounded-2xl border bg-card p-1 shadow-soft", className)}>
+    <div
+      className={cn(
+        "inline-flex divide-x divide-[color:var(--pub-rule-soft,theme(colors.border))] border-y border-[color:var(--pub-rule-soft,theme(colors.border))]",
+        className,
+      )}
+    >
       {horizons.map((h) => {
         const meta = HORIZON_META[h];
         const active = value === h;
@@ -27,14 +32,17 @@ export function PlanHorizonTabs({
             onClick={() => onChange(h)}
             aria-pressed={active}
             className={cn(
-              "flex flex-col items-start rounded-xl px-3 py-1.5 text-left transition-colors sm:px-4 sm:py-2",
+              "relative flex flex-col items-start px-4 py-2 text-left transition-colors",
               active
-                ? "bg-primary text-primary-foreground shadow-soft"
-                : "text-foreground/70 hover:text-foreground",
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <span className="font-display text-sm sm:text-base leading-tight">{meta.days} days</span>
-            <span className={cn("text-[10px] uppercase tracking-wider", active ? "opacity-85" : "text-muted-foreground")}>
+            {active && (
+              <span aria-hidden className="absolute inset-x-0 -top-px h-0.5 bg-primary" />
+            )}
+            <span className="font-display text-sm sm:text-base leading-tight">{meta.days} Days</span>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
               {counts[h]} weekly steps
             </span>
           </button>
