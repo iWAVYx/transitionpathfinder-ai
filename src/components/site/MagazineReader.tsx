@@ -10,6 +10,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DEMO_STUDENTS, type DemoStudentId } from "@/lib/demo-data";
+import { PathwaySpine } from "@/components/publication/PathwaySpine";
+import { DEMO_CHAPTER_TO_MILESTONE } from "@/lib/publication/chapters";
 
 /**
  * Canonical reader page order — used by both the chrome (prev/next, indicator,
@@ -171,10 +173,16 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
           </Button>
         </div>
 
-        {/* Hairline progress */}
-        <div className="mx-auto h-[2px] max-w-7xl bg-[color:var(--demo-primary)]/10" aria-hidden>
+        {/* Pathway Spine — the visible thread of the planning journey.
+            Replaces the old hairline progress with eight named milestones
+            so the user can see where the current chapter sits in the flow
+            from input → insight → action. */}
+        <div className="mx-auto max-w-7xl px-3 pb-2 pt-1 sm:px-6 lg:px-12">
+          <PathwaySpine active={DEMO_CHAPTER_TO_MILESTONE[currentId] ?? "intake"} />
+        </div>
+        <div className="mx-auto h-[1px] max-w-7xl bg-[color:var(--demo-primary)]/10" aria-hidden>
           <div
-            className="h-full bg-gradient-to-r from-[color:var(--demo-primary)] to-[color:var(--demo-accent)] transition-transform duration-700 ease-out origin-left"
+            className="h-full bg-[color:var(--demo-ink,#0c2340)] transition-transform duration-700 ease-out origin-left"
             style={{ transform: `scaleX(${progressPct / 100})` }}
           />
         </div>

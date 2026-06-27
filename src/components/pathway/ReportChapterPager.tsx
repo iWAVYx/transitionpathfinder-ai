@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, List, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PathwaySpine } from "@/components/publication/PathwaySpine";
+import { REPORT_SECTION_TO_MILESTONE } from "@/lib/publication/chapters";
 
 /**
  * In-report chapter pager. Sticky bar above the Pathway Report with
@@ -80,8 +82,13 @@ export function ReportChapterPager() {
     {},
   );
 
+  const activeMilestone = REPORT_SECTION_TO_MILESTONE[current.id] ?? "intake";
+
   return (
     <div className="mag-reportpager">
+      <div className="mx-auto max-w-7xl px-3 pt-2 sm:px-6 lg:px-12">
+        <PathwaySpine active={activeMilestone} />
+      </div>
       <div className="mag-reportpager-inner">
         <Button
           variant="ghost"
