@@ -4421,3 +4421,146 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .eh-issue table { max-width: 100%; }
 
 /* End of READABILITY & RHYTHM POLISH */
+
+/* ================================================================
+ * PAGE-FRAME & DE-TILE POLISH  (v4.2)
+ * ----------------------------------------------------------------
+ * Bug-fix layer for the publication system. The page-card framing
+ * in the v4.0/v4.1 layers only matched `.eh-issue > section`, so
+ * every demo step rendered via <PublicationPage> (an <article>) and
+ * the ReportView wrapped in `.report-shell` were running edge-to-
+ * edge. This layer extends the page card to those elements, calms
+ * residual tiled/rounded card styling inside publication bodies,
+ * and strengthens reading margins on tablet + desktop.
+ *
+ * Strictly additive. Scoped to `.eh-issue` so dashboards and other
+ * product surfaces are not affected.
+ * ================================================================ */
+
+.eh-issue {
+  /* Slightly larger page max-width for desktop reading comfort */
+  --pub-page-max: 72rem;
+  /* Generous outer page gutter (~1.25in desktop, ~0.6in tablet, 1rem mobile) */
+  --pub-page-gutter-x: clamp(1rem, 5vw, 4.5rem);
+  --pub-page-gutter-y: clamp(1.5rem, 3.5vw, 3rem);
+}
+
+/* === Page card framing — applies to <article.pub-page> and the
+ *     ReportView shell, not only top-level <section>s ============== */
+.eh-issue > article.pub-page,
+.eh-issue > .report-shell > section.report-root {
+  position: relative;
+  margin: 1.75rem auto 0;
+  padding: var(--pub-page-gutter-y) var(--pub-page-gutter-x);
+  max-width: var(--pub-page-max);
+  background: var(--pub-page);
+  border: 1px solid var(--pub-rule);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 0 var(--pub-rule-soft),
+    0 30px 50px -38px rgba(12, 35, 64, 0.22);
+  overflow-x: clip;
+}
+.eh-issue > article.pub-page::before,
+.eh-issue > .report-shell > section.report-root::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--pub-accent) 0%, var(--pub-accent-soft) 60%, transparent 100%);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+/* The report-shell itself must not constrain or repad its child */
+.eh-issue > .report-shell { padding: 0; background: transparent; }
+.eh-issue > .report-shell > section.report-root {
+  /* ReportView already applies px/py utilities — neutralize so our
+     gutter tokens are the single source of truth. */
+  padding-left: var(--pub-page-gutter-x) !important;
+  padding-right: var(--pub-page-gutter-x) !important;
+  padding-top: var(--pub-page-gutter-y) !important;
+  padding-bottom: var(--pub-page-gutter-y) !important;
+  max-width: var(--pub-page-max) !important;
+}
+.eh-issue > article.pub-page + article.pub-page { margin-top: 1.25rem; }
+
+/* Section bar inside report wrappers: a hairline rule top */
+
+/* Pull the existing top-level section frame in line with new gutters */
+.eh-issue > section {
+  max-width: var(--pub-page-max);
+  padding-left: var(--pub-page-gutter-x);
+  padding-right: var(--pub-page-gutter-x);
+}
+
+/* === De-tile residual card / rounded-box styling inside reading body */
+/* These rules calm shadcn / dashboard-style cards that still appear in
+ * publication bodies. Boxes only remain when they carry a clear
+ * document purpose (callout, sidebar, checklist). */
+.eh-issue .pub-page-body .rounded-2xl,
+.eh-issue .pub-page-body .rounded-xl,
+.eh-issue .pub-page-body [class*="shadow-"],
+.eh-issue .pub-page-body .bg-card,
+.eh-issue .report-root .rounded-2xl,
+.eh-issue .report-root .bg-card {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 2px !important;
+}
+.eh-issue .pub-page-body .border.bg-card,
+.eh-issue .pub-page-body .border.rounded-2xl,
+.eh-issue .report-root .border.bg-card,
+.eh-issue .report-root .border.rounded-2xl {
+  border-color: var(--pub-rule) !important;
+}
+/* Allow pub-sidebar / pub-callout / pub-checklist their own framing */
+.eh-issue .pub-sidebar,
+.eh-issue .pub-callout,
+.eh-issue .pub-checklist { background-color: revert; }
+
+/* === Heading + body friendliness pass =========================== */
+.eh-issue .pub-page-title { font-size: clamp(2.25rem, 4.6vw, 3.4rem); }
+.eh-issue .pub-page-body { font-size: clamp(1.04rem, 0.98rem + 0.2vw, 1.125rem); line-height: 1.72; }
+.eh-issue .pub-page-body p { max-width: 68ch; }
+.eh-issue .pub-page-body h2 {
+  font-size: clamp(1.65rem, 2.6vw, 2rem);
+  margin-top: 2.75rem;
+}
+.eh-issue .pub-page-body h3 { font-size: 1.125rem; margin-top: 1.85rem; }
+.eh-issue .text-muted-foreground { color: var(--pub-mute); }
+
+/* Tablet: keep card slightly inset from viewport edge */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .eh-issue { --pub-page-gutter-x: clamp(1.5rem, 5vw, 2.75rem); }
+  .eh-issue > article.pub-page,
+  .eh-issue > .report-shell > section.report-root,
+  .eh-issue > section { margin-left: clamp(1rem, 3vw, 2rem); margin-right: clamp(1rem, 3vw, 2rem); max-width: calc(var(--pub-page-max) - 2rem); }
+}
+
+/* Mobile: tighter gutters, no card border so reading space wins */
+@media (max-width: 640px) {
+  .eh-issue { --pub-page-gutter-x: 1.1rem; --pub-page-gutter-y: 1.5rem; }
+  .eh-issue > article.pub-page,
+  .eh-issue > .report-shell > section.report-root {
+    margin-top: 1rem;
+    border-radius: 3px;
+  }
+}
+
+/* Print parity for article-based pages */
+@media print {
+  .eh-issue > article.pub-page,
+  .eh-issue > .report-shell > section.report-root {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 1.5cm !important;
+    max-width: none !important;
+    page-break-after: always;
+  }
+  .eh-issue > article.pub-page::before,
+  .eh-issue > .report-shell > section.report-root::before { display: none; }
+}
+
+/* End of PAGE-FRAME & DE-TILE POLISH */
