@@ -1,33 +1,25 @@
 /**
  * Content Hub Registry — single source of truth for TransitionForward's hub
- * architecture. Drives nav, footers, related-links rails, and the resource
- * library facets.
+ * architecture.
  *
- * Rules:
- * - Public hubs use demo/sample content only — never private student data.
- * - Signed-in hubs live behind the standard `_authenticated` gate.
- * - Partner hubs MUST NOT reference student PII, documents, voice, or reports.
- * - Every spoke should declare how it feeds the Pathway Report (or null
- *   if it doesn't — most hub spokes will).
- *
- * The registry is intentionally static TS. No backend reads, no migrations.
+ * IMPORTANT POLICY (set 2026-06-27):
+ * - All product hubs are SIGNED-IN ONLY. There are no public marketing hubs.
+ * - The only public "hub-style" preview is the Demo Workspace (`/demo/*`),
+ *   which uses sample data and is intentionally not modeled in this registry.
+ * - Partner hubs MUST NOT reference student PII, documents, voice, goals,
+ *   meetings, or pathway reports. Enforced by `PARTNER_FORBIDDEN_SPOKE_TOPICS`
+ *   and `tests/unit/hub-registry.test.ts`.
  */
 
 export type HubAudience =
-  | "public"
-  | "family"
   | "student"
+  | "family"
   | "educator"
   | "school_admin"
   | "district_admin"
   | "partner"
-  | "owner";
+  | "admin";
 
-/**
- * Pathway Report sections a spoke can feed. Keep aligned with the actual
- * chapters in `src/components/pathway/ReportView.tsx` so the cross-links
- * are real, not aspirational.
- */
 export type ReportSectionId =
   | "snapshot"
   | "student_voice"
@@ -45,13 +37,9 @@ export type ReportSectionId =
 export interface HubSpoke {
   id: string;
   title: string;
-  /** One-line value statement — keep human, no SEO filler. */
   description: string;
-  /** Internal route the spoke links to (existing route — don't invent). */
   to: string;
-  /** Pathway Report section this spoke informs, if any. */
   feedsReport: ReportSectionId | null;
-  /** Optional: tag for the resource-library filters. */
   topic?: string;
   resourceType?:
     | "guide"
@@ -66,350 +54,22 @@ export interface HubSpoke {
 
 export interface HubDefinition {
   id: string;
-  /** URL slug after `/hubs/` (public) or `/hubs/` under `_authenticated`. */
+  /** URL slug after `/hubs/` under `_authenticated`. */
   slug: string;
   audience: HubAudience;
-  signedIn: boolean;
-  /** Pillar headline — what the hub is. */
+  /** Always true for product hubs — kept for the test invariant. */
+  signedIn: true;
   title: string;
-  /** Who it's for. */
   who: string;
-  /** Problem it solves. */
   problem: string;
-  /** What action the user should take next on this hub. */
   nextAction: { label: string; to: string };
   spokes: HubSpoke[];
-  /** Other hub ids this one links to. Used by RelatedLinksRail. */
   related: string[];
-  /** Short statement of how this hub connects to the Pathway Report. */
   pathwayConnection: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Public hubs
-// ─────────────────────────────────────────────────────────────────────────────
-
-const TRANSITION_PLANNING: HubDefinition = {
-  id: "transition-planning",
-  slug: "transition-planning",
-  audience: "public",
-  signedIn: false,
-  title: "Transition Planning Hub",
-  who: "Families, students, and educators new to Connecticut transition planning.",
-  problem:
-    "Transition planning lives across IEPs, meetings, forms, and conversations. This hub gathers every input that shapes a student's pathway in one place.",
-  nextAction: { label: "See A Sample Pathway Report", to: "/demo/report" },
-  pathwayConnection:
-    "Every spoke on this hub becomes a section of the Pathway Report — student voice, family priorities, educator input, documents, and readiness all flow into one plan.",
-  spokes: [
-    {
-      id: "student-voice",
-      title: "Student Voice",
-      description: "What the student wants — interests, goals, worries, and dreams.",
-      to: "/demo/voice",
-      feedsReport: "student_voice",
-      topic: "voice",
-      resourceType: "tool",
-    },
-    {
-      id: "family-priorities",
-      title: "Family Priorities",
-      description: "What matters most to the family for life after high school.",
-      to: "/families",
-      feedsReport: "family_priorities",
-      topic: "family",
-      resourceType: "guide",
-    },
-    {
-      id: "educator-input",
-      title: "Educator Input",
-      description: "Case manager observations, supports, and team recommendations.",
-      to: "/educators",
-      feedsReport: "educator_input",
-      topic: "educator",
-      resourceType: "guide",
-    },
-    {
-      id: "documents",
-      title: "Document Uploads",
-      description: "IEPs, evaluations, and assessments — read into structured insights.",
-      to: "/demo/documents",
-      feedsReport: "documents",
-      topic: "documents",
-      resourceType: "tool",
-    },
-    {
-      id: "readiness-areas",
-      title: "Readiness Areas",
-      description: "Employment, education, independent living, and self-advocacy.",
-      to: "/demo/intake",
-      feedsReport: "readiness",
-      topic: "readiness",
-      resourceType: "checklist",
-    },
-    {
-      id: "pathway-report",
-      title: "Pathway Report",
-      description: "The flagship plan — one family-friendly document with every input.",
-      to: "/demo/report",
-      feedsReport: null,
-      topic: "report",
-      resourceType: "example",
-    },
-    {
-      id: "plan-30-60-90",
-      title: "30/60/90 Planning",
-      description: "Concrete next steps for the next month, quarter, and semester.",
-      to: "/demo/plan",
-      feedsReport: "plan_30_60_90",
-      topic: "planning",
-      resourceType: "template",
-    },
-    {
-      id: "questions-for-team",
-      title: "Questions For The Team",
-      description: "Family-ready questions to bring to the next PPT meeting.",
-      to: "/demo/meeting",
-      feedsReport: "questions_for_team",
-      topic: "meeting",
-      resourceType: "questions",
-    },
-  ],
-  related: ["bridgeforward", "family-resource", "school-district", "partner-network", "student-planning"],
-};
-
-const BRIDGEFORWARD: HubDefinition = {
-  id: "bridgeforward",
-  slug: "bridgeforward",
-  audience: "public",
-  signedIn: false,
-  title: "BridgeForward Hub (Grades 6–8)",
-  who: "Middle-school students, their families, and the educators bridging them into high school.",
-  problem:
-    "The middle-to-high-school jump is where transition planning starts — but most families don't see it framed that way until grade 9. BridgeForward gathers the strengths-finding, high-school comparison, and early goal-setting work that makes grade 9 feel intentional.",
-  nextAction: { label: "Explore BridgeForward", to: "/bridgeforward" },
-  pathwayConnection:
-    "BridgeForward inputs (interests, strengths, preferred high-school environment) seed the Student Voice and Readiness chapters of the Pathway Report once a student moves into grade 9.",
-  spokes: [
-    {
-      id: "bridgeforward-overview",
-      title: "BridgeForward Overview",
-      description: "How the grade 6–8 bridge program connects to the full TransitionForward pathway.",
-      to: "/bridgeforward",
-      feedsReport: "snapshot",
-      topic: "bridgeforward",
-      resourceType: "guide",
-    },
-    {
-      id: "bridge-strengths",
-      title: "Strengths & Interests",
-      description: "Discover what a younger student loves and is good at — the seed of every plan.",
-      to: "/demo/voice",
-      feedsReport: "student_voice",
-      topic: "voice",
-      resourceType: "tool",
-    },
-    {
-      id: "bridge-readiness",
-      title: "Early Readiness",
-      description: "Independent living, self-advocacy, and learning habits that matter in high school.",
-      to: "/demo/intake",
-      feedsReport: "readiness",
-      topic: "readiness",
-      resourceType: "checklist",
-    },
-    {
-      id: "bridge-family-prep",
-      title: "Family Preparation",
-      description: "What families can do in grades 6–8 to set up a confident grade 9 PPT.",
-      to: "/families",
-      feedsReport: "family_priorities",
-      topic: "family",
-      resourceType: "guide",
-    },
-  ],
-  related: ["transition-planning", "family-resource"],
-};
-
-const FAMILY_RESOURCE: HubDefinition = {
-  id: "family-resource",
-  slug: "family-resource",
-  audience: "family",
-  signedIn: false,
-  title: "Family Resource Hub",
-  who: "Parents and caregivers of Connecticut students with IEPs or 504 plans.",
-  problem:
-    "Families often hear acronyms (PPT, IEP, transition plan) without a clear map of how the pieces fit together. This hub puts plain-language guides and meeting prep tools in one place.",
-  nextAction: { label: "Walk Through The Family View", to: "/families" },
-  pathwayConnection:
-    "Family Priorities and Questions For The Team draw directly from what families share through this hub.",
-  spokes: [
-    {
-      id: "family-overview",
-      title: "For Families",
-      description: "Plain-language tour of TransitionForward from a family's perspective.",
-      to: "/families",
-      feedsReport: "family_priorities",
-      topic: "family",
-      resourceType: "guide",
-    },
-    {
-      id: "family-priorities-input",
-      title: "Family Priorities",
-      description: "What matters most to your family for life after high school.",
-      to: "/demo/intake",
-      feedsReport: "family_priorities",
-      topic: "family",
-      resourceType: "tool",
-    },
-    {
-      id: "family-meeting-prep",
-      title: "PPT / IEP Meeting Prep",
-      description: "Walk into the next meeting with the questions you want answered.",
-      to: "/demo/meeting",
-      feedsReport: "questions_for_team",
-      topic: "meeting",
-      resourceType: "questions",
-    },
-    {
-      id: "family-report-sample",
-      title: "Sample Pathway Report",
-      description: "See what the family-friendly plan looks like before signing in.",
-      to: "/demo/report",
-      feedsReport: null,
-      topic: "report",
-      resourceType: "example",
-    },
-    {
-      id: "family-resources",
-      title: "Resource Library",
-      description: "Filterable library of guides, checklists, and templates.",
-      to: "/resources",
-      feedsReport: null,
-      topic: "resources",
-      resourceType: "guide",
-    },
-  ],
-  related: ["transition-planning", "bridgeforward", "school-district"],
-};
-
-const SCHOOL_DISTRICT: HubDefinition = {
-  id: "school-district",
-  slug: "school-district",
-  audience: "school_admin",
-  signedIn: false,
-  title: "School & District Hub",
-  who: "Special education leaders, transition coordinators, and district administrators.",
-  problem:
-    "Districts need a clear story for how TransitionForward supports educators, families, and compliance — without forcing a new system on top of the IEP.",
-  nextAction: { label: "See The Educator View", to: "/educators" },
-  pathwayConnection:
-    "Educator Input flows into every Pathway Report. District-wide adoption is what makes the Pathway Report a shared document instead of one more form.",
-  spokes: [
-    {
-      id: "educators-overview",
-      title: "For Educators",
-      description: "Less paperwork, more student support — tools built for CT special educators.",
-      to: "/educators",
-      feedsReport: "educator_input",
-      topic: "educator",
-      resourceType: "guide",
-    },
-    {
-      id: "platform-overview",
-      title: "The Platform",
-      description: "How the parts of TransitionForward fit together for a district.",
-      to: "/platform",
-      feedsReport: null,
-      topic: "platform",
-      resourceType: "guide",
-    },
-    {
-      id: "framework-overview",
-      title: "The Framework",
-      description: "The evidence-based framework behind every recommendation.",
-      to: "/framework",
-      feedsReport: null,
-      topic: "framework",
-      resourceType: "guide",
-    },
-    {
-      id: "district-pricing",
-      title: "Pricing & Implementation",
-      description: "What district adoption looks like, including funding and rollout.",
-      to: "/pricing",
-      feedsReport: null,
-      topic: "implementation",
-      resourceType: "implementation",
-    },
-    {
-      id: "research",
-      title: "Research",
-      description: "The evidence behind every suggestion in the Pathway Report.",
-      to: "/research",
-      feedsReport: null,
-      topic: "research",
-      resourceType: "guide",
-    },
-  ],
-  related: ["transition-planning", "partner-network", "family-resource"],
-};
-
-const PARTNER_NETWORK: HubDefinition = {
-  id: "partner-network",
-  slug: "partner-network",
-  audience: "partner",
-  signedIn: false,
-  title: "Partner Network Hub",
-  who: "Community partners, employers, agencies, and post-secondary programs serving CT youth.",
-  problem:
-    "Partners have programs that change students' lives but struggle to be discovered at the right moment. This hub explains how PartnerForward connects opportunities to readiness — without ever exposing student records.",
-  nextAction: { label: "Explore PartnerForward", to: "/partnerforward" },
-  pathwayConnection:
-    "Partner Matches in the Pathway Report surface opportunities to families and educators. Partners publish opportunities; the matching engine respects student privacy.",
-  spokes: [
-    {
-      id: "partnerforward-overview",
-      title: "PartnerForward",
-      description: "Incentives, tax credits, and supports for partners working with CT youth.",
-      to: "/partnerforward",
-      feedsReport: null,
-      topic: "partnerforward",
-      resourceType: "guide",
-    },
-    {
-      id: "partner-incentives",
-      title: "Incentives & Funding",
-      description: "Tax credits, grants, and sponsorship pathways for partner organizations.",
-      to: "/partnerforward/incentives",
-      feedsReport: null,
-      topic: "incentives",
-      resourceType: "funding",
-    },
-    {
-      id: "partner-directory",
-      title: "Partner Directory",
-      description: "Browse the public directory of approved community partners.",
-      to: "/partner-directory",
-      feedsReport: null,
-      topic: "partnerforward",
-      resourceType: "example",
-    },
-    {
-      id: "partner-interest",
-      title: "Join The Network",
-      description: "Apply to become a TransitionForward community partner.",
-      to: "/partner-interest",
-      feedsReport: null,
-      topic: "partnerforward",
-      resourceType: "implementation",
-    },
-  ],
-  related: ["school-district", "transition-planning"],
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Signed-in hubs
+// Signed-in role hubs
 // ─────────────────────────────────────────────────────────────────────────────
 
 const STUDENT_PLANNING: HubDefinition = {
@@ -418,69 +78,149 @@ const STUDENT_PLANNING: HubDefinition = {
   audience: "student",
   signedIn: true,
   title: "Student Planning Hub",
-  who: "You — the student. This is your space to shape your pathway.",
+  who: "You — the student. Your space to shape your pathway.",
   problem:
     "Your IEP, your goals, and the people supporting you are scattered across meetings and paperwork. This hub gives you one place to share what matters and see your plan.",
   nextAction: { label: "Open My Pathway Report", to: "/reports" },
   pathwayConnection:
-    "What you share here — your voice, your goals, your priorities — becomes the heart of your Pathway Report. Nothing about you, without you.",
+    "What you share — your voice, your goals, your priorities — becomes the heart of your Pathway Report.",
   spokes: [
-    {
-      id: "my-voice",
-      title: "Share My Voice",
-      description: "Tell your team what you want, what you're worried about, and what you dream of.",
-      to: "/student-voice",
-      feedsReport: "student_voice",
-      topic: "voice",
-      resourceType: "tool",
-    },
-    {
-      id: "my-goals",
-      title: "Track My Goals",
-      description: "See progress on the goals in your IEP and add your own.",
-      to: "/goals",
-      feedsReport: "readiness",
-      topic: "goals",
-      resourceType: "tool",
-    },
-    {
-      id: "my-documents",
-      title: "My Documents",
-      description: "Your IEP and evaluations, organized and searchable.",
-      to: "/documents",
-      feedsReport: "documents",
-      topic: "documents",
-      resourceType: "tool",
-    },
-    {
-      id: "my-meetings",
-      title: "Prep For Meetings",
-      description: "Walk into your PPT with the questions you want answered.",
-      to: "/ppt-prep",
-      feedsReport: "questions_for_team",
-      topic: "meeting",
-      resourceType: "questions",
-    },
-    {
-      id: "my-report",
-      title: "My Pathway Report",
-      description: "Your plan, in one family-friendly document.",
-      to: "/reports",
-      feedsReport: null,
-      topic: "report",
-      resourceType: "example",
-    },
-    {
-      id: "my-opportunities",
-      title: "Opportunities For Me",
-      description: "Partner-matched programs that fit your interests and readiness.",
-      to: "/opportunities",
-      feedsReport: "partner_matches",
-      topic: "opportunities",
-      resourceType: "tool",
-    },
+    { id: "my-voice", title: "Share My Voice", description: "Tell your team what you want, worry about, and dream of.", to: "/student-voice", feedsReport: "student_voice", topic: "voice", resourceType: "tool" },
+    { id: "my-goals", title: "Track My Goals", description: "See progress on IEP goals and add your own.", to: "/goals", feedsReport: "readiness", topic: "goals", resourceType: "tool" },
+    { id: "my-readiness", title: "Readiness Areas", description: "Employment, education, independent living, self-advocacy.", to: "/reports", feedsReport: "readiness", topic: "readiness", resourceType: "checklist" },
+    { id: "my-report", title: "My Pathway Report", description: "Your plan, in one family-friendly document.", to: "/reports", feedsReport: null, topic: "report", resourceType: "example" },
+    { id: "my-meetings", title: "Prep For Meetings", description: "Walk into your PPT with the questions you want answered.", to: "/ppt-prep", feedsReport: "questions_for_team", topic: "meeting", resourceType: "questions" },
+    { id: "my-next-steps", title: "Next Steps", description: "Concrete actions for the next 30, 60, and 90 days.", to: "/reports", feedsReport: "plan_30_60_90", topic: "planning", resourceType: "template" },
   ],
-  related: ["transition-planning"],
+  related: [],
+};
+
+const FAMILY_PLANNING: HubDefinition = {
+  id: "family-planning",
+  slug: "family",
+  audience: "family",
+  signedIn: true,
+  title: "Family Planning Hub",
+  who: "Parents and guardians supporting a student through transition planning.",
+  problem:
+    "Forms, acronyms, and meeting prep pile up fast. This hub gives families a single place to share priorities, review documents, and walk into the next PPT prepared.",
+  nextAction: { label: "Open Our Pathway Report", to: "/reports" },
+  pathwayConnection:
+    "Family Priorities and Questions For The Team in the Pathway Report draw directly from what families share here.",
+  spokes: [
+    { id: "family-priorities", title: "Family Priorities", description: "What matters most for life after high school.", to: "/pathway", feedsReport: "family_priorities", topic: "family", resourceType: "tool" },
+    { id: "family-documents", title: "Documents", description: "IEPs, evaluations, and assessments — organized and searchable.", to: "/documents", feedsReport: "documents", topic: "documents", resourceType: "tool" },
+    { id: "family-questions", title: "Questions For The Team", description: "Family-ready questions to bring to the next PPT.", to: "/ppt-prep", feedsReport: "questions_for_team", topic: "meeting", resourceType: "questions" },
+    { id: "family-meetings", title: "Meeting Prep", description: "Get ready for the next PPT or IEP meeting.", to: "/meetings", feedsReport: "questions_for_team", topic: "meeting", resourceType: "guide" },
+    { id: "family-report", title: "Pathway Report", description: "The family-friendly plan, all in one place.", to: "/reports", feedsReport: null, topic: "report", resourceType: "example" },
+    { id: "family-actions", title: "Action Items", description: "The next 30/60/90 days for your student.", to: "/reports", feedsReport: "plan_30_60_90", topic: "planning", resourceType: "template" },
+  ],
+  related: [],
+};
+
+const CASELOAD_PLANNING: HubDefinition = {
+  id: "caseload-planning",
+  slug: "caseload",
+  audience: "educator",
+  signedIn: true,
+  title: "Caseload Planning Hub",
+  who: "Case managers, special educators, and transition coordinators.",
+  problem:
+    "Educators juggle records, reviews, and meetings across many students. This hub gathers caseload tools, document review, and Pathway Report workflows in one place.",
+  nextAction: { label: "Open My Caseload", to: "/caseload" },
+  pathwayConnection:
+    "Educator Input flows into every Pathway Report — readiness ratings, observations, and recommended next steps live here.",
+  spokes: [
+    { id: "case-caseload", title: "My Caseload", description: "Your assigned students and recent activity.", to: "/caseload", feedsReport: null, topic: "educator", resourceType: "tool" },
+    { id: "case-documents", title: "Document Review", description: "Review IEPs and evaluations across your caseload.", to: "/documents", feedsReport: "documents", topic: "documents", resourceType: "tool" },
+    { id: "case-input", title: "Educator Input", description: "Capture observations, supports, and recommendations.", to: "/pathway", feedsReport: "educator_input", topic: "educator", resourceType: "tool" },
+    { id: "case-readiness", title: "Readiness Tracking", description: "Track readiness across the four transition domains.", to: "/goals", feedsReport: "readiness", topic: "readiness", resourceType: "checklist" },
+    { id: "case-meetings", title: "Meeting Prep", description: "Templates and agendas for upcoming PPTs.", to: "/meeting-templates", feedsReport: "questions_for_team", topic: "meeting", resourceType: "template" },
+    { id: "case-reports", title: "Pathway Reports", description: "Draft and share Pathway Reports with families.", to: "/reports", feedsReport: null, topic: "report", resourceType: "example" },
+  ],
+  related: [],
+};
+
+const SCHOOL_IMPLEMENTATION: HubDefinition = {
+  id: "school-implementation",
+  slug: "school",
+  audience: "school_admin",
+  signedIn: true,
+  title: "School Implementation Hub",
+  who: "School-level special education leaders and administrators.",
+  problem:
+    "Schools need visibility into caseloads, team coordination, and compliance without losing sight of the student. This hub keeps school operations and transition planning aligned.",
+  nextAction: { label: "Open School Overview", to: "/school/overview" },
+  pathwayConnection:
+    "School-level implementation makes the Pathway Report a shared document instead of one more form.",
+  spokes: [
+    { id: "school-overview", title: "School Overview", description: "Caseloads, services, and team activity at a glance.", to: "/school/overview", feedsReport: null, topic: "school", resourceType: "tool" },
+    { id: "school-team", title: "Staff & Team", description: "Coordinate transition staff and service providers.", to: "/school/team", feedsReport: null, topic: "school", resourceType: "tool" },
+    { id: "school-reports", title: "School Reports", description: "Pathway Report status and compliance signals.", to: "/school/reports", feedsReport: null, topic: "report", resourceType: "example" },
+    { id: "school-impl", title: "Implementation", description: "Rollout checklists and adoption playbook.", to: "/school/implementation", feedsReport: null, topic: "implementation", resourceType: "implementation" },
+  ],
+  related: [],
+};
+
+const DISTRICT_STRATEGY: HubDefinition = {
+  id: "district-strategy",
+  slug: "district",
+  audience: "district_admin",
+  signedIn: true,
+  title: "District Strategy Hub",
+  who: "District-level special education and transition leadership.",
+  problem:
+    "Districts need program-level signal — readiness, service gaps, and adoption across schools — without losing FERPA discipline.",
+  nextAction: { label: "Open District Overview", to: "/district/overview" },
+  pathwayConnection:
+    "Aggregate readiness and Pathway Report adoption help districts target supports where they matter most.",
+  spokes: [
+    { id: "district-overview", title: "District Overview", description: "Program-level readiness and transition activity.", to: "/district/overview", feedsReport: null, topic: "district", resourceType: "tool" },
+    { id: "district-schools", title: "Schools", description: "Coverage and adoption across district schools.", to: "/district/schools", feedsReport: null, topic: "district", resourceType: "tool" },
+    { id: "district-team", title: "People & Access", description: "Manage district staff, roles, and access.", to: "/district/team", feedsReport: null, topic: "district", resourceType: "implementation" },
+    { id: "district-reports", title: "District Reports", description: "Aggregate signals — no student PII.", to: "/district/reports", feedsReport: null, topic: "report", resourceType: "example" },
+  ],
+  related: [],
+};
+
+const PARTNER_OPPORTUNITY: HubDefinition = {
+  id: "partner-opportunity",
+  slug: "partner",
+  audience: "partner",
+  signedIn: true,
+  title: "Partner Opportunity Hub",
+  who: "Community partners, employers, agencies, and post-secondary programs.",
+  problem:
+    "Partners need to publish opportunities and find supports without ever touching student records. This hub keeps partner work focused on programs and outcomes.",
+  nextAction: { label: "Open Partner Workspace", to: "/partners-manage" },
+  pathwayConnection:
+    "Partner-published opportunities surface to families and educators through the matching engine — never the other way around.",
+  spokes: [
+    { id: "partner-profile", title: "Partner Profile & Opportunities", description: "Publish and manage opportunities for CT students.", to: "/partners-manage", feedsReport: null, topic: "partnerforward", resourceType: "tool" },
+    { id: "partner-impact", title: "Partner Impact", description: "Aggregate impact across published opportunities.", to: "/partners-manage/impact", feedsReport: null, topic: "partnerforward", resourceType: "example" },
+    { id: "partner-incentives", title: "Incentives & Support", description: "PartnerForward incentives, tax credits, and grants.", to: "/partnerforward/incentives", feedsReport: null, topic: "incentives", resourceType: "funding" },
+  ],
+  related: [],
+};
+
+const PLATFORM_OPERATIONS: HubDefinition = {
+  id: "platform-operations",
+  slug: "admin",
+  audience: "admin",
+  signedIn: true,
+  title: "Platform Operations Hub",
+  who: "Platform owners and administrators.",
+  problem:
+    "Operations span waitlist, contacts, users, and demo content. This hub keeps platform oversight clean and auditable.",
+  nextAction: { label: "Open Admin", to: "/admin" },
+  pathwayConnection:
+    "Platform operations keep the Pathway Report pipeline healthy across districts and partners.",
+  spokes: [
+    { id: "admin-overview", title: "Admin Overview", description: "Platform-wide signal and queues.", to: "/admin", feedsReport: null, topic: "admin", resourceType: "tool" },
+    { id: "admin-insights", title: "Insights", description: "Cross-cutting insights across the platform.", to: "/insights", feedsReport: null, topic: "admin", resourceType: "example" },
+    { id: "admin-analytics", title: "Analytics", description: "Adoption and engagement analytics.", to: "/analytics", feedsReport: null, topic: "admin", resourceType: "example" },
+  ],
+  related: [],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -488,12 +228,13 @@ const STUDENT_PLANNING: HubDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const HUBS: Record<string, HubDefinition> = {
-  [TRANSITION_PLANNING.id]: TRANSITION_PLANNING,
-  [BRIDGEFORWARD.id]: BRIDGEFORWARD,
-  [FAMILY_RESOURCE.id]: FAMILY_RESOURCE,
-  [SCHOOL_DISTRICT.id]: SCHOOL_DISTRICT,
-  [PARTNER_NETWORK.id]: PARTNER_NETWORK,
   [STUDENT_PLANNING.id]: STUDENT_PLANNING,
+  [FAMILY_PLANNING.id]: FAMILY_PLANNING,
+  [CASELOAD_PLANNING.id]: CASELOAD_PLANNING,
+  [SCHOOL_IMPLEMENTATION.id]: SCHOOL_IMPLEMENTATION,
+  [DISTRICT_STRATEGY.id]: DISTRICT_STRATEGY,
+  [PARTNER_OPPORTUNITY.id]: PARTNER_OPPORTUNITY,
+  [PLATFORM_OPERATIONS.id]: PLATFORM_OPERATIONS,
 };
 
 export const HUB_IDS = Object.keys(HUBS);
@@ -502,12 +243,8 @@ export function getHub(id: string): HubDefinition | undefined {
   return HUBS[id];
 }
 
-export function publicHubs(): HubDefinition[] {
-  return Object.values(HUBS).filter((h) => !h.signedIn);
-}
-
 export function signedInHubsFor(audience: HubAudience): HubDefinition[] {
-  return Object.values(HUBS).filter((h) => h.signedIn && h.audience === audience);
+  return Object.values(HUBS).filter((h) => h.audience === audience);
 }
 
 /**
@@ -520,4 +257,9 @@ export const PARTNER_FORBIDDEN_SPOKE_TOPICS = [
   "report",
   "goals",
   "meeting",
+  "readiness",
+  "family",
+  "educator",
+  "school",
+  "district",
 ];

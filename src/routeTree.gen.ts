@@ -142,6 +142,12 @@ import { Route as AuthenticatedOwnerAdminsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOwnerActivityRouteImport } from './routes/_authenticated/owner.activity'
 import { Route as AuthenticatedMeetingsMeetingIdRouteImport } from './routes/_authenticated/meetings.$meetingId'
 import { Route as AuthenticatedHubsStudentRouteImport } from './routes/_authenticated/hubs.student'
+import { Route as AuthenticatedHubsSchoolRouteImport } from './routes/_authenticated/hubs.school'
+import { Route as AuthenticatedHubsPartnerRouteImport } from './routes/_authenticated/hubs.partner'
+import { Route as AuthenticatedHubsFamilyRouteImport } from './routes/_authenticated/hubs.family'
+import { Route as AuthenticatedHubsDistrictRouteImport } from './routes/_authenticated/hubs.district'
+import { Route as AuthenticatedHubsCaseloadRouteImport } from './routes/_authenticated/hubs.caseload'
+import { Route as AuthenticatedHubsAdminRouteImport } from './routes/_authenticated/hubs.admin'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
@@ -873,6 +879,39 @@ const AuthenticatedHubsStudentRoute =
     path: '/hubs/student',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHubsSchoolRoute = AuthenticatedHubsSchoolRouteImport.update({
+  id: '/hubs/school',
+  path: '/hubs/school',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedHubsPartnerRoute =
+  AuthenticatedHubsPartnerRouteImport.update({
+    id: '/hubs/partner',
+    path: '/hubs/partner',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHubsFamilyRoute = AuthenticatedHubsFamilyRouteImport.update({
+  id: '/hubs/family',
+  path: '/hubs/family',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedHubsDistrictRoute =
+  AuthenticatedHubsDistrictRouteImport.update({
+    id: '/hubs/district',
+    path: '/hubs/district',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHubsCaseloadRoute =
+  AuthenticatedHubsCaseloadRouteImport.update({
+    id: '/hubs/caseload',
+    path: '/hubs/caseload',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHubsAdminRoute = AuthenticatedHubsAdminRouteImport.update({
+  id: '/hubs/admin',
+  path: '/hubs/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -1059,6 +1098,12 @@ export interface FileRoutesByFullPath {
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/hubs/admin': typeof AuthenticatedHubsAdminRoute
+  '/hubs/caseload': typeof AuthenticatedHubsCaseloadRoute
+  '/hubs/district': typeof AuthenticatedHubsDistrictRoute
+  '/hubs/family': typeof AuthenticatedHubsFamilyRoute
+  '/hubs/partner': typeof AuthenticatedHubsPartnerRoute
+  '/hubs/school': typeof AuthenticatedHubsSchoolRoute
   '/hubs/student': typeof AuthenticatedHubsStudentRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -1207,6 +1252,12 @@ export interface FileRoutesByTo {
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/hubs/admin': typeof AuthenticatedHubsAdminRoute
+  '/hubs/caseload': typeof AuthenticatedHubsCaseloadRoute
+  '/hubs/district': typeof AuthenticatedHubsDistrictRoute
+  '/hubs/family': typeof AuthenticatedHubsFamilyRoute
+  '/hubs/partner': typeof AuthenticatedHubsPartnerRoute
+  '/hubs/school': typeof AuthenticatedHubsSchoolRoute
   '/hubs/student': typeof AuthenticatedHubsStudentRoute
   '/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -1359,6 +1410,12 @@ export interface FileRoutesById {
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
+  '/_authenticated/hubs/admin': typeof AuthenticatedHubsAdminRoute
+  '/_authenticated/hubs/caseload': typeof AuthenticatedHubsCaseloadRoute
+  '/_authenticated/hubs/district': typeof AuthenticatedHubsDistrictRoute
+  '/_authenticated/hubs/family': typeof AuthenticatedHubsFamilyRoute
+  '/_authenticated/hubs/partner': typeof AuthenticatedHubsPartnerRoute
+  '/_authenticated/hubs/school': typeof AuthenticatedHubsSchoolRoute
   '/_authenticated/hubs/student': typeof AuthenticatedHubsStudentRoute
   '/_authenticated/meetings/$meetingId': typeof AuthenticatedMeetingsMeetingIdRoute
   '/_authenticated/owner/activity': typeof AuthenticatedOwnerActivityRoute
@@ -1511,6 +1568,12 @@ export interface FileRouteTypes {
     | '/district/schools'
     | '/district/team'
     | '/forms/$slug'
+    | '/hubs/admin'
+    | '/hubs/caseload'
+    | '/hubs/district'
+    | '/hubs/family'
+    | '/hubs/partner'
+    | '/hubs/school'
     | '/hubs/student'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -1659,6 +1722,12 @@ export interface FileRouteTypes {
     | '/district/schools'
     | '/district/team'
     | '/forms/$slug'
+    | '/hubs/admin'
+    | '/hubs/caseload'
+    | '/hubs/district'
+    | '/hubs/family'
+    | '/hubs/partner'
+    | '/hubs/school'
     | '/hubs/student'
     | '/meetings/$meetingId'
     | '/owner/activity'
@@ -1810,6 +1879,12 @@ export interface FileRouteTypes {
     | '/_authenticated/district/schools'
     | '/_authenticated/district/team'
     | '/_authenticated/forms/$slug'
+    | '/_authenticated/hubs/admin'
+    | '/_authenticated/hubs/caseload'
+    | '/_authenticated/hubs/district'
+    | '/_authenticated/hubs/family'
+    | '/_authenticated/hubs/partner'
+    | '/_authenticated/hubs/school'
     | '/_authenticated/hubs/student'
     | '/_authenticated/meetings/$meetingId'
     | '/_authenticated/owner/activity'
@@ -2862,6 +2937,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHubsStudentRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hubs/school': {
+      id: '/_authenticated/hubs/school'
+      path: '/hubs/school'
+      fullPath: '/hubs/school'
+      preLoaderRoute: typeof AuthenticatedHubsSchoolRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hubs/partner': {
+      id: '/_authenticated/hubs/partner'
+      path: '/hubs/partner'
+      fullPath: '/hubs/partner'
+      preLoaderRoute: typeof AuthenticatedHubsPartnerRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hubs/family': {
+      id: '/_authenticated/hubs/family'
+      path: '/hubs/family'
+      fullPath: '/hubs/family'
+      preLoaderRoute: typeof AuthenticatedHubsFamilyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hubs/district': {
+      id: '/_authenticated/hubs/district'
+      path: '/hubs/district'
+      fullPath: '/hubs/district'
+      preLoaderRoute: typeof AuthenticatedHubsDistrictRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hubs/caseload': {
+      id: '/_authenticated/hubs/caseload'
+      path: '/hubs/caseload'
+      fullPath: '/hubs/caseload'
+      preLoaderRoute: typeof AuthenticatedHubsCaseloadRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hubs/admin': {
+      id: '/_authenticated/hubs/admin'
+      path: '/hubs/admin'
+      fullPath: '/hubs/admin'
+      preLoaderRoute: typeof AuthenticatedHubsAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/forms/$slug': {
       id: '/_authenticated/forms/$slug'
       path: '/$slug'
@@ -3172,6 +3289,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
+  AuthenticatedHubsAdminRoute: typeof AuthenticatedHubsAdminRoute
+  AuthenticatedHubsCaseloadRoute: typeof AuthenticatedHubsCaseloadRoute
+  AuthenticatedHubsDistrictRoute: typeof AuthenticatedHubsDistrictRoute
+  AuthenticatedHubsFamilyRoute: typeof AuthenticatedHubsFamilyRoute
+  AuthenticatedHubsPartnerRoute: typeof AuthenticatedHubsPartnerRoute
+  AuthenticatedHubsSchoolRoute: typeof AuthenticatedHubsSchoolRoute
   AuthenticatedHubsStudentRoute: typeof AuthenticatedHubsStudentRoute
   AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
@@ -3221,6 +3344,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
+  AuthenticatedHubsAdminRoute: AuthenticatedHubsAdminRoute,
+  AuthenticatedHubsCaseloadRoute: AuthenticatedHubsCaseloadRoute,
+  AuthenticatedHubsDistrictRoute: AuthenticatedHubsDistrictRoute,
+  AuthenticatedHubsFamilyRoute: AuthenticatedHubsFamilyRoute,
+  AuthenticatedHubsPartnerRoute: AuthenticatedHubsPartnerRoute,
+  AuthenticatedHubsSchoolRoute: AuthenticatedHubsSchoolRoute,
   AuthenticatedHubsStudentRoute: AuthenticatedHubsStudentRoute,
   AuthenticatedPartnersManageImpactRoute:
     AuthenticatedPartnersManageImpactRoute,
