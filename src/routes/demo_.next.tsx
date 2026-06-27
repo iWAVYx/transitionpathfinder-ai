@@ -1,34 +1,20 @@
-import { ChapterOpener } from "@/components/site/MagazinePage";
-import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Compass, ShieldCheck, Users, Building2, GraduationCap, School, Briefcase, UserCheck } from "lucide-react";
+import { ArrowRight, Users, Building2, GraduationCap, School, Briefcase, UserCheck } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
-import { Badge } from "@/components/ui/badge";
+import { DemoStepBar, DemoStepFooter, validateStudentSearch } from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import type { DemoStudentId } from "@/lib/demo-data";
+import { PublicationPage, PublicationCallout } from "@/components/publication/PublicationPage";
 
 export const Route = createFileRoute("/demo_/next")({
   validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
       { title: "What Happens Next — TransitionForward Demo" },
-      {
-        name: "description",
-        content:
-          "Choose the path that fits you: family access, school pilot, district access, or partner application.",
-      },
+      { name: "description", content: "Choose the path that fits you: family access, school pilot, district access, or partner application." },
       { property: "og:title", content: "What Happens Next — TransitionForward Demo" },
-      {
-        property: "og:description",
-        content:
-          "Clear next steps for families, educators, schools, districts, and partners after the TransitionForward demo.",
-      },
+      { property: "og:description", content: "Clear next steps for families, educators, schools, districts, and partners after the TransitionForward demo." },
       { property: "og:url", content: "/demo/next" },
     ],
     links: [{ rel: "canonical", href: "/demo/next" }],
@@ -103,57 +89,57 @@ function DemoNextPage() {
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="next" student={s} />
-        <ChapterOpener numeral={CHAPTER_META.next.numeral} kicker={CHAPTER_META.next.kicker} title={CHAPTER_META.next.title} dek={CHAPTER_META.next.dek} covers={CHAPTER_META.next.covers} />
-      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <Compass className="h-3 w-3" /> What's Next
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <ShieldCheck className="h-3 w-3" /> Sample Demo — No Account Created
-          </Badge>
-        </div>
-        <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-          Pick The Path That Fits You
-        </h1>
-        <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Create Account is for invited or approved access. Join the waitlist if
-          you're requesting access, a school pilot, a district conversation, or
-          partner review.
-        </p>
+        <PublicationPage
+          kicker="Step 11"
+          chapter="What Comes Next"
+          dek="Clear paths for families, educators, schools, districts, and partners — pick a starting point and we'll walk it with you."
+          part="Part Four — Stay Together"
+          folio="p. 84"
+        >
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
-          {CTAS.map((c) => (
-            <article
-              key={c.audience}
-              className="flex flex-col rounded-3xl border bg-card p-6 shadow-soft sm:p-7"
-            >
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                {c.icon}
-              </span>
-              <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                {c.audience}
-              </p>
-              <h2 className="mt-1 font-display text-xl">{c.headline}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.body}</p>
-              <div className="mt-auto flex flex-wrap gap-2 pt-5">
-                <Button asChild size="sm">
-                  <Link to={c.primary.to}>
-                    {c.primary.label} <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-                {c.secondary ? (
-                  <Button asChild size="sm" variant="outline">
-                    <Link to={c.secondary.to}>{c.secondary.label}</Link>
-                  </Button>
-                ) : null}
-              </div>
-            </article>
-          ))}
-        </div>
+            <PublicationCallout kind="next">
+              Create Account is for invited or approved access. Join the waitlist if you're requesting access,
+              a school pilot, a district conversation, or partner review.
+            </PublicationCallout>
 
-        <DemoStepFooter current="next" student={s} />
-      </section>
+            {/* CTA rows */}
+            <div className="mt-8">
+              {CTAS.map((c) => (
+                <article key={c.audience} className="border-b border-[color:var(--pub-rule-soft)] py-6 last:border-b-0">
+                  <div className="flex items-start gap-4">
+                    <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      {c.icon}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+                        {c.audience}
+                      </p>
+                      <h2 className="mt-1 font-[\'Instrument_Serif\',Georgia,serif] text-xl leading-snug text-foreground">
+                        {c.headline}
+                      </h2>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.body}</p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Button asChild size="sm">
+                          <Link to={c.primary.to}>
+                            {c.primary.label} <ArrowRight className="h-3.5 w-3.5" />
+                          </Link>
+                        </Button>
+                        {c.secondary && (
+                          <Button asChild size="sm" variant="outline">
+                            <Link to={c.secondary.to}>{c.secondary.label}</Link>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <DemoStepFooter current="next" student={s} />
+          </div>
+        </PublicationPage>
       </div>
     </SiteShell>
   );

@@ -1,15 +1,12 @@
 import { ChapterOpener } from "@/components/site/MagazinePage";
 
 /**
- * Pathway Report — Editorial Hybrid "part" dividers.
+ * Pathway Report — Editorial part dividers.
  *
- * The Pathway Report is grouped into five magazine-style parts. Each part
- * opens with a full-bleed teal `ChapterOpener` (Roman numeral + kicker +
- * title + handbook "What This Part Covers" list), matching the demo step
- * pages so the demo workspace and the report read as one printed issue.
- *
- * Used by both the demo report (`/demo/report`) and the signed-in report
- * (`/_authenticated/reports/$reportId`) so the experience is identical.
+ * Each part opens with a full-bleed `ChapterOpener` matching the publication
+ * system: oversized Instrument Serif italic numeral, Urbanist kicker,
+ * hairline rule, teal background. Keeps the part-break role (page-break +
+ * scroll anchor) while reading as a page inside the magazine-handbook issue.
  */
 export type ReportPart =
   | "snapshot"
@@ -87,7 +84,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
 export function ReportPartOpener({ part }: { part: ReportPart }) {
   const meta = REPORT_PARTS[part];
   return (
-    <div className="page-break mt-12">
+    <div className="page-break mt-12 scroll-mt-24">
       <ChapterOpener
         numeral={meta.numeral}
         kicker={meta.kicker}

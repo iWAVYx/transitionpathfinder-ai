@@ -43,6 +43,15 @@ import {
   ReportV2SnapshotHeader,
   ReportV2ExtrasBody,
 } from "@/components/pathway/ReportV2Extras";
+import {
+  PublicationPage,
+  PublicationChecklist,
+  PublicationCallout,
+  PublicationPullQuote,
+  PublicationSource,
+  PublicationSpread,
+  PublicationSidebar,
+} from "@/components/publication/PublicationPage";
 
 export type V2Audience = "student" | "family" | "educator";
 
@@ -97,89 +106,94 @@ export function ReportV2Sections({
         studentName={studentName}
       />
 
-      <div className="rounded-3xl border border-primary/30 bg-primary/5 p-5 shadow-soft sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-          {audienceLabel[audience]}
-        </p>
-        <h2 className="mt-1 font-display text-xl sm:text-2xl">
-          {studentName}'s full Pathway Report
-        </h2>
+      <PublicationPullQuote attribution={audienceLabel[audience]}>
+        <p className="font-display text-xl sm:text-2xl">{studentName}'s Full Pathway Report</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Every recommendation below explains why it was made, what informed it, what
           should happen next, who should follow up, and whether it should be raised
           at the next PPT / IEP meeting.
         </p>
-      </div>
+      </PublicationPullQuote>
 
       <ReportV2ExtrasBody content={content} audience={audience} />
 
       {iep && (
-        <SectionBlock
-          id="v2-iep-summary"
-          icon={<FileText className="h-5 w-5" />}
-          title="IEP / Transition Plan Summary"
-          subtitle={
+        <PublicationPage
+          kicker="Section 01"
+          chapter="IEP / Transition Plan Summary"
+          dek={
             iep.caveats ??
             "Pulled from the most recent IEP on file. Please verify against the source document before any formal action."
           }
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            {iep.plan_date_start || iep.plan_date_end ? (
-              <Badge variant="outline" className="w-fit text-[11px]">
-                Plan dates: {iep.plan_date_start ?? "—"} → {iep.plan_date_end ?? "—"}
-              </Badge>
+          <section id="v2-iep-summary">
+            <div className="flex flex-wrap gap-2">
+              {(iep.plan_date_start || iep.plan_date_end) && (
+                <Badge variant="outline" className="w-fit text-[11px]">
+                  Plan dates: {iep.plan_date_start ?? "—"} → {iep.plan_date_end ?? "—"}
+                </Badge>
+              )}
+            </div>
+
+            {iep.present_levels && (
+              <div className="mt-4">
+                <h2 className="font-display text-lg">Present Levels</h2>
+                <hr className="my-2 border-t border-[color:var(--pub-rule-soft)]" />
+                <p className="text-sm whitespace-pre-wrap">{iep.present_levels}</p>
+              </div>
+            )}
+
+            {iep.transition_goals?.length > 0 && (
+              <div className="mt-6">
+                <h2 className="font-display text-lg">Transition Goals</h2>
+                <hr className="my-2 border-t border-[color:var(--pub-rule-soft)]" />
+                <ul>
+                  {iep.transition_goals.map((g, i) => (
+                    <li
+                      key={i}
+                      className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
+                    >
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-primary font-[Urbanist,sans-serif]">
+                        {g.area}
+                      </p>
+                      <p className="mt-1 font-[Instrument_Serif,serif] text-base font-medium">
+                        {g.goal_text}
+                      </p>
+                      {audience !== "educator" && g.plain_language && (
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          In plain language: {g.plain_language}
+                        </p>
+                      )}
+                      {g.related_services?.length ? (
+                        <ul className="mt-2 flex flex-wrap gap-1">
+                          {g.related_services.map((s) => (
+                            <li key={s}>
+                              <Badge variant="secondary" className="text-[10px]">
+                                {s}
+                              </Badge>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {(iep.accommodations?.length || iep.services?.length) ? (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <ChipList label="Accommodations" items={iep.accommodations} />
+                <ChipList label="Services" items={iep.services} />
+              </div>
             ) : null}
-          </div>
-          {iep.present_levels && (
-            <div className="mt-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Present levels
-              </p>
-              <p className="mt-1 text-sm whitespace-pre-wrap">{iep.present_levels}</p>
-            </div>
-          )}
-          {iep.transition_goals?.length > 0 && (
-            <div className="mt-4 space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Transition goals
-              </p>
-              {iep.transition_goals.map((g, i) => (
-                <div key={i} className="rounded-xl border bg-background p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-primary">
-                    {g.area}
-                  </p>
-                  <p className="mt-1 text-sm font-medium">{g.goal_text}</p>
-                  {audience !== "educator" && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      In plain language: {g.plain_language}
-                    </p>
-                  )}
-                  {g.related_services?.length ? (
-                    <ul className="mt-2 flex flex-wrap gap-1">
-                      {g.related_services.map((s) => (
-                        <li key={s}>
-                          <Badge variant="secondary" className="text-[10px]">
-                            {s}
-                          </Badge>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          )}
-          {(iep.accommodations?.length || iep.services?.length) ? (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <ChipList label="Accommodations" items={iep.accommodations} />
-              <ChipList label="Services" items={iep.services} />
-            </div>
-          ) : null}
-        </SectionBlock>
+          </section>
+        </PublicationPage>
       )}
 
       <PillarRecsBlock
         id="v2-edu"
+        sectionNum="02"
         icon={<BookOpen className="h-5 w-5" />}
         title="Postsecondary Education & Training Recommendations"
         audience={audience}
@@ -188,6 +202,7 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-emp"
+        sectionNum="03"
         icon={<Briefcase className="h-5 w-5" />}
         title="Employment Pathway Recommendations"
         audience={audience}
@@ -196,6 +211,7 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-il"
+        sectionNum="04"
         icon={<Home className="h-5 w-5" />}
         title="Independent Living Recommendations"
         audience={audience}
@@ -204,6 +220,7 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-comm"
+        sectionNum="05"
         icon={<Users className="h-5 w-5" />}
         title="Community Participation Recommendations"
         audience={audience}
@@ -212,124 +229,146 @@ export function ReportV2Sections({
       />
 
       {resourceMatches.length > 0 && (
-        <SectionBlock
-          id="v2-resources"
-          icon={<BookOpen className="h-5 w-5" />}
-          title="Resource Matches"
-          subtitle="Resources matched to this student's interests, goals, and supports."
+        <PublicationPage
+          kicker="Section 06"
+          chapter="Resource Matches"
+          dek="Resources matched to this student's interests, goals, and supports."
         >
-          <ul className="space-y-3">
-            {resourceMatches.map((m, i) => (
-              <li key={i} className="rounded-xl border bg-card p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p className="text-sm font-semibold">{m.title}</p>
-                  {m.url && (
-                    <a
-                      href={m.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                      Open <ExternalLink className="h-3 w-3" />
-                    </a>
+          <section id="v2-resources">
+            <ul>
+              {resourceMatches.map((m, i) => (
+                <li
+                  key={i}
+                  className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="font-[Instrument_Serif,serif] text-base font-medium">
+                      {m.title}
+                    </p>
+                    {m.url && (
+                      <a
+                        href={m.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        Open <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                  {m.summary && (
+                    <p className="mt-1 text-sm text-muted-foreground">{m.summary}</p>
                   )}
-                </div>
-                {m.summary && (
-                  <p className="mt-1 text-sm text-muted-foreground">{m.summary}</p>
-                )}
-                <p className="mt-2 text-xs">
-                  <span className="font-semibold">Why:</span> {m.why}
-                </p>
-                <p className="mt-1 text-xs">
-                  <span className="font-semibold">Next:</span> {m.next_action}
-                </p>
-                {audience !== "student" && (
-                  <SourceChips
-                    sources={m.sources}
-                    collapsed={audience === "family"}
-                    className="mt-2"
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        </SectionBlock>
+                  <div className="mt-2 space-y-1">
+                    <PublicationCallout kind="means">
+                      {m.why}
+                    </PublicationCallout>
+                    <PublicationCallout kind="next">
+                      {m.next_action}
+                    </PublicationCallout>
+                  </div>
+                  {audience !== "student" && (
+                    <SourceChips
+                      sources={m.sources}
+                      collapsed={audience === "family"}
+                      className="mt-2"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </PublicationPage>
       )}
 
       {partnerMatches.length > 0 && (
-        <SectionBlock
-          id="v2-partners"
-          icon={<Handshake className="h-5 w-5" />}
-          title="Partner / Opportunity Matches"
-          subtitle="Programs, internships, and adult-service partners matched to this student."
+        <PublicationPage
+          kicker="Section 07"
+          chapter="Partner / Opportunity Matches"
+          dek="Programs, internships, and adult-service partners matched to this student."
         >
-          <ul className="space-y-3">
-            {partnerMatches.map((m, i) => (
-              <li key={i} className="rounded-xl border bg-card p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-semibold">{m.title}</p>
-                    {m.organization && (
-                      <p className="text-xs text-muted-foreground">{m.organization}</p>
+          <section id="v2-partners">
+            <ul>
+              {partnerMatches.map((m, i) => (
+                <li
+                  key={i}
+                  className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="font-[Instrument_Serif,serif] text-base font-medium">
+                        {m.title}
+                      </p>
+                      {m.organization && (
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
+                          {m.organization}
+                        </p>
+                      )}
+                    </div>
+                    {m.readiness_level && (
+                      <Badge variant="outline" className="text-[10px] capitalize">
+                        {m.readiness_level}
+                      </Badge>
                     )}
                   </div>
-                  {m.readiness_level && (
-                    <Badge variant="outline" className="text-[10px] capitalize">
-                      {m.readiness_level}
-                    </Badge>
+                  <div className="mt-2 space-y-1">
+                    <PublicationCallout kind="means">
+                      {m.why}
+                    </PublicationCallout>
+                    <PublicationCallout kind="next">
+                      {m.next_action}
+                    </PublicationCallout>
+                  </div>
+                  {audience !== "student" && (
+                    <SourceChips
+                      sources={m.sources}
+                      collapsed={audience === "family"}
+                      className="mt-2"
+                    />
                   )}
-                </div>
-                <p className="mt-2 text-xs">
-                  <span className="font-semibold">Why:</span> {m.why}
-                </p>
-                <p className="mt-1 text-xs">
-                  <span className="font-semibold">Next:</span> {m.next_action}
-                </p>
-                {audience !== "student" && (
-                  <SourceChips
-                    sources={m.sources}
-                    collapsed={audience === "family"}
-                    className="mt-2"
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        </SectionBlock>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </PublicationPage>
       )}
 
       {gaps.length > 0 && (
-        <SectionBlock
-          id="v2-gaps"
-          icon={<AlertTriangle className="h-5 w-5 text-amber-600" />}
-          title="Missing Information & Planning Gaps"
-          subtitle="Filling these in will make the next regeneration of this report sharper."
-          tone="warn"
+        <PublicationPage
+          kicker="Section 08"
+          chapter="Missing Information & Planning Gaps"
+          dek="Filling these in will make the next regeneration of this report sharper."
         >
-          <ul className="space-y-3">
-            {gaps.map((g, i) => (
-              <li
-                key={i}
-                className="rounded-xl border border-amber-300/60 bg-amber-50/40 p-4 dark:bg-amber-900/10"
-              >
-                <p className="text-sm font-semibold">{g.topic}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{g.why_it_matters}</p>
-                <p className="mt-2 text-xs">
-                  <span className="font-semibold">How to collect:</span> {g.how_to_collect}
-                </p>
-                <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  Follow-up: {g.owner_role.replace("_", " ")}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </SectionBlock>
+          <section id="v2-gaps">
+            <ul>
+              {gaps.map((g, i) => (
+                <li
+                  key={i}
+                  className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
+                >
+                  <p className="font-[Instrument_Serif,serif] text-base font-medium">
+                    {g.topic}
+                  </p>
+                  <PublicationCallout kind="matters">
+                    {g.why_it_matters}
+                  </PublicationCallout>
+                  <PublicationCallout kind="next">
+                    {g.how_to_collect}
+                  </PublicationCallout>
+                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
+                    Follow-up: {g.owner_role.replace("_", " ")}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </PublicationPage>
       )}
 
       {(audience === "student" || audience === "family") && studentPlan && (
         <ActionPlanBlock
           id="v2-student-plan"
-          icon={<Compass className="h-5 w-5" />}
+          sectionNum="09"
           title="Student Action Plan"
           plan={studentPlan}
           pronoun="you"
@@ -338,7 +377,7 @@ export function ReportV2Sections({
       {familyPlan && (
         <ActionPlanBlock
           id="v2-family-plan"
-          icon={<Users className="h-5 w-5" />}
+          sectionNum="10"
           title="Family Action Plan"
           plan={familyPlan}
           pronoun="your family"
@@ -347,7 +386,7 @@ export function ReportV2Sections({
       {audience === "educator" && eduPlan && (
         <ActionPlanBlock
           id="v2-edu-plan"
-          icon={<FileText className="h-5 w-5" />}
+          sectionNum="11"
           title="Educator / Case Manager Action Plan"
           plan={eduPlan}
           pronoun="the team"
@@ -355,55 +394,59 @@ export function ReportV2Sections({
       )}
 
       {meetingQs?.length ? (
-        <SectionBlock
-          id="v2-meeting-qs"
-          icon={<MessageSquareQuote className="h-5 w-5" />}
-          title="Meeting Prep Questions"
-          subtitle="Bring these to the next PPT / IEP / transition meeting."
+        <PublicationPage
+          kicker="Section 12"
+          chapter="Meeting Prep Questions"
+          dek="Bring these to the next PPT / IEP / transition meeting."
         >
-          <ul className="space-y-2">
-            {meetingQs
-              .filter((q) =>
-                audience === "student"
-                  ? q.for_audience === "student" || q.for_audience === "team"
-                  : audience === "family"
-                  ? q.for_audience !== "educator"
-                  : true,
-              )
-              .map((q, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-2 rounded-xl border bg-card p-3"
-                >
-                  <Badge variant="outline" className="mt-0.5 text-[10px] capitalize">
-                    {q.for_audience}
-                  </Badge>
-                  <div>
-                    <p className="text-sm">{q.question}</p>
+          <section id="v2-meeting-qs">
+            <ul>
+              {meetingQs
+                .filter((q) =>
+                  audience === "student"
+                    ? q.for_audience === "student" || q.for_audience === "team"
+                    : audience === "family"
+                    ? q.for_audience !== "educator"
+                    : true,
+                )
+                .map((q, i) => (
+                  <li
+                    key={i}
+                    className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-primary font-[Urbanist,sans-serif]">
+                      {q.for_audience}
+                    </p>
+                    <p className="mt-1 font-[Instrument_Serif,serif] text-base">
+                      {q.question}
+                    </p>
                     {q.why && audience !== "student" && (
-                      <p className="mt-1 text-xs text-muted-foreground">{q.why}</p>
+                      <PublicationCallout kind="means">
+                        {q.why}
+                      </PublicationCallout>
                     )}
-                  </div>
-                </li>
-              ))}
-          </ul>
-        </SectionBlock>
+                  </li>
+                ))}
+            </ul>
+          </section>
+        </PublicationPage>
       ) : null}
 
       {cross && (
-        <SectionBlock
-          id="v2-horizons"
-          icon={<Calendar className="h-5 w-5" />}
-          title="30 / 90 day · 6-month · 1-year plan"
-          subtitle="A cross-cutting view of what should happen, when."
+        <PublicationPage
+          kicker="Section 13"
+          chapter="30 / 90 Day · 6-Month · 1-Year Plan"
+          dek="A cross-cutting view of what should happen, when."
         >
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <HorizonCard label="Next 30 days" items={cross.thirty_day} />
-            <HorizonCard label="Next 90 days" items={cross.ninety_day} />
-            <HorizonCard label="Next 6 months" items={cross.six_month} />
-            <HorizonCard label="Next year" items={cross.one_year} />
-          </div>
-        </SectionBlock>
+          <section id="v2-horizons">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <HorizonChecklist label="Next 30 Days" items={cross.thirty_day} />
+              <HorizonChecklist label="Next 90 Days" items={cross.ninety_day} />
+              <HorizonChecklist label="Next 6 Months" items={cross.six_month} />
+              <HorizonChecklist label="Next Year" items={cross.one_year} />
+            </div>
+          </section>
+        </PublicationPage>
       )}
     </section>
   );
@@ -411,55 +454,16 @@ export function ReportV2Sections({
 
 /* ------------------------------ helpers ------------------------------ */
 
-function SectionBlock({
-  id,
-  icon,
-  title,
-  subtitle,
-  children,
-  tone = "default",
-}: {
-  id: string;
-  icon: React.ReactNode;
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-  tone?: "default" | "warn";
-}) {
-  return (
-    <section
-      id={id}
-      className={
-        tone === "warn"
-          ? "rounded-3xl border border-amber-300/60 bg-card p-5 shadow-soft sm:p-6"
-          : "rounded-3xl border bg-card p-5 shadow-soft sm:p-6"
-      }
-    >
-      <header className="flex items-start gap-3">
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
-          {icon}
-        </span>
-        <div>
-          <h3 className="font-display text-lg sm:text-xl">{title}</h3>
-          {subtitle && (
-            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-      </header>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
 function PillarRecsBlock({
   id,
-  icon,
+  sectionNum,
   title,
   audience,
   message,
   recs,
 }: {
   id: string;
+  sectionNum: string;
   icon: React.ReactNode;
   title: string;
   audience: V2Audience;
@@ -475,13 +479,19 @@ function PillarRecsBlock({
   }, [recs]);
   if (!recs.length) return null;
   return (
-    <SectionBlock id={id} icon={icon} title={title} subtitle={message}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {ordered.map((rec, i) => (
-          <RecommendationCard key={i} rec={rec} audience={audience} />
-        ))}
-      </div>
-    </SectionBlock>
+    <PublicationPage
+      kicker={`Section ${sectionNum}`}
+      chapter={title}
+      dek={message}
+    >
+      <section id={id}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {ordered.map((rec, i) => (
+            <RecommendationCard key={i} rec={rec} audience={audience} />
+          ))}
+        </div>
+      </section>
+    </PublicationPage>
   );
 }
 
@@ -489,7 +499,7 @@ function ChipList({ label, items }: { label: string; items?: string[] }) {
   if (!items?.length) return null;
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
         {label}
       </p>
       <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -507,49 +517,47 @@ function ChipList({ label, items }: { label: string; items?: string[] }) {
 
 function ActionPlanBlock({
   id,
-  icon,
+  sectionNum,
   title,
   plan,
   pronoun,
 }: {
   id: string;
-  icon: React.ReactNode;
+  sectionNum: string;
   title: string;
   plan: ActionPlan;
   pronoun: string;
 }) {
   return (
-    <SectionBlock
-      id={id}
-      icon={icon}
-      title={title}
-      subtitle={plan.intro ?? `What ${pronoun} can do, broken out by timeframe.`}
+    <PublicationPage
+      kicker={`Section ${sectionNum}`}
+      chapter={title}
+      dek={plan.intro ?? `What ${pronoun} can do, broken out by timeframe.`}
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <HorizonCard label="Next 30 days" items={plan.horizons.thirty_day} />
-        <HorizonCard label="Next 90 days" items={plan.horizons.ninety_day} />
-        <HorizonCard label="Next 6 months" items={plan.horizons.six_month} />
-        <HorizonCard label="Next year" items={plan.horizons.one_year} />
-      </div>
-    </SectionBlock>
+      <section id={id}>
+        <PublicationSpread
+          lead={
+            <div className="space-y-6">
+              <HorizonChecklist label="Next 30 Days" items={plan.horizons.thirty_day} />
+              <HorizonChecklist label="Next 90 Days" items={plan.horizons.ninety_day} />
+            </div>
+          }
+          side={
+            <PublicationSidebar label="Longer Range">
+              <div className="space-y-6">
+                <HorizonChecklist label="Next 6 Months" items={plan.horizons.six_month} />
+                <HorizonChecklist label="Next Year" items={plan.horizons.one_year} />
+              </div>
+            </PublicationSidebar>
+          }
+        />
+      </section>
+    </PublicationPage>
   );
 }
 
-function HorizonCard({ label, items }: { label: string; items: string[] }) {
-  return (
-    <div className="rounded-xl border bg-background p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-        {label}
-      </p>
-      <ul className="mt-2 space-y-1.5">
-        {items.map((it, i) => (
-          <li key={i} className="text-sm leading-snug">
-            • {it}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+function HorizonChecklist({ label, items }: { label: string; items: string[] }) {
+  return <PublicationChecklist title={label} items={items} />;
 }
 
 export function RegenerateBanner({
@@ -565,7 +573,7 @@ export function RegenerateBanner({
     <div className="mx-auto mt-2 max-w-5xl px-4 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-4">
         <div>
-          <p className="text-sm font-semibold">Refresh this report with the latest format</p>
+          <p className="text-sm font-semibold">Refresh This Report With the Latest Format</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Pulls the newest profile data, IEP uploads, Student Voice, goals, readiness,
             saved resources, and partner matches. Your current report is kept as a version.
