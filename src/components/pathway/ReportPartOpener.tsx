@@ -1,12 +1,13 @@
 import { ChapterOpener } from "@/components/site/MagazinePage";
+import type { PathwayMilestoneId } from "@/lib/publication/chapters";
 
 /**
  * Pathway Report — Editorial part dividers.
  *
  * Each part opens with a full-bleed `ChapterOpener` matching the publication
  * system: oversized Instrument Serif italic numeral, Urbanist kicker,
- * hairline rule, teal background. Keeps the part-break role (page-break +
- * scroll anchor) while reading as a page inside the magazine-handbook issue.
+ * hairline rule, teal background, plus a warm milestone badge so families
+ * can recognise each part visually.
  */
 export type ReportPart =
   | "snapshot"
@@ -21,6 +22,7 @@ interface PartMeta {
   title: string;
   dek: string;
   covers: string[];
+  milestone: PathwayMilestoneId;
 }
 
 const REPORT_PARTS: Record<ReportPart, PartMeta> = {
@@ -34,6 +36,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Strengths, interests, and needs at a glance",
       "Current readiness across the transition areas",
     ],
+    milestone: "intake",
   },
   pathways: {
     numeral: "II",
@@ -45,6 +48,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Career and life-pathway matches",
       "Goals broken down into doable steps",
     ],
+    milestone: "pathway",
   },
   translate: {
     numeral: "III",
@@ -56,6 +60,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Student voice — quotes pulled directly from intake",
       "Where the document and the student agree (and don't)",
     ],
+    milestone: "documents",
   },
   team: {
     numeral: "IV",
@@ -67,6 +72,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "Family action plan and follow-ups",
       "Opportunities and partners to consider",
     ],
+    milestone: "family",
   },
   next: {
     numeral: "V",
@@ -78,6 +84,7 @@ const REPORT_PARTS: Record<ReportPart, PartMeta> = {
       "60- and 90-day milestones",
       "Owner, due date, and success marker for each step",
     ],
+    milestone: "plan",
   },
 };
 
@@ -91,6 +98,7 @@ export function ReportPartOpener({ part }: { part: ReportPart }) {
         title={meta.title}
         dek={meta.dek}
         covers={meta.covers}
+        milestone={meta.milestone}
       />
     </div>
   );

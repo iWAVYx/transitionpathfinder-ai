@@ -15,6 +15,7 @@
  * src/styles.css, scoped to `.eh-issue`.
  */
 import { PATHWAY_SPINE, type PathwayMilestoneId, milestoneIndex } from "@/lib/publication/chapters";
+import { getMilestoneArt } from "@/lib/publication/milestone-art";
 
 interface Props {
   active: PathwayMilestoneId;
@@ -33,9 +34,16 @@ export function PathwaySpine({ active, title = "The Pathway" }: Props) {
       <ol className="pathway-spine-rail">
         {PATHWAY_SPINE.map((m, i) => {
           const state = i < activeIdx ? "done" : i === activeIdx ? "now" : "ahead";
+          const art = getMilestoneArt(m.id);
           return (
-            <li key={m.id} className={`pathway-spine-node is-${state}`}>
-              <span className="pathway-spine-dot" aria-hidden />
+            <li
+              key={m.id}
+              className={`pathway-spine-node is-${state}`}
+              style={{ ["--node-hue" as string]: art.hue, ["--node-soft" as string]: art.hueSoft }}
+            >
+              <span className="pathway-spine-dot" aria-hidden>
+                <art.Icon size={11} strokeWidth={2.1} className="pathway-spine-icon" />
+              </span>
               <span className="pathway-spine-label">{m.label}</span>
               <span className="pathway-spine-tip" role="tooltip">{m.contribution}</span>
             </li>
