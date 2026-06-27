@@ -12,7 +12,12 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { validateStudentSearch } from "@/components/site/DemoStepBar";
+import {
+  DEFAULT_DEMO_STUDENT,
+  DEMO_STEPS,
+  demoStudentSearch,
+  validateStudentSearch,
+} from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
 import {
