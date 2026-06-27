@@ -5194,3 +5194,33 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 
 /* End of MILESTONE ART (v7) */
+
+/* =============================================================
+   PATHWAY SPINE — INTERACTIVE (v8 nav rebuild)
+   Make milestone nodes feel clickable when wired up with a
+   resolveHref / onSelect. Scoped via `.is-link`.
+   ============================================================= */
+.pathway-spine-trigger {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+}
+.pathway-spine-trigger:focus-visible {
+  outline: 2px solid var(--spine-accent, currentColor);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.pathway-spine-node.is-link:hover .pathway-spine-dot {
+  transform: scale(1.18);
+  border-color: var(--spine-ink);
+}
+.pathway-spine-node.is-link.is-now:hover .pathway-spine-dot {
+  transform: scale(1.35);
+}
+.pathway-spine-node.is-link:hover .pathway-spine-label {
+  color: var(--spine-ink);
+}
