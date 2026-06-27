@@ -36,7 +36,7 @@ const STATUS_TONE: Record<OpportunityIntroStatus, string> = {
 };
 
 function DemoOpportunitiesPage() {
-  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
+  const search = Route.useSearch(); const s = (search.s ?? "maya") as DemoStudentId;
   const bundle = getDemoStudent(s);
   const opps = DEMO_OPPORTUNITIES[s];
   const statuses = DEMO_OPPORTUNITY_STATUS[s];

@@ -84,7 +84,7 @@ const CTAS: Cta[] = [
 ];
 
 function DemoNextPage() {
-  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
+  const search = Route.useSearch(); const s = (search.s ?? "maya") as DemoStudentId;
 
   return (
     <StudioPage stage="next" student={s} preserveStudent={!!search.s} title="What Comes Next" dek="Clear paths for families, educators, schools, districts, and partners — pick a starting point and we'll walk it with you.">

@@ -56,7 +56,7 @@ function DocTypeChip({ type }: { type: DocumentType }) {
 }
 
 function DemoDocumentsPage() {
-  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
+  const search = Route.useSearch(); const s = (search.s ?? "maya") as DemoStudentId;
   const bundle = getDemoStudent(s);
   const insights = DEMO_DOCUMENT_INSIGHTS[s];
   const sources = DEMO_DOCUMENT_SOURCES[s];
