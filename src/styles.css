@@ -479,8 +479,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --shadow-demo-lift: var(--shadow-lift);
   --shadow-report: var(--shadow-lift);
 
-  --font-demo-display: "Urbanist", ui-sans-serif, system-ui, sans-serif;
-  --font-demo-body: "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  --font-demo-display: "Fraunces", "Urbanist", ui-serif, Georgia, serif;
+  --font-demo-body: "Plus Jakarta Sans", "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  --font-demo-accent: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
@@ -4779,3 +4780,268 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 
 /* End of ISSUE SYSTEM (v5) */
+
+/* ============================================================
+   PERSONALITY REFRESH (v6) — warmer, friendlier, more alive.
+   Scoped strictly to .demo-shell / .report-shell / .eh-issue so
+   marketing pages, auth, dashboards, and admin views are
+   untouched. Additive only — does not alter the publication
+   structure, route IDs, test selectors, or report data.
+   ------------------------------------------------------------ */
+
+/* Warm accent tokens layered on top of Ocean Deep. The amber +
+   coral pairing brings human warmth to the calm navy/teal base. */
+.demo-shell,
+.report-shell {
+  --tf-warm: #f59f4b;            /* sunrise amber */
+  --tf-warm-soft: #fbe2c4;
+  --tf-warm-deep: #c8631f;
+  --tf-coral: #e6735a;
+  --tf-mint-bright: #7ed4cc;
+  --tf-paper-cream: #fbf7ef;
+  --font-demo-accent: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* --- Typography refresh --------------------------------------- */
+.demo-shell,
+.report-shell {
+  font-feature-settings: "ss01", "cv11", "kern";
+}
+.demo-shell :where(h1, h2, h3),
+.report-shell :where(h1, h2, h3) {
+  font-family: var(--font-demo-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+/* Fraunces opsz unlocks editorial display weight on the largest titles. */
+.demo-shell h1,
+.report-shell h1,
+.demo-shell .pub-page-title,
+.report-shell .pub-page-title {
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+}
+.demo-shell .pub-page-kicker,
+.report-shell .pub-page-kicker,
+.demo-shell .pub-sidebar-label,
+.report-shell .pub-sidebar-label,
+.demo-shell .pub-callout-label,
+.report-shell .pub-callout-label {
+  font-family: var(--font-demo-accent);
+  letter-spacing: 0.22em;
+  font-weight: 600;
+}
+
+/* Expressive one-word chapter title — used when PublicationPage
+   passes data-display="mono". Oversized, all-caps, set in the
+   display serif for a true editorial moment. */
+.pub-page-title[data-display="mono"] {
+  text-transform: uppercase;
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  background: linear-gradient(
+    135deg,
+    var(--demo-ink) 0%,
+    var(--demo-ink) 55%,
+    var(--tf-warm-deep) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Subtle italic Fraunces accent for dek (one-line page purpose). */
+.demo-shell .pub-page-dek,
+.report-shell .pub-page-dek {
+  font-family: var(--font-demo-display);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 96;
+  color: color-mix(in oklab, var(--demo-ink) 78%, transparent);
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+  line-height: 1.45;
+  max-width: 52ch;
+}
+
+/* --- Chapter opener — pathway flourish ----------------------- */
+/* A hand-drawn pathway line tucked under the chapter opener.
+   Reinforces "the pathway becomes visually clear" without
+   becoming decorative noise. */
+.demo-shell .pub-page-opener,
+.report-shell .pub-page-opener {
+  position: relative;
+}
+.demo-shell .pub-page-opener::after,
+.report-shell .pub-page-opener::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.5rem;
+  width: clamp(120px, 22%, 240px);
+  height: 18px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 18' fill='none'><path d='M2 11 C 40 2, 80 18, 120 9 S 200 2, 238 11' stroke='%23f59f4b' stroke-width='2.5' stroke-linecap='round'/><circle cx='2' cy='11' r='3' fill='%231a4a6e'/><circle cx='238' cy='11' r='3' fill='%23f59f4b'/></svg>");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Replace the existing flat rule with a warmer accent rule. */
+.demo-shell .pub-page-rule,
+.report-shell .pub-page-rule {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--tf-warm) 0%,
+    var(--demo-accent) 45%,
+    var(--demo-primary) 100%
+  );
+  border-radius: 999px;
+  width: 88px;
+  margin-top: 1.25rem;
+  border: 0;
+}
+
+/* --- Callouts: warmer personality, clearer hierarchy --------- */
+.demo-shell .pub-callout,
+.report-shell .pub-callout {
+  border-left-width: 3px;
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--tf-paper-cream) 70%, transparent);
+}
+.demo-shell .pub-callout--matters,
+.report-shell .pub-callout--matters {
+  border-left-color: var(--tf-warm);
+  background: color-mix(in oklab, var(--tf-warm-soft) 35%, var(--tf-paper-cream));
+}
+.demo-shell .pub-callout--next,
+.report-shell .pub-callout--next {
+  border-left-color: var(--tf-coral);
+}
+.demo-shell .pub-callout--means,
+.report-shell .pub-callout--means {
+  border-left-color: var(--demo-accent);
+}
+.demo-shell .pub-callout--source,
+.report-shell .pub-callout--source {
+  border-left-color: color-mix(in oklab, var(--demo-ink) 40%, transparent);
+}
+
+/* --- Pull quotes: a real editorial moment -------------------- */
+.demo-shell .pub-pullquote blockquote,
+.report-shell .pub-pullquote blockquote {
+  font-family: var(--font-demo-display);
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--demo-ink);
+  position: relative;
+  padding-left: 1.25rem;
+}
+.demo-shell .pub-pullquote blockquote::before,
+.report-shell .pub-pullquote blockquote::before {
+  content: "\201C";
+  font-family: var(--font-demo-display);
+  font-size: 3.5em;
+  line-height: 0.8;
+  position: absolute;
+  left: -0.35em;
+  top: -0.15em;
+  color: var(--tf-warm);
+  opacity: 0.55;
+}
+.demo-shell .pub-pullquote figcaption,
+.report-shell .pub-pullquote figcaption {
+  font-family: var(--font-demo-accent);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-ink) 60%, transparent);
+  margin-top: 0.75rem;
+}
+
+/* --- Icons: consistent stroke + tinted ----------------------- */
+.demo-shell svg.lucide,
+.report-shell svg.lucide {
+  stroke-width: 1.75;
+}
+.demo-shell .pub-callout svg.lucide,
+.report-shell .pub-callout svg.lucide {
+  color: var(--tf-warm-deep);
+}
+
+/* --- Pathway Spine: warmer, more "journey" ------------------- */
+.eh-issue .pathway-spine,
+.demo-shell .pathway-spine,
+.report-shell .pathway-spine {
+  --spine-track: color-mix(in oklab, var(--demo-ink) 12%, transparent);
+  --spine-fill: linear-gradient(90deg, var(--demo-primary), var(--tf-warm));
+  --spine-active: var(--tf-warm);
+}
+.eh-issue .pathway-spine .spine-node[aria-current="true"],
+.demo-shell .pathway-spine .spine-node[aria-current="true"],
+.report-shell .pathway-spine .spine-node[aria-current="true"] {
+  color: var(--tf-warm-deep);
+}
+
+/* --- DemoStepBar tabs: friendlier active state --------------- */
+.demo-shell [data-step-bar] [data-active="true"] {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--tf-warm-soft) 55%, white),
+    white
+  );
+  color: var(--demo-ink);
+  border-color: var(--tf-warm);
+  box-shadow: 0 1px 0 0 var(--tf-warm) inset;
+}
+
+/* --- Source footer note: warmer paper, not sterile gray ------ */
+.demo-shell .pub-source,
+.report-shell .pub-source {
+  font-family: var(--font-demo-accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-ink) 55%, transparent);
+  border-top: 1px dashed color-mix(in oklab, var(--demo-ink) 18%, transparent);
+  padding-top: 0.75rem;
+  margin-top: 2.5rem;
+}
+
+/* --- Background paper warm-up -------------------------------- */
+/* Swap the cool paper for a barely-there cream so the whole
+   publication feels handcrafted rather than printed in an office. */
+.demo-shell .pub-page,
+.report-shell .pub-page,
+.eh-issue article.pub-page {
+  background:
+    radial-gradient(
+      circle at 88% 6%,
+      color-mix(in oklab, var(--tf-warm-soft) 28%, transparent) 0%,
+      transparent 38%
+    ),
+    var(--tf-paper-cream);
+}
+
+/* --- Print parity -------------------------------------------- */
+@media print {
+  .demo-shell .pub-page-opener::after,
+  .report-shell .pub-page-opener::after { display: none; }
+  .pub-page-title[data-display="mono"] {
+    color: var(--demo-ink) !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--demo-ink) !important;
+  }
+}
+
+/* End of PERSONALITY REFRESH (v6) */
