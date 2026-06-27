@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { MilestoneBadge } from "@/components/publication/MilestoneBadge";
 
 /**
  * Editorial Hybrid — magazine-handbook issue system primitives.
