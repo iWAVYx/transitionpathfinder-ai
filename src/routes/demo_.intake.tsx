@@ -1,7 +1,5 @@
-import { ChapterOpener } from "@/components/site/MagazinePage";
 import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldCheck, Sparkles } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import {
@@ -9,8 +7,12 @@ import {
   DemoStepFooter,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
-import { Badge } from "@/components/ui/badge";
 import { getDemoStudent } from "@/lib/demo-data";
+import {
+  PublicationPage,
+  PublicationCallout,
+  PublicationPullQuote,
+} from "@/components/publication/PublicationPage";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({
@@ -142,43 +144,45 @@ function DemoIntakePage() {
     },
   ];
 
+  const meta = CHAPTER_META.intake;
+
   return (
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="intake" student={s} />
-        <ChapterOpener numeral={CHAPTER_META.intake.numeral} kicker={CHAPTER_META.intake.kicker} title={CHAPTER_META.intake.title} dek={CHAPTER_META.intake.dek} covers={CHAPTER_META.intake.covers} />
 
-      <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <Sparkles className="h-3 w-3" /> Step 2 · Intake
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <ShieldCheck className="h-3 w-3" /> Fictional Student
-          </Badge>
-        </div>
-        <h1 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
-          Sample Intake For {toTitleCase(student.full_name)}
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          This is what the guided transition-planning interview looks like once a family
-          or educator finishes. Every answer here directly shapes the Pathway Report on
-          the next chapter — the strengths we lead with, the supports we recommend, and
-          the language the team uses with {student.first_name}.
-        </p>
+        <PublicationPage
+          kicker={meta.kicker}
+          chapter={meta.title}
+          dek={`Sample intake for ${toTitleCase(student.full_name)} — every answer here directly shapes the Pathway Report that follows.`}
+          part="Part One — Listen"
+          folio={`p. ${meta.page}`}
+        >
+          <PublicationPullQuote attribution={`In ${student.first_name}'s Own Words`}>
+            {intake.student_voice}
+          </PublicationPullQuote>
 
-        <div className="mt-8 space-y-6">
+          <PublicationCallout kind="means">
+            This is what the guided transition-planning interview looks like once a family
+            or educator finishes. The strengths we lead with, the supports we recommend,
+            and the language the team uses with {student.first_name} all flow from these
+            answers.
+          </PublicationCallout>
+
           {sections.map((section, i) => (
-            <div key={section.label} className="rounded-3xl border bg-card shadow-soft">
-              <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
-                <h2 className="font-display text-lg">{section.label}</h2>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Section {i + 1} Of {sections.length}
+            <section key={section.label}>
+              <h2>
+                <span className="text-[color:var(--pub-rule-soft)] text-xs font-semibold uppercase tracking-widest mr-2">
+                  §{i + 1}
                 </span>
-              </div>
-              <dl className="divide-y divide-border/60">
+                {section.label}
+              </h2>
+              <dl className="divide-y divide-[color:var(--pub-rule-soft)]">
                 {section.fields.map((field) => (
-                  <div key={field.label} className="grid gap-2 px-6 py-5 sm:grid-cols-[200px_1fr]">
+                  <div
+                    key={field.label}
+                    className="grid gap-2 py-4 sm:grid-cols-[220px_1fr]"
+                  >
                     <dt>
                       <p className="text-sm font-medium text-foreground">{field.label}</p>
                       {field.helper && (
@@ -189,18 +193,17 @@ function DemoIntakePage() {
                     </dt>
                     <dd className="text-sm leading-relaxed text-foreground/85">
                       {field.value || (
-                        <span className="text-muted-foreground italic">Not Provided</span>
+                        <span className="italic text-muted-foreground">Not Provided</span>
                       )}
                     </dd>
                   </div>
                 ))}
               </dl>
-            </div>
+            </section>
           ))}
-        </div>
 
-        <DemoStepFooter current="intake" student={s} />
-      </section>
+          <DemoStepFooter current="intake" student={s} />
+        </PublicationPage>
       </div>
     </SiteShell>
   );

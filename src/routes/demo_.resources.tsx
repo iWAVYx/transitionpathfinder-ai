@@ -1,5 +1,3 @@
-import { ChapterOpener } from "@/components/site/MagazinePage";
-import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -22,10 +20,14 @@ import {
   DemoStepFooter,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getDemoStudent } from "@/lib/demo-data";
+import {
+  PublicationPage,
+  PublicationCallout,
+  PublicationSource,
+} from "@/components/publication/PublicationPage";
 
 export const Route = createFileRoute("/demo_/resources")({
   validateSearch: validateStudentSearch,
@@ -167,7 +169,7 @@ const RESOURCES: Resource[] = [
   },
   {
     id: "iep-decoder",
-    title: "How to Read Your IEP — A Family Guide",
+    title: "How To Read Your IEP — A Family Guide",
     format: "Article",
     categories: ["transition", "selfadvocacy"],
     matchedTo: ["all"],
@@ -244,7 +246,7 @@ const RESOURCES: Resource[] = [
   },
   {
     id: "video-iep-meeting",
-    title: "What to Expect at an IEP Meeting (Video)",
+    title: "What To Expect At An IEP Meeting (Video)",
     format: "Video",
     categories: ["video", "transition", "selfadvocacy"],
     matchedTo: ["all"],
@@ -310,128 +312,127 @@ function DemoResourcesPage() {
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="resources" student={s} />
-        <ChapterOpener numeral={CHAPTER_META.resources.numeral} kicker={CHAPTER_META.resources.kicker} title={CHAPTER_META.resources.title} dek={CHAPTER_META.resources.dek} covers={CHAPTER_META.resources.covers} />
+        <PublicationPage
+          kicker="Step 06"
+          chapter="Resource Matches"
+          dek="Curated supports — with what it is, who it helps, and how to use it — pulled from the planning library."
+          part="Part Two — Synthesize"
+          folio="p. 50"
+        >
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
-      <section className={`mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "max-w-[88rem] py-6" : "max-w-6xl py-10"}`}>
-        <div className={compact ? "mb-4" : "mb-6"}>
-        </div>
-        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            Resource Hub
-          </p>
-          <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-            Matches For {profile.first_name}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Every resource is tagged with what it is, who it helps, why it matters, and how to use
-            it — so families and educators aren't stuck guessing.
-          </p>
+            <PublicationCallout kind="means">
+              Every resource is tagged with what it is, who it helps, why it matters, and how
+              to use it — so families and educators aren't stuck guessing.
+            </PublicationCallout>
 
-          {/* Search */}
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[240px]">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search Resources…"
-                className="pl-9"
-              />
-            </div>
-            <Button
-              variant={showAll ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowAll((v) => !v)}
-            >
-              <Filter className="h-4 w-4" />
-              {showAll ? "Showing All" : `Matched To ${profile.first_name}`}
-            </Button>
-            <div className="ml-auto inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
-              <button
-                type="button"
-                onClick={() => setDensity("compact")}
-                className={`rounded px-2 py-1 text-xs ${compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                aria-pressed={compact}
+            {/* Toolbar */}
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[240px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search Resources…"
+                  className="pl-9"
+                />
+              </div>
+              <Button
+                variant={showAll ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowAll((v) => !v)}
               >
-                Compact
-              </button>
-              <button
-                type="button"
-                onClick={() => setDensity("comfortable")}
-                className={`rounded px-2 py-1 text-xs ${!compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                aria-pressed={!compact}
-              >
-                Comfortable
-              </button>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="scrollbar-none -mx-1 mt-4 flex gap-2 overflow-x-auto pb-1">
-            {CATEGORIES.map((c) => {
-              const Icon = c.icon;
-              const isActive = active === c.id;
-              return (
+                <Filter className="h-4 w-4" />
+                {showAll ? "Showing All" : `Matched To ${profile.first_name}`}
+              </Button>
+              <div className="ml-auto inline-flex rounded-md border bg-background p-0.5" role="group" aria-label="View density">
                 <button
-                  key={c.id}
-                  onClick={() => setActive(c.id)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    isActive
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
-                  }`}
+                  type="button"
+                  onClick={() => setDensity("compact")}
+                  className={`rounded px-2 py-1 text-xs ${compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={compact}
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  {c.label}
+                  Compact
                 </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Results */}
-        <div className={`mt-6 grid ${compact ? "gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "gap-4 md:grid-cols-2"}`}>
-          {matched.map((r) => (
-            <ResourceCard key={r.id} r={r} compact={compact} />
-          ))}
-          {matched.length === 0 && (
-            <div className="col-span-full rounded-3xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
-              No Matches Yet — Try Clearing The Search Or Switching Categories.
+                <button
+                  type="button"
+                  onClick={() => setDensity("comfortable")}
+                  className={`rounded px-2 py-1 text-xs ${!compact ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={!compact}
+                >
+                  Comfortable
+                </button>
+              </div>
             </div>
-          )}
-        </div>
 
-        <DemoStepFooter current="resources" student={s} />
-      </section>
+            {/* Category filters */}
+            <div className="scrollbar-none -mx-1 mt-4 flex gap-2 overflow-x-auto pb-1">
+              {CATEGORIES.map((c) => {
+                const Icon = c.icon;
+                const isActive = active === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setActive(c.id)}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                      isActive
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Results — editorial rows */}
+            <div className="mt-8">
+              {matched.length === 0 && (
+                <p className="border-t border-[color:var(--pub-rule-soft)] py-8 text-center text-sm text-muted-foreground">
+                  No matches yet — try clearing the search or switching categories.
+                </p>
+              )}
+              {matched.map((r) => (
+                <ResourceRow key={r.id} r={r} compact={compact} />
+              ))}
+            </div>
+
+            <DemoStepFooter current="resources" student={s} />
+          </div>
+        </PublicationPage>
       </div>
     </SiteShell>
   );
 }
 
-function ResourceCard({ r, compact = false }: { r: Resource; compact?: boolean }) {
+function ResourceRow({ r, compact = false }: { r: Resource; compact?: boolean }) {
   return (
-    <article className={`rounded-3xl border bg-card shadow-soft transition-shadow hover:shadow-lift ${compact ? "p-3" : "p-5 sm:p-6"}`}>
+    <article className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             {r.format}
-          </Badge>
-          <h3 className={`mt-1.5 font-display leading-snug ${compact ? "text-sm" : "text-lg"}`}>{r.title}</h3>
+          </p>
+          <h3 className={`font-[\'Instrument_Serif\',Georgia,serif] leading-snug text-foreground ${compact ? "mt-0.5 text-base" : "mt-1 text-lg"}`}>
+            {r.title}
+          </h3>
+          <dl className={`text-sm ${compact ? "mt-2 space-y-1" : "mt-3 space-y-2"}`}>
+            <FieldRow label="What It Is" value={r.what_it_is} />
+            <FieldRow label="Who It Helps" value={r.who_it_helps} />
+            <FieldRow label="Why It Matters" value={r.why_it_matters} />
+            <FieldRow label="How To Use It" value={r.how_to_use} />
+          </dl>
+          <PublicationSource>Source · {r.source}</PublicationSource>
         </div>
-        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
       </div>
-      <dl className={`text-sm ${compact ? "mt-2 space-y-1.5" : "mt-4 space-y-3"}`}>
-        <Row label="What It Is" value={r.what_it_is} />
-        <Row label="Who It Helps" value={r.who_it_helps} />
-        <Row label="Why It Matters" value={r.why_it_matters} />
-        <Row label="How To Use It" value={r.how_to_use} />
-      </dl>
-      <p className={`text-[11px] text-muted-foreground ${compact ? "mt-2" : "mt-4"}`}>Source · {r.source}</p>
     </article>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function FieldRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
