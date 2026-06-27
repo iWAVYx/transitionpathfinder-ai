@@ -87,7 +87,7 @@ function DemoNextPage() {
   const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
 
   return (
-    <StudioPage stage="next" student={s} preserveStudent={!!search.s} title={"What Comes Next"} dek={"Clear paths for families, educators, schools, districts, and partners — pick a starting point and we'll walk it with you."}>
+    <StudioPage stage="next" student={s} preserveStudent={!!search.s} title="What Comes Next" dek="Clear paths for families, educators, schools, districts, and partners — pick a starting point and we'll walk it with you.">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="next">

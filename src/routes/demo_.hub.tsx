@@ -60,7 +60,7 @@ function DemoHubPage() {
   const { profile: student } = bundle;
 
   return (
-    <StudioPage stage="hub" student={s} preserveStudent={!!search.s} title={"Workspace Index"} dek={`A guided tour of ${toTitleCase(student.full_name)}>
+    <StudioPage stage="hub" student={s} preserveStudent={!!search.s} title="Workspace Index" dek={`A guided tour of ${toTitleCase(student.full_name)}'s pathway workspace.`}>
           <PublicationSpread
             lead={
               <>

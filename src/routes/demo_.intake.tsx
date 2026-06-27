@@ -140,7 +140,7 @@ function DemoIntakePage() {
   const meta = CHAPTER_META.intake;
 
   return (
-    <StudioPage stage="intake" student={s} preserveStudent={!!search.s} title={meta.title} dek={`Sample intake for ${toTitleCase(student.full_name)}>
+    <StudioPage stage="intake" student={s} preserveStudent={!!search.s} title={meta.title} dek={`Sample intake for ${toTitleCase(student.full_name)} — the foundation of the Pathway Report.`}>
           <PublicationPullQuote attribution={`In ${student.first_name}'s Own Words`}>
             {intake.student_voice}
           </PublicationPullQuote>

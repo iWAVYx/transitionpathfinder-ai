@@ -43,7 +43,7 @@ function DemoVoicePage() {
   const aspirations = prompts.slice(0, 3).map((p) => p.affects);
 
   return (
-    <StudioPage stage="voice" student={s} preserveStudent={!!search.s} title={`${first} dek={meta.dek}>
+    <StudioPage stage="voice" student={s} preserveStudent={!!search.s} title={`${first}'s Voice, In ${first}'s Words`} dek={meta.dek}>
           {/* Feature opener — hero pull quote with sidebar */}
           <PublicationSpread
             lead={

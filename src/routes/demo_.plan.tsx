@@ -61,13 +61,7 @@ function DemoPlanPage() {
   };
 
   return (
-    <PublicationPage
-          kicker="Step 09"
-          chapter="30 / 60 / 90-Day Plan"
-          dek="Doable steps with named owners and clear success markers — the three months after the meeting, mapped out together."
-          part="Part Three — Plan"
-          folio="p. 70"
-        >
+    <StudioPage stage="plan" student={s} preserveStudent={!!search.s} title="30 / 60 / 90-Day Plan" dek="The next ninety days, in writing — what gets started, what gets handed off, what gets reviewed.">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="means">
