@@ -1017,9 +1017,9 @@ export function ReportView({
       {/* ============ Career Matches ============ */}
       {r.career_matches && r.career_matches.length > 0 && (
         <Block id="sec-careers" title="Career & Life Pathway Matches" icon={<Briefcase className="h-5 w-5" />}>
-          <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
+          <div className="divide-y divide-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.career_matches.map((c) => (
-              <div key={c.cluster} className="rounded-2xl border bg-card p-5 lift-card">
+              <div key={c.cluster} className="py-5">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
                   <ReadinessBadge level={c.readiness_level} compact />
@@ -1045,7 +1045,7 @@ export function ReportView({
                   </p>
                 </div>
                 <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
-                <p className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
+                <p className="mt-3 border-l-2 border-primary/30 pl-3 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
                     Next Exploration Step
                   </span>
