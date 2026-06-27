@@ -1061,7 +1061,7 @@ export function ReportView({
       {/* ============ Postsecondary Goal Breakdown ============ */}
       {r.postsecondary_goals && r.postsecondary_goals.length > 0 && (
         <Block id="sec-goals" title="Postsecondary Goal Breakdown" icon={<Target className="h-5 w-5" />}>
-          <Accordion type="multiple" className="rounded-2xl border bg-card">
+          <Accordion type="multiple" className="border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.postsecondary_goals.map((g, i) => (
               <AccordionItem key={i} value={`goal-${i}`} className="px-5">
                 <AccordionTrigger className="text-left">
@@ -1092,7 +1092,7 @@ export function ReportView({
         <Block title="Career Pathways to Explore" icon={<Compass className="h-5 w-5" />}>
           <div className="grid gap-4">
             {r.career_pathways.map((p) => (
-              <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5 lift-card">
+              <div key={p.title} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
                 <h3 className="font-display text-xl font-medium">{toTitleCase(p.title)}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
@@ -1126,7 +1126,7 @@ export function ReportView({
           </p>
           <div className="space-y-3">
             {r.iep_translator.map((t, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
+              <div key={i} className="border-l-2 border-primary/30 pl-5 py-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                   Goal Language
                 </p>
@@ -1364,7 +1364,7 @@ export function ReportView({
         <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
+              <div key={i} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
@@ -1400,7 +1400,7 @@ export function ReportView({
                         : "border-border bg-background",
                   )}
                 />
-                <div className="rounded-2xl border bg-card p-5 lift-card">
+                <div className="border-l-2 border-primary/30 pl-5 py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="font-display text-lg">{toTitleCase(s.stage)}</h3>
                     <Badge
@@ -1441,7 +1441,7 @@ export function ReportView({
       {/* ============ Needs human review ============ */}
       {r.needs_human_review && r.needs_human_review.length > 0 && (
         <Block id="sec-review" title="Worth a Human Second Look" icon={<ShieldCheck className="h-5 w-5" />}>
-          <div className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10">
+          <div className="border-l-2 border-amber-400/60 pl-5 py-3">
             <p className="text-sm text-muted-foreground">
               These items are the AI's best guess based on the intake. Please review with the
               student, family, or school team before acting on them.
@@ -1502,8 +1502,8 @@ export function ReportView({
 
       {/* ============ Closing note (formal) ============ */}
       <section className="report-section mt-10">
-        <div className="rounded-2xl border border-border/60 bg-gradient-hero p-8 sm:p-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+        <div className="border-y border-primary/30 py-8 sm:py-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             A closing note for {name}
           </p>
           <p className="mt-3 font-display text-xl leading-relaxed text-foreground/85 sm:text-2xl">
@@ -1513,7 +1513,7 @@ export function ReportView({
       </section>
 
       {/* ============ Document footer / control ============ */}
-      <footer className="mt-10 rounded-2xl border bg-card">
+      <footer className="mt-10 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
         <div className="border-b border-border/60 bg-amber-50/40 px-6 py-5 sm:px-8 dark:bg-amber-950/10">
           <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
             <ShieldCheck className="h-3.5 w-3.5" /> Planning Disclaimer
