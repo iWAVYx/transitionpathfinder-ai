@@ -5835,3 +5835,778 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .tf-v2-deck-foot .next { justify-self: end; }
 .tf-v2-deck-foot .folio { font-family: var(--v2-serif); font-style: italic; opacity: 0.6; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
 
+
+/* =====================================================================
+ * STUDIO SYSTEM — Atlas Ink (Pathway Studio, v3 from-scratch)
+ *
+ * A complete replacement for the demo + signed-in pathway report visual
+ * language. Scoped under `.tf-studio` so it does not affect the rest of
+ * the marketing site or the authenticated product chrome.
+ *
+ * Direction: Guided Pathway Studio with a persistent left workbench and
+ * a focused right canvas. Type pairing: Lora (display) × Inter (text).
+ * Palette: Atlas Ink — ink navy, map blue, mustard, terracotta, cream
+ * paper. Cards/tiles/panels are deliberately avoided in favor of editorial
+ * frames, hairline rules, and generous breathing room.
+ * ===================================================================== */
+
+.tf-studio {
+  --st-ink:        #161d2c;          /* deep navy ink */
+  --st-ink-soft:   #2a3344;
+  --st-mute:       #5b6573;
+  --st-paper:      #f3ede1;          /* cream paper */
+  --st-paper-2:    #ece4d2;          /* warmer cream */
+  --st-paper-3:    #f8f3e6;          /* lighter cream */
+  --st-map:        #2f6b8a;          /* map blue */
+  --st-map-deep:   #1e4f6b;
+  --st-mustard:    #e8b14a;          /* mustard waypoint */
+  --st-mustard-soft:#f1cd80;
+  --st-terra:      #a83f2a;          /* terracotta accent */
+  --st-terra-soft: #c46a52;
+  --st-rule:       color-mix(in srgb, #161d2c 16%, transparent);
+  --st-rule-soft:  color-mix(in srgb, #161d2c 8%, transparent);
+
+  --st-serif: "Lora", Georgia, "Times New Roman", serif;
+  --st-sans:  "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  color: var(--st-ink);
+  background: var(--st-paper);
+  font-family: var(--st-sans);
+  font-size: 16.5px;
+  line-height: 1.62;
+  letter-spacing: 0;
+  font-feature-settings: "ss01", "cv11", "kern";
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Neutralize lingering chrome from older systems when nested inside .tf-studio */
+.tf-studio .pub-page,
+.tf-studio .eh-issue,
+.tf-studio .eh-chapter,
+.tf-studio .mag-page,
+.tf-studio .tf-v2-deck,
+.tf-studio .tf-v2-rail {
+  all: revert;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+}
+
+/* ---------- Studio shell layout ---------- */
+.tf-studio-app {
+  display: grid;
+  grid-template-columns: 304px minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "brand brand"
+    "rail  canvas"
+    "rail  foot";
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 88% -120px, color-mix(in srgb, var(--st-mustard) 18%, transparent), transparent 60%),
+    radial-gradient(900px 700px at -10% 110%, color-mix(in srgb, var(--st-map) 12%, transparent), transparent 60%),
+    var(--st-paper);
+}
+@media (max-width: 960px) {
+  .tf-studio-app {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "canvas"
+      "foot";
+  }
+}
+
+/* ---------- Brand strip (top) ---------- */
+.tf-studio-brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 18px clamp(20px, 4vw, 44px);
+  border-bottom: 1px solid var(--st-rule-soft);
+  background: color-mix(in srgb, var(--st-paper) 92%, white);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: saturate(120%) blur(6px);
+}
+.tf-studio-brand .mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--st-serif);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--st-ink);
+  text-decoration: none;
+  letter-spacing: -0.005em;
+}
+.tf-studio-brand .mark em {
+  font-style: italic;
+  color: var(--st-map);
+  font-weight: 500;
+}
+.tf-studio-brand .meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+}
+.tf-studio-brand .meta .pill {
+  border: 1px solid var(--st-rule);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: var(--st-paper-3);
+}
+
+/* ---------- Workbench rail (left) ---------- */
+.tf-studio-rail {
+  grid-area: rail;
+  border-right: 1px solid var(--st-rule-soft);
+  padding: 28px 18px 28px 28px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--st-paper) 90%, white) 0%, var(--st-paper) 60%);
+  overflow-y: auto;
+  position: sticky;
+  top: 65px;
+  height: calc(100vh - 65px);
+}
+@media (max-width: 960px) { .tf-studio-rail { display: none; } }
+
+.tf-studio-rail .rail-kicker {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+  margin-bottom: 8px;
+}
+.tf-studio-rail .rail-title {
+  font-family: var(--st-serif);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  margin: 0 0 18px;
+  color: var(--st-ink);
+}
+.tf-studio-rail .rail-progress {
+  height: 4px;
+  background: var(--st-rule-soft);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.tf-studio-rail .rail-progress > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--st-map), var(--st-mustard));
+  transition: width 280ms ease;
+}
+.tf-studio-rail ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.tf-studio-rail .stage {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: start;
+  gap: 12px;
+  padding: 12px 8px 12px 0;
+  text-decoration: none;
+  color: var(--st-ink);
+  border-top: 1px solid var(--st-rule-soft);
+  position: relative;
+}
+.tf-studio-rail .stage:first-child { border-top: 0; }
+.tf-studio-rail .stage .dot {
+  width: 18px; height: 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--st-rule);
+  background: var(--st-paper);
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+}
+.tf-studio-rail .stage .num {
+  position: absolute;
+  left: 6px; top: 14px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--st-mute);
+  letter-spacing: 0.1em;
+}
+.tf-studio-rail .stage .body { min-width: 0; }
+.tf-studio-rail .stage .lbl {
+  font-family: var(--st-serif);
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--st-ink);
+  margin: 0;
+}
+.tf-studio-rail .stage .sub {
+  font-size: 11.5px;
+  color: var(--st-mute);
+  margin-top: 2px;
+  letter-spacing: 0.01em;
+}
+.tf-studio-rail .stage[data-state="done"] .dot {
+  background: var(--st-ink);
+  border-color: var(--st-ink);
+  box-shadow: inset 0 0 0 3px var(--st-paper);
+}
+.tf-studio-rail .stage[data-state="current"] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--st-mustard) 22%, transparent), transparent 70%);
+  padding-left: 8px;
+  border-left: 3px solid var(--st-mustard);
+  margin-left: -3px;
+}
+.tf-studio-rail .stage[data-state="current"] .dot {
+  background: var(--st-mustard);
+  border-color: var(--st-mustard);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--st-mustard) 25%, transparent);
+}
+.tf-studio-rail .stage[data-state="current"] .lbl {
+  color: var(--st-ink);
+  font-weight: 600;
+}
+.tf-studio-rail .stage:hover .lbl { color: var(--st-map-deep); }
+
+/* Connector line behind dots */
+.tf-studio-rail ol {
+  position: relative;
+}
+.tf-studio-rail ol::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 22px;
+  bottom: 22px;
+  width: 1.5px;
+  background: var(--st-rule);
+  z-index: 0;
+}
+
+/* ---------- Canvas ---------- */
+.tf-studio-canvas {
+  grid-area: canvas;
+  padding: clamp(28px, 4vw, 64px) clamp(20px, 5vw, 72px) clamp(48px, 6vw, 96px);
+  min-width: 0;
+  max-width: 1100px;
+}
+.tf-studio-canvas h1,
+.tf-studio-canvas h2,
+.tf-studio-canvas h3,
+.tf-studio-canvas h4 {
+  font-family: var(--st-serif);
+  color: var(--st-ink);
+  letter-spacing: -0.01em;
+}
+.tf-studio-canvas h1 { font-size: clamp(2.2rem, 4.4vw, 3.6rem); line-height: 1.06; font-weight: 600; }
+.tf-studio-canvas h2 { font-size: clamp(1.6rem, 2.4vw, 2.1rem); line-height: 1.15; font-weight: 600; margin-top: 2.2em; }
+.tf-studio-canvas h3 { font-size: 1.25rem; line-height: 1.2; font-weight: 600; margin-top: 1.6em; }
+.tf-studio-canvas h4 { font-size: 1rem; line-height: 1.2; font-weight: 600; }
+.tf-studio-canvas p {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  max-width: 64ch;
+  color: var(--st-ink-soft);
+  margin: 0 0 1em;
+}
+.tf-studio-canvas a {
+  color: var(--st-terra);
+  text-decoration-color: color-mix(in srgb, var(--st-terra) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.tf-studio-canvas a:hover { color: var(--st-ink); }
+.tf-studio-canvas ul, .tf-studio-canvas ol {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--st-ink-soft);
+  padding-left: 1.25em;
+  max-width: 60ch;
+}
+
+/* Stage head (slate label + folio + dek) */
+.st-stagehead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--st-rule);
+  margin-bottom: 36px;
+}
+.st-stagehead .slate {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--st-map-deep);
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.st-stagehead .slate .sq {
+  width: 8px; height: 8px;
+  background: var(--st-mustard);
+  display: inline-block;
+}
+.st-stagehead .stage-num {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+}
+.st-stagehead .dek {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: var(--st-mute);
+  margin-top: 12px;
+  max-width: 56ch;
+}
+.st-stagehead .folio {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+  font-family: var(--st-serif);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* Editorial frames */
+.st-frame {
+  border-top: 1px solid var(--st-rule);
+  padding-top: 26px;
+  margin-top: 32px;
+}
+.st-frame > h2:first-child,
+.st-frame > h3:first-child { margin-top: 0; }
+
+.st-aside {
+  margin: 28px 0;
+  padding: 22px 24px;
+  background: var(--st-paper-3);
+  border-left: 3px solid var(--st-map);
+  font-size: 0.98rem;
+}
+.st-aside .lbl {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--st-map-deep);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.st-aside.is-next  { border-left-color: var(--st-terra); }
+.st-aside.is-next  .lbl { color: var(--st-terra); }
+.st-aside.is-source { border-left-color: var(--st-mustard); background: color-mix(in srgb, var(--st-mustard) 10%, var(--st-paper-3)); }
+.st-aside.is-source .lbl { color: #8a6a16; }
+
+.st-pull {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  line-height: 1.3;
+  color: var(--st-ink);
+  margin: 36px 0;
+  padding-left: 28px;
+  border-left: 3px solid var(--st-mustard);
+}
+.st-pull cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-family: var(--st-sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+}
+
+/* Footer wizard */
+.tf-studio-foot {
+  grid-area: foot;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px clamp(20px, 4vw, 44px);
+  border-top: 1px solid var(--st-rule-soft);
+  background: color-mix(in srgb, var(--st-paper) 90%, white);
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  backdrop-filter: saturate(120%) blur(6px);
+}
+.tf-studio-foot .step-pill {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+  font-family: var(--st-serif);
+  font-style: italic;
+}
+.tf-studio-foot .step-pill button {
+  border: 1px solid var(--st-rule);
+  background: var(--st-paper-3);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--st-ink);
+  cursor: pointer;
+}
+.tf-studio-foot .step-pill button:hover { background: var(--st-mustard-soft); }
+.tf-studio-foot .nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--st-ink);
+  font-family: var(--st-serif);
+  padding: 10px 14px;
+  border: 1px solid var(--st-rule);
+  background: var(--st-paper);
+  border-radius: 6px;
+  min-width: 0;
+}
+.tf-studio-foot .nav .arrow { color: var(--st-map); font-style: italic; }
+.tf-studio-foot .nav .label { display: block; min-width: 0; }
+.tf-studio-foot .nav .lbl-kicker {
+  display: block;
+  font-family: var(--st-sans);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--st-mute);
+}
+.tf-studio-foot .nav .lbl-title {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: var(--st-ink);
+  font-weight: 500;
+  max-width: 28ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tf-studio-foot .nav.next  { justify-self: end; text-align: right; }
+.tf-studio-foot .nav.prev  { justify-self: start; }
+.tf-studio-foot .nav.next:hover, .tf-studio-foot .nav.prev:hover {
+  border-color: var(--st-map);
+  background: color-mix(in srgb, var(--st-map) 6%, var(--st-paper));
+}
+.tf-studio-foot .nav.disabled { opacity: 0.35; pointer-events: none; }
+
+/* Overview map overlay (the "guided wizard with overview map") */
+.tf-studio-map {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--st-ink) 60%, transparent);
+  display: grid;
+  place-items: center;
+  z-index: 80;
+  padding: 24px;
+}
+.tf-studio-map[hidden] { display: none; }
+.tf-studio-map .panel {
+  width: min(1080px, 100%);
+  max-height: 86vh;
+  overflow: auto;
+  background: var(--st-paper);
+  border: 1px solid var(--st-rule);
+  border-radius: 4px;
+  padding: clamp(24px, 4vw, 44px);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.4);
+}
+.tf-studio-map .panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--st-rule);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+.tf-studio-map .panel-head h2 {
+  font-family: var(--st-serif);
+  font-size: 1.65rem;
+  margin: 0;
+  color: var(--st-ink);
+}
+.tf-studio-map .panel-head .close {
+  border: 1px solid var(--st-rule);
+  background: var(--st-paper-3);
+  border-radius: 999px;
+  width: 32px; height: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--st-ink);
+}
+
+/* Visual route (map line with milestones) */
+.st-route {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 0;
+  margin: 8px 0 32px;
+  padding: 40px 8px 28px;
+}
+.st-route::before {
+  content: "";
+  position: absolute;
+  left: 4%; right: 4%;
+  top: 56px;
+  height: 2px;
+  background-image: linear-gradient(90deg, var(--st-map) 50%, transparent 50%);
+  background-size: 14px 2px;
+  background-repeat: repeat-x;
+  z-index: 0;
+}
+.st-route a {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-decoration: none;
+  padding: 0 4px;
+}
+.st-route a .wp {
+  width: 28px; height: 28px;
+  border-radius: 999px;
+  border: 1.5px solid var(--st-map);
+  background: var(--st-paper);
+  display: grid;
+  place-items: center;
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--st-map-deep);
+  position: relative;
+}
+.st-route a[data-state="done"] .wp {
+  background: var(--st-ink);
+  color: var(--st-paper);
+  border-color: var(--st-ink);
+}
+.st-route a[data-state="current"] .wp {
+  background: var(--st-mustard);
+  border-color: var(--st-mustard);
+  color: var(--st-ink);
+  width: 34px; height: 34px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--st-mustard) 28%, transparent);
+}
+.st-route a .lab {
+  font-family: var(--st-serif);
+  font-size: 12px;
+  text-align: center;
+  color: var(--st-ink-soft);
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+.st-route a:hover .lab { color: var(--st-terra); }
+@media (max-width: 760px) {
+  .st-route { grid-template-columns: repeat(11, minmax(72px, 1fr)); overflow-x: auto; padding-bottom: 14px; }
+  .st-route a .lab { font-size: 11px; }
+}
+
+/* Pathway sketch on the cover */
+.st-cover {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(28px, 4vw, 56px);
+  align-items: start;
+  margin-top: 8px;
+}
+@media (max-width: 960px) { .st-cover { grid-template-columns: 1fr; } }
+.st-cover .lead .issue-line {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--st-map-deep);
+  margin-bottom: 18px;
+}
+.st-cover .lead h1 em {
+  font-style: italic;
+  color: var(--st-terra);
+  font-weight: 500;
+}
+.st-cover .lead .dek {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--st-mute);
+  margin: 18px 0 28px;
+  max-width: 48ch;
+}
+.st-cover .lead .ctas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.st-cover .lead .ctas a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 4px;
+  font-family: var(--st-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.st-cover .lead .ctas .primary {
+  background: var(--st-ink);
+  color: var(--st-paper);
+}
+.st-cover .lead .ctas .primary:hover { background: var(--st-map-deep); color: var(--st-paper); }
+.st-cover .lead .ctas .ghost {
+  border: 1px solid var(--st-rule);
+  color: var(--st-ink);
+  background: transparent;
+}
+.st-cover .lead .ctas .ghost:hover { background: var(--st-paper-3); }
+
+.st-cover .side {
+  border-left: 1px solid var(--st-rule);
+  padding-left: clamp(20px, 3vw, 36px);
+}
+.st-cover .side h4 {
+  font-family: var(--st-sans);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--st-map-deep);
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.st-cover .side .quote {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: var(--st-ink);
+  margin: 0 0 24px;
+}
+.st-cover .side .quote cite {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--st-sans);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--st-map);
+}
+.st-cover .side .swap {
+  display: inline-flex;
+  gap: 8px;
+  border: 1px solid var(--st-rule);
+  border-radius: 999px;
+  padding: 4px;
+  background: var(--st-paper-3);
+}
+.st-cover .side .swap a {
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--st-ink);
+  font-weight: 500;
+}
+.st-cover .side .swap a[aria-current="true"] {
+  background: var(--st-ink);
+  color: var(--st-paper);
+}
+
+/* Hide-on-mobile / show-on-mobile utilities scoped to studio */
+@media (max-width: 960px) {
+  .tf-studio .st-hide-mobile { display: none; }
+}
+
+/* ---------- Brand-new 11-step journey strip (preserved for layout tests) ---------- */
+.tf-studio .tf-journey {
+  all: unset;
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  width: 100%;
+  gap: 0;
+  margin: 32px 0 8px;
+  position: relative;
+  isolation: isolate;
+}
+.tf-studio .tf-journey::before {
+  content: "";
+  position: absolute;
+  left: 4.5%;
+  right: 4.5%;
+  top: 24px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--st-map) 0 8px, transparent 8px 16px);
+  z-index: 0;
+}
+.tf-studio .tf-journey-step {
+  all: unset;
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  gap: 10px;
+  padding: 4px 2px 0;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  min-width: 0;
+}
+.tf-studio .tf-journey-step .j-dot {
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  background: var(--st-paper);
+  border: 1.5px solid var(--st-map);
+  display: grid;
+  place-items: center;
+  font-family: var(--st-serif);
+  font-size: 11px;
+  color: var(--st-map-deep);
+}
+.tf-studio .tf-journey-step[data-state="current"] .j-dot {
+  background: var(--st-mustard);
+  border-color: var(--st-mustard);
+  color: var(--st-ink);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--st-mustard) 25%, transparent);
+}
+.tf-studio .tf-journey-step .j-lab {
+  font-family: var(--st-serif);
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--st-ink-soft);
+  text-decoration: none;
+}
+
