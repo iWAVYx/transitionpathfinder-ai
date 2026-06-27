@@ -1,35 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import { HubShell } from "@/components/hub/HubShell";
-import { getHub } from "@/lib/hubs/registry";
-
+// Public hub URLs were removed 2026-06-27 — product hubs are signed-in only.
+// Redirect to the Demo Workspace so any external link still lands safely.
 export const Route = createFileRoute("/hubs/transition-planning")({
-  head: () => ({
-    meta: [
-      { title: "Transition Planning Hub — TransitionForward" },
-      {
-        name: "description",
-        content:
-          "Every input that shapes a Connecticut transition plan — student voice, family priorities, educator input, documents, and readiness — connected to the Pathway Report.",
-      },
-      { property: "og:title", content: "Transition Planning Hub — TransitionForward" },
-      {
-        property: "og:description",
-        content:
-          "The pillar page for Connecticut transition planning. Explore the inputs that build a Pathway Report.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "/hubs/transition-planning" }],
-  }),
-  component: TransitionPlanningHubPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/demo", replace: true });
+  },
+  component: () => null,
 });
-
-function TransitionPlanningHubPage() {
-  const hub = getHub("transition-planning")!;
-  return (
-    <SiteShell>
-      <HubShell hub={hub} />
-    </SiteShell>
-  );
-}
