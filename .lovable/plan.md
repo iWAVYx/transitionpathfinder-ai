@@ -1,138 +1,72 @@
-# End-to-End UX Correction: Demo Workspace + Pathway Report
 
-This is a focused UX pass, not another visual overhaul. The Ocean Deep direction and the Workbook/Editorial Report Body layers stay. The work is to make the *flow* — orientation, navigation, readability, balance — actually usable from beginning to end, on mobile, tablet, and desktop, without breaking auth, role rules, routing, test IDs, or report data.
+# TransitionForward Content Hub Architecture
 
-## Scope (what changes)
+This is a large, cross-cutting reorganization. I'll do it in **phases** with your approval between each so we don't destabilize auth, routes, demo, or the Pathway Report. Each phase ships value on its own.
 
-- `src/components/site/MagazineReader.tsx` — the shared reader shell used by demo + report.
-- `src/components/site/DemoStepBar.tsx` + `DemoStepFooter` — top progress + prev/next.
-- `src/routes/demo.tsx` — Demo Workspace cover + table of contents.
-- Each `src/routes/demo_.*.tsx` — page intros, body composition, footer.
-- `src/components/pathway/ReportView.tsx` + `ReportChapterPager.tsx` + `ReportPartOpener.tsx` — Pathway Report reading model.
-- `src/routes/demo_.report.tsx`, `src/routes/_authenticated/reports.$reportId.tsx`, `src/routes/share.$token.tsx` — report shells stay structurally identical; only the reader chrome and intro band change.
-- `src/styles.css` — targeted refinements to the existing `.report-shell` / `.demo-shell` / Workbook layers. No new "system" rewrites.
+## Guiding principles
 
-## Scope (what does NOT change)
+- **Reorganize, don't rewrite.** Keep current routes, RLS, role guards, demo flow, and the Pathway Report intact. Add a hub layer *on top* and rewire navigation/linking.
+- **One shared hub primitive.** Every hub answers the same six questions (Who / Problem / Tools / Related / Next step / How it feeds the Pathway Report) using one component, so hubs feel like a system, not 15 bespoke pages.
+- **Pathway Report = center of gravity.** Every hub shows its contribution to the report; the report links back to its sources.
+- **No private data leaks.** Public hubs use demo/sample data only. Signed-in hubs stay behind existing role guards. Partner hub never references private student data.
 
-- Route paths, file names, `createFileRoute` strings.
-- Auth gates, 2FA, role guards, RLS, `_authenticated` layout.
-- Test IDs (`student-dashboard-main`, `resources-sticky-search`, `resources-sticky-filters`, etc.) and any selector used by `tests/e2e/*`.
-- Report data shape, audience tabs, demo student fixtures.
-- BridgeForward vs TransitionForward grade-band logic.
-- Partner privacy / document security boundaries.
-- The Ocean Deep palette and overall editorial direction.
+## Phase 1 — Hub foundation (ship first)
 
-## The 7 user-clarity questions (applied to every page)
+Goal: introduce the hub model and the shared chrome, with **two reference hubs** wired end-to-end so we can validate the pattern before scaling.
 
-Every demo step and report part must answer, visibly:
-1. Where am I? — section number + name in the header chip, current step in the progress bar.
-2. Why does this matter? — one-sentence "What this section is for" line under the title.
-3. What's shown? — a short "On this page" list when the page has >2 blocks.
-4. What do I provide? — explicit input affordances in real product; in demo, a "What you'd do here" note.
-5. What does the product do with it? — "How this feeds the Pathway Report" footnote per section.
-6. What's next? — single primary next CTA, always visible at bottom.
-7. How do I jump around? — compact TOC accessible from the reader chrome.
+1. **Shared primitives** in `src/components/hub/`:
+   - `HubShell` — pillar header (who/problem), section bands, related-links rail.
+   - `HubSpokeGrid` — uniform spoke cards (title, 1-line value, "feeds the report" tag, CTA).
+   - `RelatedLinksRail` — "Related Planning Tools / For Families / For Educators / Next Step / Use This In The Pathway Report".
+   - `FeedsReportBadge` — small label + tooltip explaining which Pathway Report section this informs.
+2. **Hub registry** `src/lib/hubs/registry.ts` — single source of truth: id, audience, pillar copy, spokes (each with `feedsReport: ReportSectionId | null`), related hub ids, signed-in vs public. Drives nav, footers, and the resource filter facets.
+3. **Two reference hubs built on the primitives**:
+   - Public: **Transition Planning Hub** at `/hubs/transition-planning` (pillar + spokes: Student Voice, Family Priorities, Educator Input, Documents, Readiness, Pathway Report, 30/60/90, Questions For The Team).
+   - Signed-in: **Student Planning Hub** at `/_authenticated/hubs/student` (pillar + spokes pointing to real product surfaces).
+4. **Site nav + footer**: add a "Hubs" menu grouped by audience, sourced from the registry. Existing top-nav links stay.
 
-Pages failing this test get the intro/footnote pattern wired in, not a redesign.
+Exit criteria: both hubs render, link to each other and to the Pathway Report, and the registry test confirms every spoke has audience + report mapping.
 
-## Navigation model (shared reader chrome)
+## Phase 2 — Public hub buildout
 
-`MagazineReader` + `DemoStepBar` are reworked into one consistent pattern used by both demo and report:
+Build the remaining public hubs against the registry, reusing existing route content where it already exists (BridgeForward, PartnerForward, Families, Educators, Pricing, Demo). Each becomes a true pillar page with spokes pulled from existing routes — no duplicate pages, mostly redirects + improved pillar/intro and "Related" rails.
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│  ← Prev   ●●●○○○○○○○  Step 3 of 9 · Pathway Report  ☰ TOC│  ← sticky top
-├──────────────────────────────────────────────────────────┤
-│  Section title                                            │
-│  One-sentence purpose                                     │
-│  ─── divider ───                                          │
-│  ...content...                                            │
-├──────────────────────────────────────────────────────────┤
-│  Up next: Documents & Evidence            Next →          │  ← sticky bottom on mobile, inline on desktop
-└──────────────────────────────────────────────────────────┘
-```
+Hubs: BridgeForward Middle School, Family Resource, Student Readiness, School & District, PartnerForward, Demo / Sample Pathway, Pricing / Pilot / Waitlist.
 
-Specifics:
-- Top bar: horizontal scroll on mobile (keeps existing drag/momentum), single row on desktop, current step highlighted with a filled dot + label, others as numbered chips. Min tap target 44×44.
-- TOC: a `Sheet` (shadcn) that slides from the right with the full list, grouped (Demo: Overview / Plan / Report / Next Steps; Report: Snapshot / Pathways / Translate / Team / Next). Closes on selection.
-- Prev/Next: always rendered, disabled state on first/last, with the destination's name shown, not just an arrow.
-- Mobile: bottom action bar fixed (Prev | TOC | Next) so the user never has to scroll to navigate.
-- "Back to Demo Workspace" / "Back to Report Cover" link always present in the top bar's left edge.
+## Phase 3 — Signed-in hub buildout
 
-## Pathway Report reading model
+Layer hub pages over the existing role dashboards (don't replace them — link into them). Routes under `/_authenticated/hubs/{role}` for Family, Educator/Case Manager, School Admin, District Admin, Partner, Owner. Each role's hub respects existing `RoleGuard` / `beforeLoad` checks. Partner hub explicitly excludes private student data; we'll add a unit test asserting the partner hub registry entry contains no student-PII spoke ids.
 
-Keep the Parts (Snapshot → Pathways → Translate → Team → Next) but make them behave as a guided document:
+## Phase 4 — Resource library upgrade
 
-- `ReportChapterPager` becomes a real sticky chapter rail with active state and a numbered "Part II of V" indicator.
-- Each Part opens with a one-page `ReportPartOpener` showing: Part number (Roman), name, one-sentence purpose, 3-item "What you'll find here" checklist, and a "Start reading" button that scrolls to the first section.
-- Inside a Part, sections use the Editorial Report Body layer already in place (hairline rules, no tiles). We add:
-  - A small "In this section" inline TOC at the top of long sections (3+ subblocks).
-  - A consistent "Bring to the team" or "Next step" callout at the bottom of each section, single column, left-rule, no decorative box.
-- Audience tabs (Student / Family / Educator) move out of the body and into the reader top bar as a segmented control, persistent across sections, with the active audience visible at all times.
-- Print/PDF mode unchanged behaviorally; chrome hides via existing `@media print`.
+Promote `/resources` into a true filterable library: facets for role, grade band, topic, planning stage, resource type, document type, readiness area, BridgeForward vs TransitionForward, public vs signed-in. Facets are derived from the hub registry + existing resource metadata, so adding a resource auto-populates filters. URL-synced filters via TanStack search params.
 
-## Readability pass
+## Phase 5 — Pathway Report ↔ hub wiring
 
-Apply globally inside `.report-shell` and `.demo-shell`:
-- Body copy: 16–17px, line-height 1.65, max-width 68ch.
-- Headings: a single, predictable scale (H1 36/40, H2 24/28, H3 18/22 on desktop; one step down on mobile). Title Case (uses existing `src/lib/title-case.ts`).
-- Paragraph spacing: 0.9em between paragraphs, 1.5em before headings.
-- Pull quotes: capped at 2 per Part, Instrument Serif italic, left-rule only.
-- Buttons: verb-first labels ("Open Pathway Report", "Continue to Documents"), never "Click here".
-- Source/evidence chips: muted, lowercase-safe, never competing with body copy.
-- Remove any user-facing developer language ("lens", "fixture", "audience strip", "section block").
+- Each report chapter gets a "Sources" footer listing the hubs/inputs that fed it (Intake, Voice, Documents, Readiness, Partners, BridgeForward/TF roadmap).
+- Each hub spoke that feeds the report gets a "Use This In The Pathway Report" CTA deep-linking to the right chapter.
+- Demo workspace gets a "Sample Hub Map" overlay on `/demo` showing the same connections, so the demo mirrors the real ecosystem.
 
-## Visual balance pass
+## Phase 6 — Internal linking + dead-end audit
 
-- Replace any remaining 2–4 column tile grids in the report body with the editorial column-list pattern already defined.
-- Standardize card padding (24px desktop / 16px mobile), border-radius (8px), and rule weight (1px `--border`) across demo + report.
-- Remove decorative duplicates: at most one accent treatment per section (rule OR background tint OR pull quote — never all three).
-- Empty states get a single line of copy + one action, not an empty box.
-- Icons aligned to text baseline with `shrink-0`, headings use `truncate` + `min-w-0` parents per the responsive header rule.
+Sweep every public and signed-in page; add the standard `RelatedLinksRail` so no page is a dead end. Add a vitest that walks the registry and asserts every hub has ≥3 related links and ≥1 next-step CTA.
 
-## Demo Workspace clarity
+## Out of scope (explicitly)
 
-`src/routes/demo.tsx` (cover) gets a tightened structure:
-1. Masthead: product name, issue line ("A guided sample of TransitionForward"), one-paragraph purpose.
-2. "How to read this" — 3 bullets: collect → translate → plan.
-3. Table of contents: numbered list of the 9 steps with one-line descriptions and a "Start at Step 1" primary CTA. No tile grid.
-4. Role note: one line explaining the sample is the same document every role sees, with audience switching available inside the report.
+- No changes to auth, RLS, migrations, or role guards beyond using existing ones.
+- No content rewrite of the Pathway Report chapters; only adds the Sources footer and back-links.
+- No SEO filler. Public pillar copy stays human and useful.
+- No new backend tables. The hub registry is static TS.
 
-Each `demo_.*.tsx` route gets:
-- Step chip (number + name), one-sentence purpose, short "What this shows" list (max 3 items).
-- The existing product content unchanged.
-- A "How this feeds the Pathway Report" footnote (reuses `FeatureFootnote`).
-- A consistent footer with "Up next: <name>" + Next button.
+## Technical notes
 
-## Signed-in consistency
+- New files only under `src/components/hub/`, `src/lib/hubs/`, `src/routes/hubs.*.tsx`, `src/routes/_authenticated/hubs.*.tsx`. Existing routes get small edits to add the `RelatedLinksRail` and `FeedsReportBadge`.
+- Hub routes are normal TanStack file routes; signed-in hubs live under `_authenticated/` and inherit the managed gate.
+- Registry-driven nav means future hubs are a data change, not a code change.
+- Tests: `tests/unit/hub-registry.test.ts` (shape, audience, report mapping, partner safety), `tests/e2e/hubs-signed-out.spec.ts` (public hubs render + cross-link), extend `demo-roles.signedin.spec.ts` for signed-in hubs.
 
-`/_authenticated/reports/$reportId` and `/share/$token` use the same `MagazineReader` chrome and the same Part opener pattern as the demo report. Dashboards are out of scope for this pass except for verifying the link into the report opens the new chrome.
+## What I need from you
 
-## Responsive QA
-
-Manual Playwright pass at 390×844, 820×1180, 1440×900 against `/demo`, `/demo/report`, three interior demo steps, and (when `E2E_REPORT_ID` is set) `/reports/$reportId`. Screenshots saved under `/tmp/browser/uxqa/`. Fixes applied for any overflow, cramped controls, hidden content, or unreadable text.
-
-## Tests / safety
-
-- Run `bunx vitest run` for the unit suites already in place (`demo-feature-map`, `value-lens`, `no-toplevel-admin-import`, `waitlist-routing`, `dashboard-static`).
-- Run the signed-out Playwright suite (`tests/e2e/demo-signed-out.spec.ts`, `demo-layout.spec.ts`, `demo-contrast.spec.ts`, `public-a11y.spec.ts`).
-- Role / 2FA / signed-in suites are gated on env secrets and run in CI; no test IDs or selectors change in this pass.
-- A11y: contrast and landmark checks must continue to pass; reader chrome uses `<nav aria-label="Reader navigation">` and the TOC sheet uses shadcn primitives.
-
-## Out of scope
-
-- New palette, new font, new "system".
-- Schema or RLS changes.
-- Edge functions, AI prompts, new server functions.
-- Dashboard redesigns beyond verifying entry into the report.
-
-## Deliverable
-
-After this pass:
-- One consistent reader chrome across demo + report + share view.
-- Every page answers the 7 clarity questions visibly.
-- Prev/Next + TOC always reachable, on all viewports.
-- Report reads as a guided document with 5 Parts, not a tile grid.
-- Demo cover explains what the product does and how to read the sample, in under one screen on desktop.
-- Mobile navigation usable without scrolling to find controls.
-- No breakage to auth, roles, routing, data, or existing tests.
+1. **Approve the phased approach** (or tell me to compress / reorder).
+2. **Phase 1 scope check**: OK to start with Transition Planning Hub (public) + Student Planning Hub (signed-in) as the two reference hubs? If you'd rather the first signed-in reference be Educator or Family, say which.
+3. **Nav placement**: add a "Hubs" top-nav menu, or surface hubs only from the homepage + footer + contextual rails? I recommend the top-nav menu so the architecture is visible.
