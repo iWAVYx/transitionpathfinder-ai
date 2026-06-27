@@ -763,8 +763,13 @@ export function ReportView({
         />
       </section>
 
-      <div className="mt-8">
-        <AIDisclaimer />
+      <div className="mt-6 border-l-2 border-amber-400/50 pl-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-300">
+          Source Note · AI-Assisted Draft
+        </p>
+        <div className="mt-1 ai-disclaimer-bare">
+          <AIDisclaimer variant="inline" className="!border-0 !bg-transparent !p-0 !shadow-none" />
+        </div>
       </div>
 
 
