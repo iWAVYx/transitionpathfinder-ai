@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   Users,
   HelpCircle,
@@ -17,25 +18,15 @@ import {
   Save,
 } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent, type DemoStudentId } from "@/lib/demo-data";
 import { DemoCalendarPreview } from "@/components/pathway/DemoCalendarPreview";
 import { useDemoMeetingEdits } from "@/hooks/use-demo-meeting-edits";
 import {
-  PublicationPage,
-  PublicationSpread,
-  PublicationCallout,
-  PublicationSidebar,
-  PublicationChecklist,
+  PublicationSpread, PublicationCallout, PublicationSidebar, PublicationChecklist,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/meeting")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -54,7 +45,7 @@ export const Route = createFileRoute("/demo_/meeting")({
 });
 
 function DemoMeetingPage() {
-  const { s = "maya" as const } = Route.useSearch();
+  const search = Route.useSearch(); const s = search.s ?? "maya";
   const bundle = getDemoStudent(s);
   const { profile, report, nextMeetingDate } = bundle;
   const prep = report.meeting_prep_toolkit;
@@ -64,16 +55,7 @@ function DemoMeetingPage() {
   const agenda = meetingEdits.agenda;
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="meeting" student={s} />
-        <PublicationPage
-          kicker="Step 07"
-          chapter="Questions For The Team"
-          dek="A meeting-ready packet — agenda, questions to ask, strengths to highlight, and follow-ups for after the meeting."
-          part="Part Three — Plan"
-          folio="p. 58"
-        >
+    <StudioPage stage="meeting" student={s} preserveStudent={!!search.s} title={"Questions For The Team"} dek={"A meeting-ready packet — agenda, questions to ask, strengths to highlight, and follow-ups for after the meeting."}>
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="means">
@@ -398,11 +380,7 @@ function DemoMeetingPage() {
                 </table>
               </div>
             </section>
-
-            <DemoStepFooter current="meeting" student={s} />
           </div>
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }

@@ -1,19 +1,12 @@
 import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { getDemoStudent } from "@/lib/demo-data";
 import {
-  PublicationPage,
-  PublicationCallout,
-  PublicationPullQuote,
+  PublicationCallout, PublicationPullQuote,
 } from "@/components/publication/PublicationPage";
-
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/demo_/intake")({
   validateSearch: validateStudentSearch,
@@ -33,7 +26,7 @@ export const Route = createFileRoute("/demo_/intake")({
 });
 
 function DemoIntakePage() {
-  const { s = "maya" as const } = Route.useSearch();
+  const search = Route.useSearch(); const s = search.s ?? "maya";
   const bundle = getDemoStudent(s);
   const { profile: student, intake } = bundle;
 
@@ -147,17 +140,7 @@ function DemoIntakePage() {
   const meta = CHAPTER_META.intake;
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="intake" student={s} />
-
-        <PublicationPage
-          kicker={meta.kicker}
-          chapter={meta.title}
-          dek={`Sample intake for ${toTitleCase(student.full_name)} — every answer here directly shapes the Pathway Report that follows.`}
-          part="Part One — Listen"
-          folio={`p. ${meta.page}`}
-        >
+    <StudioPage stage="intake" student={s} preserveStudent={!!search.s} title={meta.title} dek={`Sample intake for ${toTitleCase(student.full_name)} — the foundation of the Pathway Report.`}>
           <PublicationPullQuote attribution={`In ${student.first_name}'s Own Words`}>
             {intake.student_voice}
           </PublicationPullQuote>
@@ -201,11 +184,7 @@ function DemoIntakePage() {
               </dl>
             </section>
           ))}
-
-          <DemoStepFooter current="intake" student={s} />
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }
 

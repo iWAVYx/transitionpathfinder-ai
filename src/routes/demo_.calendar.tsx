@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   CalendarDays,
   ClipboardList,
@@ -11,11 +12,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
 import {
   DEFAULT_DEMO_STUDENT,
-  DemoStepBar,
-  DemoStepFooter,
+  DEMO_STEPS,
   demoStudentSearch,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
@@ -27,12 +26,8 @@ import {
   buildDemoCalendarEvents,
 } from "@/lib/demo-calendar";
 import {
-  PublicationPage,
-  PublicationSpread,
-  PublicationCallout,
-  PublicationSidebar,
+  PublicationSpread, PublicationCallout, PublicationSidebar,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/calendar")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -68,16 +63,7 @@ function DemoCalendarPage() {
   const later = events.slice(4);
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="calendar" student={s} />
-        <PublicationPage
-          kicker="Step 08"
-          chapter="Shared Calendar"
-          dek="Meetings, deadlines, tours, and weekly action steps — kept on one shared calendar so nobody has to chase dates."
-          part="Part Three — Plan"
-          folio="p. 64"
-        >
+    <StudioPage stage="calendar" student={s} preserveStudent={!!search.s} title={"Shared Calendar"} dek={"Meetings, deadlines, tours, and weekly action steps — kept on one shared calendar so nobody has to chase dates."}>
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="means">
@@ -196,12 +182,8 @@ function DemoCalendarPage() {
                 </div>
               }
             />
-
-            <DemoStepFooter current="calendar" student={s} />
           </div>
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }
 

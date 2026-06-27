@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import { ArrowRight, Users, Building2, GraduationCap, School, Briefcase, UserCheck } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import { DemoStepBar, DemoStepFooter, validateStudentSearch } from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import type { DemoStudentId } from "@/lib/demo-data";
-import { PublicationPage, PublicationCallout } from "@/components/publication/PublicationPage";
-
+import {
+  PublicationCallout,
+} from "@/components/publication/PublicationPage";
 export const Route = createFileRoute("/demo_/next")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -83,19 +84,10 @@ const CTAS: Cta[] = [
 ];
 
 function DemoNextPage() {
-  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
+  const search = Route.useSearch(); const s = (search.s ?? "maya") as DemoStudentId;
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="next" student={s} />
-        <PublicationPage
-          kicker="Step 11"
-          chapter="What Comes Next"
-          dek="Clear paths for families, educators, schools, districts, and partners — pick a starting point and we'll walk it with you."
-          part="Part Four — Stay Together"
-          folio="p. 84"
-        >
+    <StudioPage stage="next" student={s} preserveStudent={!!search.s} title="What Comes Next" dek="Clear paths for families, educators, schools, districts, and partners — pick a starting point and we'll walk it with you.">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="next">
@@ -136,11 +128,7 @@ function DemoNextPage() {
                 </article>
               ))}
             </div>
-
-            <DemoStepFooter current="next" student={s} />
           </div>
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }

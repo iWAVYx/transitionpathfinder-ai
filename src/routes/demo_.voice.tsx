@@ -1,23 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { CHAPTER_META } from "@/lib/demo-chapters";
 import { getDemoStudent } from "@/lib/demo-data";
 import type { DemoStudentId } from "@/lib/demo-data";
 import { DEMO_VOICE } from "@/lib/demo-extras";
 import {
-  PublicationPage,
-  PublicationSpread,
-  PublicationPullQuote,
-  PublicationCallout,
-  PublicationSidebar,
+  PublicationSpread, PublicationPullQuote, PublicationCallout, PublicationSidebar,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/voice")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -42,7 +33,7 @@ export const Route = createFileRoute("/demo_/voice")({
 });
 
 function DemoVoicePage() {
-  const { s = "maya" } = Route.useSearch() as { s?: DemoStudentId };
+  const search = Route.useSearch(); const s = (search.s ?? "maya") as DemoStudentId;
   const bundle = getDemoStudent(s);
   const prompts = DEMO_VOICE[s];
   const first = bundle.profile.first_name;
@@ -52,17 +43,7 @@ function DemoVoicePage() {
   const aspirations = prompts.slice(0, 3).map((p) => p.affects);
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="voice" student={s} />
-
-        <PublicationPage
-          kicker={meta.kicker}
-          chapter={`${first}'s Voice, In ${first}'s Words`}
-          dek={meta.dek}
-          part="Part One — Listen"
-          folio={`p. ${meta.page}`}
-        >
+    <StudioPage stage="voice" student={s} preserveStudent={!!search.s} title={`${first}'s Voice, In ${first}'s Words`} dek={meta.dek}>
           {/* Feature opener — hero pull quote with sidebar */}
           <PublicationSpread
             lead={
@@ -150,10 +131,6 @@ function DemoVoicePage() {
               </>
             }
           />
-
-          <DemoStepFooter current="voice" student={s} />
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }

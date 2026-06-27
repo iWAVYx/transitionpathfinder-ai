@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StudioPage } from "@/studio/StudioPage";
 import {
   CalendarRange,
   CheckCircle2,
@@ -9,12 +10,7 @@ import {
   Printer,
 } from "lucide-react";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import {
-  DemoStepBar,
-  DemoStepFooter,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
+import { validateStudentSearch } from "@/components/site/DemoStepBar";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
 import {
@@ -27,12 +23,8 @@ import {
   RichPlanStepCard,
 } from "@/components/pathway/PlanHorizon";
 import {
-  PublicationPage,
-  PublicationSpread,
-  PublicationCallout,
-  PublicationSidebar,
+  PublicationSpread, PublicationCallout, PublicationSidebar,
 } from "@/components/publication/PublicationPage";
-
 export const Route = createFileRoute("/demo_/plan")({
   validateSearch: validateStudentSearch,
   head: () => ({
@@ -51,7 +43,7 @@ export const Route = createFileRoute("/demo_/plan")({
 });
 
 function DemoPlanPage() {
-  const { s = "maya" as const } = Route.useSearch();
+  const search = Route.useSearch(); const s = search.s ?? "maya";
   const bundle = getDemoStudent(s);
   const { profile, report } = bundle;
   const familyPlan = report.family_action_plan;
@@ -69,16 +61,7 @@ function DemoPlanPage() {
   };
 
   return (
-    <SiteShell>
-      <div className="demo-shell eh-issue">
-        <DemoStepBar current="plan" student={s} />
-        <PublicationPage
-          kicker="Step 09"
-          chapter="30 / 60 / 90-Day Plan"
-          dek="Doable steps with named owners and clear success markers — the three months after the meeting, mapped out together."
-          part="Part Three — Plan"
-          folio="p. 70"
-        >
+    <StudioPage stage="plan" student={s} preserveStudent={!!search.s} title="30 / 60 / 90-Day Plan" dek="The next ninety days, in writing — what gets started, what gets handed off, what gets reviewed.">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
 
             <PublicationCallout kind="means">
@@ -183,11 +166,7 @@ function DemoPlanPage() {
                 </Button>
               </div>
             </div>
-
-            <DemoStepFooter current="plan" student={s} />
           </div>
-        </PublicationPage>
-      </div>
-    </SiteShell>
+        </StudioPage>
   );
 }
