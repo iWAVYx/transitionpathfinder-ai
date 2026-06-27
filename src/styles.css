@@ -4204,3 +4204,220 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 
 /* End of PUBLICATION SYSTEM */
+
+/* ================================================================
+ * READABILITY & RHYTHM POLISH  (v4.1)
+ * ----------------------------------------------------------------
+ * Final polish pass over the publication system. No primitives,
+ * routes, or components are touched — this layer only refines
+ * typography, spacing, and rhythm inside the `.eh-issue` shell
+ * (Demo Workspace + Pathway Report + related publication pages).
+ *
+ * Goals:
+ *   - One predictable type scale across every publication page
+ *   - Comfortable line-heights for body, sidebar, callout, list
+ *   - Even vertical rhythm between primitives (spread/callout/quote)
+ *   - Balanced horizontal padding at all viewports (mobile…desktop)
+ *   - Stronger text contrast on muted labels
+ *   - Consistent button + badge + nav sizing inside the reader
+ * ================================================================ */
+
+.eh-issue {
+  /* Slightly stronger muted ink for AA contrast on warm paper */
+  --pub-mute: #4d5662;
+
+  /* Shared rhythm tokens used below */
+  --pub-gap-xs: 0.5rem;
+  --pub-gap-sm: 0.85rem;
+  --pub-gap-md: 1.5rem;
+  --pub-gap-lg: 2.25rem;
+  --pub-gap-xl: 3rem;
+
+  /* Body type scale (fluid + readable across breakpoints) */
+  --pub-fs-body: clamp(1rem, 0.96rem + 0.18vw, 1.0875rem);
+  --pub-fs-lead: clamp(1.075rem, 1rem + 0.3vw, 1.18rem);
+  --pub-fs-small: 0.9rem;
+  --pub-fs-caption: 0.8rem;
+  --pub-lh-body: 1.7;
+
+  font-feature-settings: "kern", "liga", "calt";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* === Page card rhythm ============================================ */
+.eh-issue > section {
+  /* Slightly more generous, more uniform padding at every size */
+  padding: clamp(1.5rem, 3.5vw, 3.25rem) clamp(1.25rem, 4.5vw, 3.75rem);
+  margin: 1.75rem auto 0;
+}
+.eh-issue > section + section { margin-top: 1.5rem; }
+
+/* === Running head + opener spacing =============================== */
+.eh-issue .pub-page-runninghead {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+.eh-issue .pub-page-opener { margin-bottom: 2.25rem; }
+.eh-issue .pub-page-kicker { margin-bottom: 0.6rem; letter-spacing: 0.24em; }
+.eh-issue .pub-page-title {
+  font-size: clamp(2.1rem, 4.4vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -0.012em;
+}
+.eh-issue .pub-page-dek {
+  margin-top: 0.9rem;
+  font-size: clamp(1.075rem, 1.6vw, 1.2rem);
+  line-height: 1.5;
+  max-width: 58ch;
+}
+.eh-issue .pub-page-rule { margin-top: 1.75rem; }
+
+/* === Body copy — readable, even, evenly spaced =================== */
+.eh-issue .pub-page-body {
+  font-size: var(--pub-fs-body);
+  line-height: var(--pub-lh-body);
+  color: var(--pub-ink);
+}
+.eh-issue .pub-page-body p { max-width: 66ch; }
+.eh-issue .pub-page-body p + p { margin-top: 1em; }
+.eh-issue .pub-page-body ul,
+.eh-issue .pub-page-body ol { max-width: 66ch; line-height: 1.6; }
+.eh-issue .pub-page-body li + li { margin-top: 0.35rem; }
+
+/* Heading hierarchy — predictable across every page */
+.eh-issue .pub-page-body h2 {
+  font-size: clamp(1.55rem, 2.4vw, 1.85rem);
+  line-height: 1.22;
+  margin-top: 2.5rem;
+  margin-bottom: 0.65rem;
+  letter-spacing: -0.005em;
+}
+.eh-issue .pub-page-body h3 {
+  font-size: 1.075rem;
+  line-height: 1.35;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.005em;
+}
+.eh-issue .pub-page-body h4 {
+  font-family: var(--pub-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 1.35rem;
+  margin-bottom: 0.35rem;
+  color: var(--pub-ink);
+}
+/* First child of body should never push down */
+.eh-issue .pub-page-body > *:first-child { margin-top: 0; }
+
+/* === Primitives — even vertical rhythm =========================== */
+.eh-issue .pub-spread        { gap: 2rem; margin: 2rem 0; }
+.eh-issue .pub-callout       { margin: 1.75rem 0; padding: 0.5rem 0 0.5rem 1.1rem; }
+.eh-issue .pub-callout + .pub-callout { margin-top: 1.25rem; }
+.eh-issue .pub-callout-body  { font-size: 1rem; line-height: 1.6; }
+.eh-issue .pub-callout-body p + p { margin-top: 0.65em; }
+.eh-issue .pub-pullquote     { margin: 2.5rem 0; }
+.eh-issue .pub-sidebar       { padding: 1.35rem 1.5rem; }
+.eh-issue .pub-sidebar-body  { font-size: 0.97rem; line-height: 1.6; }
+.eh-issue .pub-sidebar-body p + p { margin-top: 0.6em; }
+.eh-issue .pub-checklist     { margin: 1.5rem 0; }
+.eh-issue .pub-checklist li  { padding: 0.55rem 0; font-size: 1rem; line-height: 1.5; }
+.eh-issue .pub-source        { margin-top: 2rem; font-size: var(--pub-fs-caption); line-height: 1.55; }
+
+@media (min-width: 880px) {
+  .eh-issue .pub-spread { gap: 3rem; }
+}
+
+/* === Universal small-text legibility ============================= */
+.eh-issue .text-xs,
+.eh-issue .text-\[11px\],
+.eh-issue .text-\[10px\] {
+  letter-spacing: 0.01em;
+}
+.eh-issue p.text-sm,
+.eh-issue li.text-sm,
+.eh-issue .text-sm { line-height: 1.6; }
+.eh-issue .text-muted-foreground { color: var(--pub-mute); }
+
+/* Tiny uppercase labels — uniform tracking + weight */
+.eh-issue .uppercase.tracking-\[0\.18em\],
+.eh-issue .uppercase.tracking-\[0\.2em\],
+.eh-issue .uppercase.tracking-\[0\.22em\],
+.eh-issue .uppercase.tracking-\[0\.24em\],
+.eh-issue .uppercase.tracking-\[0\.28em\] {
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  font-size: 10.5px;
+}
+
+/* === Buttons inside the publication ============================== */
+.eh-issue .btn,
+.eh-issue button[class*="inline-flex"],
+.eh-issue a[class*="inline-flex"][role="button"] {
+  letter-spacing: 0.005em;
+}
+/* Calmer outline buttons on warm paper */
+.eh-issue button[class*="border-input"],
+.eh-issue a[class*="border-input"] {
+  background-color: color-mix(in oklab, var(--pub-page) 92%, transparent);
+}
+
+/* === Badges — quieter on paper =================================== */
+.eh-issue .inline-flex[class*="rounded-md"][class*="border"] {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* === Reader chrome — even spacing, tappable controls ============== */
+.eh-issue .mag-reader-bar { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.eh-issue .mag-reader-arrow { min-height: 40px; padding: 0.5rem 0.85rem; font-weight: 600; }
+.eh-issue .mag-reader-folio { font-size: 0.85rem; }
+.eh-issue .mag-mobile-nav button,
+.eh-issue .mag-mobile-nav a { min-height: 44px; }
+
+/* === Mobile balance =============================================== */
+@media (max-width: 640px) {
+  .eh-issue > section {
+    /* Bring edges in close enough to gain reading width, but keep gutters */
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+    border-radius: 3px;
+  }
+  .eh-issue .pub-page-runninghead {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.85rem;
+    padding-bottom: 0.65rem;
+    margin-bottom: 1.25rem;
+  }
+  .eh-issue .pub-page-part { flex: 1 1 100%; order: 3; text-align: left; }
+  .eh-issue .pub-page-title {
+    font-size: clamp(1.85rem, 7.5vw, 2.4rem);
+    line-height: 1.1;
+  }
+  .eh-issue .pub-page-dek { font-size: 1.025rem; line-height: 1.5; }
+  .eh-issue .pub-page-body { font-size: 1rem; line-height: 1.65; }
+  .eh-issue .pub-page-body h2 {
+    font-size: 1.45rem;
+    margin-top: 2rem;
+  }
+  .eh-issue .pub-spread { gap: 1.5rem; margin: 1.5rem 0; }
+  .eh-issue .pub-spread-side { padding-top: 1rem; }
+  .eh-issue .pub-sidebar { padding: 1.1rem 1.15rem; }
+  .eh-issue .pub-pullquote { margin: 1.75rem 0; padding-left: 1rem; }
+  .eh-issue .pub-pullquote blockquote { font-size: 1.25rem; line-height: 1.35; }
+}
+
+/* === Tablet balance ============================================== */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .eh-issue > section { padding-left: 2.25rem; padding-right: 2.25rem; }
+  .eh-issue .pub-page-body { font-size: 1.04rem; }
+}
+
+/* === Prevent horizontal overflow from any wide grid/table ======== */
+.eh-issue > section { overflow-x: clip; }
+.eh-issue table { max-width: 100%; }
+
+/* End of READABILITY & RHYTHM POLISH */
