@@ -31,18 +31,6 @@ type UserNavGroup = NavGroup & { roles: RoleAudience[] };
 
 const navGroups: NavGroup[] = [
   {
-    label: "Hubs",
-    items: [
-      { to: "/hubs/transition-planning", label: "Transition Planning Hub", desc: "The pillar page connecting every planning input to the Pathway Report." },
-      { to: "/hubs/family-resource", label: "Family Resource Hub", desc: "Plain-language guides and meeting prep for CT families." },
-      { to: "/hubs/bridgeforward", label: "BridgeForward Hub (6–8)", desc: "The middle-school bridge into a confident grade 9 PPT." },
-      { to: "/hubs/school-district", label: "School & District Hub", desc: "For special education leaders and district teams." },
-      { to: "/hubs/partner-network", label: "Partner Network Hub", desc: "PartnerForward incentives, directory, and matching." },
-      { to: "/demo", label: "Demo / Sample Pathway", desc: "A guided sample hub showing the whole ecosystem." },
-      { to: "/resources", label: "Resource Hub", desc: "Filterable library of planning tools and guides." },
-    ],
-  },
-  {
     label: "Product",
     items: [
       { to: "/platform", label: "The Platform", desc: "How TransitionForward fits together." },
