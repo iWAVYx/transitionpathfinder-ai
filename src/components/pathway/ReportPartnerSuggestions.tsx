@@ -5,7 +5,6 @@ import {
   matchPartnersForStudent,
   type PartnerMatch,
 } from "@/lib/partner-matching.functions";
-import { Badge } from "@/components/ui/badge";
 
 /**
  * Renders a dynamic Partner Suggestions section inside the Pathway Report.
@@ -65,22 +64,25 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
+    <div>
       {items.map((m) => (
-        <div key={m.partner_id} className="rounded-2xl border bg-card p-5 lift-card">
+        <div
+          key={m.partner_id}
+          className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
+        >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <Badge variant="outline" className="mb-2 uppercase tracking-wider">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                 {m.partner_type?.replace(/_/g, " ") || "Partner"}
-              </Badge>
-              <h3 className="font-display text-lg leading-snug">{m.organization_name}</h3>
-              {m.county && (
-                <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {m.county}
-                </p>
-              )}
+                {m.county && (
+                  <span className="ml-2 inline-flex items-center gap-0.5">
+                    <MapPin className="inline h-2.5 w-2.5" /> {m.county}
+                  </span>
+                )}
+              </p>
+              <h3 className="font-display mt-0.5 text-xl leading-snug">{m.organization_name}</h3>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-1.5 pt-1">
               {m.verification_status === "verified" && (
                 <ShieldCheck className="h-4 w-4 text-emerald-600" aria-label="Verified" />
               )}
@@ -89,11 +91,13 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
               )}
             </div>
           </div>
+
           {m.description && (
-            <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{m.description}</p>
+            <p className="mt-1.5 line-clamp-3 text-sm text-muted-foreground">{m.description}</p>
           )}
+
           {m.reasons.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {m.reasons.slice(0, 3).map((why, i) => (
                 <span
                   key={i}
@@ -104,15 +108,17 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
               ))}
             </div>
           )}
-          <p className="mt-3 text-sm text-foreground/85">
+
+          <p className="mt-2 text-sm text-foreground/85">
             <span className="font-medium">Suggested next step:</span> {m.suggested_next_step}
           </p>
+
           {m.website_url && (
             <a
               href={m.website_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
             >
               Visit organization website <ExternalLink className="h-3 w-3" />
             </a>

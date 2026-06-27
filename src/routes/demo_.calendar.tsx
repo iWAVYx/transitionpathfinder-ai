@@ -1,5 +1,3 @@
-import { ChapterOpener } from "@/components/site/MagazinePage";
-import { CHAPTER_META } from "@/lib/demo-chapters";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarDays,
@@ -10,7 +8,6 @@ import {
   Plus,
   Bell,
   Clock,
-  MapPin,
   ArrowRight,
 } from "lucide-react";
 
@@ -22,7 +19,6 @@ import {
   demoStudentSearch,
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoStudent } from "@/lib/demo-data";
 import {
@@ -30,6 +26,12 @@ import {
   EVENT_KIND_META as KIND,
   buildDemoCalendarEvents,
 } from "@/lib/demo-calendar";
+import {
+  PublicationPage,
+  PublicationSpread,
+  PublicationCallout,
+  PublicationSidebar,
+} from "@/components/publication/PublicationPage";
 
 export const Route = createFileRoute("/demo_/calendar")({
   validateSearch: validateStudentSearch,
@@ -65,122 +67,139 @@ function DemoCalendarPage() {
   const upNext = events.slice(0, 4);
   const later = events.slice(4);
 
-
   return (
     <SiteShell>
       <div className="demo-shell eh-issue">
         <DemoStepBar current="calendar" student={s} />
-        <ChapterOpener numeral={CHAPTER_META.calendar.numeral} kicker={CHAPTER_META.calendar.kicker} title={CHAPTER_META.calendar.title} dek={CHAPTER_META.calendar.dek} covers={CHAPTER_META.calendar.covers} />
+        <PublicationPage
+          kicker="Step 08"
+          chapter="Shared Calendar"
+          dek="Meetings, deadlines, tours, and weekly action steps — kept on one shared calendar so nobody has to chase dates."
+          part="Part Three — Plan"
+          folio="p. 64"
+        >
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
 
-      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
-        {/* Header */}
-        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                Shared Calendar
-              </p>
-              <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                Everything On One Page — For Everyone
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Meetings, deadlines, tours, and the weekly action steps land here
-                automatically from {profile.first_name}'s Pathway Report and Meeting
-                Prep packet. Families and educators see the same view — no double-booking,
-                no surprises.
-              </p>
+            <PublicationCallout kind="means">
+              Meetings, deadlines, tours, and the weekly action steps land here automatically
+              from {profile.first_name}'s Pathway Report and Meeting Prep packet. Families and
+              educators see the same view — no double-booking, no surprises.
+            </PublicationCallout>
+
+            {/* Calendar header — stats + actions */}
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-[color:var(--pub-rule-soft)] pb-6">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                  Everything On One Page — For Everyone
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    <CalendarDays className="h-3.5 w-3.5" /> {events.length} Upcoming Events
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5" /> Visible To Family + Care Team
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <GraduationCap className="h-3.5 w-3.5" /> Next PPT: {nextMeetingDate}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/demo/meeting" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
+                    <Users className="h-4 w-4" /> Open Meeting Prep
+                  </Link>
+                </Button>
+                <Button size="sm" disabled aria-label="Add event (demo)">
+                  <Plus className="h-4 w-4" /> Add Event
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/demo/meeting" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                  <Users className="h-4 w-4" /> Open Meeting Prep
-                </Link>
-              </Button>
-              <Button size="sm" disabled aria-label="Add event (demo)">
-                <Plus className="h-4 w-4" /> Add Event
-              </Button>
-            </div>
+
+            {/* Main spread — events + sidebar */}
+            <PublicationSpread
+              lead={
+                <div className="space-y-10">
+                  {/* This Week */}
+                  <section>
+                    <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                      <Sparkles className="h-3.5 w-3.5" /> This Week
+                    </p>
+                    <ul>
+                      {upNext.map((e, i) => (
+                        <EventRow key={i} {...e} />
+                      ))}
+                    </ul>
+                  </section>
+
+                  {/* Coming Up */}
+                  <section>
+                    <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      <CalendarDays className="h-3.5 w-3.5" /> Coming Up
+                    </p>
+                    <ul>
+                      {later.map((e, i) => (
+                        <EventRow key={i} {...e} />
+                      ))}
+                    </ul>
+                  </section>
+                </div>
+              }
+              side={
+                <div className="space-y-6">
+                  <PublicationSidebar label="Legend">
+                    <ul className="space-y-2">
+                      {(Object.keys(KIND) as EventKind[]).map((k) => (
+                        <li key={k} className="flex items-center gap-2 border-b border-[color:var(--pub-rule-soft)] py-2 last:border-b-0">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${KIND[k].chip}`}
+                          >
+                            {KIND[k].icon}
+                            {KIND[k].label}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </PublicationSidebar>
+
+                  <PublicationSidebar label="Where Do Events Come From?">
+                    <ul className="space-y-3 text-sm text-foreground/85">
+                      <li className="border-b border-[color:var(--pub-rule-soft)] pb-3">
+                        <span className="font-medium">Pathway Report →</span>{" "}
+                        the weekly action steps from the 30-Day Plan.
+                      </li>
+                      <li className="border-b border-[color:var(--pub-rule-soft)] pb-3">
+                        <span className="font-medium">Meeting Prep →</span>{" "}
+                        PPT meetings and any pre-meeting check-ins.
+                      </li>
+                      <li>
+                        <span className="font-medium">Care Team →</span>{" "}
+                        deadlines and tours added by the case manager or family.
+                      </li>
+                    </ul>
+                    <Button asChild variant="outline" size="sm" className="mt-4 w-full">
+                      <Link to="/demo/plan" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
+                        See The 30-Day Plan <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </PublicationSidebar>
+
+                  <PublicationSidebar label="Shared With">
+                    <ul className="space-y-1 text-sm text-foreground/85">
+                      {["Student", "Family", "Case Manager", "Educator", "Partner Agency"].map((r) => (
+                        <li key={r} className="flex items-center gap-2 border-b border-[color:var(--pub-rule-soft)] py-2 last:border-b-0">
+                          <Users className="h-3.5 w-3.5 text-primary/60" /> {r}
+                        </li>
+                      ))}
+                    </ul>
+                  </PublicationSidebar>
+                </div>
+              }
+            />
+
+            <DemoStepFooter current="calendar" student={s} />
           </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="gap-1">
-              <CalendarDays className="h-3 w-3" /> {events.length} Upcoming
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <Users className="h-3 w-3" /> Visible To Family + Care Team
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <GraduationCap className="h-3 w-3" /> Next PPT: {nextMeetingDate}
-            </Badge>
-          </div>
-        </div>
-
-        {/* Up next */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-6">
-            <Panel title="This Week" icon={<Sparkles className="h-5 w-5" />}>
-              <ul className="space-y-3">
-                {upNext.map((e, i) => (
-                  <EventRow key={i} {...e} />
-                ))}
-              </ul>
-            </Panel>
-
-            <Panel title="Coming Up" icon={<CalendarDays className="h-5 w-5" />}>
-              <ul className="space-y-3">
-                {later.map((e, i) => (
-                  <EventRow key={i} {...e} />
-                ))}
-              </ul>
-            </Panel>
-          </div>
-
-          {/* Side column */}
-          <aside className="space-y-6">
-            <Panel title="Legend" icon={<Bell className="h-5 w-5" />}>
-              <ul className="space-y-2 text-sm">
-                {(Object.keys(KIND) as EventKind[]).map((k) => (
-                  <li key={k} className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${KIND[k].chip}`}
-                    >
-                      {KIND[k].icon}
-                      {KIND[k].label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-
-            <Panel
-              title="Where Do Events Come From?"
-              icon={<ClipboardList className="h-5 w-5" />}
-            >
-              <ul className="space-y-2 text-sm text-foreground/85">
-                <li>
-                  <span className="font-medium">Pathway Report →</span> the
-                  weekly action steps from the 30-Day Plan.
-                </li>
-                <li>
-                  <span className="font-medium">Meeting Prep →</span> PPT
-                  meetings and any pre-meeting check-ins.
-                </li>
-                <li>
-                  <span className="font-medium">Care team →</span> deadlines
-                  and tours added by the case manager or family.
-                </li>
-              </ul>
-              <Button asChild variant="outline" size="sm" className="mt-4 w-full">
-                <Link to="/demo/plan" {...(preservedStudentSearch ? { search: preservedStudentSearch } : {})}>
-                  See The 30-Day Plan <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </Panel>
-          </aside>
-        </div>
-
-        <DemoStepFooter current="calendar" student={s} />
-      </section>
+        </PublicationPage>
       </div>
     </SiteShell>
   );
@@ -202,8 +221,8 @@ function EventRow({
   owner: string;
 }) {
   return (
-    <li className="flex gap-4 rounded-2xl border border-border/60 bg-background p-4">
-      <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-muted text-center">
+    <li className="flex gap-4 border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0">
+      <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-muted text-center py-2">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {day}
         </span>
@@ -230,25 +249,5 @@ function EventRow({
         <p className="mt-1 text-xs text-muted-foreground">Owner: {owner}</p>
       </div>
     </li>
-  );
-}
-
-function Panel({
-  title,
-  icon,
-  children,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
-      <h2 className="flex items-center gap-2 border-b border-border/60 pb-3 font-display text-lg">
-        <span className="text-primary">{icon}</span>
-        {title}
-      </h2>
-      <div className="pt-4">{children}</div>
-    </div>
   );
 }
