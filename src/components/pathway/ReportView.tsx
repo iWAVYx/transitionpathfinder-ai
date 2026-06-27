@@ -2308,24 +2308,29 @@ function DocumentContents({
 
     <nav
       aria-label="Table of contents"
-      className="no-print mt-8 rounded-2xl border bg-card"
+      className="no-print mt-10 border-t border-[color:var(--pub-rule-soft,theme(colors.border))] pt-6"
     >
-      <div className="border-b border-border/60 px-6 py-3 sm:px-8">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="flex items-baseline justify-between border-b border-dotted border-[color:var(--pub-rule-soft,theme(colors.border))] pb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
           Contents
         </p>
+        <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          {items.length} sections
+        </p>
       </div>
-      <ol className="grid gap-x-8 gap-y-2 px-6 py-5 sm:grid-cols-2 sm:px-8">
+      <ol className="grid gap-x-10 gap-y-1 pt-4 sm:grid-cols-2">
         {items.map((it, i) => (
           <li key={it.id} className="flex items-baseline gap-3 text-sm">
-            <span className="font-mono text-xs text-primary">
+            <span className="font-mono text-[11px] tabular-nums text-primary/80">
               {String(i + 1).padStart(2, "0")}
             </span>
             <a
               href={`#${it.id}`}
-              className="flex-1 border-b border-dotted border-border/60 pb-1 text-foreground/80 transition-colors hover:text-foreground"
+              className="group flex flex-1 items-baseline gap-2 py-1 text-foreground/85 transition-colors hover:text-foreground"
             >
-              {it.label}
+              <span className="truncate">{it.label}</span>
+              <span aria-hidden className="flex-1 translate-y-[-2px] border-b border-dotted border-border/60" />
+              <span className="font-mono text-[10px] text-muted-foreground">→</span>
             </a>
           </li>
         ))}
