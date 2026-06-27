@@ -78,6 +78,15 @@ import {
 import { ValueCallout } from "@/components/value/ValueCallout";
 import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
 import { ReportPartOpener } from "@/components/pathway/ReportPartOpener";
+import {
+  PublicationPage,
+  PublicationSpread,
+  PublicationPullQuote,
+  PublicationSidebar,
+  PublicationCallout,
+  PublicationChecklist,
+  PublicationSource,
+} from "@/components/publication/PublicationPage";
 
 
 type Audience = "student" | "family" | "educator";
@@ -765,80 +774,42 @@ export function ReportView({
 
       {/* ============ Executive Summary ============ */}
       <section className="mt-10 page-break exec-summary">
-        <div className="relative overflow-hidden rounded-3xl border bg-card p-6 shadow-soft sm:p-10">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
+        <PublicationPage
+          kicker="Executive Summary"
+          chapter="Executive Summary"
+          dek="The big picture — what we know, where things are headed, and where to start."
+          folio="p. 01"
+        >
+          <PublicationSpread
+            lead={
+              <div>
+                <p className="text-sm leading-relaxed text-foreground/85">{r.summary}</p>
+                {topStrengths.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Top Strengths</p>
+                    <PublicationChecklist items={topStrengths} />
+                  </div>
+                )}
+                {bestFitPathway && (
+                  <div className="mt-6 border-t border-[color:var(--pub-rule-soft)] pt-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Best-Fit Direction</p>
+                    <p className="font-display text-lg leading-snug">{toTitleCase(bestFitPathway.title)}</p>
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-4">{bestFitPathway.why_it_fits}</p>
+                  </div>
+                )}
+              </div>
+            }
+            side={
+              <PublicationSidebar label="Start Here This Week">
+                {topNextSteps.length > 0 ? (
+                  <PublicationChecklist items={topNextSteps} />
+                ) : (
+                  <p className="text-sm text-muted-foreground">See the 30-Day Plan below.</p>
+                )}
+              </PublicationSidebar>
+            }
           />
-          <div className="relative flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-2xl font-medium tracking-tight">
-              Executive Summary
-            </h2>
-          </div>
-          <p className="relative mt-3 text-base leading-relaxed text-foreground/85">
-            {r.summary}
-          </p>
-          <div className="relative mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-border/60 bg-background p-5 transition-shadow hover:shadow-soft">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Top Strengths
-              </p>
-              {topStrengths.length > 0 ? (
-                <ul className="mt-2 space-y-1.5 text-sm text-foreground/85">
-                  {topStrengths.map((s, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="text-primary">•</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  See the strengths section below.
-                </p>
-              )}
-            </div>
-            <div className="rounded-2xl border border-border/60 bg-background p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Best-Fit Direction
-              </p>
-              {bestFitPathway ? (
-                <>
-                  <p className="mt-2 font-display text-lg leading-snug">
-                    {toTitleCase(bestFitPathway.title)}
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground line-clamp-4">
-                    {bestFitPathway.why_it_fits}
-                  </p>
-                </>
-              ) : (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  See recommended pathways below.
-                </p>
-              )}
-            </div>
-            <div className="rounded-2xl border border-border/60 bg-background p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Start Here This Week
-              </p>
-              {topNextSteps.length > 0 ? (
-                <ol className="mt-2 space-y-1.5 text-sm text-foreground/85">
-                  {topNextSteps.map((s, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="font-semibold text-primary">{i + 1}.</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  See the 30-Day Plan below.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        </PublicationPage>
       </section>
 
 
@@ -848,73 +819,74 @@ export function ReportView({
       {/* ============ Student Snapshot ============ */}
       {r.student_snapshot && (
         <Block id="sec-snapshot" title="Student Snapshot" icon={<Compass className="h-5 w-5" />}>
-          <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <PublicationPage
+            kicker="Section 01"
+            chapter="Student Snapshot"
+            dek={`A profile of ${name} — strengths, preferences, and transition status.`}
+            folio="p. 02"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:var(--pub-rule-soft)] py-4">
               <div>
-                <h3 className="font-display text-2xl">{toTitleCase(name)}</h3>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{toTitleCase(name)}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {r.student_snapshot.grade_level} · {r.student_snapshot.graduation_timeline}
                 </p>
               </div>
               <ReadinessBadge level={r.student_snapshot.readiness_level} />
             </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 grid-sym-2">
-              <MiniCard label="Primary Interests" items={r.student_snapshot.primary_interests} />
-              <MiniCard
-                label="Learning Preferences"
-                items={r.student_snapshot.learning_preferences}
-              />
-              <MiniCard label="Family Priorities" items={r.student_snapshot.family_priorities} />
-              <div className="rounded-2xl border border-border/60 bg-background p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Communication Style
-                </p>
-                <p className="mt-2 text-sm text-foreground/80">
-                  {r.student_snapshot.communication_style}
-                </p>
+            {[
+              { label: "Primary Interests", items: r.student_snapshot.primary_interests },
+              { label: "Learning Preferences", items: r.student_snapshot.learning_preferences },
+              { label: "Family Priorities", items: r.student_snapshot.family_priorities },
+            ].map(({ label, items }) => (
+              <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+                <BulletList items={items} />
               </div>
+            ))}
+            <div className="border-b border-[color:var(--pub-rule-soft)] py-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Communication Style</p>
+              <p className="mt-2 text-sm text-foreground/80">{r.student_snapshot.communication_style}</p>
             </div>
-
-            <div className="mt-4 rounded-2xl border border-border/60 bg-background p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Where {name} is now
-              </p>
-              <p className="mt-2 text-sm text-foreground/80">
-                {r.student_snapshot.current_transition_status}
-              </p>
+            <div className="border-b border-[color:var(--pub-rule-soft)] py-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Where {name} Is Now</p>
+              <p className="mt-2 text-sm text-foreground/80">{r.student_snapshot.current_transition_status}</p>
             </div>
-
-            <figure className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-5">
-              <Quote className="h-4 w-4 text-primary" />
-              <blockquote className="mt-2 font-display text-lg italic leading-snug text-foreground/85">
-                "{r.student_snapshot.student_voice_quote}"
-              </blockquote>
-              <figcaption className="mt-2 text-xs text-muted-foreground">In {name}'s voice</figcaption>
-            </figure>
-          </div>
+            <PublicationPullQuote attribution={`In ${name}'s voice`}>
+              "{r.student_snapshot.student_voice_quote}"
+            </PublicationPullQuote>
+          </PublicationPage>
         </Block>
       )}
 
       {/* ============ SPIN Analysis ============ */}
       {r.spin_analysis && (
         <Block id="sec-spin" title="Strengths, Preferences, Interests & Needs" icon={<Sparkles className="h-5 w-5" />}>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MiniCard label="Strengths" items={r.spin_analysis.strengths} accent />
-            <MiniCard label="Preferences" items={r.spin_analysis.preferences} />
-            <MiniCard label="Interests" items={r.spin_analysis.interests} />
-            <MiniCard label="Needs" items={r.spin_analysis.needs} />
-            <MiniCard label="Motivators" items={r.spin_analysis.motivators} />
-            <MiniCard label="Barriers" items={r.spin_analysis.barriers} />
-            <MiniCard label="Environmental Supports" items={r.spin_analysis.environmental_supports} />
-            <MiniCard label="Areas for Growth" items={r.spin_analysis.areas_for_growth} />
-          </div>
-          <div className="mt-4 rounded-2xl border bg-card p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              What This Means for Planning
-            </p>
-            <p className="mt-2 text-sm text-foreground/80">{r.spin_analysis.what_this_means}</p>
-          </div>
+          <PublicationPage
+            kicker="Section 02"
+            chapter="Strengths, Preferences, Interests & Needs"
+            dek="A multi-dimensional profile to ground every goal conversation."
+            folio="p. 03"
+          >
+            {[
+              { label: "Strengths", items: r.spin_analysis.strengths },
+              { label: "Preferences", items: r.spin_analysis.preferences },
+              { label: "Interests", items: r.spin_analysis.interests },
+              { label: "Needs", items: r.spin_analysis.needs },
+              { label: "Motivators", items: r.spin_analysis.motivators },
+              { label: "Barriers", items: r.spin_analysis.barriers },
+              { label: "Environmental Supports", items: r.spin_analysis.environmental_supports },
+              { label: "Areas for Growth", items: r.spin_analysis.areas_for_growth },
+            ].map(({ label, items }) => (
+              <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+                <BulletList items={items} />
+              </div>
+            ))}
+            <PublicationCallout kind="means">
+              <p>{r.spin_analysis.what_this_means}</p>
+            </PublicationCallout>
+          </PublicationPage>
         </Block>
       )}
 
@@ -926,43 +898,34 @@ export function ReportView({
       {/* ============ Readiness scorecard ============ */}
       {r.readiness_scorecard && r.readiness_scorecard.length > 0 && (
         <Block id="sec-readiness" title="Transition Readiness Scorecard" icon={<Target className="h-5 w-5" />}>
-          <p className="mb-4 text-sm text-muted-foreground">
-            A strengths-based snapshot. These are conversation starters, not grades.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
+          <PublicationPage
+            kicker="Section 03"
+            chapter="Transition Readiness Scorecard"
+            dek="A strengths-based snapshot. These are conversation starters, not grades."
+            folio="p. 04"
+          >
             {r.readiness_scorecard.map((row) => (
-              <div
-                key={row.category}
-                className="rounded-2xl border border-border/60 bg-card p-5 lift-card"
-              >
+              <div key={row.category} className="border-b border-[color:var(--pub-rule-soft)] py-4">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-display text-lg">{toTitleCase(row.category)}</h3>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">{toTitleCase(row.category)}</p>
                   <ReadinessBadge level={row.level} compact />
                 </div>
                 <Progress
                   value={READINESS_PCT[row.level] ?? 50}
-                  className="mt-3 h-2"
+                  className="mt-2 h-1.5"
                   aria-label={`${toTitleCase(row.category)} readiness: ${row.level}`}
                 />
-                <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-primary">
-                  What We Saw
-                </p>
-                <p className="text-sm text-muted-foreground">{row.evidence}</p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                  What It Means
-                </p>
-                <p className="text-sm text-muted-foreground">{row.what_it_means}</p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                  Next Growth Step
-                </p>
-                <p className="text-sm text-foreground/80">{row.growth_activity}</p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                  Possible Goal
-                </p>
-                <p className="text-sm text-foreground/80">{row.suggested_goal}</p>
+                <p className="mt-2 text-sm text-foreground/80">{row.evidence}</p>
+                <PublicationCallout kind="means">
+                  <p>{row.what_it_means}</p>
+                </PublicationCallout>
+                <PublicationCallout kind="next">
+                  <p><strong>Growth step:</strong> {row.growth_activity}</p>
+                  <p className="mt-1"><strong>Possible goal:</strong> {row.suggested_goal}</p>
+                </PublicationCallout>
               </div>
             ))}
-          </div>
+          </PublicationPage>
         </Block>
       )}
 
@@ -974,24 +937,22 @@ export function ReportView({
       {/* ============ Recommended Pathways ============ */}
       {r.recommended_pathways && r.recommended_pathways.length > 0 && (
         <Block id="sec-pathways" title="Recommended Pathways" icon={<RouteIcon className="h-5 w-5" />}>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Multiple realistic directions — not just one. Each pathway has supports, steps, and a
-            timeline.
-          </p>
-          <div className="grid gap-4">
+          <PublicationPage
+            kicker="Section 04"
+            chapter="Recommended Pathways"
+            dek="Multiple realistic directions — not just one. Each has supports, steps, and a timeline."
+            folio="p. 05"
+          >
             {r.recommended_pathways.map((p) => (
-              <div
-                key={p.title}
-                className="rounded-3xl border bg-card p-6 shadow-soft lift-card"
-              >
-                <div className="flex flex-wrap items-center gap-2">
+              <div key={p.title} className="border-b border-[color:var(--pub-rule-soft)] py-6">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Badge
                     variant={p.type === "best-fit" ? "default" : "secondary"}
                     className="uppercase tracking-wider"
                   >
                     {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
                   </Badge>
-                  <h3 className="font-display text-2xl">{toTitleCase(p.title)}</h3>
+                  <p className="font-display text-xl">{toTitleCase(p.title)}</p>
                   {confidenceLabel && (
                     <Badge variant="outline" className="gap-1 text-[11px]">
                       <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
@@ -1005,34 +966,46 @@ export function ReportView({
                     </Badge>
                   )}
                 </div>
-                <p className="mt-3 text-sm text-foreground/80">{p.why_it_fits}</p>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <MiniCard label="Builds on These Strengths" items={p.related_strengths} />
-                  <MiniCard label="Possible Barriers" items={p.possible_barriers} />
-                  <MiniCard label="Supports Needed" items={p.supports_needed} />
-                  <MiniCard label="At School" items={p.school_experiences} />
-                  <MiniCard label="In the Community" items={p.community_experiences} />
-                  <MiniCard label="Courses & Programs" items={p.courses_or_programs} />
-                  <MiniCard label="Career Clusters" items={p.career_clusters} />
-                  <MiniCard label="Credentials" items={p.credentials} />
-                  <MiniCard label="Partner Resources" items={p.partner_resources} />
-                </div>
-
-                <div className="mt-5 rounded-2xl bg-muted/50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                    Action Steps
-                  </p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <HorizonCard label="30 days" items={p.action_steps.thirty_day} />
-                    <HorizonCard label="90 days" items={p.action_steps.ninety_day} />
-                    <HorizonCard label="6 months" items={p.action_steps.six_month} />
-                    <HorizonCard label="1 year" items={p.action_steps.one_year} />
-                  </div>
-                </div>
+                <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
+                <PublicationSpread
+                  lead={
+                    <div>
+                      {[
+                        { label: "Builds on These Strengths", items: p.related_strengths },
+                        { label: "Possible Barriers", items: p.possible_barriers },
+                        { label: "Supports Needed", items: p.supports_needed },
+                        { label: "At School", items: p.school_experiences },
+                        { label: "In the Community", items: p.community_experiences },
+                        { label: "Courses & Programs", items: p.courses_or_programs },
+                        { label: "Career Clusters", items: p.career_clusters },
+                        { label: "Credentials", items: p.credentials },
+                        { label: "Partner Resources", items: p.partner_resources },
+                      ].map(({ label, items }) => items?.length > 0 && (
+                        <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+                          <BulletList items={items} compact />
+                        </div>
+                      ))}
+                    </div>
+                  }
+                  side={
+                    <PublicationSidebar label="Action Steps">
+                      {[
+                        { label: "30 days", items: p.action_steps.thirty_day },
+                        { label: "90 days", items: p.action_steps.ninety_day },
+                        { label: "6 months", items: p.action_steps.six_month },
+                        { label: "1 year", items: p.action_steps.one_year },
+                      ].map(({ label, items }) => items.length > 0 && (
+                        <div key={label} className="mb-3">
+                          <PublicationChecklist title={label} items={items} />
+                        </div>
+                      ))}
+                    </PublicationSidebar>
+                  }
+                />
               </div>
             ))}
-          </div>
+          </PublicationPage>
         </Block>
       )}
 
@@ -1201,63 +1174,73 @@ export function ReportView({
           title="Your Voice in this Plan"
           icon={<Quote className="h-5 w-5" />}
         >
-          <p className="mb-4 text-sm text-muted-foreground">
-            These are your own words from Student Voice — they help shape this plan.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <PublicationPage
+            kicker="Student Edition"
+            chapter="Your Voice in This Plan"
+            dek="These are your own words from Student Voice — they help shape this plan."
+            folio="p. 05"
+          >
             {voiceResponses.slice(0, 3).map((vr) => {
               const prompt = STUDENT_VOICE_PROMPTS.find((p) => p.key === vr.prompt_key);
               return (
-                <div key={vr.id} className="rounded-2xl border bg-primary/5 p-5 lift-card">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                    {prompt?.question ?? vr.prompt_key}
-                  </p>
-                  <p className="mt-2 font-display text-base italic text-foreground/90">
-                    "{vr.response_text}"
-                  </p>
-                </div>
+                <PublicationPullQuote key={vr.id} attribution={prompt?.question ?? vr.prompt_key}>
+                  "{vr.response_text}"
+                </PublicationPullQuote>
               );
             })}
-          </div>
+          </PublicationPage>
         </Block>
       )}
 
       {/* ============ Student Voice Prompts ============ */}
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
         <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Questions for {name} to think through — alone, with family, or with a teacher.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
+          <PublicationPage
+            kicker="Section 05"
+            chapter={`In ${name}'s Voice`}
+            dek={`Questions for ${name} to think through — alone, with family, or with a teacher.`}
+            folio="p. 06"
+          >
             {r.student_voice_prompts.map((p, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-5 lift-card">
-                <p className="font-display text-lg">{p.prompt}</p>
-                <p className="mt-2 text-sm text-muted-foreground">{p.suggested_reflection}</p>
-              </div>
+              <PublicationPullQuote key={i} attribution={p.suggested_reflection}>
+                {p.prompt}
+              </PublicationPullQuote>
             ))}
-          </div>
+          </PublicationPage>
         </Block>
       )}
 
       {/* ============ Family Action Plan ============ */}
       {!hasV2 && r.family_action_plan && (
         <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <HorizonCard label="This Week" items={r.family_action_plan.this_week} />
-            <HorizonCard label="This Month" items={r.family_action_plan.this_month} />
-            <HorizonCard
-              label="Before the Next Meeting"
-              items={r.family_action_plan.before_next_meeting}
+          <PublicationPage
+            kicker="Section 06"
+            chapter="Family Action Plan"
+            dek="A time-phased checklist for the family — from this week to graduation."
+            folio="p. 07"
+          >
+            <PublicationSpread
+              lead={
+                <div>
+                  <PublicationChecklist title="This Week" items={r.family_action_plan.this_week} />
+                  <div className="mt-4">
+                    <PublicationChecklist title="This Month" items={r.family_action_plan.this_month} />
+                  </div>
+                  <div className="mt-4">
+                    <PublicationChecklist title="Before the Next Meeting" items={r.family_action_plan.before_next_meeting} />
+                  </div>
+                </div>
+              }
+              side={
+                <PublicationSidebar label="Looking Further Ahead">
+                  <PublicationChecklist title="This School Year" items={r.family_action_plan.this_school_year} />
+                  <div className="mt-4">
+                    <PublicationChecklist title="Before Graduation" items={r.family_action_plan.before_graduation} />
+                  </div>
+                </PublicationSidebar>
+              }
             />
-            <HorizonCard
-              label="This School Year"
-              items={r.family_action_plan.this_school_year}
-            />
-            <HorizonCard
-              label="Before Graduation"
-              items={r.family_action_plan.before_graduation}
-            />
-          </div>
+          </PublicationPage>
         </Block>
       )}
 
@@ -1308,42 +1291,46 @@ export function ReportView({
       {/* ============ Meeting prep toolkit ============ */}
       {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
-          <div className="rounded-3xl border bg-card p-6 shadow-soft lift-card">
-            <div className="grid gap-4 sm:grid-cols-2 grid-sym-2">
-              <MiniCard
-                label="Questions to Ask"
-                items={r.meeting_prep_toolkit.questions_to_ask}
-              />
-              <MiniCard
-                label="Documents to Bring"
-                items={r.meeting_prep_toolkit.documents_to_bring}
-              />
-              <MiniCard
-                label="Concerns to Raise"
-                items={r.meeting_prep_toolkit.concerns_to_raise}
-              />
-              <MiniCard
-                label="Strengths to Highlight"
-                items={r.meeting_prep_toolkit.strengths_to_highlight}
-              />
-              <MiniCard
-                label="Goals to Review"
-                items={r.meeting_prep_toolkit.goals_to_review}
-              />
-              <MiniCard
-                label="Services to Discuss"
-                items={r.meeting_prep_toolkit.services_to_discuss}
-              />
-              <MiniCard
-                label="Student Voice Prompts"
-                items={r.meeting_prep_toolkit.student_voice_prompts}
-              />
-              <MiniCard label="Follow-up Items" items={r.meeting_prep_toolkit.follow_up_items} />
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Tip: print this section as a one-page checklist to bring to the meeting.
-            </p>
-          </div>
+          <PublicationPage
+            kicker="Section 07"
+            chapter="Next PPT / IEP Meeting Prep"
+            dek="Print this page and bring it to the next PPT. One list — every open question and next step."
+            folio="p. 08"
+          >
+            <PublicationSpread
+              lead={
+                <div>
+                  {[
+                    { label: "Questions to Ask", items: r.meeting_prep_toolkit.questions_to_ask },
+                    { label: "Concerns to Raise", items: r.meeting_prep_toolkit.concerns_to_raise },
+                    { label: "Goals to Review", items: r.meeting_prep_toolkit.goals_to_review },
+                    { label: "Student Voice Prompts", items: r.meeting_prep_toolkit.student_voice_prompts },
+                  ].map(({ label, items }) => (
+                    <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                      <PublicationChecklist title={label} items={items} />
+                    </div>
+                  ))}
+                </div>
+              }
+              side={
+                <PublicationSidebar label="Bring & Know">
+                  <PublicationChecklist title="Documents to Bring" items={r.meeting_prep_toolkit.documents_to_bring} />
+                  <div className="mt-4">
+                    <PublicationChecklist title="Strengths to Highlight" items={r.meeting_prep_toolkit.strengths_to_highlight} />
+                  </div>
+                  <div className="mt-4">
+                    <PublicationChecklist title="Services to Discuss" items={r.meeting_prep_toolkit.services_to_discuss} />
+                  </div>
+                  <div className="mt-4">
+                    <PublicationChecklist title="Follow-up Items" items={r.meeting_prep_toolkit.follow_up_items} />
+                  </div>
+                </PublicationSidebar>
+              }
+            />
+            <PublicationCallout kind="source">
+              <p>Tip: print this section as a one-page checklist to bring to the meeting.</p>
+            </PublicationCallout>
+          </PublicationPage>
         </Block>
       )}
 
