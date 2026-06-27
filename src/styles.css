@@ -6610,3 +6610,98 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   text-decoration: none;
 }
 
+
+/* ---------- Studio bridge: re-skin legacy publication primitives when
+ * they're rendered inside the new .tf-studio shell. Keeps per-route
+ * bodies (PublicationSpread / Callout / Sidebar / PullQuote) coherent
+ * with Atlas Ink visuals without a full per-page rewrite. */
+.tf-studio .pub-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  margin: 28px 0;
+}
+@media (max-width: 820px) { .tf-studio .pub-spread { grid-template-columns: 1fr; } }
+.tf-studio .pub-spread > * { min-width: 0; }
+.tf-studio .pub-sidebar {
+  border-left: 1px solid var(--st-rule);
+  padding: 0 0 0 24px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.tf-studio .pub-sidebar .pub-sidebar-label,
+.tf-studio .pub-sidebar-label {
+  font-family: var(--st-sans);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--st-map-deep);
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.tf-studio .pub-callout {
+  margin: 24px 0;
+  padding: 18px 22px;
+  background: var(--st-paper-3);
+  border-left: 3px solid var(--st-map);
+  border-radius: 0;
+  border-top: 0; border-right: 0; border-bottom: 0;
+  box-shadow: none;
+  color: var(--st-ink);
+  font-family: var(--st-sans);
+}
+.tf-studio .pub-callout.is-next,
+.tf-studio .pub-callout[data-kind="next"] { border-left-color: var(--st-terra); background: color-mix(in srgb, var(--st-terra) 6%, var(--st-paper-3)); }
+.tf-studio .pub-callout.is-source,
+.tf-studio .pub-callout[data-kind="source"] { border-left-color: var(--st-mustard); background: color-mix(in srgb, var(--st-mustard) 10%, var(--st-paper-3)); }
+.tf-studio .pub-callout .pub-callout-title,
+.tf-studio .pub-callout > strong:first-child {
+  font-family: var(--st-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--st-ink);
+  display: block;
+  margin-bottom: 6px;
+}
+.tf-studio .pub-pullquote {
+  font-family: var(--st-serif);
+  font-style: italic;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  line-height: 1.32;
+  color: var(--st-ink);
+  border-left: 3px solid var(--st-mustard);
+  padding-left: 22px;
+  margin: 28px 0;
+  background: transparent;
+}
+.tf-studio .pub-rule { border-top: 1px solid var(--st-rule); margin: 28px 0; }
+.tf-studio .pub-page-frame,
+.tf-studio article.pub-page {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.tf-studio .pub-page > header,
+.tf-studio .pub-page > .pub-head { display: none; } /* the StudioHead replaces it */
+.tf-studio .pub-page h1, .tf-studio .pub-page h2 { font-family: var(--st-serif); color: var(--st-ink); }
+.tf-studio .pub-page p, .tf-studio .pub-page li { color: var(--st-ink-soft); }
+
+/* Bridge: also hide the old MagazineReader / DemoStepBar chrome if it
+ * sneaks through on a not-yet-migrated route. */
+.tf-studio .mag-reader,
+.tf-studio .mag-pageturn,
+.tf-studio [data-mag-reader] { display: none !important; }
+
+/* Buttons inside studio (shadcn default) — use Atlas Ink tokens */
+.tf-studio button.bg-primary,
+.tf-studio .bg-primary { background-color: var(--st-ink) !important; color: var(--st-paper) !important; }
+.tf-studio button.bg-primary:hover { background-color: var(--st-map-deep) !important; }
+.tf-studio .text-primary { color: var(--st-map-deep) !important; }
+.tf-studio .border-primary\/10, .tf-studio .border-primary\/20 { border-color: var(--st-rule) !important; }
+.tf-studio .bg-primary\/10 { background-color: color-mix(in srgb, var(--st-mustard) 18%, transparent) !important; color: var(--st-ink) !important; }
+.tf-studio .bg-muted { background-color: var(--st-paper-3) !important; }
+.tf-studio .text-muted-foreground { color: var(--st-mute) !important; }
+
