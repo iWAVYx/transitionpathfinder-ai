@@ -375,19 +375,87 @@ const JOURNEY = [
   { year: "Now", title: "Transition Forward begins", note: "A pathway, not a packet." },
 ];
 
+// Squiggly path that weaves edge-to-edge through the entire Journey section.
+// viewBox is intentionally tall; preserveAspectRatio="none" stretches it to the
+// section so the curve fills the whole background regardless of breakpoint.
+const SQUIGGLE_D =
+  "M -40 60 C 200 20, 320 220, 540 180 S 880 60, 1040 200 S 820 460, 560 440 S 160 520, 80 720 S 380 900, 640 860 S 980 980, 880 1180 S 420 1280, 240 1140 S -80 1320, 60 1480";
+
 function JourneyPath() {
   const ref = useRef<HTMLElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const pathLength = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
+  const progress = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
+  const pathLength = useTransform(progress, (v) => (reduce ? 1 : v));
+
+  // Sample (x, y, angle) along the path so the arrow rides the squiggle.
+  const [len, setLen] = useState(0);
+  useEffect(() => {
+    if (pathRef.current) setLen(pathRef.current.getTotalLength());
+  }, []);
+
+  const arrowX = useTransform(progress, (v) => {
+    const p = pathRef.current;
+    if (!p || !len) return -100;
+    return p.getPointAtLength(Math.max(0.01, v) * len).x;
+  });
+  const arrowY = useTransform(progress, (v) => {
+    const p = pathRef.current;
+    if (!p || !len) return -100;
+    return p.getPointAtLength(Math.max(0.01, v) * len).y;
+  });
+  const arrowR = useTransform(progress, (v) => {
+    const p = pathRef.current;
+    if (!p || !len) return 0;
+    const t = Math.max(0.01, v) * len;
+    const a = p.getPointAtLength(Math.max(0, t - 1));
+    const b = p.getPointAtLength(Math.min(len, t + 1));
+    return (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+  });
 
   return (
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white md:py-20">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
+
+      {/* Full-background squiggly pathway with a traveling arrow. */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        viewBox="0 0 1000 1500"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        {/* faint full trail */}
+        <path
+          d={SQUIGGLE_D}
+          fill="none"
+          stroke="rgba(255,255,255,0.12)"
+          strokeWidth="2"
+          strokeDasharray="4 8"
+          vectorEffect="non-scaling-stroke"
+        />
+        {/* progress trail drawn by scroll */}
+        <motion.path
+          ref={pathRef}
+          d={SQUIGGLE_D}
+          fill="none"
+          stroke="rgba(255,220,160,0.85)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          style={{ pathLength }}
+        />
+        {/* traveling arrow head */}
+        <motion.g style={{ x: arrowX, y: arrowY, rotate: arrowR }}>
+          <circle r="14" fill="rgba(255,220,160,0.18)" />
+          <circle r="6" fill="#ffd9a0" />
+          <path d="M 2 -7 L 16 0 L 2 7 Z" fill="#ffd9a0" />
+        </motion.g>
+      </svg>
 
       <div className="relative mx-auto max-w-[1400px] px-6">
         <div className="mb-12 max-w-2xl">
@@ -400,23 +468,7 @@ function JourneyPath() {
         </div>
 
         <div className="relative">
-          {/* Animated pathway line */}
-          <svg
-            className="pointer-events-none absolute left-6 top-0 hidden h-full w-12 md:block"
-            viewBox="0 0 40 1000"
-            preserveAspectRatio="none"
-          >
-            <motion.path
-              d="M 20 0 C 0 200, 40 350, 20 500 C 0 650, 40 800, 20 1000"
-              fill="none"
-              stroke="rgba(255,255,255,0.9)"
-              strokeWidth="2"
-              strokeDasharray="4 6"
-              style={{ pathLength: reduce ? 1 : pathLength }}
-            />
-          </svg>
-
-          <ol className="space-y-12 md:space-y-20 md:pl-24">
+          <ol className="space-y-12 md:space-y-20">
             {JOURNEY.map((j, i) => (
               <motion.li
                 key={i}
@@ -424,7 +476,9 @@ function JourneyPath() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-15%" }}
                 transition={{ duration: 0.8, delay: i * 0.05, ease: [0.22, 0.61, 0.36, 1] }}
-                className="relative grid grid-cols-[auto_1fr] items-baseline gap-6 md:gap-10"
+                className={`relative grid grid-cols-[auto_1fr] items-baseline gap-6 md:gap-10 ${
+                  i % 2 === 1 ? "md:ml-auto md:max-w-[60%] md:text-right" : "md:max-w-[60%]"
+                }`}
               >
                 <span className="font-serif text-2xl italic text-white/50 md:text-3xl">
                   {j.year}
