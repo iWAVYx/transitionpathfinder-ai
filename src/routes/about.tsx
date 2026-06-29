@@ -14,7 +14,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 
 // Imagery — reused project assets, cropped via aspect wrappers per project rules.
-import heroImg from "@/assets/about-cinematic.jpg";
+import heroImgAsset from "@/assets/raising-hands-class.png.asset.json";
+const heroImg = heroImgAsset.url;
 import studentCenter from "@/assets/about-student-center.jpg";
 import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
