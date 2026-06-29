@@ -593,10 +593,16 @@ function Transformation() {
   return (
     <section
       ref={ref}
-      className="relative bg-[#f4ede3] text-[#1c1814]"
+      className="relative text-[#1c1814]"
       style={{ height: reduce ? "auto" : "220vh" }}
     >
       <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${stickyNotesBg})` }}
+        />
+        <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/80" />
         <div className="mx-auto w-full max-w-[1300px] px-6">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
