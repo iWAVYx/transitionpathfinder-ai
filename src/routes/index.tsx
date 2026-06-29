@@ -1619,7 +1619,7 @@ function FeatureShot({
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
-        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary shadow-soft backdrop-blur">
+        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.14em] text-primary shadow-soft backdrop-blur">
           {label}
         </span>
       </div>
