@@ -10,6 +10,7 @@ import {
   type MotionValue,
 } from "motion/react";
 import { ArrowRight, MapPin } from "lucide-react";
+import { toTitleCase } from "@/lib/title-case";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 
