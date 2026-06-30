@@ -543,16 +543,16 @@ function FragmentCard({
   reduce: boolean;
 }) {
   const scatterScale = useScatterScale();
-  // Fragments stay scattered while the headline reads, converge slowly through
-  // the middle of the pin, then dim as the Pathway Report takes the stage.
-  const p = useTransform(progress, [0.1, 0.4], [0, 1]);
+  // Fragments stay scattered longer while the headline reads, then converge
+  // through the middle of the pin, then dim as the Pathway Report takes the stage.
+  const p = useTransform(progress, [0.25, 0.55], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale, 0]);
   const y = useTransform(p, [0, 1], [reduce ? 0 : (fragment.y - 160) * scatterScale, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
   // Pin falls out, staggered per card, once the notes have settled.
-  const fallStart = 0.5 + index * 0.03;
+  const fallStart = 0.65 + index * 0.03;
   const fallEnd = fallStart + 0.18;
   const pinY = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : 480]);
   const pinRot = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 220 : -240)]);
@@ -606,8 +606,8 @@ function Transformation() {
     offset: ["start start", "end end"],
   });
 
-  const rawOpacity = useTransform(scrollYProgress, [0.40, 0.55, 0.92, 1], [0, 1, 1, 0.85]);
-  const rawScale = useTransform(scrollYProgress, [0.40, 0.92], [0.55, 1.45]);
+  const rawOpacity = useTransform(scrollYProgress, [0.55, 0.70, 0.92, 1], [0, 1, 1, 0.85]);
+  const rawScale = useTransform(scrollYProgress, [0.55, 0.92], [0.55, 1.45]);
   const opacity = useSpring(rawOpacity, { stiffness: 80, damping: 20, mass: 0.8 });
   const scale = useSpring(rawScale, { stiffness: 60, damping: 15, mass: 0.8 });
 
@@ -615,7 +615,7 @@ function Transformation() {
     <section
       ref={ref}
       className="relative text-[#1c1814]"
-      style={{ height: reduce ? "auto" : "220vh" }}
+      style={{ height: reduce ? "auto" : "300vh" }}
     >
       <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
         <div
