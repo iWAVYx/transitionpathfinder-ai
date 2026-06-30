@@ -507,12 +507,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -14, x: -220, y: -130, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 10, x: 200, y: -150, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -7, x: -260, y: 60, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 16, x: 240, y: 80, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -18, x: -120, y: 170, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 8, x: 220, y: 190, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -12, x: -280, y: -170, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 9, x: 280, y: -170, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -6, x: -280, y: 60, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 13, x: 280, y: 60, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -15, x: -160, y: 220, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 7, x: 160, y: 220, color: "#e0bbff", pin: "#be185d" },
 ];
 
 function useScatterScale() {
@@ -520,8 +520,8 @@ function useScatterScale() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w < 640) setScale(0.35);
-      else if (w < 1024) setScale(0.6);
+      if (w < 640) setScale(0.32);
+      else if (w < 1024) setScale(0.55);
       else setScale(1);
     };
     update();
@@ -547,7 +547,7 @@ function FragmentCard({
   // the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.1, 0.4], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : (fragment.y - 150) * scatterScale, index * 8 - 20]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : (fragment.y - 160) * scatterScale, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
@@ -578,7 +578,7 @@ function FragmentCard({
         boxShadow:
           "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
       }}
-      className="absolute left-1/2 top-1/2 flex h-[135px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[12px] font-medium leading-snug text-[#1c1814]/85 sm:h-[165px] sm:w-[205px] sm:px-4 sm:py-4 sm:text-[13px] sm:leading-snug md:h-[195px] md:w-[245px] md:py-5 md:text-base"
+      className="absolute left-1/2 top-1/2 flex h-[170px] w-[210px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-4 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 sm:h-[210px] sm:w-[260px] sm:px-5 sm:py-5 sm:text-base sm:leading-snug md:h-[250px] md:w-[310px] md:py-6 md:text-lg"
     >
       <span className="relative z-10">{fragment.label}</span>
       {/* Pushpin — sits above the note, falls out on scroll */}
