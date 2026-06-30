@@ -507,12 +507,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -14, x: -220, y: -130, color: "#fff48a", tape: "#f3d34a" },
-  { label: toTitleCase("Student strengths"), rot: 10, x: 200, y: -150, color: "#ffb3c1", tape: "#f48fb1" },
-  { label: toTitleCase("Family priorities"), rot: -7, x: -260, y: 60, color: "#a8e6cf", tape: "#7fd1ae" },
-  { label: toTitleCase("Educator input"), rot: 16, x: 240, y: 80, color: "#b5d8ff", tape: "#8fbcf0" },
-  { label: toTitleCase("Resources"), rot: -18, x: -120, y: 170, color: "#ffd59e", tape: "#f5b87a" },
-  { label: toTitleCase("Action items"), rot: 8, x: 220, y: 190, color: "#e0bbff", tape: "#c79bf0" },
+  { label: toTitleCase("IEP paperwork"), rot: -14, x: -220, y: -130, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 10, x: 200, y: -150, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -7, x: -260, y: 60, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 16, x: 240, y: 80, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -18, x: -120, y: 170, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 8, x: 220, y: 190, color: "#e0bbff", pin: "#be185d" },
 ];
 
 function useScatterScale() {
@@ -550,6 +550,15 @@ function FragmentCard({
   const y = useTransform(p, [0, 1], [reduce ? 0 : (fragment.y - 150) * scatterScale, index * 8 - 20]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
+
+  // Pin falls out, staggered per card, once the notes have settled.
+  const fallStart = 0.5 + index * 0.03;
+  const fallEnd = fallStart + 0.18;
+  const pinY = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : 480]);
+  const pinRot = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 220 : -240)]);
+  const pinX = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 28 : -34)]);
+  const pinOpacity = useTransform(progress, [fallStart, fallEnd - 0.02, fallEnd], [1, 1, 0]);
+
   // Subtle 3D tilt — reduced on smaller screens
   const tiltScale = Math.min(scatterScale * 1.5, 1);
   const tiltX = (index % 2 === 0 ? 1 : -1) * 6 * tiltScale;
@@ -568,11 +577,22 @@ function FragmentCard({
         transformStyle: "preserve-3d",
         boxShadow:
           "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
-        ["--tape" as never]: fragment.tape,
-      } as unknown as React.CSSProperties}
-      className="absolute left-1/2 top-1/2 flex h-[135px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[12px] font-medium leading-snug text-[#1c1814]/85 before:absolute before:left-1/2 before:-top-1.5 before:h-3 before:w-10 before:-translate-x-1/2 before:-rotate-3 before:rounded-[2px] before:bg-[var(--tape)] before:opacity-80 before:shadow-[0_1px_3px_rgba(0,0,0,0.16)] before:content-[''] sm:h-[165px] sm:w-[205px] sm:px-4 sm:py-4 sm:text-[13px] sm:leading-snug sm:before:h-3.5 sm:before:w-14 md:h-[195px] md:w-[245px] md:py-5 md:text-base md:before:h-4 md:before:w-16"
+      }}
+      className="absolute left-1/2 top-1/2 flex h-[135px] w-[170px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-3 py-3 text-center font-serif text-[12px] font-medium leading-snug text-[#1c1814]/85 sm:h-[165px] sm:w-[205px] sm:px-4 sm:py-4 sm:text-[13px] sm:leading-snug md:h-[195px] md:w-[245px] md:py-5 md:text-base"
     >
       <span className="relative z-10">{fragment.label}</span>
+      {/* Pushpin — sits above the note, falls out on scroll */}
+      <motion.span
+        aria-hidden="true"
+        style={{
+          x: pinX,
+          y: pinY,
+          rotate: pinRot,
+          opacity: pinOpacity,
+          backgroundColor: fragment.pin,
+        }}
+        className="pointer-events-none absolute left-1/2 top-2 z-20 h-3.5 w-3.5 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)] sm:h-4 sm:w-4 md:h-[18px] md:w-[18px]"
+      />
     </motion.div>
   );
 }
