@@ -20,7 +20,7 @@ const heroImg = heroImgAsset.url;
 import studentCenter from "@/assets/about-student-center.jpg";
 import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
-import classroomImg from "@/assets/educators-hero-v2.jpg";
+import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
 import familyImg from "@/assets/families-hero-v2.jpg";
 import pathwayImg from "@/assets/pathway-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
