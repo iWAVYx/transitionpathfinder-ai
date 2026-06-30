@@ -507,12 +507,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -12, x: -280, y: -170, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 9, x: 280, y: -170, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -6, x: -280, y: 60, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 13, x: 280, y: 60, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -15, x: -160, y: 220, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 7, x: 160, y: 220, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -10, x: -340, y: 60, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 8, x: 340, y: 60, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: -360, y: 240, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 11, x: 360, y: 240, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -12, x: -210, y: 420, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 210, y: 420, color: "#e0bbff", pin: "#be185d" },
 ];
 
 function useScatterScale() {
@@ -624,8 +624,9 @@ function Transformation() {
           style={{ backgroundImage: `url(${stickyNotesBg})` }}
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/80" />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-[#f4ede3]/100 via-[#f4ede3]/95 to-[#f4ede3]/60" />
         <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="relative mx-auto mb-16 max-w-2xl text-center md:mb-24">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
               The transformation
             </div>
@@ -634,7 +635,7 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[70vh] w-full max-w-5xl sm:h-[78vh] md:h-[85vh]">
+          <div className="relative mx-auto h-[70vh] w-full max-w-[1350px] sm:h-[78vh] md:h-[85vh]">
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
