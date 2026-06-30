@@ -624,7 +624,7 @@ function Transformation() {
           style={{ backgroundImage: `url(${stickyNotesBg})` }}
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[28%] bg-gradient-to-b from-[#f4ede3]/95 via-[#f4ede3]/70 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
           <div className="relative mx-auto mb-16 max-w-2xl text-center md:mb-24">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
