@@ -25,7 +25,8 @@
   --font-display: "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
   --font-hand: "Caveat", "Kalam", cursive;
 
-  --font-hand-token: var(--font-hand);
+
+  --color-background: var(--background);
 
 
 
