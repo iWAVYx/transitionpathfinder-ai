@@ -174,7 +174,7 @@ const CHAPTERS = [
   {
     label: "Chapter 02 · The Classroom",
     title: "The classroom showed me what the paperwork couldn't.",
-    body: "Hamden. New Haven. Student teaching. The plan on the page rarely matched the student in the room — their strengths, their voice, the family at the table.",
+    body: "Hamden. New Haven. Student Teaching. The plan on the page rarely matched the student in the room — their strengths, their voice, the family at the table.",
     image: classroomImg,
     place: "Hamden, CT",
   },
