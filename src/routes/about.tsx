@@ -578,7 +578,7 @@ function FragmentCard({
         boxShadow:
           "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
       }}
-      className="absolute left-1/2 top-1/2 flex h-[170px] w-[210px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-4 text-center font-serif text-sm font-medium leading-snug text-[#1c1814]/85 sm:h-[210px] sm:w-[260px] sm:px-5 sm:py-5 sm:text-base sm:leading-snug md:h-[250px] md:w-[310px] md:py-6 md:text-lg"
+      className="absolute left-1/2 top-1/2 flex h-[170px] w-[210px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-4 text-center font-hand text-lg font-semibold leading-snug text-[#1c1814]/85 sm:h-[210px] sm:w-[260px] sm:px-5 sm:py-5 sm:text-xl sm:leading-snug md:h-[250px] md:w-[310px] md:py-6 md:text-2xl"
     >
       <span className="relative z-10">{fragment.label}</span>
       {/* Pushpin — sits above the note, falls out on scroll */}
