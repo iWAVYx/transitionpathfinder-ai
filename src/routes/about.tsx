@@ -373,7 +373,7 @@ function FounderMessage() {
 const JOURNEY = [
   { year: "Then", title: "MBA", note: "Systems thinking — built for orgs, not students." },
   { year: "→", title: "MAT · Special Education K–12", note: "From boardrooms to IEP meetings." },
-  { year: "→", title: "Student teaching", note: "Across grade bands, across CT." },
+  { year: "→", title: "Student Teaching", note: "Across grade bands, across CT." },
   { year: "→", title: "New Haven Public Schools", note: "Inside the binder. Inside the meeting." },
   { year: "→", title: "Hamden Public Schools", note: "Same patterns. Same gaps. Same families fighting through them." },
   { year: "Now", title: "Transition Forward begins", note: "A pathway, not a packet." },
