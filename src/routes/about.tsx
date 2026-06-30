@@ -507,12 +507,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -10, x: -340, y: 60, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 8, x: 340, y: 60, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: -360, y: 240, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 11, x: 360, y: 240, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -12, x: -210, y: 420, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 210, y: 420, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -10, x: -520, y: 40, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 8, x: 520, y: 80, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: -560, y: 290, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 11, x: 560, y: 270, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -12, x: -300, y: 510, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 300, y: 510, color: "#e0bbff", pin: "#be185d" },
 ];
 
 function useScatterScale() {
@@ -623,8 +623,8 @@ function Transformation() {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${stickyNotesBg})` }}
         />
-        <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/80" />
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-[#f4ede3]/100 via-[#f4ede3]/95 to-[#f4ede3]/60" />
+        <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[28%] bg-gradient-to-b from-[#f4ede3]/95 via-[#f4ede3]/70 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
           <div className="relative mx-auto mb-16 max-w-2xl text-center md:mb-24">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
