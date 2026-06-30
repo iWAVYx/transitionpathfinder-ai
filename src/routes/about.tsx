@@ -507,12 +507,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -455, y: -190, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -150, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 455, y: -185, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -410, y: 75, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 125, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 410, y: 75, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -455, y: -240, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -200, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 455, y: -235, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -410, y: 25, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 75, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 410, y: 25, color: "#e0bbff", pin: "#be185d" },
 ];
 
 function useScatterScale() {
