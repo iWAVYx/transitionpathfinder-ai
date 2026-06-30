@@ -376,7 +376,7 @@ const JOURNEY = [
   { year: "→", title: "Student Teaching", note: "Across grade bands, across CT." },
   { year: "→", title: "New Haven Public Schools", note: "Inside the binder. Inside the meeting." },
   { year: "→", title: "Hamden Public Schools", note: "Same patterns. Same gaps. Same families fighting through them." },
-  { year: "Now", title: "Transition Forward begins", note: "A pathway, not a packet." },
+  { year: "Now", title: "Transition Forward Begins", note: "A pathway, not a packet." },
 ];
 
 // Squiggly path that weaves edge-to-edge through the entire Journey section.
