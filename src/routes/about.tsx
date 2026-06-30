@@ -606,8 +606,8 @@ function Transformation() {
     offset: ["start start", "end end"],
   });
 
-  const rawOpacity = useTransform(scrollYProgress, [0.40, 0.55, 0.92, 1], [0, 1, 1, 0.85]);
-  const rawScale = useTransform(scrollYProgress, [0.40, 0.92], [0.55, 1.45]);
+  const rawOpacity = useTransform(scrollYProgress, [0.55, 0.70, 0.92, 1], [0, 1, 1, 0.85]);
+  const rawScale = useTransform(scrollYProgress, [0.55, 0.92], [0.55, 1.45]);
   const opacity = useSpring(rawOpacity, { stiffness: 80, damping: 20, mass: 0.8 });
   const scale = useSpring(rawScale, { stiffness: 60, damping: 15, mass: 0.8 });
 
@@ -615,7 +615,7 @@ function Transformation() {
     <section
       ref={ref}
       className="relative text-[#1c1814]"
-      style={{ height: reduce ? "auto" : "220vh" }}
+      style={{ height: reduce ? "auto" : "300vh" }}
     >
       <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
         <div
