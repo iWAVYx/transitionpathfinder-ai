@@ -625,7 +625,7 @@ function Transformation() {
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/80" />
         <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="relative mx-auto mb-12 max-w-2xl text-center md:mb-16">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
               The transformation
             </div>
@@ -634,7 +634,7 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[70vh] w-full max-w-5xl sm:h-[78vh] md:h-[85vh]">
+          <div className="relative mx-auto h-[70vh] w-full max-w-[1350px] sm:h-[78vh] md:h-[85vh]">
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
             ))}
