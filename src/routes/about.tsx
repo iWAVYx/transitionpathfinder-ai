@@ -547,7 +547,7 @@ function FragmentCard({
   // through the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.25, 0.55], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : (fragment.y - 160) * scatterScale, index * 12 - 30]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
