@@ -26,8 +26,10 @@ import pathwayImg from "@/assets/pathway-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
 import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
 import stickyNotesBgAsset from "@/assets/sticky-notes-bg.png.asset.json";
+import binderImgAsset from "@/assets/about-chapter-01-binder.png.asset.json";
 const ctaImg = ctaImgAsset.url;
 const stickyNotesBg = stickyNotesBgAsset.url;
+const binderImg = binderImgAsset.url;
 import sunriseImg from "@/assets/framework-bg-sunrise.jpg";
 import topoImg from "@/assets/framework-bg-topo.jpg";
 import studentPhoto from "@/assets/home-student-photo.jpg";
@@ -168,7 +170,7 @@ const CHAPTERS = [
     label: "Chapter 01 · The Binder",
     title: "It started with a binder no one had time to read.",
     body: "Every student arrived with a story compressed into paperwork — IEPs, evaluations, transition pages — sitting in a binder that families and educators didn't have time to decode.",
-    image: paperworkImg,
+    image: binderImg,
     place: "New Haven, CT",
   },
   {
