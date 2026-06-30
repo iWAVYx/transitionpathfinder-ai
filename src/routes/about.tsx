@@ -507,12 +507,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -455, y: 30, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: 70, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 455, y: 35, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -410, y: 325, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 395, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 410, y: 325, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -455, y: -190, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -150, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 455, y: -185, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -410, y: 75, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 125, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 410, y: 75, color: "#e0bbff", pin: "#be185d" },
 ];
 
 function useScatterScale() {
@@ -547,7 +547,7 @@ function FragmentCard({
   // through the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.25, 0.55], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : (fragment.y - 160) * scatterScale, index * 12 - 30]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale, index * 12 - 30]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
@@ -624,7 +624,7 @@ function Transformation() {
           style={{ backgroundImage: `url(${stickyNotesBg})` }}
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[28%] bg-gradient-to-b from-[#f4ede3]/95 via-[#f4ede3]/70 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
           <div className="relative mx-auto mb-16 max-w-2xl text-center md:mb-24">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
