@@ -20,7 +20,7 @@ const heroImg = heroImgAsset.url;
 import studentCenter from "@/assets/about-student-center.jpg";
 import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
-import classroomImg from "@/assets/educators-hero-v2.jpg";
+import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
 import familyImg from "@/assets/families-hero-v2.jpg";
 import pathwayImg from "@/assets/pathway-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
@@ -177,7 +177,7 @@ const CHAPTERS = [
     label: "Chapter 02 · The Classroom",
     title: "The classroom showed me what the paperwork couldn't.",
     body: "Hamden. New Haven. Student Teaching. The plan on the page rarely matched the student in the room — their strengths, their voice, the family at the table.",
-    image: classroomImg,
+    image: classroomImg.url,
     place: "Hamden, CT",
   },
   {
