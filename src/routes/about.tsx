@@ -174,7 +174,7 @@ const CHAPTERS = [
   {
     label: "Chapter 02 · The Classroom",
     title: "The classroom showed me what the paperwork couldn't.",
-    body: "Hamden. New Haven. Student teaching. The plan on the page rarely matched the student in the room — their strengths, their voice, the family at the table.",
+    body: "Hamden. New Haven. Student Teaching. The plan on the page rarely matched the student in the room — their strengths, their voice, the family at the table.",
     image: classroomImg,
     place: "Hamden, CT",
   },
@@ -338,7 +338,7 @@ function FounderMessage() {
           </h2>
           <p className="mt-6 text-base text-[#1c1814]/80 sm:text-lg">
             I'm a Black special educator from Connecticut. MBA, then MAT in Special Education K–12.
-            New Haven Public Schools. Hamden. Student teaching across grade bands. Every meeting,
+            New Haven Public Schools. Hamden. Student Teaching across grade bands. Every meeting,
             the same gap — paperwork on the table, possibility just out of reach.
           </p>
           <p className="mt-4 text-base text-[#1c1814]/80 sm:text-lg">
@@ -373,7 +373,7 @@ function FounderMessage() {
 const JOURNEY = [
   { year: "Then", title: "MBA", note: "Systems thinking — built for orgs, not students." },
   { year: "→", title: "MAT · Special Education K–12", note: "From boardrooms to IEP meetings." },
-  { year: "→", title: "Student teaching", note: "Across grade bands, across CT." },
+  { year: "→", title: "Student Teaching", note: "Across grade bands, across CT." },
   { year: "→", title: "New Haven Public Schools", note: "Inside the binder. Inside the meeting." },
   { year: "→", title: "Hamden Public Schools", note: "Same patterns. Same gaps. Same families fighting through them." },
   { year: "Now", title: "Transition Forward begins", note: "A pathway, not a packet." },
