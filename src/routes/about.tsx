@@ -511,27 +511,44 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -455, y: -240, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -200, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 455, y: -235, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -410, y: 25, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 75, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 410, y: 25, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -0.35, y: -0.32, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.28, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 0.35, y: -0.32, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -0.32, y: 0.12, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.18, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 0.32, y: 0.12, color: "#e0bbff", pin: "#be185d" },
 ];
 
-function useScatterScale() {
+const BASE_CARD_W = 310;
+const BASE_CARD_H = 250;
+
+function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
     const update = () => {
-      const w = window.innerWidth;
-      if (w < 640) setScale(0.32);
-      else if (w < 1024) setScale(0.55);
-      else setScale(1);
+      const rect = el.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      // The largest scattered offset is +/-0.35 of the base card width/height.
+      // Clamp scale so the full card plus that offset stays inside the container.
+      const padX = 24;
+      const padY = 40;
+      const halfW = w / 2;
+      const halfH = h / 2;
+      const maxReachX = BASE_CARD_W * (0.35 + 0.5);
+      const maxReachY = BASE_CARD_H * (0.32 + 0.5);
+      const scaleX = (halfW - padX) / maxReachX;
+      const scaleY = (halfH - padY) / maxReachY;
+      const next = Math.max(0.35, Math.min(1, scaleX, scaleY));
+      setScale(Number.isFinite(next) ? next : 0.5);
     };
     update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [containerRef]);
   return scale;
 }
 
@@ -540,25 +557,27 @@ function FragmentCard({
   index,
   progress,
   reduce,
+  containerRef,
 }: {
   fragment: (typeof FRAGMENTS)[number];
   index: number;
   progress: MotionValue<number>;
   reduce: boolean;
+  containerRef: React.RefObject<HTMLElement | null>;
 }) {
-  const scatterScale = useScatterScale();
+  const scatterScale = useScatterScale(containerRef);
   // Fragments stay scattered longer while the headline reads, then converge
   // through the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.25, 0.55], [0, 1]);
-  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale, index * 12 - 30]);
+  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale * BASE_CARD_W, 0]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale * BASE_CARD_H, (index * 12 - 30) * scatterScale]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
   // Pin falls out, staggered per card, once the notes have settled.
   const fallStart = 0.65 + index * 0.03;
   const fallEnd = fallStart + 0.18;
-  const pinY = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : 480]);
+  const pinY = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : 480 * scatterScale]);
   const pinRot = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 220 : -240)]);
   const pinX = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 28 : -34)]);
   const pinOpacity = useTransform(progress, [fallStart, fallEnd - 0.02, fallEnd], [1, 1, 0]);
@@ -567,6 +586,11 @@ function FragmentCard({
   const tiltScale = Math.min(scatterScale * 1.5, 1);
   const tiltX = (index % 2 === 0 ? 1 : -1) * 6 * tiltScale;
   const tiltY = (index % 3 === 0 ? -1 : 1) * 8 * tiltScale;
+
+  const width = BASE_CARD_W * scatterScale;
+  const height = BASE_CARD_H * scatterScale;
+  const fontSize = Math.max(14, 24 * scatterScale);
+
   return (
     <motion.div
       style={{
@@ -576,15 +600,19 @@ function FragmentCard({
         rotateX: tiltX,
         rotateY: tiltY,
         opacity,
+        width,
+        height,
         backgroundColor: fragment.color,
         transformPerspective: 1000,
         transformStyle: "preserve-3d",
         boxShadow:
           "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
       }}
-      className="absolute left-1/2 top-1/2 flex h-[170px] w-[210px] -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-4 text-center font-hand text-lg font-semibold leading-snug text-[#1c1814]/85 sm:h-[210px] sm:w-[260px] sm:px-5 sm:py-5 sm:text-xl sm:leading-snug md:h-[250px] md:w-[310px] md:py-6 md:text-2xl"
+      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-4 text-center font-hand font-semibold leading-snug text-[#1c1814]/85"
     >
-      <span className="relative z-10">{fragment.label}</span>
+      <span style={{ fontSize }} className="relative z-10">
+        {fragment.label}
+      </span>
       {/* Pushpin — sits above the note, falls out on scroll */}
       <motion.span
         aria-hidden="true"
@@ -594,16 +622,20 @@ function FragmentCard({
           rotate: pinRot,
           opacity: pinOpacity,
           backgroundColor: fragment.pin,
+          width: Math.max(10, 18 * scatterScale),
+          height: Math.max(10, 18 * scatterScale),
         }}
-        className="pointer-events-none absolute left-1/2 top-2 z-20 h-3.5 w-3.5 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)] sm:h-4 sm:w-4 md:h-[18px] md:w-[18px]"
+        className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)]"
       />
     </motion.div>
   );
 }
 
 
+
 function Transformation() {
   const ref = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -621,7 +653,7 @@ function Transformation() {
       className="relative text-[#1c1814]"
       style={{ height: reduce ? "auto" : "300vh" }}
     >
-      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
+      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-12 sm:py-16 md:py-20">
         <div
           aria-hidden
           className="absolute inset-0 bg-cover bg-center"
@@ -629,8 +661,8 @@ function Transformation() {
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
         <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
-        <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
-          <div className="relative mx-auto mb-16 max-w-2xl text-center md:mb-24">
+        <div className="relative z-10 mx-auto w-full max-w-[1300px] px-4 sm:px-6">
+          <div className="relative mx-auto mb-10 max-w-2xl text-center sm:mb-16 md:mb-24">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
               The transformation
             </div>
@@ -639,9 +671,12 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[70vh] w-full max-w-[1350px] sm:h-[78vh] md:h-[85vh]">
+          <div
+            ref={containerRef}
+            className="relative mx-auto h-[60vh] min-h-[480px] w-full max-w-[1350px] sm:h-[70vh] sm:min-h-[560px] md:h-[78vh] md:min-h-[680px]"
+          >
             {FRAGMENTS.map((f, i) => (
-              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
+              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} containerRef={containerRef} />
             ))}
             <motion.div
               style={{ opacity, scale }}
