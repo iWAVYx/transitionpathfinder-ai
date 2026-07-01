@@ -635,6 +635,7 @@ function FragmentCard({
 
 function Transformation() {
   const ref = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -652,7 +653,7 @@ function Transformation() {
       className="relative text-[#1c1814]"
       style={{ height: reduce ? "auto" : "300vh" }}
     >
-      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-20">
+      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-12 sm:py-16 md:py-20">
         <div
           aria-hidden
           className="absolute inset-0 bg-cover bg-center"
@@ -660,8 +661,8 @@ function Transformation() {
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
         <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
-        <div className="relative z-10 mx-auto w-full max-w-[1300px] px-6">
-          <div className="relative mx-auto mb-16 max-w-2xl text-center md:mb-24">
+        <div className="relative z-10 mx-auto w-full max-w-[1300px] px-4 sm:px-6">
+          <div className="relative mx-auto mb-10 max-w-2xl text-center sm:mb-16 md:mb-24">
             <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
               The transformation
             </div>
@@ -670,9 +671,12 @@ function Transformation() {
             </h2>
           </div>
 
-          <div className="relative mx-auto h-[70vh] w-full max-w-[1350px] sm:h-[78vh] md:h-[85vh]">
+          <div
+            ref={containerRef}
+            className="relative mx-auto h-[60vh] min-h-[480px] w-full max-w-[1350px] sm:h-[70vh] sm:min-h-[560px] md:h-[78vh] md:min-h-[680px]"
+          >
             {FRAGMENTS.map((f, i) => (
-              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} />
+              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} containerRef={containerRef} />
             ))}
             <motion.div
               style={{ opacity, scale }}
