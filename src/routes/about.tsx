@@ -511,16 +511,17 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.4, y: -1.3, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -1.3, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 1.4, y: -1.3, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -1.4, y: 1.3, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 1.3, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 1.4, y: 1.3, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.4, y: -0.85, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.85, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 1.4, y: -0.85, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -1.4, y: 0.85, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.85, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 1.4, y: 0.85, color: "#e0bbff", pin: "#be185d" },
 ];
 
 const BASE_CARD_W = 360;
 const BASE_CARD_H = 280;
+const GROUP_Y_OFFSET = 160; // shift entire note cluster downward so heading stays visible
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
@@ -571,7 +572,7 @@ function FragmentCard({
   // through the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.25, 0.55], [0, 1]);
   const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale * BASE_CARD_W, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale * BASE_CARD_H, (index * 12 - 30) * scatterScale]);
+  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale * BASE_CARD_H + GROUP_Y_OFFSET, (index * 12 - 30) * scatterScale + GROUP_Y_OFFSET]);
   const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
