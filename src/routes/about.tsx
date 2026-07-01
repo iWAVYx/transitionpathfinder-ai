@@ -193,7 +193,7 @@ const CHAPTERS = [
     label: "Chapter 04 · The Build",
     title: "So I built what the binder was missing.",
     body: "Transition Forward turns the paperwork into a plan — a Pathway Report families, educators, and partners can actually use together.",
-    image: pathwayImg,
+    image: buildImgAsset.url,
     place: "Transition Forward",
   },
 ];
