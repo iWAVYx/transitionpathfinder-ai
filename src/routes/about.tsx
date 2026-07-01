@@ -511,12 +511,12 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.05, y: -0.55, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.65, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 1.05, y: -0.55, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -1.05, y: 0.55, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.65, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 1.05, y: 0.55, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.05, y: -1.0, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -1.1, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 1.05, y: -1.0, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -1.05, y: 0.1, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.2, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 1.05, y: 0.1, color: "#e0bbff", pin: "#be185d" },
 ];
 
 const BASE_CARD_W = 280;
@@ -531,14 +531,14 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // Fragments now scatter up to ~1.05 * card width horizontally and ~0.65 * card height vertically.
+      // Fragments scatter up to ~1.05 * card width horizontally and ~1.1 * card height vertically.
       // Clamp scale so the full card plus that offset stays inside the container with breathing room.
       const padX = 16;
       const padY = 32;
       const halfW = w / 2;
       const halfH = h / 2;
       const maxReachX = BASE_CARD_W * (1.05 + 0.5);
-      const maxReachY = BASE_CARD_H * (0.65 + 0.5);
+      const maxReachY = BASE_CARD_H * (1.1 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY) / maxReachY;
       const next = Math.max(0.32, Math.min(1, scaleX, scaleY));
