@@ -22,6 +22,7 @@ import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
 import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
 import familyImg from "@/assets/families-hero-v2.jpg";
+import patternImg from "@/assets/about-chapter-03-pattern.png.asset.json";
 import pathwayImg from "@/assets/pathway-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
 import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
