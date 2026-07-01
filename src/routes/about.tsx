@@ -531,7 +531,7 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // Fragments now scatter up to ~1.05 * card width horizontally and ~0.65 * card height vertically.
+      // Fragments scatter up to ~1.05 * card width horizontally and ~1.1 * card height vertically.
       // Clamp scale so the full card plus that offset stays inside the container with breathing room.
       const padX = 16;
       const padY = 32;
