@@ -511,16 +511,16 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.05, y: -1.0, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -1.1, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 1.05, y: -1.0, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -1.05, y: 0.1, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.2, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 1.05, y: 0.1, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.4, y: -1.3, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -1.3, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 1.4, y: -1.3, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -1.4, y: 1.3, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 1.3, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 1.4, y: 1.3, color: "#e0bbff", pin: "#be185d" },
 ];
 
-const BASE_CARD_W = 280;
-const BASE_CARD_H = 220;
+const BASE_CARD_W = 360;
+const BASE_CARD_H = 280;
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
@@ -531,17 +531,17 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // Fragments scatter up to ~1.05 * card width horizontally and ~1.1 * card height vertically.
-      // Clamp scale so the full card plus that offset stays inside the container with breathing room.
-      const padX = 16;
-      const padY = 32;
+      // Fragments scatter across the full viewport width and height.
+      // We use only a tiny margin so the cards fill the available space.
+      const padX = 8;
+      const padY = 12;
       const halfW = w / 2;
       const halfH = h / 2;
-      const maxReachX = BASE_CARD_W * (1.05 + 0.5);
-      const maxReachY = BASE_CARD_H * (1.1 + 0.5);
+      const maxReachX = BASE_CARD_W * (1.4 + 0.5);
+      const maxReachY = BASE_CARD_H * (1.3 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY) / maxReachY;
-      const next = Math.max(0.32, Math.min(1, scaleX, scaleY));
+      const next = Math.max(0.28, Math.min(1.05, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
 
@@ -654,7 +654,7 @@ function Transformation() {
       className="relative text-[#1c1814]"
       style={{ height: reduce ? "auto" : "300vh" }}
     >
-      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden py-12 sm:py-16 md:py-20">
+      <div className="sticky top-0 flex h-screen min-h-screen w-full items-center overflow-hidden">
         <div
           aria-hidden
           className="absolute inset-0 bg-cover bg-center"
@@ -662,19 +662,19 @@ function Transformation() {
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
         <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
-        <div className="relative z-10 mx-auto w-full max-w-[1300px] px-4 sm:px-6">
-          <div className="relative mx-auto mb-10 max-w-2xl text-center sm:mb-16 md:mb-24">
-            <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
+        <div className="relative z-10 mx-auto flex h-full w-full flex-col px-4 sm:px-6">
+          <div className="relative mx-auto mb-2 max-w-2xl text-center pt-4 sm:pt-6">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
               The transformation
             </div>
-            <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1.02]">
+            <h2 className="font-serif text-[clamp(1.75rem,3.5vw,3rem)] font-light leading-[1.05]">
               Scattered documents <span className="italic">become</span> a clear pathway.
             </h2>
           </div>
 
           <div
             ref={containerRef}
-            className="relative mx-auto h-[60vh] min-h-[480px] w-full max-w-[1350px] sm:h-[70vh] sm:min-h-[560px] md:h-[78vh] md:min-h-[680px]"
+            className="relative flex-1 w-full pb-2 sm:pb-4"
           >
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} containerRef={containerRef} />
