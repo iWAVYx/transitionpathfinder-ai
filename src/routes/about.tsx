@@ -511,16 +511,16 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -0.35, y: -0.32, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.28, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 0.35, y: -0.32, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -0.32, y: 0.12, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.18, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 0.32, y: 0.12, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.05, y: -0.55, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.65, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 1.05, y: -0.55, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -1.05, y: 0.55, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.65, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 1.05, y: 0.55, color: "#e0bbff", pin: "#be185d" },
 ];
 
-const BASE_CARD_W = 310;
-const BASE_CARD_H = 250;
+const BASE_CARD_W = 280;
+const BASE_CARD_H = 220;
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
@@ -531,19 +531,20 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // The largest scattered offset is +/-0.35 of the base card width/height.
-      // Clamp scale so the full card plus that offset stays inside the container.
-      const padX = 24;
-      const padY = 40;
+      // Fragments now scatter up to ~1.05 * card width horizontally and ~0.65 * card height vertically.
+      // Clamp scale so the full card plus that offset stays inside the container with breathing room.
+      const padX = 16;
+      const padY = 32;
       const halfW = w / 2;
       const halfH = h / 2;
-      const maxReachX = BASE_CARD_W * (0.35 + 0.5);
-      const maxReachY = BASE_CARD_H * (0.32 + 0.5);
+      const maxReachX = BASE_CARD_W * (1.05 + 0.5);
+      const maxReachY = BASE_CARD_H * (0.65 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY) / maxReachY;
-      const next = Math.max(0.35, Math.min(1, scaleX, scaleY));
+      const next = Math.max(0.32, Math.min(1, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
+
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
