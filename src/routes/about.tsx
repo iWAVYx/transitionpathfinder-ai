@@ -622,11 +622,10 @@ function FragmentCard({
           rotate: pinRot,
           opacity: pinOpacity,
           backgroundColor: fragment.pin,
+          width: Math.max(10, 18 * scatterScale),
+          height: Math.max(10, 18 * scatterScale),
         }}
         className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)]"
-        // Pin size scales with the card so it stays proportional.
-        // We use a small inline size derived from card scale.
-        {...{ "data-scale": scatterScale }}
       />
     </motion.div>
   );
