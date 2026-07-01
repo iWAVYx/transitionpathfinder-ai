@@ -28,6 +28,7 @@ import dashboardImg from "@/assets/dashboard-hero.jpg";
 import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
 import stickyNotesBgAsset from "@/assets/sticky-notes-bg.png.asset.json";
 import binderImgAsset from "@/assets/about-chapter-01-binder.png.asset.json";
+import buildImgAsset from "@/assets/about-chapter-04-build.png.asset.json";
 const ctaImg = ctaImgAsset.url;
 const stickyNotesBg = stickyNotesBgAsset.url;
 const binderImg = binderImgAsset.url;
