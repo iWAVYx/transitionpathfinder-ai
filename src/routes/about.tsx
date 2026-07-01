@@ -22,6 +22,7 @@ import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
 import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
 import familyImg from "@/assets/families-hero-v2.jpg";
+import patternImg from "@/assets/about-chapter-03-pattern.png.asset.json";
 import pathwayImg from "@/assets/pathway-hero.jpg";
 import dashboardImg from "@/assets/dashboard-hero.jpg";
 import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
@@ -184,7 +185,7 @@ const CHAPTERS = [
     label: "Chapter 03 · The Pattern",
     title: "I kept seeing the same gap, in district after district.",
     body: "Paperwork without a path. Brilliant families and educators doing heroic work to translate documents into next steps that should have been obvious.",
-    image: familyImg,
+    image: patternImg.url,
     place: "Connecticut",
   },
   {
