@@ -185,7 +185,7 @@ const CHAPTERS = [
     label: "Chapter 03 · The Pattern",
     title: "I kept seeing the same gap, in district after district.",
     body: "Paperwork without a path. Brilliant families and educators doing heroic work to translate documents into next steps that should have been obvious.",
-    image: familyImg,
+    image: patternImg.url,
     place: "Connecticut",
   },
   {
