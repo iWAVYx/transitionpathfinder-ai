@@ -531,14 +531,16 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // The scattered cards span from -0.35 to +0.35 of the container in each axis.
-      // We need the full card plus the max offset to stay inside with padding.
-      const padX = 40;
-      const padY = 64;
+      // The largest scattered offset is +/-0.35 of the base card width/height.
+      // Clamp scale so the full card plus that offset stays inside the container.
+      const padX = 24;
+      const padY = 40;
       const halfW = w / 2;
       const halfH = h / 2;
-      const scaleX = (halfW - padX) / (BASE_CARD_W / 2 + 0.35 * w);
-      const scaleY = (halfH - padY) / (BASE_CARD_H / 2 + 0.32 * h);
+      const maxReachX = BASE_CARD_W * (0.35 + 0.5);
+      const maxReachY = BASE_CARD_H * (0.32 + 0.5);
+      const scaleX = (halfW - padX) / maxReachX;
+      const scaleY = (halfH - padY) / maxReachY;
       const next = Math.max(0.35, Math.min(1, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
