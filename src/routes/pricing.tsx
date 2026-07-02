@@ -8,12 +8,14 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
+import { useState } from "react";
 
 import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -39,11 +41,21 @@ export const Route = createFileRoute("/pricing")({
 
 type CtaTo = "/waitlist" | "/contact";
 
+type BillingPeriod = "monthly" | "yearly";
+
+interface TierPrice {
+  monthly: string;
+  yearly: string;
+  note: {
+    monthly: string;
+    yearly: string;
+  };
+}
+
 interface Tier {
   id: string;
   name: string;
-  price: string;
-  priceNote: string;
+  price: TierPrice;
   description: string;
   highlights: string[];
   cta: { label: string; to: CtaTo; search?: Record<string, string> };
@@ -54,8 +66,11 @@ const tiers: Tier[] = [
   {
     id: "family",
     name: "Students & Families",
-    price: "Free",
-    priceNote: "During the pilot",
+    price: {
+      monthly: "Free",
+      yearly: "Free",
+      note: { monthly: "During the pilot", yearly: "During the pilot" },
+    },
     description:
       "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
     highlights: ["Pathway Report", "Meeting prep", "Family dashboard"],
@@ -65,8 +80,11 @@ const tiers: Tier[] = [
   {
     id: "educator",
     name: "Educators & Case Managers",
-    price: "Subscription",
-    priceNote: "Monthly or annual · per caseload",
+    price: {
+      monthly: "$29",
+      yearly: "$290",
+      note: { monthly: "Per month · per caseload", yearly: "Per year · per caseload · 2 months free" },
+    },
     description:
       "For individual educators and case managers supporting a transition caseload — without waiting for a school or district plan.",
     highlights: ["Caseload tools", "PPT prep", "Goal tracker"],
@@ -76,8 +94,11 @@ const tiers: Tier[] = [
   {
     id: "school",
     name: "Schools",
-    price: "Pilot license",
-    priceNote: "Per-seat or per-student · annual",
+    price: {
+      monthly: "$499",
+      yearly: "$4,990",
+      note: { monthly: "Per month · annual commitment", yearly: "Per year · 2 months free" },
+    },
     description:
       "A single school running TransitionForward across its transition team — with onboarding and pilot reporting included.",
     highlights: ["Staff access", "Student profiles", "School admin dashboard"],
@@ -87,8 +108,11 @@ const tiers: Tier[] = [
   {
     id: "district",
     name: "Districts",
-    price: "District license",
-    priceNote: "Tiered by schools, staff, or students",
+    price: {
+      monthly: "Quote",
+      yearly: "Quote",
+      note: { monthly: "Tiered by schools, staff, or students", yearly: "Tiered by schools, staff, or students" },
+    },
     description:
       "Multi-school access with district reporting, implementation support, and connected family and educator invites.",
     highlights: ["Multi-school rollout", "District reporting", "Implementation package"],
@@ -98,8 +122,11 @@ const tiers: Tier[] = [
   {
     id: "partner",
     name: "Partner Organizations",
-    price: "Free or sponsored",
-    priceNote: "Basic listing free · featured by sponsorship",
+    price: {
+      monthly: "Free",
+      yearly: "Free",
+      note: { monthly: "Basic listing free", yearly: "Basic listing free" },
+    },
     description:
       "Colleges, employers, training programs, and community organizations — list opportunities and reach the students who fit.",
     highlights: ["Free basic listing", "Verified profile", "Featured placement"],
@@ -108,7 +135,48 @@ const tiers: Tier[] = [
   },
 ];
 
+function BillingToggle({
+  value,
+  onChange,
+}: {
+  value: BillingPeriod;
+  onChange: (period: BillingPeriod) => void;
+}) {
+  return (
+    <div
+      className="inline-flex items-center rounded-full border bg-muted/50 p-1"
+      role="radiogroup"
+      aria-label="Billing period"
+    >
+      {(["monthly", "yearly"] as BillingPeriod[]).map((period) => (
+        <button
+          key={period}
+          type="button"
+          role="radio"
+          aria-checked={value === period}
+          onClick={() => onChange(period)}
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+            value === period
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {period === "monthly" ? "Monthly" : "Yearly"}
+          {period === "yearly" && (
+            <span className="ml-1.5 hidden text-[10px] font-semibold uppercase tracking-wider text-primary sm:inline">
+              Save
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function PricingPage() {
+  const [billing, setBilling] = useState<BillingPeriod>("monthly");
+
   return (
     <SiteShell>
       {/* Hero */}
@@ -123,6 +191,9 @@ function PricingPage() {
             Free for families during the pilot. Fair, transparent options for
             educators, schools, districts, and partners.
           </p>
+          <div className="mt-6 flex justify-center">
+            <BillingToggle value={billing} onChange={setBilling} />
+          </div>
         </div>
       </section>
 
@@ -144,8 +215,8 @@ function PricingPage() {
                 </div>
 
                 <div className="mt-5 flex flex-col items-center text-center sm:items-start sm:text-left">
-                  <p className="font-display text-3xl tracking-tight">{toTitleCase(tier.price)}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.priceNote)}</p>
+                  <p className="font-display text-3xl tracking-tight">{tier.price[billing]}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.price.note[billing])}</p>
 
                   <p className="mt-3 text-sm leading-relaxed text-foreground/85">
                     {tier.description}
