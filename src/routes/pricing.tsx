@@ -82,8 +82,11 @@ const tiers: Tier[] = [
     name: "Educators & Case Managers",
     price: {
       monthly: "$29",
-      yearly: "$290",
-      note: { monthly: "Per month · per caseload", yearly: "Per year · per caseload · 2 months free" },
+      yearly: "$199",
+      note: {
+        monthly: "Per month · per caseload",
+        yearly: "Per year · per caseload · best value",
+      },
     },
     description:
       "For individual educators and case managers supporting a transition caseload — without waiting for a school or district plan.",
@@ -96,8 +99,11 @@ const tiers: Tier[] = [
     name: "Schools",
     price: {
       monthly: "$499",
-      yearly: "$4,990",
-      note: { monthly: "Per month · annual commitment", yearly: "Per year · 2 months free" },
+      yearly: "$2,999",
+      note: {
+        monthly: "Per month · annual commitment",
+        yearly: "Per year · full school access · best value",
+      },
     },
     description:
       "A single school running TransitionForward across its transition team — with onboarding and pilot reporting included.",
