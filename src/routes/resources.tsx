@@ -704,7 +704,7 @@ function ResourcesPage() {
         </section>
       )}
 
-      {/* GLOBAL SEARCH */}
+      {/* STICKY SEARCH + FILTERS */}
       <section
         data-testid="resources-sticky-search"
         className="sticky top-16 z-40 mx-auto max-w-[88rem] px-4 pt-2 sm:px-6 lg:px-8"
@@ -765,6 +765,129 @@ function ResourcesPage() {
               </p>
             )}
           </div>
+
+          {/* Filters — collapsible when scrolling; only on Browse tab */}
+          {tab === "browse" && (
+            <div className="mt-1.5">
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-out ${
+                  scrolled && !filtersExpanded
+                    ? "max-h-0 opacity-0"
+                    : "max-h-[500px] opacity-100"
+                }`}
+                aria-hidden={scrolled && !filtersExpanded ? "true" : undefined}
+              >
+                <div className="grid gap-2 pt-1.5 sm:grid-cols-2 lg:grid-cols-4">
+                  <FilterSelect
+                    icon={Tag}
+                    label="Format"
+                    value={filters.format}
+                    onChange={(v) => setF("format", v as Filters["format"])}
+                    options={[
+                      ["all", "All formats"],
+                      ...Object.entries(FORMAT_META).map(([k, v]) => [k, v.label] as [string, string]),
+                    ]}
+                  />
+                  <FilterSelect
+                    icon={Users}
+                    label="Audience"
+                    value={filters.audience}
+                    onChange={(v) => setF("audience", v as Filters["audience"])}
+                    options={[
+                      ["all", "All audiences"],
+                      ...(Object.entries(AUDIENCE_META) as [string, string][]).filter(
+                        ([k]) => k !== "admin",
+                      ),
+                    ]}
+                  />
+                  <FilterSelect
+                    icon={Folder}
+                    label="Topic"
+                    value={filters.topic}
+                    onChange={(v) => setF("topic", v as Filters["topic"])}
+                    options={[
+                      ["all", "All topics"],
+                      ...Object.entries(TOPIC_META).map(([k, v]) => [k, v.label] as [string, string]),
+                    ]}
+                  />
+                  <FilterSelect
+                    icon={GraduationCap}
+                    label="Grade / age"
+                    value={filters.grade}
+                    onChange={(v) => setF("grade", v as Filters["grade"])}
+                    options={[
+                      ["all", "Any grade"],
+                      ["middle", "Middle school"],
+                      ["9", "9th grade"],
+                      ["10", "10th grade"],
+                      ["11", "11th grade"],
+                      ["12", "12th grade"],
+                      ["18-22", "Ages 18–22"],
+                    ]}
+                  />
+                  <FilterSelect
+                    icon={BookOpen}
+                    label="Reading level"
+                    value={filters.reading}
+                    onChange={(v) => setF("reading", v as Filters["reading"])}
+                    options={[
+                      ["all", "Any reading level"],
+                      ["student", "Student-friendly"],
+                      ["family", "Family-friendly"],
+                      ["professional", "Professional"],
+                    ]}
+                  />
+                  <FilterSelect
+                    icon={MapPin}
+                    label="Location"
+                    value={filters.location}
+                    onChange={(v) => setF("location", v as Filters["location"])}
+                    options={[
+                      ["all", "Anywhere"],
+                      ["national", "National"],
+                      ["connecticut", "Connecticut-specific"],
+                      ["local", "Local / regional"],
+                    ]}
+                  />
+                  <FilterSelect
+                    icon={Clock}
+                    label="Time needed"
+                    value={filters.time}
+                    onChange={(v) => setF("time", v as Filters["time"])}
+                    options={[
+                      ["all", "Any length"],
+                      ["quick", "Quick read / watch"],
+                      ["deep", "Deep dive"],
+                      ["workshop", "Workshop length"],
+                      ["printable", "Printable"],
+                    ]}
+                  />
+                  <button
+                    onClick={clearFilters}
+                    disabled={activeFilterCount === 0}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground/80 transition hover:bg-muted disabled:opacity-40"
+                  >
+                    <X className="h-3.5 w-3.5" /> Clear ({activeFilterCount})
+                  </button>
+                </div>
+              </div>
+
+              {/* Collapsed filter toggle */}
+              {scrolled && !filtersExpanded && (
+                <button
+                  type="button"
+                  onClick={() => setFiltersExpanded(true)}
+                  className="mt-1.5 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-muted/60 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
+                  aria-expanded={false}
+                  aria-label="Show filters"
+                >
+                  <Tag className="h-3.5 w-3.5" />
+                  Filters {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
