@@ -313,7 +313,7 @@ export function DashboardWidgets() {
             </p>
             <Link
               to="/pathway"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+              className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
             >
               <Sparkles className="h-4 w-4" />
               Create a Pathway Report

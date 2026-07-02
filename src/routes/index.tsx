@@ -750,7 +750,7 @@ function HomePage() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
                 to="/resources"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:-translate-y-0.5"
               >
                 Open the library <ArrowRight className="h-4 w-4" />
               </Link>
@@ -1623,7 +1623,7 @@ function FeatureShot({
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
-        <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-background/90 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.14em] text-primary shadow-soft backdrop-blur">
+        <span className="absolute left-4 top-4 inline-flex items-center justify-center rounded-full bg-background/90 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.14em] text-primary shadow-soft backdrop-blur">
           {label}
         </span>
       </div>

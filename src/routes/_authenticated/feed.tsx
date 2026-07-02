@@ -193,7 +193,7 @@ function FeedPage() {
             <ol className="relative space-y-10 border-l border-border/60 pl-6">
               {grouped.map(([day, evs]) => (
                 <li key={day}>
-                  <p className="-ml-6 mb-3 inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="-ml-6 mb-3 inline-flex items-center justify-center gap-2 rounded-full border bg-background px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     <Activity className="h-3 w-3 text-primary" />
                     {formatDay(day)}
                   </p>
@@ -259,7 +259,7 @@ function EmptyState() {
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link
           to="/pathway"
-          className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
         >
           <Sparkles className="h-4 w-4" />
           Create a Pathway Report

@@ -73,7 +73,7 @@ export function SiteFooter() {
 
           <Link
             to="/waitlist"
-            className="group mt-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm font-semibold text-foreground shadow-soft backdrop-blur transition-all hover:border-primary/40 hover:shadow-lift"
+            className="group mt-6 inline-flex items-center justify-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm font-semibold text-foreground shadow-soft backdrop-blur transition-all hover:border-primary/40 hover:shadow-lift"
           >
             Join the waitlist
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

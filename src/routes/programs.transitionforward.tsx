@@ -243,7 +243,7 @@ function FrameworkPage() {
               <Magnetic>
                 <Link
                   to="/waitlist"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-transform hover:-translate-y-0.5"
                 >
                   Walk through it with us <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -251,7 +251,7 @@ function FrameworkPage() {
               <Magnetic strength={14}>
                 <Link
                   to="/research"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted"
                 >
                   See the research <Sparkles className="h-4 w-4" />
                 </Link>
@@ -458,7 +458,7 @@ function FrameworkPage() {
             <Magnetic>
               <Link
                 to="/waitlist"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-transform hover:-translate-y-0.5"
+                className="mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lift transition-transform hover:-translate-y-0.5"
               >
                 Walk through it with us <ArrowRight className="h-4 w-4" />
               </Link>

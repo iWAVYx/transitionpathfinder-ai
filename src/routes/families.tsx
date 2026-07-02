@@ -255,7 +255,7 @@ function FamiliesPage() {
         <div className="rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-10 lg:p-12">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              <div className="inline-flex items-center justify-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 <GraduationCap className="h-3.5 w-3.5" />
                 Grades 6–8
               </div>
@@ -270,7 +270,7 @@ function FamiliesPage() {
             </div>
             <Link
               to="/bridgeforward"
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
             >
               Explore BridgeForward <ArrowRight className="h-4 w-4" />
             </Link>

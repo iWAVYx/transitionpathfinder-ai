@@ -59,7 +59,7 @@ export function RelatedLinksRail({ hub }: { hub: HubDefinition }) {
       <div className="mt-6 flex flex-wrap gap-2 text-xs">
         <Link
           to={hub.nextAction.to}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 font-semibold text-primary-foreground transition hover:shadow-soft"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-1.5 font-semibold text-primary-foreground transition hover:shadow-soft"
         >
           Next Step: {hub.nextAction.label}
           <ArrowRight className="h-3 w-3" aria-hidden />

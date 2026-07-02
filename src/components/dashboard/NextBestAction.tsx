@@ -97,7 +97,7 @@ export function NextBestAction({
         <button
           type="button"
           onClick={() => load()}
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-amber-700"
+          className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-amber-700"
         >
           <RefreshCw className="h-4 w-4" />
           Try again
