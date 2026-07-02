@@ -106,7 +106,7 @@ const BRIDGE_FAQ = [
     answer:
       "Yes. BridgeForward is built for collaboration. Teachers, case managers, and families can each contribute to the same student plan while respecting privacy and role-based permissions.",
   },
-] as const;
+];
 
 function BridgeForwardPublicPage() {
   const { user } = useAuth();
