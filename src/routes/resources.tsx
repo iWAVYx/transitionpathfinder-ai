@@ -196,12 +196,20 @@ function ResourcesPage() {
   const { saved, toggle, remove } = useSaved();
   const [liveMessage, setLiveMessage] = useState("");
   const hasAnnounced = useRef(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Reset filter expansion when returning to the top of the page.
+  useEffect(() => {
+    if (!scrolled) setFiltersExpanded(false);
+  }, [scrolled]);
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
