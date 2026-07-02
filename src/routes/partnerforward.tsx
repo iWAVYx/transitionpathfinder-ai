@@ -74,7 +74,8 @@ const PARTNER_FAQ = [
       "Contact the TransitionForward team through the partner dashboard or the inquiry form. Featured placement is reviewed based on mission alignment, accessibility, and the needs of the families and schools we serve.",
   },
 ];
-  {
+
+const PILLARS = [
     icon: Coins,
     title: "Tax Credit & Deduction Awareness",
     body: "Plain-language overviews of federal and state programs like WOTC, the Disabled Access Credit, and the Barrier Removal Deduction — with links to authoritative sources.",
