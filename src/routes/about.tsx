@@ -519,8 +519,8 @@ const FRAGMENTS = [
   { label: toTitleCase("Action items"), rot: 6, x: 1.4, y: 0.85, color: "#e0bbff", pin: "#be185d" },
 ];
 
-const BASE_CARD_W = 360;
-const BASE_CARD_H = 280;
+const BASE_CARD_W = 420;
+const BASE_CARD_H = 340;
 const GROUP_Y_OFFSET = 40; // shift note cluster up just beneath the section heading
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
@@ -542,7 +542,7 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const maxReachY = BASE_CARD_H * (1.3 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY) / maxReachY;
-      const next = Math.max(0.28, Math.min(1.05, scaleX, scaleY));
+      const next = Math.max(0.32, Math.min(1.35, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
 
@@ -591,7 +591,7 @@ function FragmentCard({
 
   const width = BASE_CARD_W * scatterScale;
   const height = BASE_CARD_H * scatterScale;
-  const fontSize = Math.max(14, 24 * scatterScale);
+  const fontSize = Math.max(16, 34 * scatterScale);
 
   return (
     <motion.div
