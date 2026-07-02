@@ -511,16 +511,16 @@ function JourneyPath() {
 /* -------------------------------------------------------------------------- */
 
 const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -1.4, y: -0.85, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.85, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 1.4, y: -0.85, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -1.4, y: 0.85, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.85, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 1.4, y: 0.85, color: "#e0bbff", pin: "#be185d" },
+  { label: toTitleCase("IEP paperwork"), rot: -9, x: -0.77, y: -0.7, color: "#fff48a", pin: "#e23b3b" },
+  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.7, color: "#ffb3c1", pin: "#2b6cb0" },
+  { label: toTitleCase("Family priorities"), rot: -5, x: 0.77, y: -0.7, color: "#a8e6cf", pin: "#d97706" },
+  { label: toTitleCase("Educator input"), rot: 8, x: -0.77, y: 0.7, color: "#b5d8ff", pin: "#7c3aed" },
+  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.7, color: "#ffd59e", pin: "#0f766e" },
+  { label: toTitleCase("Action items"), rot: 6, x: 0.77, y: 0.7, color: "#e0bbff", pin: "#be185d" },
 ];
 
-const BASE_CARD_W = 420;
-const BASE_CARD_H = 340;
+const BASE_CARD_W = 630;
+const BASE_CARD_H = 510;
 const GROUP_Y_OFFSET = 40; // shift note cluster up just beneath the section heading
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
@@ -538,8 +538,8 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const padY = 12;
       const halfW = w / 2;
       const halfH = h / 2;
-      const maxReachX = BASE_CARD_W * (1.4 + 0.5);
-      const maxReachY = BASE_CARD_H * (1.3 + 0.5);
+      const maxReachX = BASE_CARD_W * (0.77 + 0.5);
+      const maxReachY = BASE_CARD_H * (0.7 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY) / maxReachY;
       const next = Math.max(0.32, Math.min(1.35, scaleX, scaleY));
@@ -591,7 +591,7 @@ function FragmentCard({
 
   const width = BASE_CARD_W * scatterScale;
   const height = BASE_CARD_H * scatterScale;
-  const fontSize = Math.max(16, 34 * scatterScale);
+  const fontSize = Math.max(16, 51 * scatterScale);
 
   return (
     <motion.div
@@ -624,8 +624,8 @@ function FragmentCard({
           rotate: pinRot,
           opacity: pinOpacity,
           backgroundColor: fragment.pin,
-          width: Math.max(10, 18 * scatterScale),
-          height: Math.max(10, 18 * scatterScale),
+          width: Math.max(10, 27 * scatterScale),
+          height: Math.max(10, 27 * scatterScale),
         }}
         className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)]"
       />
