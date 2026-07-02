@@ -82,7 +82,7 @@ function AcceptInvitationPage() {
                 </span>
               </div>
               <Button asChild className="mt-6 w-full">
-                <Link to="/">Go to your dashboard</Link>
+                <Link to="/">Go to Your Dashboard</Link>
               </Button>
             </>
           ) : (
