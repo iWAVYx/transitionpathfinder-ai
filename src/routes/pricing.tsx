@@ -67,9 +67,12 @@ const tiers: Tier[] = [
     id: "family",
     name: "Students & Families",
     price: {
-      monthly: "Free",
-      yearly: "Free",
-      note: { monthly: "During the pilot", yearly: "During the pilot" },
+      monthly: "$19.99",
+      yearly: "$99",
+      note: {
+        monthly: "Per month · per family",
+        yearly: "Per year · per family · best value",
+      },
     },
     description:
       "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
