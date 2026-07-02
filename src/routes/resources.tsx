@@ -1016,15 +1016,6 @@ function BrowseTab(props: {
   density: "compact" | "comfortable";
 }) {
   const { query, setQuery, filters, setF, clearFilters, activeFilterCount, visible, featured, saved, toggleSave, density } = props;
-  const isMobile = useIsMobile();
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    if (!isMobile) { setScrolled(false); return; }
-    const onScroll = () => setScrolled(window.scrollY > 160);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isMobile]);
 
   // Group visible by format for sectioned display when no topic filter selected
   const grouped = useMemo(() => {
