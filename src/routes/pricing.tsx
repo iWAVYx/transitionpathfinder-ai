@@ -143,25 +143,25 @@ function PricingPage() {
                   <h2 className="font-display text-lg">{toTitleCase(tier.name)}</h2>
                 </div>
 
-                <div className="mt-5">
+                <div className="mt-5 flex flex-col items-center text-center sm:items-start sm:text-left">
                   <p className="font-display text-3xl tracking-tight">{toTitleCase(tier.price)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.priceNote)}</p>
+
+                  <p className="mt-3 text-sm leading-relaxed text-foreground/85">
+                    {tier.description}
+                  </p>
+
+                  <ul className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+                    {tier.highlights.map((h) => (
+                      <li
+                        key={h}
+                        className="rounded-full border border-border/60 bg-background/60 px-2.5 py-1 text-xs text-muted-foreground"
+                      >
+                        {toTitleCase(h)}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-
-                <p className="mt-3 text-sm leading-relaxed text-foreground/85">
-                  {tier.description}
-                </p>
-
-                <ul className="mt-4 flex flex-wrap gap-2">
-                  {tier.highlights.map((h) => (
-                    <li
-                      key={h}
-                      className="rounded-full border border-border/60 bg-background/60 px-2.5 py-1 text-xs text-muted-foreground"
-                    >
-                      {toTitleCase(h)}
-                    </li>
-                  ))}
-                </ul>
 
                 <div className="mt-auto pt-6">
                   <Button asChild className="w-full" variant="outline">
