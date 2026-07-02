@@ -178,6 +178,8 @@ function PartnerForwardPage() {
           </div>
         </section>
 
+        <FaqSection title="Common Partner Questions" items={PARTNER_FAQ} />
+
         {/* Disclaimer band */}
         <section className="relative mt-10 flex gap-3 overflow-hidden rounded-3xl border border-amber-400/40 bg-amber-50/60 p-5 text-sm text-amber-950 shadow-soft dark:bg-amber-950/20 dark:text-amber-100">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
