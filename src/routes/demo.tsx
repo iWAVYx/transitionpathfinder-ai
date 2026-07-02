@@ -71,7 +71,7 @@ function StudioCover() {
             >
               Begin the pathway →
             </Link>
-            <a href="#overview" className="ghost">See the full map</a>
+            <a href="#overview" className="ghost">See the Full Map</a>
           </div>
         </div>
 
