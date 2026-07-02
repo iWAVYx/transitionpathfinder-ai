@@ -465,12 +465,12 @@ function JourneyPath() {
         </motion.g>
       </svg>
 
-      <div className="relative mx-auto max-w-[1400px] px-6">
-        <div className="mb-12 max-w-2xl">
+      <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
+        <div className="mx-auto mb-10 max-w-2xl text-center md:mx-0 md:mb-12 md:text-left">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
           </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1]">
+          <h2 className="font-serif text-[clamp(1.75rem,5vw,4rem)] font-light leading-[1.05]">
             A path traced through Connecticut classrooms.
           </h2>
         </div>
