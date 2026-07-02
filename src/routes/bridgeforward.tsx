@@ -268,6 +268,7 @@ function BridgeForwardPublicPage() {
             </CardGrid>
           </div>
         </section>
+        <FaqSection title="Common Questions From Parents and Teachers" items={BRIDGE_FAQ} />
       </div>
     </SiteShell>
   );
