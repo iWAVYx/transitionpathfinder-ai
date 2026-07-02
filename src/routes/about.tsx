@@ -521,7 +521,7 @@ const FRAGMENTS = [
 
 const BASE_CARD_W = 630;
 const BASE_CARD_H = 510;
-const GROUP_Y_OFFSET = 40; // shift note cluster up just beneath the section heading
+const GROUP_Y_OFFSET = 40; // shift note cluster down so heading stays legible above it
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
@@ -532,17 +532,19 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // Fragments scatter across the full viewport width and height.
-      // We use only a tiny margin so the cards fill the available space.
-      const padX = 8;
-      const padY = 12;
+      // Fragments scatter across the available container area. Because the
+      // cluster is nudged down by GROUP_Y_OFFSET, the bottom half is the
+      // tighter constraint — subtract it so cards never poke past the
+      // container (which would overlap the heading above it).
+      const padX = 12;
+      const padY = 16;
       const halfW = w / 2;
       const halfH = h / 2;
       const maxReachX = BASE_CARD_W * (0.77 + 0.5);
       const maxReachY = BASE_CARD_H * (0.7 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
-      const scaleY = (halfH - padY) / maxReachY;
-      const next = Math.max(0.32, Math.min(1.35, scaleX, scaleY));
+      const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
+      const next = Math.max(0.3, Math.min(1.1, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
 
@@ -553,6 +555,7 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   }, [containerRef]);
   return scale;
 }
+
 
 function FragmentCard({
   fragment,
