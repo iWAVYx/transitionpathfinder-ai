@@ -211,6 +211,12 @@ function ResourcesPage() {
     if (!scrolled) setFiltersExpanded(false);
   }, [scrolled]);
 
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
       setSearchOpen(false);
