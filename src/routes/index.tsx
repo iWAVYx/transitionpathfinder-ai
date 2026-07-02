@@ -147,8 +147,8 @@ const HERO_DEFAULTS = {
   subhead:
     "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after high school — together.",
   tagline: "One Platform. One Plan. Forward Together.",
-  cta_primary_label: "Join the waitlist",
-  cta_secondary_label: "Try the live demo",
+  cta_primary_label: "Join the Waitlist",
+  cta_secondary_label: "Try the Live Demo",
 };
 
 function HomePage() {
