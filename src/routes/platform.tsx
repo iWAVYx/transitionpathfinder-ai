@@ -469,9 +469,14 @@ function PlatformPage() {
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-5xl auto-rows-fr justify-center gap-1.5 grid-cols-2 md:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl auto-rows-fr justify-center gap-1.5 grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
-            <Reveal key={f.title} delay={i * 60} y={20} className="h-full">
+            <Reveal
+              key={f.title}
+              delay={i * 60}
+              y={20}
+              className={`h-full ${i === features.length - 1 ? "col-span-2 place-self-center w-[calc(50%_-_0.1875rem)] lg:col-span-1 lg:w-full" : ""}`}
+            >
               <ToolCard {...f} />
             </Reveal>
           ))}
