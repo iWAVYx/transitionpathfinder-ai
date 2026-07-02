@@ -24,7 +24,7 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Simple pricing for families, educators, schools, districts, and partners. Free pilot access, transparent pilot rates, and quoted plans.",
+          "Simple pricing for families, educators, schools, districts, and partners. Affordable family access, transparent pilot rates, and quoted plans.",
       },
       { property: "og:title", content: "Pricing — TransitionForward" },
       {
@@ -67,9 +67,12 @@ const tiers: Tier[] = [
     id: "family",
     name: "Students & Families",
     price: {
-      monthly: "Free",
-      yearly: "Free",
-      note: { monthly: "During the pilot", yearly: "During the pilot" },
+      monthly: "$19.99",
+      yearly: "$99",
+      note: {
+        monthly: "Per month · per family",
+        yearly: "Per year · per family · best value",
+      },
     },
     description:
       "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
@@ -194,7 +197,7 @@ function PricingPage() {
             {toTitleCase("Simple pricing for every part of the pathway.")}
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Free for families during the pilot. Fair, transparent options for
+            Affordable access for families. Fair, transparent options for
             educators, schools, districts, and partners.
           </p>
           <div className="mt-6 flex justify-center">
@@ -261,8 +264,8 @@ function PricingPage() {
             <div>
               <h2 className="font-display text-xl">{toTitleCase("Our pricing promise")}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/85">
-                We will never charge a family for the core planning tools their
-                student needs to leave high school with a real plan. If cost is
+                We will never let cost block a family from the core planning tools their
+                student needs to leave high school with a real plan. Families included through a licensed school or district access TransitionForward at no extra cost. If cost is
                 a barrier — for a family, a teacher, or a small program —
                 email <a className="text-primary underline-offset-2 hover:underline" href="mailto:hello@transitionforwardct.com">hello@transitionforwardct.com</a>.
               </p>
