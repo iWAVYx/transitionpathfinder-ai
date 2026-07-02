@@ -315,7 +315,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
           We couldn't find that pathway. Try one of the five on the home page.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/">Back to home</Link>
+          <Link to="/">Back to Home</Link>
         </Button>
       </div>
     </SiteShell>
