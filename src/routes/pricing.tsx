@@ -136,8 +136,8 @@ function PricingPage() {
                 key={tier.id}
                 className="flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-shadow hover:shadow-lift"
               >
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Icon className="h-5 w-5" />
                   </span>
                   <h2 className="font-display text-lg">{toTitleCase(tier.name)}</h2>
@@ -177,7 +177,7 @@ function PricingPage() {
 
         {/* Promise */}
         <div className="mt-10 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8">
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
               <ShieldCheck className="h-5 w-5" />
             </span>
