@@ -542,7 +542,7 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const maxReachY = BASE_CARD_H * (1.3 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY) / maxReachY;
-      const next = Math.max(0.28, Math.min(1.05, scaleX, scaleY));
+      const next = Math.max(0.32, Math.min(1.35, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
 
