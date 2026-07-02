@@ -545,7 +545,7 @@ function PathwayFlow() {
                       <Link to="/pathway">Create a Pathway Report</Link>
                     </Button>
                     <Button asChild variant="outline">
-                      <Link to="/">Explore another pathway</Link>
+                      <Link to="/">Explore Another Pathway</Link>
                     </Button>
                   </div>
                 </div>
