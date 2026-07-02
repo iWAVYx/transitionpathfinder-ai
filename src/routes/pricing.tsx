@@ -41,11 +41,21 @@ export const Route = createFileRoute("/pricing")({
 
 type CtaTo = "/waitlist" | "/contact";
 
+type BillingPeriod = "monthly" | "yearly";
+
+interface TierPrice {
+  monthly: string;
+  yearly: string;
+  note: {
+    monthly: string;
+    yearly: string;
+  };
+}
+
 interface Tier {
   id: string;
   name: string;
-  price: string;
-  priceNote: string;
+  price: TierPrice;
   description: string;
   highlights: string[];
   cta: { label: string; to: CtaTo; search?: Record<string, string> };
@@ -56,8 +66,11 @@ const tiers: Tier[] = [
   {
     id: "family",
     name: "Students & Families",
-    price: "Free",
-    priceNote: "During the pilot",
+    price: {
+      monthly: "Free",
+      yearly: "Free",
+      note: { monthly: "During the pilot", yearly: "During the pilot" },
+    },
     description:
       "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
     highlights: ["Pathway Report", "Meeting prep", "Family dashboard"],
@@ -67,8 +80,11 @@ const tiers: Tier[] = [
   {
     id: "educator",
     name: "Educators & Case Managers",
-    price: "Subscription",
-    priceNote: "Monthly or annual · per caseload",
+    price: {
+      monthly: "$29",
+      yearly: "$290",
+      note: { monthly: "Per month · per caseload", yearly: "Per year · per caseload · 2 months free" },
+    },
     description:
       "For individual educators and case managers supporting a transition caseload — without waiting for a school or district plan.",
     highlights: ["Caseload tools", "PPT prep", "Goal tracker"],
@@ -78,8 +94,11 @@ const tiers: Tier[] = [
   {
     id: "school",
     name: "Schools",
-    price: "Pilot license",
-    priceNote: "Per-seat or per-student · annual",
+    price: {
+      monthly: "$499",
+      yearly: "$4,990",
+      note: { monthly: "Per month · annual commitment", yearly: "Per year · 2 months free" },
+    },
     description:
       "A single school running TransitionForward across its transition team — with onboarding and pilot reporting included.",
     highlights: ["Staff access", "Student profiles", "School admin dashboard"],
@@ -89,8 +108,11 @@ const tiers: Tier[] = [
   {
     id: "district",
     name: "Districts",
-    price: "District license",
-    priceNote: "Tiered by schools, staff, or students",
+    price: {
+      monthly: "Quote",
+      yearly: "Quote",
+      note: { monthly: "Tiered by schools, staff, or students", yearly: "Tiered by schools, staff, or students" },
+    },
     description:
       "Multi-school access with district reporting, implementation support, and connected family and educator invites.",
     highlights: ["Multi-school rollout", "District reporting", "Implementation package"],
@@ -100,8 +122,11 @@ const tiers: Tier[] = [
   {
     id: "partner",
     name: "Partner Organizations",
-    price: "Free or sponsored",
-    priceNote: "Basic listing free · featured by sponsorship",
+    price: {
+      monthly: "Free",
+      yearly: "Free",
+      note: { monthly: "Basic listing free", yearly: "Basic listing free" },
+    },
     description:
       "Colleges, employers, training programs, and community organizations — list opportunities and reach the students who fit.",
     highlights: ["Free basic listing", "Verified profile", "Featured placement"],
