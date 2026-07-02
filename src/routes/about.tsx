@@ -591,7 +591,7 @@ function FragmentCard({
 
   const width = BASE_CARD_W * scatterScale;
   const height = BASE_CARD_H * scatterScale;
-  const fontSize = Math.max(14, 24 * scatterScale);
+  const fontSize = Math.max(16, 34 * scatterScale);
 
   return (
     <motion.div
