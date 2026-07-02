@@ -147,8 +147,8 @@ const HERO_DEFAULTS = {
   subhead:
     "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after high school — together.",
   tagline: "One Platform. One Plan. Forward Together.",
-  cta_primary_label: "Join the waitlist",
-  cta_secondary_label: "Try the live demo",
+  cta_primary_label: "Join the Waitlist",
+  cta_secondary_label: "Try the Live Demo",
 };
 
 function HomePage() {
@@ -282,21 +282,25 @@ function HomePage() {
                 to="/waitlist"
                 className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
               >
-                {hero.cta_primary_label}
-                <span className="transition-transform group-hover:translate-x-1">→</span>
+                <div className="flex flex-col items-center leading-none">
+                  <span>{hero.cta_primary_label}</span>
+                  <span className="mt-1 transition-transform group-hover:translate-x-1">→</span>
+                </div>
               </Link>
               <Link
                 to="/demo"
                 className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background"
               >
-                {hero.cta_secondary_label}
-                <span className="text-primary transition-transform group-hover:translate-x-1">→</span>
+                <div className="flex flex-col items-center leading-none">
+                  <span>{hero.cta_secondary_label}</span>
+                  <span className="mt-1 text-primary transition-transform group-hover:translate-x-1">→</span>
+                </div>
               </Link>
               <Link
                 to="/platform"
                 className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
               >
-                Explore the platform
+                Explore the Platform
               </Link>
             </div>
           </div>
