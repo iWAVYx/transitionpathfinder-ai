@@ -223,9 +223,9 @@ function BridgeForwardPublicPage() {
               Who BridgeForward Is For
             </h2>
             <Squiggle className="mt-2 h-3 w-40 text-primary/60" />
-            <ul className="mt-4 flex flex-col items-center gap-2 text-sm sm:items-start sm:text-base">
+            <ul className="mt-4 inline-flex flex-col items-start gap-2 text-left text-sm sm:text-base">
               {AUDIENCES.map((a) => (
-                <li key={a} className="flex items-center gap-2 text-center sm:items-start sm:text-left">
+                <li key={a} className="flex items-start gap-2 text-left">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <span className="text-muted-foreground">{a}</span>
                 </li>
