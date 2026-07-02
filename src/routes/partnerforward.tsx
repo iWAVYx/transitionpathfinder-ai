@@ -77,6 +77,7 @@ const PARTNER_FAQ = [
 
 const PILLARS = [
   {
+    icon: Coins,
     title: "Tax Credit & Deduction Awareness",
     body: "Plain-language overviews of federal and state programs like WOTC, the Disabled Access Credit, and the Barrier Removal Deduction — with links to authoritative sources.",
   },
