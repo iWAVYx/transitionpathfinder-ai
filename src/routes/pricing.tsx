@@ -135,7 +135,48 @@ const tiers: Tier[] = [
   },
 ];
 
+function BillingToggle({
+  value,
+  onChange,
+}: {
+  value: BillingPeriod;
+  onChange: (period: BillingPeriod) => void;
+}) {
+  return (
+    <div
+      className="inline-flex items-center rounded-full border bg-muted/50 p-1"
+      role="radiogroup"
+      aria-label="Billing period"
+    >
+      {(["monthly", "yearly"] as BillingPeriod[]).map((period) => (
+        <button
+          key={period}
+          type="button"
+          role="radio"
+          aria-checked={value === period}
+          onClick={() => onChange(period)}
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+            value === period
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {period === "monthly" ? "Monthly" : "Yearly"}
+          {period === "yearly" && (
+            <span className="ml-1.5 hidden text-[10px] font-semibold uppercase tracking-wider text-primary sm:inline">
+              Save
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function PricingPage() {
+  const [billing, setBilling] = useState<BillingPeriod>("monthly");
+
   return (
     <SiteShell>
       {/* Hero */}
@@ -150,6 +191,9 @@ function PricingPage() {
             Free for families during the pilot. Fair, transparent options for
             educators, schools, districts, and partners.
           </p>
+          <div className="mt-6 flex justify-center">
+            <BillingToggle value={billing} onChange={setBilling} />
+          </div>
         </div>
       </section>
 
