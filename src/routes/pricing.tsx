@@ -215,8 +215,8 @@ function PricingPage() {
                 </div>
 
                 <div className="mt-5 flex flex-col items-center text-center sm:items-start sm:text-left">
-                  <p className="font-display text-3xl tracking-tight">{toTitleCase(tier.price)}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.priceNote)}</p>
+                  <p className="font-display text-3xl tracking-tight">{tier.price[billing]}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.price.note[billing])}</p>
 
                   <p className="mt-3 text-sm leading-relaxed text-foreground/85">
                     {tier.description}
