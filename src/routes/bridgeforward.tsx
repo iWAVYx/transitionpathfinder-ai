@@ -146,7 +146,7 @@ function BridgeForwardPublicPage() {
           <DotField className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-1/3 text-primary/10 sm:block" />
 
           <div className="relative">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            <div className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               <GraduationCap className="h-4 w-4" /> Grades 6–8 · Middle School
             </div>
             <h1 className="mt-3 max-w-3xl font-display text-4xl font-medium tracking-tight sm:text-5xl">
