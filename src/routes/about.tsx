@@ -591,7 +591,7 @@ function FragmentCard({
 
   const width = BASE_CARD_W * scatterScale;
   const height = BASE_CARD_H * scatterScale;
-  const fontSize = Math.max(16, 34 * scatterScale);
+  const fontSize = Math.max(16, 51 * scatterScale);
 
   return (
     <motion.div
@@ -624,8 +624,8 @@ function FragmentCard({
           rotate: pinRot,
           opacity: pinOpacity,
           backgroundColor: fragment.pin,
-          width: Math.max(10, 18 * scatterScale),
-          height: Math.max(10, 18 * scatterScale),
+          width: Math.max(10, 27 * scatterScale),
+          height: Math.max(10, 27 * scatterScale),
         }}
         className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)]"
       />
