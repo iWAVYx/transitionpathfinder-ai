@@ -879,6 +879,15 @@ function BrowseTab(props: {
   density: "compact" | "comfortable";
 }) {
   const { query, setQuery, filters, setF, clearFilters, activeFilterCount, visible, featured, saved, toggleSave, density } = props;
+  const isMobile = useIsMobile();
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (!isMobile) { setScrolled(false); return; }
+    const onScroll = () => setScrolled(window.scrollY > 160);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isMobile]);
 
   // Group visible by format for sectioned display when no topic filter selected
   const grouped = useMemo(() => {
@@ -889,12 +898,14 @@ function BrowseTab(props: {
     return buckets;
   }, [visible]);
 
+  const hideFiltersOnMobile = isMobile && scrolled;
+
   return (
     <section className="mx-auto max-w-[88rem] px-4 pb-12 sm:px-6 lg:px-8">
       {/* Filter bar */}
       <div
         data-testid="resources-sticky-filters"
-        className="sticky top-28 z-30 mt-4 rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md sm:p-3"
+        className={`sticky top-28 z-30 mt-4 rounded-2xl border border-border/60 bg-background/95 p-2 shadow-soft backdrop-blur-md sm:p-3 ${hideFiltersOnMobile ? "hidden sm:block" : ""}`}
       >
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <FilterSelect
