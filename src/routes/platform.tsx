@@ -475,7 +475,7 @@ function PlatformPage() {
               key={f.title}
               delay={i * 60}
               y={20}
-              className={`h-full ${i === features.length - 1 ? "col-span-2 place-self-center w-[calc(50%-0.1875rem)] lg:col-span-1 lg:w-full" : ""}`}
+              className={`h-full ${i === features.length - 1 ? "col-span-2 place-self-center w-[calc(50%_-_0.1875rem)] lg:col-span-1 lg:w-full" : ""}`}
             >
               <ToolCard {...f} />
             </Reveal>
