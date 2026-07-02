@@ -73,6 +73,13 @@ const STEPS = [
   },
 ] as const;
 
+const AUDIENCES = [
+  "Students in grades 6, 7, and 8",
+  "Parents and guardians of a middle-school student",
+  "Educators and case managers supporting middle-school teams",
+  "School and district administrators with middle-school students in their care",
+] as const;
+
 const BRIDGE_FAQ = [
   {
     question: "What age group is BridgeForward for?",
