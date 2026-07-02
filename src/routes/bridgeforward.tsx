@@ -256,11 +256,13 @@ function BridgeForwardPublicPage() {
             <CardGrid columns={2} className="mt-6">
               {STEPS.map((s) => (
                 <Card key={s.title} className="h-full bg-card/90 backdrop-blur-sm">
-                  <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                    <s.icon className="h-5 w-5 shrink-0 text-primary" />
-                    <CardTitle className="text-base">{s.title}</CardTitle>
+                  <CardHeader className="flex flex-col items-center gap-2 space-y-0 p-6 text-center">
+                    <s.icon className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-sm whitespace-nowrap sm:text-base">
+                      {s.title}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
+                  <CardContent className="p-6 pt-0 text-center text-sm text-muted-foreground">
                     {s.body}
                   </CardContent>
                 </Card>
