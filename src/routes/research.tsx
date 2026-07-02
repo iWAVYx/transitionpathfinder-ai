@@ -535,10 +535,10 @@ function ClosingNote() {
           Every feature in TransitionForward maps to a finding above. As the research grows, the platform grows with it.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Link to="/platform" className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift hover:scale-[1.02]">
+          <Link to="/platform" className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-background shadow-lift hover:scale-[1.02]">
             See the platform <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/60 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur hover:bg-background">
+          <Link to="/about" className="inline-flex items-center justify-center gap-2 rounded-full border border-foreground/15 bg-background/60 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur hover:bg-background">
             Read our story
           </Link>
         </div>

@@ -134,7 +134,7 @@ export function ReadinessInsightsCard({
             <button
               type="button"
               onClick={() => void run()}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-rose-300 bg-white px-3 py-1 text-xs font-semibold hover:bg-rose-100"
+              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-full border border-rose-300 bg-white px-3 py-1 text-xs font-semibold hover:bg-rose-100"
             >
               <RefreshCw className="h-3 w-3" /> Try again
             </button>
@@ -309,7 +309,7 @@ function Header({
           type="button"
           onClick={onRefresh}
           disabled={refreshing}
-          className="inline-flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs font-semibold hover:bg-muted disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs font-semibold hover:bg-muted disabled:opacity-60"
         >
           <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
           Refresh

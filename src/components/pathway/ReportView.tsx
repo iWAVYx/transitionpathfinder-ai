@@ -585,11 +585,11 @@ export function ReportView({
                 </button>
               </div>
               {confidenceLabel && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/85 ring-1 ring-white/20">
+                <span className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/85 ring-1 ring-white/20">
                   <ShieldCheck className="h-3.5 w-3.5" /> {confidenceLabel}
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/75 ring-1 ring-white/20">
+              <span className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/75 ring-1 ring-white/20">
                 <Sparkles className="h-3.5 w-3.5" /> AI-Drafted · Educator-Reviewable
               </span>
             </div>

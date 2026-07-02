@@ -386,19 +386,19 @@ function ResourcesPage() {
             <div className="mt-7 flex flex-wrap gap-3">
               <button
                 onClick={() => setTab("browse")}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
               >
                 <Library className="h-4 w-4" /> Browse the library
               </button>
               <button
                 onClick={() => setTab("recommended")}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
               >
                 <Sparkles className="h-4 w-4" /> Personalized picks
               </button>
               <button
                 onClick={() => setTab("saved")}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
               >
                 <Bookmark className="h-4 w-4" /> My saved
                 {savedResources.length > 0 && (
@@ -1092,14 +1092,14 @@ function RecommendedTab({
             <div className="mt-4 flex flex-wrap gap-3">
               <Link
                 to="/students"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
               >
                 Open student profiles
               </Link>
               <Link
                 to="/pathways/$pathwayId"
                 params={{ pathwayId: "intake" }}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-muted"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-muted"
               >
                 Start a pathway report
               </Link>
@@ -1303,7 +1303,7 @@ function AddToPathwayButton({
     return (
       <Link
         to="/auth"
-        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
       >
         <ListPlus className="h-3.5 w-3.5" /> Add to pathway
       </Link>
@@ -1315,7 +1315,7 @@ function AddToPathwayButton({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
+        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted"
       >
         <ListPlus className="h-3.5 w-3.5" /> Add to pathway
       </button>
@@ -1476,7 +1476,7 @@ function ResourceCard({
               href={r.link}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-1.5 rounded-full bg-primary font-semibold text-primary-foreground shadow-soft hover:shadow-lift ${compact ? "px-3 py-1.5 text-[11px]" : "px-4 py-2 text-xs"}`}
+              className={`inline-flex items-center justify-center gap-1.5 rounded-full bg-primary font-semibold text-primary-foreground shadow-soft hover:shadow-lift ${compact ? "px-3 py-1.5 text-[11px]" : "px-4 py-2 text-xs"}`}
             >
               {fmt.verb} <ExternalLink className="h-3 w-3" />
             </a>
@@ -1484,7 +1484,7 @@ function ResourceCard({
           <button
             onClick={onSave}
             aria-label={saved ? "Remove from saved" : "Save"}
-            className={`inline-flex items-center gap-1.5 rounded-full border font-semibold transition ${
+            className={`inline-flex items-center justify-center gap-1.5 rounded-full border font-semibold transition ${
               saved
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-background hover:bg-muted"
@@ -1496,7 +1496,7 @@ function ResourceCard({
           <button
             type="button"
             onClick={onShare}
-            className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-background font-semibold hover:bg-muted ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
+            className={`inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background font-semibold hover:bg-muted ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
           >
             <Share2 className="h-3 w-3" /> Share
           </button>
@@ -1581,7 +1581,7 @@ function EmptyState({
       {cta && (
         <button
           onClick={cta.onClick}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground"
+          className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground"
         >
           {cta.label}
         </button>

@@ -356,13 +356,13 @@ function WaitlistPage() {
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/80 backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/80 backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Back
             </button>
           </div>
           <header className="text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <span className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               <HeartHandshake className="h-3.5 w-3.5" /> Come walk with us
             </span>
             <h1 className="mt-4 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
@@ -705,7 +705,7 @@ function WaitlistPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <a
                     href="/demo"
-                    className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+                    className="inline-flex items-center justify-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
                   >
                     Walk the 6-step demo <ArrowRight className="h-3.5 w-3.5" />
                   </a>
@@ -719,7 +719,7 @@ function WaitlistPage() {
                             ? "/platform"
                             : "/partners"
                     }
-                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
+                    className="inline-flex items-center justify-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
                   >
                     {current.key === "family" || current.key === "student"
                       ? "For Families"
@@ -731,7 +731,7 @@ function WaitlistPage() {
                   </a>
                   <a
                     href="/programs/transitionforward"
-                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
+                    className="inline-flex items-center justify-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
                   >
                     TransitionForward (9–12)
                   </a>

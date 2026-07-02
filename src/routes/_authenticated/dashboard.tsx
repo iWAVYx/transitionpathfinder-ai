@@ -581,7 +581,7 @@ function DashboardPage() {
                     {s.expected_graduation_year ? ` · Class of ${s.expected_graduation_year}` : ""}
                   </p>
                   {s.readiness_level && (
-                    <span className="mt-2 inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                    <span className="mt-2 inline-flex items-center justify-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
                       Readiness: {s.readiness_level}
                     </span>
                   )}
@@ -643,7 +643,7 @@ function DashboardPage() {
               <div className="flex flex-wrap gap-2">
                 <Link
                   to="/pathway"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
                 >
                   <Sparkles className="h-4 w-4" />
                   {snap.latestReport ? "Update report" : "Generate report"}
@@ -653,14 +653,14 @@ function DashboardPage() {
                     <Link
                       to="/reports/$reportId"
                       params={{ reportId: snap.latestReport.id }}
-                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
                     >
                       <FileText className="h-4 w-4" /> Open
                     </Link>
                     <button
                       type="button"
                       onClick={() => handleDownloadPdf(snap.latestReport!.id)}
-                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
                     >
                       <Download className="h-4 w-4" /> Download PDF
                     </button>
@@ -668,7 +668,7 @@ function DashboardPage() {
                       type="button"
                       disabled={sharing}
                       onClick={() => handleCopyShare(snap.latestReport!.id, "family")}
-                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
                     >
                       <Share2 className="h-4 w-4" /> Copy family link
                     </button>
@@ -676,7 +676,7 @@ function DashboardPage() {
                       type="button"
                       disabled={sharing}
                       onClick={() => handleCopyShare(snap.latestReport!.id, "educator")}
-                      className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
                     >
                       <Share2 className="h-4 w-4" /> Copy educator link
                     </button>
@@ -1162,7 +1162,7 @@ function ConsentRow({
         <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
       </div>
       {granted ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+        <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
           <CheckCircle2 className="h-3 w-3" /> Granted
         </span>
       ) : (
