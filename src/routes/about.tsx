@@ -521,7 +521,7 @@ const FRAGMENTS = [
 
 const BASE_CARD_W = 360;
 const BASE_CARD_H = 280;
-const GROUP_Y_OFFSET = 160; // shift entire note cluster downward so heading stays visible
+const GROUP_Y_OFFSET = 40; // shift note cluster up just beneath the section heading
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
