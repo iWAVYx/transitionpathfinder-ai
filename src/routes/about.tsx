@@ -667,19 +667,20 @@ function Transformation() {
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
         <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
         <div className="relative z-10 mx-auto flex h-full w-full flex-col px-4 sm:px-6">
-          <div className="relative mx-auto mb-2 max-w-2xl text-center pt-4 sm:pt-6">
+          <div className="relative mx-auto w-full max-w-2xl shrink-0 text-center pt-4 pb-3 sm:pt-6 sm:pb-4">
             <div className="mb-2 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
-              The transformation
+              The Transformation
             </div>
-            <h2 className="font-serif text-[clamp(1.75rem,3.5vw,3rem)] font-light leading-[1.05]">
+            <h2 className="font-serif text-[clamp(1.4rem,2.8vw,2.5rem)] font-light leading-[1.1]">
               Scattered documents <span className="italic">become</span> a clear pathway.
             </h2>
           </div>
 
           <div
             ref={containerRef}
-            className="relative flex-1 w-full pb-2 sm:pb-4"
+            className="relative min-h-0 flex-1 w-full pb-2 sm:pb-4"
           >
+
             {FRAGMENTS.map((f, i) => (
               <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} containerRef={containerRef} />
             ))}
