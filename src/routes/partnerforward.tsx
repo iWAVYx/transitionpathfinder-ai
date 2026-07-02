@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { FaqSection } from "@/components/site/FaqSection";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,34 @@ export const Route = createFileRoute("/partnerforward")({
   }),
   component: PartnerForwardPage,
 });
+
+const PARTNER_FAQ = [
+  {
+    question: "Who can become a TransitionForward partner?",
+    answer:
+      "Employers, community programs, vocational providers, colleges, nonprofits, and other mission-aligned organizations that want to share inclusive opportunities with Connecticut students and families.",
+  },
+  {
+    question: "Is there a cost to list opportunities?",
+    answer:
+      "Listing core opportunities in the Opportunity Directory is free for approved partners during the pilot. Featured placement and partner-growth support may be available through select school or district programs.",
+  },
+  {
+    question: "How does PartnerForward differ from the Partner Network?",
+    answer:
+      "PartnerForward is the incentive and support layer — it surfaces tax credits, grants, inclusive-hiring resources, and accessibility supports. The Partner Network and Opportunity Directory remain the home for partner profiles and opportunity listings.",
+  },
+  {
+    question: "Does TransitionForward provide tax or legal advice?",
+    answer:
+      "No. PartnerForward provides plain-language overviews and links to official sources. Partners should consult qualified tax, legal, or financial professionals before acting on any incentive or support program.",
+  },
+  {
+    question: "How do I apply for featured placement or growth support?",
+    answer:
+      "Contact the TransitionForward team through the partner dashboard or the inquiry form. Featured placement is reviewed based on mission alignment, accessibility, and the needs of the families and schools we serve.",
+  },
+];
 
 const PILLARS = [
   {
@@ -148,6 +177,8 @@ function PartnerForwardPage() {
             </CardGrid>
           </div>
         </section>
+
+        <FaqSection title="Common Partner Questions" items={PARTNER_FAQ} />
 
         {/* Disclaimer band */}
         <section className="relative mt-10 flex gap-3 overflow-hidden rounded-3xl border border-amber-400/40 bg-amber-50/60 p-5 text-sm text-amber-950 shadow-soft dark:bg-amber-950/20 dark:text-amber-100">
