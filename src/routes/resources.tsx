@@ -388,19 +388,19 @@ function ResourcesPage() {
                 onClick={() => setTab("browse")}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
               >
-                <Library className="h-4 w-4" /> Browse the library
+                <Library className="h-4 w-4" /> Browse the Library
               </button>
               <button
                 onClick={() => setTab("recommended")}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
               >
-                <Sparkles className="h-4 w-4" /> Personalized picks
+                <Sparkles className="h-4 w-4" /> Personalized Picks
               </button>
               <button
                 onClick={() => setTab("saved")}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold hover:bg-muted"
               >
-                <Bookmark className="h-4 w-4" /> My saved
+                <Bookmark className="h-4 w-4" /> My Saved
                 {savedResources.length > 0 && (
                   <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] text-primary-foreground">
                     {savedResources.length}
