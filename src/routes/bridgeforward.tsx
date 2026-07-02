@@ -245,7 +245,7 @@ function BridgeForwardPublicPage() {
           <ArcStack className="pointer-events-none absolute -bottom-2 left-0 hidden h-32 w-32 -scale-x-100 text-primary/15 sm:block" />
 
           <div className="relative">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary sm:text-xs sm:tracking-[0.18em]">
               <Compass className="h-4 w-4" /> Four Steps · Middle School to High School
             </div>
             <h2 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
