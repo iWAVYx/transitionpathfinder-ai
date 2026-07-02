@@ -107,7 +107,7 @@ function CinematicHero() {
           A founder story
           <span className="h-px w-8 bg-white/40" />
         </div>
-        <h1 className="font-serif text-[clamp(2.8rem,10vw,10rem)] font-light leading-[0.95] tracking-tight">
+        <h1 className="font-serif text-[clamp(2rem,9vw,10rem)] font-light leading-[0.95] tracking-tight">
           <SplitReveal text="From paperwork" />
           <span className="block italic text-white/80">
             <SplitReveal text="to possibility." delay={0.25} />
@@ -465,12 +465,12 @@ function JourneyPath() {
         </motion.g>
       </svg>
 
-      <div className="relative mx-auto max-w-[1400px] px-6">
-        <div className="mb-12 max-w-2xl">
+      <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
+        <div className="mx-auto mb-10 max-w-2xl text-center md:mx-0 md:mb-12 md:text-left">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
           </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light leading-[1]">
+          <h2 className="font-serif text-[clamp(1.75rem,5vw,4rem)] font-light leading-[1.05]">
             A path traced through Connecticut classrooms.
           </h2>
         </div>
@@ -484,15 +484,15 @@ function JourneyPath() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-15%" }}
                 transition={{ duration: 0.8, delay: i * 0.05, ease: [0.22, 0.61, 0.36, 1] }}
-                className={`relative grid grid-cols-[auto_1fr] items-baseline gap-6 md:gap-10 ${
-                  i % 2 === 1 ? "md:ml-auto md:max-w-[60%] md:text-right" : "md:max-w-[60%]"
+                className={`relative mx-auto grid max-w-md grid-cols-1 items-baseline gap-2 text-center sm:grid-cols-[auto_1fr] sm:gap-6 sm:text-left md:mx-0 md:max-w-[60%] md:gap-10 ${
+                  i % 2 === 1 ? "md:ml-auto md:text-right" : ""
                 }`}
               >
-                <span className="font-serif text-2xl italic text-white/50 md:text-3xl">
+                <span className="font-serif text-xl italic text-white/50 sm:text-2xl md:text-3xl">
                   {j.year}
                 </span>
                 <div>
-                  <h3 className="font-serif text-2xl font-light leading-tight md:text-4xl">
+                  <h3 className="font-serif text-xl font-light leading-tight sm:text-2xl md:text-4xl">
                     {j.title}
                   </h3>
                   <p className="mt-2 text-sm text-white/65 md:text-base">{j.note}</p>
@@ -544,7 +544,7 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const maxReachY = BASE_CARD_H * (0.7 + 0.5);
       const scaleX = (halfW - padX) / maxReachX;
       const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
-      const next = Math.max(0.3, Math.min(1.1, scaleX, scaleY));
+      const next = Math.max(0.18, Math.min(1.1, scaleX, scaleY));
       setScale(Number.isFinite(next) ? next : 0.5);
     };
 
