@@ -73,11 +73,32 @@ const STEPS = [
   },
 ] as const;
 
-const AUDIENCES = [
-  "Students in grades 6, 7, and 8",
-  "Parents and guardians of a middle-school student",
-  "Educators and case managers supporting middle-school teams",
-  "School and district administrators with middle-school students in their care",
+const BRIDGE_FAQ = [
+  {
+    question: "What age group is BridgeForward for?",
+    answer:
+      "BridgeForward is designed for students in grades 6–8 and their families, educators, and case managers. It focuses on the transition from middle school to high school, before the full TransitionForward post-secondary plan begins.",
+  },
+  {
+    question: "How does BridgeForward differ from the high school TransitionForward plan?",
+    answer:
+      "BridgeForward is a lighter, middle-school-focused bridge that helps families explore high school options, gather student voice, and prepare for the PPT. It does not replace the high school Pathway Report or post-secondary planning tools.",
+  },
+  {
+    question: "Is my student's data private?",
+    answer:
+      "Yes. Student information is protected by strict role-based access and row-level security. BridgeForward never exposes private student data to partner organizations or other families.",
+  },
+  {
+    question: "Do I need a school or district plan to use it?",
+    answer:
+      "Families can use BridgeForward during the pilot at no cost. Educators and case managers can use it when connected to a student in grades 6–8 through their school or district account.",
+  },
+  {
+    question: "Can a teacher or case manager use BridgeForward with a family?",
+    answer:
+      "Yes. BridgeForward is built for collaboration. Teachers, case managers, and families can each contribute to the same student plan while respecting privacy and role-based permissions.",
+  },
 ] as const;
 
 function BridgeForwardPublicPage() {
