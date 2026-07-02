@@ -484,15 +484,15 @@ function JourneyPath() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-15%" }}
                 transition={{ duration: 0.8, delay: i * 0.05, ease: [0.22, 0.61, 0.36, 1] }}
-                className={`relative grid grid-cols-[auto_1fr] items-baseline gap-6 md:gap-10 ${
-                  i % 2 === 1 ? "md:ml-auto md:max-w-[60%] md:text-right" : "md:max-w-[60%]"
+                className={`relative mx-auto grid max-w-md grid-cols-1 items-baseline gap-2 text-center sm:grid-cols-[auto_1fr] sm:gap-6 sm:text-left md:mx-0 md:max-w-[60%] md:gap-10 ${
+                  i % 2 === 1 ? "md:ml-auto md:text-right" : ""
                 }`}
               >
-                <span className="font-serif text-2xl italic text-white/50 md:text-3xl">
+                <span className="font-serif text-xl italic text-white/50 sm:text-2xl md:text-3xl">
                   {j.year}
                 </span>
                 <div>
-                  <h3 className="font-serif text-2xl font-light leading-tight md:text-4xl">
+                  <h3 className="font-serif text-xl font-light leading-tight sm:text-2xl md:text-4xl">
                     {j.title}
                   </h3>
                   <p className="mt-2 text-sm text-white/65 md:text-base">{j.note}</p>
