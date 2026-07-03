@@ -114,7 +114,7 @@ function CinematicHero() {
           </span>
         </h1>
         <p className="mt-5 max-w-xl text-base text-white/75 sm:mt-8 sm:text-lg">
-          The story of a Black special educator from Connecticut — and the platform built from
+          The story of a special educator from Connecticut, and the platform built from
           everything he kept seeing between the binder and the bus.
         </p>
       </motion.div>
