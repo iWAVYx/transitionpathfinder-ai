@@ -341,7 +341,7 @@ function FounderMessage() {
             <span className="italic"> between the family and the binder.</span>
           </h2>
           <p className="mt-6 text-base text-[#1c1814]/80 sm:text-lg">
-            I'm a Black special educator from Connecticut. MBA, then MAT in Special Education K–12.
+            I'm a special educator from Connecticut. MBA, then MAT in Special Education, K–12.
             New Haven Public Schools. Hamden. Student Teaching across grade bands. Every meeting,
             the same gap — paperwork on the table, possibility just out of reach.
           </p>
