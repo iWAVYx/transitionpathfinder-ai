@@ -804,7 +804,7 @@ function ClosingCTA() {
           className="font-serif text-[clamp(2.4rem,7vw,6rem)] font-light leading-[0.95]"
         >
           The story keeps going.
-          <span className="block italic text-white/75">Walk it with us.</span>
+          <span className="mt-8 block italic text-white/75">Walk it with us.</span>
         </motion.h2>
 
         <motion.div
