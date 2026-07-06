@@ -717,7 +717,7 @@ function Transformation() {
   return (
     <section
       ref={ref}
-      className={`relative text-[#1c1814] ${reduce ? "h-auto" : "h-[155vh] md:h-[190vh]"}`}
+      className={`relative text-[#1c1814] ${reduce ? "h-auto" : "h-[130vh] md:h-[190vh]"}`}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[100svh] w-full items-center overflow-hidden">
         <div
