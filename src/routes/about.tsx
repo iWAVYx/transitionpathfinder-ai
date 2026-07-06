@@ -656,25 +656,26 @@ function Transformation() {
     <section
       ref={ref}
       className="relative text-[#1c1814]"
-      style={{ height: reduce ? "auto" : "300vh" }}
+      style={{ height: reduce ? "auto" : "220vh" }}
     >
-      <div className="sticky top-0 flex h-screen min-h-screen w-full items-center overflow-hidden">
+      <div className="sticky top-0 flex h-[100svh] min-h-[100svh] w-full items-center overflow-hidden">
         <div
           aria-hidden
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${stickyNotesBg})` }}
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-[#f4ede3]/90 via-[#f4ede3]/50 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[22%] bg-gradient-to-b from-[#f4ede3]/95 via-[#f4ede3]/70 to-transparent" />
         <div className="relative z-10 mx-auto flex h-full w-full flex-col px-4 sm:px-6">
-          <div className="relative mx-auto w-full max-w-2xl shrink-0 text-center pt-4 pb-3 sm:pt-6 sm:pb-4">
-            <div className="mb-2 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/50">
+          <div className="relative z-20 mx-auto w-full max-w-2xl shrink-0 text-center pt-3 pb-2 sm:pt-5 sm:pb-3">
+            <div className="mb-1.5 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
               The Transformation
             </div>
-            <h2 className="font-serif text-[clamp(1.4rem,2.8vw,2.5rem)] font-light leading-[1.1]">
+            <h2 className="font-serif text-[clamp(1.25rem,2.6vw,2.25rem)] font-light leading-[1.15]">
               Scattered documents <span className="italic">become</span> a clear pathway.
             </h2>
           </div>
+
 
           <div
             ref={containerRef}
