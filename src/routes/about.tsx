@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -522,9 +522,25 @@ const FRAGMENTS = [
 const BASE_CARD_W = 580;
 const BASE_CARD_H = 470;
 const GROUP_Y_OFFSET = 80; // shift note cluster down so heading stays legible above it
+const MOBILE_BREAKPOINT = 480;
 
-function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
-  const [scale, setScale] = useState(1);
+// Fixed tiled positions for the mobile cluster (overlapping, minimal blank space).
+const MOBILE_NOTES: Array<{ left?: number; right?: number; top: number; rot: number }> = [
+  { left: 0.05, top: 0.08, rot: -3 },
+  { right: 0.05, top: 0.08, rot: 4 },
+  { left: 0.05, top: 0.38, rot: -2 },
+  { right: 0.05, top: 0.38, rot: 2 },
+  { left: 0.05, top: 0.68, rot: -1 },
+  { right: 0.05, top: 0.68, rot: 3 },
+];
+
+function useScatterLayout(containerRef: React.RefObject<HTMLElement | null>) {
+  const [layout, setLayout] = useState({
+    scale: 1,
+    isMobile: false,
+    width: 0,
+    height: 0,
+  });
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -532,20 +548,34 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
       const rect = el.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
-      // Fragments scatter across the available container area. Because the
-      // cluster is nudged down by GROUP_Y_OFFSET, the bottom half is the
-      // tighter constraint — subtract it so cards never poke past the
-      // container (which would overlap the heading above it).
+      const isMobile = w < MOBILE_BREAKPOINT;
       const padX = 12;
       const padY = 16;
       const halfW = w / 2;
       const halfH = h / 2;
-      const maxReachX = BASE_CARD_W * (0.77 + 0.5);
-      const maxReachY = BASE_CARD_H * (0.7 + 0.5);
-      const scaleX = (halfW - padX) / maxReachX;
-      const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
-      const next = Math.max(0.18, Math.min(1.1, scaleX, scaleY));
-      setScale(Number.isFinite(next) ? next : 0.5);
+
+      let scale: number;
+      if (isMobile) {
+        // Tiled overlapping 2x3 cluster: cards fill the width with intentional overlap.
+        const maxReachX = BASE_CARD_W * 0.45 + BASE_CARD_W / 2;
+        const maxReachY = BASE_CARD_H * 0.34 + BASE_CARD_H / 2;
+        const scaleX = (halfW - padX) / maxReachX;
+        const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
+        scale = Math.max(0.32, Math.min(0.52, scaleX, scaleY));
+      } else {
+        const maxReachX = BASE_CARD_W * (0.77 + 0.5);
+        const maxReachY = BASE_CARD_H * (0.7 + 0.5);
+        const scaleX = (halfW - padX) / maxReachX;
+        const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
+        scale = Math.max(0.18, Math.min(1.1, scaleX, scaleY));
+      }
+
+      setLayout({
+        scale: Number.isFinite(scale) ? scale : 0.5,
+        isMobile,
+        width: w,
+        height: h,
+      });
     };
 
     update();
@@ -553,7 +583,7 @@ function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
     ro.observe(el);
     return () => ro.disconnect();
   }, [containerRef]);
-  return scale;
+  return layout;
 }
 
 
@@ -570,13 +600,45 @@ function FragmentCard({
   reduce: boolean;
   containerRef: React.RefObject<HTMLElement | null>;
 }) {
-  const scatterScale = useScatterScale(containerRef);
+  const { scale: scatterScale, isMobile, width: containerW, height: containerH } =
+    useScatterLayout(containerRef);
+
   // Fragments stay scattered longer while the headline reads, then converge
   // through the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.25, 0.55], [0, 1]);
-  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale * BASE_CARD_W, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale * BASE_CARD_H + GROUP_Y_OFFSET, (index * 12 - 30) * scatterScale + GROUP_Y_OFFSET]);
-  const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
+
+  const startX = useMemo(() => {
+    if (reduce) return 0;
+    if (isMobile && containerW > 0) {
+      const m = MOBILE_NOTES[index];
+      const cardW = BASE_CARD_W * scatterScale;
+      if (m.left != null) {
+        return (m.left * containerW + cardW / 2) - containerW / 2;
+      }
+      return (containerW - (m.right ?? 0) * containerW - cardW / 2) - containerW / 2;
+    }
+    return fragment.x * scatterScale * BASE_CARD_W;
+  }, [reduce, isMobile, containerW, scatterScale, fragment, index]);
+
+  const startY = useMemo(() => {
+    if (reduce) return 0;
+    if (isMobile && containerH > 0) {
+      const m = MOBILE_NOTES[index];
+      const cardH = BASE_CARD_H * scatterScale;
+      return (m.top * containerH + cardH / 2) - containerH / 2 + GROUP_Y_OFFSET;
+    }
+    return fragment.y * scatterScale * BASE_CARD_H + GROUP_Y_OFFSET;
+  }, [reduce, isMobile, containerH, scatterScale, fragment, index]);
+
+  const startRot = useMemo(() => {
+    if (reduce) return 0;
+    if (isMobile) return MOBILE_NOTES[index].rot;
+    return fragment.rot * Math.min(scatterScale * 1.4, 1);
+  }, [reduce, isMobile, scatterScale, fragment, index]);
+
+  const x = useTransform(p, (latest) => startX * (1 - latest));
+  const y = useTransform(p, (latest) => startY * (1 - latest));
+  const rot = useTransform(p, (latest) => startRot * (1 - latest));
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
   // Pin falls out, staggered per card, once the notes have settled.
@@ -655,7 +717,7 @@ function Transformation() {
   return (
     <section
       ref={ref}
-      className={`relative text-[#1c1814] ${reduce ? "h-auto" : "h-[155vh] md:h-[190vh]"}`}
+      className={`relative text-[#1c1814] ${reduce ? "h-auto" : "h-[130vh] md:h-[190vh]"}`}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[100svh] w-full items-center overflow-hidden">
         <div
