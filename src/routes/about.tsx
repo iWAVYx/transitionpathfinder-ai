@@ -519,9 +519,9 @@ const FRAGMENTS = [
   { label: toTitleCase("Action items"), rot: 6, x: 0.77, y: 0.7, color: "#e0bbff", pin: "#be185d" },
 ];
 
-const BASE_CARD_W = 630;
-const BASE_CARD_H = 510;
-const GROUP_Y_OFFSET = 40; // shift note cluster down so heading stays legible above it
+const BASE_CARD_W = 580;
+const BASE_CARD_H = 470;
+const GROUP_Y_OFFSET = 56; // shift note cluster down so heading stays legible above it
 
 function useScatterScale(containerRef: React.RefObject<HTMLElement | null>) {
   const [scale, setScale] = useState(1);
