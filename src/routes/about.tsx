@@ -655,8 +655,7 @@ function Transformation() {
   return (
     <section
       ref={ref}
-      className="relative text-[#1c1814]"
-      style={{ height: reduce ? "auto" : "220vh" }}
+      className={`relative text-[#1c1814] ${reduce ? "h-auto" : "h-[155vh] md:h-[190vh]"}`}
     >
       <div className="sticky top-0 flex h-[100svh] min-h-[100svh] w-full items-center overflow-hidden">
         <div
@@ -665,13 +664,13 @@ function Transformation() {
           style={{ backgroundImage: `url(${stickyNotesBg})` }}
         />
         <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[22%] bg-gradient-to-b from-[#f4ede3]/95 via-[#f4ede3]/70 to-transparent" />
-        <div className="relative z-10 mx-auto flex h-full w-full flex-col px-4 sm:px-6">
-          <div className="relative z-20 mx-auto w-full max-w-2xl shrink-0 text-center pt-3 pb-2 sm:pt-5 sm:pb-3">
-            <div className="mb-1.5 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[28%] bg-gradient-to-b from-[#f4ede3]/98 via-[#f4ede3]/85 to-[#f4ede3]/30" />
+        <div className="relative z-30 mx-auto flex h-full w-full flex-col px-4 sm:px-6">
+          <div className="relative z-30 mx-auto w-full max-w-2xl shrink-0 px-4 pt-5 pb-4 text-center sm:pt-6 sm:pb-5">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
               The Transformation
             </div>
-            <h2 className="font-serif text-[clamp(1.25rem,2.6vw,2.25rem)] font-light leading-[1.15]">
+            <h2 className="font-serif text-[clamp(1.25rem,2.4vw,2rem)] font-light leading-[1.2] text-balance">
               Scattered documents <span className="italic">become</span> a clear pathway.
             </h2>
           </div>
@@ -679,7 +678,7 @@ function Transformation() {
 
           <div
             ref={containerRef}
-            className="relative min-h-0 flex-1 w-full pb-2 sm:pb-4"
+            className="relative min-h-0 flex-1 w-full pb-3 sm:pb-5"
           >
 
             {FRAGMENTS.map((f, i) => (
