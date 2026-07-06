@@ -600,13 +600,45 @@ function FragmentCard({
   reduce: boolean;
   containerRef: React.RefObject<HTMLElement | null>;
 }) {
-  const scatterScale = useScatterScale(containerRef);
+  const { scale: scatterScale, isMobile, width: containerW, height: containerH } =
+    useScatterLayout(containerRef);
+
   // Fragments stay scattered longer while the headline reads, then converge
   // through the middle of the pin, then dim as the Pathway Report takes the stage.
   const p = useTransform(progress, [0.25, 0.55], [0, 1]);
-  const x = useTransform(p, [0, 1], [reduce ? 0 : fragment.x * scatterScale * BASE_CARD_W, 0]);
-  const y = useTransform(p, [0, 1], [reduce ? 0 : fragment.y * scatterScale * BASE_CARD_H + GROUP_Y_OFFSET, (index * 12 - 30) * scatterScale + GROUP_Y_OFFSET]);
-  const rot = useTransform(p, [0, 1], [reduce ? 0 : fragment.rot * Math.min(scatterScale * 1.4, 1), 0]);
+
+  const startX = useMemo(() => {
+    if (reduce) return 0;
+    if (isMobile && containerW > 0) {
+      const m = MOBILE_NOTES[index];
+      const cardW = BASE_CARD_W * scatterScale;
+      if (m.left != null) {
+        return (m.left * containerW + cardW / 2) - containerW / 2;
+      }
+      return (containerW - (m.right ?? 0) * containerW - cardW / 2) - containerW / 2;
+    }
+    return fragment.x * scatterScale * BASE_CARD_W;
+  }, [reduce, isMobile, containerW, scatterScale, fragment, index]);
+
+  const startY = useMemo(() => {
+    if (reduce) return 0;
+    if (isMobile && containerH > 0) {
+      const m = MOBILE_NOTES[index];
+      const cardH = BASE_CARD_H * scatterScale;
+      return (m.top * containerH + cardH / 2) - containerH / 2 + GROUP_Y_OFFSET;
+    }
+    return fragment.y * scatterScale * BASE_CARD_H + GROUP_Y_OFFSET;
+  }, [reduce, isMobile, containerH, scatterScale, fragment, index]);
+
+  const startRot = useMemo(() => {
+    if (reduce) return 0;
+    if (isMobile) return MOBILE_NOTES[index].rot;
+    return fragment.rot * Math.min(scatterScale * 1.4, 1);
+  }, [reduce, isMobile, scatterScale, fragment, index]);
+
+  const x = useTransform(p, (latest) => startX * (1 - latest));
+  const y = useTransform(p, (latest) => startY * (1 - latest));
+  const rot = useTransform(p, (latest) => startRot * (1 - latest));
   const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
 
   // Pin falls out, staggered per card, once the notes have settled.
