@@ -278,7 +278,7 @@ function HomePage() {
               <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
               <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
             </p>
-            <HeroCTAs className="mt-9">
+            <HeroCTAs className="mt-9 sm:[&>*]:flex-1">
               <Link
                 to="/waitlist"
                 className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
