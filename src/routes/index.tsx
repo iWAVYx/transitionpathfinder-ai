@@ -278,7 +278,7 @@ function HomePage() {
               <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
               <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
+            <HeroCTAs className="mt-9">
               <Link
                 to="/waitlist"
                 className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
@@ -299,11 +299,14 @@ function HomePage() {
               </Link>
               <Link
                 to="/platform"
-                className="inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
+                className="group inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
               >
-                Explore the Platform
+                <div className="flex flex-col items-center leading-none">
+                  <span>Explore the Platform</span>
+                  <span className="mt-1 opacity-0" aria-hidden="true">→</span>
+                </div>
               </Link>
-            </div>
+            </HeroCTAs>
           </div>
         </div>
       </section>
