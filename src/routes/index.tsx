@@ -281,28 +281,28 @@ function HomePage() {
             <HeroCTAs className="mt-9 sm:[&>*]:flex-1">
               <Link
                 to="/waitlist"
-                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-transparent bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl"
+                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-transparent bg-primary px-7 py-3.5 text-xs font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl sm:text-sm"
               >
                 <div className="flex flex-col items-center leading-none">
-                  <span>{hero.cta_primary_label}</span>
+                  <span className="whitespace-nowrap">{hero.cta_primary_label}</span>
                   <span className="mt-1 transition-transform group-hover:translate-x-1">→</span>
                 </div>
               </Link>
               <Link
                 to="/demo"
-                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background"
+                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-7 py-3.5 text-xs font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background sm:text-sm"
               >
                 <div className="flex flex-col items-center leading-none">
-                  <span>{hero.cta_secondary_label}</span>
+                  <span className="whitespace-nowrap">{hero.cta_secondary_label}</span>
                   <span className="mt-1 text-primary transition-transform group-hover:translate-x-1">→</span>
                 </div>
               </Link>
               <Link
                 to="/platform"
-                className="group inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
+                className="group inline-flex items-center justify-center rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-xs font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background sm:text-sm"
               >
                 <div className="flex flex-col items-center leading-none">
-                  <span>Explore the Platform</span>
+                  <span className="whitespace-nowrap">Explore the Platform</span>
                   <span className="mt-1 opacity-0" aria-hidden="true">→</span>
                 </div>
               </Link>
