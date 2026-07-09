@@ -15,7 +15,7 @@ import {
   reportSectionAnchorId,
 } from "./PathwayReportSpine";
 import { PathwayReportStageProgress } from "./PathwayReportStageProgress";
-import { WORKSPACE_STAGES, type PathwayReportSectionId } from "@/lib/workspace/stages";
+import { WORKSPACE_STAGES, type PathwayReportSectionId, type StageId } from "@/lib/workspace/stages";
 
 /**
  * Legacy `sec-*` id → new `PathwayReportSectionId` mapping. Multiple
