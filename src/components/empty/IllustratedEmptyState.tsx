@@ -87,11 +87,11 @@ function Illustration({ kind }: { kind: EmptyKind }) {
   const map = "#3a7ea1";
   const cream = "#fbf7ef";
   const common = {
-    fill: "none",
     stroke,
     strokeWidth: 2,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
+    fill: "none",
   };
 
   switch (kind) {
