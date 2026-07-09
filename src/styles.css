@@ -6312,6 +6312,19 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .tf-studio-canvas h2:first-child,
 .tf-studio-canvas h3:first-child { margin-top: 0; }
 
+/* Canvas body stretches to fill the viewport so short pages never leave a
+   blank well above the footer; each top-level section can grow into any
+   leftover vertical space without compressing its own content. */
+.tf-studio-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.tf-studio-body > * {
+  flex: 1 1 auto;
+}
+
 /* Stage head (slate label + folio + dek) */
 .st-stagehead {
   display: grid;
