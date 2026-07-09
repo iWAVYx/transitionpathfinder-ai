@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { IllustratedEmptyState, type EmptyKind } from "@/components/empty/IllustratedEmptyState";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { WelcomeBanner } from "@/components/site/WelcomeBanner";
 import { RoleValueStrip } from "@/components/value/RoleValueStrip";
