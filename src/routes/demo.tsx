@@ -77,7 +77,7 @@ function StudioCover() {
 
         <aside className="side">
           <h4>Featured Student</h4>
-          <p style={{ margin: "0 0 18px", fontSize: 14, color: "var(--st-mute)" }}>
+          <p style={{ margin: "0 0 24px", fontSize: 14, lineHeight: 1.5, color: "var(--st-mute)" }}>
             {toTitleCase(student.full_name)} · {student.pronouns} · Grade {student.grade}
           </p>
           {voiceQuote ? (
@@ -103,6 +103,7 @@ function StudioCover() {
           </div>
         </aside>
       </div>
+
 
       {/* Visual pathway (waypoint route) */}
       <StudioFrame title="The Pathway, at a Glance">
