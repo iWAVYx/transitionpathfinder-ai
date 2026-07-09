@@ -22,10 +22,11 @@ const WIDTH: Record<Width, string> = {
 
 const PAD: Record<Pad, string> = {
   none: "",
-  sm: "py-4 sm:py-5 lg:py-6",
-  md: "py-5 sm:py-6 lg:py-8",
-  lg: "py-6 sm:py-8 lg:py-10",
+  sm: "py-3 sm:py-4 lg:py-5",
+  md: "py-4 sm:py-5 lg:py-6",
+  lg: "py-5 sm:py-6 lg:py-7",
 };
+
 
 export function PageContainer({
   children,
