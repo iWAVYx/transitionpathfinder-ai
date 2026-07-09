@@ -278,29 +278,30 @@ function HomePage() {
               <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
               <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
             </p>
-            <HeroCTAs className="mt-9 sm:[&>*]:flex-1">
+            <HeroCTAs forceRow className="mt-9 gap-1 sm:gap-3">
               <Link
                 to="/waitlist"
-                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-transparent bg-primary px-7 py-3.5 text-xs font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl sm:text-sm"
+                className="group inline-flex items-center justify-center gap-1 rounded-full border border-transparent bg-primary px-2 py-2 text-[10px] font-semibold text-primary-foreground shadow-lift transition-all hover:-translate-y-0.5 hover:shadow-xl sm:gap-1.5 sm:px-4 sm:py-3 sm:text-xs lg:px-7 lg:py-3.5 lg:text-sm"
               >
                 <span className="whitespace-nowrap">{hero.cta_primary_label}</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
               </Link>
               <Link
                 to="/demo"
-                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-7 py-3.5 text-xs font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background sm:text-sm"
+                className="group inline-flex items-center justify-center gap-1 rounded-full border border-primary/30 bg-background/90 px-2 py-2 text-[10px] font-semibold text-foreground backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:bg-background sm:gap-1.5 sm:px-4 sm:py-3 sm:text-xs lg:px-7 lg:py-3.5 lg:text-sm"
               >
                 <span className="whitespace-nowrap">{hero.cta_secondary_label}</span>
-                <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-3 w-3 text-primary transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
               </Link>
               <Link
                 to="/platform"
-                className="group inline-flex items-center justify-center gap-1.5 rounded-full border border-foreground/15 bg-background/80 px-7 py-3.5 text-xs font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background sm:text-sm"
+                className="group inline-flex items-center justify-center gap-1 rounded-full border border-foreground/15 bg-background/80 px-2 py-2 text-[10px] font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background sm:gap-1.5 sm:px-4 sm:py-3 sm:text-xs lg:px-7 lg:py-3.5 lg:text-sm"
               >
                 <span className="whitespace-nowrap">Explore the Platform</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
               </Link>
             </HeroCTAs>
+
           </div>
         </div>
       </section>
