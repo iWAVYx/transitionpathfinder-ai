@@ -76,7 +76,7 @@ function StudioCover() {
         </div>
 
         <aside className="side">
-          <h4>Featured student</h4>
+          <h4>Featured Student</h4>
           <p style={{ margin: "0 0 18px", fontSize: 14, color: "var(--st-mute)" }}>
             {toTitleCase(student.full_name)} · {student.pronouns} · Grade {student.grade}
           </p>
@@ -87,7 +87,7 @@ function StudioCover() {
             </blockquote>
           ) : null}
 
-          <h4>Switch sample</h4>
+          <h4>Switch Sample</h4>
           <div className="swap" role="tablist" aria-label="Sample student">
             {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
               <Link
