@@ -247,15 +247,15 @@ export function StudioHead({
   // already holds the slate + folio. We render the title + dek inline
   // here so authors can compose them with the rest of the page body.
   return (
-    <header style={{ marginBottom: 36 }}>
+    <header style={{ marginBottom: 40 }}>
       <h1>{title}</h1>
       {dek ? <p className="dek" style={{
         fontFamily: "var(--st-serif)",
         fontStyle: "italic",
         fontSize: "1.18rem",
-        lineHeight: 1.45,
+        lineHeight: 1.55,
         color: "var(--st-mute)",
-        marginTop: 18,
+        margin: "16px 0 0",
         maxWidth: "58ch",
       }}>{dek}</p> : null}
     </header>

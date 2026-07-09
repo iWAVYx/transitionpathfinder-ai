@@ -77,7 +77,7 @@ function StudioCover() {
 
         <aside className="side">
           <h4>Featured Student</h4>
-          <p style={{ margin: "0 0 18px", fontSize: 14, color: "var(--st-mute)" }}>
+          <p style={{ margin: "0 0 24px", fontSize: 14, lineHeight: 1.5, color: "var(--st-mute)" }}>
             {toTitleCase(student.full_name)} · {student.pronouns} · Grade {student.grade}
           </p>
           {voiceQuote ? (
@@ -103,6 +103,7 @@ function StudioCover() {
           </div>
         </aside>
       </div>
+
 
       {/* Visual pathway (waypoint route) */}
       <StudioFrame title="The Pathway, at a Glance">
@@ -137,28 +138,29 @@ function StudioCover() {
           The studio is organized into four acts. Each act answers one
           question the team is trying to make progress on together.
         </p>
-        <div style={{ display: "grid", gap: 28, marginTop: 16 }}>
+        <div style={{ display: "grid", gap: 32, marginTop: 24 }}>
           {(["I", "II", "III", "IV"] as const).map((act) => {
             const stages = CHAPTER_STAGES.filter((x) => x.act === act);
             const meta = ACT_META[act];
             return (
-              <section key={act} style={{ borderTop: "1px solid var(--st-rule)", paddingTop: 22 }}>
+              <section key={act} style={{ borderTop: "1px solid var(--st-rule)", paddingTop: 24 }}>
                 <p
                   style={{
                     fontSize: 10,
+                    lineHeight: 1.4,
                     letterSpacing: "0.22em",
                     textTransform: "uppercase",
                     color: "var(--st-map-deep)",
-                    margin: 0,
+                    margin: "0 0 8px",
                     fontWeight: 700,
                   }}
                 >
                   Act {act}
                 </p>
-                <h3 style={{ margin: "4px 0 6px", fontFamily: "var(--st-serif)", color: "var(--st-ink)" }}>
+                <h3 style={{ margin: "0 0 8px", fontFamily: "var(--st-serif)", lineHeight: 1.25, color: "var(--st-ink)" }}>
                   {meta.title.replace(/^Act [IVX]+ · /, "")}
                 </h3>
-                <p style={{ color: "var(--st-mute)", margin: "0 0 14px", maxWidth: "62ch" }}>{meta.dek}</p>
+                <p style={{ color: "var(--st-mute)", lineHeight: 1.55, margin: "0 0 16px", maxWidth: "62ch" }}>{meta.dek}</p>
                 <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 0 }}>
                   {stages.map((stg) => (
                     <li key={stg.id}>
@@ -168,21 +170,23 @@ function StudioCover() {
                         style={{
                           display: "grid",
                           gridTemplateColumns: "56px 1fr auto",
+                          alignItems: "center",
                           gap: 16,
-                          padding: "12px 0",
+                          padding: "14px 0",
                           borderTop: "1px solid var(--st-rule-soft)",
                           textDecoration: "none",
                           color: "var(--st-ink)",
+                          lineHeight: 1.4,
                         }}
                       >
                         <span style={{ fontFamily: "var(--st-serif)", fontStyle: "italic", color: "var(--st-mute)" }}>
                           p. {stg.folio}
                         </span>
                         <span>
-                          <span style={{ display: "block", fontFamily: "var(--st-serif)", fontSize: "1.1rem", color: "var(--st-ink)" }}>
+                          <span style={{ display: "block", fontFamily: "var(--st-serif)", fontSize: "1.1rem", lineHeight: 1.3, color: "var(--st-ink)" }}>
                             {stg.label}
                           </span>
-                          <span style={{ display: "block", fontSize: 13, color: "var(--st-mute)" }}>
+                          <span style={{ display: "block", fontSize: 13, lineHeight: 1.45, marginTop: 2, color: "var(--st-mute)" }}>
                             {stg.produces}
                           </span>
                         </span>
@@ -196,6 +200,7 @@ function StudioCover() {
           })}
         </div>
       </StudioFrame>
+
 
       <StudioAside kind="next" label="Begin">
         Start with <strong>Starting Point</strong> — the family-completed
