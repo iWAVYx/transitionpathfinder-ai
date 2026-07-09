@@ -91,8 +91,12 @@ import { Route as AuthenticatedCaseloadRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as DemoWorkspaceIndexRouteImport } from './routes/demo_.workspace.index'
+import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authenticated/workspace.index'
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace.$stage'
+import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authenticated/workspace.$stage'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
 import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authenticated/school.reports'
@@ -582,6 +586,17 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const DemoWorkspaceIndexRoute = DemoWorkspaceIndexRouteImport.update({
+  id: '/demo_/workspace/',
+  path: '/demo/workspace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWorkspaceIndexRoute =
+  AuthenticatedWorkspaceIndexRouteImport.update({
+    id: '/workspace/',
+    path: '/workspace/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -592,6 +607,17 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoWorkspaceStageRoute = DemoWorkspaceStageRouteImport.update({
+  id: '/demo_/workspace/$stage',
+  path: '/demo/workspace/$stage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWorkspaceStageRoute =
+  AuthenticatedWorkspaceStageRouteImport.update({
+    id: '/workspace/$stage',
+    path: '/workspace/$stage',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedStudentsStudentIdRoute =
   AuthenticatedStudentsStudentIdRouteImport.update({
     id: '/$studentId',
@@ -1153,8 +1179,12 @@ export interface FileRoutesByFullPath {
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
+  '/workspace/': typeof AuthenticatedWorkspaceIndexRoute
+  '/demo/workspace/': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1307,8 +1337,12 @@ export interface FileRoutesByTo {
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
+  '/workspace': typeof AuthenticatedWorkspaceIndexRoute
+  '/demo/workspace': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1465,8 +1499,12 @@ export interface FileRoutesById {
   '/_authenticated/school/reports': typeof AuthenticatedSchoolReportsRoute
   '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
+  '/_authenticated/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/demo_/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
+  '/_authenticated/workspace/': typeof AuthenticatedWorkspaceIndexRoute
+  '/demo_/workspace/': typeof DemoWorkspaceIndexRoute
   '/_authenticated/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1623,8 +1661,12 @@ export interface FileRouteTypes {
     | '/school/reports'
     | '/school/team'
     | '/students/$studentId'
+    | '/workspace/$stage'
+    | '/demo/workspace/$stage'
     | '/lovable/email/suppression'
     | '/owner/'
+    | '/workspace/'
+    | '/demo/workspace/'
     | '/documents/$documentId/review'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1777,8 +1819,12 @@ export interface FileRouteTypes {
     | '/school/reports'
     | '/school/team'
     | '/students/$studentId'
+    | '/workspace/$stage'
+    | '/demo/workspace/$stage'
     | '/lovable/email/suppression'
     | '/owner'
+    | '/workspace'
+    | '/demo/workspace'
     | '/documents/$documentId/review'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1934,8 +1980,12 @@ export interface FileRouteTypes {
     | '/_authenticated/school/reports'
     | '/_authenticated/school/team'
     | '/_authenticated/students/$studentId'
+    | '/_authenticated/workspace/$stage'
+    | '/demo_/workspace/$stage'
     | '/lovable/email/suppression'
     | '/_authenticated/owner/'
+    | '/_authenticated/workspace/'
+    | '/demo_/workspace/'
     | '/_authenticated/documents/$documentId/review'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1996,7 +2046,9 @@ export interface RootRouteChildren {
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
   ShareTokenRoute: typeof ShareTokenRoute
+  DemoWorkspaceStageRoute: typeof DemoWorkspaceStageRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  DemoWorkspaceIndexRoute: typeof DemoWorkspaceIndexRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -2580,6 +2632,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/demo_/workspace/': {
+      id: '/demo_/workspace/'
+      path: '/demo/workspace'
+      fullPath: '/demo/workspace/'
+      preLoaderRoute: typeof DemoWorkspaceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/workspace/': {
+      id: '/_authenticated/workspace/'
+      path: '/workspace'
+      fullPath: '/workspace/'
+      preLoaderRoute: typeof AuthenticatedWorkspaceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/': {
       id: '/_authenticated/owner/'
       path: '/'
@@ -2593,6 +2659,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/demo_/workspace/$stage': {
+      id: '/demo_/workspace/$stage'
+      path: '/demo/workspace/$stage'
+      fullPath: '/demo/workspace/$stage'
+      preLoaderRoute: typeof DemoWorkspaceStageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/workspace/$stage': {
+      id: '/_authenticated/workspace/$stage'
+      path: '/workspace/$stage'
+      fullPath: '/workspace/$stage'
+      preLoaderRoute: typeof AuthenticatedWorkspaceStageRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/students/$studentId': {
       id: '/_authenticated/students/$studentId'
@@ -3302,6 +3382,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
+  AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
+  AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -3359,6 +3441,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
   AuthenticatedSchoolReportsRoute: AuthenticatedSchoolReportsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
+  AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
+  AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -3451,7 +3535,9 @@ const rootRouteChildren: RootRouteChildren = {
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
   ShareTokenRoute: ShareTokenRoute,
+  DemoWorkspaceStageRoute: DemoWorkspaceStageRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  DemoWorkspaceIndexRoute: DemoWorkspaceIndexRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
