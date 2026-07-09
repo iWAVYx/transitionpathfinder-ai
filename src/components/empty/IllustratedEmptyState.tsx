@@ -195,7 +195,7 @@ function Illustration({ kind }: { kind: EmptyKind }) {
         <svg viewBox="0 0 200 140" className="h-full w-full">
           <rect x="30" y="26" width="140" height="92" rx="6" {...common} fill={cream} />
           <circle cx="70" cy="60" r="8" fill={mustard} stroke={stroke} strokeWidth="1.8" />
-          <path d="M40 108 L 78 76 L 108 100 L 140 70 L 168 108 Z" fill={map} opacity="0.4" {...common} />
+          <path d="M40 108 L 78 76 L 108 100 L 140 70 L 168 108 Z" {...common} fill={map} opacity="0.4" />
           <path d="M40 108 L 78 76 L 108 100 L 140 70 L 168 108" {...common} />
           {/* upload arrow */}
           <g transform="translate(150 12)">
