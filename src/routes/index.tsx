@@ -19,6 +19,7 @@ import {
   Download,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
 import { HeroCTAs } from "@/components/site/HeroCTAs";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
@@ -307,6 +308,12 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <PublicJourneyStrip
+        eyebrow="The Transition Workspace"
+        caption="Every family, educator, and partner walks the same nine-stage journey — from first snapshot to community connection."
+        className="border-y border-border/40 bg-muted/20"
+      />
 
       {/* PROBLEM — split panel: photo + statement */}
       <section className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
