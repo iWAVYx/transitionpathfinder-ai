@@ -55,6 +55,7 @@ function DemoReportPage() {
       </StudioAside>
 
       <div className="st-frame">
+        <PathwayReportLayout>
         <ReportView
           name={student.first_name}
           report={report}
@@ -70,6 +71,7 @@ function DemoReportPage() {
             confidentiality: `Confidential — for ${student.first_name}, family, and authorized ${student.school} team members`,
           }}
         />
+        </PathwayReportLayout>
       </div>
     </StudioPage>
   );
