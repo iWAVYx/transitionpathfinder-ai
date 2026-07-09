@@ -115,9 +115,21 @@ function MediaPage() {
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
       ) : media.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No media yet. Upload images to use in your site content.
-        </p>
+        <IllustratedEmptyState
+          kind="media"
+          title="No Media Yet"
+          description="Upload images to use in your site content, blog posts, and resource cards."
+          action={
+            <Button onClick={() => fileRef.current?.click()} disabled={uploading} size="sm">
+              {uploading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="mr-2 h-4 w-4" />
+              )}
+              Upload your first image
+            </Button>
+          }
+        />
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {media.map((m) => (
