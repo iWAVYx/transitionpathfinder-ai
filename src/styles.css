@@ -6157,14 +6157,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   gap: 24px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--st-rule);
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 .st-stagehead .slate {
   font-size: 11px;
+  line-height: 1.4;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--st-map-deep);
-  margin-bottom: 14px;
+  margin: 0 0 12px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -6178,6 +6179,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   font-family: var(--st-serif);
   font-style: italic;
   font-size: 11px;
+  line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--st-mute);
@@ -6186,13 +6188,14 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   font-family: var(--st-serif);
   font-style: italic;
   font-size: 1.15rem;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--st-mute);
-  margin-top: 12px;
+  margin: 12px 0 0;
   max-width: 56ch;
 }
 .st-stagehead .folio {
   font-size: 11px;
+  line-height: 1.4;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--st-mute);
