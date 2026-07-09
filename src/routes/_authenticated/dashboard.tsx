@@ -1117,13 +1117,18 @@ function Panel({
   );
 }
 
-function EmptyMini({ label }: { label: string }) {
+function EmptyMini({ label, kind = "generic" }: { label: string; kind?: EmptyKind }) {
+  const [title, ...rest] = label.split(/\.\s+/);
   return (
-    <p className="rounded-xl border border-dashed border-border/60 bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-      {label}
-    </p>
+    <IllustratedEmptyState
+      kind={kind}
+      size="sm"
+      title={title.replace(/\.$/, "")}
+      description={rest.join(". ") || undefined}
+    />
   );
 }
+
 
 function DocStatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
