@@ -78,6 +78,7 @@ import {
 import { ValueCallout } from "@/components/value/ValueCallout";
 import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
 import { ReportPartOpener } from "@/components/pathway/ReportPartOpener";
+import { PathwayReportBody } from "@/components/pathway/report/PathwayReportBody";
 import {
   PublicationPage,
   PublicationSpread,
