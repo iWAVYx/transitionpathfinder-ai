@@ -5884,7 +5884,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   letter-spacing: 0;
   font-feature-settings: "ss01", "cv11", "kern";
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   isolation: isolate;
 }
@@ -5960,7 +5960,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
     "brand brand"
     "rail  canvas"
     "rail  foot";
-  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background:
     radial-gradient(1200px 600px at 88% -120px, color-mix(in srgb, var(--st-mustard) 18%, transparent), transparent 60%),
     radial-gradient(900px 700px at -10% 110%, color-mix(in srgb, var(--st-map) 12%, transparent), transparent 60%),
@@ -6263,10 +6265,14 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 /* ---------- Canvas ---------- */
 .tf-studio-canvas {
   grid-area: canvas;
-  padding: clamp(16px, 2.2vw, 32px) clamp(20px, 3.2vw, 56px) clamp(28px, 3.6vw, 56px);
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  padding: clamp(16px, 2.2vw, 32px) clamp(20px, 3.2vw, 56px) clamp(28px, 3.6vw, 56px);
   max-width: none;
   width: 100%;
+  overflow-y: auto;
 }
 
 .tf-studio-canvas h1,
@@ -6306,6 +6312,19 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .tf-studio-canvas > * + * { margin-top: 0; }
 .tf-studio-canvas h2:first-child,
 .tf-studio-canvas h3:first-child { margin-top: 0; }
+
+/* Canvas body stretches to fill the viewport so short pages never leave a
+   blank well above the footer; each top-level section can grow into any
+   leftover vertical space without compressing its own content. */
+.tf-studio-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.tf-studio-body > * {
+  flex: 1 1 auto;
+}
 
 /* Stage head (slate label + folio + dek) */
 .st-stagehead {
