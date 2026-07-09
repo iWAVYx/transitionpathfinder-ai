@@ -11,7 +11,7 @@ import {
 } from "@/components/site/DemoStepBar";
 import { toTitleCase } from "@/lib/title-case";
 
-import { StudioShell, StudioHead, PathwayMap, StudioFrame, StudioAside } from "@/studio/StudioShell";
+import { StudioShell, StudioHead, StudioFrame, StudioAside } from "@/studio/StudioShell";
 import {
   CHAPTER_STAGES,
   ACT_META,
