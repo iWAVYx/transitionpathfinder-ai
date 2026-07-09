@@ -12,6 +12,7 @@ import { useState } from "react";
 
 import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
+import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
