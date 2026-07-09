@@ -28,12 +28,18 @@ export function reportSectionAnchorId(section: PathwayReportSectionId): string {
 export interface PathwayReportSpineProps {
   /** Optional — highlight the section currently in view (scroll-spy). */
   activeSectionId?: PathwayReportSectionId | null;
+  /** Optional — highlight the stage currently in view (scroll-spy). */
+  activeStageId?: string | null;
+  /** Stages the reader has already scrolled past. */
+  completedStageIds?: ReadonlySet<string>;
   /** Optional — narrow to stages that are actually present in this report. */
   presentSections?: ReadonlySet<PathwayReportSectionId>;
 }
 
 export function PathwayReportSpine({
   activeSectionId = null,
+  activeStageId = null,
+  completedStageIds,
   presentSections,
 }: PathwayReportSpineProps) {
   return (
@@ -55,6 +61,8 @@ export function PathwayReportSpine({
             key={stage.id}
             stage={stage}
             activeSectionId={activeSectionId}
+            activeStageId={activeStageId}
+            completedStageIds={completedStageIds}
             presentSections={presentSections}
           />
         ))}
@@ -66,10 +74,14 @@ export function PathwayReportSpine({
 function StageBlock({
   stage,
   activeSectionId,
+  activeStageId,
+  completedStageIds,
   presentSections,
 }: {
   stage: WorkspaceStage;
   activeSectionId: PathwayReportSectionId | null;
+  activeStageId: string | null;
+  completedStageIds?: ReadonlySet<string>;
   presentSections?: ReadonlySet<PathwayReportSectionId>;
 }) {
   const sections = presentSections
@@ -77,17 +89,27 @@ function StageBlock({
     : stage.reportSections;
   if (sections.length === 0) return null;
 
+  const isActive = stage.id === activeStageId;
+  const isComplete = completedStageIds?.has(stage.id) ?? false;
+  const state = isActive ? "current" : isComplete ? "complete" : "upcoming";
+
   return (
-    <li className="relative">
+    <li className="relative" data-report-stage-item={stage.id} data-state={state}>
       <div className="flex items-start gap-4">
-        <span
-          aria-hidden
-          className="relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-border bg-background text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+        <a
+          href={`#stage-${stage.id}`}
+          aria-current={isActive ? "step" : undefined}
+          aria-label={`Stage ${stage.order}, ${stage.title}`}
+          className="relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-[11px] font-semibold uppercase tracking-[0.16em] no-underline transition-colors border-border bg-background text-muted-foreground data-[state=complete]:border-primary/50 data-[state=complete]:bg-primary/10 data-[state=complete]:text-primary data-[state=current]:border-primary data-[state=current]:bg-primary data-[state=current]:text-primary-foreground data-[state=current]:shadow-[0_0_0_4px_hsl(var(--primary)/0.15)]"
+          data-state={state}
         >
           {stage.order}
-        </span>
+        </a>
         <div className="min-w-0 flex-1 pt-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+          <p
+            className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground data-[state=current]:text-primary data-[state=complete]:text-foreground/80"
+            data-state={state}
+          >
             {stage.label}
           </p>
           <ul className="mt-2 space-y-1.5">
@@ -113,3 +135,4 @@ function StageBlock({
     </li>
   );
 }
+
