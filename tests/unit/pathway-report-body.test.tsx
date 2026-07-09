@@ -1,11 +1,31 @@
+/**
+ * Guardrails for PathwayReportBody — the stage-grouped orchestrator
+ * that lays out report sections under the nine workspace stages.
+ */
 import { describe, expect, it } from "vitest";
-import { render } from "@testing-library/react";
-import { PathwayReportBody, reportStageAnchorId } from "@/components/pathway/report/PathwayReportBody";
-import { WORKSPACE_STAGES } from "@/lib/workspace/stages";
+import { renderToStaticMarkup } from "react-dom/server";
+import { PathwayReportBody, reportStageAnchorId } from "../../src/components/pathway/report/PathwayReportBody";
+import { WORKSPACE_STAGES } from "../../src/lib/workspace/stages";
+
+function stageOrder(html: string): string[] {
+  const out: string[] = [];
+  const re = /data-report-stage="([^"]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) out.push(m[1]);
+  return out;
+}
+
+function sectionOrder(html: string): string[] {
+  const out: string[] = [];
+  const re = /data-report-section="([^"]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) out.push(m[1]);
+  return out;
+}
 
 describe("PathwayReportBody", () => {
-  it("renders stage headers in canonical journey order for sections that are present", () => {
-    const { container } = render(
+  it("renders stage headers in canonical journey order for present sections", () => {
+    const html = renderToStaticMarkup(
       <PathwayReportBody
         sections={{
           student_snapshot: <div>snap</div>,
@@ -17,24 +37,18 @@ describe("PathwayReportBody", () => {
         }}
       />
     );
-    const stages = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-report-stage]")
-    ).map((el) => el.dataset.reportStage);
-    expect(stages).toEqual(["start", "voice", "ready", "roadmap", "action", "connect"]);
+    expect(stageOrder(html)).toEqual(["start", "voice", "ready", "roadmap", "action", "connect"]);
   });
 
   it("skips stages when none of their sections are provided", () => {
-    const { container } = render(
+    const html = renderToStaticMarkup(
       <PathwayReportBody sections={{ student_snapshot: <div>snap</div> }} />
     );
-    const stages = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-report-stage]")
-    ).map((el) => el.dataset.reportStage);
-    expect(stages).toEqual(["start"]);
+    expect(stageOrder(html)).toEqual(["start"]);
   });
 
-  it("skips sections whose node is null/false (data-driven absence)", () => {
-    const { container } = render(
+  it("skips sections whose node is null/false so TOC and body agree", () => {
+    const html = renderToStaticMarkup(
       <PathwayReportBody
         sections={{
           student_snapshot: null,
@@ -42,21 +56,19 @@ describe("PathwayReportBody", () => {
         }}
       />
     );
-    const sections = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-report-section]")
-    ).map((el) => el.dataset.reportSection);
-    expect(sections).toEqual(["strengths_preferences_interests_needs"]);
+    expect(sectionOrder(html)).toEqual(["strengths_preferences_interests_needs"]);
   });
 
-  it("renders the appendix slot below the stage body", () => {
-    const { container, getByText } = render(
+  it("renders the appendix slot under an explicit Appendix heading", () => {
+    const html = renderToStaticMarkup(
       <PathwayReportBody
         sections={{ student_snapshot: <div>snap</div> }}
-        appendix={<div>timeline</div>}
+        appendix={<div>timeline-node</div>}
       />
     );
-    expect(getByText("timeline")).toBeInTheDocument();
-    expect(container.querySelector("#report-appendix")).not.toBeNull();
+    expect(html).toContain("timeline-node");
+    expect(html).toContain('id="report-appendix"');
+    expect(html).toContain("Appendix");
   });
 
   it("exposes a stable anchor id per stage", () => {
