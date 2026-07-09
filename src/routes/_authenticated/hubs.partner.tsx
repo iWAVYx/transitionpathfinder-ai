@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -14,9 +15,17 @@ export const Route = createFileRoute("/_authenticated/hubs/partner")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: () => (
-    <SiteShell>
-      <HubShell hub={getHub("partner-opportunity")!} />
-    </SiteShell>
-  ),
+  component: HubPage,
 });
+
+function HubPage() {
+  return (
+    <SiteShell>
+      <HubShell hub={getHub("partner-opportunity")!}>
+        <div className="mt-8">
+          <StageJourneyCard audience="partner" />
+        </div>
+      </HubShell>
+    </SiteShell>
+  );
+}
