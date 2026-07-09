@@ -163,7 +163,7 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
       >
         <div className="panel">
           <div className="panel-head">
-            <h2>Pathway overview</h2>
+            <h2>Pathway Overview</h2>
             <button
               className="close"
               type="button"
