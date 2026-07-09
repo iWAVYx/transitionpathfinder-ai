@@ -53,7 +53,7 @@ function StudioCover() {
       <StudioHead
         title={
           <>
-            {toTitleCase(student.full_name)} — <em>A pathway forward.</em>
+            {toTitleCase(student.full_name)} — <em>A Pathway Forward.</em>
           </>
         }
         dek="The Pathway Studio is a guided workspace. The rail on the left is the path itself; this is your starting point — walk it stage by stage, or open the map for a bird's-eye view."
