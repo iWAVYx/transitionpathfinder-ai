@@ -1,25 +1,21 @@
 /**
  * PathwayReportLayout — wraps the existing ReportView (and v2 sections)
- * with the workspace-bound PathwayReportSpine sidebar.
+ * with the workspace-bound PathwayReportSpine sidebar plus a compact
+ * horizontal stage-progress rail that highlights the reader's current
+ * stage as they scroll.
  *
- * This is intentionally non-invasive: rather than rewriting the 2704-line
- * ReportView renderer, we inject `id="section-<id>"` alias anchors as
- * siblings just before each legacy `id="sec-*"` block after mount. That
- * gives the spine and any external link a stable anchor contract
- * (documented on PathwayReportSpine) while the deeper per-section rewrite
- * lands slice-by-slice.
- *
- * Also runs a lightweight scroll-spy to light up the current section in
- * the spine, and derives `presentSections` from which legacy anchors are
- * actually in the DOM — so the spine only lists sections the renderer
- * currently emits.
+ * Non-invasive: injects `id="section-<id>"` alias anchors next to the
+ * legacy `id="sec-*"` blocks so the spine and any external link keep a
+ * stable anchor contract, and observes the stage-grouped body emitted
+ * by PathwayReportBody for scroll-driven stage highlighting.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   PathwayReportSpine,
   reportSectionAnchorId,
 } from "./PathwayReportSpine";
-import type { PathwayReportSectionId } from "@/lib/workspace/stages";
+import { PathwayReportStageProgress } from "./PathwayReportStageProgress";
+import { WORKSPACE_STAGES, type PathwayReportSectionId } from "@/lib/workspace/stages";
 
 /**
  * Legacy `sec-*` id → new `PathwayReportSectionId` mapping. Multiple
@@ -51,6 +47,8 @@ const LEGACY_TO_SECTION: Record<string, PathwayReportSectionId> = {
   "sec-partner-suggestions": "partner_matches",
 };
 
+const STAGE_ORDER = WORKSPACE_STAGES.map((s) => s.id);
+
 export interface PathwayReportLayoutProps {
   children: React.ReactNode;
 }
@@ -59,6 +57,13 @@ export function PathwayReportLayout({ children }: PathwayReportLayoutProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [present, setPresent] = useState<Set<PathwayReportSectionId>>(new Set());
   const [active, setActive] = useState<PathwayReportSectionId | null>(null);
+  const [activeStage, setActiveStage] = useState<string | null>(null);
+  const [completedStages, setCompletedStages] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  );
+  const [presentStages, setPresentStages] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  );
 
   // After the report mounts, walk the DOM once, install alias anchors,
   // and record which sections we found.
@@ -88,24 +93,58 @@ export function PathwayReportLayout({ children }: PathwayReportLayoutProps) {
     }
     setPresent(found);
 
-    if (anchors.length === 0) return;
+    // Discover stage headers emitted by PathwayReportBody.
+    const stageEls = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-report-stage]"),
+    );
+    const foundStages = new Set<string>(
+      stageEls.map((el) => el.dataset.reportStage!).filter(Boolean),
+    );
+    setPresentStages(foundStages);
 
-    // Scroll-spy: pick the topmost section whose anchor has crossed the
-    // viewport's top edge (with a small offset for sticky headers).
-    const OFFSET = 120;
+    const OFFSET = 140;
+
     const onScroll = () => {
-      let current: PathwayReportSectionId | null = null;
+      // Section-level scroll-spy (drives the spine subsection highlight).
+      let currentSection: PathwayReportSectionId | null = null;
       for (const { el, section } of anchors) {
         const top = el.getBoundingClientRect().top;
-        if (top - OFFSET <= 0) current = section;
+        if (top - OFFSET <= 0) currentSection = section;
         else break;
       }
-      setActive(current);
+      setActive(currentSection);
+
+      // Stage-level scroll-spy (drives the stage rail + spine circle).
+      let currentStage: string | null = null;
+      const completed = new Set<string>();
+      for (const el of stageEls) {
+        const id = el.dataset.reportStage;
+        if (!id) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top - OFFSET <= 0) {
+          currentStage = id;
+        } else {
+          break;
+        }
+      }
+      if (currentStage) {
+        const currentIdx = STAGE_ORDER.indexOf(currentStage);
+        for (let i = 0; i < currentIdx; i++) {
+          if (foundStages.has(STAGE_ORDER[i])) completed.add(STAGE_ORDER[i]);
+        }
+      }
+      setActiveStage(currentStage);
+      setCompletedStages(completed);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [children]);
+
+  const presentSectionsMemo = useMemo(
+    () => (present.size > 0 ? present : undefined),
+    [present],
+  );
 
   return (
     <div className="mx-auto grid max-w-[92rem] gap-8 px-4 pt-6 sm:px-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:px-8">
@@ -113,11 +152,18 @@ export function PathwayReportLayout({ children }: PathwayReportLayoutProps) {
         <div className="sticky top-24">
           <PathwayReportSpine
             activeSectionId={active}
-            presentSections={present.size > 0 ? present : undefined}
+            activeStageId={activeStage}
+            completedStageIds={completedStages}
+            presentSections={presentSectionsMemo}
           />
         </div>
       </aside>
       <div ref={contentRef} className="min-w-0">
+        <PathwayReportStageProgress
+          activeStageId={activeStage}
+          completedStageIds={completedStages}
+          presentStageIds={presentStages.size > 0 ? presentStages : undefined}
+        />
         {children}
       </div>
     </div>
