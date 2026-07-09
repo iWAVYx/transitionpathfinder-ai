@@ -6285,7 +6285,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .tf-studio-canvas p {
   font-size: 1.0625rem;
   line-height: 1.6;
-  max-width: 64ch;
+  max-width: 78ch;
   color: var(--st-ink-soft);
   margin: 0 0 1em;
 }
@@ -6301,7 +6301,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   color: var(--st-ink-soft);
   padding-left: 1.25em;
   margin: 0 0 1em;
-  max-width: 60ch;
+  max-width: 72ch;
 }
 .tf-studio-canvas > * + * { margin-top: 0; }
 .tf-studio-canvas h2:first-child,
