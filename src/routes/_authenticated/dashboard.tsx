@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { IllustratedEmptyState, type EmptyKind } from "@/components/empty/IllustratedEmptyState";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { WelcomeBanner } from "@/components/site/WelcomeBanner";
 import { RoleValueStrip } from "@/components/value/RoleValueStrip";
@@ -717,7 +718,7 @@ function DashboardPage() {
               actionLabel="Manage"
             >
               {snap.documents.length === 0 ? (
-                <EmptyMini label="No documents yet. Upload the current IEP to get started." />
+                <EmptyMini kind="documents" label="No documents yet. Upload the current IEP to get started." />
               ) : (
                 <ul className="divide-y rounded-xl border bg-background">
                   {snap.documents.slice(0, 6).map((d) => (
@@ -744,7 +745,7 @@ function DashboardPage() {
               actionLabel="View all"
             >
               {snap.actionItems.length === 0 ? (
-                <EmptyMini label="No action items yet. Generate a Pathway Report to populate." />
+                <EmptyMini kind="tasks" label="No action items yet. Generate a Pathway Report to populate." />
               ) : (
                 <ul className="space-y-2">
                   {snap.actionItems.slice(0, 7).map((a) => (
@@ -825,7 +826,7 @@ function DashboardPage() {
               actionLabel="All meetings"
             >
               {!snap.upcomingMeeting ? (
-                <EmptyMini label="No meeting scheduled. Add one to start prep." />
+                <EmptyMini kind="meetings" label="No meeting scheduled. Add one to start prep." />
               ) : (
                 <>
                   <p className="mb-3 text-sm text-foreground">
@@ -833,7 +834,7 @@ function DashboardPage() {
                     {snap.upcomingMeeting.location ? ` · ${snap.upcomingMeeting.location}` : ""}
                   </p>
                   {snap.meetingPrep.length === 0 ? (
-                    <EmptyMini label="Prep checklist is empty." />
+                    <EmptyMini kind="tasks" label="Prep checklist is empty." />
                   ) : (
                     <div className="space-y-3">
                       {Array.from(new Set(snap.meetingPrep.map((p) => p.category))).map((cat) => (
@@ -890,7 +891,7 @@ function DashboardPage() {
                 </Link>
               </div>
               {snap.recommendedResources.length === 0 ? (
-                <EmptyMini label="No resources yet." />
+                <EmptyMini kind="resources" label="No resources yet." />
               ) : (
                 <ul className="space-y-2">
                   {snap.recommendedResources.map((r) => (
@@ -1116,13 +1117,18 @@ function Panel({
   );
 }
 
-function EmptyMini({ label }: { label: string }) {
+function EmptyMini({ label, kind = "generic" }: { label: string; kind?: EmptyKind }) {
+  const [title, ...rest] = label.split(/\.\s+/);
   return (
-    <p className="rounded-xl border border-dashed border-border/60 bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-      {label}
-    </p>
+    <IllustratedEmptyState
+      kind={kind}
+      size="sm"
+      title={title.replace(/\.$/, "")}
+      description={rest.join(". ") || undefined}
+    />
   );
 }
+
 
 function DocStatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
