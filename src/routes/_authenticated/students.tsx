@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState";
 import {
   listStudents,
   createStudent,
