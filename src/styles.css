@@ -6267,6 +6267,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   grid-area: canvas;
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 0;
   padding: clamp(16px, 2.2vw, 32px) clamp(20px, 3.2vw, 56px) clamp(28px, 3.6vw, 56px);
   max-width: none;
