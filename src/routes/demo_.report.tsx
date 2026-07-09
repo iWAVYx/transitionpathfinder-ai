@@ -5,6 +5,7 @@ import {
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
 import { ReportView } from "@/components/pathway/ReportView";
+import { PathwayReportLayout } from "@/components/pathway/report/PathwayReportLayout";
 import { getDemoStudent } from "@/lib/demo-data";
 import { EXTENDED_PLANS } from "@/lib/demo-extended-plans";
 import { StudioPage } from "@/studio/StudioPage";
