@@ -5884,7 +5884,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   letter-spacing: 0;
   font-feature-settings: "ss01", "cv11", "kern";
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   isolation: isolate;
 }
