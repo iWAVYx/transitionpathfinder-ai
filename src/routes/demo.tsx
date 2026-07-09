@@ -105,7 +105,7 @@ function StudioCover() {
       </div>
 
       {/* Visual pathway (waypoint route) */}
-      <StudioFrame title="The pathway, at a glance">
+      <StudioFrame title="The Pathway, at a Glance">
         <p>
           Every stage feeds the next. Intake, student voice, and documents
           become a Pathway Report. The report becomes an agenda, a calendar,
