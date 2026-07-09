@@ -5987,7 +5987,10 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   min-height: 0;
   max-height: calc(100dvh - 65px);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--st-map) 40%, transparent) transparent;
 }
