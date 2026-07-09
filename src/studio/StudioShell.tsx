@@ -50,9 +50,9 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
 
         {/* Left workbench rail */}
         <aside className="tf-studio-rail" aria-label="Pathway stages">
-          <p className="rail-kicker">The Pathway · Walk it in order</p>
+          <p className="rail-kicker">The Pathway · Walk It in Order</p>
           <h2 className="rail-title">
-            From scattered inputs to a plan everyone shares.
+            From Scattered Inputs to a Plan Everyone Shares.
           </h2>
           <div
             className="rail-progress"
