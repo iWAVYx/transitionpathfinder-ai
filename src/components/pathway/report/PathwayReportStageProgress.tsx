@@ -34,24 +34,26 @@ export function PathwayReportStageProgress({
 
   return (
     <div
-      className="no-print sticky top-16 z-30 -mx-4 mb-6 border-y border-border/60 bg-background/85 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+      className="no-print sticky top-14 z-30 -mx-3 mb-4 border-y border-border/60 bg-background/85 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:top-16 sm:-mx-6 sm:mb-6 sm:px-6 sm:py-3 lg:-mx-8 lg:px-8"
       data-testid="pathway-report-stage-progress"
       aria-label="Report stage progress"
       role="navigation"
     >
-      <div className="mx-auto flex max-w-6xl items-center gap-3">
-        <span className="hidden shrink-0 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground sm:inline">
+      <div className="mx-auto flex max-w-6xl items-center gap-2 sm:gap-3">
+        <span className="hidden shrink-0 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground md:inline">
           Journey
         </span>
-        <div className="relative flex flex-1 items-center gap-1 overflow-x-auto">
-          {/* Rail line */}
+        <div
+          className="relative flex flex-1 items-stretch gap-0 overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {/* Rail line — anchored to the dot row (dots are h-6, so top ~= 12px from the top of each item) */}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border"
+            className="pointer-events-none absolute inset-x-0 top-3 h-px bg-border"
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute left-0 top-1/2 h-px -translate-y-1/2 bg-primary transition-[width] duration-300 ease-out"
+            className="pointer-events-none absolute left-0 top-3 h-px bg-primary transition-[width] duration-300 ease-out"
             style={{ width: `${Math.max(0, Math.min(100, progressPct))}%` }}
           />
           {stages.map((stage) => {
@@ -66,7 +68,7 @@ export function PathwayReportStageProgress({
                 data-stage={stage.id}
                 aria-current={isActive ? "step" : undefined}
                 title={`Stage ${stage.order} · ${stage.title}`}
-                className="group relative z-10 flex min-w-0 flex-1 flex-col items-center gap-1 no-underline"
+                className="group relative z-10 flex min-w-[56px] flex-1 shrink-0 flex-col items-center gap-1 px-0.5 no-underline sm:min-w-0"
               >
                 <span
                   className="grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 bg-background text-[10px] font-semibold tabular-nums transition-colors border-border text-muted-foreground group-hover:border-primary/60 group-data-[state=complete]:border-primary/60 group-data-[state=complete]:bg-primary/10 group-data-[state=complete]:text-primary group-data-[state=current]:border-primary group-data-[state=current]:bg-primary group-data-[state=current]:text-primary-foreground group-data-[state=current]:shadow-[0_0_0_3px_hsl(var(--primary)/0.18)]"
@@ -75,7 +77,7 @@ export function PathwayReportStageProgress({
                   {stage.order}
                 </span>
                 <span
-                  className="hidden text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors group-hover:text-foreground group-data-[state=current]:text-primary group-data-[state=complete]:text-foreground/80 sm:inline"
+                  className="block max-w-full truncate text-center text-[9px] font-semibold uppercase leading-tight tracking-[0.14em] text-muted-foreground transition-colors group-hover:text-foreground group-data-[state=current]:text-primary group-data-[state=complete]:text-foreground/80 sm:tracking-[0.18em]"
                   data-state={state}
                 >
                   {stage.label}
