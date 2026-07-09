@@ -69,7 +69,7 @@ function StudioCover() {
               {...(preserve ? { search: { s } } : {})}
               className="primary"
             >
-              Begin the pathway →
+              Begin the Pathway →
             </Link>
             <a href="#overview" className="ghost">See the Full Map</a>
           </div>
