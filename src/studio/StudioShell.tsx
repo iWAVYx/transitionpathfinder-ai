@@ -30,9 +30,53 @@ interface Props {
  */
 export function StudioShell({ stage, student, preserveStudent, children }: Props) {
   const [mapOpen, setMapOpen] = useState(false);
+  const [railOpen, setRailOpen] = useState(false);
   const current = stageById(stage);
   const { prev, next } = neighbors(stage);
   const search = preserveStudent && student ? { s: student } : undefined;
+  const currentIdx = STUDIO_STAGES.findIndex((x) => x.id === stage);
+
+  const railBody = (
+    <>
+      <p className="rail-kicker">The Pathway · Walk It in Order</p>
+      <h2 className="rail-title">
+        From Scattered Inputs to a Plan Everyone Shares.
+      </h2>
+      <div
+        className="rail-progress"
+        role="progressbar"
+        aria-valuenow={progressPct(stage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
+        <span style={{ width: `${progressPct(stage)}%` }} />
+      </div>
+      <ol>
+        {STUDIO_STAGES.map((s, i) => {
+          const state =
+            s.id === stage ? "current" : i < currentIdx ? "done" : "future";
+          return (
+            <li key={s.id}>
+              <Link
+                to={s.to}
+                {...(search ? { search } : {})}
+                className="stage"
+                data-state={state}
+                aria-current={state === "current" ? "step" : undefined}
+                onClick={() => setRailOpen(false)}
+              >
+                <span className="dot" aria-hidden />
+                <span className="body">
+                  <span className="lbl">{s.label}</span>
+                  <span className="sub">{s.produces}</span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </>
+  );
 
   return (
     <div className="tf-studio">
@@ -44,51 +88,40 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
           </Link>
 
           <div className="meta">
-            <span className="pill">Issue No. 01 · Demo</span>
+            <button
+              type="button"
+              className="rail-toggle"
+              aria-expanded={railOpen}
+              aria-controls="tf-studio-rail-sheet"
+              onClick={() => setRailOpen((v) => !v)}
+            >
+              <span className="rt-num">{currentIdx + 1}</span>
+              <span className="rt-lbl">{current.label}</span>
+              <span className="rt-caret" aria-hidden>▾</span>
+            </button>
+            <span className="pill st-hide-mobile">Issue No. 01 · Demo</span>
             <span className="st-hide-mobile">Read time ≈ 12 min</span>
           </div>
         </header>
 
-        {/* Left workbench rail */}
-        <aside className="tf-studio-rail" aria-label="Pathway stages">
-          <p className="rail-kicker">The Pathway · Walk It in Order</p>
-          <h2 className="rail-title">
-            From Scattered Inputs to a Plan Everyone Shares.
-          </h2>
-          <div
-            className="rail-progress"
-            role="progressbar"
-            aria-valuenow={progressPct(stage)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <span style={{ width: `${progressPct(stage)}%` }} />
-          </div>
-          <ol>
-            {STUDIO_STAGES.map((s, i) => {
-              const currentIdx = STUDIO_STAGES.findIndex((x) => x.id === stage);
-              const state =
-                s.id === stage ? "current" : i < currentIdx ? "done" : "future";
-              return (
-                <li key={s.id}>
-                  <Link
-                    to={s.to}
-                    {...(search ? { search } : {})}
-                    className="stage"
-                    data-state={state}
-                    aria-current={state === "current" ? "step" : undefined}
-                  >
-                    <span className="dot" aria-hidden />
-                    <span className="body">
-                      <span className="lbl">{s.label}</span>
-                      <span className="sub">{s.produces}</span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
+        {/* Left workbench rail (desktop) + mobile bottom sheet */}
+        <aside
+          id="tf-studio-rail-sheet"
+          className="tf-studio-rail"
+          aria-label="Pathway stages"
+          data-open={railOpen ? "true" : "false"}
+        >
+          {railBody}
         </aside>
+        {railOpen ? (
+          <button
+            type="button"
+            className="tf-studio-rail-scrim"
+            aria-label="Close stages menu"
+            onClick={() => setRailOpen(false)}
+          />
+        ) : null}
+
 
         {/* Canvas */}
         <main className="tf-studio-canvas" id="studio-canvas">
