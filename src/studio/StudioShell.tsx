@@ -109,6 +109,7 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
           id="tf-studio-rail-sheet"
           className="tf-studio-rail"
           aria-label="Pathway stages"
+          data-lenis-prevent
           data-open={railOpen ? "true" : "false"}
         >
           {railBody}
