@@ -53,7 +53,7 @@ function StudioCover() {
       <StudioHead
         title={
           <>
-            {toTitleCase(student.full_name)} — <em>A pathway forward.</em>
+            {toTitleCase(student.full_name)} — <em>A Pathway Forward.</em>
           </>
         }
         dek="The Pathway Studio is a guided workspace. The rail on the left is the path itself; this is your starting point — walk it stage by stage, or open the map for a bird's-eye view."
@@ -69,14 +69,14 @@ function StudioCover() {
               {...(preserve ? { search: { s } } : {})}
               className="primary"
             >
-              Begin the pathway →
+              Begin the Pathway →
             </Link>
             <a href="#overview" className="ghost">See the Full Map</a>
           </div>
         </div>
 
         <aside className="side">
-          <h4>Featured student</h4>
+          <h4>Featured Student</h4>
           <p style={{ margin: "0 0 18px", fontSize: 14, color: "var(--st-mute)" }}>
             {toTitleCase(student.full_name)} · {student.pronouns} · Grade {student.grade}
           </p>
@@ -87,7 +87,7 @@ function StudioCover() {
             </blockquote>
           ) : null}
 
-          <h4>Switch sample</h4>
+          <h4>Switch Sample</h4>
           <div className="swap" role="tablist" aria-label="Sample student">
             {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
               <Link
@@ -105,7 +105,7 @@ function StudioCover() {
       </div>
 
       {/* Visual pathway (waypoint route) */}
-      <StudioFrame title="The pathway, at a glance">
+      <StudioFrame title="The Pathway, at a Glance">
         <p>
           Every stage feeds the next. Intake, student voice, and documents
           become a Pathway Report. The report becomes an agenda, a calendar,
@@ -132,7 +132,7 @@ function StudioCover() {
       </nav>
 
       {/* Acts overview */}
-      <StudioFrame title="What you'll walk through">
+      <StudioFrame title="What You'll Walk Through">
         <p id="overview">
           The studio is organized into four acts. Each act answers one
           question the team is trying to make progress on together.

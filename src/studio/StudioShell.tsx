@@ -50,9 +50,9 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
 
         {/* Left workbench rail */}
         <aside className="tf-studio-rail" aria-label="Pathway stages">
-          <p className="rail-kicker">The Pathway · Walk it in order</p>
+          <p className="rail-kicker">The Pathway · Walk It in Order</p>
           <h2 className="rail-title">
-            From scattered inputs to a plan everyone shares.
+            From Scattered Inputs to a Plan Everyone Shares.
           </h2>
           <div
             className="rail-progress"
@@ -128,7 +128,7 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
               {STUDIO_STAGES.length - 1}
             </span>
             <button type="button" onClick={() => setMapOpen(true)}>
-              Open map
+              Open Map
             </button>
           </div>
 
@@ -163,7 +163,7 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
       >
         <div className="panel">
           <div className="panel-head">
-            <h2>Pathway overview</h2>
+            <h2>Pathway Overview</h2>
             <button
               className="close"
               type="button"
