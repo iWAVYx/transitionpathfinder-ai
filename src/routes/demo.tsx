@@ -11,7 +11,7 @@ import {
 } from "@/components/site/DemoStepBar";
 import { toTitleCase } from "@/lib/title-case";
 
-import { StudioShell, StudioHead, PathwayMap, StudioFrame, StudioAside } from "@/studio/StudioShell";
+import { StudioShell, StudioHead, StudioFrame, StudioAside } from "@/studio/StudioShell";
 import {
   CHAPTER_STAGES,
   ACT_META,
@@ -105,7 +105,7 @@ function StudioCover() {
       </div>
 
 
-      {/* Visual pathway (waypoint route) */}
+      {/* Visual pathway — single timeline for the whole journey */}
       <StudioFrame title="The Pathway, at a Glance">
         <p>
           Every stage feeds the next. Intake, student voice, and documents
@@ -113,24 +113,22 @@ function StudioCover() {
           and a 30 / 60 / 90 plan. The plan keeps living inside a shared
           Student Hub. That's the whole loop.
         </p>
-        <PathwayMap activeId="cover" preserveStudent={preserve} student={s} />
+        <nav className="tf-journey" aria-label="Eleven-stage pathway">
+          {CHAPTER_STAGES.map((stg, i) => (
+            <Link
+              key={stg.id}
+              to={stg.to}
+              {...(preserve ? { search: { s } } : {})}
+              className="tf-journey-step"
+              data-state={i === 0 ? "current" : "future"}
+            >
+              <span className="j-dot">{i + 1}</span>
+              <span className="j-lab">{stg.label}</span>
+            </Link>
+          ))}
+        </nav>
       </StudioFrame>
 
-      {/* 11-step horizontal journey strip (locked by `/demo` layout test) */}
-      <nav className="tf-journey" aria-label="Eleven-stage pathway">
-        {CHAPTER_STAGES.map((stg, i) => (
-          <Link
-            key={stg.id}
-            to={stg.to}
-            {...(preserve ? { search: { s } } : {})}
-            className="tf-journey-step"
-            data-state={i === 0 ? "current" : "future"}
-          >
-            <span className="j-dot">{i + 1}</span>
-            <span className="j-lab">{stg.label}</span>
-          </Link>
-        ))}
-      </nav>
 
       {/* Acts overview */}
       <StudioFrame title="What You'll Walk Through">
