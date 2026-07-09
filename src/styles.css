@@ -6602,7 +6602,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   position: absolute;
   left: 4.5%;
   right: 4.5%;
-  top: 24px;
+  top: 15px;
   height: 2px;
   background: repeating-linear-gradient(90deg, var(--st-map) 0 8px, transparent 8px 16px);
   z-index: 0;
