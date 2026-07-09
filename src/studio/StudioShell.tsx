@@ -40,8 +40,9 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
         {/* Brand strip */}
         <header className="tf-studio-brand">
           <Link to="/" className="mark">
-            TransitionForward <em>· pathway studio</em>
+            TransitionForward <em>· Pathway Studio</em>
           </Link>
+
           <div className="meta">
             <span className="pill">Issue No. 01 · Demo</span>
             <span className="st-hide-mobile">Read time ≈ 12 min</span>
