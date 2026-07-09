@@ -78,6 +78,7 @@ import {
 import { ValueCallout } from "@/components/value/ValueCallout";
 import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
 import { ReportPartOpener } from "@/components/pathway/ReportPartOpener";
+import { PathwayReportBody } from "@/components/pathway/report/PathwayReportBody";
 import {
   PublicationPage,
   PublicationSpread,
@@ -818,9 +819,11 @@ export function ReportView({
       </section>
 
 
-      {/* ============ PART I · Student Snapshot ============ */}
-      <ReportPartOpener part="snapshot" />
-
+      {/* ============ Nine-Stage Journey — grouped report body ============ */}
+      <PathwayReportBody
+        sections={{
+          student_snapshot: (
+            <>
       {/* ============ Student Snapshot ============ */}
       {r.student_snapshot && (
         <Block id="sec-snapshot" title="Student Snapshot" icon={<Compass className="h-5 w-5" />}>
@@ -863,7 +866,55 @@ export function ReportView({
           </PublicationPage>
         </Block>
       )}
-
+            </>
+          ),
+          student_voice: (
+            <>
+      {/* ============ Phase 6D — Your Voice in this plan (Student tab) ============ */}
+      {audience === "student" && voiceResponses.length > 0 && (
+        <Block
+          id="sec-your-voice"
+          title="Your Voice in this Plan"
+          icon={<Quote className="h-5 w-5" />}
+        >
+          <PublicationPage
+            kicker="Student Edition"
+            chapter="Your Voice in This Plan"
+            dek="These are your own words from Student Voice — they help shape this plan."
+            folio="p. 05"
+          >
+            {voiceResponses.slice(0, 3).map((vr) => {
+              const prompt = STUDENT_VOICE_PROMPTS.find((p) => p.key === vr.prompt_key);
+              return (
+                <PublicationPullQuote key={vr.id} attribution={prompt?.question ?? vr.prompt_key}>
+                  "{vr.response_text}"
+                </PublicationPullQuote>
+              );
+            })}
+          </PublicationPage>
+        </Block>
+      )}
+      {/* ============ Student Voice Prompts ============ */}
+      {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
+        <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
+          <PublicationPage
+            kicker="Section 05"
+            chapter={`In ${name}'s Voice`}
+            dek={`Questions for ${name} to think through — alone, with family, or with a teacher.`}
+            folio="p. 06"
+          >
+            {r.student_voice_prompts.map((p, i) => (
+              <PublicationPullQuote key={i} attribution={p.suggested_reflection}>
+                {p.prompt}
+              </PublicationPullQuote>
+            ))}
+          </PublicationPage>
+        </Block>
+      )}
+            </>
+          ),
+          strengths_preferences_interests_needs: (
+            <>
       {/* ============ SPIN Analysis ============ */}
       {r.spin_analysis && (
         <Block id="sec-spin" title="Strengths, Preferences, Interests & Needs" icon={<Sparkles className="h-5 w-5" />}>
@@ -894,12 +945,219 @@ export function ReportView({
           </PublicationPage>
         </Block>
       )}
-
       {/* ============ Strengths to Lead With (always) ============ */}
       <Block id="sec-strengths" title="Strengths to Lead With" icon={<HeartHandshake className="h-5 w-5" />}>
         <BulletList items={r.strengths_snapshot} />
       </Block>
+            </>
+          ),
+          family_action_plan: (
+            <>
+      {/* ============ Family Action Plan ============ */}
+      {!hasV2 && r.family_action_plan && (
+        <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
+          <PublicationPage
+            kicker="Section 06"
+            chapter="Family Action Plan"
+            dek="A time-phased checklist for the family — from this week to graduation."
+            folio="p. 07"
+          >
+            <PublicationSpread
+              lead={
+                <div>
+                  <PublicationChecklist title="This Week" items={r.family_action_plan.this_week} />
+                  <div className="mt-4">
+                    <PublicationChecklist title="This Month" items={r.family_action_plan.this_month} />
+                  </div>
+                  <div className="mt-4">
+                    <PublicationChecklist title="Before the Next Meeting" items={r.family_action_plan.before_next_meeting} />
+                  </div>
+                </div>
+              }
+              side={
+                <PublicationSidebar label="Looking Further Ahead">
+                  <PublicationChecklist title="This School Year" items={r.family_action_plan.this_school_year} />
+                  <div className="mt-4">
+                    <PublicationChecklist title="Before Graduation" items={r.family_action_plan.before_graduation} />
+                  </div>
+                </PublicationSidebar>
+              }
+            />
+          </PublicationPage>
+        </Block>
+      )}
+            </>
+          ),
+          meeting_prep_questions: (
+            <>
+      {/* ============ Meeting prep toolkit ============ */}
+      {!hasV2 && r.meeting_prep_toolkit && (
+        <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
+          <PublicationPage
+            kicker="Section 07"
+            chapter="Next PPT / IEP Meeting Prep"
+            dek="Print this page and bring it to the next PPT. One list — every open question and next step."
+            folio="p. 08"
+          >
+            <PublicationSpread
+              lead={
+                <div>
+                  {[
+                    { label: "Questions to Ask", items: r.meeting_prep_toolkit.questions_to_ask },
+                    { label: "Concerns to Raise", items: r.meeting_prep_toolkit.concerns_to_raise },
+                    { label: "Goals to Review", items: r.meeting_prep_toolkit.goals_to_review },
+                    { label: "Student Voice Prompts", items: r.meeting_prep_toolkit.student_voice_prompts },
+                  ].map(({ label, items }) => (
+                    <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                      <PublicationChecklist title={label} items={items} />
+                    </div>
+                  ))}
+                </div>
+              }
+              side={
+                <PublicationSidebar label="Bring & Know">
+                  <PublicationChecklist title="Documents to Bring" items={r.meeting_prep_toolkit.documents_to_bring} />
+                  <div className="mt-4">
+                    <PublicationChecklist title="Strengths to Highlight" items={r.meeting_prep_toolkit.strengths_to_highlight} />
+                  </div>
+                  <div className="mt-4">
+                    <PublicationChecklist title="Services to Discuss" items={r.meeting_prep_toolkit.services_to_discuss} />
+                  </div>
+                  <div className="mt-4">
+                    <PublicationChecklist title="Follow-up Items" items={r.meeting_prep_toolkit.follow_up_items} />
+                  </div>
+                </PublicationSidebar>
+              }
+            />
+            <PublicationCallout kind="source">
+              <p>Tip: print this section as a one-page checklist to bring to the meeting.</p>
+            </PublicationCallout>
+          </PublicationPage>
+        </Block>
+      )}
+      {/* ============ Questions to bring (only when no toolkit) ============ */}
+      {!r.meeting_prep_toolkit && (
+        <Block title="Questions to Bring to the Next PPT" icon={<ListChecks className="h-5 w-5" />}>
+          <BulletList items={r.family_questions_for_ppt} />
+        </Block>
+      )}
+            </>
+          ),
+          educator_action_plan: (
+            <>
+      {/* ============ Teacher / case manager plan ============ */}
+      {!hasV2 && r.teacher_action_plan && (
+        <Block
+          title="Educator / Case Manager Action Plan"
+          icon={<GraduationCap className="h-5 w-5" />}
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <MiniCard label="Goal Updates" items={r.teacher_action_plan.goal_updates} />
+            <MiniCard
+              label="Progress Monitoring"
+              items={r.teacher_action_plan.progress_monitoring}
+            />
+            <MiniCard
+              label="Assessments to Run"
+              items={r.teacher_action_plan.assessments_to_run}
+            />
+            <MiniCard
+              label="Classroom Activities"
+              items={r.teacher_action_plan.classroom_activities}
+            />
+            <MiniCard
+              label="Family Communication"
+              items={r.teacher_action_plan.family_communication}
+            />
+            <MiniCard
+              label="Student Conference Qs"
+              items={r.teacher_action_plan.student_conference_questions}
+            />
+            <MiniCard
+              label="Service Connections"
+              items={r.teacher_action_plan.service_connections}
+            />
+            <MiniCard label="Accommodations" items={r.teacher_action_plan.accommodations} />
+            <MiniCard
+              label="Work-Based Learning"
+              items={r.teacher_action_plan.work_based_learning}
+            />
+          </div>
+        </Block>
+      )}
 
+      {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
+      {audience === "educator" && !r.teacher_action_plan && (
+        <Block title="Teacher Next Steps" icon={<GraduationCap className="h-5 w-5" />}>
+          <BulletList items={r.teacher_next_steps} />
+        </Block>
+      )}
+            </>
+          ),
+          iep_transition_translator: (
+            <>
+      {/* ============ IEP translator ============ */}
+      {!hasV2 && r.iep_translator && r.iep_translator.length > 0 && (
+        <Block id="sec-iep-translator" title="IEP / Transition Plan Translator" icon={<BookOpen className="h-5 w-5" />}>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Plain-English translations of transition-related goal language. This is not legal
+            advice and does not replace the school team — it helps families and students arrive
+            informed.
+          </p>
+          <div className="space-y-3">
+            {r.iep_translator.map((t, i) => (
+              <div key={i} className="border-l-2 border-primary/30 pl-5 py-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  Goal Language
+                </p>
+                <p className="mt-1 italic text-foreground/80">"{t.goal_text}"</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
+                  <Labeled label="What It Means">{t.plain_meaning}</Labeled>
+                  <Labeled label="Connected to Real Life">{t.connected_to_real_life}</Labeled>
+                  <Labeled label={`What ${name} should know`}>{t.what_student_should_know}</Labeled>
+                  <MiniCard label="Connected Services" items={t.connected_services} compact />
+                  <MiniCard label="Questions to Ask" items={t.questions_to_ask} compact />
+                  {t.missing_information.length > 0 && (
+                    <MiniCard label="Missing Info" items={t.missing_information} compact />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Block>
+      )}
+            </>
+          ),
+          data_gaps: (
+            <>
+      {/* ============ Data gaps ============ */}
+      {r.data_gaps && r.data_gaps.length > 0 && (
+        <Block id="sec-data-gaps" title="What We Still Need to Know" icon={<AlertTriangle className="h-5 w-5" />}>
+          <p className="mb-4 text-sm text-muted-foreground">
+            This report doesn't pretend to know everything. Here's what would sharpen it.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
+            {r.data_gaps.map((g, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
+              >
+                <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
+                <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
+                <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
+                <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
+                <Labeled label="A Question to Ask">
+                  <span className="italic">{g.question_to_ask}</span>
+                </Labeled>
+              </div>
+            ))}
+          </div>
+        </Block>
+      )}
+            </>
+          ),
+          readiness_scorecard: (
+            <>
       {/* ============ Readiness scorecard ============ */}
       {r.readiness_scorecard && r.readiness_scorecard.length > 0 && (
         <Block id="sec-readiness" title="Transition Readiness Scorecard" icon={<Target className="h-5 w-5" />}>
@@ -933,12 +1191,41 @@ export function ReportView({
           </PublicationPage>
         </Block>
       )}
-
-      {/* ============ PART II · Pathways & Possibilities ============ */}
-      {r.recommended_pathways && r.recommended_pathways.length > 0 && (
-        <ReportPartOpener part="pathways" />
+            </>
+          ),
+          postsecondary_goals: (
+            <>
+      {/* ============ Postsecondary Goal Breakdown ============ */}
+      {r.postsecondary_goals && r.postsecondary_goals.length > 0 && (
+        <Block id="sec-goals" title="Postsecondary Goal Breakdown" icon={<Target className="h-5 w-5" />}>
+          <Accordion type="multiple" className="border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
+            {r.postsecondary_goals.map((g, i) => (
+              <AccordionItem key={i} value={`goal-${i}`} className="px-5">
+                <AccordionTrigger className="text-left">
+                  <span className="font-display text-lg">{toTitleCase(g.area)}</span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid gap-3 pb-2 sm:grid-cols-2">
+                    <Labeled label="Current Status">{g.current_status}</Labeled>
+                    <Labeled label="Suggested Direction">{g.suggested_direction}</Labeled>
+                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
+                    <Labeled label="Draft Measurable Goal">
+                      <span className="italic">{g.measurable_goal_language}</span>
+                    </Labeled>
+                    <MiniCard label="Next Steps" items={g.next_steps} compact />
+                    <MiniCard label="Who Supports" items={g.who_supports} compact />
+                    <MiniCard label="Evidence Needed" items={g.evidence_needed} compact />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Block>
       )}
-
+            </>
+          ),
+          recommended_pathways: (
+            <>
       {/* ============ Recommended Pathways ============ */}
       {r.recommended_pathways && r.recommended_pathways.length > 0 && (
         <Block id="sec-pathways" title="Recommended Pathways" icon={<RouteIcon className="h-5 w-5" />}>
@@ -1013,7 +1300,31 @@ export function ReportView({
           </PublicationPage>
         </Block>
       )}
-
+      {/* ============ Classic career pathways (only when no modern equivalent) ============ */}
+      {(!r.recommended_pathways || r.recommended_pathways.length === 0) &&
+        (!r.career_matches || r.career_matches.length === 0) && (
+        <Block title="Career Pathways to Explore" icon={<Compass className="h-5 w-5" />}>
+          <div className="grid gap-4">
+            {r.career_pathways.map((p) => (
+              <div key={p.title} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
+                <h3 className="font-display text-xl font-medium">{toTitleCase(p.title)}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
+                  <MiniCard label="Example Roles" items={p.example_roles} compact />
+                  <MiniCard label="First Steps" items={p.first_steps} compact />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Block>
+      )}
+      <Block id="sec-education" title="Education & Training Options" icon={<BookOpen className="h-5 w-5" />}>
+        <BulletList items={r.education_training_options} />
+      </Block>
+            </>
+          ),
+          career_life_matches: (
+            <>
       {/* ============ Career Matches ============ */}
       {r.career_matches && r.career_matches.length > 0 && (
         <Block id="sec-careers" title="Career & Life Pathway Matches" icon={<Briefcase className="h-5 w-5" />}>
@@ -1057,308 +1368,29 @@ export function ReportView({
           </div>
         </Block>
       )}
-
-      {/* ============ Postsecondary Goal Breakdown ============ */}
-      {r.postsecondary_goals && r.postsecondary_goals.length > 0 && (
-        <Block id="sec-goals" title="Postsecondary Goal Breakdown" icon={<Target className="h-5 w-5" />}>
-          <Accordion type="multiple" className="border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
-            {r.postsecondary_goals.map((g, i) => (
-              <AccordionItem key={i} value={`goal-${i}`} className="px-5">
-                <AccordionTrigger className="text-left">
-                  <span className="font-display text-lg">{toTitleCase(g.area)}</span>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="grid gap-3 pb-2 sm:grid-cols-2">
-                    <Labeled label="Current Status">{g.current_status}</Labeled>
-                    <Labeled label="Suggested Direction">{g.suggested_direction}</Labeled>
-                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
-                    <Labeled label="Draft Measurable Goal">
-                      <span className="italic">{g.measurable_goal_language}</span>
-                    </Labeled>
-                    <MiniCard label="Next Steps" items={g.next_steps} compact />
-                    <MiniCard label="Who Supports" items={g.who_supports} compact />
-                    <MiniCard label="Evidence Needed" items={g.evidence_needed} compact />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </Block>
-      )}
-
-      {/* ============ Classic career pathways (only when no modern equivalent) ============ */}
-      {(!r.recommended_pathways || r.recommended_pathways.length === 0) &&
-        (!r.career_matches || r.career_matches.length === 0) && (
-        <Block title="Career Pathways to Explore" icon={<Compass className="h-5 w-5" />}>
-          <div className="grid gap-4">
-            {r.career_pathways.map((p) => (
-              <div key={p.title} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
-                <h3 className="font-display text-xl font-medium">{toTitleCase(p.title)}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{p.why_it_fits}</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
-                  <MiniCard label="Example Roles" items={p.example_roles} compact />
-                  <MiniCard label="First Steps" items={p.first_steps} compact />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Block>
-      )}
-
-      <Block id="sec-education" title="Education & Training Options" icon={<BookOpen className="h-5 w-5" />}>
-        <BulletList items={r.education_training_options} />
-      </Block>
-
+            </>
+          ),
+          next_steps_30_90_180_365: (
+            <>
       <Block id="sec-life-skills" title="Life Skills to Focus On" icon={<Lightbulb className="h-5 w-5" />}>
         <BulletList items={r.life_skills_focus} />
       </Block>
-
-      {/* ============ PART III · Translate & Listen ============ */}
-      <ReportPartOpener part="translate" />
-
-      {/* ============ IEP translator ============ */}
-      {!hasV2 && r.iep_translator && r.iep_translator.length > 0 && (
-        <Block id="sec-iep-translator" title="IEP / Transition Plan Translator" icon={<BookOpen className="h-5 w-5" />}>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Plain-English translations of transition-related goal language. This is not legal
-            advice and does not replace the school team — it helps families and students arrive
-            informed.
-          </p>
-          <div className="space-y-3">
-            {r.iep_translator.map((t, i) => (
-              <div key={i} className="border-l-2 border-primary/30 pl-5 py-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Goal Language
-                </p>
-                <p className="mt-1 italic text-foreground/80">"{t.goal_text}"</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
-                  <Labeled label="What It Means">{t.plain_meaning}</Labeled>
-                  <Labeled label="Connected to Real Life">{t.connected_to_real_life}</Labeled>
-                  <Labeled label={`What ${name} should know`}>{t.what_student_should_know}</Labeled>
-                  <MiniCard label="Connected Services" items={t.connected_services} compact />
-                  <MiniCard label="Questions to Ask" items={t.questions_to_ask} compact />
-                  {t.missing_information.length > 0 && (
-                    <MiniCard label="Missing Info" items={t.missing_information} compact />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Block>
+      {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
+      <PlanBlock report={r} extendedPlans={extendedPlans} />
+      {/* ============ Phase 4 — Self-Advocacy + Independent Living + Role Next Steps + Sources ============ */}
+      {demoStudentId && (
+        <ReportPhase4Sections
+          studentId={demoStudentId}
+          audience={audience}
+          reportId={meta?.reportId}
+          preparedBy={meta?.preparedBy}
+          issued={meta?.issued}
+        />
       )}
-
-      {/* ============ Data gaps ============ */}
-      {r.data_gaps && r.data_gaps.length > 0 && (
-        <Block id="sec-data-gaps" title="What We Still Need to Know" icon={<AlertTriangle className="h-5 w-5" />}>
-          <p className="mb-4 text-sm text-muted-foreground">
-            This report doesn't pretend to know everything. Here's what would sharpen it.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
-            {r.data_gaps.map((g, i) => (
-              <div
-                key={i}
-                className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
-              >
-                <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
-                <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
-                <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
-                <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
-                <Labeled label="A Question to Ask">
-                  <span className="italic">{g.question_to_ask}</span>
-                </Labeled>
-              </div>
-            ))}
-          </div>
-        </Block>
-      )}
-
-      {/* ============ Phase 6D — Your Voice in this plan (Student tab) ============ */}
-      {audience === "student" && voiceResponses.length > 0 && (
-        <Block
-          id="sec-your-voice"
-          title="Your Voice in this Plan"
-          icon={<Quote className="h-5 w-5" />}
-        >
-          <PublicationPage
-            kicker="Student Edition"
-            chapter="Your Voice in This Plan"
-            dek="These are your own words from Student Voice — they help shape this plan."
-            folio="p. 05"
-          >
-            {voiceResponses.slice(0, 3).map((vr) => {
-              const prompt = STUDENT_VOICE_PROMPTS.find((p) => p.key === vr.prompt_key);
-              return (
-                <PublicationPullQuote key={vr.id} attribution={prompt?.question ?? vr.prompt_key}>
-                  "{vr.response_text}"
-                </PublicationPullQuote>
-              );
-            })}
-          </PublicationPage>
-        </Block>
-      )}
-
-      {/* ============ Student Voice Prompts ============ */}
-      {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
-        <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
-          <PublicationPage
-            kicker="Section 05"
-            chapter={`In ${name}'s Voice`}
-            dek={`Questions for ${name} to think through — alone, with family, or with a teacher.`}
-            folio="p. 06"
-          >
-            {r.student_voice_prompts.map((p, i) => (
-              <PublicationPullQuote key={i} attribution={p.suggested_reflection}>
-                {p.prompt}
-              </PublicationPullQuote>
-            ))}
-          </PublicationPage>
-        </Block>
-      )}
-
-      {/* ============ Family Action Plan ============ */}
-      {!hasV2 && r.family_action_plan && (
-        <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
-          <PublicationPage
-            kicker="Section 06"
-            chapter="Family Action Plan"
-            dek="A time-phased checklist for the family — from this week to graduation."
-            folio="p. 07"
-          >
-            <PublicationSpread
-              lead={
-                <div>
-                  <PublicationChecklist title="This Week" items={r.family_action_plan.this_week} />
-                  <div className="mt-4">
-                    <PublicationChecklist title="This Month" items={r.family_action_plan.this_month} />
-                  </div>
-                  <div className="mt-4">
-                    <PublicationChecklist title="Before the Next Meeting" items={r.family_action_plan.before_next_meeting} />
-                  </div>
-                </div>
-              }
-              side={
-                <PublicationSidebar label="Looking Further Ahead">
-                  <PublicationChecklist title="This School Year" items={r.family_action_plan.this_school_year} />
-                  <div className="mt-4">
-                    <PublicationChecklist title="Before Graduation" items={r.family_action_plan.before_graduation} />
-                  </div>
-                </PublicationSidebar>
-              }
-            />
-          </PublicationPage>
-        </Block>
-      )}
-
-      {/* ============ Teacher / case manager plan ============ */}
-      {!hasV2 && r.teacher_action_plan && (
-        <Block
-          title="Educator / Case Manager Action Plan"
-          icon={<GraduationCap className="h-5 w-5" />}
-        >
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <MiniCard label="Goal Updates" items={r.teacher_action_plan.goal_updates} />
-            <MiniCard
-              label="Progress Monitoring"
-              items={r.teacher_action_plan.progress_monitoring}
-            />
-            <MiniCard
-              label="Assessments to Run"
-              items={r.teacher_action_plan.assessments_to_run}
-            />
-            <MiniCard
-              label="Classroom Activities"
-              items={r.teacher_action_plan.classroom_activities}
-            />
-            <MiniCard
-              label="Family Communication"
-              items={r.teacher_action_plan.family_communication}
-            />
-            <MiniCard
-              label="Student Conference Qs"
-              items={r.teacher_action_plan.student_conference_questions}
-            />
-            <MiniCard
-              label="Service Connections"
-              items={r.teacher_action_plan.service_connections}
-            />
-            <MiniCard label="Accommodations" items={r.teacher_action_plan.accommodations} />
-            <MiniCard
-              label="Work-Based Learning"
-              items={r.teacher_action_plan.work_based_learning}
-            />
-          </div>
-        </Block>
-      )}
-
-      {/* ============ PART IV · For The Next Meeting ============ */}
-      <ReportPartOpener part="team" />
-
-      {/* ============ Meeting prep toolkit ============ */}
-      {!hasV2 && r.meeting_prep_toolkit && (
-        <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
-          <PublicationPage
-            kicker="Section 07"
-            chapter="Next PPT / IEP Meeting Prep"
-            dek="Print this page and bring it to the next PPT. One list — every open question and next step."
-            folio="p. 08"
-          >
-            <PublicationSpread
-              lead={
-                <div>
-                  {[
-                    { label: "Questions to Ask", items: r.meeting_prep_toolkit.questions_to_ask },
-                    { label: "Concerns to Raise", items: r.meeting_prep_toolkit.concerns_to_raise },
-                    { label: "Goals to Review", items: r.meeting_prep_toolkit.goals_to_review },
-                    { label: "Student Voice Prompts", items: r.meeting_prep_toolkit.student_voice_prompts },
-                  ].map(({ label, items }) => (
-                    <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                      <PublicationChecklist title={label} items={items} />
-                    </div>
-                  ))}
-                </div>
-              }
-              side={
-                <PublicationSidebar label="Bring & Know">
-                  <PublicationChecklist title="Documents to Bring" items={r.meeting_prep_toolkit.documents_to_bring} />
-                  <div className="mt-4">
-                    <PublicationChecklist title="Strengths to Highlight" items={r.meeting_prep_toolkit.strengths_to_highlight} />
-                  </div>
-                  <div className="mt-4">
-                    <PublicationChecklist title="Services to Discuss" items={r.meeting_prep_toolkit.services_to_discuss} />
-                  </div>
-                  <div className="mt-4">
-                    <PublicationChecklist title="Follow-up Items" items={r.meeting_prep_toolkit.follow_up_items} />
-                  </div>
-                </PublicationSidebar>
-              }
-            />
-            <PublicationCallout kind="source">
-              <p>Tip: print this section as a one-page checklist to bring to the meeting.</p>
-            </PublicationCallout>
-          </PublicationPage>
-        </Block>
-      )}
-
-      {/* ============ Questions to bring (only when no toolkit) ============ */}
-      {!r.meeting_prep_toolkit && (
-        <Block title="Questions to Bring to the Next PPT" icon={<ListChecks className="h-5 w-5" />}>
-          <BulletList items={r.family_questions_for_ppt} />
-        </Block>
-      )}
-
-      {/* ============ Partner suggestions (live, student-linked) ============ */}
-      <Block
-        id="sec-partner-suggestions"
-        title="Partner Suggestions"
-        icon={<HeartHandshake className="h-5 w-5" />}
-      >
-        <p className="mb-4 text-sm text-muted-foreground">
-          Organizations from the TransitionForward network matched to {name}'s pathway goals,
-          interests, county, and support needs.
-        </p>
-        <ReportPartnerSuggestions studentId={studentId} />
-      </Block>
-
+            </>
+          ),
+          recommended_resources: (
+            <>
       {/* ============ Opportunity matches ============ */}
       {!hasV2 && r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
@@ -1383,7 +1415,27 @@ export function ReportView({
           </div>
         </Block>
       )}
-
+            </>
+          ),
+          partner_matches: (
+            <>
+      {/* ============ Partner suggestions (live, student-linked) ============ */}
+      <Block
+        id="sec-partner-suggestions"
+        title="Partner Suggestions"
+        icon={<HeartHandshake className="h-5 w-5" />}
+      >
+        <p className="mb-4 text-sm text-muted-foreground">
+          Organizations from the TransitionForward network matched to {name}'s pathway goals,
+          interests, county, and support needs.
+        </p>
+        <ReportPartnerSuggestions studentId={studentId} />
+      </Block>
+            </>
+          ),
+        }}
+        appendix={(
+          <>
       {/* ============ Progress timeline ============ */}
       {r.progress_timeline && r.progress_timeline.length > 0 && (
         <Block id="sec-timeline" title="Progress Timeline" icon={<Calendar className="h-5 w-5" />}>
@@ -1423,21 +1475,6 @@ export function ReportView({
           </ol>
         </Block>
       )}
-
-      {/* ============ PART V · The 30/60/90 Plan ============ */}
-      <ReportPartOpener part="next" />
-
-      {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
-      <PlanBlock report={r} extendedPlans={extendedPlans} />
-
-
-      {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
-      {audience === "educator" && !r.teacher_action_plan && (
-        <Block title="Teacher Next Steps" icon={<GraduationCap className="h-5 w-5" />}>
-          <BulletList items={r.teacher_next_steps} />
-        </Block>
-      )}
-
       {/* ============ Needs human review ============ */}
       {r.needs_human_review && r.needs_human_review.length > 0 && (
         <Block id="sec-review" title="Worth a Human Second Look" icon={<ShieldCheck className="h-5 w-5" />}>
@@ -1450,17 +1487,9 @@ export function ReportView({
           </div>
         </Block>
       )}
-
-      {/* ============ Phase 4 — Self-Advocacy + Independent Living + Role Next Steps + Sources ============ */}
-      {demoStudentId && (
-        <ReportPhase4Sections
-          studentId={demoStudentId}
-          audience={audience}
-          reportId={meta?.reportId}
-          preparedBy={meta?.preparedBy}
-          issued={meta?.issued}
-        />
-      )}
+          </>
+        )}
+      />
 
 
       {/* ============ Connect to plan: push items into Actions/Calendar ============ */}

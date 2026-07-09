@@ -1,71 +1,88 @@
 
-# TransitionForward — Product Architecture Pass
+# Pathway Report — Per-Section Rewrite by Stage
 
-This is a large, multi-week piece of work. I want to confirm scope and sequence before I start writing code, because "do it all in one turn" would either mean shallow work everywhere or breaking things that already pass tests.
+## Goal
+The Pathway Report currently renders 20+ `Block` sections in ad-hoc order under `ReportView`. The workspace, dashboards, and spine already speak in the nine-stage model (`src/lib/workspace/stages.ts`). This slice aligns the report body itself — grouped, ordered, and titled by stage — so the report visually reads as "the same nine-stage journey, now as a document."
 
-## What I'm Proposing
+## Non-goals
+- Rewriting the content of each Block (the inner data views stay as-is this slice).
+- Changing report data fetching, print CSS, or the v2 IssueShell threading.
+- Removing `sec-*` legacy ids (the alias layer in `PathwayReportLayout` continues to work).
 
-Ship this in **six sequential slices**, each independently reviewable, testable, and reversible. Each slice ends green (build + tests + role dashboards).
+## Approach: thin orchestrator, not a 2704-line rewrite
 
-### Slice 1 — Shared Stage Model (foundation)
-Create ONE source of truth: `src/lib/workspace/stages.ts` defining the nine stages (START, VOICE, FAMILY, SCHOOL, EVIDENCE, READY, ROADMAP, ACTION, CONNECT) with:
-- stage id, all-caps label, Title Case title, sentence-case description
-- route mapping, icon, order, applicable roles, applicable grade bands (BridgeForward 6–8 vs TransitionForward 9–12)
-- Pathway Report section binding
+1. Extract each existing `Block` in `ReportView.tsx` into a named render function
+   (`renderStudentSnapshot(props)`, `renderStudentVoice(props)`, …) inside
+   `src/components/pathway/report/sections/`. Purely mechanical — cut the JSX
+   for each `<Block id="sec-…">…</Block>` and its supporting locals into a
+   file that exports one function taking the same props ReportView already has
+   in scope (report, student, meta).
+2. Create `src/components/pathway/report/PathwayReportBody.tsx`. It:
+   - Iterates `WORKSPACE_STAGES` in order.
+   - For each stage, renders a stage header (order, label, title,
+     description) with an anchor id `stage-<id>`.
+   - For each `stage.reportSections`, calls the matching renderer from step 1
+     (via a `Record<PathwayReportSectionId, Renderer>` map).
+   - Skips sections whose renderer returns `null` (missing data), so the TOC
+     and body agree on what's present.
+3. `ReportView.tsx` keeps its current top-of-report scaffolding (header,
+   watermark, exec summary, print controls) and swaps the middle block soup
+   for `<PathwayReportBody report={report} student={student} … />`. Trailing
+   non-stage blocks (Timeline, Human Review, appendix) move below the stage
+   body under a clearly-labeled "Appendix" heading — they aren't in the stage
+   model and stay that way.
+4. `PathwayReportLayout` stays as-is. Because renderers keep their existing
+   `id="sec-…"` on the outer `Block`, the alias-anchor injection and
+   scroll-spy keep working unchanged. Add `id="stage-<id>"` on each new stage
+   header so the spine can also target stages directly.
+5. Add `sections/index.ts` mapping every `PathwayReportSectionId` →
+   renderer, and a unit test that asserts:
+   - Every id in `WORKSPACE_STAGES[i].reportSections` has a renderer.
+   - Every renderer key is a valid `PathwayReportSectionId`.
+   - Rendering the body with fixture data emits sections in stage order.
 
-Everything downstream (workspace nav, pathway map, prev/next, progress, report TOC, dashboard entry points) reads from this file. No parallel lists anywhere.
+## File plan
 
-Unit test: every stage resolves to a real route and a real report section; no orphans.
+```text
+src/components/pathway/report/
+  sections/
+    StudentSnapshot.tsx          # sec-snapshot
+    StudentVoice.tsx             # sec-student-voice + sec-your-voice
+    StrengthsPreferencesInterestsNeeds.tsx  # sec-spin + sec-strengths
+    FamilyActionPlan.tsx         # sec-family-plan
+    MeetingPrepQuestions.tsx     # sec-meeting-prep
+    EducatorActionPlan.tsx       # (new — thin wrapper on existing content)
+    IepTransitionTranslator.tsx  # sec-iep-translator
+    DataGaps.tsx                 # sec-data-gaps
+    ReadinessScorecard.tsx       # sec-readiness
+    PostsecondaryGoals.tsx       # sec-goals
+    RecommendedPathways.tsx      # sec-pathways + sec-education
+    CareerLifeMatches.tsx        # sec-careers
+    NextSteps30_90_180_365.tsx   # sec-thirty-day + sec-life-skills + sec-role-next-steps
+    RecommendedResources.tsx     # sec-opportunities
+    PartnerMatches.tsx           # sec-partner-suggestions
+    index.ts                     # PathwayReportSectionId -> renderer map
+  PathwayReportBody.tsx          # stage-grouped orchestrator
+  PathwayReportLayout.tsx        # unchanged
+  PathwayReportSpine.tsx         # unchanged (already stage-aware)
 
-### Slice 2 — Transition Workspace Shell
-New product surface at `/workspace` (signed-in) and `/demo/workspace` (public, fictional Jordan Rivera data).
+src/components/pathway/
+  ReportView.tsx                 # header/appendix retained; middle body -> PathwayReportBody
 
-- New components in `src/components/workspace/`: `WorkspaceShell`, `StageSpine` (visual pathway, NOT tiled cards), `StageHeader` (large expressive all-caps label + sentence-case description), `StageBody`, `StagePrevNext`, `StageProgress`.
-- Distinct visual language: horizontal/vertical spine with connectors, generous whitespace, warm typography — not the current tile grid.
-- Delete `src/studio/` (old Pathway Studio) and any legacy demo hub/report UI it drove. Migrate remaining demo routes (`demo_.plan`, `demo_.report`, etc.) to render inside `WorkspaceShell` via stage ids.
+tests/unit/
+  pathway-report-body.test.tsx   # renderer map + stage-order coverage
+```
 
-### Slice 3 — Pathway Report Rebuild
-Rebuild `/reports/$reportId` (and the demo equivalent) as the flagship deliverable. New components in `src/components/pathway/report/`:
-- Sections per spec (Snapshot, SPIN, Voice, Postsecondary Goals, Recommended Pathways, Career/Life Matches, Readiness Scorecard, IEP Translator, Data Gaps, Family Plan, Educator Plan, Meeting Prep, Resources, Partner Matches, 30/90/180/365 Next Steps).
-- Every section renders the four-answer pattern (What / Why / Next / Who).
-- View switcher: Student view, Family view, Educator view (same data, tuned copy + depth).
-- Source notes + AI disclaimer footer on every section.
-- Server function extensions in `src/lib/pathway.functions.ts` to shape data per view; migration only if we need new columns on `pathway_reports.content` (JSONB, so likely none).
+## Verification
+- `bunx tsgo --noEmit` clean for changed files.
+- New unit test + existing `pathway-report-spine`, `workspace-stages`,
+  `stage-journey-card`, `public-journey-strip` tests all pass.
+- Manual visual check on `/demo/report`: sections appear grouped under nine
+  stage headers, TOC/spine highlight tracks scroll.
 
-### Slice 4 — Role Dashboards Rebuild
-Replace each role dashboard body with a Workspace-aware layout (spine + focused next-best-step + role-specific rails). Files:
-- `src/routes/_authenticated/dashboard.tsx` (student + family branch)
-- `src/routes/_authenticated/caseload.tsx` (educator)
-- `src/routes/_authenticated/school/overview.tsx`
-- `src/routes/_authenticated/district/overview.tsx`
-- `src/routes/_authenticated/partners-manage/index.tsx`
-- Owner stays in Admin Hub — no changes to `/admin`, verify it doesn't render the normal dashboard shell.
-
-Preserve the existing `data-dashboard-testid` contract so the dashboard-regression suite keeps passing.
-
-### Slice 5 — Waitlist / Pricing / Account Relationships
-- `/waitlist` becomes a qualification router (family early access / educator / school pilot / district pilot / partner / grants), writing typed intent into `waitlist` table (already 42 cols — likely no migration).
-- `/pricing` reflects the five billing tiers with clear "who pays for whom" copy.
-- `/get-started` distinguishes waitlist vs invited signup.
-- Audit `organization_memberships` + `access_entitlements` + `has_active_entitlement` — no schema changes expected, but wire `use-entitlement` into dashboards so a student covered by a district license doesn't see a paywall.
-
-### Slice 6 — Resources + Partner Network Polish
-- Resource Library filter facets bound to shared stage model (grade band, stage, readiness area, role, BF/TF).
-- Partner surfaces audited: partner role has zero read paths to `students`, `documents`, `goals`, `student_voice_responses`, `pathway_reports`, `meetings`, `collaboration_notes`. Add RLS regression test if one doesn't exist.
-
-## Technical Notes
-
-- Shared stage model is the linchpin — Slices 2–6 all import from it.
-- Visual direction: **spine + narrative**, not tiles. StageSpine renders a connected path (SVG connectors) with stage markers; the active stage expands into a full-bleed narrative panel. This is the "unique TransitionForward visual experience" the prompt asks for, and it's the same primitive on demo, workspace, report TOC, and dashboards.
-- No new tables anticipated; if any slice needs one I'll surface a migration for approval before writing app code against it.
-- Every slice ends by running: `bun run build`, `bunx vitest run`, `bunx playwright test tests/e2e/dashboard-regression.signedin.spec.ts tests/e2e/role-access-rules.signedin.spec.ts`. No test weakening.
-- Owner Hub explicitly excluded from dashboard rebuild.
-
-## What I Need From You Before I Start
-
-Two decisions:
-
-1. **Sequence** — ship Slice 1 first and pause for your review of the stage model + visual direction (recommended, ~1 turn), or push straight through 1→2 so you can see the workspace shell rendering (larger turn, harder to course-correct)?
-2. **Legacy demo routes** — okay to delete `src/studio/` and collapse the `demo_.*` routes into `/demo/workspace/$stage`? This is the cleanest way to avoid "patching old UI" but it will change URLs. I'd add redirects from the old demo URLs.
-
-Once you answer those two, I'll start with Slice 1.
+## Rollout note
+Because this is a large mechanical refactor, if any single section's extraction
+turns out to depend on locals hoisted deep inside `ReportView`, that renderer
+is temporarily left inline in `ReportView` and pulled through
+`PathwayReportBody` via a `renderInlineFallback` slot — the stage grouping
+still applies. The follow-up slice extracts the remaining inline sections.
