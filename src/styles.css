@@ -5960,7 +5960,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
     "brand brand"
     "rail  canvas"
     "rail  foot";
-  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background:
     radial-gradient(1200px 600px at 88% -120px, color-mix(in srgb, var(--st-mustard) 18%, transparent), transparent 60%),
     radial-gradient(900px 700px at -10% 110%, color-mix(in srgb, var(--st-map) 12%, transparent), transparent 60%),
