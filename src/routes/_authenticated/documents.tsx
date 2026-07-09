@@ -266,19 +266,19 @@ function StatusBadge({ status }: { status: DocumentReviewStatus }) {
 
 function EmptyState() {
   return (
-    <div className="p-10 text-center">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-        <FolderOpen className="h-6 w-6" />
-      </div>
-      <h2 className="mt-4 font-display text-xl">No Documents Yet.</h2>
-      <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-        Start by opening a student and uploading their current IEP or transition assessment.
-        We'll keep everything private and only visible to the people you invite.
-      </p>
-      <Button asChild className="mt-5">
-        <Link to="/students">Go to my students</Link>
-      </Button>
+    <div className="p-6">
+      <IllustratedEmptyState
+        kind="documents"
+        title="No Documents Yet"
+        description="Start by opening a student and uploading their current IEP or transition assessment. We'll keep everything private and only visible to the people you invite."
+        action={
+          <Button asChild>
+            <Link to="/students">Go to my students</Link>
+          </Button>
+        }
+      />
     </div>
   );
 }
+
 
