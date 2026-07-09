@@ -128,7 +128,7 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
               {STUDIO_STAGES.length - 1}
             </span>
             <button type="button" onClick={() => setMapOpen(true)}>
-              Open map
+              Open Map
             </button>
           </div>
 
