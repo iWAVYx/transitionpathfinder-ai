@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
