@@ -100,12 +100,12 @@ function Illustration({ kind }: { kind: EmptyKind }) {
         <svg viewBox="0 0 200 140" className="h-full w-full">
           {/* back paper */}
           <g transform="rotate(-8 60 80)">
-            <rect x="30" y="30" width="80" height="100" rx="4" fill={cream} {...common} />
+            <rect x="30" y="30" width="80" height="100" rx="4" {...common} fill={cream} />
             <path d="M42 52 h56 M42 66 h48 M42 80 h56 M42 94 h36" {...common} strokeWidth="1.5" />
           </g>
           {/* front paper */}
           <g transform="rotate(6 130 80)">
-            <rect x="90" y="20" width="80" height="105" rx="4" fill="#fff" {...common} />
+            <rect x="90" y="20" width="80" height="105" rx="4" {...common} fill="#fff" />
             <path d="M102 42 h56 M102 56 h56 M102 70 h44" {...common} strokeWidth="1.5" />
             <circle cx="150" cy="98" r="12" fill={mustard} stroke={stroke} strokeWidth="2" />
             <path d="M145 98 l4 4 l7 -8" stroke={stroke} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
@@ -120,7 +120,7 @@ function Illustration({ kind }: { kind: EmptyKind }) {
     case "tasks":
       return (
         <svg viewBox="0 0 200 140" className="h-full w-full">
-          <rect x="34" y="20" width="132" height="105" rx="8" fill={cream} {...common} />
+          <rect x="34" y="20" width="132" height="105" rx="8" {...common} fill={cream} />
           {/* checklist rows */}
           <g {...common} strokeWidth="1.8">
             <rect x="50" y="40" width="14" height="14" rx="3" fill="#fff" />
@@ -145,7 +145,7 @@ function Illustration({ kind }: { kind: EmptyKind }) {
     case "meetings":
       return (
         <svg viewBox="0 0 200 140" className="h-full w-full">
-          <rect x="36" y="30" width="128" height="95" rx="6" fill="#fff" {...common} />
+          <rect x="36" y="30" width="128" height="95" rx="6" {...common} fill="#fff" />
           <path d="M36 52 h128" {...common} />
           <g {...common}>
             <path d="M60 28 v10 M100 28 v10 M140 28 v10" />
@@ -179,8 +179,8 @@ function Illustration({ kind }: { kind: EmptyKind }) {
           </g>
           {/* open book on top */}
           <g transform="translate(60 20)">
-            <path d="M0 30 C 20 22, 40 22, 40 30 L 40 42 C 40 34, 20 34, 0 42 Z" fill="#fff" {...common} />
-            <path d="M40 30 C 60 22, 80 22, 80 30 L 80 42 C 80 34, 60 34, 40 42 Z" fill="#fff" {...common} />
+            <path d="M0 30 C 20 22, 40 22, 40 30 L 40 42 C 40 34, 20 34, 0 42 Z" {...common} fill="#fff" />
+            <path d="M40 30 C 60 22, 80 22, 80 30 L 80 42 C 80 34, 60 34, 40 42 Z" {...common} fill="#fff" />
             <path d="M40 30 v12" {...common} />
           </g>
           {/* sparkle */}
@@ -193,7 +193,7 @@ function Illustration({ kind }: { kind: EmptyKind }) {
     case "media":
       return (
         <svg viewBox="0 0 200 140" className="h-full w-full">
-          <rect x="30" y="26" width="140" height="92" rx="6" fill={cream} {...common} />
+          <rect x="30" y="26" width="140" height="92" rx="6" {...common} fill={cream} />
           <circle cx="70" cy="60" r="8" fill={mustard} stroke={stroke} strokeWidth="1.8" />
           <path d="M40 108 L 78 76 L 108 100 L 140 70 L 168 108 Z" fill={map} opacity="0.4" {...common} />
           <path d="M40 108 L 78 76 L 108 100 L 140 70 L 168 108" {...common} />
@@ -232,7 +232,7 @@ function Illustration({ kind }: { kind: EmptyKind }) {
     case "reports":
       return (
         <svg viewBox="0 0 200 140" className="h-full w-full">
-          <rect x="34" y="20" width="132" height="105" rx="6" fill="#fff" {...common} />
+          <rect x="34" y="20" width="132" height="105" rx="6" {...common} fill="#fff" />
           <path d="M46 44 h80" {...common} strokeWidth="1.5" />
           {/* bar chart */}
           <g {...common}>
@@ -248,7 +248,7 @@ function Illustration({ kind }: { kind: EmptyKind }) {
     default:
       return (
         <svg viewBox="0 0 200 140" className="h-full w-full">
-          <circle cx="100" cy="70" r="46" fill={cream} {...common} />
+          <circle cx="100" cy="70" r="46" {...common} fill={cream} />
           <g stroke={stroke} strokeWidth="2" fill="none" strokeLinecap="round">
             <path d="M80 66 q 20 -18, 40 0" />
             <circle cx="86" cy="60" r="2" fill={stroke} />
