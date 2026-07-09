@@ -132,7 +132,7 @@ function StudioCover() {
       </nav>
 
       {/* Acts overview */}
-      <StudioFrame title="What you'll walk through">
+      <StudioFrame title="What You'll Walk Through">
         <p id="overview">
           The studio is organized into four acts. Each act answers one
           question the team is trying to make progress on together.
