@@ -6201,14 +6201,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   white-space: nowrap;
 }
 
-/* Editorial frames */
+/* Editorial frames — even 40px rhythm between major sections */
 .st-frame {
   border-top: 1px solid var(--st-rule);
-  padding-top: 26px;
-  margin-top: 32px;
+  padding-top: 32px;
+  margin-top: 40px;
 }
 .st-frame > h2:first-child,
 .st-frame > h3:first-child { margin-top: 0; }
+.st-frame > p:first-child { margin-top: 0; }
 
 .st-aside {
   margin: 28px 0;
