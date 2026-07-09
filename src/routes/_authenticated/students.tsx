@@ -154,11 +154,12 @@ function StudentsPage() {
           {students === null ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : students.length === 0 ? (
-            <div className="sm:col-span-2 lg:col-span-3 rounded-2xl border border-dashed bg-muted/40 p-8 text-center">
-              <Users className="mx-auto h-8 w-8 text-muted-foreground" />
-              <p className="mt-3 text-sm text-muted-foreground">
-                No students yet. Add one to start organizing reports and goals.
-              </p>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <IllustratedEmptyState
+                kind="students"
+                title="No Students Yet"
+                description="Add your first student to start organizing reports, goals, and meetings."
+              />
             </div>
           ) : (
             students.map((s) => (
