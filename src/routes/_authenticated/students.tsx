@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Users, Plus, GraduationCap, Trash2 } from "lucide-react";
+import { Plus, GraduationCap, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 
