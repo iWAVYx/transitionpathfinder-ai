@@ -127,7 +127,7 @@ export function TwoFactorVerification({ redirect }: { redirect: string }) {
 
   const onCancel = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
+    navigate({ to: "/login", search: {}, replace: true });
   };
 
   return (

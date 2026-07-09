@@ -61,6 +61,7 @@ function GetStartedPage() {
           <div className="mt-10 grid gap-5 sm:grid-cols-2">
             <Link
               to="/login"
+              search={{}}
               className="group flex flex-col rounded-3xl border border-border bg-card p-7 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
               data-testid="get-started-have-invite"
             >
