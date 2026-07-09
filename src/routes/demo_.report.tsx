@@ -5,6 +5,7 @@ import {
   validateStudentSearch,
 } from "@/components/site/DemoStepBar";
 import { ReportView } from "@/components/pathway/ReportView";
+import { PathwayReportLayout } from "@/components/pathway/report/PathwayReportLayout";
 import { getDemoStudent } from "@/lib/demo-data";
 import { EXTENDED_PLANS } from "@/lib/demo-extended-plans";
 import { StudioPage } from "@/studio/StudioPage";
@@ -54,6 +55,7 @@ function DemoReportPage() {
       </StudioAside>
 
       <div className="st-frame">
+        <PathwayReportLayout>
         <ReportView
           name={student.first_name}
           report={report}
@@ -69,6 +71,7 @@ function DemoReportPage() {
             confidentiality: `Confidential — for ${student.first_name}, family, and authorized ${student.school} team members`,
           }}
         />
+        </PathwayReportLayout>
       </div>
     </StudioPage>
   );
