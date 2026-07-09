@@ -47,7 +47,7 @@ const LEGACY_TO_SECTION: Record<string, PathwayReportSectionId> = {
   "sec-partner-suggestions": "partner_matches",
 };
 
-const STAGE_ORDER = WORKSPACE_STAGES.map((s) => s.id);
+const STAGE_ORDER: readonly string[] = WORKSPACE_STAGES.map((s) => s.id satisfies StageId);
 
 export interface PathwayReportLayoutProps {
   children: React.ReactNode;
