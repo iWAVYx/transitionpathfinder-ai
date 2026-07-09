@@ -6443,8 +6443,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   line-height: 1.25;
   letter-spacing: 0.01em;
   min-width: 0;
-  word-break: break-word;
-  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 .st-route a:hover .lab { color: var(--st-terra); }
 @media (max-width: 760px) {
