@@ -6051,8 +6051,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   color: var(--st-mute);
   letter-spacing: 0.1em;
 }
-.tf-studio-rail .stage .body { min-width: 0; }
+.tf-studio-rail .stage .body { min-width: 0; display: block; }
 .tf-studio-rail .stage .lbl {
+  display: block;
   font-family: var(--st-serif);
   font-size: 1rem;
   line-height: 1.25;
@@ -6060,10 +6061,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   margin: 0;
 }
 .tf-studio-rail .stage .sub {
+  display: block;
   font-size: 11.5px;
   color: var(--st-mute);
-  margin-top: 2px;
+  margin-top: 4px;
   letter-spacing: 0.01em;
+  line-height: 1.35;
 }
 .tf-studio-rail .stage[data-state="done"] .dot {
   background: var(--st-ink);
