@@ -294,6 +294,7 @@ function ReportDetailPage() {
         </div>
       )}
 
+      <PathwayReportLayout>
       <ReportChapterPager />
       <ReportView
         name={state.name}
@@ -340,6 +341,7 @@ function ReportDetailPage() {
           </section>
         </>
       )}
+      </PathwayReportLayout>
 
       {/* Regenerate CTA */}
       <div className="no-print">
