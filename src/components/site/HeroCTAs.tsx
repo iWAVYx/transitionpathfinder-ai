@@ -17,19 +17,32 @@ import { cn } from "@/lib/utils";
 export function HeroCTAs({
   children,
   align = "start",
+  forceRow = false,
   className,
 }: {
   children: ReactNode;
   align?: "start" | "center";
+  /** Force a single horizontal row at every viewport (children share width). */
+  forceRow?: boolean;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3",
-        align === "center" ? "sm:justify-center" : "sm:justify-start",
-        // Equal widths on mobile, min-width on sm+ so paired CTAs look balanced.
-        "[&>*]:w-full sm:[&>*]:w-auto sm:[&>*]:min-w-[180px]",
+        "flex items-center gap-3",
+        forceRow
+          ? "flex-row flex-nowrap"
+          : "flex-col sm:flex-row sm:flex-wrap sm:items-center",
+        align === "center"
+          ? forceRow
+            ? "justify-center"
+            : "sm:justify-center"
+          : forceRow
+            ? "justify-start"
+            : "sm:justify-start",
+        forceRow
+          ? "[&>*]:min-w-0 [&>*]:flex-1"
+          : "[&>*]:w-full sm:[&>*]:w-auto sm:[&>*]:min-w-[180px]",
         // If a direct child is a <Link>/<a> wrapping a <Button>, make sure
         // the inner button fills the link width.
         "[&>a>button]:w-full [&>a]:inline-flex",
@@ -40,3 +53,4 @@ export function HeroCTAs({
     </div>
   );
 }
+
