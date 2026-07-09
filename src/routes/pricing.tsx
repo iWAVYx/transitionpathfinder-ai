@@ -205,6 +205,9 @@ function PricingPage() {
             <BillingToggle value={billing} onChange={setBilling} />
           </div>
         </div>
+        <div className="mx-auto max-w-5xl px-4 pb-10 sm:px-6 lg:px-8">
+          <PublicJourneyStrip caption="Every plan below unlocks the same connected pathway — priced for the audience it serves." />
+        </div>
       </section>
 
       {/* Tiers */}
