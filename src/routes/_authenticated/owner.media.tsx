@@ -5,6 +5,7 @@ import { Loader2, Trash2, Upload, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
+import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState";
 import {
   adminListMedia,
   adminUploadMedia,
