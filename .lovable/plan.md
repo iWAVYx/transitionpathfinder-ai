@@ -1,103 +1,74 @@
+# Product-Depth & Role-Value Pass
 
-# Visual polish pass — Demo, Dashboards, Report, Intake
+Goal: bulk up role experiences, Transition Workspace stages, Pathway Report, and Demo previews so each role feels comprehensive and worth paying for — without rebuilding the current visual direction.
 
-This is a presentation-only pass. No changes to auth, RLS, routing, server functions, data models, or tests.
+## Approach
 
-## 1. Shared spacing + section primitives
+Work in layered, verifiable passes. Each pass ends with typecheck + targeted tests before moving on. No visual restart; existing routes, permissions, and shells stay intact.
 
-Add two small presentation primitives so every surface uses the same rhythm:
+## Pass 1 — Shared Sample & Content Layer
 
-- `src/components/layout/PageSection.tsx` — wraps a page section with consistent vertical padding (`py-10 sm:py-14`), max width, and gutter (`px-4 sm:px-6 lg:px-8`).
-- `src/components/layout/SectionHeading.tsx` — eyebrow + title + optional description with fixed spacing (eyebrow → title 8px, title → desc 8px, block → content 24px). Used everywhere below.
+Deepen the sample-data + copy foundation so every downstream surface (demo dashboards, workspace stages, report) gets richer content from one source.
 
-Design tokens already exist in `src/styles.css`; no new colors, just consistent use. Standard rhythm: page gutter 16/24/32, section gap 40/56, card padding 20/24, grid gap 16/20, heading→body 8, block→content 24.
+- Expand `src/lib/workspace/stage-samples.ts` with more Input/Insight/Pathway/Action items per stage (START, VOICE, FAMILY, SCHOOL, EVIDENCE, READY, ROADMAP, ACTION, CONNECT).
+- Add sample data modules for: readiness categories, 30/60/90/6mo/1yr plans, BridgeForward/TransitionForward pathway matches with rationale, sample documents/evidence, family priorities, educator insights, meeting prep questions.
+- Keep Title Case headings; use `src/lib/title-case.ts` for dynamic strings.
 
-## 2. Demo Workspace (`/demo` + `/demo/<role>`)
+## Pass 2 — Transition Workspace Stage Depth
 
-Goal: role dashboard preview is unmistakably the centerpiece.
+Enrich `StageSamplePanel` sections and `StageBody` role strip content so each stage clearly shows Input → Insight → Pathway → Action with 3–6 concrete items each, source notes, and realistic outputs. No new routes.
 
-`src/routes/demo.tsx`
-- Tighten hero, restack role cards using `PageSection` + `SectionHeading`.
-- Equalize card heights, align CTAs to the bottom of each card, remove ad-hoc margins.
+## Pass 3 — Pathway Report Depth
 
-`src/components/demo/role-preview/RolePreviewShell.tsx`
-- Reorder to: Hero → **Dashboard preview (tool cards)** (promoted, larger heading, `SectionHeading` eyebrow "Dashboard preview" / title "What this role sees at sign-in") → Compact "At a glance" tiles moved *inside* the dashboard block as a top strip → Value strip → Tools/Actions/Outputs → Boundary → CTA → Continue tour.
-- Replace inconsistent `mt-12` with `PageSection` spacing.
-- Card grid: `sm:grid-cols-2 xl:grid-cols-3`, `items-stretch`, `min-w-0`.
-- Fix floating pieces: hero aside becomes a proper right column at `lg:` and stacks cleanly below on mobile; CTA bar becomes a two-column grid at `sm:` (text left, buttons right, wrapping cleanly).
+Expand the report view components to render deeper sections:
+Student Snapshot, Student Voice, Family Priorities, Educator Insights, Documents & Evidence, Readiness Scorecard, IEP/Transition Translator, Data Gaps, Recommended Pathways, Career/Life Matches, Meeting Prep, Recommended Resources, Partner Matches (where permitted), Family/Educator Action Plans, 30/90/6mo/1yr Next Steps, Student/Family/Educator views, Source Notes + AI disclaimer.
 
-`src/components/demo/role-preview/DemoToolPreviewCard.tsx`
-- Uniform min-height, header row uses `grid-cols-[minmax(0,1fr)_auto] shrink-0 min-w-0 truncate` per responsive-layout rules.
-- Footer CTA pinned to bottom (`mt-auto`) so cards line up.
+Use sample data in demo view; wire real fields where already present in signed-in view.
 
-## 3. Signed-in dashboards
+## Pass 4 — Role Dashboards (Demo Previews + Signed-in)
 
-Apply the same rhythm without changing data or routes. For each of:
-`hubs.student.tsx`, `hubs.family.tsx`, `hubs.caseload.tsx`, `hubs.school.tsx`, `hubs.district.tsx`, `hubs.partner.tsx`, and `owner.index.tsx`:
+For each role dashboard, audit and strengthen the same 11 elements listed in the request (overview, tools, next actions, data, outputs, deeper menus, CTAs, empty/loading/error states, TW link, Report link). Roles:
 
-- Wrap the page in `PageSection`, use `SectionHeading` for "Overview", "Your tools", "Deeper menu".
-- Ensure the overview grid (`*OverviewGrid`) uses `items-stretch` + `mt-auto` footers so previews line up.
-- Add a compact "Status strip" above the tool grid (next action, unread items) using tokens already available in each grid file — no new server calls.
+- Student: My Pathway, Voice, strengths, readiness snapshot, actions, saved resources, meeting prep, calendar, Report student view.
+- Parent/Guardian: connected student, documents, family priorities, questions, meeting prep, sharing/consent, resources, action items, Report family view.
+- Educator/Case Manager: caseload, readiness gaps, notes, meeting prep, actions, calendar, authorized docs, Report educator view.
+- School Admin: school overview, planning status, team activity, report completion, readiness trends, support needs, resource usage, implementation, compliance.
+- District Admin: district overview, schools, per-school progress, trends, implementation, reports, service gaps, partnerships, staff access.
+- Partner: profile, opportunities, submissions, deadlines, PartnerForward incentives, resources, collaboration guidance. Enforce no access to student PII/docs/Voice/Report/goals/meetings/notes.
+- Platform Owner: keep Admin Hub separate; polish nav to users/waitlist/contacts/resources/sources/partner network/submissions/outreach/site content/system health/beta/feedback/bugs/launch/analytics/pilot/demo.
 
-`ToolPreviewCard.tsx`
-- Same alignment fixes as demo card (header grid, truncate, footer pinned).
-- Status badge tone use unchanged.
+## Pass 5 — Demo Workspace Role Previews
 
-## 4. Pathway Report (`/reports/:id` + shared components)
+Update role-based demo dashboards to mirror the signed-in product depth using sample data — same widgets, same CTAs — so the demo is an honest preview, not a lighter shell.
 
-Goal: reads as the flagship deliverable.
+## Pass 6 — Copy & UI Polish
 
-`src/components/pathway/report/PathwayReportLayout.tsx` (existing)
-- Add consistent section spacing (`space-y-10 sm:space-y-14`), max-width, and gutter.
-- Add a slim "Report contents" sticky sub-nav on `lg:` (anchors only, no data changes).
+- Sharpen labels, CTAs, empty states across touched surfaces.
+- Title Case headings, action-oriented CTAs, friendly non-technical language.
+- Remove generic filler / duplicated copy where found in touched files.
 
-`src/components/pathway/ReportView.tsx`, `ReportV2Sections.tsx`, `ReportV2Extras.tsx`
-- Standardize section shells: eyebrow + title + divider using `SectionHeading`.
-- Even card padding, uniform border radius (`rounded-3xl`), consistent shadow (`shadow-soft`).
-- Fix icon/text baseline alignment (`items-center` + `shrink-0` for icons).
-- Ensure the audience switcher and "Regenerate" banner align with the report gutter, not the page edge.
+## Pass 7 — Verification
 
-`src/routes/_authenticated/reports.$reportId.tsx`
-- Replace hard-coded `mx-auto max-w-4xl` scatter with `PathwayReportLayout` wrapping. Welcome banner, share panel, link-to-student panel, versions panel all live inside the same gutter.
+- `tsgo` typecheck.
+- `bunx vitest run` for unit tests; update stale expectations only if content shape changed.
+- Playwright smoke: `/demo`, `/demo/workspace/$stage` for each stage, one dashboard per role (where a public preview exists), partner restriction check.
+- Production build.
 
-## 5. Intake (Pathway Report intake)
+## Technical Notes
 
-Files: `src/routes/_authenticated/forms.$slug.tsx`, `src/routes/_authenticated/forms.tsx`, `src/components/forms/FormRenderer.tsx`, `src/components/pathway/FormProgress.tsx`.
+- No new routes; extend existing components and sample modules.
+- Partner restriction enforced via existing `is_partner_only` / RLS; UI simply hides student-scoped widgets for partner role.
+- Keep `WorkspaceShell`, `SmartBackLink`, route transitions untouched.
+- Any dynamic heading strings go through `titleCase()`.
+- All new sample content lives under `src/lib/workspace/` or `src/lib/demo/` — no DB changes.
+- No schema migrations; no changes to `src/integrations/supabase/*`.
 
-- Wrap intake in the same `PageSection` + `SectionHeading` primitives.
-- Adopt report typography (`font-display` for step titles, `text-muted-foreground` body).
-- Progress bar uses primary token; step chips use rounded-full border pattern from demo chips.
-- Field groups: card shell `rounded-3xl border bg-card p-6 shadow-soft`, consistent label→input spacing (8px), help text `text-xs text-muted-foreground`.
-- Primary/secondary buttons match rest of product (`Button` variants, no bare `<button>` styling).
-- Friendly step intros: use existing copy, just re-wrap. No new copy invented.
+## Out Of Scope
 
-## 6. Floating / alignment audit
+- New auth flows, new routes, new tables, new edge functions.
+- Visual redesign, theme changes, new component library.
+- Real analytics wiring for admin hub (sample cards only where already present).
 
-While editing above, apply the responsive-layout pattern (grid header + `min-w-0` + `shrink-0` + `truncate`) to:
-- role hero header (icon + title + badge + aside)
-- report toolbar (audience switcher + regenerate + print)
-- intake step header (step number + title + save state)
-- dashboard tile headers
+## Scale Warning
 
-## 7. Responsive QA
-
-For each edited surface, manually verify at 375px, 768px, 1280px via preview. Fix any horizontal overflow with `min-w-0` on flex/grid text containers.
-
-## 8. Verification
-
-- `bunx tsgo --noEmit`
-- Unit: `bunx vitest run tests/unit/dashboard-static.test.ts tests/unit/hub-registry.test.ts tests/unit/pathway-report-body.test.tsx tests/unit/pathway-report-spine.test.tsx tests/unit/student-dashboard-render-contract.test.ts`
-- Spot-check demo, one signed-in dashboard, report page, intake page via Playwright screenshots at three widths.
-
-## Out of scope
-
-- No new data, server functions, or migrations.
-- No routing changes.
-- No changes to auth, RLS, tests, partner boundary rules, or generated files (`routeTree.gen.ts`, Supabase client).
-- No new hero images generated unless a surface has an obvious empty visual slot; if so, one image max per surface using existing brand palette.
-
-## Technical notes
-
-- Only `src/components/layout/PageSection.tsx` and `SectionHeading.tsx` are new files.
-- All other edits are in-place style/structure adjustments.
-- Keep every existing `data-testid`, prop name, and export signature.
+This touches many files across dashboards, workspace, and report. I will land it in the 7 passes above and pause between passes if anything gets risky (test failures, ambiguous role scope, or partner-access edge cases) so we can course-correct instead of a giant single edit.
