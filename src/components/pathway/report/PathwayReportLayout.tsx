@@ -147,17 +147,7 @@ export function PathwayReportLayout({ children }: PathwayReportLayoutProps) {
   );
 
   return (
-    <div className="mx-auto grid w-full max-w-[92rem] gap-6 px-3 pt-4 sm:gap-8 sm:px-6 sm:pt-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:px-8">
-      <aside className="no-print hidden lg:block">
-        <div className="sticky top-24">
-          <PathwayReportSpine
-            activeSectionId={active}
-            activeStageId={activeStage}
-            completedStageIds={completedStages}
-            presentSections={presentSectionsMemo}
-          />
-        </div>
-      </aside>
+    <div className="mx-auto w-full max-w-[92rem] px-3 pt-4 sm:px-6 sm:pt-6 lg:px-8">
       <div ref={contentRef} className="min-w-0">
         <PathwayReportStageProgress
           activeStageId={activeStage}
