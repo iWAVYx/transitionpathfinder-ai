@@ -14,15 +14,26 @@ import { cn } from "@/lib/utils";
  * Renders as an <a> so cmd/ctrl-click still opens the fallback in a new tab.
  * Shows a brief loading state while navigating so the user knows the click
  * registered, especially on slower connections.
+ *
+ * Optional `delayMs` + `onBeforeNavigate` let a parent run an exit animation
+ * before the actual navigation (e.g. fading the Transition Workspace out on the
+ * way back to the Demo Overview).
  */
 export function SmartBackLink({
   fallbackTo,
   label = "Back",
   className,
+  delayMs = 0,
+  onBeforeNavigate,
 }: {
   fallbackTo: string;
   label?: string;
   className?: string;
+  /** Milliseconds to wait before performing the navigation. Useful when a parent
+   *  needs to play an exit animation. */
+  delayMs?: number;
+  /** Called immediately on a valid click, before any navigation delay. */
+  onBeforeNavigate?: () => void;
 }) {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -32,9 +43,25 @@ export function SmartBackLink({
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
 
     setIsNavigating(true);
+    onBeforeNavigate?.();
 
     const hasHistory =
       typeof window !== "undefined" && window.history.length > 1;
+
+    const performNavigation = () => {
+      if (hasHistory) {
+        router.history.back();
+      } else {
+        router.navigate({ to: fallbackTo });
+      }
+    };
+
+    if (delayMs > 0) {
+      // Give the parent time to render an exit animation before we unmount.
+      e.preventDefault();
+      setTimeout(performNavigation, delayMs);
+      return;
+    }
 
     if (hasHistory) {
       // Stop the link from navigating to the fallback; use history.back()
@@ -44,8 +71,8 @@ export function SmartBackLink({
       return;
     }
 
-    // No history: let the SmartLink fall back to `fallbackTo` normally while
-    // the loading state gives immediate click feedback.
+    // No history and no delay: let the SmartLink fall back to `fallbackTo`
+    // normally while the loading state gives immediate click feedback.
   };
 
   return (
@@ -69,3 +96,4 @@ export function SmartBackLink({
     </SmartLink>
   );
 }
+
