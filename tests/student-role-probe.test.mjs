@@ -43,7 +43,7 @@ test("student RLS: cross-student isolation across all key surfaces", async () =>
     for (const row of [
       ["goals", { student_id: A.studentId, title: "A goal", created_by: A.uid }],
       ["action_items", { student_id: A.studentId, title: "A action", created_by_user_id: A.uid }],
-      ["student_voice_responses", { student_id: A.studentId, prompt_key: "hopes", response_text: "A hopes", age_band: "early-high" }],
+      ["student_voice_responses", { student_id: A.studentId, prompt_key: "hopes", response_text: "A hopes", age_band: "early-high", created_by: A.uid }],
       ["saved_resources", { user_id: A.uid, resource_id: null, resource_slug: "test-a" }],
       ["calendar_events", { owner_user_id: A.uid, student_id: A.studentId, visibility: "team", title: "A meeting", start_at: new Date().toISOString(), end_at: new Date(Date.now()+3600e3).toISOString() }],
     ]) {
