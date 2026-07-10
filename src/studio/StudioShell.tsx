@@ -17,6 +17,8 @@ interface Props {
   student?: DemoStudentId;
   /** Optional explicit student in URL — when set, links carry ?s=. */
   preserveStudent?: boolean;
+  /** Hide the left workbench rail and let the canvas take the full width. */
+  hideRail?: boolean;
   children: ReactNode;
 }
 
@@ -28,7 +30,7 @@ interface Props {
  * full overview map overlay. Replaces SiteShell + DemoStepBar +
  * PublicationPage chrome wholesale for the demo and signed-in report.
  */
-export function StudioShell({ stage, student, preserveStudent, children }: Props) {
+export function StudioShell({ stage, student, preserveStudent, hideRail, children }: Props) {
   const [mapOpen, setMapOpen] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
   const current = stageById(stage);
@@ -80,7 +82,7 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
 
   return (
     <div className="tf-studio">
-      <div className="tf-studio-app">
+      <div className={`tf-studio-app${hideRail ? " tf-studio-app--norail" : ""}`}>
         {/* Brand strip */}
         <header className="tf-studio-brand">
           <Link to="/" className="mark">
@@ -105,23 +107,27 @@ export function StudioShell({ stage, student, preserveStudent, children }: Props
         </header>
 
         {/* Left workbench rail (desktop) + mobile bottom sheet */}
-        <aside
-          id="tf-studio-rail-sheet"
-          className="tf-studio-rail"
-          aria-label="Pathway stages"
-          data-lenis-prevent
-          data-open={railOpen ? "true" : "false"}
-        >
-          {railBody}
-        </aside>
-        {railOpen ? (
-          <button
-            type="button"
-            className="tf-studio-rail-scrim"
-            aria-label="Close stages menu"
-            onClick={() => setRailOpen(false)}
-          />
-        ) : null}
+        {hideRail ? null : (
+          <>
+            <aside
+              id="tf-studio-rail-sheet"
+              className="tf-studio-rail"
+              aria-label="Pathway stages"
+              data-lenis-prevent
+              data-open={railOpen ? "true" : "false"}
+            >
+              {railBody}
+            </aside>
+            {railOpen ? (
+              <button
+                type="button"
+                className="tf-studio-rail-scrim"
+                aria-label="Close stages menu"
+                onClick={() => setRailOpen(false)}
+              />
+            ) : null}
+          </>
+        )}
 
 
         {/* Canvas */}

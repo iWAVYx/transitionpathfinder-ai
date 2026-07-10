@@ -5976,6 +5976,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   }
 }
 
+/* Rail-less variant: canvas takes the full width. */
+.tf-studio-app.tf-studio-app--norail {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "brand"
+    "canvas"
+    "foot";
+}
+
 /* ---------- Brand strip (top) ---------- */
 .tf-studio-brand {
   grid-area: brand;
