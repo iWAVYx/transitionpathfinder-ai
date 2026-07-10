@@ -179,6 +179,7 @@ import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authent
 import { Route as AuthenticatedDistrictServiceGapsRouteImport } from './routes/_authenticated/district.service-gaps'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
+import { Route as AuthenticatedDistrictReadinessTrendsRouteImport } from './routes/_authenticated/district.readiness-trends'
 import { Route as AuthenticatedDistrictProgressRouteImport } from './routes/_authenticated/district.progress'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as AuthenticatedDistrictImplementationRouteImport } from './routes/_authenticated/district.implementation'
@@ -1118,6 +1119,12 @@ const AuthenticatedDistrictReportsRoute =
     path: '/district/reports',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDistrictReadinessTrendsRoute =
+  AuthenticatedDistrictReadinessTrendsRouteImport.update({
+    id: '/district/readiness-trends',
+    path: '/district/readiness-trends',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictProgressRoute =
   AuthenticatedDistrictProgressRouteImport.update({
     id: '/district/progress',
@@ -1298,6 +1305,7 @@ export interface FileRoutesByFullPath {
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
+  '/district/readiness-trends': typeof AuthenticatedDistrictReadinessTrendsRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
@@ -1481,6 +1489,7 @@ export interface FileRoutesByTo {
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
+  '/district/readiness-trends': typeof AuthenticatedDistrictReadinessTrendsRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
@@ -1668,6 +1677,7 @@ export interface FileRoutesById {
   '/_authenticated/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/_authenticated/district/progress': typeof AuthenticatedDistrictProgressRoute
+  '/_authenticated/district/readiness-trends': typeof AuthenticatedDistrictReadinessTrendsRoute
   '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
@@ -1855,6 +1865,7 @@ export interface FileRouteTypes {
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
+    | '/district/readiness-trends'
     | '/district/reports'
     | '/district/schools'
     | '/district/service-gaps'
@@ -2038,6 +2049,7 @@ export interface FileRouteTypes {
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
+    | '/district/readiness-trends'
     | '/district/reports'
     | '/district/schools'
     | '/district/service-gaps'
@@ -2224,6 +2236,7 @@ export interface FileRouteTypes {
     | '/_authenticated/district/implementation'
     | '/_authenticated/district/overview'
     | '/_authenticated/district/progress'
+    | '/_authenticated/district/readiness-trends'
     | '/_authenticated/district/reports'
     | '/_authenticated/district/schools'
     | '/_authenticated/district/service-gaps'
@@ -3573,6 +3586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictReportsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/district/readiness-trends': {
+      id: '/_authenticated/district/readiness-trends'
+      path: '/district/readiness-trends'
+      fullPath: '/district/readiness-trends'
+      preLoaderRoute: typeof AuthenticatedDistrictReadinessTrendsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/progress': {
       id: '/_authenticated/district/progress'
       path: '/district/progress'
@@ -3882,6 +3902,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictImplementationRoute: typeof AuthenticatedDistrictImplementationRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictProgressRoute: typeof AuthenticatedDistrictProgressRoute
+  AuthenticatedDistrictReadinessTrendsRoute: typeof AuthenticatedDistrictReadinessTrendsRoute
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictServiceGapsRoute: typeof AuthenticatedDistrictServiceGapsRoute
@@ -3957,6 +3978,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedDistrictImplementationRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
   AuthenticatedDistrictProgressRoute: AuthenticatedDistrictProgressRoute,
+  AuthenticatedDistrictReadinessTrendsRoute:
+    AuthenticatedDistrictReadinessTrendsRoute,
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictServiceGapsRoute: AuthenticatedDistrictServiceGapsRoute,
