@@ -29,6 +29,8 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
+import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
+import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 type Props = {
