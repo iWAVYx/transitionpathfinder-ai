@@ -21,7 +21,7 @@ export interface ToolPreviewCardProps {
   /** Up to 3 preview bullets showing live values. */
   bullets?: ToolPreviewBullet[];
   /** Deep-link CTA into the full tool. */
-  cta: { label: string; to: string; params?: Record<string, string> };
+  cta: { label: string; to: string; params?: Record<string, string>; search?: Record<string, string> };
   /** Optional extra footer content. */
   footer?: ReactNode;
 }
