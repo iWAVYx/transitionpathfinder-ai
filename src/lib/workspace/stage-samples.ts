@@ -496,3 +496,307 @@ export const STAGE_SAMPLE_SCREENS: Record<StageId, StageSampleScreen> = {
 export function getStageSample(id: StageId): StageSampleScreen {
   return STAGE_SAMPLE_SCREENS[id];
 }
+
+/* ------------------------------------------------------------------ */
+/* Expanded detail — content that used to live on the separate        */
+/* "Transition Studio" demo routes, now folded into the Workspace     */
+/* Tour so opening a full sample screen expands the current stage     */
+/* in place rather than navigating away.                              */
+/* ------------------------------------------------------------------ */
+
+export interface StageDetailGroup {
+  title: string;
+  description?: string;
+  items: { label: string; note?: string }[];
+}
+
+export interface StageDetailScreen {
+  intro: string;
+  groups: StageDetailGroup[];
+  disclaimer?: string;
+}
+
+export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
+  start: {
+    intro:
+      "A closer look at how the Start stage frames the student for the rest of the plan — profile, grade band, school context, and current supports.",
+    groups: [
+      {
+        title: "Student Profile",
+        items: [
+          { label: "Name", note: "Jordan Rivera (sample)" },
+          { label: "Grade", note: "11 · Transition band" },
+          { label: "School", note: "Riverbend High" },
+          { label: "Pronouns", note: "they / them" },
+        ],
+      },
+      {
+        title: "Current Supports",
+        items: [
+          { label: "IEP", note: "Active, last reviewed March" },
+          { label: "Related Services", note: "Speech, Counseling" },
+          { label: "Accommodations", note: "Extended time, small group" },
+        ],
+      },
+      {
+        title: "Planning Concerns",
+        items: [
+          { label: "Executive Function", note: "Multi-step tasks need scaffolds" },
+          { label: "Anxiety", note: "New environments" },
+          { label: "Post-School Direction", note: "Undecided, interested in design" },
+        ],
+      },
+    ],
+    disclaimer: "Sample data — no real student information is shown.",
+  },
+  voice: {
+    intro:
+      "The Student Voice detail view mirrors the prompts, strengths, interests, and worries a student would answer in their own words.",
+    groups: [
+      {
+        title: "Voice Prompts",
+        items: [
+          { label: "What Am I Good At", note: "Noticing details, patient with younger kids" },
+          { label: "What I Want After School", note: "Keep learning, maybe work with animals" },
+          { label: "What Helps Me", note: "Written directions, quiet workspace" },
+        ],
+      },
+      {
+        title: "Strengths and Interests",
+        items: [
+          { label: "Strengths", note: "Visual memory, pattern-spotting, cooking" },
+          { label: "Interests", note: "Game design, animals, music production" },
+          { label: "Would Try", note: "Internship, weekend workshop" },
+        ],
+      },
+      {
+        title: "Worries and Support Preferences",
+        items: [
+          { label: "Worries", note: "Big rooms, being called on cold" },
+          { label: "Best Setting", note: "Small group with a coach" },
+          { label: "Advocacy Style", note: "Prefers to prep questions in writing" },
+        ],
+      },
+    ],
+    disclaimer:
+      "The student-friendly report preview reads these back to the student in plain language.",
+  },
+  family: {
+    intro:
+      "The Family Perspective detail view collects hopes, concerns, meeting questions, consent, and document status in one place.",
+    groups: [
+      {
+        title: "Family Priorities",
+        items: [
+          { label: "Independence", note: "Safe travel + budgeting" },
+          { label: "Paid Work", note: "Something Jordan enjoys" },
+          { label: "Community", note: "Stay connected with peers" },
+        ],
+      },
+      {
+        title: "Meeting Questions",
+        items: [
+          { label: "For The Case Manager", note: "How does transition assessment work?" },
+          { label: "For The School", note: "What supports carry over to college?" },
+          { label: "For Adult Services", note: "When do we apply?" },
+        ],
+      },
+      {
+        title: "Consent, Sharing, and Uploads",
+        items: [
+          { label: "Consent To Share", note: "School team: yes · Partners: ask first" },
+          { label: "Documents Uploaded", note: "IEP, most recent report card" },
+          { label: "Family Action Items", note: "Book college tour, request assessment" },
+        ],
+      },
+    ],
+  },
+  school: {
+    intro:
+      "The School Team Insight detail view shows the case manager and educator surface — services, accommodations, readiness notes, and meeting prep.",
+    groups: [
+      {
+        title: "Educator and Case Manager View",
+        items: [
+          { label: "Caseload Focus", note: "6 transition-band students this cycle" },
+          { label: "Workflow", note: "Weekly notes → auto-summary → PPT prep" },
+          { label: "Meeting Prep", note: "Draft agenda + open questions" },
+        ],
+      },
+      {
+        title: "Services and Accommodations",
+        items: [
+          { label: "Active Services", note: "Speech, Counseling, Job Coach" },
+          { label: "Accommodations", note: "Extended time, chunked work, visual schedules" },
+          { label: "Gaps Flagged", note: "Missing recent transition assessment" },
+        ],
+      },
+      {
+        title: "Classroom Readiness Notes",
+        items: [
+          { label: "Working Well", note: "Group projects, hands-on labs" },
+          { label: "Growth Area", note: "Sustained independent reading" },
+          { label: "Data Needed", note: "Timed writing sample" },
+        ],
+      },
+    ],
+  },
+  evidence: {
+    intro:
+      "The Evidence detail view previews the document review — IEP insights, report cards, assessment scores, progress notes, and source citations.",
+    groups: [
+      {
+        title: "IEP and Document Insights",
+        items: [
+          { label: "Postsecondary Goals Tagged", note: "3 across education, work, living" },
+          { label: "Services Cited", note: "4 with page references" },
+          { label: "Assessments Cited", note: "2 (WJ-IV, Transition Interest Inventory)" },
+        ],
+      },
+      {
+        title: "Report Cards and Progress",
+        items: [
+          { label: "Latest Grades", note: "B / C average, strongest in Art and CS" },
+          { label: "Progress Notes", note: "IEP goals on track: 4 of 6" },
+          { label: "Attendance", note: "94%" },
+        ],
+      },
+      {
+        title: "Source Notes and Gaps",
+        items: [
+          { label: "Every AI Insight", note: "Links back to the source line in the document" },
+          { label: "Missing", note: "Current transition assessment, updated work sample" },
+          { label: "Family Consent Form", note: "Pending signature" },
+        ],
+      },
+    ],
+    disclaimer: "AI-generated insights always cite their source and are reviewable by the team.",
+  },
+  ready: {
+    intro:
+      "The Readiness detail view breaks the scorecard into the five transition domains with strengths, gaps, and priority focus areas.",
+    groups: [
+      {
+        title: "Readiness By Domain",
+        items: [
+          { label: "Academic", note: "Strong — visual design, CS" },
+          { label: "Self-Advocacy", note: "Building — prep-and-practice model" },
+          { label: "Independent Living", note: "Focus — travel, budgeting" },
+          { label: "Career", note: "Emerging — portfolio started" },
+          { label: "Postsecondary", note: "Building — 2 programs shortlisted" },
+        ],
+      },
+      {
+        title: "Strengths To Build On",
+        items: [
+          { label: "Peer Mentoring", note: "Works well with younger students" },
+          { label: "Detail Work", note: "Catches errors others miss" },
+          { label: "Cooking", note: "Independent multi-step routines at home" },
+        ],
+      },
+      {
+        title: "Priority Focus Areas",
+        items: [
+          { label: "Time Management", note: "Chunked planners + check-ins" },
+          { label: "Travel Training", note: "Route practice with a coach" },
+          { label: "Self-Advocacy", note: "Lead one section of next PPT" },
+        ],
+      },
+    ],
+  },
+  roadmap: {
+    intro:
+      "The Roadmap detail view previews the recommended pathway with career and life matches — plus why each recommendation fits.",
+    groups: [
+      {
+        title: "Recommended Pathways",
+        items: [
+          { label: "TransitionForward", note: "Best fit — college + work track" },
+          { label: "BridgeForward", note: "Secondary — earlier grade siblings" },
+          { label: "Direct-To-Work", note: "Considered — not preferred by student" },
+        ],
+      },
+      {
+        title: "Why Each Recommendation Fits",
+        items: [
+          { label: "Voice Alignment", note: "Matches Jordan's stated interest in design" },
+          { label: "Evidence Alignment", note: "Grades + portfolio support 2-year program" },
+          { label: "Family Alignment", note: "Family prioritized paid work + community" },
+        ],
+      },
+      {
+        title: "Career and Life Matches",
+        items: [
+          { label: "UX Assistant", note: "Design interest + detail strengths" },
+          { label: "Library Aide", note: "Quiet, structured, community-facing" },
+          { label: "Peer Mentor", note: "Leverages patience with younger kids" },
+        ],
+      },
+    ],
+  },
+  action: {
+    intro:
+      "The Action detail view lays out the 30 / 60 / 90 / 180 / 365-day plan with owners, due dates, and meeting follow-up.",
+    groups: [
+      {
+        title: "30-Day Plan",
+        items: [
+          { label: "Student", note: "Finish two Voice prompts" },
+          { label: "Family", note: "Book PPT date, request assessment" },
+          { label: "School", note: "Share updated goals draft" },
+        ],
+      },
+      {
+        title: "90 and 180-Day Plan",
+        items: [
+          { label: "PPT Meeting", note: "In 6 weeks — agenda pre-loaded" },
+          { label: "College Tour", note: "In 3 months — two schools" },
+          { label: "Job Shadow", note: "In 5 months — via partner network" },
+        ],
+      },
+      {
+        title: "Meeting Prep and Follow-Up",
+        items: [
+          { label: "Pre-Meeting", note: "Questions + goals shared 48h ahead" },
+          { label: "During", note: "Live notes captured to the plan" },
+          { label: "After", note: "Auto-generated summary + action items" },
+        ],
+      },
+    ],
+  },
+  connect: {
+    intro:
+      "The Connect detail view shows the dashboard follow-through — resources, calendar, and partner opportunities where consent allows.",
+    groups: [
+      {
+        title: "Dashboard Follow-Through",
+        items: [
+          { label: "Open Action Items", note: "3 due this week" },
+          { label: "Upcoming Meeting", note: "Transition planning · Tue 3pm" },
+          { label: "Last Update", note: "Case manager, 2 days ago" },
+        ],
+      },
+      {
+        title: "Recommended Resources",
+        items: [
+          { label: "CT Transition Task Force", note: "Family guide" },
+          { label: "Project SEARCH Hartford", note: "Internship program" },
+          { label: "ABLE Accounts", note: "Plain-language setup guide" },
+        ],
+      },
+      {
+        title: "Partner Opportunities",
+        items: [
+          { label: "Design Internship", note: "Two openings — shared with consent" },
+          { label: "Peer Mentor Program", note: "One opening — matches strengths" },
+          { label: "Weekend Workshop", note: "Enrolling — travel-training pilot" },
+        ],
+      },
+    ],
+    disclaimer: "Partner opportunities are only visible where the family has agreed to share.",
+  },
+};
+
+export function getStageDetail(id: StageId): StageDetailScreen {
+  return STAGE_SAMPLE_DETAILS[id];
+}
