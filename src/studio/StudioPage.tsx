@@ -20,6 +20,7 @@ export function StudioPage({
   stage,
   student,
   preserveStudent,
+  hideRail,
   title,
   dek,
   children,
@@ -27,12 +28,13 @@ export function StudioPage({
   stage: StudioStageId;
   student?: DemoStudentId;
   preserveStudent?: boolean;
+  hideRail?: boolean;
   title: ReactNode;
   dek?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <StudioShell stage={stage} student={student} preserveStudent={preserveStudent}>
+    <StudioShell stage={stage} student={student} preserveStudent={preserveStudent} hideRail={hideRail}>
       <StudioHead title={title} dek={dek} />
       <div className="tf-studio-body">{children}</div>
     </StudioShell>
