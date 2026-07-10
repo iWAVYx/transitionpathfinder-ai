@@ -4,6 +4,7 @@ import {
   type StageId,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
+import { SmartBackLink } from "@/components/site/SmartBackLink";
 import { StageSpine } from "./StageSpine";
 import { StageHeader } from "./StageHeader";
 import { StagePrevNext } from "./StagePrevNext";
