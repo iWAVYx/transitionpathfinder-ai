@@ -290,10 +290,10 @@ function OwnerOperationsPreview({
     },
     {
       label: "Feedback / bugs",
-      value: queueCounts?.feedback ?? 0,
+      value: queueCounts?.feedbackOpen ?? 0,
       hint: "Open items",
       to: "/owner/feedback",
-      tone: (queueCounts?.feedback ?? 0) > 0 ? "text-amber-600" : "",
+      tone: (queueCounts?.feedbackOpen ?? 0) > 0 ? "text-amber-600" : "",
     },
     {
       label: "Launch readiness",
