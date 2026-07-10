@@ -79,7 +79,7 @@ export const listSharingPermissions = createServerFn({ method: "POST" })
       console.error("listSharingPermissions", error);
       return { permissions: [] as SharingPermission[] };
     }
-    return { permissions: (rows ?? []) as SharingPermission[] };
+    return { permissions: (rows ?? []) as unknown as SharingPermission[] };
   });
 
 export const revokeSharingPermission = createServerFn({ method: "POST" })
