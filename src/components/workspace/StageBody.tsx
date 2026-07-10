@@ -1,15 +1,22 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import {
   REPORT_SECTION_LABELS,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
+import { StageSamplePanel } from "./StageSamplePanel";
 
 /**
  * StageBody — narrative canvas for a single stage. Renders below the
- * StageHeader inside WorkspaceShell. Default content lists the report
- * sections this stage produces and links to the underlying work
- * surface; pages can override by passing children.
+ * StageHeader inside WorkspaceShell. The stage's interactive Sample
+ * Screen is embedded inline so it visually belongs to the stage flow
+ * instead of floating as a disconnected mockup; the "Feeds the Pathway
+ * Report" rail sits alongside it so input → insight → action stays
+ * legible on the same page.
+ *
+ * Title Case is used for panel/section titles; sentence case for
+ * narrative copy — per the project style rules.
  */
 export function StageBody({
   stage,
@@ -23,22 +30,46 @@ export function StageBody({
   children?: ReactNode;
 }) {
   return (
-    <section className="mt-10 grid gap-10">
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+    <section className="mt-10 grid gap-8">
+      {/* Optional stage-specific narrative from the route */}
+      {children && (
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          {children ?? (
-            <p className="text-lg leading-relaxed text-foreground/90">
-              This stage is where the team gathers what belongs to{" "}
-              <em>{stage.title.toLowerCase()}</em>. The information captured
-              here flows directly into the Pathway Report and the next
-              stage's work — nothing lives in isolation.
-            </p>
-          )}
+          {children}
+        </div>
+      )}
+
+      {/* Interactive sample screen, embedded in the stage flow. */}
+      <StageSamplePanel
+        stage={stage}
+        fullSampleHref={workSurfaceHref}
+        fullSampleLabel="Open Full Sample Screen"
+      />
+
+      {/* Report + surface rail — kept alongside so the flow reads as
+          Sample Screen → Report Sections → Open Work Surface. */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="rounded-3xl border border-primary/30 bg-primary/5 p-6 shadow-soft">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            Do The Work
+          </p>
+          <p className="mt-2 font-display text-xl text-foreground">
+            Open The {stage.title} Surface
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            {workSurfaceLabel}
+          </p>
+          <Link
+            to={workSurfaceHref as never}
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/90"
+          >
+            Go To Work Surface
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
 
-        <aside className="rounded-2xl border border-border bg-muted/40 p-6">
+        <aside className="rounded-3xl border border-border bg-muted/40 p-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            Feeds the Pathway Report
+            Feeds The Pathway Report
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             {stage.reportSections.map((s) => (
@@ -46,32 +77,15 @@ export function StageBody({
                 key={s}
                 className="flex items-start gap-2 leading-snug text-foreground"
               >
-                <span aria-hidden className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                <span
+                  aria-hidden
+                  className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                />
                 <span>{REPORT_SECTION_LABELS[s]}</span>
               </li>
             ))}
           </ul>
         </aside>
-      </div>
-
-      <div className="flex flex-col gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="max-w-[46ch]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            Do the work
-          </p>
-          <p className="mt-2 font-display text-xl text-foreground">
-            Open the {stage.title} surface
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {workSurfaceLabel}
-          </p>
-        </div>
-        <Link
-          to={workSurfaceHref as never}
-          className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/90 sm:self-auto"
-        >
-          Go there <span aria-hidden>→</span>
-        </Link>
       </div>
     </section>
   );

@@ -1,0 +1,498 @@
+/**
+ * Sample screen fixtures for each Transition Workspace stage.
+ *
+ * These power the inline "Sample Screen" panel rendered inside
+ * StageBody so the stage page previews the tool/workflow for that
+ * stage instead of linking out to a disconnected demo route.
+ *
+ * Sample data only — no real students. Titles use Title Case per the
+ * project style rules.
+ */
+
+import type { LucideIcon } from "lucide-react";
+import {
+  AlertTriangle,
+  BookOpen,
+  CalendarDays,
+  ClipboardCheck,
+  ClipboardList,
+  Compass,
+  FileText,
+  FolderOpen,
+  Handshake,
+  Heart,
+  MessageCircleQuestion,
+  Rocket,
+  Sparkles,
+  Target,
+  UserRound,
+} from "lucide-react";
+
+import type { StageId } from "./stages";
+
+export type StageSampleTone =
+  | "default"
+  | "success"
+  | "warning"
+  | "critical"
+  | "muted";
+
+export interface StageSampleBullet {
+  label: string;
+  value?: string;
+  hint?: string;
+}
+
+export interface StageSampleCard {
+  icon: LucideIcon;
+  /** Title Case, per the project style rules. */
+  title: string;
+  status?: string;
+  tone?: StageSampleTone;
+  summary?: string;
+  bullets?: StageSampleBullet[];
+}
+
+export interface StageSampleScreen {
+  /** Title Case heading rendered above the sample cards. */
+  title: string;
+  /** Sentence-case narrative describing what a user would see and do. */
+  description: string;
+  /** 2–3 mini tool cards that mirror the real signed-in surface. */
+  cards: StageSampleCard[];
+  /** Sentence-case caption tying the sample back to the Pathway Report. */
+  reportLink: string;
+}
+
+export const STAGE_SAMPLE_SCREENS: Record<StageId, StageSampleScreen> = {
+  start: {
+    title: "Student Snapshot Preview",
+    description:
+      "The Start stage captures the student's context — grade band, supports already in place, and what's on the current plan — so every later stage builds on the same foundation.",
+    cards: [
+      {
+        icon: UserRound,
+        title: "Student Context Card",
+        status: "In Progress",
+        tone: "default",
+        summary:
+          "Basic profile the whole team can see: grade, program, and case manager.",
+        bullets: [
+          { label: "Student", value: "Jordan Rivera" },
+          { label: "Grade Band", value: "Transition (11)" },
+          { label: "Case Manager", value: "Ms. Nguyen" },
+        ],
+      },
+      {
+        icon: ClipboardList,
+        title: "Current Supports Snapshot",
+        status: "Active",
+        tone: "success",
+        summary:
+          "IEP services and accommodations already documented for this year.",
+        bullets: [
+          { label: "IEP Status", value: "Active" },
+          { label: "504 Plan", value: "N/A" },
+          { label: "Related Services", value: "Speech, Counseling" },
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Planning Snapshot",
+        status: "Draft",
+        tone: "warning",
+        summary:
+          "What the team knows so far about postsecondary direction.",
+        bullets: [
+          { label: "Direction", value: "College + Work" },
+          { label: "Interests", value: "Design, Coding" },
+          { label: "Confidence", value: "Building" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Student Snapshot section of the Pathway Report.",
+  },
+  voice: {
+    title: "Student Voice Preview",
+    description:
+      "The Voice stage centers the student's own strengths, interests, worries, and support preferences before anyone else weighs in.",
+    cards: [
+      {
+        icon: MessageCircleQuestion,
+        title: "Student Voice Prompts",
+        status: "3 of 6",
+        tone: "default",
+        summary:
+          "Guided prompts the student answers in their own words — voice or text.",
+        bullets: [
+          { label: "Answered", value: "3" },
+          { label: "Skipped", value: "1" },
+          { label: "Remaining", value: "2" },
+        ],
+      },
+      {
+        icon: Heart,
+        title: "Strengths and Interests",
+        status: "Captured",
+        tone: "success",
+        summary: "What the student is proud of and wants more of.",
+        bullets: [
+          { label: "Top Strength", value: "Visual Thinking" },
+          { label: "Top Interest", value: "Game Design" },
+          { label: "Would Try", value: "Internship" },
+        ],
+      },
+      {
+        icon: Target,
+        title: "Support Preferences",
+        status: "Shared",
+        tone: "default",
+        summary: "How the student wants to be supported at school and beyond.",
+        bullets: [
+          { label: "Best Setting", value: "Small Group" },
+          { label: "Needs Time", value: "Reading, Tests" },
+          { label: "Advocacy", value: "With A Coach" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Student Voice and Strengths, Preferences, Interests, and Needs sections of the Pathway Report.",
+  },
+  family: {
+    title: "Family Perspective Preview",
+    description:
+      "The Family stage collects hopes, concerns, priorities, and the questions the family wants asked at the next PPT or transition meeting.",
+    cards: [
+      {
+        icon: Heart,
+        title: "Family Priorities",
+        status: "Captured",
+        tone: "success",
+        summary:
+          "The two or three outcomes the family cares most about this year.",
+        bullets: [
+          { label: "Priority", value: "Independence" },
+          { label: "Priority", value: "Paid Work" },
+          { label: "Priority", value: "Safe Travel" },
+        ],
+      },
+      {
+        icon: MessageCircleQuestion,
+        title: "Meeting Prep Questions",
+        status: "5 Drafted",
+        tone: "default",
+        summary:
+          "Questions the family plans to bring into the next PPT meeting.",
+        bullets: [
+          { label: "For Case Manager", value: "3" },
+          { label: "For School Admin", value: "1" },
+          { label: "For Related Services", value: "1" },
+        ],
+      },
+      {
+        icon: ClipboardCheck,
+        title: "Consent and Sharing",
+        status: "Review",
+        tone: "warning",
+        summary: "Who the family agrees to share the Pathway Report with.",
+        bullets: [
+          { label: "School Team", value: "Yes" },
+          { label: "Adult Agencies", value: "Ask First" },
+          { label: "Community Partners", value: "Not Yet" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Family Action Plan and Meeting Prep Questions sections of the Pathway Report.",
+  },
+  school: {
+    title: "School Team Insight Preview",
+    description:
+      "The School stage brings in the case manager and educator view — services, accommodations, and readiness notes from the classroom.",
+    cards: [
+      {
+        icon: ClipboardList,
+        title: "Case Manager Notes",
+        status: "Updated",
+        tone: "success",
+        summary:
+          "Recent observations from the case manager and content teachers.",
+        bullets: [
+          { label: "Last Updated", value: "2 Days Ago" },
+          { label: "Contributors", value: "3 Educators" },
+          { label: "Focus", value: "Self-Advocacy" },
+        ],
+      },
+      {
+        icon: FileText,
+        title: "Services and Accommodations",
+        status: "Aligned",
+        tone: "default",
+        summary:
+          "Current IEP services mapped to transition goals for this year.",
+        bullets: [
+          { label: "Services", value: "4 Active" },
+          { label: "Accommodations", value: "6 Active" },
+          { label: "Gaps Flagged", value: "1" },
+        ],
+      },
+      {
+        icon: Target,
+        title: "Classroom Readiness Notes",
+        status: "In Review",
+        tone: "warning",
+        summary:
+          "What the team sees working — and where they'd like more data.",
+        bullets: [
+          { label: "Strong Area", value: "Group Work" },
+          { label: "Growth Area", value: "Time Management" },
+          { label: "Needs Data", value: "Independent Reading" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Educator and Case Manager Action Plan and IEP Translator sections of the Pathway Report.",
+  },
+  evidence: {
+    title: "Documents and Evidence Preview",
+    description:
+      "The Evidence stage anchors the plan in real documents: IEPs, report cards, progress notes, and formal assessments.",
+    cards: [
+      {
+        icon: FolderOpen,
+        title: "Document Upload Status",
+        status: "3 of 5",
+        tone: "warning",
+        summary:
+          "Which core documents are in the vault and which are still missing.",
+        bullets: [
+          { label: "IEP (Current)", value: "Uploaded" },
+          { label: "Report Card", value: "Uploaded" },
+          { label: "Transition Assessment", value: "Missing" },
+        ],
+      },
+      {
+        icon: FileText,
+        title: "IEP Evidence Highlights",
+        status: "Reviewed",
+        tone: "success",
+        summary:
+          "Key passages from the current IEP tagged to transition domains.",
+        bullets: [
+          { label: "Postsecondary Goals", value: "3 Tagged" },
+          { label: "Services Cited", value: "4" },
+          { label: "Assessments Cited", value: "2" },
+        ],
+      },
+      {
+        icon: AlertTriangle,
+        title: "Missing Information and Gaps",
+        status: "Action Needed",
+        tone: "critical",
+        summary:
+          "What's blocking a stronger Pathway Report right now.",
+        bullets: [
+          { label: "Transition Assessment", value: "Request" },
+          { label: "Recent Work Sample", value: "Request" },
+          { label: "Family Consent Form", value: "Pending" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Missing Information and Data Gaps section of the Pathway Report.",
+  },
+  ready: {
+    title: "Readiness Scorecard Preview",
+    description:
+      "The Ready stage turns everything captured so far into a readiness picture across academics, self-advocacy, independent living, career, and community.",
+    cards: [
+      {
+        icon: ClipboardCheck,
+        title: "Readiness Scorecard",
+        status: "Updated",
+        tone: "success",
+        summary:
+          "Overall readiness picture across the five transition domains.",
+        bullets: [
+          { label: "Academics", value: "Strong" },
+          { label: "Self-Advocacy", value: "Building" },
+          { label: "Independent Living", value: "Focus" },
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Strengths To Build On",
+        status: "Highlighted",
+        tone: "default",
+        summary: "Where the student already shines across domains.",
+        bullets: [
+          { label: "Academics", value: "Visual Design" },
+          { label: "Community", value: "Peer Mentoring" },
+          { label: "Career", value: "Portfolio Started" },
+        ],
+      },
+      {
+        icon: Target,
+        title: "Priority Focus Areas",
+        status: "Team Set",
+        tone: "warning",
+        summary:
+          "The two or three areas the team agreed to focus on this cycle.",
+        bullets: [
+          { label: "Focus", value: "Time Management" },
+          { label: "Focus", value: "Travel Training" },
+          { label: "Focus", value: "Self-Advocacy" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Readiness Scorecard section of the Pathway Report.",
+  },
+  roadmap: {
+    title: "Pathway Report Preview",
+    description:
+      "The Roadmap stage turns readiness and voice into a personalized pathway — recommended direction plus matched careers and life goals.",
+    cards: [
+      {
+        icon: Compass,
+        title: "Recommended Pathway",
+        status: "Suggested",
+        tone: "default",
+        summary:
+          "The pathway that best fits the student's voice, readiness, and evidence.",
+        bullets: [
+          { label: "Direction", value: "College + Work" },
+          { label: "Program", value: "TransitionForward" },
+          { label: "Confidence", value: "High" },
+        ],
+      },
+      {
+        icon: Target,
+        title: "Postsecondary Goals",
+        status: "Drafted",
+        tone: "default",
+        summary:
+          "Draft goals for education, employment, and independent living.",
+        bullets: [
+          { label: "Education", value: "2-Year Program" },
+          { label: "Employment", value: "Design Internship" },
+          { label: "Living", value: "Semi-Independent" },
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "Career and Life Matches",
+        status: "5 Matches",
+        tone: "success",
+        summary:
+          "Careers and community roles matched to strengths and interests.",
+        bullets: [
+          { label: "Top Match", value: "UX Assistant" },
+          { label: "Top Match", value: "Library Aide" },
+          { label: "Top Match", value: "Peer Mentor" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Postsecondary Goals, Recommended Pathways, and Career and Life Matches sections of the Pathway Report.",
+  },
+  action: {
+    title: "30 / 90 / 180 / 365 Day Plan Preview",
+    description:
+      "The Action stage breaks the pathway into concrete next steps with owners, due dates, and meeting follow-up.",
+    cards: [
+      {
+        icon: Rocket,
+        title: "30-Day Action Plan",
+        status: "3 Steps",
+        tone: "default",
+        summary: "What happens in the next month, with owners.",
+        bullets: [
+          { label: "Owner: Student", value: "1" },
+          { label: "Owner: Family", value: "1" },
+          { label: "Owner: School", value: "1" },
+        ],
+      },
+      {
+        icon: CalendarDays,
+        title: "90 and 180-Day Steps",
+        status: "Scheduled",
+        tone: "success",
+        summary:
+          "Longer-range milestones with due dates and meeting checkpoints.",
+        bullets: [
+          { label: "PPT Meeting", value: "In 6 Weeks" },
+          { label: "College Tour", value: "In 3 Months" },
+          { label: "Job Shadow", value: "In 5 Months" },
+        ],
+      },
+      {
+        icon: Target,
+        title: "365-Day Milestones",
+        status: "Draft",
+        tone: "warning",
+        summary: "Year-out goals the team will revisit each stage.",
+        bullets: [
+          { label: "Milestone", value: "Program Applied" },
+          { label: "Milestone", value: "Paid Work" },
+          { label: "Milestone", value: "Travel Independent" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the 30-Day, 90-Day, 6-Month, and 1-Year Next Steps section of the Pathway Report.",
+  },
+  connect: {
+    title: "Resources and Opportunities Preview",
+    description:
+      "The Connect stage turns the plan into follow-through — recommended resources, community programs, and partner opportunities the family has agreed to share with.",
+    cards: [
+      {
+        icon: BookOpen,
+        title: "Recommended Resources",
+        status: "6 Matches",
+        tone: "default",
+        summary:
+          "Curated guides, agencies, and services matched to the plan.",
+        bullets: [
+          { label: "State Agencies", value: "2" },
+          { label: "Family Guides", value: "3" },
+          { label: "Self-Advocacy", value: "1" },
+        ],
+      },
+      {
+        icon: Handshake,
+        title: "Partner Opportunity Matches",
+        status: "3 Open",
+        tone: "success",
+        summary:
+          "Partner-hosted opportunities that match — visible only where consent allows.",
+        bullets: [
+          { label: "Internship", value: "2 Open" },
+          { label: "Mentorship", value: "1 Open" },
+          { label: "Workshop", value: "Enrolling" },
+        ],
+      },
+      {
+        icon: CalendarDays,
+        title: "Calendar and Follow-Through",
+        status: "On Track",
+        tone: "success",
+        summary:
+          "Upcoming meetings and check-ins tied back to the Action stage.",
+        bullets: [
+          { label: "Next Meeting", value: "In 2 Weeks" },
+          { label: "Check-In", value: "In 30 Days" },
+          { label: "Report Review", value: "In 60 Days" },
+        ],
+      },
+    ],
+    reportLink:
+      "Feeds the Recommended Resources and Partner Opportunity Matches sections of the Pathway Report.",
+  },
+};
+
+export function getStageSample(id: StageId): StageSampleScreen {
+  return STAGE_SAMPLE_SCREENS[id];
+}
