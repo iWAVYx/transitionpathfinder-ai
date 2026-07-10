@@ -38,7 +38,12 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   { role: "school_admin",   label: "Demo School Admin",       email: "demo.school@transitionforward.demo",   password: "DemoSchool2026!",   first_name: "Lena",   last_name: "Brooks (Demo)" },
   { role: "district_admin", label: "Demo District Admin",     email: "demo.district@transitionforward.demo", password: "DemoDistrict2026!", first_name: "Marcus", last_name: "Holt (Demo)" },
   { role: "partner",        label: "Demo Partner Org",        email: "demo.partner@transitionforward.demo",  password: "DemoPartner2026!",  first_name: "Dana",   last_name: "Kim (Demo)" },
-  { role: "platform_admin", label: "Demo Platform Admin",     email: "demo.admin@transitionforward.demo",    password: "DemoAdmin2026!",    first_name: "Owen",   last_name: "Sterling (Demo)" },
+  // NOTE: A demo "platform_admin" account is intentionally NOT seeded.
+  // The `admin` app_role is a full RLS bypass across every real student's
+  // data (documents, IEPs, messages, PII), not scoped to `is_demo = true`
+  // rows. A demo account with a hardcoded, source-committed password must
+  // never hold that role. Real platform-admin access is provisioned outside
+  // of demo seeding via `admin_roles` / `user_roles`.
 ];
 
 const PRIMARY_ROLE: Record<DemoAccountRole, string> = {
