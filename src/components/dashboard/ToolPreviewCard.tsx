@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { toTitleCase } from "@/lib/title-case";
 
 export interface ToolPreviewBullet {
   label: string;
@@ -60,7 +61,7 @@ export function ToolPreviewCard({
           <span aria-hidden />
         )}
       </div>
-      <h3 className="mt-4 font-display text-lg font-medium tracking-tight">{title}</h3>
+      <h3 className="mt-4 font-display text-lg font-medium tracking-tight">{toTitleCase(title)}</h3>
       {summary && <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{summary}</p>}
       {bullets && bullets.length > 0 && (
         <ul className="mt-4 space-y-1.5 text-sm">
@@ -82,7 +83,7 @@ export function ToolPreviewCard({
           params={cta.params as never}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
-          {cta.label}
+          {toTitleCase(cta.label)}
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
         </Link>
       </div>
@@ -115,7 +116,7 @@ export function ToolPreviewSection({
         </p>
       )}
       <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-        {title}
+        {toTitleCase(title)}
       </h2>
       {description && (
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
