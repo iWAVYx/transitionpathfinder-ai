@@ -183,6 +183,7 @@ export function RolePreviewShell({
               summary={t.summary}
               bullets={t.bullets}
               cta={t.cta}
+              footer={t.previewId ? renderDemoPreview(t.previewId) : undefined}
             />
           ))}
         </DemoToolPreviewGrid>
