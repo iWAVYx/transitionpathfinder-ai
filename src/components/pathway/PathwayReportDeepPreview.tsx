@@ -167,12 +167,35 @@ export function PathwayReportDeepPreview() {
   const studentVoice = byTitle.get("Student Voice (In Their Own Words)");
   const voiceQuote = studentVoice?.items.find((i) => i.label === "What I Want After School")?.note;
 
-  const handleDownloadPdf = useCallback(() => {
-    if (!isSignedIn) return;
-    setStatus("Preparing print dialog for PDF export…");
-    // The browser print dialog offers "Save as PDF" on every major platform.
-    setTimeout(() => window.print(), 50);
-  }, [isSignedIn]);
+  const generatePdf = useServerFn(generatePathwayReportPdf);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (!isSignedIn || downloading) return;
+    setDownloading(true);
+    setStatus("Generating your PDF…");
+    try {
+      const result = await generatePdf();
+      const binary = atob(result.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: result.contentType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStatus("PDF downloaded.");
+    } catch (err) {
+      console.error(err);
+      setStatus("Couldn't generate the PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }, [isSignedIn, downloading, generatePdf]);
 
   const handleShare = useCallback(async () => {
     if (!isSignedIn) return;
