@@ -59,7 +59,7 @@ test("parent RLS: owner + approved relationship access; cross-family isolation; 
       ["sharing_permissions", { student_id: ps.id, shared_by_user_id: P.uid, shared_with_user_id: G.uid, access_level: "view_only" }],
       ["goals", { student_id: ps.id, title: "Family goal", created_by: P.uid }],
       ["action_items", { student_id: ps.id, title: "Family action", created_by_user_id: P.uid }],
-      ["student_intakes", { user_id: P.uid, student_id: ps.id }],
+      ["student_intakes", { user_id: P.uid, student_id: ps.id, student_first_name: "PKid" }],
     ];
     for (const [tbl, payload] of pWrites) {
       const { error } = await P.client.from(tbl).insert(payload);
