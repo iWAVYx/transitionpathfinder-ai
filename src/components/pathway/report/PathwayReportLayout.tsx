@@ -9,11 +9,8 @@
  * stable anchor contract, and observes the stage-grouped body emitted
  * by PathwayReportBody for scroll-driven stage highlighting.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  PathwayReportSpine,
-  reportSectionAnchorId,
-} from "./PathwayReportSpine";
+import { useEffect, useRef, useState } from "react";
+import { reportSectionAnchorId } from "./PathwayReportSpine";
 import { PathwayReportStageProgress } from "./PathwayReportStageProgress";
 import { WORKSPACE_STAGES, type PathwayReportSectionId, type StageId } from "@/lib/workspace/stages";
 
@@ -141,23 +138,14 @@ export function PathwayReportLayout({ children }: PathwayReportLayoutProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [children]);
 
-  const presentSectionsMemo = useMemo(
-    () => (present.size > 0 ? present : undefined),
-    [present],
-  );
+  void present;
+  void active;
+  void reportSectionAnchorId;
+
+
 
   return (
-    <div className="mx-auto grid w-full max-w-[92rem] gap-6 px-3 pt-4 sm:gap-8 sm:px-6 sm:pt-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:px-8">
-      <aside className="no-print hidden lg:block">
-        <div className="sticky top-24">
-          <PathwayReportSpine
-            activeSectionId={active}
-            activeStageId={activeStage}
-            completedStageIds={completedStages}
-            presentSections={presentSectionsMemo}
-          />
-        </div>
-      </aside>
+    <div className="mx-auto w-full max-w-[92rem] px-3 pt-4 sm:px-6 sm:pt-6 lg:px-8">
       <div ref={contentRef} className="min-w-0">
         <PathwayReportStageProgress
           activeStageId={activeStage}

@@ -472,7 +472,7 @@ export function ReportView({
         }
       `}</style>
 
-      <ReportTOC report={r} audience={audience} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
+      {/* Report TOC removed — the top PathwayReportStageProgress rail is the single legend. */}
 
       {/* ============ PRINT-ONLY COVER PAGE ============ */}
       <div className="print-cover hidden print:block" aria-hidden>
