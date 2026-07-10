@@ -358,23 +358,23 @@ export const STAGE_SAMPLE_SCREENS: Record<StageId, StageSampleScreen> = {
       {
         icon: Compass,
         title: "Recommended Pathway",
-        status: "Suggested",
-        tone: "default",
+        status: "High Confidence",
+        tone: "success",
         summary:
-          "The pathway that best fits the student's voice, readiness, and evidence.",
+          "The pathway that best fits the student's voice, readiness, and evidence — with a plain-language rationale.",
         bullets: [
           { label: "Direction", value: "College + Work" },
           { label: "Program", value: "TransitionForward" },
-          { label: "Confidence", value: "High" },
+          { label: "Alternate", value: "BridgeForward" },
         ],
       },
       {
         icon: Target,
         title: "Postsecondary Goals",
-        status: "Drafted",
+        status: "IDEA-Aligned",
         tone: "default",
         summary:
-          "Draft goals for education, employment, and independent living.",
+          "Education, employment, and independent living goals translated into plain language, with linked services and accommodations.",
         bullets: [
           { label: "Education", value: "2-Year Program" },
           { label: "Employment", value: "Design Internship" },
@@ -383,20 +383,20 @@ export const STAGE_SAMPLE_SCREENS: Record<StageId, StageSampleScreen> = {
       },
       {
         icon: BookOpen,
-        title: "Career and Life Matches",
-        status: "5 Matches",
+        title: "Matches + Next Steps",
+        status: "5 Careers · 3 Partners",
         tone: "success",
         summary:
-          "Careers and community roles matched to strengths and interests.",
+          "Career and community matches, recommended resources, partner opportunities, and 30/90/180/365-day next steps with owners.",
         bullets: [
           { label: "Top Match", value: "UX Assistant" },
-          { label: "Top Match", value: "Library Aide" },
-          { label: "Top Match", value: "Peer Mentor" },
+          { label: "Top Partner", value: "Design Studio" },
+          { label: "This Month", value: "Book PPT" },
         ],
       },
     ],
     reportLink:
-      "Feeds the Postsecondary Goals, Recommended Pathways, and Career and Life Matches sections of the Pathway Report.",
+      "Feeds the Snapshot, Voice, Family, Educator, Evidence, Readiness, Pathways, Matches, Meeting Prep, and Next Steps sections of the Pathway Report.",
   },
   action: {
     title: "30 / 90 / 180 / 365 Day Plan Preview",
