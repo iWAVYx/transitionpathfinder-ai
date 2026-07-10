@@ -706,22 +706,68 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
   },
   roadmap: {
     intro:
-      "The Roadmap detail view previews the recommended pathway with career and life matches — plus why each recommendation fits.",
+      "The Pathway Report is the shareable deliverable of the whole plan — synthesized from student voice, family priorities, educator insight, and evidence. Every section is IDEA-aligned and cites its source.",
     groups: [
       {
-        title: "Recommended Pathways",
+        title: "Executive Summary",
+        description:
+          "The one-page brief the team reads first — direction, confidence, and top three next steps.",
         items: [
-          { label: "TransitionForward", note: "Best fit — college + work track" },
-          { label: "BridgeForward", note: "Secondary — earlier grade siblings" },
-          { label: "Direct-To-Work", note: "Considered — not preferred by student" },
+          { label: "Recommended Direction", note: "College + Work (TransitionForward track)" },
+          { label: "Confidence", note: "High — aligned across voice, evidence, family" },
+          { label: "Top Next Step", note: "Book PPT + request transition assessment" },
         ],
       },
       {
-        title: "Why Each Recommendation Fits",
+        title: "Student Voice Highlights",
+        description: "Direct from the student, in their own words.",
         items: [
-          { label: "Voice Alignment", note: "Matches Jordan's stated interest in design" },
-          { label: "Evidence Alignment", note: "Grades + portfolio support 2-year program" },
-          { label: "Family Alignment", note: "Family prioritized paid work + community" },
+          { label: "After School", note: "Keep learning, maybe work with animals" },
+          { label: "What Helps Me", note: "Written directions, quiet workspace" },
+          { label: "Would Try", note: "Internship, weekend workshop" },
+        ],
+      },
+      {
+        title: "Family Priorities",
+        items: [
+          { label: "Independence", note: "Safe travel + budgeting" },
+          { label: "Paid Work", note: "Something Jordan enjoys" },
+          { label: "Community", note: "Stay connected with peers" },
+        ],
+      },
+      {
+        title: "Educator Insight",
+        items: [
+          { label: "Strong Area", note: "Group work, hands-on labs" },
+          { label: "Growth Area", note: "Sustained independent reading" },
+          { label: "Case Manager Focus", note: "Self-advocacy this cycle" },
+        ],
+      },
+      {
+        title: "Documents and Evidence",
+        description: "Every insight below cites the source page.",
+        items: [
+          { label: "IEP", note: "Uploaded · 3 goals tagged · 4 services cited" },
+          { label: "Report Card", note: "Uploaded · strongest in Art + CS" },
+          { label: "Transition Assessment", note: "Requested — flagged as gap" },
+        ],
+      },
+      {
+        title: "Readiness Profile",
+        items: [
+          { label: "Academic", note: "Strong" },
+          { label: "Self-Advocacy", note: "Building" },
+          { label: "Independent Living", note: "Focus" },
+          { label: "Career", note: "Emerging" },
+          { label: "Postsecondary", note: "Building" },
+        ],
+      },
+      {
+        title: "Recommended Pathway",
+        items: [
+          { label: "TransitionForward", note: "Best fit — 2-year program + design internship" },
+          { label: "Why It Fits", note: "Matches voice, evidence, and family priorities" },
+          { label: "What's Next", note: "Two campus tours + one job shadow booked" },
         ],
       },
       {
@@ -729,11 +775,24 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
         items: [
           { label: "UX Assistant", note: "Design interest + detail strengths" },
           { label: "Library Aide", note: "Quiet, structured, community-facing" },
-          { label: "Peer Mentor", note: "Leverages patience with younger kids" },
+          { label: "Peer Mentor", note: "Patience with younger kids" },
+        ],
+      },
+      {
+        title: "Role-Specific Views",
+        description:
+          "The same report, reframed for each reader — one document, three lenses.",
+        items: [
+          { label: "Student View", note: "Plain language, strengths-first, one-page summary" },
+          { label: "Family View", note: "Meeting-ready with questions and consent controls" },
+          { label: "Educator View", note: "IDEA-aligned goals with citation trail" },
         ],
       },
     ],
+    disclaimer:
+      "AI-assisted insights always cite their source and are reviewable by the full team before sharing.",
   },
+
   action: {
     intro:
       "The Action detail view lays out the 30 / 60 / 90 / 180 / 365-day plan with owners, due dates, and meeting follow-up.",
