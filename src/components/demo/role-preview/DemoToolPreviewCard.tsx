@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { toTitleCase } from "@/lib/title-case";
 
 export interface DemoToolPreviewBullet {
   label: string;
@@ -63,7 +64,7 @@ export function DemoToolPreviewCard({
         )}
       </div>
       <h3 className="mt-4 font-display text-lg font-medium tracking-tight">
-        {title}
+        {toTitleCase(title)}
       </h3>
       {summary && (
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -98,7 +99,7 @@ export function DemoToolPreviewCard({
             params={cta.params as never}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
           >
-            {cta.label}
+            {toTitleCase(cta.label)}
             <ArrowRight
               className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
               aria-hidden
