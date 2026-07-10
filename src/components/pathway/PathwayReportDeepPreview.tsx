@@ -349,12 +349,13 @@ export function PathwayReportDeepPreview() {
           <button
             type="button"
             onClick={handleDownloadPdf}
-            disabled={!isSignedIn || authLoading}
-            aria-disabled={!isSignedIn || authLoading}
-            title={isSignedIn ? "Open the print dialog to save as PDF" : "Sign in to download the PDF"}
+            disabled={!isSignedIn || authLoading || downloading}
+            aria-disabled={!isSignedIn || authLoading || downloading}
+            title={isSignedIn ? "Download the report as a PDF" : "Sign in to download the PDF"}
             className={`${PILL_BASE} ${PILL_GHOST} disabled:cursor-not-allowed disabled:opacity-60`}
           >
-            <Printer className="h-3.5 w-3.5" aria-hidden /> Download PDF
+            <Printer className="h-3.5 w-3.5" aria-hidden />
+            {downloading ? "Generating…" : "Download PDF"}
           </button>
           <button
             type="button"
