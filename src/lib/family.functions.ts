@@ -58,7 +58,7 @@ export type SharingPermission = {
   shared_with_user_id: string | null;
   shared_with_organization_id: string | null;
   access_level: string;
-  shared_items: unknown;
+  shared_items: string[] | null;
   expiration_date: string | null;
   created_at: string;
 };
