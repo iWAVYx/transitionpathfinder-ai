@@ -45,7 +45,7 @@ test("student RLS: cross-student isolation across all key surfaces", async () =>
       ["action_items", { student_id: A.studentId, title: "A action", created_by_user_id: A.uid }],
       ["student_voice_responses", { student_id: A.studentId, prompt_key: "hopes", response_text: "A hopes", age_band: "early-high", created_by: A.uid }],
       ["saved_resources", { user_id: A.uid, resource_id: null, resource_slug: "test-a" }],
-      ["calendar_events", { owner_user_id: A.uid, student_id: A.studentId, visibility: "team", title: "A meeting", start_at: new Date().toISOString(), end_at: new Date(Date.now()+3600e3).toISOString() }],
+      ["calendar_events", { owner_user_id: A.uid, student_id: A.studentId, visibility: "team", title: "A meeting", event_date: new Date().toISOString().slice(0,10), start_time: "09:00", end_time: "10:00" }],
     ]) {
       const [tbl, payload] = row;
       const { error } = await A.client.from(tbl).insert(payload);
