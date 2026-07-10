@@ -445,7 +445,7 @@ export const getSchoolResourceUsage = createServerFn({ method: "POST" })
     if (resourceIds.length) {
       const { data: resRows } = await context.supabase
         .from("resources").select("id, title, topic").in("id", resourceIds);
-      for (const r of (resRows ?? []) as Array<{ id: string; title: string | null; category: string | null }>) {
+      for (const r of (resRows ?? []) as Array<{ id: string; title: string | null; topic: string | null }>) {
         titles.set(r.id, { title: r.title, category: r.topic });
       }
     }
