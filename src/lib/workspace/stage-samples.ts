@@ -808,16 +808,51 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
   },
   roadmap: {
     intro:
-      "The Pathway Report is the shareable deliverable of the whole plan — synthesized from student voice, family priorities, educator insight, and evidence. Every section is IDEA-aligned and cites its source.",
+      "The Pathway Report is the shareable deliverable of the whole plan — synthesized from student voice, family priorities, educator insight, and evidence. Every section is IDEA-aligned, cites its source, and reads in three lenses (student, family, educator) from a single document.",
     groups: [
       {
         phase: "input",
-        title: "Voice, Family, and Educator Input",
-        description: "What the report opens with — the people at the center of the plan.",
+        title: "Student Snapshot",
+        description: "The cover-page context every reader sees first.",
         items: [
-          { label: "Student Voice", note: "Keep learning, maybe work with animals" },
-          { label: "Family Priorities", note: "Independence, paid work, community" },
-          { label: "Educator Focus", note: "Self-advocacy this cycle" },
+          { label: "Student", note: "Jordan Rivera · they / them · Age 17" },
+          { label: "Grade + School", note: "Grade 11 · Riverbend High" },
+          { label: "Case Manager", note: "Ms. Nguyen · Transition Team" },
+          { label: "Plan Type", note: "Active IEP · last reviewed March" },
+          { label: "Headline", note: "College + Work direction with a design focus" },
+        ],
+      },
+      {
+        phase: "input",
+        title: "Student Voice (In Their Own Words)",
+        description: "Quoted directly from the Voice stage — never paraphrased by staff.",
+        items: [
+          { label: "What I'm Good At", note: "\"Noticing details, patient with younger kids\"" },
+          { label: "What I Want After School", note: "\"Keep learning, maybe work with animals\"" },
+          { label: "What Helps Me", note: "\"Written directions, quiet workspace\"" },
+          { label: "What Worries Me", note: "\"Big rooms, being called on cold\"" },
+        ],
+      },
+      {
+        phase: "input",
+        title: "Family Priorities",
+        description: "The two or three outcomes the family cares most about.",
+        items: [
+          { label: "Independence", note: "Safe travel + budgeting" },
+          { label: "Paid Work", note: "Something Jordan enjoys" },
+          { label: "Community", note: "Stay connected with peers" },
+          { label: "Consent To Share", note: "School team: yes · Partners: ask first" },
+        ],
+      },
+      {
+        phase: "input",
+        title: "Educator Insights",
+        description: "Recent observations from the case manager and classroom team.",
+        items: [
+          { label: "Case Manager Note", note: "Strong in group work + hands-on labs" },
+          { label: "Growth Area", note: "Sustained independent reading" },
+          { label: "Contributors", note: "3 educators added notes this cycle" },
+          { label: "Recommended Direction", note: "Structured 2-year program + internship" },
         ],
       },
       {
@@ -825,20 +860,45 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
         title: "Documents and Evidence",
         description: "Every insight below cites the source page.",
         items: [
-          { label: "IEP", note: "Uploaded · 3 goals tagged · 4 services cited" },
+          { label: "Current IEP", note: "Uploaded March · 3 goals + 4 services tagged" },
           { label: "Report Card", note: "Uploaded · strongest in Art + CS" },
-          { label: "Transition Assessment", note: "Requested — flagged as gap" },
+          { label: "Transition Interest Inventory", note: "On file · design + community themes" },
+          { label: "Transition Assessment", note: "Requested — flagged in Data Gaps" },
         ],
       },
       {
         phase: "insight",
-        title: "Readiness Profile",
+        title: "Readiness Scorecard",
+        description: "Five transition domains rated Emerging → Ready.",
         items: [
-          { label: "Academic", note: "Strong" },
-          { label: "Self-Advocacy", note: "Building" },
-          { label: "Independent Living", note: "Focus" },
-          { label: "Career", note: "Emerging" },
-          { label: "Postsecondary", note: "Building" },
+          { label: "Academic", note: "Strong — visual design, CS" },
+          { label: "Self-Advocacy", note: "Building — prep-and-practice model" },
+          { label: "Independent Living", note: "Focus — travel, budgeting" },
+          { label: "Career Awareness", note: "Emerging — portfolio started" },
+          { label: "Postsecondary", note: "Building — 2 programs shortlisted" },
+        ],
+      },
+      {
+        phase: "insight",
+        title: "IEP + Transition Translator",
+        description: "Plain-language translation of the current IEP goals and services.",
+        items: [
+          { label: "Postsecondary Goal (Education)", note: "\"Enroll in a 2-year design or CS program\"" },
+          { label: "Postsecondary Goal (Employment)", note: "\"Hold a paid role tied to a career interest\"" },
+          { label: "Postsecondary Goal (Living)", note: "\"Travel and manage a weekly budget independently\"" },
+          { label: "Key Accommodations", note: "Extended time · chunked work · visual schedules" },
+          { label: "Related Services", note: "Speech · Counseling · Job Coach" },
+        ],
+      },
+      {
+        phase: "insight",
+        title: "Data Gaps + Needs Review",
+        description: "What's missing, why it matters, and who owns closing it.",
+        items: [
+          { label: "Transition Assessment", note: "Blocks Career section · owner: case manager" },
+          { label: "Recent Work Sample", note: "Strengthens portfolio · owner: student" },
+          { label: "Family Consent Form", note: "Pending signature · owner: family" },
+          { label: "Confidence", note: "High overall — one gap flagged for team review" },
         ],
       },
       {
@@ -849,24 +909,59 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
           { label: "Recommended Direction", note: "College + Work (TransitionForward track)" },
           { label: "Confidence", note: "High — aligned across voice, evidence, family" },
           { label: "Top Next Step", note: "Book PPT + request transition assessment" },
+          { label: "Change Since Last Version", note: "+1 IEP doc, +2 Voice responses, +3 readiness scores" },
         ],
       },
       {
         phase: "pathway",
-        title: "Recommended Pathway",
+        title: "Recommended Pathways",
+        description: "Ranked with a plain-language reason and cited sources.",
         items: [
-          { label: "TransitionForward", note: "Best fit — 2-year program + design internship" },
-          { label: "Why It Fits", note: "Matches voice, evidence, and family priorities" },
-          { label: "What's Next", note: "Two campus tours + one job shadow booked" },
+          { label: "TransitionForward (Best Fit)", note: "2-year program + design internship · voice + evidence aligned" },
+          { label: "BridgeForward (Alternate)", note: "Bridge year with paid work first · matches family caution" },
+          { label: "Why Not Now: Full 4-Year", note: "Executive-function support runway needed first" },
         ],
       },
       {
         phase: "pathway",
         title: "Career and Life Matches",
+        description: "Careers and community roles matched to strengths and interests.",
         items: [
           { label: "UX Assistant", note: "Design interest + detail strengths" },
           { label: "Library Aide", note: "Quiet, structured, community-facing" },
           { label: "Peer Mentor", note: "Patience with younger kids" },
+          { label: "Animal Shelter Volunteer", note: "Direct match to student voice interest" },
+        ],
+      },
+      {
+        phase: "pathway",
+        title: "Recommended Resources",
+        description: "Curated guides, agencies, and services matched to the plan.",
+        items: [
+          { label: "CT Bureau Of Rehabilitation Services", note: "Adult-services intake — apply age 16+" },
+          { label: "Family Guide To Transition", note: "Read before next PPT" },
+          { label: "Self-Advocacy Toolkit", note: "Coached practice for leading a meeting section" },
+        ],
+      },
+      {
+        phase: "pathway",
+        title: "Partner Matches (Where Consent Allows)",
+        description: "Partner-hosted opportunities visible only where the family has opted in.",
+        items: [
+          { label: "Design Studio Internship", note: "Fall cohort · 8 weeks · paid" },
+          { label: "Community Library Aide", note: "Rolling · 4 hrs/wk · structured onboarding" },
+          { label: "Peer Mentor Program", note: "Enrolling now · matches student voice" },
+        ],
+      },
+      {
+        phase: "action",
+        title: "Meeting Prep Questions",
+        description: "Pre-written questions the team can bring straight into the PPT.",
+        items: [
+          { label: "For The Student", note: "Which strength do you want the team to lead with?" },
+          { label: "For The Family", note: "What's one worry you want addressed on the record?" },
+          { label: "For The Educator", note: "What data would strengthen the Career section?" },
+          { label: "For The Team", note: "Who owns each 30-day action, and when do we check in?" },
         ],
       },
       {
@@ -881,16 +976,29 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
       },
       {
         phase: "action",
-        title: "Top Next Steps",
+        title: "30 / 90 / 180 / 365-Day Next Steps",
+        description: "Concrete steps with owners, laddered to postsecondary goals.",
         items: [
-          { label: "This Month", note: "Book PPT, request transition assessment" },
-          { label: "This Quarter", note: "Two college tours, one job shadow" },
-          { label: "This Year", note: "Apply to program, land paid work" },
+          { label: "30 Days", note: "Book PPT · request transition assessment · finish Voice prompts" },
+          { label: "90 Days", note: "PPT held with report-driven agenda · consent form signed" },
+          { label: "180 Days", note: "Two college tours + one job shadow completed" },
+          { label: "365 Days", note: "Program applied · paid work started · travel independent" },
+        ],
+      },
+      {
+        phase: "action",
+        title: "Source Notes + AI Disclaimer",
+        description: "How to read this report responsibly.",
+        items: [
+          { label: "Every Insight Cites A Source", note: "Profile · Voice · IEP page · educator note · readiness score" },
+          { label: "AI-Assisted, Team-Reviewed", note: "Suggestions are drafts — the team decides what ships" },
+          { label: "Version History", note: "Regeneration diff shows what changed since last review" },
+          { label: "Sharing", note: "Family controls who sees the report and which sections" },
         ],
       },
     ],
     disclaimer:
-      "AI-assisted insights always cite their source and are reviewable by the full team before sharing.",
+      "AI-assisted insights always cite their source and are reviewable by the full team before sharing. Sample data — no real student information is shown.",
   },
   action: {
     intro:
