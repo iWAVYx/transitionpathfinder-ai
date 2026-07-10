@@ -17,6 +17,8 @@ interface Props {
   student?: DemoStudentId;
   /** Optional explicit student in URL — when set, links carry ?s=. */
   preserveStudent?: boolean;
+  /** Hide the left workbench rail and let the canvas take the full width. */
+  hideRail?: boolean;
   children: ReactNode;
 }
 
