@@ -54,10 +54,11 @@ export function StageSamplePanel({
   fullSampleHref,
   fullSampleLabel = "Open Full Sample Screen",
   expandInPlace = false,
+  defaultExpanded = false,
 }: StageSamplePanelProps) {
   const sample = getStageSample(stage.id);
   const detail = expandInPlace ? getStageDetail(stage.id) : null;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const detailId = useId();
 
   return (
