@@ -5863,20 +5863,23 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
  * ===================================================================== */
 
 .tf-studio {
-  --st-ink:        #161d2c;          /* deep navy ink */
-  --st-ink-soft:   #2a3344;
-  --st-mute:       #5b6573;
-  --st-paper:      #f3ede1;          /* cream paper */
-  --st-paper-2:    #ece4d2;          /* warmer cream */
-  --st-paper-3:    #f8f3e6;          /* lighter cream */
-  --st-map:        #2f6b8a;          /* map blue */
-  --st-map-deep:   #1e4f6b;
-  --st-mustard:    #e8b14a;          /* mustard waypoint */
+  --st-ink:        var(--foreground);
+  --st-ink-soft:   var(--foreground);
+  --st-mute:       var(--muted-foreground);
+  /* Beige "paper" surface removed — the Pathway Studio now inherits the
+     main site background so demo pages (Intake / Report / Plan) feel
+     integrated with the product rather than a detached publication. */
+  --st-paper:      var(--background);
+  --st-paper-2:    var(--muted);
+  --st-paper-3:    var(--background);
+  --st-map:        var(--primary);
+  --st-map-deep:   var(--primary);
+  --st-mustard:    #e8b14a;
   --st-mustard-soft:#f1cd80;
-  --st-terra:      #a83f2a;          /* terracotta accent */
+  --st-terra:      #a83f2a;
   --st-terra-soft: #c46a52;
-  --st-rule:       color-mix(in srgb, #161d2c 16%, transparent);
-  --st-rule-soft:  color-mix(in srgb, #161d2c 8%, transparent);
+  --st-rule:       var(--border);
+  --st-rule-soft:  var(--border);
 
   --st-serif: "Lora", Georgia, "Times New Roman", serif;
   --st-sans:  "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -5893,6 +5896,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   position: relative;
   isolation: isolate;
 }
+
 
 /* Decorative studio wash + illustrations removed — the beige/cream surface
    made the studio feel like a separate page from the rest of the product.
@@ -5928,11 +5932,9 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
     "rail  canvas"
     "rail  foot";
   min-height: 100dvh;
-  background:
-    radial-gradient(1200px 600px at 88% -120px, color-mix(in srgb, var(--st-mustard) 18%, transparent), transparent 60%),
-    radial-gradient(900px 700px at -10% 110%, color-mix(in srgb, var(--st-map) 12%, transparent), transparent 60%),
-    var(--st-paper);
+  background: transparent;
 }
+
 @media (max-width: 960px) {
   .tf-studio-app {
     grid-template-columns: 1fr;
