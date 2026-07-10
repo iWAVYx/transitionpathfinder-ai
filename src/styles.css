@@ -6952,3 +6952,162 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 .tf-studio .bg-muted { background-color: var(--st-paper-3) !important; }
 .tf-studio .text-muted-foreground { color: var(--st-mute) !important; }
 
+
+/* ===========================================================================
+ * READABILITY + WARMTH PASS — Demo Workspace + Pathway Report
+ * ---------------------------------------------------------------------------
+ * Typography, spacing, and gentle visual warmth. Scoped strictly to
+ * .demo-shell and .report-shell so global surfaces are unaffected.
+ * =========================================================================== */
+
+/* Larger, warmer body copy with generous leading. */
+.demo-shell,
+.report-shell {
+  font-size: 1.0625rem;      /* 17px */
+  line-height: 1.7;
+  color: color-mix(in oklab, var(--demo-ink) 92%, transparent);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Stronger heading hierarchy — friendlier serif display, tighter tracking. */
+.demo-shell :where(h1),
+.report-shell :where(h1) {
+  font-size: clamp(2.25rem, 3.6vw, 3.375rem);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+  font-weight: 500;
+}
+.demo-shell :where(h2),
+.report-shell :where(h2) {
+  font-size: clamp(1.75rem, 2.4vw, 2.375rem);
+  line-height: 1.15;
+  letter-spacing: -0.018em;
+  font-weight: 500;
+}
+.demo-shell :where(h3),
+.report-shell :where(h3) {
+  font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+  line-height: 1.28;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+}
+.demo-shell :where(h4),
+.report-shell :where(h4) {
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+}
+
+/* Paragraphs & lists — breathable rhythm, capped reading measure. */
+.demo-shell :where(p),
+.report-shell :where(p) {
+  line-height: 1.7;
+  max-width: 68ch;
+}
+.demo-shell :where(p + p),
+.report-shell :where(p + p) { margin-top: 0.9rem; }
+
+.demo-shell :where(ul, ol),
+.report-shell :where(ul, ol) {
+  line-height: 1.65;
+  max-width: 68ch;
+}
+.demo-shell :where(ul, ol) li + li,
+.report-shell :where(ul, ol) li + li { margin-top: 0.4rem; }
+
+/* Small text / labels — never below 13px and always spaced. */
+.demo-shell :where(small, .text-xs),
+.report-shell :where(small, .text-xs) {
+  font-size: 0.8125rem;
+  letter-spacing: 0.005em;
+}
+
+/* Softer, warmer muted text so descriptions stay readable. */
+.demo-shell .text-muted-foreground,
+.report-shell .text-muted-foreground {
+  color: color-mix(in oklab, var(--demo-ink) 62%, transparent);
+}
+
+/* ---------- Pathway Report body — chapter rhythm ---------- */
+.report-shell .pathway-report-body { padding-block: 0.5rem 3rem; }
+
+.report-shell .report-stage {
+  margin-top: clamp(3rem, 5vw, 5rem) !important;
+  padding-top: clamp(1.75rem, 3vw, 2.75rem);
+  scroll-margin-top: 6rem;
+}
+.report-shell .report-stage > header {
+  margin-bottom: clamp(1.5rem, 2.4vw, 2.25rem) !important;
+  padding-top: clamp(1.25rem, 2vw, 2rem) !important;
+  border-top-width: 1px !important;
+  border-top-color: color-mix(in oklab, var(--demo-primary) 22%, transparent) !important;
+  position: relative;
+}
+/* Warm accent dot next to the "Stage N · Label" eyebrow so each chapter
+ * has a color moment — evokes the workspace stage markers. */
+.report-shell .report-stage > header::before {
+  content: "";
+  position: absolute;
+  top: -0.5rem;
+  left: 0;
+  width: 2.75rem;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--demo-primary), var(--demo-accent));
+}
+.report-shell .report-stage > header > p:first-child {
+  font-family: var(--font-demo-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--demo-primary);
+}
+.report-shell .report-stage > header > h2 {
+  margin-top: 0.5rem !important;
+  font-size: clamp(2rem, 3vw, 2.75rem) !important;
+  line-height: 1.1;
+}
+.report-shell .report-stage > header > p:last-child {
+  margin-top: 0.75rem !important;
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 62ch;
+  color: color-mix(in oklab, var(--demo-ink) 70%, transparent);
+}
+
+/* Per-stage accent hues on the header rule + dot. */
+.report-shell [data-report-stage="start"]     > header::before { background: linear-gradient(90deg, #2d8a9e, #5cbdb9); }
+.report-shell [data-report-stage="voice"]     > header::before { background: linear-gradient(90deg, #c26a4a, #e8a87c); }
+.report-shell [data-report-stage="family"]    > header::before { background: linear-gradient(90deg, #c9756a, #f1b8a8); }
+.report-shell [data-report-stage="school"]    > header::before { background: linear-gradient(90deg, #1a4a6e, #5c8fb5); }
+.report-shell [data-report-stage="evidence"]  > header::before { background: linear-gradient(90deg, #7a5a3a, #c9a84c); }
+.report-shell [data-report-stage="ready"]     > header::before { background: linear-gradient(90deg, #4a6741, #87a878); }
+.report-shell [data-report-stage="roadmap"]   > header::before { background: linear-gradient(90deg, #1a4a6e, #2d8a9e); }
+.report-shell [data-report-stage="action"]    > header::before { background: linear-gradient(90deg, #c4654a, #e8a87c); }
+.report-shell [data-report-stage="connect"]   > header::before { background: linear-gradient(90deg, #6c5ce7, #a78bfa); }
+
+/* Breathe between sections inside a stage. */
+.report-shell .report-stage-sections { row-gap: clamp(1.5rem, 2.4vw, 2.5rem); }
+.report-shell .report-stage-sections > * + * { margin-top: clamp(1.25rem, 2vw, 2rem); }
+
+/* Cards inside the report — roomier padding, softer edges. */
+.report-shell .rounded-2xl,
+.report-shell .rounded-3xl { border-radius: 1.5rem; }
+.report-shell [class*="p-4"]:where(section, div).bg-card { padding: clamp(1.25rem, 2vw, 2rem); }
+
+/* Gentle warm paper wash under the report content. */
+.report-shell .pathway-report-body {
+  background:
+    radial-gradient(60% 40% at 50% 0%, color-mix(in oklab, var(--peach-soft) 22%, transparent), transparent 70%),
+    transparent;
+}
+
+/* Print + reduced-motion respect stays untouched — only spacing/type here. */
+@media (max-width: 640px) {
+  .demo-shell,
+  .report-shell { font-size: 1rem; line-height: 1.65; }
+  .report-shell .report-stage { margin-top: 2.5rem !important; }
+  .report-shell .report-stage > header > h2 { font-size: 1.75rem !important; }
+}
