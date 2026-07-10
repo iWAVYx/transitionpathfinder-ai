@@ -120,13 +120,32 @@ export function StageSamplePanel({
           <p className="text-sm leading-relaxed text-muted-foreground">
             {detail.intro}
           </p>
-          <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <p className="mt-4 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.input}`}>Input</span>
+            <span aria-hidden>→</span>
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.insight}`}>Insight</span>
+            <span aria-hidden>→</span>
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.pathway}`}>Pathway</span>
+            <span aria-hidden>→</span>
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.action}`}>Action</span>
+            <span className="ml-1 normal-case tracking-normal text-muted-foreground/80">
+              Pathway Report flow
+            </span>
+          </p>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
             {detail.groups.map((group) => (
               <div
                 key={group.title}
                 className="rounded-xl border border-border bg-background p-4"
               >
-                <h3 className="font-display text-sm font-semibold tracking-tight text-foreground">
+                {group.phase && (
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${PHASE_STYLES[group.phase]}`}
+                  >
+                    {STAGE_DETAIL_PHASE_LABEL[group.phase]}
+                  </span>
+                )}
+                <h3 className="mt-2 font-display text-sm font-semibold tracking-tight text-foreground">
                   {group.title}
                 </h3>
                 {group.description && (
@@ -152,6 +171,7 @@ export function StageSamplePanel({
               </div>
             ))}
           </div>
+
           {detail.disclaimer && (
             <p className="mt-4 text-[11px] italic leading-relaxed text-muted-foreground">
               {detail.disclaimer}
