@@ -30,7 +30,7 @@ interface Props {
  * full overview map overlay. Replaces SiteShell + DemoStepBar +
  * PublicationPage chrome wholesale for the demo and signed-in report.
  */
-export function StudioShell({ stage, student, preserveStudent, children }: Props) {
+export function StudioShell({ stage, student, preserveStudent, hideRail, children }: Props) {
   const [mapOpen, setMapOpen] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
   const current = stageById(stage);
