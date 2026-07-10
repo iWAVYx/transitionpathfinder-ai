@@ -62,6 +62,12 @@ export type DemoToolPreview = {
   summary?: string;
   bullets?: { label: string; value?: string; hint?: string }[];
   cta?: { label: string; to: string };
+  /**
+   * Optional in-place preview id. When set, the tile renders a compact
+   * read-only preview from `src/components/demo/previews/` inline instead
+   * of only linking away. See `DEMO_PREVIEWS` for available ids.
+   */
+  previewId?: import("@/components/demo/previews").DemoPreviewId;
 };
 
 export type DemoRolePreview = {
