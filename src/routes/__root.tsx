@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useLocation,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
@@ -21,6 +22,11 @@ import {
   APP_BUILD_TIME,
   DASHBOARD_TESTID_CONTRACT_VERSION,
 } from "@/lib/build-info";
+import {
+  dashboardTestIdForDashboardHint,
+  dashboardTestIdForPath,
+  ROLE_DASHBOARD_TEST_IDS,
+} from "@/lib/dashboard-testids";
 
 
 import appCss from "../styles.css?url";
@@ -50,9 +56,23 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const location = useLocation();
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const dashboardTestId =
+    location.pathname === "/dashboard"
+      ? dashboardTestIdForDashboardHint(dashboardHint) ?? ROLE_DASHBOARD_TEST_IDS.student
+      : dashboardTestIdForPath(location.pathname);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+      data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+      data-testid={dashboardTestId ?? undefined}
+    >
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
@@ -78,7 +98,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

@@ -20,7 +20,11 @@ const read = (rel: string) => readFileSync(resolve(ROOT, rel), "utf8");
 describe("student /dashboard render contract", () => {
   const dashboard = read("src/routes/_authenticated/dashboard.tsx");
   const authenticatedLayout = read("src/routes/_authenticated.tsx");
+  const rootRoute = read("src/routes/__root.tsx");
   const login = read("src/routes/login.index.tsx");
+  const demoWorkspace = read("src/routes/demo_.workspace.$stage.tsx");
+  const demoReport = read("src/routes/demo_.report.tsx");
+  const studioShell = read("src/studio/StudioShell.tsx");
   const studentDash = read("src/components/dashboard/StudentDashboard.tsx");
   const siteShell = read("src/components/site/SiteShell.tsx");
 
@@ -80,5 +84,22 @@ describe("student /dashboard render contract", () => {
     expect(login).toMatch(/tf:e2e-dashboard-testid/);
     expect(login).toMatch(/dashboardTestIdForDashboardHint\(email\)/);
     expect(login).toMatch(/rememberDashboardHintFromEmail\(values\.email\)[\s\S]*navigate\(\{ to: redirect/);
+  });
+
+  it("root error boundary still renders a dashboard-safe <main>", () => {
+    expect(rootRoute).toMatch(/function ErrorComponent/);
+    expect(rootRoute).toMatch(/<main\b[\s\S]*data-dashboard-testid-contract=/);
+    expect(rootRoute).toMatch(/data-testid=\{dashboardTestId \?\? undefined\}/);
+    expect(rootRoute).toMatch(/ROLE_DASHBOARD_TEST_IDS\.student/);
+  });
+
+  it("demo workspace and report entry points have safe shells without profile data", () => {
+    expect(demoWorkspace).toMatch(/createFileRoute\("\/demo_\/workspace\/\$stage"\)/);
+    expect(demoWorkspace).toMatch(/stageParam\.parse\(raw\.stage\)/);
+    expect(demoWorkspace).toMatch(/<SiteShell>/);
+    expect(demoReport).toMatch(/DEFAULT_DEMO_STUDENT/);
+    expect(demoReport).toMatch(/const s = search\.s \?\? DEFAULT_DEMO_STUDENT/);
+    expect(demoReport).toMatch(/<ReportView/);
+    expect(studioShell).toMatch(/<main className="tf-studio-canvas"/);
   });
 });
