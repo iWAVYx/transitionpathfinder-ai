@@ -84,6 +84,10 @@ export function OwnerDashboardPage() {
           <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
           <OnboardingChecklist surface="admin" />
 
+          {/* Ops preview grid — one glanceable card per operational surface */}
+          <OwnerOperationsPreview metrics={metrics} queueCounts={queueCounts} reviewCounts={reviewCounts} />
+
+
           {/* Site status banner — pills wrap cleanly on mobile */}
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background p-3 sm:p-4">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
