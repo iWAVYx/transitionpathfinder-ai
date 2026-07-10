@@ -9,7 +9,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listStudents, type Student } from "@/lib/students.functions";
-import { listPathwayReports, type PathwayReportRow } from "@/lib/pathway.functions";
+import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
 
 export const Route = createFileRoute("/_authenticated/pathway/student")({
   head: () => ({
@@ -31,21 +31,21 @@ export const Route = createFileRoute("/_authenticated/pathway/student")({
 
 function StudentPathwayPage() {
   const loadStudents = useServerFn(listStudents);
-  const loadReports = useServerFn(listPathwayReports);
+  const loadReports = useServerFn(listMyReports);
 
   const [students, setStudents] = useState<Student[]>([]);
-  const [reports, setReports] = useState<PathwayReportRow[]>([]);
+  const [reports, setReports] = useState<ReportListRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const { students } = await loadStudents();
+        const [{ students }, { reports }] = await Promise.all([
+          loadStudents(),
+          loadReports(),
+        ]);
         setStudents(students);
-        if (students[0]) {
-          const { reports } = await loadReports({ data: { student_id: students[0].id } });
-          setReports(reports);
-        }
+        setReports(reports);
       } finally {
         setLoading(false);
       }
@@ -57,7 +57,7 @@ function StudentPathwayPage() {
   return (
     <SiteShell>
       <main data-testid="student-pathway-page" className="mx-auto max-w-4xl px-4 py-8">
-        <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: "My Pathway" }]} />
+        <Breadcrumbs trail={[{ label: "My Pathway" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
             <Compass className="h-7 w-7 text-primary" />

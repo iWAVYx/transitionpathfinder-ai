@@ -100,12 +100,7 @@ function ActionItemsPage() {
   return (
     <SiteShell>
       <main data-testid="action-items-page" className="mx-auto max-w-4xl px-4 py-8">
-        <Breadcrumbs
-          items={[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "Action Items" },
-          ]}
-        />
+        <Breadcrumbs trail={[{ label: "Action Items" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
             <ClipboardCheck className="h-7 w-7 text-primary" />
