@@ -459,6 +459,39 @@ export const addSchoolToDistrict = createServerFn({ method: "POST" })
       if (schoolErr || !created) throw new Error("Could not create school.");
       schoolId = created.id;
     } else {
+      // SECURITY: only allow re-parenting a school if it is currently unclaimed
+      // (no parent district) OR the caller is independently an active
+      // admin/owner of that school. Without this guard, any district admin
+      // could annex an arbitrary existing school by UUID and gain visibility
+      // into its team + aggregate metrics.
+      const { data: targetSchool, error: fetchErr } = await supabaseAdmin
+        .from("organizations")
+        .select("id, type, parent_organization_id")
+        .eq("id", schoolId)
+        .maybeSingle();
+      if (fetchErr || !targetSchool) throw new Error("School not found.");
+      if (targetSchool.type !== "school") throw new Error("Target is not a school.");
+
+      const alreadyClaimed =
+        targetSchool.parent_organization_id !== null &&
+        targetSchool.parent_organization_id !== data.district_id;
+
+      if (alreadyClaimed) {
+        const { data: schoolMem } = await supabaseAdmin
+          .from("organization_memberships")
+          .select("id")
+          .eq("organization_id", schoolId)
+          .eq("user_id", userId)
+          .eq("status", "active")
+          .in("role_within_org", ["admin", "owner", "school_admin"])
+          .maybeSingle();
+        if (!schoolMem) {
+          throw new Error(
+            "This school already belongs to another district. Ask a school admin to move it.",
+          );
+        }
+      }
+
       const { error: updErr } = await supabaseAdmin
         .from("organizations")
         .update({ parent_organization_id: data.district_id })
