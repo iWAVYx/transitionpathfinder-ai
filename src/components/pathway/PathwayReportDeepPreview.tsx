@@ -296,48 +296,135 @@ export function PathwayReportDeepPreview() {
   );
 }
 
+function ChapterNav() {
+  const [focusIdx, setFocusIdx] = useState(0);
+  const linkRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+
+  const focusAt = useCallback((i: number) => {
+    const next = (i + CHAPTERS.length) % CHAPTERS.length;
+    setFocusIdx(next);
+    linkRefs.current[next]?.focus();
+  }, []);
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>, i: number) => {
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        e.preventDefault();
+        focusAt(i + 1);
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        e.preventDefault();
+        focusAt(i - 1);
+        break;
+      case "Home":
+        e.preventDefault();
+        focusAt(0);
+        break;
+      case "End":
+        e.preventDefault();
+        focusAt(CHAPTERS.length - 1);
+        break;
+    }
+  };
+
+  const activate = (id: string) => {
+    // Move focus to the chapter heading so screen readers/keyboard users land
+    // in the destination content instead of staying on the nav pill.
+    const heading = document.getElementById(`report-ch-${id}-heading`);
+    if (heading) {
+      heading.focus({ preventScroll: false });
+    }
+  };
+
+  return (
+    <nav
+      aria-label="Report chapters"
+      className="sticky top-0 z-10 border-y bg-card/95 px-4 py-3 backdrop-blur sm:px-6"
+    >
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <p className={EYEBROW} id="report-chapter-nav-label">
+          Jump To
+        </p>
+        <div
+          role="toolbar"
+          aria-labelledby="report-chapter-nav-label"
+          aria-orientation="horizontal"
+          className="flex flex-wrap gap-1.5"
+        >
+          {CHAPTERS.map((c, i) => (
+            <a
+              key={c.id}
+              ref={(el) => {
+                linkRefs.current[i] = el;
+              }}
+              href={`#report-ch-${c.id}`}
+              tabIndex={i === focusIdx ? 0 : -1}
+              onKeyDown={(e) => onKeyDown(e, i)}
+              onFocus={() => setFocusIdx(i)}
+              onClick={() => activate(c.id)}
+              aria-label={`Jump to Chapter ${c.number}: ${c.title}`}
+              className={`${PILL_BASE} ${PILL_GHOST} no-underline`}
+            >
+              <span
+                aria-hidden
+                className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary"
+              >
+                {c.number}
+              </span>
+              <span>{c.title}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function ChapterBlock({ chapter, sections }: { chapter: Chapter; sections: StageDetailGroup[] }) {
   const Icon = chapter.icon;
+  const headingId = `report-ch-${chapter.id}-heading`;
   return (
     <section
       id={`report-ch-${chapter.id}`}
+      aria-labelledby={headingId}
       className="scroll-mt-24 px-6 py-10 sm:px-10 sm:py-12"
     >
       <header className="flex items-center gap-4 border-b border-border/60 pb-5">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="h-5 w-5" aria-hidden />
+        <span
+          aria-hidden
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20"
+        >
+          <Icon className="h-5 w-5" />
         </span>
         <div className="min-w-0">
           <p className={EYEBROW}>{chapter.eyebrow}</p>
-          <h3 className="mt-1 font-display text-2xl font-medium leading-tight tracking-tight text-foreground">
+          <h3
+            id={headingId}
+            tabIndex={-1}
+            className={`mt-1 font-display text-2xl font-medium leading-tight tracking-tight text-foreground rounded-sm ${FOCUS_RING}`}
+          >
             {chapter.title}
           </h3>
         </div>
       </header>
 
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
+      <ul
+        role="list"
+        aria-label={`${chapter.title} sections`}
+        className="mt-6 grid gap-5 md:grid-cols-2"
+      >
         {sections.map((s) => (
-          <SectionCard key={s.title} group={s} />
+          <li key={s.title} className="list-none">
+            <SectionCard group={s} />
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
 
-function SectionCard({ group }: { group: StageDetailGroup }) {
-  const phase = group.phase ?? "input";
-  return (
-    <article className="flex h-full flex-col rounded-2xl border bg-background p-6 shadow-soft transition-colors hover:border-primary/40">
-      <div className="flex items-center justify-between gap-2">
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ring-1 ${PHASE_TONE[phase]}`}
-        >
-          {PHASE_LABEL[phase]}
-        </span>
-      </div>
-      <h4 className="mt-3 font-display text-base font-semibold leading-snug tracking-tight text-foreground">
-        {group.title}
-      </h4>
       {group.description && (
         <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{group.description}</p>
       )}
