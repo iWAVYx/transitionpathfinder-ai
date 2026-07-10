@@ -466,33 +466,34 @@ function DashboardPage() {
     }
   }
 
-  /* ---------- student-only audience: first-person dashboard ---------- */
-  if (isStudentOnly === true && !loading && snap) {
+  /* ---------- student-only audience: first-person dashboard ----------
+   *
+   * Rendered BEFORE the generic loading / empty branches so a student
+   * viewer always gets `<main data-testid="student-dashboard-main">` even
+   * while the snapshot or student list is still resolving, and never falls
+   * through to the parent-audience empty state (which would render the
+   * wrong dashboard test id and blank-render the student-setup probe).
+   *
+   * `treatAsStudent` also honors the E2E dashboard hint (email/URL/
+   * localStorage) so the render path is stable when the roles fetch is
+   * momentarily unavailable — the underlying RLS still protects data.
+   */
+  const treatAsStudent =
+    isStudentOnly === true ||
+    (isStudentOnly === null &&
+      hintedDashboardTestId === ROLE_DASHBOARD_TEST_IDS.student);
+  if (treatAsStudent) {
     return (
-      <StudentDashboard firstName={friendly} snap={snap} onToggleAction={toggleAction} />
+      <StudentDashboard
+        firstName={friendly}
+        snap={snap ?? EMPTY_STUDENT_SNAPSHOT}
+        onToggleAction={snap ? toggleAction : () => {}}
+      />
     );
   }
 
   /* ---------- empty state: no students yet ---------- */
   if (!loading && students.length === 0) {
-    // Student-only audience: show the student waiting-for-invite empty state.
-    if (isStudentOnly === true) {
-      return (
-        <StudentDashboard
-          firstName={friendly}
-          snap={{
-            student: null,
-            latestReport: null,
-            goals: [],
-            documents: [],
-            actionItems: [],
-            upcomingMeeting: null,
-            consents: [],
-          } as unknown as DashboardSnapshot}
-          onToggleAction={() => {}}
-        />
-      );
-    }
     return (
       <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
