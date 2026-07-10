@@ -146,7 +146,7 @@ test("partner RLS: own org opportunities OK; peer drafts and student PII blocked
 
     // --- PartnerForward saves: PA can save for self, not for peer user
     const { data: pfRes } = await admin.from("partnerforward_resources")
-      .insert({ title: "R", resource_type: "guide", is_published: true }).select("id").single();
+      .insert({ title: "R", status: "published" }).select("id").single();
     const { error: savedSelfErr } = await PA.client
       .from("partnerforward_partner_saved_resources")
       .insert({ partner_user_id: PA.uid, resource_id: pfRes.id });
