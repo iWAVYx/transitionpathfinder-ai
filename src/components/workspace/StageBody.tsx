@@ -6,6 +6,8 @@ import {
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
 import { StageSamplePanel } from "./StageSamplePanel";
+import { StageRoleValueStrip } from "./StageRoleValueStrip";
+
 
 /**
  * StageBody — narrative canvas for a single stage.
