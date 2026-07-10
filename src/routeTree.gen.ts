@@ -165,6 +165,9 @@ import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authentica
 import { Route as AuthenticatedFamilyPrioritiesRouteImport } from './routes/_authenticated/family.priorities'
 import { Route as AuthenticatedFamilyConsentRouteImport } from './routes/_authenticated/family.consent'
 import { Route as AuthenticatedFamilyActionItemsRouteImport } from './routes/_authenticated/family.action-items'
+import { Route as AuthenticatedEducatorReadinessGapsRouteImport } from './routes/_authenticated/educator.readiness-gaps'
+import { Route as AuthenticatedEducatorNotesRouteImport } from './routes/_authenticated/educator.notes'
+import { Route as AuthenticatedEducatorActionItemsRouteImport } from './routes/_authenticated/educator.action-items'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
@@ -1021,6 +1024,24 @@ const AuthenticatedFamilyActionItemsRoute =
     path: '/family/action-items',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedEducatorReadinessGapsRoute =
+  AuthenticatedEducatorReadinessGapsRouteImport.update({
+    id: '/educator/readiness-gaps',
+    path: '/educator/readiness-gaps',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEducatorNotesRoute =
+  AuthenticatedEducatorNotesRouteImport.update({
+    id: '/educator/notes',
+    path: '/educator/notes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEducatorActionItemsRoute =
+  AuthenticatedEducatorActionItemsRouteImport.update({
+    id: '/educator/action-items',
+    path: '/educator/action-items',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictTeamRoute =
   AuthenticatedDistrictTeamRouteImport.update({
     id: '/district/team',
@@ -1208,6 +1229,9 @@ export interface FileRoutesByFullPath {
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
+  '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
+  '/educator/notes': typeof AuthenticatedEducatorNotesRoute
+  '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/family/consent': typeof AuthenticatedFamilyConsentRoute
   '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
@@ -1378,6 +1402,9 @@ export interface FileRoutesByTo {
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
+  '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
+  '/educator/notes': typeof AuthenticatedEducatorNotesRoute
+  '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/family/consent': typeof AuthenticatedFamilyConsentRoute
   '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
@@ -1552,6 +1579,9 @@ export interface FileRoutesById {
   '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
+  '/_authenticated/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
+  '/_authenticated/educator/notes': typeof AuthenticatedEducatorNotesRoute
+  '/_authenticated/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/_authenticated/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/_authenticated/family/consent': typeof AuthenticatedFamilyConsentRoute
   '/_authenticated/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
@@ -1726,6 +1756,9 @@ export interface FileRouteTypes {
     | '/district/reports'
     | '/district/schools'
     | '/district/team'
+    | '/educator/action-items'
+    | '/educator/notes'
+    | '/educator/readiness-gaps'
     | '/family/action-items'
     | '/family/consent'
     | '/family/priorities'
@@ -1896,6 +1929,9 @@ export interface FileRouteTypes {
     | '/district/reports'
     | '/district/schools'
     | '/district/team'
+    | '/educator/action-items'
+    | '/educator/notes'
+    | '/educator/readiness-gaps'
     | '/family/action-items'
     | '/family/consent'
     | '/family/priorities'
@@ -2069,6 +2105,9 @@ export interface FileRouteTypes {
     | '/_authenticated/district/reports'
     | '/_authenticated/district/schools'
     | '/_authenticated/district/team'
+    | '/_authenticated/educator/action-items'
+    | '/_authenticated/educator/notes'
+    | '/_authenticated/educator/readiness-gaps'
     | '/_authenticated/family/action-items'
     | '/_authenticated/family/consent'
     | '/_authenticated/family/priorities'
@@ -3306,6 +3345,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFamilyActionItemsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/educator/readiness-gaps': {
+      id: '/_authenticated/educator/readiness-gaps'
+      path: '/educator/readiness-gaps'
+      fullPath: '/educator/readiness-gaps'
+      preLoaderRoute: typeof AuthenticatedEducatorReadinessGapsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/educator/notes': {
+      id: '/_authenticated/educator/notes'
+      path: '/educator/notes'
+      fullPath: '/educator/notes'
+      preLoaderRoute: typeof AuthenticatedEducatorNotesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/educator/action-items': {
+      id: '/_authenticated/educator/action-items'
+      path: '/educator/action-items'
+      fullPath: '/educator/action-items'
+      preLoaderRoute: typeof AuthenticatedEducatorActionItemsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/team': {
       id: '/_authenticated/district/team'
       path: '/district/team'
@@ -3623,6 +3683,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
+  AuthenticatedEducatorActionItemsRoute: typeof AuthenticatedEducatorActionItemsRoute
+  AuthenticatedEducatorNotesRoute: typeof AuthenticatedEducatorNotesRoute
+  AuthenticatedEducatorReadinessGapsRoute: typeof AuthenticatedEducatorReadinessGapsRoute
   AuthenticatedFamilyActionItemsRoute: typeof AuthenticatedFamilyActionItemsRoute
   AuthenticatedFamilyConsentRoute: typeof AuthenticatedFamilyConsentRoute
   AuthenticatedFamilyPrioritiesRoute: typeof AuthenticatedFamilyPrioritiesRoute
@@ -3684,6 +3747,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
+  AuthenticatedEducatorActionItemsRoute: AuthenticatedEducatorActionItemsRoute,
+  AuthenticatedEducatorNotesRoute: AuthenticatedEducatorNotesRoute,
+  AuthenticatedEducatorReadinessGapsRoute:
+    AuthenticatedEducatorReadinessGapsRoute,
   AuthenticatedFamilyActionItemsRoute: AuthenticatedFamilyActionItemsRoute,
   AuthenticatedFamilyConsentRoute: AuthenticatedFamilyConsentRoute,
   AuthenticatedFamilyPrioritiesRoute: AuthenticatedFamilyPrioritiesRoute,
