@@ -74,9 +74,8 @@ export function ToolPreviewCard({
       )}
       {footer && <div className="mt-4">{footer}</div>}
       <div className="mt-auto pt-5">
-        {/* @ts-expect-error - dynamic route strings are validated at usage sites */}
         <Link
-          to={cta.to}
+          to={cta.to as string}
           params={cta.params as never}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
