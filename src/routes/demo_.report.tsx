@@ -39,6 +39,7 @@ function DemoReportPage() {
       stage="report"
       student={s}
       preserveStudent={!!search.s}
+      hideRail
       title={
         <>
           A pathway, <em>made visible.</em>
