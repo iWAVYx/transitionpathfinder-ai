@@ -184,7 +184,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
 
         {/* BOUNDARY (partner) */}
         {role.boundary && (
-          <section className="mt-8 rounded-3xl border-2 border-amber-500/40 bg-amber-50 p-6 dark:bg-amber-950/20">
+          <section className="mt-12 rounded-3xl border-2 border-amber-500/40 bg-amber-50 p-6 dark:bg-amber-950/20">
             <div className="flex items-start gap-3">
               <Shield className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-400" />
               <div>
@@ -208,7 +208,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
         )}
 
         {/* CTA */}
-        <section className="mt-8 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
+        <section className="mt-12 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="font-display text-2xl">Ready to take the next step?</h2>
