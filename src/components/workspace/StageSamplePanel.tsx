@@ -109,7 +109,7 @@ function SampleCard({ card }: { card: StageSampleCard }) {
     <article className="flex h-full min-h-[13rem] flex-col rounded-2xl border border-border bg-background p-4 shadow-soft">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="h-4.5 w-4.5" aria-hidden />
+          <Icon className="h-4 w-4" aria-hidden />
         </span>
         <span aria-hidden />
         {card.status ? (
