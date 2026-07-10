@@ -306,7 +306,7 @@ function ChapterNav() {
     linkRefs.current[next]?.focus();
   }, []);
 
-  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>, i: number) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLAnchorElement>, i: number) => {
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":
