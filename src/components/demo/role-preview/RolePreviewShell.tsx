@@ -109,7 +109,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
         </section>
 
         {/* DASHBOARD MOCK */}
-        <section className="mt-8">
+        <section className="mt-12">
           <SectionHeader index="01" title={role.dashboardTitle} kicker="At a glance" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {role.dashboardTiles.map((tile) => (
@@ -126,9 +126,44 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
           </div>
         </section>
 
+        {/* TOOL PREVIEWS — mirrors the signed-in dashboard */}
+        <section className="mt-12">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs font-semibold tracking-widest text-primary">02</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Dashboard preview
+                </span>
+                <h2 className="font-display text-lg sm:text-xl">
+                  <LayoutDashboard className="mr-1.5 inline h-4 w-4 text-primary" aria-hidden />
+                  Every tool this role sees at sign-in
+                </h2>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/20">
+              <Sparkles className="h-3 w-3" aria-hidden /> Sample data
+            </span>
+          </div>
+          <DemoToolPreviewGrid>
+            {role.toolPreviews.map((t) => (
+              <DemoToolPreviewCard
+                key={t.title}
+                icon={t.icon}
+                title={t.title}
+                status={t.status}
+                tone={t.tone}
+                summary={t.summary}
+                bullets={t.bullets}
+                cta={t.cta}
+              />
+            ))}
+          </DemoToolPreviewGrid>
+        </section>
+
         {/* VALUE STRIP */}
-        <section className="mt-8 rounded-3xl border bg-card p-6 shadow-soft">
-          <SectionHeader index="02" title="What this role gets" kicker="Value" inline />
+        <section className="mt-12 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <SectionHeader index="03" title="What this role gets" kicker="Value" inline />
           <ul className="mt-4 grid gap-3 sm:grid-cols-3">
             {role.valueBullets.map((b) => (
               <li key={b} className="flex items-start gap-2 rounded-xl bg-background p-3 text-sm">
@@ -140,11 +175,12 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
         </section>
 
         {/* TOOLS · ACTIONS · OUTPUTS */}
-        <section className="mt-8 grid gap-4 lg:grid-cols-3">
-          <TripleCard icon={<Wrench className="h-4 w-4" />} title="Key tools" items={role.tools} index="03" />
-          <TripleCard icon={<Target className="h-4 w-4" />} title="Actions this role can take" items={role.actions} index="04" />
-          <TripleCard icon={<FileText className="h-4 w-4" />} title="Outputs they receive" items={role.outputs} index="05" />
+        <section className="mt-12 grid gap-4 lg:grid-cols-3">
+          <TripleCard icon={<Wrench className="h-4 w-4" />} title="Key tools" items={role.tools} index="04" />
+          <TripleCard icon={<Target className="h-4 w-4" />} title="Actions this role can take" items={role.actions} index="05" />
+          <TripleCard icon={<FileText className="h-4 w-4" />} title="Outputs they receive" items={role.outputs} index="06" />
         </section>
+
 
         {/* BOUNDARY (partner) */}
         {role.boundary && (
