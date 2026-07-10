@@ -57,6 +57,7 @@ function DemoWorkspaceStagePage() {
         backTo={{ to: "/demo", label: "Back to Demo Overview" }}
       >
         <StageBody stage={stage} expandInPlace defaultExpanded={autoExpand} />
+        {stageId === "roadmap" && <PathwayReportDeepPreview />}
       </WorkspaceShell>
     </SiteShell>
   );
