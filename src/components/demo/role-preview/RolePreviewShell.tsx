@@ -60,7 +60,14 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
   );
 }
 
-export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
+export function RolePreviewShell({
+  role,
+  extras,
+}: {
+  role: DemoRolePreview;
+  /** Optional role-specific content rendered after the Dashboard Preview section. */
+  extras?: React.ReactNode;
+}) {
   const Icon = role.icon;
   const next = role.next ? DEMO_ROLES[role.next] : null;
 
