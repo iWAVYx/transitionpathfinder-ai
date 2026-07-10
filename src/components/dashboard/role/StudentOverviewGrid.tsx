@@ -7,7 +7,7 @@ import {
   FileText,
   Target,
 } from "lucide-react";
-import { ToolPreviewCard, ToolPreviewGrid, ToolPreviewSection } from "./ToolPreviewCard";
+import { ToolPreviewCard, ToolPreviewGrid, ToolPreviewSection } from "../ToolPreviewCard";
 
 /**
  * Student at-a-glance workspace tiles. Renders inside the Student Planning
