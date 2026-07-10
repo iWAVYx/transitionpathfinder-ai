@@ -188,6 +188,10 @@ export function RolePreviewShell({
         </DemoToolPreviewGrid>
       </PageSection>
 
+      {extras ? <PageSection spacing="tight">{extras}</PageSection> : null}
+
+
+
       {/* VALUE STRIP */}
       <PageSection spacing="tight">
         <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
