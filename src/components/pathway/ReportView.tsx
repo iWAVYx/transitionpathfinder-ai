@@ -2507,7 +2507,7 @@ function ReportTOC({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem("report-outline-open");
-    if (stored === "0") setOpen(false);
+    if (stored === "1") setOpen(true);
   }, []);
   const outlineHydrated = useRef(false);
   useEffect(() => {
