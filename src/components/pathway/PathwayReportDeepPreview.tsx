@@ -197,84 +197,145 @@ export function PathwayReportDeepPreview() {
     }
   }, [isSignedIn, downloading, generatePdf]);
 
-  const handleShare = useCallback(async () => {
-    if (!isSignedIn) return;
-    if (typeof window === "undefined") return;
-    const shareUrl = window.location.href;
-    const shareData = {
-      title: "Jordan Rivera's Pathway Report",
-      text: "Pathway Report — sample preview from Transition Forward CT.",
-      url: shareUrl,
-    };
+  type ShareStep = "web-share" | "clipboard" | "exec-copy" | "prompt";
+  type ShareTone = "info" | "success" | "warn" | "error";
+  const [shareBusy, setShareBusy] = useState(false);
+  const [shareTone, setShareTone] = useState<ShareTone>("info");
+  const [lastShareStep, setLastShareStep] = useState<ShareStep | null>(null);
+  const [shareFailed, setShareFailed] = useState(false);
+  const shareAttemptsRef = useRef(0);
 
-    const nav = typeof navigator !== "undefined" ? navigator : undefined;
-    const errName = (e: unknown) => (e as { name?: string })?.name ?? "";
+  const say = useCallback((tone: ShareTone, msg: string) => {
+    setShareTone(tone);
+    setStatus(msg);
+  }, []);
 
-    // 1) Native Web Share API (mobile + some desktop browsers).
-    if (nav && typeof nav.share === "function") {
+  const runShare = useCallback(
+    async (opts: { skip?: ShareStep } = {}) => {
+      if (!isSignedIn || shareBusy) return;
+      if (typeof window === "undefined") return;
+
+      setShareBusy(true);
+      setShareFailed(false);
+      shareAttemptsRef.current += 1;
+      const attempt = shareAttemptsRef.current;
+      const attemptTag = attempt > 1 ? ` (attempt ${attempt})` : "";
+
+      const shareUrl = window.location.href;
+      const shareData = {
+        title: "Jordan Rivera's Pathway Report",
+        text: "Pathway Report — sample preview from Transition Forward CT.",
+        url: shareUrl,
+      };
+      const nav = typeof navigator !== "undefined" ? navigator : undefined;
+      const errName = (e: unknown) => (e as { name?: string })?.name ?? "";
+      const isSecure = window.isSecureContext ?? window.location.protocol === "https:";
+
       try {
-        // canShare guards Safari/Chrome from throwing on unsupported payloads.
-        if (typeof nav.canShare !== "function" || nav.canShare(shareData)) {
-          await nav.share(shareData);
-          setStatus("Share sheet opened.");
+        // Step 1 — Web Share API
+        if (opts.skip !== "web-share" && nav && typeof nav.share === "function") {
+          setLastShareStep("web-share");
+          say("info", `Opening your device's share sheet…${attemptTag}`);
+          try {
+            if (typeof nav.canShare !== "function" || nav.canShare(shareData)) {
+              await nav.share(shareData);
+              say("success", "Shared — the share sheet handled it.");
+              return;
+            }
+            say("warn", "Your browser can't share this content type. Trying clipboard…");
+          } catch (err) {
+            const name = errName(err);
+            if (name === "AbortError") {
+              say("info", "Share cancelled. You can retry or copy the link instead.");
+              setShareFailed(true);
+              return;
+            }
+            say("warn", `Share sheet unavailable (${name || "error"}). Trying clipboard…`);
+          }
+        }
+
+        // Step 2 — Async Clipboard API
+        if (
+          opts.skip !== "clipboard" &&
+          nav?.clipboard &&
+          typeof nav.clipboard.writeText === "function" &&
+          isSecure
+        ) {
+          setLastShareStep("clipboard");
+          say("info", "Copying link to your clipboard…");
+          try {
+            await nav.clipboard.writeText(shareUrl);
+            say("success", "Copied — the report link is on your clipboard. Paste it anywhere to share.");
+            return;
+          } catch (err) {
+            const name = errName(err);
+            say("warn", `Clipboard blocked (${name || "permission"}). Trying legacy copy…`);
+          }
+        } else if (opts.skip !== "clipboard" && !isSecure) {
+          say("warn", "Clipboard needs a secure (https) page. Trying legacy copy…");
+        }
+
+        // Step 3 — Legacy execCommand copy
+        if (opts.skip !== "exec-copy") {
+          setLastShareStep("exec-copy");
+          try {
+            const ta = document.createElement("textarea");
+            ta.value = shareUrl;
+            ta.setAttribute("readonly", "");
+            ta.style.position = "fixed";
+            ta.style.top = "-1000px";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, shareUrl.length);
+            const ok = document.execCommand?.("copy");
+            document.body.removeChild(ta);
+            if (ok) {
+              say("success", "Copied via legacy fallback — the link is on your clipboard.");
+              return;
+            }
+            say("warn", "Legacy copy didn't run. Showing the link so you can copy it manually…");
+          } catch {
+            say("warn", "Legacy copy failed. Showing the link so you can copy it manually…");
+          }
+        }
+
+        // Step 4 — Prompt fallback
+        setLastShareStep("prompt");
+        try {
+          const res = window.prompt("Copy this link to share the report:", shareUrl);
+          if (res !== null) {
+            say("success", "Link shown — copy it from the dialog to share.");
+          } else {
+            say("info", "Copy cancelled. You can retry sharing anytime.");
+            setShareFailed(true);
+          }
           return;
+        } catch {
+          setShareFailed(true);
+          say(
+            "error",
+            !isSecure
+              ? "Sharing needs a secure (https) connection. Copy the URL from your address bar."
+              : "Sharing isn't available in this browser. Copy the URL from your address bar.",
+          );
         }
-      } catch (err) {
-        const name = errName(err);
-        if (name === "AbortError") return; // user dismissed — silent
-        // NotAllowedError / SecurityError → fall through to clipboard.
-        if (name !== "NotAllowedError" && name !== "SecurityError" && name !== "TypeError") {
-          setStatus("Sharing was blocked. Copying the link instead…");
-        }
+      } finally {
+        setShareBusy(false);
       }
-    }
+    },
+    [isSignedIn, shareBusy, say],
+  );
 
-    // 2) Async Clipboard API (requires secure context + user gesture).
-    const isSecure = window.isSecureContext ?? window.location.protocol === "https:";
-    if (nav?.clipboard && typeof nav.clipboard.writeText === "function" && isSecure) {
-      try {
-        await nav.clipboard.writeText(shareUrl);
-        setStatus("Report link copied to clipboard.");
-        return;
-      } catch {
-        // fall through to legacy path
-      }
-    }
+  const handleShare = useCallback(() => {
+    void runShare();
+  }, [runShare]);
 
-    // 3) Legacy execCommand fallback (older/insecure browsers).
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = shareUrl;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.top = "-1000px";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      ta.setSelectionRange(0, shareUrl.length);
-      const ok = document.execCommand?.("copy");
-      document.body.removeChild(ta);
-      if (ok) {
-        setStatus("Report link copied to clipboard.");
-        return;
-      }
-    } catch {
-      // fall through
-    }
+  const handleShareRetry = useCallback(() => {
+    // Skip the step that just failed so retry tries the next viable path.
+    void runShare({ skip: lastShareStep ?? undefined });
+  }, [runShare, lastShareStep]);
 
-    // 4) Last resort — prompt so the user can copy manually.
-    try {
-      window.prompt("Copy this link to share the report:", shareUrl);
-      setStatus("Copy the link shown to share the report.");
-      return;
-    } catch {
-      setStatus(
-        !isSecure
-          ? "Sharing needs a secure (https) connection. Copy the URL from your address bar."
-          : "Sharing isn't supported here. Copy the URL from your address bar.",
-      );
-    }
-  }, [isSignedIn]);
 
 
   return (
