@@ -107,23 +107,27 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
         </header>
 
         {/* Left workbench rail (desktop) + mobile bottom sheet */}
-        <aside
-          id="tf-studio-rail-sheet"
-          className="tf-studio-rail"
-          aria-label="Pathway stages"
-          data-lenis-prevent
-          data-open={railOpen ? "true" : "false"}
-        >
-          {railBody}
-        </aside>
-        {railOpen ? (
-          <button
-            type="button"
-            className="tf-studio-rail-scrim"
-            aria-label="Close stages menu"
-            onClick={() => setRailOpen(false)}
-          />
-        ) : null}
+        {hideRail ? null : (
+          <>
+            <aside
+              id="tf-studio-rail-sheet"
+              className="tf-studio-rail"
+              aria-label="Pathway stages"
+              data-lenis-prevent
+              data-open={railOpen ? "true" : "false"}
+            >
+              {railBody}
+            </aside>
+            {railOpen ? (
+              <button
+                type="button"
+                className="tf-studio-rail-scrim"
+                aria-label="Close stages menu"
+                onClick={() => setRailOpen(false)}
+              />
+            ) : null}
+          </>
+        )}
 
 
         {/* Canvas */}
