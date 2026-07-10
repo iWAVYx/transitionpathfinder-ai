@@ -2607,13 +2607,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 
 .demo-shell,
 .report-shell {
-  background: var(--demo-paper);
-  color: var(--demo-ink);
+  /* Inherit main site background instead of the warm "paper" surface — the
+     Workspace Tour and product surfaces should feel like one experience. */
+  background: transparent;
+  color: inherit;
 }
 
 /* Neutralize older decorative backgrounds */
 .demo-shell.eh-issue,
-.report-shell.eh-issue { background: var(--demo-paper); }
+.report-shell.eh-issue { background: transparent; }
 .demo-shell .eh-page,
 .report-shell .eh-page,
 .demo-shell .mag-page,
