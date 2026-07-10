@@ -276,6 +276,18 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           <MyIepSummaryCard studentId={s.id} />
         </div>
 
+        {/* Pathway Report — Student View sections (sample preview until a real report is generated) */}
+        <StudentPathwaySections
+          data={
+            s.student_voice_statement
+              ? { voiceQuote: s.student_voice_statement }
+              : undefined
+          }
+          isSample
+        />
+
+        {/* 30 / 90 / 180 / 365-day timeline */}
+        <NextStepsTimeline />
 
         {/* Latest report */}
         <section className="mt-6 rounded-3xl border bg-card p-6 shadow-soft">
