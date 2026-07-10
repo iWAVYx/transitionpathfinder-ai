@@ -53,6 +53,7 @@ function DemoWorkspaceStagePage() {
         activeStageId={stageId}
         hrefFor={hrefForDemoStage}
         eyebrow="Transition Workspace · Public Demo"
+        backTo={{ to: "/demo", label: "Back to Demo Overview" }}
       >
         <StageBody stage={stage} expandInPlace defaultExpanded={autoExpand} />
       </WorkspaceShell>
