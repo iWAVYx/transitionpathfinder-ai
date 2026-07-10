@@ -7111,3 +7111,223 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   .report-shell .report-stage { margin-top: 2.5rem !important; }
   .report-shell .report-stage > header > h2 { font-size: 1.75rem !important; }
 }
+
+/* ============================================================
+ * Charted / mapped section contrast — Pathway Report
+ * Per-stage accent variables consumed by the stage lane, header
+ * band, chapter number chip, and sub-section dividers so each
+ * stage in the report is unmistakably its own chapter while the
+ * whole document still reads as one connected pathway.
+ * ============================================================ */
+.report-shell [data-report-stage="start"]     { --stage-a:#2d8a9e; --stage-b:#5cbdb9; }
+.report-shell [data-report-stage="voice"]     { --stage-a:#c26a4a; --stage-b:#e8a87c; }
+.report-shell [data-report-stage="family"]    { --stage-a:#c9756a; --stage-b:#f1b8a8; }
+.report-shell [data-report-stage="school"]    { --stage-a:#1a4a6e; --stage-b:#5c8fb5; }
+.report-shell [data-report-stage="evidence"]  { --stage-a:#7a5a3a; --stage-b:#c9a84c; }
+.report-shell [data-report-stage="ready"]     { --stage-a:#4a6741; --stage-b:#87a878; }
+.report-shell [data-report-stage="roadmap"]   { --stage-a:#1a4a6e; --stage-b:#2d8a9e; }
+.report-shell [data-report-stage="action"]    { --stage-a:#c4654a; --stage-b:#e8a87c; }
+.report-shell [data-report-stage="connect"]   { --stage-a:#6c5ce7; --stage-b:#a78bfa; }
+
+/* Lane: a soft vertical rail running the full stage, so it reads as
+ * a chapter lane on a map rather than an anonymous block of text. */
+.report-shell .report-stage {
+  position: relative;
+  padding-left: clamp(1rem, 2.4vw, 2.25rem) !important;
+}
+.report-shell .report-stage::before {
+  content: "";
+  position: absolute;
+  top: clamp(1.75rem, 3vw, 2.75rem);
+  bottom: 1rem;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--stage-a, var(--demo-primary)) 55%, transparent),
+    color-mix(in oklab, var(--stage-b, var(--demo-accent)) 20%, transparent)
+  );
+  opacity: 0.75;
+}
+
+/* Chapter opener: soft tinted band + oversized stage number so the
+ * reader always knows which chapter of the report they're in. */
+.report-shell .report-stage > header {
+  border-top-width: 0 !important;
+  padding: clamp(1.25rem, 2vw, 2rem) clamp(1rem, 2vw, 1.75rem) clamp(1.25rem, 2vw, 1.75rem) !important;
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--stage-a, var(--demo-primary)) 10%, transparent),
+      color-mix(in oklab, var(--stage-a, var(--demo-primary)) 3%, transparent) 65%,
+      transparent
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--stage-a, var(--demo-primary)) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--stage-a, var(--demo-primary)) 12%, transparent);
+  overflow: hidden;
+}
+/* The short accent bar keeps its role but recolors per stage. */
+.report-shell .report-stage > header::before {
+  top: 0.75rem !important;
+  left: clamp(1rem, 2vw, 1.75rem) !important;
+  background: linear-gradient(90deg, var(--stage-a, var(--demo-primary)), var(--stage-b, var(--demo-accent))) !important;
+}
+/* Chapter number, drawn from the eyebrow text ("Stage N · Label") via
+ * ::after so we don't have to touch the JSX. */
+.report-shell .report-stage > header {
+  counter-reset: report-stage;
+}
+.report-shell .report-stage > header::after {
+  content: "0" counter(stage-num);
+  counter-reset: stage-num var(--stage-order, 0);
+  position: absolute;
+  top: 0.6rem;
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  font-family: var(--font-demo-display, var(--font-display, serif));
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1;
+  color: color-mix(in oklab, var(--stage-a, var(--demo-primary)) 18%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+.report-shell [data-report-stage="start"]    > header { --stage-order: 1; }
+.report-shell [data-report-stage="voice"]    > header { --stage-order: 2; }
+.report-shell [data-report-stage="family"]   > header { --stage-order: 3; }
+.report-shell [data-report-stage="school"]   > header { --stage-order: 4; }
+.report-shell [data-report-stage="evidence"] > header { --stage-order: 5; }
+.report-shell [data-report-stage="ready"]    > header { --stage-order: 6; }
+.report-shell [data-report-stage="roadmap"]  > header { --stage-order: 7; }
+.report-shell [data-report-stage="action"]   > header { --stage-order: 8; }
+.report-shell [data-report-stage="connect"]  > header { --stage-order: 9; }
+
+/* Sub-section separators inside a stage — a thin dashed rule with a
+ * tiny bullet at the start acts as an evidence-to-action connector
+ * between the report's building blocks. */
+.report-shell .report-stage-sections > [data-report-section] + [data-report-section] {
+  position: relative;
+  margin-top: clamp(1.75rem, 3vw, 2.75rem) !important;
+  padding-top: clamp(1.5rem, 2.4vw, 2rem);
+  border-top: 1px dashed color-mix(in oklab, var(--stage-a, var(--demo-primary)) 26%, transparent);
+}
+.report-shell .report-stage-sections > [data-report-section] + [data-report-section]::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--stage-a, var(--demo-primary)) 65%, white);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--stage-a, var(--demo-primary)) 15%, transparent);
+}
+
+/* Appendix keeps a neutral treatment so it visibly sits outside the
+ * nine-stage journey. */
+.report-shell #report-appendix { --stage-a: var(--muted-foreground); --stage-b: var(--muted-foreground); }
+.report-shell #report-appendix > header { background: transparent; box-shadow: none; }
+.report-shell #report-appendix > header::after { content: none; }
+.report-shell #report-appendix::before { opacity: 0.35; }
+
+/* ============================================================
+ * Transition Workspace — per-stage canvas + chart-lane spine
+ * ============================================================ */
+[data-testid="workspace-shell"][data-active-stage="start"]    { --stage-a:#2d8a9e; --stage-b:#5cbdb9; --stage-order:1; }
+[data-testid="workspace-shell"][data-active-stage="voice"]    { --stage-a:#c26a4a; --stage-b:#e8a87c; --stage-order:2; }
+[data-testid="workspace-shell"][data-active-stage="family"]   { --stage-a:#c9756a; --stage-b:#f1b8a8; --stage-order:3; }
+[data-testid="workspace-shell"][data-active-stage="school"]   { --stage-a:#1a4a6e; --stage-b:#5c8fb5; --stage-order:4; }
+[data-testid="workspace-shell"][data-active-stage="evidence"] { --stage-a:#7a5a3a; --stage-b:#c9a84c; --stage-order:5; }
+[data-testid="workspace-shell"][data-active-stage="ready"]    { --stage-a:#4a6741; --stage-b:#87a878; --stage-order:6; }
+[data-testid="workspace-shell"][data-active-stage="roadmap"]  { --stage-a:#1a4a6e; --stage-b:#2d8a9e; --stage-order:7; }
+[data-testid="workspace-shell"][data-active-stage="action"]   { --stage-a:#c4654a; --stage-b:#e8a87c; --stage-order:8; }
+[data-testid="workspace-shell"][data-active-stage="connect"]  { --stage-a:#6c5ce7; --stage-b:#a78bfa; --stage-order:9; }
+
+/* Stage header canvas — chart band + oversized numeral so each stage
+ * has its own opener rather than looking like the last one. */
+[data-testid="workspace-shell"] > div > div:last-child > header:first-child {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.75rem, 3vw, 2.5rem) clamp(1.5rem, 2.4vw, 2.25rem) clamp(1.75rem, 3vw, 2.25rem);
+  border: 1px solid color-mix(in oklab, var(--stage-a, hsl(var(--border))) 22%, hsl(var(--border)));
+  border-bottom-width: 1px !important;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(70% 100% at 0% 0%, color-mix(in oklab, var(--stage-a, hsl(var(--primary))) 14%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in oklab, var(--stage-b, hsl(var(--primary))) 6%, transparent), transparent 80%),
+    hsl(var(--card));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--stage-a, hsl(var(--primary))) 22%, transparent),
+    0 1px 0 hsl(var(--border));
+}
+[data-testid="workspace-shell"] > div > div:last-child > header:first-child::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--stage-a, hsl(var(--primary))), var(--stage-b, hsl(var(--primary))));
+  border-top-left-radius: 1.5rem;
+  border-bottom-left-radius: 1.5rem;
+}
+[data-testid="workspace-shell"] > div > div:last-child > header:first-child::after {
+  content: "0" counter(ws-num);
+  counter-reset: ws-num var(--stage-order, 0);
+  position: absolute;
+  top: 0.4rem;
+  right: 1rem;
+  font-family: var(--font-display, serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(4rem, 10vw, 7rem);
+  line-height: 1;
+  color: color-mix(in oklab, var(--stage-a, hsl(var(--primary))) 16%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+/* Recolor the eyebrow + title tint per stage. */
+[data-testid="workspace-shell"] > div > div:last-child > header:first-child > p:first-child {
+  color: var(--stage-a, hsl(var(--primary))) !important;
+}
+/* Progress bar recolors to the active stage. */
+[data-testid="workspace-shell"] [role="progressbar"] > span {
+  background: linear-gradient(90deg, var(--stage-a, hsl(var(--primary))), var(--stage-b, hsl(var(--primary)))) !important;
+}
+
+/* Section separators between StageBody blocks — a horizontal rule
+ * with a stage-tinted node keeps the "chart lane" language going
+ * inside the stage canvas. */
+[data-testid="workspace-shell"] > div > div:last-child > section > * + * {
+  position: relative;
+}
+[data-testid="workspace-shell"] > div > div:last-child > section.grid > .rounded-2xl:not(:first-child)::before,
+[data-testid="workspace-shell"] > div > div:last-child > section.grid > [class*="rounded-2xl"]:not(:first-child)::before {
+  /* no-op guard so existing layouts stay pristine */
+}
+
+/* Floating "On This Page" outline — nudged below the sticky JOURNEY
+ * rail and defaulting to collapsed so it never clips content. */
+.report-shell + * .no-print[aria-label="Report outline"],
+nav.no-print[aria-label="Report outline"] {
+  top: 13rem !important;
+}
+@media (max-width: 1279px) {
+  nav.no-print[aria-label="Report outline"] { display: none !important; }
+}
+
+/* Print: strip decorative bands so nothing bleeds ink on export. */
+@media print {
+  .report-shell .report-stage::before,
+  .report-shell .report-stage > header::after,
+  [data-testid="workspace-shell"] > div > div:last-child > header:first-child::before,
+  [data-testid="workspace-shell"] > div > div:last-child > header:first-child::after { display: none !important; }
+  .report-shell .report-stage > header,
+  [data-testid="workspace-shell"] > div > div:last-child > header:first-child {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    padding-left: 0 !important;
+  }
+}
