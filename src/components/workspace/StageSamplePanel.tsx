@@ -35,6 +35,8 @@ export interface StageSamplePanelProps {
    * navigating away. Used by the public Workspace Tour.
    */
   expandInPlace?: boolean;
+  /** Start with the detail section already expanded (used by redirects). */
+  defaultExpanded?: boolean;
 }
 
 const TONE_STYLES: Record<StageSampleTone, string> = {
@@ -52,10 +54,11 @@ export function StageSamplePanel({
   fullSampleHref,
   fullSampleLabel = "Open Full Sample Screen",
   expandInPlace = false,
+  defaultExpanded = false,
 }: StageSamplePanelProps) {
   const sample = getStageSample(stage.id);
   const detail = expandInPlace ? getStageDetail(stage.id) : null;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const detailId = useId();
 
   return (
