@@ -6,6 +6,8 @@ import type { WorkspaceStage } from "@/lib/workspace/stages";
 import {
   getStageSample,
   getStageDetail,
+  STAGE_DETAIL_PHASE_LABEL,
+  type StageDetailPhase,
   type StageSampleCard,
   type StageSampleTone,
 } from "@/lib/workspace/stage-samples";
