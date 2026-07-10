@@ -307,34 +307,51 @@ export function PathwayReportDeepPreview() {
 
       {/* Footer actions */}
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/30 px-6 py-6 sm:px-10">
-        <p className="flex items-start gap-2 text-[11px] italic leading-relaxed text-muted-foreground sm:max-w-lg">
-          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-          AI-assisted, team-reviewed. Every section cites its source; nothing ships without educator approval.
-        </p>
+        <div className="flex min-w-0 flex-col gap-1 sm:max-w-lg">
+          <p className="flex items-start gap-2 text-[11px] italic leading-relaxed text-muted-foreground">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+            AI-assisted, team-reviewed. Every section cites its source; nothing ships without educator approval.
+          </p>
+          <p
+            role="status"
+            aria-live="polite"
+            className={`text-[11px] leading-relaxed ${status ? "text-primary" : "text-transparent"}`}
+          >
+            {status || "\u00A0"}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
+            onClick={handleDownloadPdf}
+            disabled={!isSignedIn || authLoading}
+            aria-disabled={!isSignedIn || authLoading}
+            title={isSignedIn ? "Open the print dialog to save as PDF" : "Sign in to download the PDF"}
             className={`${PILL_BASE} ${PILL_GHOST} disabled:cursor-not-allowed disabled:opacity-60`}
-            disabled
-            aria-disabled
-            title="Available in the signed-in product"
           >
             <Printer className="h-3.5 w-3.5" aria-hidden /> Download PDF
           </button>
           <button
             type="button"
+            onClick={handleShare}
+            disabled={!isSignedIn || authLoading}
+            aria-disabled={!isSignedIn || authLoading}
+            title={isSignedIn ? "Share this report securely" : "Sign in to share the report"}
             className={`${PILL_BASE} ${PILL_GHOST} disabled:cursor-not-allowed disabled:opacity-60`}
-            disabled
-            aria-disabled
-            title="Available in the signed-in product"
           >
             <Share2 className="h-3.5 w-3.5" aria-hidden /> Share Securely
           </button>
+          {!isSignedIn && (
+            <Link to="/login" className={`${PILL_BASE} ${PILL_GHOST} no-underline`}>
+              Sign In To Enable
+            </Link>
+          )}
           <Link to="/demo" className={`${PILL_BASE} ${PILL_ACTIVE} no-underline hover:bg-primary/90`}>
             See The Full Demo <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Link>
         </div>
       </footer>
+
     </section>
   );
 }
