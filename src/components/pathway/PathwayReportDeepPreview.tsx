@@ -14,7 +14,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
+import { generatePathwayReportPdf } from "@/lib/pathway-pdf.functions";
 
 
 
@@ -165,12 +167,35 @@ export function PathwayReportDeepPreview() {
   const studentVoice = byTitle.get("Student Voice (In Their Own Words)");
   const voiceQuote = studentVoice?.items.find((i) => i.label === "What I Want After School")?.note;
 
-  const handleDownloadPdf = useCallback(() => {
-    if (!isSignedIn) return;
-    setStatus("Preparing print dialog for PDF export…");
-    // The browser print dialog offers "Save as PDF" on every major platform.
-    setTimeout(() => window.print(), 50);
-  }, [isSignedIn]);
+  const generatePdf = useServerFn(generatePathwayReportPdf);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (!isSignedIn || downloading) return;
+    setDownloading(true);
+    setStatus("Generating your PDF…");
+    try {
+      const result = await generatePdf();
+      const binary = atob(result.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: result.contentType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStatus("PDF downloaded.");
+    } catch (err) {
+      console.error(err);
+      setStatus("Couldn't generate the PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }, [isSignedIn, downloading, generatePdf]);
 
   const handleShare = useCallback(async () => {
     if (!isSignedIn) return;
@@ -324,12 +349,13 @@ export function PathwayReportDeepPreview() {
           <button
             type="button"
             onClick={handleDownloadPdf}
-            disabled={!isSignedIn || authLoading}
-            aria-disabled={!isSignedIn || authLoading}
-            title={isSignedIn ? "Open the print dialog to save as PDF" : "Sign in to download the PDF"}
+            disabled={!isSignedIn || authLoading || downloading}
+            aria-disabled={!isSignedIn || authLoading || downloading}
+            title={isSignedIn ? "Download the report as a PDF" : "Sign in to download the PDF"}
             className={`${PILL_BASE} ${PILL_GHOST} disabled:cursor-not-allowed disabled:opacity-60`}
           >
-            <Printer className="h-3.5 w-3.5" aria-hidden /> Download PDF
+            <Printer className="h-3.5 w-3.5" aria-hidden />
+            {downloading ? "Generating…" : "Download PDF"}
           </button>
           <button
             type="button"
