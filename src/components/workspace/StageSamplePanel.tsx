@@ -6,6 +6,8 @@ import type { WorkspaceStage } from "@/lib/workspace/stages";
 import {
   getStageSample,
   getStageDetail,
+  STAGE_DETAIL_PHASE_LABEL,
+  type StageDetailPhase,
   type StageSampleCard,
   type StageSampleTone,
 } from "@/lib/workspace/stage-samples";
@@ -47,6 +49,13 @@ const TONE_STYLES: Record<StageSampleTone, string> = {
     "bg-amber-500/10 text-amber-700 ring-amber-500/20 dark:text-amber-300",
   critical: "bg-destructive/10 text-destructive ring-destructive/20",
   muted: "bg-muted text-muted-foreground ring-border",
+};
+
+const PHASE_STYLES: Record<StageDetailPhase, string> = {
+  input: "bg-sky-500/10 text-sky-700 ring-sky-500/20 dark:text-sky-300",
+  insight: "bg-violet-500/10 text-violet-700 ring-violet-500/20 dark:text-violet-300",
+  pathway: "bg-primary/10 text-primary ring-primary/20",
+  action: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/20 dark:text-emerald-300",
 };
 
 export function StageSamplePanel({
@@ -111,13 +120,32 @@ export function StageSamplePanel({
           <p className="text-sm leading-relaxed text-muted-foreground">
             {detail.intro}
           </p>
-          <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <p className="mt-4 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.input}`}>Input</span>
+            <span aria-hidden>→</span>
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.insight}`}>Insight</span>
+            <span aria-hidden>→</span>
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.pathway}`}>Pathway</span>
+            <span aria-hidden>→</span>
+            <span className={`rounded-full px-2 py-0.5 ring-1 ${PHASE_STYLES.action}`}>Action</span>
+            <span className="ml-1 normal-case tracking-normal text-muted-foreground/80">
+              Pathway Report flow
+            </span>
+          </p>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
             {detail.groups.map((group) => (
               <div
                 key={group.title}
                 className="rounded-xl border border-border bg-background p-4"
               >
-                <h3 className="font-display text-sm font-semibold tracking-tight text-foreground">
+                {group.phase && (
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${PHASE_STYLES[group.phase]}`}
+                  >
+                    {STAGE_DETAIL_PHASE_LABEL[group.phase]}
+                  </span>
+                )}
+                <h3 className="mt-2 font-display text-sm font-semibold tracking-tight text-foreground">
                   {group.title}
                 </h3>
                 {group.description && (
@@ -143,6 +171,7 @@ export function StageSamplePanel({
               </div>
             ))}
           </div>
+
           {detail.disclaimer && (
             <p className="mt-4 text-[11px] italic leading-relaxed text-muted-foreground">
               {detail.disclaimer}
