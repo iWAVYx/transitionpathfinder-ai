@@ -450,7 +450,17 @@ export function PathwayReportDeepPreview() {
           <p
             role="status"
             aria-live="polite"
-            className={`text-[11px] leading-relaxed ${status ? "text-primary" : "text-transparent"}`}
+            className={`text-[11px] leading-relaxed ${
+              !status
+                ? "text-transparent"
+                : shareTone === "success"
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : shareTone === "warn"
+                    ? "text-amber-600 dark:text-amber-400"
+                    : shareTone === "error"
+                      ? "text-destructive"
+                      : "text-primary"
+            }`}
           >
             {status || "\u00A0"}
           </p>
@@ -470,13 +480,24 @@ export function PathwayReportDeepPreview() {
           <button
             type="button"
             onClick={handleShare}
-            disabled={!isSignedIn || authLoading}
-            aria-disabled={!isSignedIn || authLoading}
+            disabled={!isSignedIn || authLoading || shareBusy}
+            aria-disabled={!isSignedIn || authLoading || shareBusy}
             title={isSignedIn ? "Share this report securely" : "Sign in to share the report"}
             className={`${PILL_BASE} ${PILL_GHOST} disabled:cursor-not-allowed disabled:opacity-60`}
           >
-            <Share2 className="h-3.5 w-3.5" aria-hidden /> Share Securely
+            <Share2 className="h-3.5 w-3.5" aria-hidden />
+            {shareBusy ? "Sharing…" : "Share Securely"}
           </button>
+          {shareFailed && !shareBusy && isSignedIn && (
+            <button
+              type="button"
+              onClick={handleShareRetry}
+              className={`${PILL_BASE} ${PILL_GHOST}`}
+              title="Try the next available share method"
+            >
+              Retry Share
+            </button>
+          )}
           {!isSignedIn && (
             <Link to="/login" className={`${PILL_BASE} ${PILL_GHOST} no-underline`}>
               Sign In To Enable
