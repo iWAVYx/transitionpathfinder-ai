@@ -5881,8 +5881,8 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --st-serif: "Lora", Georgia, "Times New Roman", serif;
   --st-sans:  "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  color: var(--st-ink);
-  background: var(--st-paper);
+  color: inherit;
+  background: transparent;
   font-family: var(--st-sans);
   font-size: 16.5px;
   line-height: 1.62;
