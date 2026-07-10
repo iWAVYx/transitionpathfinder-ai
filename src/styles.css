@@ -7346,3 +7346,244 @@ nav.no-print[aria-label="Report outline"] {
     padding-left: 0 !important;
   }
 }
+
+/* ============================================================
+ * Pathway Report — Charted section framing
+ * Every top-level `<Block>` (rendered as `section.report-block`)
+ * becomes a clearly separated chapter in the four-phase journey:
+ *   Input → Insight → Pathway → Action
+ * Non-invasive: adds numbering, phase eyebrow, colored left rail,
+ * tinted header band, and connector separators via CSS only. All
+ * effects strip cleanly for print.
+ * ============================================================ */
+
+/* Auto-numbered section chip (fills the existing empty
+ * `.section-number` span inside each Block header). */
+.report-shell { counter-reset: reportsec; }
+.report-shell .report-block { counter-increment: reportsec; }
+.report-shell .report-block .section-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 1.6rem;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--phase-a, var(--demo-primary, #1a4a6e)) 12%, transparent);
+  color: var(--phase-a, var(--demo-primary, #1a4a6e));
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--phase-a, var(--demo-primary, #1a4a6e)) 30%, transparent);
+}
+.report-shell .report-block .section-number::before {
+  content: counter(reportsec, decimal-leading-zero);
+}
+
+/* Phase assignment: map known section ids to their journey phase.
+ * Any unknown id inherits the neutral Insight palette so nothing
+ * breaks if new sections are added later. */
+.report-shell .report-block { --phase-a: #5b6b7a; --phase-b: #8a99a7; --phase-label: "Section"; }
+/* Input */
+.report-shell #sec-snapshot,
+.report-shell #sec-your-voice,
+.report-shell #sec-student-voice,
+.report-shell #sec-strengths,
+.report-shell #sec-spin {
+  --phase-a: #2d8a9e; --phase-b: #5cbdb9; --phase-label: "Input";
+}
+/* Insight */
+.report-shell #sec-iep-translator,
+.report-shell #sec-readiness,
+.report-shell #sec-self-advocacy-readiness,
+.report-shell #sec-independent-living-readiness,
+.report-shell #sec-data-gaps,
+.report-shell #sec-goals,
+.report-shell #sec-review {
+  --phase-a: #7a5a3a; --phase-b: #c9a84c; --phase-label: "Insight";
+}
+/* Pathway */
+.report-shell #sec-pathways,
+.report-shell #sec-education,
+.report-shell #sec-careers,
+.report-shell #sec-opportunities,
+.report-shell #sec-partner-suggestions {
+  --phase-a: #1a4a6e; --phase-b: #2d8a9e; --phase-label: "Pathway";
+}
+/* Action */
+.report-shell #sec-meeting-prep,
+.report-shell #sec-family-plan,
+.report-shell #sec-life-skills,
+.report-shell #sec-thirty-day,
+.report-shell #sec-role-next-steps,
+.report-shell #sec-timeline {
+  --phase-a: #c4654a; --phase-b: #e8a87c; --phase-label: "Action";
+}
+
+/* The block itself — colored left rail + soft card frame so each
+ * section reads as its own charted panel rather than a run-on. */
+.report-shell .report-block {
+  position: relative;
+  margin-top: clamp(2.25rem, 4vw, 3.25rem) !important;
+  padding: clamp(1.5rem, 2.4vw, 2.25rem) clamp(1.25rem, 2.2vw, 2rem) clamp(1.75rem, 3vw, 2.5rem) clamp(1.75rem, 3vw, 2.5rem);
+  border: 1px solid color-mix(in oklab, var(--phase-a) 18%, hsl(var(--border)));
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--phase-a) 6%, transparent),
+      color-mix(in oklab, var(--phase-a) 1%, transparent) 40%,
+      transparent),
+    hsl(var(--card));
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--phase-a) 12%, transparent),
+    0 20px 40px -32px color-mix(in oklab, var(--phase-a) 30%, transparent);
+  scroll-margin-top: 6rem;
+}
+/* Vertical rail on the left edge — the "chart lane". */
+.report-shell .report-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  border-top-left-radius: 1.25rem;
+  border-bottom-left-radius: 1.25rem;
+  background: linear-gradient(180deg, var(--phase-a), var(--phase-b));
+  opacity: 0.9;
+}
+/* Phase eyebrow ("INPUT · CHAPTER 01" style) floated top-right. */
+.report-shell .report-block::after {
+  content: var(--phase-label) " · Chapter " counter(reportsec, decimal-leading-zero);
+  position: absolute;
+  top: clamp(0.9rem, 2vw, 1.15rem);
+  right: clamp(1rem, 2.2vw, 1.75rem);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--phase-a) 78%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Section header row — tighten the existing divider, keep it visually
+ * anchored to the block's own rail rather than a floating bar. */
+.report-shell .report-block > .mb-6.border-b {
+  margin-bottom: clamp(1.25rem, 2.2vw, 1.75rem) !important;
+  border-bottom: 1px dashed color-mix(in oklab, var(--phase-a) 30%, transparent) !important;
+  padding-bottom: clamp(0.85rem, 1.4vw, 1.1rem) !important;
+}
+.report-shell .report-block h2.font-display {
+  color: color-mix(in oklab, var(--phase-a) 20%, hsl(var(--foreground)));
+}
+
+/* Connector node between consecutive blocks — a small dot on the
+ * seam so the eye reads the report as a continuous pathway. */
+.report-shell .report-block + .report-block {
+  margin-top: clamp(2.75rem, 4.5vw, 3.75rem) !important;
+}
+.report-shell .report-block + .report-block::before {
+  /* keep the rail on the new block, plus a connector bead above it */
+  box-shadow:
+    0 -1.25rem 0 -0.35rem color-mix(in oklab, var(--phase-a) 55%, white),
+    0 -1.25rem 0 -0.15rem color-mix(in oklab, var(--phase-a) 22%, transparent);
+}
+
+/* Soft alternating background bands per phase, applied to the outer
+ * page so groups of chapters visually cluster. Uses attribute
+ * selectors, no JS/DOM changes required. */
+.report-shell .report-block:where(#sec-snapshot, #sec-your-voice, #sec-student-voice, #sec-strengths, #sec-spin) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, #2d8a9e 7%, transparent),
+      color-mix(in oklab, #2d8a9e 1%, transparent) 45%,
+      transparent),
+    hsl(var(--card));
+}
+.report-shell .report-block:where(#sec-iep-translator, #sec-readiness, #sec-self-advocacy-readiness, #sec-independent-living-readiness, #sec-data-gaps, #sec-goals, #sec-review) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, #c9a84c 8%, transparent),
+      color-mix(in oklab, #c9a84c 1%, transparent) 45%,
+      transparent),
+    hsl(var(--card));
+}
+.report-shell .report-block:where(#sec-pathways, #sec-education, #sec-careers, #sec-opportunities, #sec-partner-suggestions) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, #1a4a6e 8%, transparent),
+      color-mix(in oklab, #1a4a6e 1%, transparent) 45%,
+      transparent),
+    hsl(var(--card));
+}
+.report-shell .report-block:where(#sec-meeting-prep, #sec-family-plan, #sec-life-skills, #sec-thirty-day, #sec-role-next-steps, #sec-timeline) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, #c4654a 7%, transparent),
+      color-mix(in oklab, #c4654a 1%, transparent) 45%,
+      transparent),
+    hsl(var(--card));
+}
+
+/* Executive Summary opener sits above the chart — give it its own
+ * distinct treatment so users see "the map begins here". */
+.report-shell section.exec-summary {
+  position: relative;
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  border-radius: 1.5rem;
+  border: 1px solid color-mix(in oklab, var(--demo-primary, #1a4a6e) 25%, hsl(var(--border)));
+  background:
+    radial-gradient(80% 60% at 0% 0%, color-mix(in oklab, var(--demo-primary, #1a4a6e) 12%, transparent), transparent 70%),
+    radial-gradient(60% 60% at 100% 100%, color-mix(in oklab, var(--demo-accent, #c26a4a) 10%, transparent), transparent 70%),
+    hsl(var(--card));
+  box-shadow: 0 24px 60px -40px color-mix(in oklab, var(--demo-primary, #1a4a6e) 40%, transparent);
+}
+.report-shell section.exec-summary::before {
+  content: "The Pathway · Input → Insight → Pathway → Action";
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--demo-primary, #1a4a6e) 80%, transparent);
+}
+
+/* Mobile — soften padding + hide phase eyebrow if it would collide. */
+@media (max-width: 640px) {
+  .report-shell .report-block {
+    padding: 1.25rem 1rem 1.5rem 1.25rem;
+    border-radius: 1rem;
+  }
+  .report-shell .report-block::after {
+    position: static;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .report-shell .report-block > .mb-6.border-b { padding-top: 0.25rem !important; }
+}
+
+/* Print: neutralize decorative frames so exports stay clean. */
+@media print {
+  .report-shell .report-block {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-top: 1.25rem !important;
+  }
+  .report-shell .report-block::before,
+  .report-shell .report-block::after { display: none !important; }
+  .report-shell section.exec-summary {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+  }
+  .report-shell section.exec-summary::before { display: none !important; }
+}
+
