@@ -7284,6 +7284,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   pointer-events: none;
   user-select: none;
 }
+[data-testid="workspace-shell"][data-active-stage="start"]    > div > div:last-child > header:first-child::after { content: "01"; }
+[data-testid="workspace-shell"][data-active-stage="voice"]    > div > div:last-child > header:first-child::after { content: "02"; }
+[data-testid="workspace-shell"][data-active-stage="family"]   > div > div:last-child > header:first-child::after { content: "03"; }
+[data-testid="workspace-shell"][data-active-stage="school"]   > div > div:last-child > header:first-child::after { content: "04"; }
+[data-testid="workspace-shell"][data-active-stage="evidence"] > div > div:last-child > header:first-child::after { content: "05"; }
+[data-testid="workspace-shell"][data-active-stage="ready"]    > div > div:last-child > header:first-child::after { content: "06"; }
+[data-testid="workspace-shell"][data-active-stage="roadmap"]  > div > div:last-child > header:first-child::after { content: "07"; }
+[data-testid="workspace-shell"][data-active-stage="action"]   > div > div:last-child > header:first-child::after { content: "08"; }
+[data-testid="workspace-shell"][data-active-stage="connect"]  > div > div:last-child > header:first-child::after { content: "09"; }
 /* Recolor the eyebrow + title tint per stage. */
 [data-testid="workspace-shell"] > div > div:last-child > header:first-child > p:first-child {
   color: var(--stage-a, hsl(var(--primary))) !important;
