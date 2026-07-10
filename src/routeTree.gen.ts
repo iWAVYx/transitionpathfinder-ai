@@ -107,7 +107,10 @@ import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authe
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
 import { Route as AuthenticatedSchoolSupportNeedsRouteImport } from './routes/_authenticated/school.support-needs'
+import { Route as AuthenticatedSchoolResourceUsageRouteImport } from './routes/_authenticated/school.resource-usage'
 import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authenticated/school.reports'
+import { Route as AuthenticatedSchoolReadinessTrendsRouteImport } from './routes/_authenticated/school.readiness-trends'
+import { Route as AuthenticatedSchoolPlanningStatusRouteImport } from './routes/_authenticated/school.planning-status'
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
 import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authenticated/resources.saved'
@@ -176,6 +179,7 @@ import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authent
 import { Route as AuthenticatedDistrictServiceGapsRouteImport } from './routes/_authenticated/district.service-gaps'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
+import { Route as AuthenticatedDistrictReadinessTrendsRouteImport } from './routes/_authenticated/district.readiness-trends'
 import { Route as AuthenticatedDistrictProgressRouteImport } from './routes/_authenticated/district.progress'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as AuthenticatedDistrictImplementationRouteImport } from './routes/_authenticated/district.implementation'
@@ -693,10 +697,28 @@ const AuthenticatedSchoolSupportNeedsRoute =
     path: '/school/support-needs',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSchoolResourceUsageRoute =
+  AuthenticatedSchoolResourceUsageRouteImport.update({
+    id: '/school/resource-usage',
+    path: '/school/resource-usage',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSchoolReportsRoute =
   AuthenticatedSchoolReportsRouteImport.update({
     id: '/school/reports',
     path: '/school/reports',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolReadinessTrendsRoute =
+  AuthenticatedSchoolReadinessTrendsRouteImport.update({
+    id: '/school/readiness-trends',
+    path: '/school/readiness-trends',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolPlanningStatusRoute =
+  AuthenticatedSchoolPlanningStatusRouteImport.update({
+    id: '/school/planning-status',
+    path: '/school/planning-status',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSchoolOverviewRoute =
@@ -1097,6 +1119,12 @@ const AuthenticatedDistrictReportsRoute =
     path: '/district/reports',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDistrictReadinessTrendsRoute =
+  AuthenticatedDistrictReadinessTrendsRouteImport.update({
+    id: '/district/readiness-trends',
+    path: '/district/readiness-trends',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictProgressRoute =
   AuthenticatedDistrictProgressRouteImport.update({
     id: '/district/progress',
@@ -1277,6 +1305,7 @@ export interface FileRoutesByFullPath {
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
+  '/district/readiness-trends': typeof AuthenticatedDistrictReadinessTrendsRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
@@ -1345,7 +1374,10 @@ export interface FileRoutesByFullPath {
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
+  '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
+  '/school/readiness-trends': typeof AuthenticatedSchoolReadinessTrendsRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -1457,6 +1489,7 @@ export interface FileRoutesByTo {
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
+  '/district/readiness-trends': typeof AuthenticatedDistrictReadinessTrendsRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
@@ -1525,7 +1558,10 @@ export interface FileRoutesByTo {
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
+  '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
+  '/school/readiness-trends': typeof AuthenticatedSchoolReadinessTrendsRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -1641,6 +1677,7 @@ export interface FileRoutesById {
   '/_authenticated/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/_authenticated/district/progress': typeof AuthenticatedDistrictProgressRoute
+  '/_authenticated/district/readiness-trends': typeof AuthenticatedDistrictReadinessTrendsRoute
   '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
@@ -1709,7 +1746,10 @@ export interface FileRoutesById {
   '/_authenticated/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
+  '/_authenticated/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
+  '/_authenticated/school/readiness-trends': typeof AuthenticatedSchoolReadinessTrendsRoute
   '/_authenticated/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/_authenticated/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/_authenticated/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -1825,6 +1865,7 @@ export interface FileRouteTypes {
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
+    | '/district/readiness-trends'
     | '/district/reports'
     | '/district/schools'
     | '/district/service-gaps'
@@ -1893,7 +1934,10 @@ export interface FileRouteTypes {
     | '/resources/saved'
     | '/school/implementation'
     | '/school/overview'
+    | '/school/planning-status'
+    | '/school/readiness-trends'
     | '/school/reports'
+    | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
     | '/students/$studentId'
@@ -2005,6 +2049,7 @@ export interface FileRouteTypes {
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
+    | '/district/readiness-trends'
     | '/district/reports'
     | '/district/schools'
     | '/district/service-gaps'
@@ -2073,7 +2118,10 @@ export interface FileRouteTypes {
     | '/resources/saved'
     | '/school/implementation'
     | '/school/overview'
+    | '/school/planning-status'
+    | '/school/readiness-trends'
     | '/school/reports'
+    | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
     | '/students/$studentId'
@@ -2188,6 +2236,7 @@ export interface FileRouteTypes {
     | '/_authenticated/district/implementation'
     | '/_authenticated/district/overview'
     | '/_authenticated/district/progress'
+    | '/_authenticated/district/readiness-trends'
     | '/_authenticated/district/reports'
     | '/_authenticated/district/schools'
     | '/_authenticated/district/service-gaps'
@@ -2256,7 +2305,10 @@ export interface FileRouteTypes {
     | '/_authenticated/resources/saved'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
+    | '/_authenticated/school/planning-status'
+    | '/_authenticated/school/readiness-trends'
     | '/_authenticated/school/reports'
+    | '/_authenticated/school/resource-usage'
     | '/_authenticated/school/support-needs'
     | '/_authenticated/school/team'
     | '/_authenticated/students/$studentId'
@@ -3030,11 +3082,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchoolSupportNeedsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/school/resource-usage': {
+      id: '/_authenticated/school/resource-usage'
+      path: '/school/resource-usage'
+      fullPath: '/school/resource-usage'
+      preLoaderRoute: typeof AuthenticatedSchoolResourceUsageRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/school/reports': {
       id: '/_authenticated/school/reports'
       path: '/school/reports'
       fullPath: '/school/reports'
       preLoaderRoute: typeof AuthenticatedSchoolReportsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/readiness-trends': {
+      id: '/_authenticated/school/readiness-trends'
+      path: '/school/readiness-trends'
+      fullPath: '/school/readiness-trends'
+      preLoaderRoute: typeof AuthenticatedSchoolReadinessTrendsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/planning-status': {
+      id: '/_authenticated/school/planning-status'
+      path: '/school/planning-status'
+      fullPath: '/school/planning-status'
+      preLoaderRoute: typeof AuthenticatedSchoolPlanningStatusRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/school/overview': {
@@ -3513,6 +3586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictReportsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/district/readiness-trends': {
+      id: '/_authenticated/district/readiness-trends'
+      path: '/district/readiness-trends'
+      fullPath: '/district/readiness-trends'
+      preLoaderRoute: typeof AuthenticatedDistrictReadinessTrendsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/progress': {
       id: '/_authenticated/district/progress'
       path: '/district/progress'
@@ -3822,6 +3902,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictImplementationRoute: typeof AuthenticatedDistrictImplementationRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictProgressRoute: typeof AuthenticatedDistrictProgressRoute
+  AuthenticatedDistrictReadinessTrendsRoute: typeof AuthenticatedDistrictReadinessTrendsRoute
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictServiceGapsRoute: typeof AuthenticatedDistrictServiceGapsRoute
@@ -3846,7 +3927,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
+  AuthenticatedSchoolPlanningStatusRoute: typeof AuthenticatedSchoolPlanningStatusRoute
+  AuthenticatedSchoolReadinessTrendsRoute: typeof AuthenticatedSchoolReadinessTrendsRoute
   AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
+  AuthenticatedSchoolResourceUsageRoute: typeof AuthenticatedSchoolResourceUsageRoute
   AuthenticatedSchoolSupportNeedsRoute: typeof AuthenticatedSchoolSupportNeedsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
@@ -3894,6 +3978,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedDistrictImplementationRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
   AuthenticatedDistrictProgressRoute: AuthenticatedDistrictProgressRoute,
+  AuthenticatedDistrictReadinessTrendsRoute:
+    AuthenticatedDistrictReadinessTrendsRoute,
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictServiceGapsRoute: AuthenticatedDistrictServiceGapsRoute,
@@ -3924,7 +4010,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
+  AuthenticatedSchoolPlanningStatusRoute:
+    AuthenticatedSchoolPlanningStatusRoute,
+  AuthenticatedSchoolReadinessTrendsRoute:
+    AuthenticatedSchoolReadinessTrendsRoute,
   AuthenticatedSchoolReportsRoute: AuthenticatedSchoolReportsRoute,
+  AuthenticatedSchoolResourceUsageRoute: AuthenticatedSchoolResourceUsageRoute,
   AuthenticatedSchoolSupportNeedsRoute: AuthenticatedSchoolSupportNeedsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,

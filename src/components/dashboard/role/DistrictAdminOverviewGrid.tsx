@@ -47,7 +47,7 @@ export function DistrictAdminOverviewGrid() {
           status="This term"
           tone="success"
           summary="District-wide movement across the four readiness domains."
-          cta={{ label: "Open insights", to: "/insights" }}
+          cta={{ label: "Open readiness trends", to: "/district/readiness-trends" }}
         />
         <ToolPreviewCard
           icon={Rocket}
