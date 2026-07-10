@@ -38,12 +38,13 @@ function DemoHub() {
             <Sparkles className="mr-1 h-3 w-3" /> Sample data only
           </Badge>
           <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-            Preview TransitionForward by role.
+            One transition plan. Every role, one shared story.
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-            TransitionForward is a role-based transition-planning platform. Pick a role below to
-            see the dashboard, the tools, the actions, and the outputs that role would experience
-            when they sign in.
+            TransitionForward turns student voice, family priorities, educator insight, and
+            IEP evidence into a single Pathway Report — the shareable deliverable your team
+            brings to the next PPT. Walk the nine-stage Workspace Tour, or preview a role
+            dashboard below.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button asChild size="lg">
@@ -52,12 +53,19 @@ function DemoHub() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/demo/report">Read The Pathway Report</Link>
+              <Link
+                to="/demo/workspace/$stage"
+                params={{ stage: "roadmap" }}
+                search={{ expand: true }}
+              >
+                Read The Pathway Report
+              </Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
               <Link to="/waitlist">Join The Waitlist</Link>
             </Button>
           </div>
+
         </section>
 
         {/* ROLE GRID */}
@@ -123,11 +131,16 @@ function DemoHub() {
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/demo/report">
+                  <Link
+                    to="/demo/workspace/$stage"
+                    params={{ stage: "roadmap" }}
+                    search={{ expand: true }}
+                  >
                     <FileText className="mr-1.5 h-4 w-4" /> Read the Pathway Report
                   </Link>
                 </Button>
               </div>
+
             </div>
             <blockquote className="rounded-2xl border-l-4 border-primary/40 bg-background/70 p-4 text-sm italic text-foreground/80">
               "{SHARED_DEMO_STUDENT.quote}"
