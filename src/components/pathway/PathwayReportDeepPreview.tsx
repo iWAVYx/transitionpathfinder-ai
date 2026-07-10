@@ -181,18 +181,20 @@ export function PathwayReportDeepPreview() {
       url: shareUrl,
     };
     try {
-      if (typeof navigator !== "undefined" && "share" in navigator) {
-        await (navigator as Navigator).share(shareData);
+      const nav = typeof navigator !== "undefined" ? navigator : undefined;
+      if (nav && typeof nav.share === "function") {
+        await nav.share(shareData);
         setStatus("Share sheet opened.");
         return;
       }
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(shareUrl);
+      if (nav && nav.clipboard) {
+        await nav.clipboard.writeText(shareUrl);
         setStatus("Report link copied to clipboard.");
         return;
       }
       setStatus("Sharing isn't supported in this browser.");
     } catch (err) {
+
       // AbortError = user dismissed; treat as silent.
       if ((err as { name?: string })?.name !== "AbortError") {
         setStatus("Couldn't share the report. Try copying the URL from your address bar.");
