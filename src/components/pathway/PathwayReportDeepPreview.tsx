@@ -14,7 +14,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
+import { generatePathwayReportPdf } from "@/lib/pathway-pdf.functions";
 
 
 
