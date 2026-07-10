@@ -136,12 +136,15 @@ const AUDIENCE_COPY: Record<Audience, { chip: string; lens: string }> = {
 // Shared token utilities so buttons, chips, and labels stay visually consistent.
 const EYEBROW =
   "text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground";
+const FOCUS_RING =
+  "focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const PILL_BASE =
-  "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold transition-colors";
+  `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${FOCUS_RING}`;
 const PILL_GHOST =
   "border border-border bg-background text-foreground hover:border-primary hover:text-primary";
 const PILL_ACTIVE =
   "border border-primary bg-primary text-primary-foreground shadow-sm";
+
 
 export function PathwayReportDeepPreview() {
   const [audience, setAudience] = useState<Audience>("family");
