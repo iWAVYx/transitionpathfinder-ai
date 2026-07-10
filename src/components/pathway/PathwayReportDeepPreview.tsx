@@ -14,6 +14,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
+
 
 
 import {
