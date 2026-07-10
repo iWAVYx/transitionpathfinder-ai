@@ -112,6 +112,7 @@ import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/
 import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authenticated/resources.saved'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedPathwayStudentRouteImport } from './routes/_authenticated/pathway.student'
+import { Route as AuthenticatedPathwayFamilyRouteImport } from './routes/_authenticated/pathway.family'
 import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage_.impact'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
@@ -161,6 +162,9 @@ import { Route as AuthenticatedHubsDistrictRouteImport } from './routes/_authent
 import { Route as AuthenticatedHubsCaseloadRouteImport } from './routes/_authenticated/hubs.caseload'
 import { Route as AuthenticatedHubsAdminRouteImport } from './routes/_authenticated/hubs.admin'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
+import { Route as AuthenticatedFamilyPrioritiesRouteImport } from './routes/_authenticated/family.priorities'
+import { Route as AuthenticatedFamilyConsentRouteImport } from './routes/_authenticated/family.consent'
+import { Route as AuthenticatedFamilyActionItemsRouteImport } from './routes/_authenticated/family.action-items'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
@@ -709,6 +713,12 @@ const AuthenticatedPathwayStudentRoute =
     path: '/student',
     getParentRoute: () => AuthenticatedPathwayRoute,
   } as any)
+const AuthenticatedPathwayFamilyRoute =
+  AuthenticatedPathwayFamilyRouteImport.update({
+    id: '/family',
+    path: '/family',
+    getParentRoute: () => AuthenticatedPathwayRoute,
+  } as any)
 const AuthenticatedPartnersManageImpactRoute =
   AuthenticatedPartnersManageImpactRouteImport.update({
     id: '/partners-manage_/impact',
@@ -993,6 +1003,24 @@ const AuthenticatedFormsSlugRoute = AuthenticatedFormsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AuthenticatedFormsRoute,
 } as any)
+const AuthenticatedFamilyPrioritiesRoute =
+  AuthenticatedFamilyPrioritiesRouteImport.update({
+    id: '/family/priorities',
+    path: '/family/priorities',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFamilyConsentRoute =
+  AuthenticatedFamilyConsentRouteImport.update({
+    id: '/family/consent',
+    path: '/family/consent',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFamilyActionItemsRoute =
+  AuthenticatedFamilyActionItemsRouteImport.update({
+    id: '/family/action-items',
+    path: '/family/action-items',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictTeamRoute =
   AuthenticatedDistrictTeamRouteImport.update({
     id: '/district/team',
@@ -1180,6 +1208,9 @@ export interface FileRoutesByFullPath {
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
+  '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
+  '/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/hubs/admin': typeof AuthenticatedHubsAdminRoute
   '/hubs/caseload': typeof AuthenticatedHubsCaseloadRoute
@@ -1229,6 +1260,7 @@ export interface FileRoutesByFullPath {
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
+  '/pathway/family': typeof AuthenticatedPathwayFamilyRoute
   '/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
@@ -1346,6 +1378,9 @@ export interface FileRoutesByTo {
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
+  '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
+  '/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/hubs/admin': typeof AuthenticatedHubsAdminRoute
   '/hubs/caseload': typeof AuthenticatedHubsCaseloadRoute
@@ -1395,6 +1430,7 @@ export interface FileRoutesByTo {
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
+  '/pathway/family': typeof AuthenticatedPathwayFamilyRoute
   '/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
@@ -1516,6 +1552,9 @@ export interface FileRoutesById {
   '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
+  '/_authenticated/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
+  '/_authenticated/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/_authenticated/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/_authenticated/hubs/admin': typeof AuthenticatedHubsAdminRoute
   '/_authenticated/hubs/caseload': typeof AuthenticatedHubsCaseloadRoute
@@ -1565,6 +1604,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
   '/_authenticated/partners-manage_/impact': typeof AuthenticatedPartnersManageImpactRoute
+  '/_authenticated/pathway/family': typeof AuthenticatedPathwayFamilyRoute
   '/_authenticated/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/resources/saved': typeof AuthenticatedResourcesSavedRoute
@@ -1686,6 +1726,9 @@ export interface FileRouteTypes {
     | '/district/reports'
     | '/district/schools'
     | '/district/team'
+    | '/family/action-items'
+    | '/family/consent'
+    | '/family/priorities'
     | '/forms/$slug'
     | '/hubs/admin'
     | '/hubs/caseload'
@@ -1735,6 +1778,7 @@ export interface FileRouteTypes {
     | '/owner/users'
     | '/owner/waitlist'
     | '/partners-manage/impact'
+    | '/pathway/family'
     | '/pathway/student'
     | '/reports/$reportId'
     | '/resources/saved'
@@ -1852,6 +1896,9 @@ export interface FileRouteTypes {
     | '/district/reports'
     | '/district/schools'
     | '/district/team'
+    | '/family/action-items'
+    | '/family/consent'
+    | '/family/priorities'
     | '/forms/$slug'
     | '/hubs/admin'
     | '/hubs/caseload'
@@ -1901,6 +1948,7 @@ export interface FileRouteTypes {
     | '/owner/users'
     | '/owner/waitlist'
     | '/partners-manage/impact'
+    | '/pathway/family'
     | '/pathway/student'
     | '/reports/$reportId'
     | '/resources/saved'
@@ -2021,6 +2069,9 @@ export interface FileRouteTypes {
     | '/_authenticated/district/reports'
     | '/_authenticated/district/schools'
     | '/_authenticated/district/team'
+    | '/_authenticated/family/action-items'
+    | '/_authenticated/family/consent'
+    | '/_authenticated/family/priorities'
     | '/_authenticated/forms/$slug'
     | '/_authenticated/hubs/admin'
     | '/_authenticated/hubs/caseload'
@@ -2070,6 +2121,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
     | '/_authenticated/partners-manage_/impact'
+    | '/_authenticated/pathway/family'
     | '/_authenticated/pathway/student'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/resources/saved'
@@ -2883,6 +2935,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPathwayStudentRouteImport
       parentRoute: typeof AuthenticatedPathwayRoute
     }
+    '/_authenticated/pathway/family': {
+      id: '/_authenticated/pathway/family'
+      path: '/family'
+      fullPath: '/pathway/family'
+      preLoaderRoute: typeof AuthenticatedPathwayFamilyRouteImport
+      parentRoute: typeof AuthenticatedPathwayRoute
+    }
     '/_authenticated/partners-manage_/impact': {
       id: '/_authenticated/partners-manage_/impact'
       path: '/partners-manage/impact'
@@ -3226,6 +3285,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSlugRouteImport
       parentRoute: typeof AuthenticatedFormsRoute
     }
+    '/_authenticated/family/priorities': {
+      id: '/_authenticated/family/priorities'
+      path: '/family/priorities'
+      fullPath: '/family/priorities'
+      preLoaderRoute: typeof AuthenticatedFamilyPrioritiesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/family/consent': {
+      id: '/_authenticated/family/consent'
+      path: '/family/consent'
+      fullPath: '/family/consent'
+      preLoaderRoute: typeof AuthenticatedFamilyConsentRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/family/action-items': {
+      id: '/_authenticated/family/action-items'
+      path: '/family/action-items'
+      fullPath: '/family/action-items'
+      preLoaderRoute: typeof AuthenticatedFamilyActionItemsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/team': {
       id: '/_authenticated/district/team'
       path: '/district/team'
@@ -3469,10 +3549,12 @@ const AuthenticatedOwnerRouteWithChildren =
   AuthenticatedOwnerRoute._addFileChildren(AuthenticatedOwnerRouteChildren)
 
 interface AuthenticatedPathwayRouteChildren {
+  AuthenticatedPathwayFamilyRoute: typeof AuthenticatedPathwayFamilyRoute
   AuthenticatedPathwayStudentRoute: typeof AuthenticatedPathwayStudentRoute
 }
 
 const AuthenticatedPathwayRouteChildren: AuthenticatedPathwayRouteChildren = {
+  AuthenticatedPathwayFamilyRoute: AuthenticatedPathwayFamilyRoute,
   AuthenticatedPathwayStudentRoute: AuthenticatedPathwayStudentRoute,
 }
 
@@ -3541,6 +3623,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
+  AuthenticatedFamilyActionItemsRoute: typeof AuthenticatedFamilyActionItemsRoute
+  AuthenticatedFamilyConsentRoute: typeof AuthenticatedFamilyConsentRoute
+  AuthenticatedFamilyPrioritiesRoute: typeof AuthenticatedFamilyPrioritiesRoute
   AuthenticatedHubsAdminRoute: typeof AuthenticatedHubsAdminRoute
   AuthenticatedHubsCaseloadRoute: typeof AuthenticatedHubsCaseloadRoute
   AuthenticatedHubsDistrictRoute: typeof AuthenticatedHubsDistrictRoute
@@ -3599,6 +3684,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
+  AuthenticatedFamilyActionItemsRoute: AuthenticatedFamilyActionItemsRoute,
+  AuthenticatedFamilyConsentRoute: AuthenticatedFamilyConsentRoute,
+  AuthenticatedFamilyPrioritiesRoute: AuthenticatedFamilyPrioritiesRoute,
   AuthenticatedHubsAdminRoute: AuthenticatedHubsAdminRoute,
   AuthenticatedHubsCaseloadRoute: AuthenticatedHubsCaseloadRoute,
   AuthenticatedHubsDistrictRoute: AuthenticatedHubsDistrictRoute,
