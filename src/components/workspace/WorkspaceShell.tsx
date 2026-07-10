@@ -29,6 +29,8 @@ export interface WorkspaceShellProps {
   eyebrow?: string;
   /** Optional filter (e.g., audience-restricted list). */
   visibleStages?: readonly WorkspaceStage[];
+  /** When provided, renders a context-aware Back link above the stage progress. */
+  backTo?: { to: string; label?: string };
   children: ReactNode;
 }
 
