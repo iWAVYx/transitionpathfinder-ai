@@ -62,6 +62,12 @@ export type DemoToolPreview = {
   summary?: string;
   bullets?: { label: string; value?: string; hint?: string }[];
   cta?: { label: string; to: string };
+  /**
+   * Optional in-place preview id. When set, the tile renders a compact
+   * read-only preview from `src/components/demo/previews/` inline instead
+   * of only linking away. See `DEMO_PREVIEWS` for available ids.
+   */
+  previewId?: import("@/components/demo/previews").DemoPreviewId;
 };
 
 export type DemoRolePreview = {
@@ -155,6 +161,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BookmarkCheck,
         title: "Saved Resources",
+        previewId: "saved-resources",
         status: "5 saved",
         tone: "muted",
         summary: "Guides, checklists, and tools your team bookmarked for you.",
@@ -164,6 +171,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FileText,
         title: "Meeting Prep",
+        previewId: "meeting-prep",
         status: "3 questions",
         tone: "default",
         summary: "Walk into your PPT with the questions you want answered.",
@@ -172,6 +180,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: CalendarDays,
         title: "Upcoming Meetings",
+        previewId: "calendar",
         status: "Sep 15",
         tone: "muted",
         summary: "PPTs, IEP reviews, and check-ins in one place.",
@@ -247,6 +256,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FolderOpen,
         title: "Documents",
+        previewId: "documents",
         status: "1 needed",
         tone: "warning",
         summary: "Upload the latest IEP, evaluation, or family note.",
@@ -275,6 +285,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardList,
         title: "Meeting Prep",
+        previewId: "meeting-prep",
         status: "3 open",
         tone: "warning",
         summary: "Questions and agenda for the next PPT.",
@@ -283,6 +294,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardCheck,
         title: "Action Items",
+        previewId: "readiness-gaps",
         status: "2 due",
         tone: "warning",
         summary: "Small next steps you can take this week.",
@@ -291,6 +303,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ShieldCheck,
         title: "Sharing & Consent",
+        previewId: "consent",
         status: "2 shared",
         tone: "muted",
         summary: "Control who can view or edit your student's plan.",
@@ -299,6 +312,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BookmarkCheck,
         title: "Recommended Resources",
+        previewId: "saved-resources",
         status: "6 suggested",
         tone: "muted",
         summary: "Family-friendly guides matched to Jordan's plan.",
@@ -395,6 +409,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardList,
         title: "Meeting Prep",
+        previewId: "meeting-prep",
         status: "2 need agendas",
         tone: "warning",
         summary: "PPT agendas and questions organized per student.",
@@ -410,6 +425,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Target,
         title: "Action Items",
+        previewId: "readiness-gaps",
         status: "7 assigned",
         tone: "default",
         summary: "Tasks assigned across students and families.",
@@ -418,6 +434,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: CalendarDays,
         title: "Calendar",
+        previewId: "calendar",
         status: "4 this week",
         tone: "muted",
         summary: "PPTs, evaluations, and transition meetings.",
@@ -497,6 +514,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Users2,
         title: "Team Activity",
+        previewId: "team-activity",
         status: "22 educators",
         tone: "default",
         summary: "Who's active this week and where support is needed.",
@@ -505,6 +523,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FileText,
         title: "Report Completion",
+        previewId: "report-completion",
         status: "+9% vs. Q3",
         tone: "success",
         summary: "Trend of finalized reports over the last quarter.",
@@ -513,6 +532,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: TrendingUp,
         title: "Readiness Trends",
+        previewId: "trends",
         status: "Developing",
         tone: "warning",
         summary: "School-wide movement across four readiness domains.",
@@ -520,6 +540,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BookOpen,
         title: "Resource Usage",
+        previewId: "resource-usage",
         status: "Top 5",
         tone: "muted",
         summary: "Which guides staff and families are using most.",
@@ -528,6 +549,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: AlertTriangle,
         title: "Support Needs",
+        previewId: "support-needs",
         status: "Travel training",
         tone: "critical",
         summary: "Where teams are asking for more capacity.",
@@ -631,6 +653,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: AlertTriangle,
         title: "Service Gaps",
+        previewId: "service-gaps",
         status: "2 flagged",
         tone: "critical",
         summary: "Programs and supports missing where students need them.",
@@ -687,6 +710,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BadgeCheck,
         title: "Partner Profile",
+        previewId: "partner-profile",
         status: "Verified",
         tone: "success",
         summary: "Your public listing in the partner directory.",
@@ -699,6 +723,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Megaphone,
         title: "Active Opportunities",
+        previewId: "opportunities",
         status: "4 live",
         tone: "default",
         summary: "Programs currently posted and accepting interest.",
@@ -711,6 +736,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardList,
         title: "Submitted Programs",
+        previewId: "partner-submissions",
         status: "9 lifetime",
         tone: "muted",
         summary: "Everything you've posted, with status and history.",
