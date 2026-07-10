@@ -62,7 +62,9 @@ function dashboardShellTestId(pathname: string, userEmail?: string | null): Role
   const hinted =
     dashboardTestIdForDashboardHint(dashboardHintForBrowserLocation()) ??
     dashboardTestIdForDashboardHint(userEmail);
-  return hinted ?? dashboardTestIdForPath(pathname);
+  if (hinted) return hinted;
+  if (pathname === "/dashboard") return ROLE_DASHBOARD_TEST_IDS.student;
+  return dashboardTestIdForPath(pathname);
 }
 
 function AuthenticatedPendingShell() {
