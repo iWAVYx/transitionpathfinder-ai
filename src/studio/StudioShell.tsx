@@ -82,7 +82,7 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
 
   return (
     <div className="tf-studio">
-      <div className="tf-studio-app">
+      <div className={`tf-studio-app${hideRail ? " tf-studio-app--norail" : ""}`}>
         {/* Brand strip */}
         <header className="tf-studio-brand">
           <Link to="/" className="mark">
