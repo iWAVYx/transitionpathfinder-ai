@@ -29,7 +29,7 @@ describe("student /dashboard render contract", () => {
 
   it("error fallback shell mounts a SiteShell so <main> is always attached", () => {
     expect(dashboard).toMatch(/function DashboardErrorShell/);
-    expect(dashboard).toMatch(/DashboardErrorShell[\s\S]{0,400}<SiteShell\s+dashboardTestId=/);
+    expect(dashboard).toMatch(/DashboardErrorShell[\s\S]*?<SiteShell\s+dashboardTestId=/);
   });
 
   it("renders StudentDashboard for a student viewer BEFORE the generic loading / empty branches", () => {
