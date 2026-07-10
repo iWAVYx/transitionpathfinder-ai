@@ -44,17 +44,20 @@ export function ToolPreviewCard({
   footer,
 }: ToolPreviewCardProps) {
   return (
-    <div className="group relative flex flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+    <div className="group relative flex h-full min-h-[15rem] flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
           <Icon className="h-5 w-5" aria-hidden />
         </div>
-        {status && (
+        <span aria-hidden />
+        {status ? (
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ring-1 ${TONE[tone]}`}
+            className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ring-1 ${TONE[tone]}`}
           >
             {status}
           </span>
+        ) : (
+          <span aria-hidden />
         )}
       </div>
       <h3 className="mt-4 font-display text-lg font-medium tracking-tight">{title}</h3>
