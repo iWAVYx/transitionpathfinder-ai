@@ -47,12 +47,15 @@ function DemoHub() {
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button asChild size="lg">
-              <Link to="/demo/student">
-                Start with the Student preview <ArrowRight className="ml-1.5 h-4 w-4" />
+              <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
+                Walk The Workspace Tour <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/waitlist">Join the waitlist</Link>
+              <Link to="/demo/report">Read The Pathway Report</Link>
+            </Button>
+            <Button asChild size="lg" variant="ghost">
+              <Link to="/waitlist">Join The Waitlist</Link>
             </Button>
           </div>
         </section>

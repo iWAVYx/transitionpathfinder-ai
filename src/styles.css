@@ -2195,10 +2195,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --font-eh-serif: "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
 }
 
-/* Issue background — warm paper tone wraps every demo + report page. */
+/* Issue background — deliberately transparent so the demo + report shells
+   inherit the main site background. The beige paper tone was making the
+   experience feel detached; keep the inner .eh-page card treatment instead. */
 .demo-shell.eh-issue,
 .report-shell.eh-issue {
-  background: var(--eh-paper);
+  background: transparent;
 }
 
 /* A single sheet-of-paper page inside the issue. */
@@ -2605,13 +2607,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 
 .demo-shell,
 .report-shell {
-  background: var(--demo-paper);
-  color: var(--demo-ink);
+  /* Inherit main site background instead of the warm "paper" surface — the
+     Workspace Tour and product surfaces should feel like one experience. */
+  background: transparent;
+  color: inherit;
 }
 
 /* Neutralize older decorative backgrounds */
 .demo-shell.eh-issue,
-.report-shell.eh-issue { background: var(--demo-paper); }
+.report-shell.eh-issue { background: transparent; }
 .demo-shell .eh-page,
 .report-shell .eh-page,
 .demo-shell .mag-page,
@@ -3703,11 +3707,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --pub-display:      "Urbanist", "Epilogue", Inter, sans-serif;
   --pub-body:         "Inter", system-ui, sans-serif;
 
-  background-color: var(--pub-paper) !important;
-  background-image: radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 60%);
-  background-attachment: fixed;
-
-  color: var(--pub-ink);
+  /* Beige "publication paper" surface removed — the demo + report shells
+     now inherit the main site background so they feel integrated with the
+     product rather than living on a detached page. Typography tokens above
+     are still available to child publication primitives. */
+  background: transparent;
+  color: inherit;
   min-height: 100vh;
 }
 
@@ -5876,8 +5881,8 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --st-serif: "Lora", Georgia, "Times New Roman", serif;
   --st-sans:  "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  color: var(--st-ink);
-  background: var(--st-paper);
+  color: inherit;
+  background: transparent;
   font-family: var(--st-sans);
   font-size: 16.5px;
   line-height: 1.62;
@@ -5889,50 +5894,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   isolation: isolate;
 }
 
-/* Soft organic-shape wash behind the whole studio workspace */
-.tf-studio::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(48rem 34rem at 12% 8%,  color-mix(in oklab, var(--st-mustard) 22%, transparent) 0%, transparent 62%),
-    radial-gradient(42rem 30rem at 92% 18%, color-mix(in oklab, var(--st-map) 18%, transparent) 0%, transparent 60%),
-    radial-gradient(56rem 40rem at 82% 92%, color-mix(in oklab, var(--st-terra) 16%, transparent) 0%, transparent 62%),
-    radial-gradient(38rem 30rem at 6% 78%,  color-mix(in oklab, var(--st-map-deep) 12%, transparent) 0%, transparent 60%);
-  filter: blur(2px) saturate(1.05);
-}
+/* Decorative studio wash + illustrations removed — the beige/cream surface
+   made the studio feel like a separate page from the rest of the product.
+   Studio pages now inherit the site background and blend with the Workspace
+   Tour. The .tf-studio scope is kept so nested layout/typography rules still
+   apply. */
 
-/* Hand-drawn illustration flourishes tucked into the canvas margins */
-.tf-studio::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.55;
-  background-repeat: no-repeat;
-  background-position:
-    right 3vw top 10vh,
-    left 2vw bottom 8vh,
-    right 8vw bottom 22vh;
-  background-size: 180px auto, 220px auto, 140px auto;
-  background-image:
-    /* sketchy compass / sun */
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23a83f2a' stroke-width='1.4' stroke-linecap='round'><circle cx='100' cy='100' r='42' stroke-dasharray='2 4'/><path d='M100 40 L100 22 M100 178 L100 160 M40 100 L22 100 M178 100 L160 100'/><path d='M100 58 C 118 78, 118 122, 100 142 C 82 122, 82 78, 100 58 Z'/><circle cx='100' cy='100' r='4' fill='%23a83f2a'/><path d='M58 58 l6 6 M136 58 l-6 6 M58 142 l6 -6 M136 142 l-6 -6' opacity='0.6'/></svg>"),
-    /* wavy path with dots */
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 120' fill='none' stroke='%232f6b8a' stroke-width='1.4' stroke-linecap='round'><path d='M8 90 C 40 40, 80 110, 120 60 S 200 20, 214 40' stroke-dasharray='1 5'/><circle cx='40' cy='58' r='3' fill='%232f6b8a'/><circle cx='120' cy='60' r='3' fill='%232f6b8a'/><circle cx='200' cy='30' r='3' fill='%232f6b8a'/><path d='M180 24 l4 -10 M188 26 l8 -6' /></svg>"),
-    /* little constellation of sparkles */
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140' fill='none' stroke='%23e8b14a' stroke-width='1.3' stroke-linecap='round'><path d='M30 30 l0 18 M21 39 l18 0 M28 32 l4 14 M32 32 l-4 14'/><path d='M100 70 l0 12 M94 76 l12 0'/><path d='M60 108 l0 14 M53 115 l14 0 M56 110 l8 10 M64 110 l-8 10'/></svg>");
-}
-@media (prefers-reduced-motion: no-preference) {
-  .tf-studio::after { animation: tf-studio-drift 24s ease-in-out infinite alternate; }
-}
-@keyframes tf-studio-drift {
-  0%   { transform: translate3d(0,0,0); }
-  100% { transform: translate3d(-6px, 4px, 0); }
-}
 
 /* Neutralize lingering chrome from older systems when nested inside .tf-studio */
 .tf-studio .pub-page,
