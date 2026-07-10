@@ -64,19 +64,20 @@ export function SchoolAdminOverviewGrid() {
         <ToolPreviewCard
           icon={BookOpen}
           title="Resource Usage"
-          status="Popular"
+          status="Bookmarked"
           tone="muted"
-          summary="Which guides, checklists, and tools your team is actually using."
-          cta={{ label: "Open resources", to: "/resources" }}
+          summary="Guides and checklists you've saved to share with your school team."
+          cta={{ label: "Open saved resources", to: "/resources/saved" }}
         />
         <ToolPreviewCard
           icon={LifeBuoy}
           title="Support Needs"
           status="Watch"
           tone="warning"
-          summary="Students flagged as needing additional support or intervention."
-          cta={{ label: "Open caseload", to: "/caseload" }}
+          summary="Students at your school flagged for additional transition support."
+          cta={{ label: "Open support needs", to: "/school/support-needs" }}
         />
+
       </ToolPreviewGrid>
     </ToolPreviewSection>
   );
