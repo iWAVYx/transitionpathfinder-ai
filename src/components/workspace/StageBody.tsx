@@ -8,12 +8,12 @@ import {
 import { StageSamplePanel } from "./StageSamplePanel";
 
 /**
- * StageBody — narrative canvas for a single stage. Renders below the
- * StageHeader inside WorkspaceShell. The stage's interactive Sample
- * Screen is embedded inline so it visually belongs to the stage flow
- * instead of floating as a disconnected mockup; the "Feeds the Pathway
- * Report" rail sits alongside it so input → insight → action stays
- * legible on the same page.
+ * StageBody — narrative canvas for a single stage.
+ *
+ * In signed-in mode, a "Do The Work" panel links to the live work
+ * surface. In demo mode (`expandInPlace`), no link is rendered; opening
+ * the full sample screen expands the sample panel inline instead, so
+ * the public demo stays on the Workspace Tour.
  *
  * Title Case is used for panel/section titles; sentence case for
  * narrative copy — per the project style rules.
@@ -22,50 +22,59 @@ export function StageBody({
   stage,
   workSurfaceHref,
   workSurfaceLabel,
+  expandInPlace = false,
   children,
 }: {
   stage: WorkspaceStage;
-  workSurfaceHref: string;
-  workSurfaceLabel: string;
+  /** Live work-surface route. Omit (or set expandInPlace) in the demo. */
+  workSurfaceHref?: string;
+  workSurfaceLabel?: string;
+  expandInPlace?: boolean;
   children?: ReactNode;
 }) {
+  const showWorkSurface = !expandInPlace && !!workSurfaceHref;
   return (
     <section className="mt-10 grid gap-8">
-      {/* Optional stage-specific narrative from the route */}
       {children && (
         <div className="prose prose-neutral max-w-none dark:prose-invert">
           {children}
         </div>
       )}
 
-      {/* Interactive sample screen, embedded in the stage flow. */}
       <StageSamplePanel
         stage={stage}
-        fullSampleHref={workSurfaceHref}
+        fullSampleHref={expandInPlace ? undefined : workSurfaceHref}
         fullSampleLabel="Open Full Sample Screen"
+        expandInPlace={expandInPlace}
       />
 
-      {/* Report + surface rail — kept alongside so the flow reads as
-          Sample Screen → Report Sections → Open Work Surface. */}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="rounded-3xl border border-primary/30 bg-primary/5 p-6 shadow-soft">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            Do The Work
-          </p>
-          <p className="mt-2 font-display text-xl text-foreground">
-            Open The {stage.title} Surface
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {workSurfaceLabel}
-          </p>
-          <Link
-            to={workSurfaceHref as never}
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/90"
-          >
-            Go To Work Surface
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
-        </div>
+      <div
+        className={
+          showWorkSurface
+            ? "grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
+            : "grid gap-6"
+        }
+      >
+        {showWorkSurface && (
+          <div className="rounded-3xl border border-primary/30 bg-primary/5 p-6 shadow-soft">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+              Do The Work
+            </p>
+            <p className="mt-2 font-display text-xl text-foreground">
+              Open The {stage.title} Surface
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {workSurfaceLabel}
+            </p>
+            <Link
+              to={workSurfaceHref as never}
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:bg-primary/90"
+            >
+              Go To Work Surface
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+        )}
 
         <aside className="rounded-3xl border border-border bg-muted/40 p-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
