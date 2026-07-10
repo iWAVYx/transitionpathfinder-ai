@@ -3703,11 +3703,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --pub-display:      "Urbanist", "Epilogue", Inter, sans-serif;
   --pub-body:         "Inter", system-ui, sans-serif;
 
-  background-color: var(--pub-paper) !important;
-  background-image: radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 60%);
-  background-attachment: fixed;
-
-  color: var(--pub-ink);
+  /* Beige "publication paper" surface removed — the demo + report shells
+     now inherit the main site background so they feel integrated with the
+     product rather than living on a detached page. Typography tokens above
+     are still available to child publication primitives. */
+  background: transparent;
+  color: inherit;
   min-height: 100vh;
 }
 
