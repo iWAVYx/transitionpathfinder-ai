@@ -148,6 +148,9 @@ const PILL_ACTIVE =
 
 export function PathwayReportDeepPreview() {
   const [audience, setAudience] = useState<Audience>("family");
+  const { user, loading: authLoading } = useAuth();
+  const isSignedIn = !!user;
+  const [status, setStatus] = useState<string>("");
   const detail = getStageDetail("roadmap");
   const groups = detail?.groups ?? [];
 
@@ -159,6 +162,42 @@ export function PathwayReportDeepPreview() {
 
   const studentVoice = byTitle.get("Student Voice (In Their Own Words)");
   const voiceQuote = studentVoice?.items.find((i) => i.label === "What I Want After School")?.note;
+
+  const handleDownloadPdf = useCallback(() => {
+    if (!isSignedIn) return;
+    setStatus("Preparing print dialog for PDF export…");
+    // The browser print dialog offers "Save as PDF" on every major platform.
+    setTimeout(() => window.print(), 50);
+  }, [isSignedIn]);
+
+  const handleShare = useCallback(async () => {
+    if (!isSignedIn) return;
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = {
+      title: "Jordan Rivera's Pathway Report",
+      text: "Pathway Report — sample preview from Transition Forward CT.",
+      url: shareUrl,
+    };
+    try {
+      if (typeof navigator !== "undefined" && "share" in navigator) {
+        await (navigator as Navigator).share(shareData);
+        setStatus("Share sheet opened.");
+        return;
+      }
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        setStatus("Report link copied to clipboard.");
+        return;
+      }
+      setStatus("Sharing isn't supported in this browser.");
+    } catch (err) {
+      // AbortError = user dismissed; treat as silent.
+      if ((err as { name?: string })?.name !== "AbortError") {
+        setStatus("Couldn't share the report. Try copying the URL from your address bar.");
+      }
+    }
+  }, [isSignedIn]);
+
 
   return (
     <section
