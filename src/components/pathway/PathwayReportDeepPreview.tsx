@@ -425,8 +425,35 @@ function ChapterBlock({ chapter, sections }: { chapter: Chapter; sections: Stage
   );
 }
 
+function SectionCard({ group }: { group: StageDetailGroup }) {
+  const phase = group.phase ?? "input";
+  const titleId = useId();
+  const descId = useId();
+  return (
+    <article
+      tabIndex={0}
+      aria-labelledby={titleId}
+      aria-describedby={group.description ? descId : undefined}
+      className={`flex h-full flex-col rounded-2xl border bg-background p-6 shadow-soft transition-colors hover:border-primary/40 focus-visible:border-primary ${FOCUS_RING}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ring-1 ${PHASE_TONE[phase]}`}
+        >
+          <span className="sr-only">Phase: </span>
+          {PHASE_LABEL[phase]}
+        </span>
+      </div>
+      <h4
+        id={titleId}
+        className="mt-3 font-display text-base font-semibold leading-snug tracking-tight text-foreground"
+      >
+        {group.title}
+      </h4>
       {group.description && (
-        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{group.description}</p>
+        <p id={descId} className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+          {group.description}
+        </p>
       )}
       <ul className="mt-4 space-y-3 text-xs">
         {group.items.map((it, i) => (
@@ -444,3 +471,4 @@ function ChapterBlock({ chapter, sections }: { chapter: Chapter; sections: Stage
     </article>
   );
 }
+
