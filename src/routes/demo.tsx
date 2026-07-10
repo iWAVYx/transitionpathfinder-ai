@@ -131,11 +131,16 @@ function DemoHub() {
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/demo/report">
+                  <Link
+                    to="/demo/workspace/$stage"
+                    params={{ stage: "roadmap" }}
+                    search={{ expand: true }}
+                  >
                     <FileText className="mr-1.5 h-4 w-4" /> Read the Pathway Report
                   </Link>
                 </Button>
               </div>
+
             </div>
             <blockquote className="rounded-2xl border-l-4 border-primary/40 bg-background/70 p-4 text-sm italic text-foreground/80">
               "{SHARED_DEMO_STUDENT.quote}"
