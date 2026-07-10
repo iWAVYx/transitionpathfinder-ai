@@ -35,6 +35,8 @@ export interface StageSamplePanelProps {
    * navigating away. Used by the public Workspace Tour.
    */
   expandInPlace?: boolean;
+  /** Start with the detail section already expanded (used by redirects). */
+  defaultExpanded?: boolean;
 }
 
 const TONE_STYLES: Record<StageSampleTone, string> = {
