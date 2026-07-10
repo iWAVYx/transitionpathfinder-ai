@@ -444,42 +444,5 @@ export function PreviewOutreach() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Registry                                                                   */
-/* -------------------------------------------------------------------------- */
+/* Registry lives in ./index.tsx (lazy-loaded with skeleton + error boundary). */
 
-export const DEMO_PREVIEWS = {
-  calendar: PreviewCalendar,
-  "meeting-prep": PreviewMeetingPrep,
-  "saved-resources": PreviewSavedResources,
-  documents: PreviewDocuments,
-  consent: PreviewConsent,
-  caseload: PreviewCaseload,
-  "readiness-gaps": PreviewReadinessGaps,
-  notes: PreviewNotes,
-  "team-activity": PreviewTeamActivity,
-  "report-completion": PreviewReportCompletion,
-  trends: PreviewTrends,
-  "schools-list": PreviewSchoolsList,
-  "school-progress": PreviewSchoolProgress,
-  "service-gaps": PreviewServiceGaps,
-  "resource-usage": PreviewResourceUsage,
-  "support-needs": PreviewSupportNeeds,
-  opportunities: PreviewOpportunities,
-  deadlines: PreviewDeadlines,
-  partnerforward: PreviewPartnerForward,
-  "partner-profile": PreviewPartnerProfile,
-  "partner-submissions": PreviewPartnerSubmissions,
-  waitlist: PreviewWaitlist,
-  contacts: PreviewContacts,
-  "resource-queue": PreviewResourceQueue,
-  "system-health": PreviewSystemHealth,
-  outreach: PreviewOutreach,
-} as const;
-
-export type DemoPreviewId = keyof typeof DEMO_PREVIEWS;
-
-export function renderDemoPreview(id: DemoPreviewId): ReactNode {
-  const Cmp = DEMO_PREVIEWS[id];
-  return <Cmp />;
-}
