@@ -81,6 +81,7 @@ export function ToolPreviewCard({
         <Link
           to={cta.to as string}
           params={cta.params as never}
+          search={cta.search as never}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
           {toTitleCase(cta.label)}
