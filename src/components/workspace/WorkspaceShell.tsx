@@ -50,6 +50,13 @@ export function WorkspaceShell({
       data-testid="workspace-shell"
       data-active-stage={activeStageId}
     >
+      {backTo ? (
+        <SmartBackLink
+          fallbackTo={backTo.to}
+          label={backTo.label ?? "Back"}
+          className="self-start"
+        />
+      ) : null}
       {eyebrow ? (
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
           {eyebrow}
