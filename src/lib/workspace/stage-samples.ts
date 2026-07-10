@@ -352,7 +352,8 @@ export const STAGE_SAMPLE_SCREENS: Record<StageId, StageSampleScreen> = {
   roadmap: {
     title: "Pathway Report Preview",
     description:
-      "The Roadmap stage turns readiness and voice into a personalized pathway — recommended direction plus matched careers and life goals.",
+      "This is the premium deliverable — a shareable, IDEA-aligned report that turns voice, family priorities, educator insight, and evidence into a defensible pathway with matched careers, life goals, and next steps.",
+
     cards: [
       {
         icon: Compass,
