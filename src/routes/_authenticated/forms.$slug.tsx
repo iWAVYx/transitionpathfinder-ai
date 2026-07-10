@@ -101,58 +101,68 @@ function FormDetailPage() {
           ]}
         />
       </div>
-      <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          {tpl.audience === "family"
-            ? "For families"
-            : tpl.audience === "student"
-              ? "For students"
-              : "For educators"}
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          {tpl.title}
-        </h1>
-        {tpl.description && (
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">{tpl.description}</p>
-        )}
+      <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        {/* HERO — matches report/demo brand rhythm */}
+        <div className="rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            {tpl.audience === "family"
+              ? "For families"
+              : tpl.audience === "student"
+                ? "For students"
+                : "For educators"}{" "}
+            · Pathway intake
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+            {tpl.title}
+          </h1>
+          {tpl.description && (
+            <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
+              {tpl.description}
+            </p>
+          )}
+        </div>
 
         {students.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-dashed bg-muted/40 p-6 text-center">
+          <div className="mt-8 rounded-3xl border border-dashed bg-muted/40 p-8 text-center shadow-soft">
             <p className="text-sm text-muted-foreground">
               Add a student first to complete forms.{" "}
-              <Link to="/students" className="underline">
+              <Link to="/students" className="font-semibold text-primary underline">
                 Go to Students
               </Link>
             </p>
           </div>
         ) : (
           <>
-            <label className="mt-6 block text-sm">
-              <span className="mb-1 block font-medium">Completing this for *</span>
-              <select
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                className="w-full max-w-xs rounded-lg border bg-background px-3 py-2"
-              >
-                {students.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.first_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="mt-8 rounded-3xl border bg-card p-6 shadow-soft">
+              <label className="block text-sm">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Completing this for
+                </span>
+                <select
+                  value={studentId}
+                  onChange={(e) => setStudentId(e.target.value)}
+                  className="w-full max-w-xs rounded-lg border bg-background px-3 py-2 text-sm"
+                >
+                  {students.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.first_name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            {existing?.status === "completed" && (
-              <p className="mt-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
-                Last completed on{" "}
-                {existing.completed_at
-                  ? new Date(existing.completed_at).toLocaleDateString()
-                  : ""}
-                . Editing will create a new version.
-              </p>
-            )}
+              {existing?.status === "completed" && (
+                <p className="mt-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+                  Last completed on{" "}
+                  {existing.completed_at
+                    ? new Date(existing.completed_at).toLocaleDateString()
+                    : ""}
+                  . Editing will create a new version.
+                </p>
+              )}
+            </div>
 
-            <div className="mt-8 rounded-2xl border bg-card p-6 shadow-soft">
+            <div className="mt-6 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
               <FormRenderer
                 schema={tpl.schema}
                 initial={existing?.answers}
