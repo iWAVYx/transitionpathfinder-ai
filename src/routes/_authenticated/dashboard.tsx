@@ -81,6 +81,84 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPageGuarded,
 });
 
+/**
+ * Safe empty snapshot used when we know the viewer is a student but their
+ * data hasn't loaded (or their team hasn't added them yet). Keeps
+ * <StudentDashboard>'s no-student branch from crashing on undefined arrays.
+ */
+const EMPTY_STUDENT_SNAPSHOT: DashboardSnapshot = {
+  student: null,
+  latestReport: null,
+  goals: [],
+  documents: [],
+  actionItems: [],
+  upcomingMeeting: null,
+  meetingPrep: [],
+  recommendedResources: [],
+  consents: [],
+};
+
+/**
+ * Error boundary for the dashboard render tree. Ensures the app never
+ * blank-renders on /dashboard: on any runtime exception we still mount a
+ * `<SiteShell>` (which always attaches `<main data-testid=…>`) with a
+ * friendly recovery card. See tests/e2e/auth-roles.setup.ts —
+ * `<main>` MUST always be attached.
+ */
+class DashboardErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; message: string | null }
+> {
+  state = { hasError: false, message: null as string | null };
+  static getDerivedStateFromError(err: unknown) {
+    return {
+      hasError: true,
+      message: err instanceof Error ? err.message : String(err ?? "Unknown error"),
+    };
+  }
+  componentDidCatch(err: unknown) {
+    console.error("[DashboardErrorBoundary]", err);
+  }
+  render() {
+    if (this.state.hasError) {
+      return <DashboardErrorShell message={this.state.message} />;
+    }
+    return this.props.children;
+  }
+}
+
+function DashboardErrorShell({ message }: { message: string | null }) {
+  const { user } = useAuth();
+  const dashboardHint =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
+        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const testId =
+    dashboardTestIdForDashboardHint(dashboardHint) ??
+    dashboardTestIdForDashboardHint(user?.email) ??
+    ROLE_DASHBOARD_TEST_IDS.parent;
+  return (
+    <SiteShell dashboardTestId={testId}>
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <DashboardRoleLandmarks />
+        <AlertCircle className="mx-auto mt-4 h-6 w-6 text-destructive" />
+        <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">
+          We hit a snag loading your dashboard.
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Refresh the page to try again. Your data is safe.
+        </p>
+        {message && (
+          <pre className="mx-auto mt-4 max-w-lg overflow-auto rounded-lg border bg-muted/40 p-3 text-left text-[10px] text-muted-foreground">
+            {message}
+          </pre>
+        )}
+      </div>
+    </SiteShell>
+  );
+}
+
 function DashboardPageGuarded() {
   return (
     <RoleGuard
@@ -88,7 +166,9 @@ function DashboardPageGuarded() {
       allow={["family", "student", "educator", "admin"]}
       fallback={<DashboardLoadingShell />}
     >
-      <DashboardPage />
+      <DashboardErrorBoundary>
+        <DashboardPage />
+      </DashboardErrorBoundary>
     </RoleGuard>
   );
 }
