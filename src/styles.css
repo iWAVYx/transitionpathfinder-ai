@@ -7271,8 +7271,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   border-bottom-left-radius: 1.5rem;
 }
 [data-testid="workspace-shell"] > div > div:last-child > header:first-child::after {
-  content: "0" counter(ws-num);
-  counter-reset: ws-num var(--stage-order, 0);
+  content: "";
   position: absolute;
   top: 0.4rem;
   right: 1rem;
