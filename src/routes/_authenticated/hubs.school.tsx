@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
+import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -22,6 +23,7 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("school-implementation")!}>
+        <SchoolAdminOverviewGrid />
         <div className="mt-8">
           <StageJourneyCard audience="school_admin" />
         </div>
