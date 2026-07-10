@@ -53,7 +53,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
       <div className="container max-w-6xl py-6">
         <Breadcrumbs
           trail={[
-            { label: "Demo", href: "/demo" },
+            { label: "Demo", to: "/demo" },
             { label: `${role.label} Preview` },
           ]}
         />
