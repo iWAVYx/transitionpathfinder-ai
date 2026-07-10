@@ -7175,14 +7175,11 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   left: clamp(1rem, 2vw, 1.75rem) !important;
   background: linear-gradient(90deg, var(--stage-a, var(--demo-primary)), var(--stage-b, var(--demo-accent))) !important;
 }
-/* Chapter number, drawn from the eyebrow text ("Stage N · Label") via
- * ::after so we don't have to touch the JSX. */
-.report-shell .report-stage > header {
-  counter-reset: report-stage;
-}
+/* Chapter number: rendered via ::after so we don't touch the JSX. Each
+ * stage sets its own numeral string — CSS counters can't consume a
+ * custom-property value, so per-stage `content` is the correct fix. */
 .report-shell .report-stage > header::after {
-  content: "0" counter(stage-num);
-  counter-reset: stage-num var(--stage-order, 0);
+  content: attr(data-chapter-num);
   position: absolute;
   top: 0.6rem;
   right: clamp(0.75rem, 2vw, 1.5rem);
@@ -7195,14 +7192,15 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   pointer-events: none;
   user-select: none;
 }
-.report-shell [data-report-stage="start"]    > header { --stage-order: 1; }
-.report-shell [data-report-stage="voice"]    > header { --stage-order: 2; }
-.report-shell [data-report-stage="family"]   > header { --stage-order: 3; }
-.report-shell [data-report-stage="school"]   > header { --stage-order: 4; }
-.report-shell [data-report-stage="evidence"] > header { --stage-order: 5; }
-.report-shell [data-report-stage="ready"]    > header { --stage-order: 6; }
-.report-shell [data-report-stage="roadmap"]  > header { --stage-order: 7; }
-.report-shell [data-report-stage="action"]   > header { --stage-order: 8; }
+.report-shell [data-report-stage="start"]    > header::after { content: "01"; }
+.report-shell [data-report-stage="voice"]    > header::after { content: "02"; }
+.report-shell [data-report-stage="family"]   > header::after { content: "03"; }
+.report-shell [data-report-stage="school"]   > header::after { content: "04"; }
+.report-shell [data-report-stage="evidence"] > header::after { content: "05"; }
+.report-shell [data-report-stage="ready"]    > header::after { content: "06"; }
+.report-shell [data-report-stage="roadmap"]  > header::after { content: "07"; }
+.report-shell [data-report-stage="action"]   > header::after { content: "08"; }
+.report-shell [data-report-stage="connect"]  > header::after { content: "09"; }
 .report-shell [data-report-stage="connect"]  > header { --stage-order: 9; }
 
 /* Sub-section separators inside a stage — a thin dashed rule with a
