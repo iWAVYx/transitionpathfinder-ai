@@ -15,6 +15,29 @@ import {
   School,
   Building2,
   Handshake,
+  MessageCircleQuestion,
+  Compass,
+  ClipboardCheck,
+  BookmarkCheck,
+  CalendarDays,
+  FileText,
+  Target,
+  FolderOpen,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  Users2,
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  Rocket,
+  Building,
+  Megaphone,
+  BadgeCheck,
+  Gift,
+  BookOpen,
+  ClipboardList,
+  StickyNote,
 } from "lucide-react";
 
 export type DemoRoleId =
@@ -31,6 +54,16 @@ export type DashboardTile = {
   hint?: string;
 };
 
+export type DemoToolPreview = {
+  icon: LucideIcon;
+  title: string;
+  status?: string;
+  tone?: "default" | "success" | "warning" | "critical" | "muted";
+  summary?: string;
+  bullets?: { label: string; value?: string; hint?: string }[];
+  cta?: { label: string; to: string };
+};
+
 export type DemoRolePreview = {
   id: DemoRoleId;
   path: string;
@@ -43,6 +76,7 @@ export type DemoRolePreview = {
   sharedStudent: boolean;
   dashboardTitle: string;
   dashboardTiles: DashboardTile[];
+  toolPreviews: DemoToolPreview[];
   tools: string[];
   actions: string[];
   outputs: string[];
