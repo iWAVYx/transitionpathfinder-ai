@@ -138,10 +138,11 @@ export function PathwayReportLayout({ children }: PathwayReportLayoutProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [children]);
 
-  const presentSectionsMemo = useMemo(
-    () => (present.size > 0 ? present : undefined),
-    [present],
-  );
+  void present;
+  void active;
+  void reportSectionAnchorId;
+
+
 
   return (
     <div className="mx-auto w-full max-w-[92rem] px-3 pt-4 sm:px-6 sm:pt-6 lg:px-8">
