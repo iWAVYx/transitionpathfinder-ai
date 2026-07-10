@@ -9,11 +9,8 @@
  * stable anchor contract, and observes the stage-grouped body emitted
  * by PathwayReportBody for scroll-driven stage highlighting.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  PathwayReportSpine,
-  reportSectionAnchorId,
-} from "./PathwayReportSpine";
+import { useEffect, useRef, useState } from "react";
+import { reportSectionAnchorId } from "./PathwayReportSpine";
 import { PathwayReportStageProgress } from "./PathwayReportStageProgress";
 import { WORKSPACE_STAGES, type PathwayReportSectionId, type StageId } from "@/lib/workspace/stages";
 
