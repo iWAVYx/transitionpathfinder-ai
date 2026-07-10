@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { DemoToolPreviewCard, DemoToolPreviewGrid } from "./DemoToolPreviewCard";
+import { renderDemoPreview } from "@/components/demo/previews";
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
