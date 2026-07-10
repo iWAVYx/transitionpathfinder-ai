@@ -54,6 +54,9 @@ export function StageBody({
         defaultExpanded={defaultExpanded}
       />
 
+      <StageRoleValueStrip stageId={stage.id} />
+
+
 
       <div
         className={
