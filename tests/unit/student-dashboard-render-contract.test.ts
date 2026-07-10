@@ -97,9 +97,12 @@ describe("student /dashboard render contract", () => {
     expect(demoWorkspace).toMatch(/createFileRoute\("\/demo_\/workspace\/\$stage"\)/);
     expect(demoWorkspace).toMatch(/stageParam\.parse\(raw\.stage\)/);
     expect(demoWorkspace).toMatch(/<SiteShell>/);
-    expect(demoReport).toMatch(/DEFAULT_DEMO_STUDENT/);
-    expect(demoReport).toMatch(/const s = search\.s \?\? DEFAULT_DEMO_STUDENT/);
-    expect(demoReport).toMatch(/<ReportView/);
+    // The legacy demo report route now redirects into the single Workspace Tour
+    // experience so there is no separate profile-bearing report shell.
+    expect(demoReport).toMatch(/createFileRoute\("\/demo_\/report"\)/);
+    expect(demoReport).toMatch(/to: "\/demo\/workspace\/\$stage"/);
+    expect(demoReport).toMatch(/params: \{ stage: "roadmap" \}/);
+    expect(demoReport).toMatch(/search: \{ expand: true \}/);
     expect(studioShell).toMatch(/<main className="tf-studio-canvas"/);
   });
 });
