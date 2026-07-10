@@ -41,11 +41,7 @@ function DemoWorkspaceStagePage() {
         hrefFor={hrefForDemoStage}
         eyebrow="Transition Workspace · Public Demo"
       >
-        <StageBody
-          stage={stage}
-          workSurfaceHref={stage.demoRoute}
-          workSurfaceLabel="Open the interactive sample screen for this stage."
-        />
+        <StageBody stage={stage} expandInPlace />
       </WorkspaceShell>
     </SiteShell>
   );
