@@ -1,209 +1,206 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Sparkles, Users, ClipboardList, FileText } from "lucide-react";
 
-import {
-  DEMO_STUDENTS,
-  getDemoStudent,
-  type DemoStudentId,
-} from "@/lib/demo-data";
-import {
-  DEFAULT_DEMO_STUDENT,
-  validateStudentSearch,
-} from "@/components/site/DemoStepBar";
-import { toTitleCase } from "@/lib/title-case";
-
-import { StudioShell, StudioHead, StudioFrame, StudioAside } from "@/studio/StudioShell";
-import {
-  CHAPTER_STAGES,
-  ACT_META,
-} from "@/studio/stages";
+import { SiteShell } from "@/components/site/SiteShell";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
 
 export const Route = createFileRoute("/demo")({
-  validateSearch: validateStudentSearch,
   head: () => ({
     meta: [
-      { title: "Pathway Studio — TransitionForward Demo" },
+      { title: "Demo — Preview TransitionForward by role" },
       {
         name: "description",
         content:
-          "Step into the TransitionForward Pathway Studio: a guided workspace that turns scattered transition-planning inputs into a clear, shared pathway forward.",
+          "Preview TransitionForward by role: see what a student, family, educator, school admin, district admin, or partner would experience. Sample data only.",
       },
-      { property: "og:title", content: "Pathway Studio — TransitionForward Demo" },
+      { property: "og:title", content: "Demo — Preview TransitionForward by role" },
       {
         property: "og:description",
         content:
-          "Walk a fictional Connecticut high school student from intake through a 30 / 60 / 90 plan inside the new TransitionForward Pathway Studio.",
+          "Explore a role-based preview of TransitionForward: student, family, educator, school, district, and partner. All sample data.",
       },
       { property: "og:url", content: "/demo" },
     ],
     links: [{ rel: "canonical", href: "/demo" }],
   }),
-  component: StudioCover,
+  component: DemoHub,
 });
 
-function StudioCover() {
-  const search = Route.useSearch();
-  const s = search.s ?? DEFAULT_DEMO_STUDENT;
-  const preserve = !!search.s;
-  const bundle = getDemoStudent(s);
-  const { profile: student } = bundle;
-  const voiceQuote = bundle.report.student_snapshot?.student_voice_quote;
-
+function DemoHub() {
   return (
-    <StudioShell stage="cover" student={s} preserveStudent={preserve}>
-      <StudioHead
-        title={
-          <>
-            {toTitleCase(student.full_name)} — <em>A Pathway Forward.</em>
-          </>
-        }
-        dek="The Pathway Studio is a guided workspace. The rail on the left is the path itself; this is your starting point — walk it stage by stage, or open the map for a bird's-eye view."
-      />
-
-      {/* Cover spread */}
-      <div className="st-cover">
-        <div className="lead">
-          <p className="issue-line">Issue 01 · {student.school} · {student.graduation_year}</p>
-          <div className="ctas">
-            <Link
-              to="/demo/intake"
-              {...(preserve ? { search: { s } } : {})}
-              className="primary"
-            >
-              Begin the Pathway →
-            </Link>
-            <a href="#overview" className="ghost">See the Full Map</a>
-          </div>
-        </div>
-
-        <aside className="side">
-          <h4>Featured Student</h4>
-          <p style={{ margin: "0 0 24px", fontSize: 14, lineHeight: 1.5, color: "var(--st-mute)" }}>
-            {toTitleCase(student.full_name)} · {student.pronouns} · Grade {student.grade}
+    <SiteShell>
+      <div className="container max-w-6xl py-8 space-y-10">
+        {/* HERO */}
+        <section className="rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-10">
+          <Badge variant="outline" className="border-primary text-primary">
+            <Sparkles className="mr-1 h-3 w-3" /> Sample data only
+          </Badge>
+          <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
+            Preview TransitionForward by role.
+          </h1>
+          <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+            TransitionForward is a role-based transition-planning platform. Pick a role below to
+            see the dashboard, the tools, the actions, and the outputs that role would experience
+            when they sign in.
           </p>
-          {voiceQuote ? (
-            <blockquote className="quote">
-              “{voiceQuote}”
-              <cite>— {student.first_name}, in their own words</cite>
-            </blockquote>
-          ) : null}
-
-          <h4>Switch Sample</h4>
-          <div className="swap" role="tablist" aria-label="Sample student">
-            {(["maya", "jordan"] as DemoStudentId[]).map((id) => (
-              <Link
-                key={id}
-                to="/demo"
-                search={{ s: id }}
-                resetScroll={false}
-                aria-current={id === s ? "true" : undefined}
-              >
-                {DEMO_STUDENTS[id].profile.first_name}
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Button asChild size="lg">
+              <Link to="/demo/student">
+                Start with the Student preview <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
-            ))}
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/waitlist">Join the waitlist</Link>
+            </Button>
           </div>
-        </aside>
-      </div>
+        </section>
 
-
-      {/* Visual pathway — single timeline for the whole journey */}
-      <StudioFrame title="The Pathway, at a Glance">
-        <p>
-          Every stage feeds the next. Intake, student voice, and documents
-          become a Pathway Report. The report becomes an agenda, a calendar,
-          and a 30 / 60 / 90 plan. The plan keeps living inside a shared
-          Student Hub. That's the whole loop.
-        </p>
-        <nav className="tf-journey" aria-label="Eleven-stage pathway">
-          {CHAPTER_STAGES.map((stg, i) => (
-            <Link
-              key={stg.id}
-              to={stg.to}
-              {...(preserve ? { search: { s } } : {})}
-              className="tf-journey-step"
-              data-state={i === 0 ? "current" : "future"}
-            >
-              <span className="j-dot">{i + 1}</span>
-              <span className="j-lab">{stg.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </StudioFrame>
-
-
-      {/* Acts overview */}
-      <StudioFrame title="What You'll Walk Through">
-        <p id="overview">
-          The studio is organized into four acts. Each act answers one
-          question the team is trying to make progress on together.
-        </p>
-        <div style={{ display: "grid", gap: 32, marginTop: 24 }}>
-          {(["I", "II", "III", "IV"] as const).map((act) => {
-            const stages = CHAPTER_STAGES.filter((x) => x.act === act);
-            const meta = ACT_META[act];
-            return (
-              <section key={act} style={{ borderTop: "1px solid var(--st-rule)", paddingTop: 24 }}>
-                <p
-                  style={{
-                    fontSize: 10,
-                    lineHeight: 1.4,
-                    letterSpacing: "0.22em",
-                    textTransform: "uppercase",
-                    color: "var(--st-map-deep)",
-                    margin: "0 0 8px",
-                    fontWeight: 700,
-                  }}
+        {/* ROLE GRID */}
+        <section>
+          <div className="mb-4 flex items-baseline gap-3">
+            <span className="font-mono text-xs font-semibold tracking-widest text-primary">01</span>
+            <div className="h-px flex-1 bg-border" />
+            <h2 className="font-display text-xl">Choose a role to preview</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {DEMO_ROLE_ORDER.map((id) => {
+              const role = DEMO_ROLES[id];
+              const Icon = role.icon;
+              return (
+                <Link
+                  key={id}
+                  to={role.path}
+                  className="group rounded-3xl border bg-card p-6 shadow-soft transition hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-elegant"
                 >
-                  Act {act}
-                </p>
-                <h3 style={{ margin: "0 0 8px", fontFamily: "var(--st-serif)", lineHeight: 1.25, color: "var(--st-ink)" }}>
-                  {meta.title.replace(/^Act [IVX]+ · /, "")}
-                </h3>
-                <p style={{ color: "var(--st-mute)", lineHeight: 1.55, margin: "0 0 16px", maxWidth: "62ch" }}>{meta.dek}</p>
-                <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 0 }}>
-                  {stages.map((stg) => (
-                    <li key={stg.id}>
-                      <Link
-                        to={stg.to}
-                        {...(preserve ? { search: { s } } : {})}
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "56px 1fr auto",
-                          alignItems: "center",
-                          gap: 16,
-                          padding: "14px 0",
-                          borderTop: "1px solid var(--st-rule-soft)",
-                          textDecoration: "none",
-                          color: "var(--st-ink)",
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        <span style={{ fontFamily: "var(--st-serif)", fontStyle: "italic", color: "var(--st-mute)" }}>
-                          p. {stg.folio}
-                        </span>
-                        <span>
-                          <span style={{ display: "block", fontFamily: "var(--st-serif)", fontSize: "1.1rem", lineHeight: 1.3, color: "var(--st-ink)" }}>
-                            {stg.label}
-                          </span>
-                          <span style={{ display: "block", fontSize: 13, lineHeight: 1.45, marginTop: 2, color: "var(--st-mute)" }}>
-                            {stg.produces}
-                          </span>
-                        </span>
-                        <span style={{ alignSelf: "center", color: "var(--st-map)" }}>→</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            );
-          })}
-        </div>
-      </StudioFrame>
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" />
+                  </div>
+                  <h3 className="mt-4 font-display text-xl">{role.label}</h3>
+                  <p className="mt-1 text-sm font-semibold uppercase tracking-[0.15em] text-primary">
+                    {role.tagline}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">{role.intro}</p>
+                </Link>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Platform Owner / Admin isn't shown here — it's internal operations, not a
+            customer-facing role. Signed-in admins can visit{" "}
+            <Link to="/owner/demo" className="underline">Admin Hub → Demo Mode</Link>.
+          </p>
+        </section>
 
+        {/* SHARED STUDENT CALLOUT */}
+        <section className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <div className="mb-4 flex items-baseline gap-3">
+            <span className="font-mono text-xs font-semibold tracking-widest text-primary">02</span>
+            <div className="h-px flex-1 bg-border" />
+            <h2 className="font-display text-xl">Follow one student across three roles</h2>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+            <div>
+              <p className="text-muted-foreground">
+                Student, Family, and Educator previews share one fictional student — {" "}
+                <strong>{SHARED_DEMO_STUDENT.name}</strong>, {SHARED_DEMO_STUDENT.pronouns},
+                Grade {SHARED_DEMO_STUDENT.grade} at {SHARED_DEMO_STUDENT.school}. Walk through
+                intake, student voice, family priorities, educator input, the Pathway Report,
+                and 30 / 60 / 90 next steps to see how the three roles contribute to the same
+                plan.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
+                    <ClipboardList className="mr-1.5 h-4 w-4" /> Walk the Workspace tour
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/demo/report">
+                    <FileText className="mr-1.5 h-4 w-4" /> Read the Pathway Report
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            <blockquote className="rounded-2xl border-l-4 border-primary/40 bg-background/70 p-4 text-sm italic text-foreground/80">
+              "{SHARED_DEMO_STUDENT.quote}"
+              <span className="mt-2 block text-xs not-italic text-muted-foreground">
+                — {SHARED_DEMO_STUDENT.name.split(" ")[0]}, in their own words
+              </span>
+            </blockquote>
+          </div>
+        </section>
 
-      <StudioAside kind="next" label="Begin">
-        Start with <strong>Starting Point</strong> — the family-completed
-        intake. Everything you'll read later is built on top of those answers.
-      </StudioAside>
-    </StudioShell>
+        {/* HOW IT WORKS */}
+        <section>
+          <div className="mb-4 flex items-baseline gap-3">
+            <span className="font-mono text-xs font-semibold tracking-widest text-primary">03</span>
+            <div className="h-px flex-1 bg-border" />
+            <h2 className="font-display text-xl">How the platform layers fit together</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <LayerCard
+              index="A"
+              title="Dashboard"
+              body="An overview / command center — status, next actions, alerts, shortcuts."
+            />
+            <LayerCard
+              index="B"
+              title="Transition Workspace"
+              body="A guided planning experience where inputs become insights and a pathway."
+            />
+            <LayerCard
+              index="C"
+              title="Pathway Report"
+              body="The synthesized, shareable deliverable from the planning process."
+            />
+          </div>
+        </section>
+
+        {/* CLOSING CTA */}
+        <section className="rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="font-display text-2xl">See enough to take the next step?</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Families, educators, schools, districts, and partners are all onboarding through
+                waitlists and pilots. Tell us where you fit.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="lg">
+                <Link to="/waitlist">
+                  Join the waitlist <ArrowRight className="ml-1.5 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link to="/contact">
+                  <Users className="mr-1.5 h-4 w-4" /> Talk with our team
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="ghost">
+                <Link to="/partner-interest">Partner interest</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </SiteShell>
+  );
+}
+
+function LayerCard({ index, title, body }: { index: string; title: string; body: string }) {
+  return (
+    <div className="rounded-3xl border bg-card p-5 shadow-soft">
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 font-mono text-sm font-semibold text-primary">
+        {index}
+      </span>
+      <h3 className="mt-3 font-display text-lg">{title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+    </div>
   );
 }
