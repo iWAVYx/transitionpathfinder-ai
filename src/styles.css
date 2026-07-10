@@ -296,6 +296,27 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   .hero-path-draw { stroke-dashoffset: 0 !important; animation: none !important; }
 }
 
+/* Route transition animations — used when navigating between demo surfaces
+ * (e.g. Transition Workspace back to Demo Overview). */
+@keyframes route-fade-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(16px); }
+}
+
+@keyframes route-fade-in {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-route-out { animation: route-fade-out 250ms ease-out forwards; }
+.animate-route-in  { animation: route-fade-in  350ms ease-out forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-route-out,
+  .animate-route-in { animation: none !important; }
+}
+
+
 
 
 /* ------------------------------------------------------------------
