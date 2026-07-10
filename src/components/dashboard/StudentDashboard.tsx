@@ -29,6 +29,8 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
+import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
+import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 type Props = {
@@ -274,6 +276,18 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           <MyIepSummaryCard studentId={s.id} />
         </div>
 
+        {/* Pathway Report — Student View sections (sample preview until a real report is generated) */}
+        <StudentPathwaySections
+          data={
+            s.student_voice_statement
+              ? { voiceQuote: s.student_voice_statement }
+              : undefined
+          }
+          isSample
+        />
+
+        {/* 30 / 90 / 180 / 365-day timeline */}
+        <NextStepsTimeline />
 
         {/* Latest report */}
         <section className="mt-6 rounded-3xl border bg-card p-6 shadow-soft">
