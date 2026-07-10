@@ -51,6 +51,7 @@ import { Route as HubsFamilyResourceRouteImport } from './routes/hubs.family-res
 import { Route as HubsBridgeforwardRouteImport } from './routes/hubs.bridgeforward'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoVoiceRouteImport } from './routes/demo_.voice'
+import { Route as DemoStudentRouteImport } from './routes/demo_.student'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
 import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
@@ -378,6 +379,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
 const DemoVoiceRoute = DemoVoiceRouteImport.update({
   id: '/demo_/voice',
   path: '/demo/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStudentRoute = DemoStudentRouteImport.update({
+  id: '/demo_/student',
+  path: '/demo/student',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoResourcesRoute = DemoResourcesRouteImport.update({
@@ -1100,6 +1106,7 @@ export interface FileRoutesByFullPath {
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
+  '/demo/student': typeof DemoStudentRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
@@ -1258,6 +1265,7 @@ export interface FileRoutesByTo {
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
+  '/demo/student': typeof DemoStudentRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
@@ -1420,6 +1428,7 @@ export interface FileRoutesById {
   '/demo_/plan': typeof DemoPlanRoute
   '/demo_/report': typeof DemoReportRoute
   '/demo_/resources': typeof DemoResourcesRoute
+  '/demo_/student': typeof DemoStudentRoute
   '/demo_/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
@@ -1582,6 +1591,7 @@ export interface FileRouteTypes {
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
+    | '/demo/student'
     | '/demo/voice'
     | '/email/unsubscribe'
     | '/hubs/bridgeforward'
@@ -1740,6 +1750,7 @@ export interface FileRouteTypes {
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
+    | '/demo/student'
     | '/demo/voice'
     | '/email/unsubscribe'
     | '/hubs/bridgeforward'
@@ -1901,6 +1912,7 @@ export interface FileRouteTypes {
     | '/demo_/plan'
     | '/demo_/report'
     | '/demo_/resources'
+    | '/demo_/student'
     | '/demo_/voice'
     | '/email/unsubscribe'
     | '/hubs/bridgeforward'
@@ -2035,6 +2047,7 @@ export interface RootRouteChildren {
   DemoPlanRoute: typeof DemoPlanRoute
   DemoReportRoute: typeof DemoReportRoute
   DemoResourcesRoute: typeof DemoResourcesRoute
+  DemoStudentRoute: typeof DemoStudentRoute
   DemoVoiceRoute: typeof DemoVoiceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   HubsBridgeforwardRoute: typeof HubsBridgeforwardRoute
@@ -2350,6 +2363,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/voice'
       fullPath: '/demo/voice'
       preLoaderRoute: typeof DemoVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/student': {
+      id: '/demo_/student'
+      path: '/demo/student'
+      fullPath: '/demo/student'
+      preLoaderRoute: typeof DemoStudentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/resources': {
@@ -3524,6 +3544,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoPlanRoute: DemoPlanRoute,
   DemoReportRoute: DemoReportRoute,
   DemoResourcesRoute: DemoResourcesRoute,
+  DemoStudentRoute: DemoStudentRoute,
   DemoVoiceRoute: DemoVoiceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   HubsBridgeforwardRoute: HubsBridgeforwardRoute,
