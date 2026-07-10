@@ -246,28 +246,7 @@ export function PathwayReportDeepPreview() {
       </div>
 
       {/* Chapter nav */}
-      <nav
-        aria-label="Report chapters"
-        className="sticky top-0 z-10 border-y bg-card/95 px-4 py-3 backdrop-blur sm:px-6"
-      >
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p className={EYEBROW}>Jump To</p>
-          <div className="flex flex-wrap gap-1.5">
-            {CHAPTERS.map((c) => (
-              <a
-                key={c.id}
-                href={`#report-ch-${c.id}`}
-                className={`${PILL_BASE} ${PILL_GHOST} no-underline`}
-              >
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-                  {c.number}
-                </span>
-                <span>{c.title}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </nav>
+      <ChapterNav />
 
       {/* Chapters */}
       <div className="divide-y">
@@ -281,6 +260,7 @@ export function PathwayReportDeepPreview() {
           />
         ))}
       </div>
+
 
       {/* Footer actions */}
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/30 px-6 py-6 sm:px-10">
