@@ -39,7 +39,11 @@ export function PartnerOverviewGrid() {
           tone="success"
           summary="Programs, jobs, and services currently visible to families."
           bullets={[{ label: "Published", value: "—" }]}
-          cta={{ label: "See active opportunities", to: "/partners-manage/opportunities" }}
+          cta={{
+            label: "See active opportunities",
+            to: "/partners-manage/opportunities",
+            search: { status: "approved" },
+          }}
         />
         <ToolPreviewCard
           icon={ClipboardList}
@@ -47,7 +51,11 @@ export function PartnerOverviewGrid() {
           status="Pending review"
           tone="warning"
           summary="Program submissions awaiting admin approval."
-          cta={{ label: "See submissions", to: "/partners-manage/opportunities" }}
+          cta={{
+            label: "See submissions",
+            to: "/partners-manage/opportunities",
+            search: { status: "pending_review" },
+          }}
         />
         <ToolPreviewCard
           icon={CalendarClock}
@@ -63,7 +71,11 @@ export function PartnerOverviewGrid() {
           status="Edit"
           tone="muted"
           summary="Publish, unpublish, and update opportunities and program details."
-          cta={{ label: "Open management", to: "/partners-manage/opportunities" }}
+          cta={{
+            label: "Open management",
+            to: "/partners-manage/opportunities",
+            search: { status: "all" },
+          }}
         />
         <ToolPreviewCard
           icon={Award}
