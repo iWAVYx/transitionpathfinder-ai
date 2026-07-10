@@ -35,8 +35,8 @@ export function EducatorOverviewGrid() {
           title="Student Readiness"
           status="Track"
           tone="warning"
-          summary="Employment, education, independent living, and self-advocacy scores."
-          cta={{ label: "See readiness", to: "/insights" }}
+          summary="Employment, education, independent living, and self-advocacy scores across your caseload."
+          cta={{ label: "See readiness gaps", to: "/educator/readiness-gaps" }}
         />
         <ToolPreviewCard
           icon={ClipboardEdit}
@@ -68,7 +68,7 @@ export function EducatorOverviewGrid() {
           status="Recent"
           tone="muted"
           summary="Quick notes tied to each student, timestamped and searchable."
-          cta={{ label: "Open notes", to: "/caseload" }}
+          cta={{ label: "Open notes", to: "/educator/notes" }}
         />
         <ToolPreviewCard
           icon={CheckSquare}
@@ -76,7 +76,7 @@ export function EducatorOverviewGrid() {
           status="View list"
           tone="muted"
           summary="Assign next steps to family, student, or yourself — track completion."
-          cta={{ label: "See action items", to: "/caseload" }}
+          cta={{ label: "See action items", to: "/educator/action-items" }}
         />
         <ToolPreviewCard
           icon={CalendarDays}
