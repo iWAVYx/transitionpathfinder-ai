@@ -63,26 +63,92 @@ export const DEMO_PREVIEWS = {
 export type DemoPreviewId = keyof typeof DEMO_PREVIEWS;
 
 /* -------------------------------------------------------------------------- */
-/* Skeleton                                                                   */
+/* Skeletons — variants per preview shape                                     */
 /* -------------------------------------------------------------------------- */
 
-export function DemoPreviewSkeleton() {
+type SkeletonVariant = "list" | "bars";
+
+// Previews that render stacked label + % + horizontal bar rows.
+const BAR_PREVIEWS = new Set<DemoPreviewId>(["readiness-gaps", "school-progress"]);
+
+function getSkeletonVariant(id: DemoPreviewId): SkeletonVariant {
+  return BAR_PREVIEWS.has(id) ? "bars" : "list";
+}
+
+function SkeletonFrame({ children, label }: { children: ReactNode; label: string }) {
   return (
     <div
       role="status"
-      aria-label="Loading preview"
+      aria-label={label}
       className="rounded-xl border border-dashed border-border/60 bg-muted/30 p-3"
     >
-      <div className="space-y-2">
-        <div className="h-3 w-2/3 animate-pulse rounded bg-muted-foreground/15" />
-        <div className="h-3 w-1/2 animate-pulse rounded bg-muted-foreground/15" />
-        <div className="h-3 w-3/4 animate-pulse rounded bg-muted-foreground/15" />
-        <div className="h-3 w-1/3 animate-pulse rounded bg-muted-foreground/15" />
-      </div>
-      <span className="sr-only">Loading preview…</span>
+      {children}
+      <span className="sr-only">{label}</span>
     </div>
   );
 }
+
+function SkeletonListRow({ left, right }: { left: string; right?: string }) {
+  return (
+    <div className="flex items-center justify-between gap-2 border-b border-dashed border-border/40 py-1.5 last:border-b-0">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="h-3.5 w-3.5 shrink-0 animate-pulse rounded bg-muted-foreground/20" />
+        <div className="h-3 animate-pulse rounded bg-muted-foreground/15" style={{ width: left }} />
+      </div>
+      {right ? (
+        <div
+          className="h-3 shrink-0 animate-pulse rounded bg-muted-foreground/10"
+          style={{ width: right }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+const LIST_ROWS: Array<{ left: string; right?: string }> = [
+  { left: "70%", right: "28px" },
+  { left: "55%", right: "44px" },
+  { left: "65%", right: "34px" },
+];
+
+const BAR_ROW_WIDTHS = [62, 48, 81];
+
+export function DemoPreviewSkeleton({
+  variant = "list",
+}: { variant?: SkeletonVariant } = {}) {
+  if (variant === "bars") {
+    return (
+      <SkeletonFrame label="Loading chart preview">
+        <div className="space-y-2.5">
+          {BAR_ROW_WIDTHS.map((w, i) => (
+            <div key={i}>
+              <div className="mb-1 flex items-center justify-between">
+                <div className="h-3 w-24 animate-pulse rounded bg-muted-foreground/15" />
+                <div className="h-3 w-8 animate-pulse rounded bg-muted-foreground/10" />
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full animate-pulse bg-muted-foreground/25"
+                  style={{ width: `${w}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </SkeletonFrame>
+    );
+  }
+  return (
+    <SkeletonFrame label="Loading preview">
+      <div>
+        {LIST_ROWS.map((r, i) => (
+          <SkeletonListRow key={i} left={r.left} right={r.right} />
+        ))}
+      </div>
+    </SkeletonFrame>
+  );
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* Error boundary                                                             */
