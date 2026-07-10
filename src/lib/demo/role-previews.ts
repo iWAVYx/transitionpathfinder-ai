@@ -601,7 +601,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       },
       {
         icon: BarChart3,
-        title: "School-by-School Progress",
+        title: "School-By-School Progress",
         status: "Compare",
         tone: "default",
         summary: "Planning status and report completion, side by side.",

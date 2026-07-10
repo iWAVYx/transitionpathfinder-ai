@@ -380,7 +380,7 @@ function ExploreForStudent({
     tiles.push({
       to: "/opportunities",
       icon: <Bookmark className="h-5 w-5" />,
-      title: "Opportunities for you",
+      title: "Opportunities For You",
       body: "Programs, internships, and pathways that match your goals and interests.",
     });
   }
@@ -396,7 +396,7 @@ function ExploreForStudent({
   tiles.push({
     to: "/messages",
     icon: <MessageCircle className="h-5 w-5" />,
-    title: "Your team",
+    title: "Your Team",
     body: "Message the adults connected to your plan — family, teachers, case manager.",
   });
 
