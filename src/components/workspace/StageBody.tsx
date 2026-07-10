@@ -23,6 +23,7 @@ export function StageBody({
   workSurfaceHref,
   workSurfaceLabel,
   expandInPlace = false,
+  defaultExpanded = false,
   children,
 }: {
   stage: WorkspaceStage;
@@ -30,6 +31,8 @@ export function StageBody({
   workSurfaceHref?: string;
   workSurfaceLabel?: string;
   expandInPlace?: boolean;
+  /** In demo mode, start with the full-sample panel already expanded. */
+  defaultExpanded?: boolean;
   children?: ReactNode;
 }) {
   const showWorkSurface = !expandInPlace && !!workSurfaceHref;
@@ -46,7 +49,9 @@ export function StageBody({
         fullSampleHref={expandInPlace ? undefined : workSurfaceHref}
         fullSampleLabel="Open Full Sample Screen"
         expandInPlace={expandInPlace}
+        defaultExpanded={defaultExpanded}
       />
+
 
       <div
         className={
