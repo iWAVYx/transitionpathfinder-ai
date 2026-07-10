@@ -1,74 +1,74 @@
-# Product-Depth & Role-Value Pass
+# Dashboard Feature Connection Pass
 
-Goal: bulk up role experiences, Transition Workspace stages, Pathway Report, and Demo previews so each role feels comprehensive and worth paying for — without rebuilding the current visual direction.
+This is a very large scope (7 roles × ~10 features each, plus building missing signed-in pages). Doing it in a single turn would produce shallow work and destabilize routing. I'll structure it as an auditable, phased pass.
 
-## Approach
+## Phase 1 — Audit (this turn)
 
-Work in layered, verifiable passes. Each pass ends with typecheck + targeted tests before moving on. No visual restart; existing routes, permissions, and shells stay intact.
+Produce a single source of truth: `docs/dashboard-feature-audit.md` + expand `src/lib/demo/feature-map.ts` to cover every dashboard tile per role.
 
-## Pass 1 — Shared Sample & Content Layer
+For each role's dashboard tile I'll record:
+- Label + intended feature
+- Current CTA destination
+- Demo Workspace target (in-place preview vs route)
+- Signed-in target (real route)
+- Status: `connected` | `generic-redirect` | `missing-page` | `dead`
+- Fix: `rewire` | `build-preview` | `build-signed-in-page` | `mark-out-of-scope`
 
-Deepen the sample-data + copy foundation so every downstream surface (demo dashboards, workspace stages, report) gets richer content from one source.
+This audit is the contract Phases 2–4 execute against and what the tests in Phase 5 assert.
 
-- Expand `src/lib/workspace/stage-samples.ts` with more Input/Insight/Pathway/Action items per stage (START, VOICE, FAMILY, SCHOOL, EVIDENCE, READY, ROADMAP, ACTION, CONNECT).
-- Add sample data modules for: readiness categories, 30/60/90/6mo/1yr plans, BridgeForward/TransitionForward pathway matches with rationale, sample documents/evidence, family priorities, educator insights, meeting prep questions.
-- Keep Title Case headings; use `src/lib/title-case.ts` for dynamic strings.
+## Phase 2 — Rewire wrong destinations
 
-## Pass 2 — Transition Workspace Stage Depth
+For tiles that already have a correct target but point somewhere generic (Transition Workspace step, wrong hub), fix the `to`/`params` on the ToolPreviewCard. No new pages. This is the fastest, highest-signal win.
 
-Enrich `StageSamplePanel` sections and `StageBody` role strip content so each stage clearly shows Input → Insight → Pathway → Action with 3–6 concrete items each, source notes, and realistic outputs. No new routes.
+Files most likely touched:
+- `src/components/dashboard/role/*OverviewGrid.tsx` (Student, Parent, Educator, SchoolAdmin, DistrictAdmin, Partner, Owner)
 
-## Pass 3 — Pathway Report Depth
+## Phase 3 — Demo Workspace previews
 
-Expand the report view components to render deeper sections:
-Student Snapshot, Student Voice, Family Priorities, Educator Insights, Documents & Evidence, Readiness Scorecard, IEP/Transition Translator, Data Gaps, Recommended Pathways, Career/Life Matches, Meeting Prep, Recommended Resources, Partner Matches (where permitted), Family/Educator Action Plans, 30/90/6mo/1yr Next Steps, Student/Family/Educator views, Source Notes + AI disclaimer.
+Replace demo-side CTAs that currently redirect into `/demo/workspace/$stage` for unrelated stages with:
+- in-place expandable preview panels using existing `DemoToolPreviewCard` + role-safe sample data from `src/lib/demo/*`
+- new lightweight preview components under `src/components/demo/previews/` per feature (Calendar, Meeting Prep, Saved Resources, Documents, Consent, Caseload, Readiness, Notes, Team Activity, Report Completion, Trends, Schools List, School Progress, Service Gaps, Opportunities, Deadlines, PartnerForward, Partner Profile, Waitlist, Contacts, Resource Queue, Partner Submissions, System Health)
+- reuse existing `PathwayReportDeepPreview` pattern for structure
 
-Use sample data in demo view; wire real fields where already present in signed-in view.
+## Phase 4 — Build missing signed-in pages
 
-## Pass 4 — Role Dashboards (Demo Previews + Signed-in)
+For each `missing-page` row in the audit, create a route under `src/routes/_authenticated/` with:
+- correct `createFileRoute` path matching filename
+- role guard via `ROUTE_AUDIENCES` + `withRoleGuard` fallback where dynamic
+- semantic `<main>` with `data-testid` from `dashboard-testids`
+- page heading (Title Case), role-scoped description
+- loading (Suspense) / error boundary / empty state
+- backend hook via `createServerFn` when a table exists; static empty state otherwise
+- `head()` metadata
 
-For each role dashboard, audit and strengthen the same 11 elements listed in the request (overview, tools, next actions, data, outputs, deeper menus, CTAs, empty/loading/error states, TW link, Report link). Roles:
+Expected new routes (only where not already present — audit will confirm):
+- Student: `/action-items`, `/saved-resources`, `/calendar`, `/meeting-prep`, `/student-voice`, `/pathway/student`
+- Parent: `/family/priorities`, `/family/consent`, `/family/action-items`, `/family/resources`, `/pathway/family`
+- Educator: `/educator/input`, `/educator/readiness-gaps`, `/educator/notes`, `/educator/action-items`
+- School Admin: `/school/team-activity`, `/school/planning-status`, `/school/report-completion`, `/school/readiness-trends`, `/school/resource-usage`, `/school/support-needs`, `/school/implementation`
+- District Admin: `/district/schools`, `/district/school-progress`, `/district/readiness-trends`, `/district/implementation`, `/district/reports`, `/district/service-gaps`, `/district/staff-access`
+- Partner: `/partner/profile`, `/partner/submitted`, `/partner/deadlines`
+- Owner: `/admin/users`, `/admin/contacts`, `/admin/resource-queue`, `/admin/source-libraries`, `/admin/partner-submissions`, `/admin/outreach`, `/admin/feedback`, `/admin/bugs`, `/admin/system-health`, `/admin/launch-readiness`, `/admin/analytics`, `/admin/pilot-outreach`, `/admin/demo-materials`
 
-- Student: My Pathway, Voice, strengths, readiness snapshot, actions, saved resources, meeting prep, calendar, Report student view.
-- Parent/Guardian: connected student, documents, family priorities, questions, meeting prep, sharing/consent, resources, action items, Report family view.
-- Educator/Case Manager: caseload, readiness gaps, notes, meeting prep, actions, calendar, authorized docs, Report educator view.
-- School Admin: school overview, planning status, team activity, report completion, readiness trends, support needs, resource usage, implementation, compliance.
-- District Admin: district overview, schools, per-school progress, trends, implementation, reports, service gaps, partnerships, staff access.
-- Partner: profile, opportunities, submissions, deadlines, PartnerForward incentives, resources, collaboration guidance. Enforce no access to student PII/docs/Voice/Report/goals/meetings/notes.
-- Platform Owner: keep Admin Hub separate; polish nav to users/waitlist/contacts/resources/sources/partner network/submissions/outreach/site content/system health/beta/feedback/bugs/launch/analytics/pilot/demo.
+Update `ROUTE_AUDIENCES` in `src/lib/role-policy.ts` and the `FORBIDDEN` map in `tests/e2e/helpers/roles.ts` for each addition.
 
-## Pass 5 — Demo Workspace Role Previews
+## Phase 5 — Tests
 
-Update role-based demo dashboards to mirror the signed-in product depth using sample data — same widgets, same CTAs — so the demo is an honest preview, not a lighter shell.
+- Extend `tests/unit/demo-feature-map.test.ts` to require every dashboard tile has a mapped entry with non-generic destination.
+- New `tests/unit/dashboard-tile-destinations.test.ts`: for each role grid, assert no two tiles share the same destination and none point to `/workspace/$stage` unless the tile IS "Transition Workspace".
+- New `tests/e2e/dashboard-tile-nav.signedin.spec.ts`: for each role, click every tile CTA, assert URL is not a generic workspace redirect and `<main>` renders with the expected `data-testid`.
+- Extend `role-access-control.signedin.spec.ts` FORBIDDEN map for new admin/school/district routes.
 
-## Pass 6 — Copy & UI Polish
+## Phase 6 — Verify
 
-- Sharpen labels, CTAs, empty states across touched surfaces.
-- Title Case headings, action-oriented CTAs, friendly non-technical language.
-- Remove generic filler / duplicated copy where found in touched files.
+`bunx tsgo --noEmit`, `bunx vitest run`, targeted Playwright role runs, screenshot mobile/desktop for each role dashboard.
 
-## Pass 7 — Verification
+## Scope note
 
-- `tsgo` typecheck.
-- `bunx vitest run` for unit tests; update stale expectations only if content shape changed.
-- Playwright smoke: `/demo`, `/demo/workspace/$stage` for each stage, one dashboard per role (where a public preview exists), partner restriction check.
-- Production build.
+Phases 2–6 are large. I recommend I execute this **iteratively across turns, one role per turn**, starting with the audit in this turn and Student in the next. That keeps each turn reviewable and lets you course-correct before I build ~40 new signed-in pages.
 
-## Technical Notes
+## Confirmation needed
 
-- No new routes; extend existing components and sample modules.
-- Partner restriction enforced via existing `is_partner_only` / RLS; UI simply hides student-scoped widgets for partner role.
-- Keep `WorkspaceShell`, `SmartBackLink`, route transitions untouched.
-- Any dynamic heading strings go through `titleCase()`.
-- All new sample content lives under `src/lib/workspace/` or `src/lib/demo/` — no DB changes.
-- No schema migrations; no changes to `src/integrations/supabase/*`.
-
-## Out Of Scope
-
-- New auth flows, new routes, new tables, new edge functions.
-- Visual redesign, theme changes, new component library.
-- Real analytics wiring for admin hub (sample cards only where already present).
-
-## Scale Warning
-
-This touches many files across dashboards, workspace, and report. I will land it in the 7 passes above and pause between passes if anything gets risky (test failures, ambiguous role scope, or partner-access edge cases) so we can course-correct instead of a giant single edit.
+1. OK to proceed role-by-role over multiple turns starting with the audit doc + Student role?
+2. For new signed-in pages with no backing table yet (e.g. `/admin/bugs`, `/admin/launch-readiness`), should I (a) wire to an existing table I can find, (b) create a new table via migration, or (c) render an empty-state-only page marked "collection starts once you enable it"?
+3. For Owner Hub items that already exist inside `/admin` as tabs/sections (e.g. Waitlist, Contacts), do you want them **promoted to standalone routes**, or is deep-linking into the existing admin subview acceptable?
