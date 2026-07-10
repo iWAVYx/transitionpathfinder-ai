@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, Shield, CheckCircle2, Wrench, Target, FileText } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, CheckCircle2, Wrench, Target, FileText, LayoutDashboard } from "lucide-react";
 import type { DemoRolePreview } from "@/lib/demo/role-previews";
 import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DemoToolPreviewCard, DemoToolPreviewGrid } from "./DemoToolPreviewCard";
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
