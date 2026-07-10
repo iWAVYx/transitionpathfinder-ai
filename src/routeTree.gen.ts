@@ -170,9 +170,12 @@ import { Route as AuthenticatedEducatorReadinessGapsRouteImport } from './routes
 import { Route as AuthenticatedEducatorNotesRouteImport } from './routes/_authenticated/educator.notes'
 import { Route as AuthenticatedEducatorActionItemsRouteImport } from './routes/_authenticated/educator.action-items'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
+import { Route as AuthenticatedDistrictServiceGapsRouteImport } from './routes/_authenticated/district.service-gaps'
 import { Route as AuthenticatedDistrictSchoolsRouteImport } from './routes/_authenticated/district.schools'
 import { Route as AuthenticatedDistrictReportsRouteImport } from './routes/_authenticated/district.reports'
+import { Route as AuthenticatedDistrictProgressRouteImport } from './routes/_authenticated/district.progress'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
+import { Route as AuthenticatedDistrictImplementationRouteImport } from './routes/_authenticated/district.implementation'
 import { Route as AuthenticatedBridgeforwardVoiceRouteImport } from './routes/_authenticated/bridgeforward.voice'
 import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes/_authenticated/bridgeforward.snapshot'
 import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
@@ -1055,6 +1058,12 @@ const AuthenticatedDistrictTeamRoute =
     path: '/district/team',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDistrictServiceGapsRoute =
+  AuthenticatedDistrictServiceGapsRouteImport.update({
+    id: '/district/service-gaps',
+    path: '/district/service-gaps',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictSchoolsRoute =
   AuthenticatedDistrictSchoolsRouteImport.update({
     id: '/district/schools',
@@ -1067,10 +1076,22 @@ const AuthenticatedDistrictReportsRoute =
     path: '/district/reports',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDistrictProgressRoute =
+  AuthenticatedDistrictProgressRouteImport.update({
+    id: '/district/progress',
+    path: '/district/progress',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDistrictOverviewRoute =
   AuthenticatedDistrictOverviewRouteImport.update({
     id: '/district/overview',
     path: '/district/overview',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDistrictImplementationRoute =
+  AuthenticatedDistrictImplementationRouteImport.update({
+    id: '/district/implementation',
+    path: '/district/implementation',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedBridgeforwardVoiceRoute =
@@ -1232,9 +1253,12 @@ export interface FileRoutesByFullPath {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/district/progress': typeof AuthenticatedDistrictProgressRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
+  '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
@@ -1406,9 +1430,12 @@ export interface FileRoutesByTo {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/district/progress': typeof AuthenticatedDistrictProgressRoute
   '/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/district/schools': typeof AuthenticatedDistrictSchoolsRoute
+  '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
@@ -1584,9 +1611,12 @@ export interface FileRoutesById {
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/_authenticated/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/_authenticated/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/_authenticated/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
+  '/_authenticated/district/progress': typeof AuthenticatedDistrictProgressRoute
   '/_authenticated/district/reports': typeof AuthenticatedDistrictReportsRoute
   '/_authenticated/district/schools': typeof AuthenticatedDistrictSchoolsRoute
+  '/_authenticated/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/_authenticated/educator/notes': typeof AuthenticatedEducatorNotesRoute
@@ -1762,9 +1792,12 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/district/implementation'
     | '/district/overview'
+    | '/district/progress'
     | '/district/reports'
     | '/district/schools'
+    | '/district/service-gaps'
     | '/district/team'
     | '/educator/action-items'
     | '/educator/notes'
@@ -1936,9 +1969,12 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/district/implementation'
     | '/district/overview'
+    | '/district/progress'
     | '/district/reports'
     | '/district/schools'
+    | '/district/service-gaps'
     | '/district/team'
     | '/educator/action-items'
     | '/educator/notes'
@@ -2113,9 +2149,12 @@ export interface FileRouteTypes {
     | '/_authenticated/bridgeforward/intake'
     | '/_authenticated/bridgeforward/snapshot'
     | '/_authenticated/bridgeforward/voice'
+    | '/_authenticated/district/implementation'
     | '/_authenticated/district/overview'
+    | '/_authenticated/district/progress'
     | '/_authenticated/district/reports'
     | '/_authenticated/district/schools'
+    | '/_authenticated/district/service-gaps'
     | '/_authenticated/district/team'
     | '/_authenticated/educator/action-items'
     | '/_authenticated/educator/notes'
@@ -3393,6 +3432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictTeamRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/district/service-gaps': {
+      id: '/_authenticated/district/service-gaps'
+      path: '/district/service-gaps'
+      fullPath: '/district/service-gaps'
+      preLoaderRoute: typeof AuthenticatedDistrictServiceGapsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/schools': {
       id: '/_authenticated/district/schools'
       path: '/district/schools'
@@ -3407,11 +3453,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictReportsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/district/progress': {
+      id: '/_authenticated/district/progress'
+      path: '/district/progress'
+      fullPath: '/district/progress'
+      preLoaderRoute: typeof AuthenticatedDistrictProgressRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/district/overview': {
       id: '/_authenticated/district/overview'
       path: '/district/overview'
       fullPath: '/district/overview'
       preLoaderRoute: typeof AuthenticatedDistrictOverviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/district/implementation': {
+      id: '/_authenticated/district/implementation'
+      path: '/district/implementation'
+      fullPath: '/district/implementation'
+      preLoaderRoute: typeof AuthenticatedDistrictImplementationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/bridgeforward/voice': {
@@ -3699,9 +3759,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
   AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
   AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
+  AuthenticatedDistrictImplementationRoute: typeof AuthenticatedDistrictImplementationRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
+  AuthenticatedDistrictProgressRoute: typeof AuthenticatedDistrictProgressRoute
   AuthenticatedDistrictReportsRoute: typeof AuthenticatedDistrictReportsRoute
   AuthenticatedDistrictSchoolsRoute: typeof AuthenticatedDistrictSchoolsRoute
+  AuthenticatedDistrictServiceGapsRoute: typeof AuthenticatedDistrictServiceGapsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
   AuthenticatedEducatorActionItemsRoute: typeof AuthenticatedEducatorActionItemsRoute
   AuthenticatedEducatorNotesRoute: typeof AuthenticatedEducatorNotesRoute
@@ -3764,9 +3827,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBridgeforwardSnapshotRoute:
     AuthenticatedBridgeforwardSnapshotRoute,
   AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
+  AuthenticatedDistrictImplementationRoute:
+    AuthenticatedDistrictImplementationRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
+  AuthenticatedDistrictProgressRoute: AuthenticatedDistrictProgressRoute,
   AuthenticatedDistrictReportsRoute: AuthenticatedDistrictReportsRoute,
   AuthenticatedDistrictSchoolsRoute: AuthenticatedDistrictSchoolsRoute,
+  AuthenticatedDistrictServiceGapsRoute: AuthenticatedDistrictServiceGapsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
   AuthenticatedEducatorActionItemsRoute: AuthenticatedEducatorActionItemsRoute,
   AuthenticatedEducatorNotesRoute: AuthenticatedEducatorNotesRoute,

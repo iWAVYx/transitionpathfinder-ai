@@ -39,7 +39,7 @@ export function DistrictAdminOverviewGrid() {
           status="Compare"
           tone="default"
           summary="Planning status, report completion, and support-needs — by school."
-          cta={{ label: "Compare schools", to: "/district/schools" }}
+          cta={{ label: "Compare schools", to: "/district/progress" }}
         />
         <ToolPreviewCard
           icon={TrendingUp}
@@ -55,7 +55,7 @@ export function DistrictAdminOverviewGrid() {
           status="Track"
           tone="warning"
           summary="Where each school is in the rollout — onboarding, active, mature."
-          cta={{ label: "Open implementation", to: "/school/implementation" }}
+          cta={{ label: "Open implementation", to: "/district/implementation" }}
         />
         <ToolPreviewCard
           icon={FileText}
@@ -71,8 +71,9 @@ export function DistrictAdminOverviewGrid() {
           status="Watch"
           tone="critical"
           summary="Programs, providers, or supports missing where students need them."
-          cta={{ label: "Open service gaps", to: "/insights" }}
+          cta={{ label: "Open service gaps", to: "/district/service-gaps" }}
         />
+
       </ToolPreviewGrid>
     </ToolPreviewSection>
   );

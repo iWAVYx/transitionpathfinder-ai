@@ -87,6 +87,10 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/district/schools": ["district_admin", "admin"],
   "/district/team": ["district_admin", "admin"],
   "/district/reports": ["district_admin", "admin"],
+  "/district/progress": ["district_admin", "admin"],
+  "/district/implementation": ["district_admin", "admin"],
+  "/district/service-gaps": ["district_admin", "admin"],
+
 
   // Student/family workspace utilities — partner workspace excluded.
   "/feed": ["family", "educator", "student", "admin"],
