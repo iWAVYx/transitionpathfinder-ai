@@ -35,7 +35,7 @@ export function SchoolAdminOverviewGrid() {
           status="Track"
           tone="warning"
           summary="Which grade bands are on-pace vs. behind on transition planning."
-          cta={{ label: "See implementation", to: "/school/implementation" }}
+          cta={{ label: "Open planning status", to: "/school/planning-status" }}
         />
         <ToolPreviewCard
           icon={Users}
@@ -59,7 +59,7 @@ export function SchoolAdminOverviewGrid() {
           status="This term"
           tone="default"
           summary="Movement across the four readiness domains, aggregated at the school level."
-          cta={{ label: "Open insights", to: "/insights" }}
+          cta={{ label: "Open readiness trends", to: "/school/readiness-trends" }}
         />
         <ToolPreviewCard
           icon={BookOpen}
@@ -67,7 +67,7 @@ export function SchoolAdminOverviewGrid() {
           status="Bookmarked"
           tone="muted"
           summary="Guides and checklists you've saved to share with your school team."
-          cta={{ label: "Open saved resources", to: "/resources/saved" }}
+          cta={{ label: "Open resource usage", to: "/school/resource-usage" }}
         />
         <ToolPreviewCard
           icon={LifeBuoy}
