@@ -2498,7 +2498,7 @@ function ReportTOC({
 
 
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const searchRef = useRef<HTMLInputElement>(null);
