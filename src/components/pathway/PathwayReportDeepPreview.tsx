@@ -199,31 +199,80 @@ export function PathwayReportDeepPreview() {
 
   const handleShare = useCallback(async () => {
     if (!isSignedIn) return;
-    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof window === "undefined") return;
+    const shareUrl = window.location.href;
     const shareData = {
       title: "Jordan Rivera's Pathway Report",
       text: "Pathway Report — sample preview from Transition Forward CT.",
       url: shareUrl,
     };
-    try {
-      const nav = typeof navigator !== "undefined" ? navigator : undefined;
-      if (nav && typeof nav.share === "function") {
-        await nav.share(shareData);
-        setStatus("Share sheet opened.");
-        return;
+
+    const nav = typeof navigator !== "undefined" ? navigator : undefined;
+    const errName = (e: unknown) => (e as { name?: string })?.name ?? "";
+
+    // 1) Native Web Share API (mobile + some desktop browsers).
+    if (nav && typeof nav.share === "function") {
+      try {
+        // canShare guards Safari/Chrome from throwing on unsupported payloads.
+        if (typeof nav.canShare !== "function" || nav.canShare(shareData)) {
+          await nav.share(shareData);
+          setStatus("Share sheet opened.");
+          return;
+        }
+      } catch (err) {
+        const name = errName(err);
+        if (name === "AbortError") return; // user dismissed — silent
+        // NotAllowedError / SecurityError → fall through to clipboard.
+        if (name !== "NotAllowedError" && name !== "SecurityError" && name !== "TypeError") {
+          setStatus("Sharing was blocked. Copying the link instead…");
+        }
       }
-      if (nav && nav.clipboard) {
+    }
+
+    // 2) Async Clipboard API (requires secure context + user gesture).
+    const isSecure = window.isSecureContext ?? window.location.protocol === "https:";
+    if (nav?.clipboard && typeof nav.clipboard.writeText === "function" && isSecure) {
+      try {
         await nav.clipboard.writeText(shareUrl);
         setStatus("Report link copied to clipboard.");
         return;
+      } catch {
+        // fall through to legacy path
       }
-      setStatus("Sharing isn't supported in this browser.");
-    } catch (err) {
+    }
 
-      // AbortError = user dismissed; treat as silent.
-      if ((err as { name?: string })?.name !== "AbortError") {
-        setStatus("Couldn't share the report. Try copying the URL from your address bar.");
+    // 3) Legacy execCommand fallback (older/insecure browsers).
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = shareUrl;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, shareUrl.length);
+      const ok = document.execCommand?.("copy");
+      document.body.removeChild(ta);
+      if (ok) {
+        setStatus("Report link copied to clipboard.");
+        return;
       }
+    } catch {
+      // fall through
+    }
+
+    // 4) Last resort — prompt so the user can copy manually.
+    try {
+      window.prompt("Copy this link to share the report:", shareUrl);
+      setStatus("Copy the link shown to share the report.");
+      return;
+    } catch {
+      setStatus(
+        !isSecure
+          ? "Sharing needs a secure (https) connection. Copy the URL from your address bar."
+          : "Sharing isn't supported here. Copy the URL from your address bar.",
+      );
     }
   }, [isSignedIn]);
 
