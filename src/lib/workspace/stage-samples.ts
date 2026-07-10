@@ -505,9 +505,24 @@ export function getStageSample(id: StageId): StageSampleScreen {
 /* in place rather than navigating away.                              */
 /* ------------------------------------------------------------------ */
 
+export type StageDetailPhase = "input" | "insight" | "pathway" | "action";
+
+export const STAGE_DETAIL_PHASE_LABEL: Record<StageDetailPhase, string> = {
+  input: "Input",
+  insight: "Insight",
+  pathway: "Pathway",
+  action: "Action",
+};
+
 export interface StageDetailGroup {
   title: string;
   description?: string;
+  /**
+   * Which phase of the Pathway Report flow this group represents.
+   * Groups are ordered Input → Insight → Pathway → Action so the
+   * expanded panel mirrors how the report itself reads.
+   */
+  phase?: StageDetailPhase;
   items: { label: string; note?: string }[];
 }
 
