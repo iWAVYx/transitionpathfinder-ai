@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 import {
   getStage,
   type StageId,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
 import { SmartBackLink } from "@/components/site/SmartBackLink";
+import { cn } from "@/lib/utils";
 import { StageSpine } from "./StageSpine";
 import { StageHeader } from "./StageHeader";
 import { StagePrevNext } from "./StagePrevNext";
@@ -42,11 +44,15 @@ export function WorkspaceShell({
   backTo,
   children,
 }: WorkspaceShellProps) {
+  const [isExiting, setIsExiting] = useState(false);
   const stage = getStage(activeStageId);
 
   return (
     <div
-      className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-14"
+      className={cn(
+        "mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-14",
+        isExiting && "animate-route-out"
+      )}
       data-testid="workspace-shell"
       data-active-stage={activeStageId}
     >
@@ -55,6 +61,8 @@ export function WorkspaceShell({
           fallbackTo={backTo.to}
           label={backTo.label ?? "Back"}
           className="self-start"
+          delayMs={250}
+          onBeforeNavigate={() => setIsExiting(true)}
         />
       ) : null}
       {eyebrow ? (
@@ -82,3 +90,4 @@ export function WorkspaceShell({
     </div>
   );
 }
+
