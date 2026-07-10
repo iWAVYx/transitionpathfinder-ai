@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
+import { PathwayReportDeepPreview } from "@/components/pathway/PathwayReportDeepPreview";
 import {
   WORKSPACE_STAGES,
   getStage,
