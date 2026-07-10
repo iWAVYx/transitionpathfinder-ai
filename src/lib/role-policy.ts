@@ -79,6 +79,8 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/school/team": ["school_admin", "admin"],
   "/school/reports": ["school_admin", "admin"],
   "/school/implementation": ["school_admin", "admin"],
+  "/school/support-needs": ["school_admin", "admin"],
+
 
   // District-level workspace — separate from school and from Platform Admin.
   "/district/overview": ["district_admin", "admin"],
