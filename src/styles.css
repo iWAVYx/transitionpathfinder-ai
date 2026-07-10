@@ -2195,10 +2195,12 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --font-eh-serif: "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
 }
 
-/* Issue background — warm paper tone wraps every demo + report page. */
+/* Issue background — deliberately transparent so the demo + report shells
+   inherit the main site background. The beige paper tone was making the
+   experience feel detached; keep the inner .eh-page card treatment instead. */
 .demo-shell.eh-issue,
 .report-shell.eh-issue {
-  background: var(--eh-paper);
+  background: transparent;
 }
 
 /* A single sheet-of-paper page inside the issue. */
