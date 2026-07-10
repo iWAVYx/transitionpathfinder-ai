@@ -4,6 +4,7 @@ import {
   type StageId,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
+import { SmartBackLink } from "@/components/site/SmartBackLink";
 import { StageSpine } from "./StageSpine";
 import { StageHeader } from "./StageHeader";
 import { StagePrevNext } from "./StagePrevNext";
@@ -28,6 +29,8 @@ export interface WorkspaceShellProps {
   eyebrow?: string;
   /** Optional filter (e.g., audience-restricted list). */
   visibleStages?: readonly WorkspaceStage[];
+  /** When provided, renders a context-aware Back link above the stage progress. */
+  backTo?: { to: string; label?: string };
   children: ReactNode;
 }
 
@@ -36,6 +39,7 @@ export function WorkspaceShell({
   hrefFor,
   eyebrow,
   visibleStages,
+  backTo,
   children,
 }: WorkspaceShellProps) {
   const stage = getStage(activeStageId);
@@ -46,6 +50,13 @@ export function WorkspaceShell({
       data-testid="workspace-shell"
       data-active-stage={activeStageId}
     >
+      {backTo ? (
+        <SmartBackLink
+          fallbackTo={backTo.to}
+          label={backTo.label ?? "Back"}
+          className="self-start"
+        />
+      ) : null}
       {eyebrow ? (
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
           {eyebrow}
