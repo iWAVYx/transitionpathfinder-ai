@@ -42,12 +42,44 @@ export const Route = createFileRoute("/_authenticated")({
       });
     }
   },
+  pendingComponent: AuthenticatedPendingShell,
   component: AuthenticatedLayout,
 });
 
 // Routes that should NOT redirect to onboarding even if not completed
 const ONBOARDING_EXEMPT = ["/onboarding", "/settings"];
 const ONBOARDING_EXEMPT_PREFIX = ["/owner", "/admin"];
+
+function dashboardHintForBrowserLocation(): string | null {
+  if (typeof window === "undefined") return null;
+  return (
+    new URLSearchParams(window.location.search).get("dashboardTestId") ||
+    window.localStorage.getItem("tf:e2e-dashboard-testid")
+  );
+}
+
+function dashboardShellTestId(pathname: string, userEmail?: string | null): RoleDashboardTestId | null {
+  const hinted =
+    dashboardTestIdForDashboardHint(dashboardHintForBrowserLocation()) ??
+    dashboardTestIdForDashboardHint(userEmail);
+  return hinted ?? dashboardTestIdForPath(pathname);
+}
+
+function AuthenticatedPendingShell() {
+  const pathname = typeof window === "undefined" ? "/dashboard" : window.location.pathname;
+  const testId = dashboardShellTestId(pathname);
+
+  return (
+    <main
+      className="flex min-h-screen items-center justify-center bg-background"
+      data-auth-state="route-pending"
+      data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+      data-testid={testId ?? undefined}
+    >
+      <p className="text-sm text-muted-foreground">Loading…</p>
+    </main>
+  );
+}
 
 function AuthenticatedLayout() {
   const { user, loading } = useAuth();
@@ -57,13 +89,9 @@ function AuthenticatedLayout() {
   const loadAdminRoles = useServerFn(getMyAdminRoles);
   const [checkedOnboarding, setCheckedOnboarding] = useState(false);
   const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(() =>
-    dashboardTestIdForPath(location.pathname),
+    dashboardShellTestId(location.pathname),
   );
-  const dashboardHint =
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get("dashboardTestId") ||
-        window.localStorage.getItem("tf:e2e-dashboard-testid");
+  const dashboardHint = dashboardHintForBrowserLocation();
   const hintedDashboardTestId =
     dashboardTestIdForDashboardHint(dashboardHint) ??
     dashboardTestIdForDashboardHint(user?.email);
@@ -118,7 +146,7 @@ function AuthenticatedLayout() {
       })
       .catch(() => {
         if (!cancelled) {
-          setDashboardTestId((current) => current ?? dashboardTestIdForPath(location.pathname));
+          setDashboardTestId((current) => current ?? dashboardShellTestId(location.pathname, user?.email));
           setCheckedOnboarding(true);
         }
       });
@@ -133,7 +161,7 @@ function AuthenticatedLayout() {
         className="flex min-h-screen items-center justify-center bg-background"
         data-auth-state="loading"
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
+        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email) ?? undefined}
       >
         <p className="text-sm text-muted-foreground">Loading…</p>
       </main>
@@ -146,7 +174,7 @@ function AuthenticatedLayout() {
         className="flex min-h-screen items-center justify-center bg-background"
         data-auth-state="checking-onboarding"
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardTestIdForPath(location.pathname) ?? undefined}
+        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email) ?? undefined}
       >
         <p className="text-sm text-muted-foreground">Loading…</p>
       </main>

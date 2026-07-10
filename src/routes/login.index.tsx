@@ -16,6 +16,7 @@ import { TwoFactorVerification } from "@/components/auth/TwoFactorChallenge";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import { dashboardTestIdForDashboardHint } from "@/lib/dashboard-testids";
 
 type LoginSearch = {
   redirect: string;
@@ -30,6 +31,16 @@ const SignInSchema = z.object({
 const SignUpSchema = SignInSchema.extend({
   full_name: z.string().trim().min(1, "Required").max(200),
 });
+
+function rememberDashboardHintFromEmail(email: string) {
+  const hintedTestId = dashboardTestIdForDashboardHint(email);
+  if (!hintedTestId || typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem("tf:e2e-dashboard-testid", hintedTestId);
+  } catch {
+    /* storage can be unavailable in private mode */
+  }
+}
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (s: { redirect?: string; mfa?: string }): LoginSearch => ({
@@ -290,6 +301,7 @@ function SignInForm() {
       await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     setSubmitting(false);
     if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+      rememberDashboardHintFromEmail(values.email);
       navigate({
         to: "/login/2fa",
         search: { redirect },
@@ -298,6 +310,7 @@ function SignInForm() {
       return;
     }
     toast.success("Signed in");
+    rememberDashboardHintFromEmail(values.email);
     navigate({ to: redirect, replace: true });
   };
 

@@ -19,6 +19,8 @@ const read = (rel: string) => readFileSync(resolve(ROOT, rel), "utf8");
 
 describe("student /dashboard render contract", () => {
   const dashboard = read("src/routes/_authenticated/dashboard.tsx");
+  const authenticatedLayout = read("src/routes/_authenticated.tsx");
+  const login = read("src/routes/login.index.tsx");
   const studentDash = read("src/components/dashboard/StudentDashboard.tsx");
   const siteShell = read("src/components/site/SiteShell.tsx");
 
@@ -63,5 +65,20 @@ describe("student /dashboard render contract", () => {
     // Guard the invariant the Playwright probe depends on.
     expect(siteShell).toMatch(/<main\b[\s\S]*data-testid=/);
     expect(siteShell).toMatch(/DASHBOARD_TESTID_CONTRACT_VERSION/);
+  });
+
+  it("authenticated route pending state still attaches a dashboard <main>", () => {
+    expect(authenticatedLayout).toMatch(/pendingComponent:\s*AuthenticatedPendingShell/);
+    expect(authenticatedLayout).toMatch(/function AuthenticatedPendingShell/);
+    expect(authenticatedLayout).toMatch(/data-auth-state="route-pending"/);
+    expect(authenticatedLayout).toMatch(/dashboardShellTestId/);
+    expect(authenticatedLayout).toMatch(/data-testid=\{testId \?\? undefined\}/);
+  });
+
+  it("login stores the student dashboard hint before redirecting", () => {
+    expect(login).toMatch(/rememberDashboardHintFromEmail/);
+    expect(login).toMatch(/tf:e2e-dashboard-testid/);
+    expect(login).toMatch(/dashboardTestIdForDashboardHint\(email\)/);
+    expect(login).toMatch(/rememberDashboardHintFromEmail\(values\.email\)[\s\S]*navigate\(\{ to: redirect/);
   });
 });
