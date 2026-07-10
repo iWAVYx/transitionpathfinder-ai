@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
+import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -22,6 +23,7 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("partner-opportunity")!}>
+        <PartnerOverviewGrid />
         <div className="mt-8">
           <StageJourneyCard audience="partner" />
         </div>

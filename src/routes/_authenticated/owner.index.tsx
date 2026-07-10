@@ -84,6 +84,10 @@ export function OwnerDashboardPage() {
           <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
           <OnboardingChecklist surface="admin" />
 
+          {/* Ops preview grid — one glanceable card per operational surface */}
+          <OwnerOperationsPreview metrics={metrics} queueCounts={queueCounts} reviewCounts={reviewCounts} />
+
+
           {/* Site status banner — pills wrap cleanly on mobile */}
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background p-3 sm:p-4">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -232,4 +236,110 @@ export function OwnerDashboardPage() {
     </OwnerShell>
   );
 }
+
+function OwnerOperationsPreview({
+  metrics,
+  queueCounts,
+  reviewCounts,
+}: {
+  metrics: DashboardMetrics;
+  queueCounts: ReviewQueueCounts | null;
+  reviewCounts: { resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null;
+}) {
+  const tiles: Array<{
+    label: string;
+    value: string | number;
+    hint: string;
+    to: string;
+    tone: string;
+  }> = [
+    {
+      label: "Waitlist",
+      value: metrics.totalWaitlist,
+      hint: `${metrics.newWaitlist} new`,
+      to: "/owner/waitlist",
+      tone: "text-primary",
+    },
+    {
+      label: "Users",
+      value: metrics.totalUsers,
+      hint: `+${metrics.newUsersThisWeek} this week`,
+      to: "/owner/users",
+      tone: "text-primary",
+    },
+    {
+      label: "Contact submissions",
+      value: metrics.totalContacts,
+      hint: `${metrics.newContacts} new`,
+      to: "/owner/contacts",
+      tone: "text-primary",
+    },
+    {
+      label: "Resource review queue",
+      value: reviewCounts?.resourcesNeedingReview ?? 0,
+      hint: `${reviewCounts?.brokenLinks ?? 0} broken links`,
+      to: "/owner/resource-review",
+      tone: (reviewCounts?.resourcesNeedingReview ?? 0) > 0 ? "text-amber-600" : "",
+    },
+    {
+      label: "Partner submissions",
+      value: queueCounts?.partnerSubmissions ?? 0,
+      hint: "Awaiting approval",
+      to: "/owner/partner-submissions",
+      tone: (queueCounts?.partnerSubmissions ?? 0) > 0 ? "text-amber-600" : "",
+    },
+    {
+      label: "Feedback / bugs",
+      value: queueCounts?.feedbackOpen ?? 0,
+      hint: "Open items",
+      to: "/owner/feedback",
+      tone: (queueCounts?.feedbackOpen ?? 0) > 0 ? "text-amber-600" : "",
+    },
+    {
+      label: "Launch readiness",
+      value: metrics.siteStatus.launchStatus.replace(/_/g, " "),
+      hint: "Track blockers",
+      to: "/owner/launch",
+      tone: "text-primary",
+    },
+    {
+      label: "System health",
+      value: metrics.siteStatus.maintenanceMode ? "Maintenance" : "Live",
+      hint: "Uptime & jobs",
+      to: "/owner/health",
+      tone: metrics.siteStatus.maintenanceMode ? "text-destructive" : "text-emerald-600",
+    },
+    {
+      label: "Analytics snapshot",
+      value: "View",
+      hint: "Traffic & engagement",
+      to: "/owner/analytics",
+      tone: "text-primary",
+    },
+  ];
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        Operations overview
+      </h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {tiles.map((t) => (
+          <Link
+            key={t.label}
+            to={t.to as string}
+            className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t.label}
+            </p>
+            <p className={`mt-2 font-display text-2xl ${t.tone}`}>{t.value}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">{t.hint} →</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 
