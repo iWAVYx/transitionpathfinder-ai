@@ -55,7 +55,7 @@ export function StudentOverviewGrid() {
           tone="warning"
           summary="Small next step so momentum stays with you, not the paperwork."
           bullets={[{ label: "This week", value: "1 due" }, { label: "Overdue", value: "0" }]}
-          cta={{ label: "See action items", to: "/dashboard" }}
+          cta={{ label: "See action items", to: "/action-items" }}
         />
         <ToolPreviewCard
           icon={BookmarkCheck}
@@ -88,7 +88,7 @@ export function StudentOverviewGrid() {
           status="Preview"
           tone="success"
           summary="Your plan, in one family-friendly document."
-          cta={{ label: "Open my report", to: "/reports" }}
+          cta={{ label: "Open my report", to: "/pathway/student" }}
         />
       </ToolPreviewGrid>
     </ToolPreviewSection>

@@ -55,6 +55,8 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/documents": ["family", "educator", "admin"],
   "/pathway": ["family", "educator", "admin"],
   "/reports": ["family", "educator", "student", "admin"],
+  "/action-items": ["family", "educator", "student", "admin"],
+  "/pathway/student": ["student", "family", "educator", "admin"],
   "/ppt-prep": ["family", "educator", "admin"],
   "/meetings": ["family", "educator", "admin"],
   "/meeting-templates": ["educator", "admin"],
