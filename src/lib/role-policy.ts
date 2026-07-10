@@ -84,6 +84,9 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/school/reports": ["school_admin", "admin"],
   "/school/implementation": ["school_admin", "admin"],
   "/school/support-needs": ["school_admin", "admin"],
+  "/school/planning-status": ["school_admin", "admin"],
+  "/school/readiness-trends": ["school_admin", "admin"],
+  "/school/resource-usage": ["school_admin", "admin"],
 
 
   // District-level workspace — separate from school and from Platform Admin.
@@ -94,6 +97,7 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/district/progress": ["district_admin", "admin"],
   "/district/implementation": ["district_admin", "admin"],
   "/district/service-gaps": ["district_admin", "admin"],
+  "/district/readiness-trends": ["district_admin", "admin"],
 
 
   // Student/family workspace utilities — partner workspace excluded.
