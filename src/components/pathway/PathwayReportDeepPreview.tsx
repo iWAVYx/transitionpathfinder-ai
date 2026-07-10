@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
   BookOpen,
   Sparkles,
@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+
 
 import {
   getStageDetail,
