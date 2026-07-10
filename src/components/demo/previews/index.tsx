@@ -202,11 +202,13 @@ class DemoPreviewErrorBoundary extends Component<
 export function renderDemoPreview(id: DemoPreviewId): ReactNode {
   const Cmp = DEMO_PREVIEWS[id];
   if (!Cmp) return null;
+  const variant = getSkeletonVariant(id);
   return (
     <DemoPreviewErrorBoundary id={id}>
-      <Suspense fallback={<DemoPreviewSkeleton />}>
+      <Suspense fallback={<DemoPreviewSkeleton variant={variant} />}>
         <Cmp />
       </Suspense>
     </DemoPreviewErrorBoundary>
   );
 }
+
