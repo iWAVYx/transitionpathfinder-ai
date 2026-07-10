@@ -51,6 +51,13 @@ const TONE_STYLES: Record<StageSampleTone, string> = {
   muted: "bg-muted text-muted-foreground ring-border",
 };
 
+const PHASE_STYLES: Record<StageDetailPhase, string> = {
+  input: "bg-sky-500/10 text-sky-700 ring-sky-500/20 dark:text-sky-300",
+  insight: "bg-violet-500/10 text-violet-700 ring-violet-500/20 dark:text-violet-300",
+  pathway: "bg-primary/10 text-primary ring-primary/20",
+  action: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/20 dark:text-emerald-300",
+};
+
 export function StageSamplePanel({
   stage,
   fullSampleHref,
