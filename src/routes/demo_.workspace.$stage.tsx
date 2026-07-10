@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
+import { PathwayReportDeepPreview } from "@/components/pathway/PathwayReportDeepPreview";
 import {
   WORKSPACE_STAGES,
   getStage,
@@ -56,6 +57,7 @@ function DemoWorkspaceStagePage() {
         backTo={{ to: "/demo", label: "Back to Demo Overview" }}
       >
         <StageBody stage={stage} expandInPlace defaultExpanded={autoExpand} />
+        {stageId === "roadmap" && <PathwayReportDeepPreview />}
       </WorkspaceShell>
     </SiteShell>
   );
