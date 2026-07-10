@@ -46,7 +46,7 @@ export function ParentOverviewGrid() {
           status="Share now"
           tone="default"
           summary="What matters most for life after high school — feeds the Pathway Report."
-          cta={{ label: "Open Family Priorities", to: "/pathway" }}
+          cta={{ label: "Open Family Priorities", to: "/family/priorities" }}
         />
         <ToolPreviewCard
           icon={FileText}
@@ -54,7 +54,7 @@ export function ParentOverviewGrid() {
           status="Preview"
           tone="success"
           summary="Snapshot, pathways, action plan, matched resources — in one family-friendly document."
-          cta={{ label: "Open report", to: "/reports" }}
+          cta={{ label: "Open family report", to: "/pathway/family" }}
         />
         <ToolPreviewCard
           icon={MessageCircleQuestion}
@@ -70,7 +70,7 @@ export function ParentOverviewGrid() {
           status="View list"
           tone="muted"
           summary="Small next steps assigned to family, educator, or student."
-          cta={{ label: "See action items", to: "/dashboard" }}
+          cta={{ label: "See action items", to: "/family/action-items" }}
         />
         <ToolPreviewCard
           icon={ShieldCheck}
@@ -78,7 +78,7 @@ export function ParentOverviewGrid() {
           status="Manage"
           tone="muted"
           summary="Copy family/educator report links, control what you share, revoke anytime."
-          cta={{ label: "Manage sharing", to: "/settings" }}
+          cta={{ label: "Manage sharing", to: "/family/consent" }}
         />
         <ToolPreviewCard
           icon={BookOpen}
