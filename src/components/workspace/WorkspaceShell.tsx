@@ -39,6 +39,7 @@ export function WorkspaceShell({
   hrefFor,
   eyebrow,
   visibleStages,
+  backTo,
   children,
 }: WorkspaceShellProps) {
   const stage = getStage(activeStageId);
