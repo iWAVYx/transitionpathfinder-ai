@@ -106,6 +106,7 @@ import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace
 import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authenticated/workspace.$stage'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
+import { Route as AuthenticatedSchoolSupportNeedsRouteImport } from './routes/_authenticated/school.support-needs'
 import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authenticated/school.reports'
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
@@ -680,6 +681,12 @@ const AuthenticatedSchoolTeamRoute = AuthenticatedSchoolTeamRouteImport.update({
   path: '/school/team',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSchoolSupportNeedsRoute =
+  AuthenticatedSchoolSupportNeedsRouteImport.update({
+    id: '/school/support-needs',
+    path: '/school/support-needs',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSchoolReportsRoute =
   AuthenticatedSchoolReportsRouteImport.update({
     id: '/school/reports',
@@ -1291,6 +1298,7 @@ export interface FileRoutesByFullPath {
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
@@ -1464,6 +1472,7 @@ export interface FileRoutesByTo {
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
@@ -1641,6 +1650,7 @@ export interface FileRoutesById {
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/_authenticated/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/_authenticated/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/_authenticated/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
@@ -1818,6 +1828,7 @@ export interface FileRouteTypes {
     | '/school/implementation'
     | '/school/overview'
     | '/school/reports'
+    | '/school/support-needs'
     | '/school/team'
     | '/students/$studentId'
     | '/workspace/$stage'
@@ -1991,6 +2002,7 @@ export interface FileRouteTypes {
     | '/school/implementation'
     | '/school/overview'
     | '/school/reports'
+    | '/school/support-needs'
     | '/school/team'
     | '/students/$studentId'
     | '/workspace/$stage'
@@ -2167,6 +2179,7 @@ export interface FileRouteTypes {
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
     | '/_authenticated/school/reports'
+    | '/_authenticated/school/support-needs'
     | '/_authenticated/school/team'
     | '/_authenticated/students/$studentId'
     | '/_authenticated/workspace/$stage'
@@ -2930,6 +2943,13 @@ declare module '@tanstack/react-router' {
       path: '/school/team'
       fullPath: '/school/team'
       preLoaderRoute: typeof AuthenticatedSchoolTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/support-needs': {
+      id: '/_authenticated/school/support-needs'
+      path: '/school/support-needs'
+      fullPath: '/school/support-needs'
+      preLoaderRoute: typeof AuthenticatedSchoolSupportNeedsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/school/reports': {
@@ -3701,6 +3721,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
+  AuthenticatedSchoolSupportNeedsRoute: typeof AuthenticatedSchoolSupportNeedsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
@@ -3768,6 +3789,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
   AuthenticatedSchoolReportsRoute: AuthenticatedSchoolReportsRoute,
+  AuthenticatedSchoolSupportNeedsRoute: AuthenticatedSchoolSupportNeedsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
   AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
