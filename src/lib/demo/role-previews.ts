@@ -15,6 +15,29 @@ import {
   School,
   Building2,
   Handshake,
+  MessageCircleQuestion,
+  Compass,
+  ClipboardCheck,
+  BookmarkCheck,
+  CalendarDays,
+  FileText,
+  Target,
+  FolderOpen,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  Users2,
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  Rocket,
+  Building,
+  Megaphone,
+  BadgeCheck,
+  Gift,
+  BookOpen,
+  ClipboardList,
+  StickyNote,
 } from "lucide-react";
 
 export type DemoRoleId =
@@ -31,6 +54,16 @@ export type DashboardTile = {
   hint?: string;
 };
 
+export type DemoToolPreview = {
+  icon: LucideIcon;
+  title: string;
+  status?: string;
+  tone?: "default" | "success" | "warning" | "critical" | "muted";
+  summary?: string;
+  bullets?: { label: string; value?: string; hint?: string }[];
+  cta?: { label: string; to: string };
+};
+
 export type DemoRolePreview = {
   id: DemoRoleId;
   path: string;
@@ -43,6 +76,7 @@ export type DemoRolePreview = {
   sharedStudent: boolean;
   dashboardTitle: string;
   dashboardTiles: DashboardTile[];
+  toolPreviews: DemoToolPreview[];
   tools: string[];
   actions: string[];
   outputs: string[];
@@ -80,6 +114,77 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       { label: "Student Voice", value: "3 of 5 shared", hint: "Interests, strengths, hopes" },
       { label: "Action items", value: "2 due this week", hint: "Meeting prep · shadow visit" },
       { label: "Next meeting", value: "Sep 15", hint: "Annual PPT" },
+    ],
+    toolPreviews: [
+      {
+        icon: MessageCircleQuestion,
+        title: "Student Voice",
+        status: "3 of 5 shared",
+        tone: "default",
+        summary: "Tell your team what you want, worry about, and hope for.",
+        bullets: [
+          { label: "Prompts answered", value: "3 of 5" },
+          { label: "Last update", value: "2 days ago" },
+        ],
+        cta: { label: "Preview Student Voice", to: "/demo/voice" },
+      },
+      {
+        icon: Compass,
+        title: "My Pathway",
+        status: "Stage 4 of 9",
+        tone: "warning",
+        summary: "Where Jordan is across employment, education, living, and advocacy.",
+        bullets: [
+          { label: "Readiness", value: "Developing" },
+          { label: "Goals tracked", value: "3" },
+        ],
+        cta: { label: "Preview pathway", to: "/demo/plan" },
+      },
+      {
+        icon: ClipboardCheck,
+        title: "Next Action",
+        status: "2 due",
+        tone: "warning",
+        summary: "One small next step so momentum keeps moving.",
+        bullets: [
+          { label: "This week", value: "2 due" },
+          { label: "Overdue", value: "0" },
+        ],
+        cta: { label: "See next steps", to: "/demo/next" },
+      },
+      {
+        icon: BookmarkCheck,
+        title: "Saved Resources",
+        status: "5 saved",
+        tone: "muted",
+        summary: "Guides, checklists, and tools your team bookmarked for you.",
+        bullets: [{ label: "Bookmarks", value: "5" }],
+        cta: { label: "Preview resources", to: "/demo/resources" },
+      },
+      {
+        icon: FileText,
+        title: "Meeting Prep",
+        status: "3 questions",
+        tone: "default",
+        summary: "Walk into your PPT with the questions you want answered.",
+        cta: { label: "Preview prep", to: "/demo/meeting" },
+      },
+      {
+        icon: CalendarDays,
+        title: "Upcoming Meetings",
+        status: "Sep 15",
+        tone: "muted",
+        summary: "PPTs, IEP reviews, and check-ins in one place.",
+        cta: { label: "Preview calendar", to: "/demo/calendar" },
+      },
+      {
+        icon: Target,
+        title: "Pathway Report — Student View",
+        status: "Ready",
+        tone: "success",
+        summary: "Your plan, in one student-friendly document.",
+        cta: { label: "Preview report", to: "/demo/report" },
+      },
     ],
     tools: [
       "Student Voice — share strengths, interests, hopes in your own words",
@@ -125,6 +230,80 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       { label: "Pathway Report", value: "Ready to review", hint: "Family view" },
       { label: "Documents", value: "1 needed", hint: "Latest IEP · optional" },
       { label: "Next meeting", value: "Sep 15 · PPT", hint: "3 prep items open" },
+    ],
+    toolPreviews: [
+      {
+        icon: Users2,
+        title: "Connected Student",
+        status: "Jordan Rivera",
+        tone: "default",
+        summary: "One shared view of your student's plan and progress.",
+        bullets: [
+          { label: "Grade", value: "11" },
+          { label: "School", value: "Hartford Regional" },
+        ],
+        cta: { label: "Preview family view", to: "/demo/hub" },
+      },
+      {
+        icon: FolderOpen,
+        title: "Documents",
+        status: "1 needed",
+        tone: "warning",
+        summary: "Upload the latest IEP, evaluation, or family note.",
+        bullets: [
+          { label: "On file", value: "4" },
+          { label: "Awaiting", value: "1", hint: "Latest IEP" },
+        ],
+        cta: { label: "Preview documents", to: "/demo/documents" },
+      },
+      {
+        icon: Heart,
+        title: "Family Priorities",
+        status: "2 of 4 shared",
+        tone: "default",
+        summary: "What matters most to your family, guiding the plan.",
+        cta: { label: "Preview priorities", to: "/demo/intake" },
+      },
+      {
+        icon: FileText,
+        title: "Pathway Report — Family View",
+        status: "Ready",
+        tone: "success",
+        summary: "Your student's plan, in plain language.",
+        cta: { label: "Preview report", to: "/demo/report" },
+      },
+      {
+        icon: ClipboardList,
+        title: "Meeting Prep",
+        status: "3 open",
+        tone: "warning",
+        summary: "Questions and agenda for the next PPT.",
+        cta: { label: "Preview prep", to: "/demo/meeting" },
+      },
+      {
+        icon: ClipboardCheck,
+        title: "Action Items",
+        status: "2 due",
+        tone: "warning",
+        summary: "Small next steps you can take this week.",
+        cta: { label: "Preview next steps", to: "/demo/next" },
+      },
+      {
+        icon: ShieldCheck,
+        title: "Sharing & Consent",
+        status: "2 shared",
+        tone: "muted",
+        summary: "Control who can view or edit your student's plan.",
+        bullets: [{ label: "Shared with", value: "Case manager · Advocate" }],
+      },
+      {
+        icon: BookmarkCheck,
+        title: "Recommended Resources",
+        status: "6 suggested",
+        tone: "muted",
+        summary: "Family-friendly guides matched to Jordan's plan.",
+        cta: { label: "Preview resources", to: "/demo/resources" },
+      },
     ],
     tools: [
       "Pathway Report — family view, in plain language",
@@ -173,6 +352,78 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       { label: "Readiness gaps", value: "Self-advocacy · travel", hint: "Top 2 across caseload" },
       { label: "Upcoming meetings", value: "4 this week", hint: "2 need agendas" },
     ],
+    toolPreviews: [
+      {
+        icon: Users2,
+        title: "Caseload Snapshot",
+        status: "18 students",
+        tone: "default",
+        summary: "Every student on your caseload with readiness signals.",
+        bullets: [
+          { label: "Flagged", value: "3", hint: "this week" },
+          { label: "PPTs due", value: "4" },
+        ],
+        cta: { label: "Preview caseload", to: "/demo/hub" },
+      },
+      {
+        icon: BarChart3,
+        title: "Readiness Signals",
+        status: "2 gaps",
+        tone: "warning",
+        summary: "Top gaps across your caseload right now.",
+        bullets: [
+          { label: "Self-advocacy", value: "9 students" },
+          { label: "Travel training", value: "6 students" },
+        ],
+      },
+      {
+        icon: ClipboardCheck,
+        title: "Pending Educator Input",
+        status: "5 waiting",
+        tone: "warning",
+        summary: "Transition assessments and evidence still needed.",
+        cta: { label: "Preview inputs", to: "/demo/workspace/start" },
+      },
+      {
+        icon: FileText,
+        title: "Pathway Reports",
+        status: "12 of 18",
+        tone: "success",
+        summary: "Reports drafted, in progress, or ready for the PPT.",
+        cta: { label: "Preview report", to: "/demo/report" },
+      },
+      {
+        icon: ClipboardList,
+        title: "Meeting Prep",
+        status: "2 need agendas",
+        tone: "warning",
+        summary: "PPT agendas and questions organized per student.",
+        cta: { label: "Preview meeting prep", to: "/demo/meeting" },
+      },
+      {
+        icon: StickyNote,
+        title: "Case Notes",
+        status: "New this week",
+        tone: "muted",
+        summary: "Running log of conversations, calls, and evidence.",
+      },
+      {
+        icon: Target,
+        title: "Action Items",
+        status: "7 assigned",
+        tone: "default",
+        summary: "Tasks assigned across students and families.",
+        cta: { label: "Preview next steps", to: "/demo/next" },
+      },
+      {
+        icon: CalendarDays,
+        title: "Calendar",
+        status: "4 this week",
+        tone: "muted",
+        summary: "PPTs, evaluations, and transition meetings.",
+        cta: { label: "Preview calendar", to: "/demo/calendar" },
+      },
+    ],
     tools: [
       "Caseload strip with readiness signals",
       "Pathway Reports per student",
@@ -219,6 +470,68 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       { label: "Pathway Reports complete", value: "68%", hint: "+9% vs. last quarter" },
       { label: "Team activity", value: "22 educators", hint: "3 need onboarding" },
       { label: "Support gaps", value: "Travel training", hint: "Top across grade 11" },
+    ],
+    toolPreviews: [
+      {
+        icon: School,
+        title: "School Overview",
+        status: "142 students",
+        tone: "default",
+        summary: "Planning status across every grade in your school.",
+        bullets: [
+          { label: "In planning", value: "142" },
+          { label: "Grade 12+", value: "38" },
+        ],
+      },
+      {
+        icon: ClipboardCheck,
+        title: "Planning Status",
+        status: "68% complete",
+        tone: "success",
+        summary: "Pathway Reports drafted, reviewed, and finalized.",
+        bullets: [
+          { label: "Complete", value: "97" },
+          { label: "In progress", value: "31" },
+        ],
+      },
+      {
+        icon: Users2,
+        title: "Team Activity",
+        status: "22 educators",
+        tone: "default",
+        summary: "Who's active this week and where support is needed.",
+        bullets: [{ label: "Onboarding", value: "3" }],
+      },
+      {
+        icon: FileText,
+        title: "Report Completion",
+        status: "+9% vs. Q3",
+        tone: "success",
+        summary: "Trend of finalized reports over the last quarter.",
+        cta: { label: "Preview report", to: "/demo/report" },
+      },
+      {
+        icon: TrendingUp,
+        title: "Readiness Trends",
+        status: "Developing",
+        tone: "warning",
+        summary: "School-wide movement across four readiness domains.",
+      },
+      {
+        icon: BookOpen,
+        title: "Resource Usage",
+        status: "Top 5",
+        tone: "muted",
+        summary: "Which guides staff and families are using most.",
+        cta: { label: "Preview resources", to: "/demo/resources" },
+      },
+      {
+        icon: AlertTriangle,
+        title: "Support Needs",
+        status: "Travel training",
+        tone: "critical",
+        summary: "Where teams are asking for more capacity.",
+      },
     ],
     tools: [
       "School overview: planning status by grade",
@@ -267,6 +580,62 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       { label: "Reports complete", value: "612", hint: "Across 4 grade bands" },
       { label: "Service gaps", value: "Travel · employment", hint: "District-wide" },
     ],
+    toolPreviews: [
+      {
+        icon: Building2,
+        title: "District Overview",
+        status: "7 of 8 schools",
+        tone: "default",
+        summary: "Students, schools, and reports across the district.",
+        bullets: [
+          { label: "Students", value: "3,214" },
+          { label: "Reports", value: "612" },
+        ],
+      },
+      {
+        icon: School,
+        title: "Connected Schools",
+        status: "Manage",
+        tone: "muted",
+        summary: "Every school onboarded and their transition team.",
+      },
+      {
+        icon: BarChart3,
+        title: "School-by-School Progress",
+        status: "Compare",
+        tone: "default",
+        summary: "Planning status and report completion, side by side.",
+      },
+      {
+        icon: TrendingUp,
+        title: "Readiness Trend",
+        status: "+6% this term",
+        tone: "success",
+        summary: "District-wide movement across the four readiness domains.",
+      },
+      {
+        icon: Rocket,
+        title: "Implementation Progress",
+        status: "Track",
+        tone: "warning",
+        summary: "Where each school is — onboarding, active, mature.",
+      },
+      {
+        icon: FileText,
+        title: "District Reports",
+        status: "612 complete",
+        tone: "muted",
+        summary: "Aggregate Pathway Reports and outcomes.",
+        cta: { label: "Preview report", to: "/demo/report" },
+      },
+      {
+        icon: AlertTriangle,
+        title: "Service Gaps",
+        status: "2 flagged",
+        tone: "critical",
+        summary: "Programs and supports missing where students need them.",
+      },
+    ],
     tools: [
       "District overview & connected schools table",
       "School-by-school progress",
@@ -313,6 +682,79 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       { label: "Active opportunities", value: "4", hint: "2 accepting applicants" },
       { label: "Upcoming deadlines", value: "Nov 15 · Jan 3", hint: "Summer program cycle" },
       { label: "PartnerForward", value: "3 supports available", hint: "Grants · training · co-design" },
+    ],
+    toolPreviews: [
+      {
+        icon: BadgeCheck,
+        title: "Partner Profile",
+        status: "Verified",
+        tone: "success",
+        summary: "Your public listing in the partner directory.",
+        bullets: [
+          { label: "Profile complete", value: "92%" },
+          { label: "Listed since", value: "Jan 2025" },
+        ],
+        cta: { label: "Preview directory", to: "/demo/partner" },
+      },
+      {
+        icon: Megaphone,
+        title: "Active Opportunities",
+        status: "4 live",
+        tone: "default",
+        summary: "Programs currently posted and accepting interest.",
+        bullets: [
+          { label: "Accepting", value: "2" },
+          { label: "Draft", value: "1" },
+        ],
+        cta: { label: "Preview opportunities", to: "/demo/opportunities" },
+      },
+      {
+        icon: ClipboardList,
+        title: "Submitted Programs",
+        status: "9 lifetime",
+        tone: "muted",
+        summary: "Everything you've posted, with status and history.",
+      },
+      {
+        icon: CalendarDays,
+        title: "Upcoming Deadlines",
+        status: "Nov 15",
+        tone: "warning",
+        summary: "Program dates, application windows, and cycles.",
+        bullets: [
+          { label: "Summer cycle", value: "Nov 15" },
+          { label: "Spring cycle", value: "Jan 3" },
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Opportunity Management",
+        status: "Edit anytime",
+        tone: "muted",
+        summary: "Update deadlines, edit descriptions, close programs.",
+      },
+      {
+        icon: Gift,
+        title: "PartnerForward",
+        status: "3 supports",
+        tone: "success",
+        summary: "Grants, training, and co-design supports for partners.",
+        cta: { label: "Explore PartnerForward", to: "/partnerforward" },
+      },
+      {
+        icon: BookOpen,
+        title: "Partner Resources",
+        status: "Library",
+        tone: "muted",
+        summary: "Playbooks and training built for partner organizations.",
+      },
+      {
+        icon: Building,
+        title: "Directory Reach",
+        status: "1.2k views",
+        tone: "default",
+        summary: "How families and educators find your programs.",
+      },
     ],
     tools: [
       "Partner profile & directory listing",

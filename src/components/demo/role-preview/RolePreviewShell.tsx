@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, Shield, CheckCircle2, Wrench, Target, FileText } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, CheckCircle2, Wrench, Target, FileText, LayoutDashboard } from "lucide-react";
 import type { DemoRolePreview } from "@/lib/demo/role-previews";
 import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DemoToolPreviewCard, DemoToolPreviewGrid } from "./DemoToolPreviewCard";
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
@@ -50,7 +51,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
 
   return (
     <SiteShell>
-      <div className="container max-w-6xl py-6">
+      <div className="container max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         <Breadcrumbs
           trail={[
             { label: "Demo", to: "/demo" },
@@ -108,7 +109,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
         </section>
 
         {/* DASHBOARD MOCK */}
-        <section className="mt-8">
+        <section className="mt-12">
           <SectionHeader index="01" title={role.dashboardTitle} kicker="At a glance" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {role.dashboardTiles.map((tile) => (
@@ -125,9 +126,44 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
           </div>
         </section>
 
+        {/* TOOL PREVIEWS — mirrors the signed-in dashboard */}
+        <section className="mt-12">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs font-semibold tracking-widest text-primary">02</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Dashboard preview
+                </span>
+                <h2 className="font-display text-lg sm:text-xl">
+                  <LayoutDashboard className="mr-1.5 inline h-4 w-4 text-primary" aria-hidden />
+                  Every tool this role sees at sign-in
+                </h2>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/20">
+              <Sparkles className="h-3 w-3" aria-hidden /> Sample data
+            </span>
+          </div>
+          <DemoToolPreviewGrid>
+            {role.toolPreviews.map((t) => (
+              <DemoToolPreviewCard
+                key={t.title}
+                icon={t.icon}
+                title={t.title}
+                status={t.status}
+                tone={t.tone}
+                summary={t.summary}
+                bullets={t.bullets}
+                cta={t.cta}
+              />
+            ))}
+          </DemoToolPreviewGrid>
+        </section>
+
         {/* VALUE STRIP */}
-        <section className="mt-8 rounded-3xl border bg-card p-6 shadow-soft">
-          <SectionHeader index="02" title="What this role gets" kicker="Value" inline />
+        <section className="mt-12 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <SectionHeader index="03" title="What this role gets" kicker="Value" inline />
           <ul className="mt-4 grid gap-3 sm:grid-cols-3">
             {role.valueBullets.map((b) => (
               <li key={b} className="flex items-start gap-2 rounded-xl bg-background p-3 text-sm">
@@ -139,15 +175,16 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
         </section>
 
         {/* TOOLS · ACTIONS · OUTPUTS */}
-        <section className="mt-8 grid gap-4 lg:grid-cols-3">
-          <TripleCard icon={<Wrench className="h-4 w-4" />} title="Key tools" items={role.tools} index="03" />
-          <TripleCard icon={<Target className="h-4 w-4" />} title="Actions this role can take" items={role.actions} index="04" />
-          <TripleCard icon={<FileText className="h-4 w-4" />} title="Outputs they receive" items={role.outputs} index="05" />
+        <section className="mt-12 grid gap-4 lg:grid-cols-3">
+          <TripleCard icon={<Wrench className="h-4 w-4" />} title="Key tools" items={role.tools} index="04" />
+          <TripleCard icon={<Target className="h-4 w-4" />} title="Actions this role can take" items={role.actions} index="05" />
+          <TripleCard icon={<FileText className="h-4 w-4" />} title="Outputs they receive" items={role.outputs} index="06" />
         </section>
+
 
         {/* BOUNDARY (partner) */}
         {role.boundary && (
-          <section className="mt-8 rounded-3xl border-2 border-amber-500/40 bg-amber-50 p-6 dark:bg-amber-950/20">
+          <section className="mt-12 rounded-3xl border-2 border-amber-500/40 bg-amber-50 p-6 dark:bg-amber-950/20">
             <div className="flex items-start gap-3">
               <Shield className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-400" />
               <div>
@@ -171,7 +208,7 @@ export function RolePreviewShell({ role }: { role: DemoRolePreview }) {
         )}
 
         {/* CTA */}
-        <section className="mt-8 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
+        <section className="mt-12 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="font-display text-2xl">Ready to take the next step?</h2>

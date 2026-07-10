@@ -31,7 +31,7 @@ export const Route = createFileRoute("/demo")({
 function DemoHub() {
   return (
     <SiteShell>
-      <div className="container max-w-6xl py-8 space-y-10">
+      <div className="container max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 space-y-14">
         {/* HERO */}
         <section className="rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-10">
           <Badge variant="outline" className="border-primary text-primary">
