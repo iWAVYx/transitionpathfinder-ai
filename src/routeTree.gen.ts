@@ -107,6 +107,7 @@ import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authe
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
 import { Route as AuthenticatedSchoolSupportNeedsRouteImport } from './routes/_authenticated/school.support-needs'
+import { Route as AuthenticatedSchoolResourceUsageRouteImport } from './routes/_authenticated/school.resource-usage'
 import { Route as AuthenticatedSchoolReportsRouteImport } from './routes/_authenticated/school.reports'
 import { Route as AuthenticatedSchoolReadinessTrendsRouteImport } from './routes/_authenticated/school.readiness-trends'
 import { Route as AuthenticatedSchoolPlanningStatusRouteImport } from './routes/_authenticated/school.planning-status'
@@ -693,6 +694,12 @@ const AuthenticatedSchoolSupportNeedsRoute =
   AuthenticatedSchoolSupportNeedsRouteImport.update({
     id: '/school/support-needs',
     path: '/school/support-needs',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolResourceUsageRoute =
+  AuthenticatedSchoolResourceUsageRouteImport.update({
+    id: '/school/resource-usage',
+    path: '/school/resource-usage',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSchoolReportsRoute =
@@ -1362,6 +1369,7 @@ export interface FileRoutesByFullPath {
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
   '/school/readiness-trends': typeof AuthenticatedSchoolReadinessTrendsRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -1544,6 +1552,7 @@ export interface FileRoutesByTo {
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
   '/school/readiness-trends': typeof AuthenticatedSchoolReadinessTrendsRoute
   '/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -1730,6 +1739,7 @@ export interface FileRoutesById {
   '/_authenticated/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
   '/_authenticated/school/readiness-trends': typeof AuthenticatedSchoolReadinessTrendsRoute
   '/_authenticated/school/reports': typeof AuthenticatedSchoolReportsRoute
+  '/_authenticated/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/_authenticated/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -1916,6 +1926,7 @@ export interface FileRouteTypes {
     | '/school/planning-status'
     | '/school/readiness-trends'
     | '/school/reports'
+    | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
     | '/students/$studentId'
@@ -2098,6 +2109,7 @@ export interface FileRouteTypes {
     | '/school/planning-status'
     | '/school/readiness-trends'
     | '/school/reports'
+    | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
     | '/students/$studentId'
@@ -2283,6 +2295,7 @@ export interface FileRouteTypes {
     | '/_authenticated/school/planning-status'
     | '/_authenticated/school/readiness-trends'
     | '/_authenticated/school/reports'
+    | '/_authenticated/school/resource-usage'
     | '/_authenticated/school/support-needs'
     | '/_authenticated/school/team'
     | '/_authenticated/students/$studentId'
@@ -3054,6 +3067,13 @@ declare module '@tanstack/react-router' {
       path: '/school/support-needs'
       fullPath: '/school/support-needs'
       preLoaderRoute: typeof AuthenticatedSchoolSupportNeedsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/resource-usage': {
+      id: '/_authenticated/school/resource-usage'
+      path: '/school/resource-usage'
+      fullPath: '/school/resource-usage'
+      preLoaderRoute: typeof AuthenticatedSchoolResourceUsageRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/school/reports': {
@@ -3889,6 +3909,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolPlanningStatusRoute: typeof AuthenticatedSchoolPlanningStatusRoute
   AuthenticatedSchoolReadinessTrendsRoute: typeof AuthenticatedSchoolReadinessTrendsRoute
   AuthenticatedSchoolReportsRoute: typeof AuthenticatedSchoolReportsRoute
+  AuthenticatedSchoolResourceUsageRoute: typeof AuthenticatedSchoolResourceUsageRoute
   AuthenticatedSchoolSupportNeedsRoute: typeof AuthenticatedSchoolSupportNeedsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
@@ -3971,6 +3992,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolReadinessTrendsRoute:
     AuthenticatedSchoolReadinessTrendsRoute,
   AuthenticatedSchoolReportsRoute: AuthenticatedSchoolReportsRoute,
+  AuthenticatedSchoolResourceUsageRoute: AuthenticatedSchoolResourceUsageRoute,
   AuthenticatedSchoolSupportNeedsRoute: AuthenticatedSchoolSupportNeedsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
