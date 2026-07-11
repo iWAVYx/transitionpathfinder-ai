@@ -101,13 +101,13 @@ export function OwnerDashboardPage() {
           {/* Site status banner — pills wrap cleanly on mobile */}
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background p-3 sm:p-4">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Site status
+              Site Status
             </span>
             <Badge variant={metrics.siteStatus.maintenanceMode ? "destructive" : "secondary"}>
               {metrics.siteStatus.maintenanceMode ? "Maintenance" : "Live"}
             </Badge>
             <Badge variant={metrics.siteStatus.waitlistOpen ? "default" : "outline"}>
-              Waitlist {metrics.siteStatus.waitlistOpen ? "open" : "closed"}
+              Waitlist {metrics.siteStatus.waitlistOpen ? "Open" : "Closed"}
             </Badge>
             <Badge variant="outline">{metrics.siteStatus.launchStatus.replace(/_/g, " ")}</Badge>
           </div>
