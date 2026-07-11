@@ -34,7 +34,7 @@ export function PublicJourneyStrip({
       aria-label="Nine-stage transition workspace"
       data-testid="public-journey-strip"
       className={cn(
-        "rounded-3xl border bg-card/70 p-5 shadow-soft backdrop-blur sm:p-6",
+        "p-5 sm:p-6",
         className,
       )}
     >
