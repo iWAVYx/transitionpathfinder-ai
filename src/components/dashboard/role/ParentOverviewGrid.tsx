@@ -86,7 +86,7 @@ export function ParentOverviewGrid() {
           status="Browse"
           tone="muted"
           summary="Guides tuned to your student's grade, readiness, and priorities."
-          cta={{ label: "Open resources", to: "/resources" }}
+          cta={{ label: "Open resources", to: "/resources/saved" }}
         />
       </ToolPreviewGrid>
     </ToolPreviewSection>
