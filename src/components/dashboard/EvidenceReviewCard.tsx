@@ -1,5 +1,6 @@
 import { FolderCheck, Sparkles, ArrowRight, FileText, ClipboardCheck, MessageSquareQuote, GraduationCap } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * EvidenceReviewCard — Documents + Evidence panel for educators.
@@ -75,7 +76,7 @@ export function EvidenceReviewCard({
             <FolderCheck className="h-3 w-3" aria-hidden /> Documents + Evidence
           </p>
           <h2 id="evidence-review-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            What The Plan Is Grounded In
+            {toTitleCase("What The Plan Is Grounded In")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Every recommendation cites its source. Review what's current, what's stale, and what still needs to be gathered before the next PPT.

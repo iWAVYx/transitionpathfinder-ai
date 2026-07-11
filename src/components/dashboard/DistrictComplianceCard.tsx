@@ -1,5 +1,6 @@
 import { ShieldCheck, Sparkles, ArrowRight, Building2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * DistrictComplianceCard — district-wide IDEA + Indicator 13 rollup
@@ -77,7 +78,7 @@ export function DistrictComplianceCard({
             <ShieldCheck className="h-3 w-3" aria-hidden /> District Compliance Rollup
           </p>
           <h2 id="district-compliance-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            {d.districtName} — IDEA + Indicator 13
+            {toTitleCase(`${d.districtName} — IDEA + Indicator 13`)}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Weighted by senior enrollment. Every metric drills to the building and caseload that owns it.

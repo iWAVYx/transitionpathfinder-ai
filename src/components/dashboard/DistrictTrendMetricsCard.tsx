@@ -1,5 +1,6 @@
 import { TrendingUp, Sparkles, ArrowRight, TrendingDown, Minus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * DistrictTrendMetricsCard — 6-term trend of key transition outcomes
@@ -107,7 +108,7 @@ export function DistrictTrendMetricsCard({
             <TrendingUp className="h-3 w-3" aria-hidden /> District Trend Metrics
           </p>
           <h2 id="district-trend-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            6-Term Outcomes Trend
+            {toTitleCase("6-Term Outcomes Trend")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             The direction and magnitude of every headline metric over the last three years — with a target line where one exists.

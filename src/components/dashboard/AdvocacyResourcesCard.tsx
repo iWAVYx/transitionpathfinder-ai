@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * AdvocacyResourcesCard — a curated set of resources for the family
@@ -173,7 +174,7 @@ export function AdvocacyResourcesCard({
             id="advocacy-resources-title"
             className="mt-1 font-display text-2xl font-medium tracking-tight"
           >
-            Resources Chosen For Your Family
+            {toTitleCase("Resources Chosen For Your Family")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Curated guides, agencies, and toolkits — grouped by what you're

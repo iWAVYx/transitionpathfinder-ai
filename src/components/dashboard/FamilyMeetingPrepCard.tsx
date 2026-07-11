@@ -1,5 +1,6 @@
 import { MessageCircleQuestion, Sparkles, ArrowRight, Users2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * FamilyMeetingPrepCard — meeting-prep questions grouped by audience
@@ -132,7 +133,7 @@ export function FamilyMeetingPrepCard({
             id="family-meeting-prep-title"
             className="mt-1 font-display text-2xl font-medium tracking-tight"
           >
-            Questions To Bring Into The Next Meeting
+            {toTitleCase("Questions To Bring Into The Next Meeting")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             {totalQuestions} questions organized by who to ask.{" "}

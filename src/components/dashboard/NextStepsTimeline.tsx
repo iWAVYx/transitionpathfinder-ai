@@ -1,4 +1,5 @@
 import { CalendarClock, Rocket, Target, Milestone } from "lucide-react";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * NextStepsTimeline — 30 / 90 / 180 / 365-day horizon strip.
@@ -95,7 +96,7 @@ export function NextStepsTimeline({
           id="next-steps-timeline-title"
           className="mt-1 font-display text-2xl font-medium tracking-tight"
         >
-          {title}
+          {toTitleCase(title)}
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
           {description}
