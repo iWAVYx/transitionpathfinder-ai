@@ -248,11 +248,9 @@ export function OwnerDashboardPage() {
 
 function OwnerOperationsPreview({
   metrics,
-  queueCounts,
   reviewCounts,
 }: {
   metrics: DashboardMetrics;
-  queueCounts: ReviewQueueCounts | null;
   reviewCounts: { resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null;
 }) {
   const tiles: Array<{
