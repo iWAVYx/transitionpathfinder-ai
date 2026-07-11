@@ -115,13 +115,13 @@ export function OwnerDashboardPage() {
           {/* Primary KPIs */}
           <StatGrid cols={4}>
             <StatCard
-              label="Total users"
+              label="Total Users"
               value={metrics.totalUsers}
               hint={`+${metrics.newUsersThisWeek} this week`}
               icon={<Users className="h-3.5 w-3.5" />}
             />
             <StatCard
-              label="Waitlist entries"
+              label="Waitlist Entries"
               value={metrics.totalWaitlist}
               hint={`${metrics.newWaitlist} new`}
               icon={<ClipboardList className="h-3.5 w-3.5" />}
@@ -144,7 +144,7 @@ export function OwnerDashboardPage() {
           {reviewCounts && (reviewCounts.resourcesNeedingReview + reviewCounts.brokenLinks + reviewCounts.sourcesNeedingReview > 0) && (
             <section className="space-y-3 sm:space-y-4">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Resource library health
+                Resource Library Health
               </h2>
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                 <Link to="/owner/resource-review" hash="needing-review" aria-label="Open the resources needing review queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
