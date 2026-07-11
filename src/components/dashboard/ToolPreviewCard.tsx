@@ -113,7 +113,7 @@ export function ToolPreviewSection({
     <section className="mt-10">
       {eyebrow && (
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-          {eyebrow}
+          {toTitleCase(eyebrow)}
         </p>
       )}
       <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
