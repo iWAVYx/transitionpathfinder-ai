@@ -977,18 +977,18 @@ function DashboardPage() {
             </Panel>
 
             <Panel
-              title="Recommended resources"
-              subtitle={`Personalized for ${s.first_name}`}
+              title="Recommended Resources"
+              subtitle={`Tuned to ${s.first_name}'s grade, readiness, and priorities.`}
               icon={<GraduationCap className="h-5 w-5" />}
               actionHref="/resources"
-              actionLabel="Browse all"
+              actionLabel="Browse All"
             >
               <div className="mb-2 flex justify-end">
                 <Link
                   to="/resources/saved"
                   className="text-xs font-semibold text-primary hover:underline"
                 >
-                  View saved →
+                  View Saved →
                 </Link>
               </div>
               {snap.recommendedResources.length === 0 ? (
