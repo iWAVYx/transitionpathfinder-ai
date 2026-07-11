@@ -75,7 +75,7 @@ export default defineConfig({
     {
       name: "role-access",
       use: { baseURL, trace: "retain-on-failure" },
-      testMatch: /(role-leak-nav|role-access-rules|demo-roles)\.signedin\.spec\.ts$/,
+      testMatch: /(role-leak-nav|role-access-rules|demo-roles|dashboard-tile-navigation|workspace-stage-navigation)\.signedin\.spec\.ts$/,
       dependencies: ["dashboard-setup"],
     },
     // Release-readiness suite. Public specs run anon; signed-in specs use the
