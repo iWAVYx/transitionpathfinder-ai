@@ -309,12 +309,6 @@ function HomePage() {
         </div>
       </section>
 
-      <PublicJourneyStrip
-        eyebrow="The Transition Workspace"
-        caption="Every family, educator, and partner walks the same nine-stage journey — from first snapshot to community connection."
-        className="border-y border-border/40 bg-muted/20"
-      />
-
       {/* PROBLEM — split panel: photo + statement */}
       <section className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <ShapeScroll
@@ -594,6 +588,11 @@ function HomePage() {
         </div>
       </section>
 
+      <PublicJourneyStrip
+        eyebrow="The Transition Workspace"
+        caption="Every family, educator, and partner walks the same nine-stage journey — from first snapshot to community connection."
+        className="border-y border-border/40 bg-muted/20"
+      />
 
       {/* PATHWAYS — image tile grid of real next-step destinations */}
       <section id="pathways" className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 scroll-mt-20">
