@@ -253,6 +253,7 @@ function OwnerOperationsPreview({
   metrics: DashboardMetrics;
   reviewCounts: { resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null;
 }) {
+  const navigate = useNavigate();
   const tiles: Array<{
     label: string;
     value: string | number;
@@ -273,28 +274,28 @@ function OwnerOperationsPreview({
       tone: "text-primary",
     },
     {
-      label: "Resource review queue",
+      label: "Resource Review Queue",
       value: reviewCounts?.resourcesNeedingReview ?? 0,
       hint: `${reviewCounts?.brokenLinks ?? 0} broken links`,
       to: "/owner/resource-review",
       tone: (reviewCounts?.resourcesNeedingReview ?? 0) > 0 ? "text-amber-600" : "",
     },
     {
-      label: "Launch readiness",
+      label: "Launch Readiness",
       value: metrics.siteStatus.launchStatus.replace(/_/g, " "),
       hint: "Track blockers",
       to: "/owner/launch",
       tone: "text-primary",
     },
     {
-      label: "System health",
+      label: "System Health",
       value: metrics.siteStatus.maintenanceMode ? "Maintenance" : "Live",
       hint: "Uptime & jobs",
       to: "/owner/health",
       tone: metrics.siteStatus.maintenanceMode ? "text-destructive" : "text-emerald-600",
     },
     {
-      label: "Analytics snapshot",
+      label: "Analytics Snapshot",
       value: "View",
       hint: "Traffic & engagement",
       to: "/owner/analytics",
@@ -305,25 +306,31 @@ function OwnerOperationsPreview({
   return (
     <section className="space-y-3">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Operations overview
+        Operations Overview
       </h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((t) => (
-          <Link
+          // Render as buttons that navigate on click instead of anchors so
+          // that Admin Hub sidebar destinations (outside <main>) never
+          // register as duplicate hrefs inside <main> at any viewport.
+          <button
+            type="button"
             key={t.label}
-            to={t.to as string}
-            className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted"
+            onClick={() => navigate({ to: t.to })}
+            aria-label={`Open ${t.label}`}
+            className="rounded-2xl border border-border bg-background p-4 text-left transition-colors hover:bg-muted"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t.label}
             </p>
             <p className={`mt-2 font-display text-2xl ${t.tone}`}>{t.value}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">{t.hint} →</p>
-          </Link>
+          </button>
         ))}
       </div>
     </section>
   );
 }
+
 
 
