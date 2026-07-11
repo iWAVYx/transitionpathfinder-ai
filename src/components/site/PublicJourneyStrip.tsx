@@ -45,10 +45,6 @@ export function PublicJourneyStrip({
       ) : null}
 
       <ol className="tfws-public-journey relative mt-4 flex snap-x snap-mandatory items-start gap-2 overflow-x-auto pb-2 sm:justify-between sm:gap-1 sm:overflow-visible">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute left-6 right-6 top-5 hidden h-px bg-border sm:block"
-        />
         {WORKSPACE_STAGES.map((stage) => (
           <li
             key={stage.id}
