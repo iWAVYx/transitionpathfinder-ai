@@ -505,6 +505,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardCheck,
         title: "Planning Status",
+        previewId: "school-progress",
         status: "68% complete",
         tone: "success",
         summary: "Pathway Reports drafted, reviewed, and finalized.",
