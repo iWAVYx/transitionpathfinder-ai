@@ -144,22 +144,37 @@ export function OwnerShell({
   if (status !== "allowed") {
     return (
       <div className="flex min-h-dvh flex-col bg-background text-foreground">
-        <main data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION} data-testid={ROLE_DASHBOARD_TEST_IDS.owner} className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
-
+        <main
+          data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+          data-testid={ROLE_DASHBOARD_TEST_IDS.owner}
+          className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8"
+        >
           <p
             className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             data-dashboard-landmark="admin"
           >
-            Platform Admin
+            Admin Hub — Platform Admin
           </p>
-        <div className="flex min-h-[70vh] items-center justify-center gap-3 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">
-            {status === "denied"
-              ? "You do not have permission to view this page."
-              : "Checking admin access…"}
-          </span>
-        </div>
+          <div className="mx-auto max-w-2xl py-10 text-center">
+            <h1 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+              {status === "denied"
+                ? "You Don’t Have Access to the Admin Hub"
+                : "Preparing the Admin Hub"}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {status === "denied"
+                ? "This workspace is for platform administrators. If you believe you should have access, contact the TransitionForward team."
+                : "Verifying your administrator access before loading platform metrics, waitlist activity, contacts, review queues, and system status."}
+            </p>
+            <div className="mt-6 inline-flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>
+                {status === "denied"
+                  ? "Redirecting you to your workspace…"
+                  : "Checking admin access…"}
+              </span>
+            </div>
+          </div>
         </main>
       </div>
     );
