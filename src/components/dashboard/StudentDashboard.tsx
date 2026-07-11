@@ -384,7 +384,7 @@ function ExploreForStudent({
   const tiles: ExploreTile[] = [];
   if (isMiddle) {
     tiles.push({
-      to: "/bridgeforward",
+      to: "/bridgeforward/intake",
       icon: <Compass className="h-5 w-5" />,
       title: "BridgeForward",
       body: "Find a high school that fits — explore interests, take the fit finder, share your voice.",
