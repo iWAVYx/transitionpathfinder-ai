@@ -294,7 +294,6 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardCheck,
         title: "Action Items",
-        previewId: "readiness-gaps",
         status: "2 due",
         tone: "warning",
         summary: "Small next steps you can take this week.",
@@ -370,6 +369,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Users2,
         title: "Caseload Snapshot",
+        previewId: "caseload",
         status: "18 students",
         tone: "default",
         summary: "Every student on your caseload with readiness signals.",
@@ -382,6 +382,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BarChart3,
         title: "Readiness Signals",
+        previewId: "readiness-gaps",
         status: "2 gaps",
         tone: "warning",
         summary: "Top gaps across your caseload right now.",
@@ -401,6 +402,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FileText,
         title: "Pathway Reports",
+        previewId: "report-completion",
         status: "12 of 18",
         tone: "success",
         summary: "Reports drafted, in progress, or ready for the PPT.",
@@ -418,6 +420,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: StickyNote,
         title: "Case Notes",
+        previewId: "notes",
         status: "New this week",
         tone: "muted",
         summary: "Running log of conversations, calls, and evidence.",
@@ -425,7 +428,6 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Target,
         title: "Action Items",
-        previewId: "readiness-gaps",
         status: "7 assigned",
         tone: "default",
         summary: "Tasks assigned across students and families.",
@@ -503,6 +505,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardCheck,
         title: "Planning Status",
+        previewId: "school-progress",
         status: "68% complete",
         tone: "success",
         summary: "Pathway Reports drafted, reviewed, and finalized.",
@@ -617,6 +620,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: School,
         title: "Connected Schools",
+        previewId: "schools-list",
         status: "Manage",
         tone: "muted",
         summary: "Every school onboarded and their transition team.",
@@ -624,6 +628,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BarChart3,
         title: "School-By-School Progress",
+        previewId: "school-progress",
         status: "Compare",
         tone: "default",
         summary: "Planning status and report completion, side by side.",
@@ -631,6 +636,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: TrendingUp,
         title: "Readiness Trend",
+        previewId: "trends",
         status: "+6% this term",
         tone: "success",
         summary: "District-wide movement across the four readiness domains.",
@@ -645,6 +651,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FileText,
         title: "District Reports",
+        previewId: "report-completion",
         status: "612 complete",
         tone: "muted",
         summary: "Aggregate Pathway Reports and outcomes.",
@@ -744,6 +751,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: CalendarDays,
         title: "Upcoming Deadlines",
+        previewId: "deadlines",
         status: "Nov 15",
         tone: "warning",
         summary: "Program dates, application windows, and cycles.",
@@ -755,6 +763,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Sparkles,
         title: "Opportunity Management",
+        previewId: "opportunities",
         status: "Edit anytime",
         tone: "muted",
         summary: "Update deadlines, edit descriptions, close programs.",
@@ -762,6 +771,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Gift,
         title: "PartnerForward",
+        previewId: "partnerforward",
         status: "3 supports",
         tone: "success",
         summary: "Grants, training, and co-design supports for partners.",

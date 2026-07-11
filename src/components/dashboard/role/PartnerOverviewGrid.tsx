@@ -91,7 +91,7 @@ export function PartnerOverviewGrid() {
           status="Library"
           tone="muted"
           summary="Playbooks, templates, and best-practice guides for partners."
-          cta={{ label: "Open resources", to: "/partnerforward" }}
+          cta={{ label: "Open resources", to: "/partners-manage/resources" }}
         />
 
       </ToolPreviewGrid>

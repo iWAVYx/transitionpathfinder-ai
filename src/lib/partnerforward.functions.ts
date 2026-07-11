@@ -277,3 +277,92 @@ export const adminRevokeBadge = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
+// -------- Partner-scoped resources (authenticated) --------
+// Used by /partners-manage/resources — partners browse the published
+// PartnerForward library and save/unsave/annotate resources.
+
+export const listPartnerResourcesWithSaved = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const [resources, saves] = await Promise.all([
+      supabase
+        .from("partnerforward_resources")
+        .select(
+          "id,title,category,summary,partner_value,eligibility_notes,action_steps,official_url,source_name,cautious_disclaimer",
+        )
+        .eq("status", "published")
+        .order("category", { ascending: true })
+        .order("title", { ascending: true }),
+      supabase
+        .from("partnerforward_partner_saved_resources")
+        .select("id,resource_id,notes,created_at,updated_at")
+        .eq("partner_user_id", userId),
+    ]);
+    if (resources.error) throw new Error(resources.error.message);
+    if (saves.error) throw new Error(saves.error.message);
+    const saveByResource = new Map(
+      (saves.data ?? []).map((s) => [s.resource_id, s]),
+    );
+    const items = (resources.data ?? []).map((r) => ({
+      ...r,
+      saved: saveByResource.get(r.id) ?? null,
+    }));
+    return { items };
+  });
+
+export const savePartnerResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        resource_id: z.string().uuid(),
+        notes: z.string().trim().max(2000).optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("partnerforward_partner_saved_resources")
+      .insert({
+        partner_user_id: context.userId,
+        resource_id: data.resource_id,
+        notes: data.notes ?? null,
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const updatePartnerSavedResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        notes: z.string().trim().max(2000).nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("partnerforward_partner_saved_resources")
+      .update({ notes: data.notes })
+      .eq("id", data.id)
+      .eq("partner_user_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const unsavePartnerResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("partnerforward_partner_saved_resources")
+      .delete()
+      .eq("id", data.id)
+      .eq("partner_user_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });

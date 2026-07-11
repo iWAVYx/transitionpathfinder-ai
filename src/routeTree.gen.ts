@@ -117,6 +117,7 @@ import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authe
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedPathwayStudentRouteImport } from './routes/_authenticated/pathway.student'
 import { Route as AuthenticatedPathwayFamilyRouteImport } from './routes/_authenticated/pathway.family'
+import { Route as AuthenticatedPartnersManageResourcesRouteImport } from './routes/_authenticated/partners-manage_.resources'
 import { Route as AuthenticatedPartnersManageProfileRouteImport } from './routes/_authenticated/partners-manage_.profile'
 import { Route as AuthenticatedPartnersManageOpportunitiesRouteImport } from './routes/_authenticated/partners-manage_.opportunities'
 import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage_.impact'
@@ -757,6 +758,12 @@ const AuthenticatedPathwayFamilyRoute =
     path: '/family',
     getParentRoute: () => AuthenticatedPathwayRoute,
   } as any)
+const AuthenticatedPartnersManageResourcesRoute =
+  AuthenticatedPartnersManageResourcesRouteImport.update({
+    id: '/partners-manage_/resources',
+    path: '/partners-manage/resources',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPartnersManageProfileRoute =
   AuthenticatedPartnersManageProfileRouteImport.update({
     id: '/partners-manage_/profile',
@@ -1368,6 +1375,7 @@ export interface FileRoutesByFullPath {
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/partners-manage/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
   '/partners-manage/profile': typeof AuthenticatedPartnersManageProfileRoute
+  '/partners-manage/resources': typeof AuthenticatedPartnersManageResourcesRoute
   '/pathway/family': typeof AuthenticatedPathwayFamilyRoute
   '/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -1552,6 +1560,7 @@ export interface FileRoutesByTo {
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/partners-manage/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
   '/partners-manage/profile': typeof AuthenticatedPartnersManageProfileRoute
+  '/partners-manage/resources': typeof AuthenticatedPartnersManageResourcesRoute
   '/pathway/family': typeof AuthenticatedPathwayFamilyRoute
   '/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -1740,6 +1749,7 @@ export interface FileRoutesById {
   '/_authenticated/partners-manage_/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/_authenticated/partners-manage_/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
   '/_authenticated/partners-manage_/profile': typeof AuthenticatedPartnersManageProfileRoute
+  '/_authenticated/partners-manage_/resources': typeof AuthenticatedPartnersManageResourcesRoute
   '/_authenticated/pathway/family': typeof AuthenticatedPathwayFamilyRoute
   '/_authenticated/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
@@ -1928,6 +1938,7 @@ export interface FileRouteTypes {
     | '/partners-manage/impact'
     | '/partners-manage/opportunities'
     | '/partners-manage/profile'
+    | '/partners-manage/resources'
     | '/pathway/family'
     | '/pathway/student'
     | '/reports/$reportId'
@@ -2112,6 +2123,7 @@ export interface FileRouteTypes {
     | '/partners-manage/impact'
     | '/partners-manage/opportunities'
     | '/partners-manage/profile'
+    | '/partners-manage/resources'
     | '/pathway/family'
     | '/pathway/student'
     | '/reports/$reportId'
@@ -2299,6 +2311,7 @@ export interface FileRouteTypes {
     | '/_authenticated/partners-manage_/impact'
     | '/_authenticated/partners-manage_/opportunities'
     | '/_authenticated/partners-manage_/profile'
+    | '/_authenticated/partners-manage_/resources'
     | '/_authenticated/pathway/family'
     | '/_authenticated/pathway/student'
     | '/_authenticated/reports/$reportId'
@@ -3152,6 +3165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPathwayFamilyRouteImport
       parentRoute: typeof AuthenticatedPathwayRoute
     }
+    '/_authenticated/partners-manage_/resources': {
+      id: '/_authenticated/partners-manage_/resources'
+      path: '/partners-manage/resources'
+      fullPath: '/partners-manage/resources'
+      preLoaderRoute: typeof AuthenticatedPartnersManageResourcesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/partners-manage_/profile': {
       id: '/_authenticated/partners-manage_/profile'
       path: '/partners-manage/profile'
@@ -3924,6 +3944,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
   AuthenticatedPartnersManageOpportunitiesRoute: typeof AuthenticatedPartnersManageOpportunitiesRoute
   AuthenticatedPartnersManageProfileRoute: typeof AuthenticatedPartnersManageProfileRoute
+  AuthenticatedPartnersManageResourcesRoute: typeof AuthenticatedPartnersManageResourcesRoute
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
@@ -4006,6 +4027,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedPartnersManageOpportunitiesRoute,
   AuthenticatedPartnersManageProfileRoute:
     AuthenticatedPartnersManageProfileRoute,
+  AuthenticatedPartnersManageResourcesRoute:
+    AuthenticatedPartnersManageResourcesRoute,
   AuthenticatedResourcesSavedRoute: AuthenticatedResourcesSavedRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
