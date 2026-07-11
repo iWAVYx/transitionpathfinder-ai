@@ -1,74 +1,72 @@
-# Dashboard Feature Connection Pass
 
-This is a very large scope (7 roles × ~10 features each, plus building missing signed-in pages). Doing it in a single turn would produce shallow work and destabilize routing. I'll structure it as an auditable, phased pass.
+## Scope
 
-## Phase 1 — Audit (this turn)
+Presentation-only polish across the seven signed-in role dashboards. No changes to routing, auth, RLS, role guards, backend reads/writes, test IDs, or the dashboard/regression contracts. All existing links, tiles, and destinations stay wired to the same features.
 
-Produce a single source of truth: `docs/dashboard-feature-audit.md` + expand `src/lib/demo/feature-map.ts` to cover every dashboard tile per role.
+Targeted surface area (≈40 files):
+- Routes: `dashboard.tsx` (student/parent), `caseload.tsx`, `school.overview.tsx`, `district.overview.tsx`, `partners-manage.tsx`, `owner.index.tsx`, `admin.tsx`
+- Role overview grids: `Student/Parent/Educator/SchoolAdmin/DistrictAdmin/PartnerOverviewGrid.tsx`
+- Shared dashboard cards under `src/components/dashboard/*` (Advocacy, Compliance, Evidence, Matches, Fit, Meeting Prep, IepTranslator, DataGaps, EvidenceReview, NextSteps, ToolPreviewCard, JourneyStrip, StageJourneyCard, NextBestAction, MyIepSummary, PartnerImpact, OpportunityStats, InvitePeople, InvitesInbox, OnboardingChecklist)
+- Shells: `OwnerShell`, `SchoolPageShell`, `DistrictPageShell` (loading + heading copy only)
+- Loader/error copy in `DashboardErrorFallback.tsx` (already Title Case; verify)
 
-For each role's dashboard tile I'll record:
-- Label + intended feature
-- Current CTA destination
-- Demo Workspace target (in-place preview vs route)
-- Signed-in target (real route)
-- Status: `connected` | `generic-redirect` | `missing-page` | `dead`
-- Fix: `rewire` | `build-preview` | `build-signed-in-page` | `mark-out-of-scope`
+## Approach (one pass per role, all files edited in batched writes)
 
-This audit is the contract Phases 2–4 execute against and what the tests in Phase 5 assert.
+### 1. Title Case pass
+Convert to Title Case in headings, tile titles, card titles, section subheadings, chart/table headings, CTA labels, empty-state headings, tab labels, badge labels. Preserve exact forms: TransitionForward, Transition Workspace, Pathway Report, Student Voice, BridgeForward, PartnerForward, IEP, PPT, CT-SEDS, 504, 30/60/90. Keep sentence case for descriptions, helper text, body paragraphs, and empty-state body copy.
 
-## Phase 2 — Rewire wrong destinations
+Where headings are dynamic strings, route through `toTitleCase()` from `src/lib/title-case.ts` (already exists and preserves acronyms and PascalCase brand names).
 
-For tiles that already have a correct target but point somewhere generic (Transition Workspace step, wrong hub), fix the `to`/`params` on the ToolPreviewCard. No new pages. This is the fastest, highest-signal win.
+### 2. Copy rewrite pass, per role
 
-Files most likely touched:
-- `src/components/dashboard/role/*OverviewGrid.tsx` (Student, Parent, Educator, SchoolAdmin, DistrictAdmin, Partner, Owner)
+Rewrite generic/AI-flavored copy with a clear voice per role:
 
-## Phase 3 — Demo Workspace previews
+- **Student** — simple, encouraging, action-first ("Share your voice", "See your pathway", "Prep for your PPT").
+- **Parent / Guardian** — calming, organized, meeting-prep framed.
+- **Educator / Case Manager** — practical, caseload-aware, PPT/IEP workflow language.
+- **School Admin** — implementation, team coordination, school-level visibility.
+- **District Admin** — strategy, readiness trends, service gaps, adoption.
+- **Partner** — opportunity posting, deadlines, PartnerForward supports, no student PII.
+- **Owner / Admin** — platform operations, review queues, launch readiness, system oversight.
 
-Replace demo-side CTAs that currently redirect into `/demo/workspace/$stage` for unrelated stages with:
-- in-place expandable preview panels using existing `DemoToolPreviewCard` + role-safe sample data from `src/lib/demo/*`
-- new lightweight preview components under `src/components/demo/previews/` per feature (Calendar, Meeting Prep, Saved Resources, Documents, Consent, Caseload, Readiness, Notes, Team Activity, Report Completion, Trends, Schools List, School Progress, Service Gaps, Opportunities, Deadlines, PartnerForward, Partner Profile, Waitlist, Contacts, Resource Queue, Partner Submissions, System Health)
-- reuse existing `PathwayReportDeepPreview` pattern for structure
+Kill filler phrases like "manage your items here", "track your progress", repeated cross-role blurbs, and marketing fluff. Every card description must state what the section is for and what action it enables.
 
-## Phase 4 — Build missing signed-in pages
+### 3. Layout & symmetry pass
 
-For each `missing-page` row in the audit, create a route under `src/routes/_authenticated/` with:
-- correct `createFileRoute` path matching filename
-- role guard via `ROUTE_AUDIENCES` + `withRoleGuard` fallback where dynamic
-- semantic `<main>` with `data-testid` from `dashboard-testids`
-- page heading (Title Case), role-scoped description
-- loading (Suspense) / error boundary / empty state
-- backend hook via `createServerFn` when a table exists; static empty state otherwise
-- `head()` metadata
+For each dashboard:
+- Normalize outer container to consistent `mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 space-y-8`.
+- Overview grids: `grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3` with `h-full` cards so tiles align.
+- Card internals: consistent `p-6`, header `mb-4`, footer CTA row aligned to bottom via `mt-auto`.
+- Buttons in same group share `size="sm"` (secondary rows) or `size="default"` (primary CTA).
+- Fix the odd-count centering in Overview grids by promoting a lead tile to `sm:col-span-2 lg:col-span-1` where a 5-tile row leaves a gap, or padding to an even count with a compact "What This Shows" helper tile per role.
+- Apply the `grid-cols-[minmax(0,1fr)_auto] sm:flex` header pattern (from responsive-layout memory) to every card header with a title + widget/badge row.
+- Icon slots `shrink-0`; heading `truncate` on single-line titles.
 
-Expected new routes (only where not already present — audit will confirm):
-- Student: `/action-items`, `/saved-resources`, `/calendar`, `/meeting-prep`, `/student-voice`, `/pathway/student`
-- Parent: `/family/priorities`, `/family/consent`, `/family/action-items`, `/family/resources`, `/pathway/family`
-- Educator: `/educator/input`, `/educator/readiness-gaps`, `/educator/notes`, `/educator/action-items`
-- School Admin: `/school/team-activity`, `/school/planning-status`, `/school/report-completion`, `/school/readiness-trends`, `/school/resource-usage`, `/school/support-needs`, `/school/implementation`
-- District Admin: `/district/schools`, `/district/school-progress`, `/district/readiness-trends`, `/district/implementation`, `/district/reports`, `/district/service-gaps`, `/district/staff-access`
-- Partner: `/partner/profile`, `/partner/submitted`, `/partner/deadlines`
-- Owner: `/admin/users`, `/admin/contacts`, `/admin/resource-queue`, `/admin/source-libraries`, `/admin/partner-submissions`, `/admin/outreach`, `/admin/feedback`, `/admin/bugs`, `/admin/system-health`, `/admin/launch-readiness`, `/admin/analytics`, `/admin/pilot-outreach`, `/admin/demo-materials`
+### 4. Empty / loading / error states
 
-Update `ROUTE_AUDIENCES` in `src/lib/role-policy.ts` and the `FORBIDDEN` map in `tests/e2e/helpers/roles.ts` for each addition.
+- Empty states: Title Case heading + one-sentence helper + primary CTA.
+- Loading (`dashboard.tsx`, shells): Title Case heading like "Loading Your Dashboard", one descriptive sentence.
+- Error: `DashboardErrorFallback` already role-specific; verify Title Case and copy tone per role, tighten descriptions.
 
-## Phase 5 — Tests
+### 5. Responsive QA
 
-- Extend `tests/unit/demo-feature-map.test.ts` to require every dashboard tile has a mapped entry with non-generic destination.
-- New `tests/unit/dashboard-tile-destinations.test.ts`: for each role grid, assert no two tiles share the same destination and none point to `/workspace/$stage` unless the tile IS "Transition Workspace".
-- New `tests/e2e/dashboard-tile-nav.signedin.spec.ts`: for each role, click every tile CTA, assert URL is not a generic workspace redirect and `<main>` renders with the expected `data-testid`.
-- Extend `role-access-control.signedin.spec.ts` FORBIDDEN map for new admin/school/district routes.
+Verify mobile / tablet / desktop for each dashboard route via Playwright screenshots at 375, 768, 1280; fix any wrap, overflow, or cramped-CTA regressions found.
 
-## Phase 6 — Verify
+### 6. Verification
 
-`bunx tsgo --noEmit`, `bunx vitest run`, targeted Playwright role runs, screenshot mobile/desktop for each role dashboard.
+- `bunx vitest run tests/unit` (all unit tests, including dashboard render contract and stage journey).
+- `bunx playwright test --project=dashboard-regression`.
+- `bunx playwright test --project=role-access` if any route file was edited beyond copy.
+- Manual screenshot review of all 7 dashboards at 3 breakpoints.
 
-## Scope note
+## Out of scope
 
-Phases 2–6 are large. I recommend I execute this **iteratively across turns, one role per turn**, starting with the audit in this turn and Student in the next. That keeps each turn reviewable and lets you course-correct before I build ~40 new signed-in pages.
+- New features, new tiles beyond even-count padding helpers, new routes.
+- Backend/schema/RLS changes.
+- Test ID / landmark / contract changes (`ROLE_DASHBOARD_TEST_IDS`, `data-dashboard-landmark`, `DASHBOARD_TESTID_CONTRACT_VERSION`).
+- Auth, 2FA, role-guard logic.
+- Design token / theme changes in `styles.css`.
 
-## Confirmation needed
+## Risk & size note
 
-1. OK to proceed role-by-role over multiple turns starting with the audit doc + Student role?
-2. For new signed-in pages with no backing table yet (e.g. `/admin/bugs`, `/admin/launch-readiness`), should I (a) wire to an existing table I can find, (b) create a new table via migration, or (c) render an empty-state-only page marked "collection starts once you enable it"?
-3. For Owner Hub items that already exist inside `/admin` as tabs/sections (e.g. Waitlist, Contacts), do you want them **promoted to standalone routes**, or is deep-linking into the existing admin subview acceptable?
+This touches ~40 files (~10K LOC) as pure presentation edits. I will land it in role-batched commits (Student → Parent → Educator → School → District → Partner → Owner, then shared cards + shells), running unit + dashboard-regression after each batch so any regression is isolated to one role.
