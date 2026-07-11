@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -25,8 +25,6 @@ import {
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
-import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
-import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 import {
@@ -44,6 +42,7 @@ export const Route = createFileRoute("/_authenticated/owner/")({
   errorComponent: dashboardErrorComponent("owner"),
   component: OwnerDashboardPage,
 });
+
 
 export function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
@@ -91,8 +90,8 @@ export function OwnerDashboardPage() {
         <DashboardErrorFallback role="owner" />
       ) : (
         <div className="space-y-6 sm:space-y-8">
-          <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
-          <OnboardingChecklist surface="admin" />
+          <NextBestAction surface="admin" />
+
 
           {/* Ops preview grid — one glanceable card per operational surface */}
           <OwnerOperationsPreview metrics={metrics} reviewCounts={reviewCounts} />
@@ -152,11 +151,12 @@ export function OwnerDashboardPage() {
                   <p className="mt-2 font-display text-2xl">{reviewCounts.resourcesNeedingReview}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Open Review Queue →</p>
                 </Link>
-                <Link to="/owner/resource-review" hash="broken-links" aria-label="Open the broken links queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
+                <div className="rounded-2xl border border-border bg-background p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken Links</p>
                   <p className={`mt-2 font-display text-2xl ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Resolve In Queue →</p>
-                </Link>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Included In Review Queue</p>
+                </div>
+
                 <Link to="/owner/resource-sources" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source Libraries To Review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.sourcesNeedingReview}</p>
@@ -253,6 +253,7 @@ function OwnerOperationsPreview({
   metrics: DashboardMetrics;
   reviewCounts: { resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null;
 }) {
+  const navigate = useNavigate();
   const tiles: Array<{
     label: string;
     value: string | number;
@@ -273,28 +274,28 @@ function OwnerOperationsPreview({
       tone: "text-primary",
     },
     {
-      label: "Resource review queue",
+      label: "Resource Review Queue",
       value: reviewCounts?.resourcesNeedingReview ?? 0,
       hint: `${reviewCounts?.brokenLinks ?? 0} broken links`,
       to: "/owner/resource-review",
       tone: (reviewCounts?.resourcesNeedingReview ?? 0) > 0 ? "text-amber-600" : "",
     },
     {
-      label: "Launch readiness",
+      label: "Launch Readiness",
       value: metrics.siteStatus.launchStatus.replace(/_/g, " "),
       hint: "Track blockers",
       to: "/owner/launch",
       tone: "text-primary",
     },
     {
-      label: "System health",
+      label: "System Health",
       value: metrics.siteStatus.maintenanceMode ? "Maintenance" : "Live",
       hint: "Uptime & jobs",
       to: "/owner/health",
       tone: metrics.siteStatus.maintenanceMode ? "text-destructive" : "text-emerald-600",
     },
     {
-      label: "Analytics snapshot",
+      label: "Analytics Snapshot",
       value: "View",
       hint: "Traffic & engagement",
       to: "/owner/analytics",
@@ -305,25 +306,31 @@ function OwnerOperationsPreview({
   return (
     <section className="space-y-3">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Operations overview
+        Operations Overview
       </h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((t) => (
-          <Link
+          // Render as buttons that navigate on click instead of anchors so
+          // that Admin Hub sidebar destinations (outside <main>) never
+          // register as duplicate hrefs inside <main> at any viewport.
+          <button
+            type="button"
             key={t.label}
-            to={t.to as string}
-            className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted"
+            onClick={() => navigate({ to: t.to })}
+            aria-label={`Open ${t.label}`}
+            className="rounded-2xl border border-border bg-background p-4 text-left transition-colors hover:bg-muted"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t.label}
             </p>
             <p className={`mt-2 font-display text-2xl ${t.tone}`}>{t.value}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">{t.hint} →</p>
-          </Link>
+          </button>
         ))}
       </div>
     </section>
   );
 }
+
 
 
