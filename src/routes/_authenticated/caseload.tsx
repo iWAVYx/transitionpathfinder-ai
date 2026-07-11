@@ -182,7 +182,7 @@ function CaseloadPage() {
           <PageHeader
             eyebrow="Educator / Case Manager"
             title="Caseload Overview"
-            description="Students you own or have been invited to support — meetings, pending transition tasks, and reports needing review."
+            description="Every student assigned to you — upcoming meetings, pending transition tasks, and Pathway Reports needing review."
             action={
               <Button asChild className="w-full sm:w-auto">
                 <Link to="/students"><Plus className="h-4 w-4" /> Invite Student</Link>
