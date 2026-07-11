@@ -219,8 +219,16 @@ function DashboardLoadingShell() {
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <DashboardRoleLandmarks />
       </div>
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
-        <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Checking access…
+      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+        <h1 className="font-display text-2xl font-medium tracking-tight">
+          Preparing Your Dashboard
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Checking your access and loading planning details for your workspace.
+        </p>
+        <div className="mt-6 inline-flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Checking access…
+        </div>
       </div>
     </SiteShell>
 
