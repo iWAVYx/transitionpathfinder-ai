@@ -294,7 +294,6 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: ClipboardCheck,
         title: "Action Items",
-        previewId: "readiness-gaps",
         status: "2 due",
         tone: "warning",
         summary: "Small next steps you can take this week.",
