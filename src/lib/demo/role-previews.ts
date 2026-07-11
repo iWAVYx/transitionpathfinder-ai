@@ -751,6 +751,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: CalendarDays,
         title: "Upcoming Deadlines",
+        previewId: "deadlines",
         status: "Nov 15",
         tone: "warning",
         summary: "Program dates, application windows, and cycles.",
@@ -762,6 +763,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Sparkles,
         title: "Opportunity Management",
+        previewId: "opportunities",
         status: "Edit anytime",
         tone: "muted",
         summary: "Update deadlines, edit descriptions, close programs.",
@@ -769,6 +771,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Gift,
         title: "PartnerForward",
+        previewId: "partnerforward",
         status: "3 supports",
         tone: "success",
         summary: "Grants, training, and co-design supports for partners.",
