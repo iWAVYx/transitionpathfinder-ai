@@ -34,6 +34,10 @@ import {
   type ReviewQueueCounts,
 } from "@/components/owner/ReviewQueuesPanel";
 import { timeAgo } from "@/lib/time-ago";
+import {
+  DashboardErrorFallback,
+  dashboardErrorComponent,
+} from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
