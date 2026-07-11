@@ -5,6 +5,7 @@ on:
     paths:
       - "tests/student-relationships-consent-rls.test.mjs"
       - "tests/district-school-hijack-rls.test.mjs"
+      - "tests/role-district-access-rls.test.mjs"
       - "src/lib/district-admin.functions.ts"
       - "supabase/migrations/**"
       - ".github/workflows/permission-regression-qa.yml"
@@ -14,6 +15,10 @@ on:
 jobs:
   permission-regression:
     runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,12 +27,8 @@ jobs:
       - name: Install @supabase/supabase-js
         run: npm install --no-save @supabase/supabase-js@^2
       - name: Student-relationships consent RLS regression
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: node --test tests/student-relationships-consent-rls.test.mjs
       - name: District-school hijack RLS regression
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: node --test tests/district-school-hijack-rls.test.mjs
+      - name: Cross-role district scoping + approval flow regression
+        run: node --test tests/role-district-access-rls.test.mjs
