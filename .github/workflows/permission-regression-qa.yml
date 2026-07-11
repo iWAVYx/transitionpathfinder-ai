@@ -1,0 +1,33 @@
+name: Permission regression QA
+
+on:
+  pull_request:
+    paths:
+      - "tests/student-relationships-consent-rls.test.mjs"
+      - "tests/district-school-hijack-rls.test.mjs"
+      - "src/lib/district-admin.functions.ts"
+      - "supabase/migrations/**"
+      - ".github/workflows/permission-regression-qa.yml"
+  push:
+    branches: [main]
+
+jobs:
+  permission-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install @supabase/supabase-js
+        run: npm install --no-save @supabase/supabase-js@^2
+      - name: Student-relationships consent RLS regression
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: node --test tests/student-relationships-consent-rls.test.mjs
+      - name: District-school hijack RLS regression
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: node --test tests/district-school-hijack-rls.test.mjs
