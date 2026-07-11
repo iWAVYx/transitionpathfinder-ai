@@ -74,7 +74,7 @@ export function StageJourneyCard({
         </p>
       </div>
       <h3 className="mt-2 font-display text-xl font-medium leading-snug tracking-tight">
-        You're on {currentStageObj ? `Stage ${currentStageObj.order} — ${currentStageObj.title}` : "your journey"}
+        {toTitleCase(currentStageObj ? `You're on Stage ${currentStageObj.order} — ${currentStageObj.title}` : "You're on Your Journey")}
       </h3>
       {currentStageObj ? (
         <p className="mt-1.5 text-sm leading-relaxed text-foreground/75">
