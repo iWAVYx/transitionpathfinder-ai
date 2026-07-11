@@ -588,8 +588,17 @@ function DashboardPage() {
 
           <DashboardRoleLandmarks />
         </div>
-        <div className="mx-auto max-w-7xl px-4 py-16 text-center text-muted-foreground">
-          <Loader2 className="mx-auto h-6 w-6 animate-spin" /> Loading your dashboard…
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+          <h1 className="font-display text-2xl font-medium tracking-tight">
+            Loading Your Family Dashboard
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Gathering your connected students, upcoming meetings, saved
+            documents, and pathway progress.
+          </p>
+          <div className="mt-6 inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading your dashboard…
+          </div>
         </div>
       </SiteShell>
     );
