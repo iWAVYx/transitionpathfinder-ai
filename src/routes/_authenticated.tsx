@@ -202,10 +202,54 @@ function AuthenticatedLayout() {
   }
 
 
+  // Loader-fail resilience: if the profile server function can't be reached
+  // (e.g. transient 5xx, network partition, or the dashboard-regression
+  // suite forcing every server-fn call to 500), render a role-scoped
+  // fallback with a Title Case heading, a helpful sentence, and recovery
+  // actions instead of falling through to a blank / spinner-only <Outlet>.
+  if (profileError) {
+    const role = fallbackRoleFromTestId(
+      dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email),
+    );
+    return (
+      <div className="signed-in-shell">
+        <DashboardErrorFallback
+          role={role}
+          onRetry={() => {
+            setProfileError(false);
+            setCheckedOnboarding(false);
+          }}
+        />
+        <FeedbackButton />
+      </div>
+    );
+  }
+
   return (
     <div className="signed-in-shell">
       <Outlet />
       <FeedbackButton />
     </div>
   );
+}
+
+function fallbackRoleFromTestId(
+  testId: RoleDashboardTestId | null,
+): "student" | "parent" | "educator" | "school_admin" | "district_admin" | "partner" | "owner" {
+  switch (testId) {
+    case ROLE_DASHBOARD_TEST_IDS.student:
+      return "student";
+    case ROLE_DASHBOARD_TEST_IDS.educator:
+      return "educator";
+    case ROLE_DASHBOARD_TEST_IDS.school_admin:
+      return "school_admin";
+    case ROLE_DASHBOARD_TEST_IDS.district_admin:
+      return "district_admin";
+    case ROLE_DASHBOARD_TEST_IDS.partner:
+      return "partner";
+    case ROLE_DASHBOARD_TEST_IDS.owner:
+      return "owner";
+    default:
+      return "parent";
+  }
 }
