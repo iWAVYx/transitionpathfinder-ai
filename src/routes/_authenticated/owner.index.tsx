@@ -262,13 +262,11 @@ function OwnerOperationsPreview({
     to: string;
     tone: string;
   }> = [
-    {
-      label: "Waitlist",
-      value: metrics.totalWaitlist,
-      hint: `${metrics.newWaitlist} new`,
-      to: "/owner/waitlist",
-      tone: "text-primary",
-    },
+    // NOTE: /owner/waitlist, /owner/contacts, /owner/partner-submissions,
+    // and /owner/feedback are the actionable rows in <ReviewQueuesPanel />
+    // below. Do NOT re-add them here as tiles — the dashboard regression
+    // suite rejects duplicate <a href> inside <main>. Keep this preview
+    // to destinations that only appear once on the Admin Hub page.
     {
       label: "Users",
       value: metrics.totalUsers,
@@ -277,32 +275,11 @@ function OwnerOperationsPreview({
       tone: "text-primary",
     },
     {
-      label: "Contact submissions",
-      value: metrics.totalContacts,
-      hint: `${metrics.newContacts} new`,
-      to: "/owner/contacts",
-      tone: "text-primary",
-    },
-    {
       label: "Resource review queue",
       value: reviewCounts?.resourcesNeedingReview ?? 0,
       hint: `${reviewCounts?.brokenLinks ?? 0} broken links`,
       to: "/owner/resource-review",
       tone: (reviewCounts?.resourcesNeedingReview ?? 0) > 0 ? "text-amber-600" : "",
-    },
-    {
-      label: "Partner submissions",
-      value: queueCounts?.partnerSubmissions ?? 0,
-      hint: "Awaiting approval",
-      to: "/owner/partner-submissions",
-      tone: (queueCounts?.partnerSubmissions ?? 0) > 0 ? "text-amber-600" : "",
-    },
-    {
-      label: "Feedback / bugs",
-      value: queueCounts?.feedbackOpen ?? 0,
-      hint: "Open items",
-      to: "/owner/feedback",
-      tone: (queueCounts?.feedbackOpen ?? 0) > 0 ? "text-amber-600" : "",
     },
     {
       label: "Launch readiness",
