@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { DashboardErrorFallback } from "@/components/dashboard/DashboardErrorFallback";
 import {
   LayoutDashboard,
   Users,
