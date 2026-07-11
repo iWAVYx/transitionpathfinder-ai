@@ -156,6 +156,7 @@ function AuthenticatedLayout() {
       .catch(() => {
         if (!cancelled) {
           setDashboardTestId((current) => current ?? dashboardShellTestId(location.pathname, user?.email));
+          setProfileError(true);
           setCheckedOnboarding(true);
         }
       });
