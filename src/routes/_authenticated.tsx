@@ -73,15 +73,21 @@ function AuthenticatedPendingShell() {
 
   return (
     <main
-      className="flex min-h-screen items-center justify-center bg-background"
+      className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
       data-auth-state="route-pending"
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       data-testid={testId ?? undefined}
     >
-      <p className="text-sm text-muted-foreground">Loading…</p>
+      <h1 className="font-display text-xl font-medium tracking-tight">
+        Preparing Your Workspace
+      </h1>
+      <p className="max-w-md text-sm text-muted-foreground">
+        Checking your access and loading your dashboard. This only takes a moment.
+      </p>
     </main>
   );
 }
+
 
 function AuthenticatedLayout() {
   const { user, loading } = useAuth();
