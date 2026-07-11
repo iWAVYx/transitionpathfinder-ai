@@ -144,7 +144,7 @@ export const WORKSPACE_STAGES: readonly WorkspaceStage[] = [
     description:
       "Capture family hopes, concerns, priorities, and questions to bring into the next meeting.",
     order: 3,
-    signedInRoute: "/ppt-prep",
+    signedInRoute: "/family/priorities",
     demoRoute: "/demo/meeting",
     audiences: ["family", "educator", "school_admin", "district_admin", "admin"],
     gradeBands: ["bridgeforward", "transitionforward"],
