@@ -916,15 +916,15 @@ function DashboardPage() {
           {/* Meeting Prep + Recommended Resources */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <Panel
-              title={snap.upcomingMeeting ? "Next meeting" : "Meeting prep"}
+              title={snap.upcomingMeeting ? "Next Meeting" : "Meeting Prep"}
               subtitle={
                 snap.upcomingMeeting?.scheduled_at
                   ? `${snap.upcomingMeeting.kind} · ${new Date(snap.upcomingMeeting.scheduled_at).toLocaleDateString()}`
-                  : "Prepare for the next PPT/IEP"
+                  : "Get ready for the next PPT with a calm, one-page agenda."
               }
               icon={<Calendar className="h-5 w-5" />}
               actionHref="/meetings"
-              actionLabel="All meetings"
+              actionLabel="All Meetings"
             >
               {!snap.upcomingMeeting ? (
                 <EmptyMini kind="meetings" label="No meeting scheduled. Add one to start prep." />
