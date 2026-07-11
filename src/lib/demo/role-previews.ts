@@ -108,7 +108,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
     path: "/demo/student",
     label: "Student",
     tagline: "My transition home base.",
-    headline: "See what a student would see.",
+    headline: "See What A Student Would See.",
     intro:
       "A calm, encouraging space where a student like Jordan can share what matters to them, understand their goals, and see the next step clearly.",
     icon: GraduationCap,
@@ -227,7 +227,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
     path: "/demo/family",
     label: "Parent / Guardian",
     tagline: "Family planning overview.",
-    headline: "See what a parent or guardian would see.",
+    headline: "See What A Parent Or Guardian Would See.",
     intro:
       "An organized, calming view of your student's plan — the pathway report in plain language, meeting prep, documents, and next steps in one place.",
     icon: Users,
@@ -352,7 +352,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
     path: "/demo/educator",
     label: "Educator / Case Manager",
     tagline: "Caseload command center.",
-    headline: "See what an educator or case manager would see.",
+    headline: "See What An Educator Or Case Manager Would See.",
     intro:
       "A workflow-oriented dashboard for your caseload — readiness gaps at a glance, pending inputs, meeting prep, and a shared pathway with each family.",
     icon: Briefcase,
@@ -477,7 +477,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
     path: "/demo/school-admin",
     label: "School Admin",
     tagline: "School transition overview.",
-    headline: "See what a school admin would see.",
+    headline: "See What A School Admin Would See.",
     intro:
       "A school-level view of transition planning — how many students have a plan, where teams need support, and how readiness is trending across grades.",
     icon: School,
@@ -592,7 +592,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
     path: "/demo/district-admin",
     label: "District Admin",
     tagline: "District transition strategy overview.",
-    headline: "See what a district admin would see.",
+    headline: "See What A District Admin Would See.",
     intro:
       "A district-wide strategy view — school-by-school readiness, implementation status, and where to invest partnership and resource capacity.",
     icon: Building2,
@@ -700,7 +700,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
     path: "/demo/partner",
     label: "Partner",
     tagline: "Partner opportunity management overview.",
-    headline: "See what a partner organization would see.",
+    headline: "See What A Partner Organization Would See.",
     intro:
       "A focused workspace for posting opportunities, managing programs and deadlines, and staying connected to PartnerForward — with no access to private student data.",
     icon: Handshake,
