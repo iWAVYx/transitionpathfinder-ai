@@ -284,20 +284,23 @@ export function RolePreviewShell({
             </div>
             <div className="flex flex-wrap gap-2 sm:justify-end">
               <Button asChild size="lg">
-                <Link to={role.ctaPrimary.to}>
+                <RoleAwareCtaLink to={role.ctaPrimary.to} roleId={role.id}>
                   {role.ctaPrimary.label}
                   <ArrowRight className="ml-1.5 h-4 w-4" />
-                </Link>
+                </RoleAwareCtaLink>
               </Button>
               {role.ctaSecondary && (
                 <Button asChild size="lg" variant="outline">
-                  <Link to={role.ctaSecondary.to}>{role.ctaSecondary.label}</Link>
+                  <RoleAwareCtaLink to={role.ctaSecondary.to} roleId={role.id}>
+                    {role.ctaSecondary.label}
+                  </RoleAwareCtaLink>
                 </Button>
               )}
               <Button asChild size="lg" variant="ghost">
                 <Link to="/waitlist">Join the waitlist</Link>
               </Button>
             </div>
+
           </div>
         </div>
       </PageSection>
