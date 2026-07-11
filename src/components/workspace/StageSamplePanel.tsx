@@ -39,6 +39,9 @@ export interface StageSamplePanelProps {
   expandInPlace?: boolean;
   /** Start with the detail section already expanded (used by redirects). */
   defaultExpanded?: boolean;
+  /** Controlled expansion state; when provided with onExpandChange, panel is controlled. */
+  expanded?: boolean;
+  onExpandChange?: (next: boolean) => void;
 }
 
 const TONE_STYLES: Record<StageSampleTone, string> = {
@@ -64,11 +67,22 @@ export function StageSamplePanel({
   fullSampleLabel = "Open Full Sample Screen",
   expandInPlace = false,
   defaultExpanded = false,
+  expanded: controlledExpanded,
+  onExpandChange,
 }: StageSamplePanelProps) {
   const sample = getStageSample(stage.id);
   const detail = expandInPlace ? getStageDetail(stage.id) : null;
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const isControlled =
+    controlledExpanded !== undefined && onExpandChange !== undefined;
+  const [uncontrolledExpanded, setUncontrolledExpanded] = useState(defaultExpanded);
+  const expanded = isControlled ? controlledExpanded : uncontrolledExpanded;
+  const toggleExpanded = () => {
+    const next = !expanded;
+    if (isControlled) onExpandChange(next);
+    else setUncontrolledExpanded(next);
+  };
   const detailId = useId();
+
 
   return (
     <section
