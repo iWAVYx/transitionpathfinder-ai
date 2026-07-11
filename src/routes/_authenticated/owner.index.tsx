@@ -185,11 +185,10 @@ export function OwnerDashboardPage() {
                   <FileText className="mr-1.5 h-3.5 w-3.5" /> Edit site content
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="w-full justify-start">
-                <Link to="/owner/analytics">
-                  <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> View analytics
-                </Link>
-              </Button>
+              {/* /owner/analytics is already the "Analytics snapshot" tile
+                  in the Operations preview above — do not add a second
+                  <Link to="/owner/analytics"> here or the dashboard
+                  regression flags duplicate hrefs inside <main>. */}
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/settings">
                   <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site settings
