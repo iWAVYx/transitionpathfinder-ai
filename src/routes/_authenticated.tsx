@@ -96,6 +96,7 @@ function AuthenticatedLayout() {
   const loadProfile = useServerFn(getProfile);
   const loadAdminRoles = useServerFn(getMyAdminRoles);
   const [checkedOnboarding, setCheckedOnboarding] = useState(false);
+  const [profileError, setProfileError] = useState(false);
   const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(() =>
     dashboardShellTestId(location.pathname),
   );
