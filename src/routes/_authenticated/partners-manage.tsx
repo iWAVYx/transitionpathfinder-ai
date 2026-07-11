@@ -48,9 +48,12 @@ import { ensureRoleAccess } from "@/lib/route-role-guard";
 import { opportunityStatusLabel } from "@/lib/opportunity-status";
 import { PartnerImpactSummaryCard } from "@/components/dashboard/PartnerImpactSummaryCard";
 
+import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
+
 export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
   beforeLoad: () => ensureRoleAccess(["partner", "admin"]),
+  errorComponent: dashboardErrorComponent("partner"),
   component: () => (
     <RoleGuard path="/partners-manage" fallback={<PartnerDashboardFallback />}>
       <PartnerManagePage />
