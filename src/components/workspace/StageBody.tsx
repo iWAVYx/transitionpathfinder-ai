@@ -26,6 +26,8 @@ export function StageBody({
   workSurfaceLabel,
   expandInPlace = false,
   defaultExpanded = false,
+  expanded,
+  onExpandChange,
   children,
 }: {
   stage: WorkspaceStage;
@@ -35,6 +37,9 @@ export function StageBody({
   expandInPlace?: boolean;
   /** In demo mode, start with the full-sample panel already expanded. */
   defaultExpanded?: boolean;
+  /** Controlled expansion (opt-in). When provided together with onExpandChange, the sample panel becomes controlled. */
+  expanded?: boolean;
+  onExpandChange?: (next: boolean) => void;
   children?: ReactNode;
 }) {
   const showWorkSurface = !expandInPlace && !!workSurfaceHref;
@@ -52,7 +57,10 @@ export function StageBody({
         fullSampleLabel="Open Full Sample Screen"
         expandInPlace={expandInPlace}
         defaultExpanded={defaultExpanded}
+        expanded={expanded}
+        onExpandChange={onExpandChange}
       />
+
 
       <StageRoleValueStrip stageId={stage.id} />
 

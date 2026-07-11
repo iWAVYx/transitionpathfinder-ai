@@ -1,72 +1,88 @@
 
-## Scope
+# Demo Navigation & Back/Forward Cleanup
 
-Presentation-only polish across the seven signed-in role dashboards. No changes to routing, auth, RLS, role guards, backend reads/writes, test IDs, or the dashboard/regression contracts. All existing links, tiles, and destinations stay wired to the same features.
+Focused pass on the public demo. Keeps the current Transition Workspace / Workspace Tour direction. Only touches navigation state, back targets, expanded-sample state, and cross-links. No visual redesign, no backend, no auth changes.
 
-Targeted surface area (≈40 files):
-- Routes: `dashboard.tsx` (student/parent), `caseload.tsx`, `school.overview.tsx`, `district.overview.tsx`, `partners-manage.tsx`, `owner.index.tsx`, `admin.tsx`
-- Role overview grids: `Student/Parent/Educator/SchoolAdmin/DistrictAdmin/PartnerOverviewGrid.tsx`
-- Shared dashboard cards under `src/components/dashboard/*` (Advocacy, Compliance, Evidence, Matches, Fit, Meeting Prep, IepTranslator, DataGaps, EvidenceReview, NextSteps, ToolPreviewCard, JourneyStrip, StageJourneyCard, NextBestAction, MyIepSummary, PartnerImpact, OpportunityStats, InvitePeople, InvitesInbox, OnboardingChecklist)
-- Shells: `OwnerShell`, `SchoolPageShell`, `DistrictPageShell` (loading + heading copy only)
-- Loader/error copy in `DashboardErrorFallback.tsx` (already Title Case; verify)
+## Problems Observed
 
-## Approach (one pass per role, all files edited in batched writes)
+1. **Role context is dropped.** Entering the Workspace Tour or the Pathway Report from a role preview (e.g. `/demo/student`) navigates to `/demo/workspace/start`. `Back to Demo Overview` then returns to `/demo`, not `/demo/student`, losing the visitor's chosen lens.
+2. **Expanded sample state is not in the URL.** `StageSamplePanel` uses local `useState`. `?expand=true` opens the panel on load but the URL doesn't update on toggle, so browser back can't close the expanded view and deep links only ever open the initial stage's sample.
+3. **Legacy redirects always default to a fixed stage** with no role carry-over. `/demo/report` → `/demo/workspace/roadmap?expand=true` regardless of the role the visitor was in.
+4. **`WorkspaceShell.backTo` is hardcoded per route.** Demo workspace passes `{ to: "/demo", label: "Back to Demo Overview" }` even when the user arrived from `/demo/student`. `SmartBackLink` prefers `history.back()`, which usually works — but a direct link (`?role=student` deep-link, external nav) breaks the fallback.
+5. **Role preview CTAs** (`View Pathway Report`, `Walk the Workspace`) don't pass role context forward.
+6. **Owner-only `/demo/hub`** legacy route redirects fine, but the family Demo Mode page (`/demo-mode`) still has hardcoded links unrelated to the tour — out of scope, left as-is.
 
-### 1. Title Case pass
-Convert to Title Case in headings, tile titles, card titles, section subheadings, chart/table headings, CTA labels, empty-state headings, tab labels, badge labels. Preserve exact forms: TransitionForward, Transition Workspace, Pathway Report, Student Voice, BridgeForward, PartnerForward, IEP, PPT, CT-SEDS, 504, 30/60/90. Keep sentence case for descriptions, helper text, body paragraphs, and empty-state body copy.
+## Navigation Model (Single Source Of Truth)
 
-Where headings are dynamic strings, route through `toTitleCase()` from `src/lib/title-case.ts` (already exists and preserves acronyms and PascalCase brand names).
+Introduce `src/lib/demo/nav.ts` — one shared helper exporting:
 
-### 2. Copy rewrite pass, per role
+- `type DemoRoleId` re-exported from `role-previews`.
+- `type DemoWorkspaceSearch = { role?: DemoRoleId; expand?: boolean }`.
+- `workspaceStageHref(stage, { role?, expand? })` — builds `/demo/workspace/$stage` link options with optional search.
+- `rolePreviewHref(role)` — canonical `/demo/{role}` link options.
+- `demoOverviewHref({ role? })` — `/demo` link options; role encoded as `?role=X` so overview can scroll/highlight later (structural only for now; overview doesn't need to read it yet, but reserved so back always has a valid target).
+- `backTargetFromWorkspace(search)` — returns `{ to, label, params?, search? }`. If `search.role` is present → back to that role preview with `Back to {Role} preview`; otherwise → `/demo` with `Back to Demo Overview`.
 
-Rewrite generic/AI-flavored copy with a clear voice per role:
+All demo → workspace, workspace → report, workspace → role, and legacy redirects go through these helpers.
 
-- **Student** — simple, encouraging, action-first ("Share your voice", "See your pathway", "Prep for your PPT").
-- **Parent / Guardian** — calming, organized, meeting-prep framed.
-- **Educator / Case Manager** — practical, caseload-aware, PPT/IEP workflow language.
-- **School Admin** — implementation, team coordination, school-level visibility.
-- **District Admin** — strategy, readiness trends, service gaps, adoption.
-- **Partner** — opportunity posting, deadlines, PartnerForward supports, no student PII.
-- **Owner / Admin** — platform operations, review queues, launch readiness, system oversight.
+## Changes
 
-Kill filler phrases like "manage your items here", "track your progress", repeated cross-role blurbs, and marketing fluff. Every card description must state what the section is for and what action it enables.
+### 1. `demo_.workspace.$stage.tsx`
+- Extend `searchSchema` with `role: z.enum(DEMO_ROLE_ORDER).optional()` and change `expand` to a plain boolean that round-trips (coerce `"true"`/`"1"` on parse).
+- Pass `search.role` through to `WorkspaceShell` via `backTo = backTargetFromWorkspace(search)`.
+- Wire `<StageBody expandInPlace defaultExpanded={autoExpand} expanded={search.expand} onExpandChange={...}>` — new controlled mode (see #3).
+- Update `hrefForDemoStage` to preserve `role` and `expand=false` when navigating between stages.
 
-### 3. Layout & symmetry pass
+### 2. Legacy `demo_.*` redirect files
+For each redirect file (`demo_.intake`, `demo_.voice`, `demo_.family`, `demo_.meeting`, `demo_.documents`, `demo_.plan`, `demo_.next`, `demo_.opportunities`, `demo_.calendar`, `demo_.resources`, `demo_.report`, `demo_.hub`):
+- Preserve any incoming `?role=…` from `location.search` and forward it into the redirect target so a shared/bookmarked legacy link that includes a role still lands on the workspace with that role.
+- No URL-shape changes; just adds `search` to the `redirect(...)` call built via `workspaceStageHref`.
 
-For each dashboard:
-- Normalize outer container to consistent `mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 space-y-8`.
-- Overview grids: `grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3` with `h-full` cards so tiles align.
-- Card internals: consistent `p-6`, header `mb-4`, footer CTA row aligned to bottom via `mt-auto`.
-- Buttons in same group share `size="sm"` (secondary rows) or `size="default"` (primary CTA).
-- Fix the odd-count centering in Overview grids by promoting a lead tile to `sm:col-span-2 lg:col-span-1` where a 5-tile row leaves a gap, or padding to an even count with a compact "What This Shows" helper tile per role.
-- Apply the `grid-cols-[minmax(0,1fr)_auto] sm:flex` header pattern (from responsive-layout memory) to every card header with a title + widget/badge row.
-- Icon slots `shrink-0`; heading `truncate` on single-line titles.
+### 3. `StageSamplePanel` — controlled expansion + URL state
+- Accept optional `expanded?: boolean` + `onExpandChange?: (next: boolean) => void`. When both provided, become controlled. Fall back to current uncontrolled behavior otherwise (used by any signed-in caller).
+- `StageBody` gains matching pass-through props.
+- In `demo_.workspace.$stage.tsx`, wire `onExpandChange` to `navigate({ to: '.', search: prev => ({ ...prev, expand: next ? true : undefined }), replace: false })` so:
+  - Toggle open pushes a history entry → browser back closes the panel.
+  - Toggle closed removes the param → shareable URL is clean.
+  - Deep links with `?expand=true` render the panel open (already working).
 
-### 4. Empty / loading / error states
+### 4. Role preview → workspace / report links (`RolePreviewShell.tsx` and role-specific `demo_.{role}.tsx` extras)
+- Any `Link to="/demo/workspace/$stage" params={{ stage: "roadmap" }}` in role previews adds `search: { role: role.id, expand: true }` for the Pathway Report shortcut, and `search: { role: role.id }` for the plain "Walk the workspace" CTA.
+- `role.ctaPrimary` / `ctaSecondary` typed link targets untouched (already role-specific).
 
-- Empty states: Title Case heading + one-sentence helper + primary CTA.
-- Loading (`dashboard.tsx`, shells): Title Case heading like "Loading Your Dashboard", one descriptive sentence.
-- Error: `DashboardErrorFallback` already role-specific; verify Title Case and copy tone per role, tighten descriptions.
+### 5. Demo Overview (`demo.tsx`)
+- Role grid link cards: change `<Link to={role.path}>` unchanged (already correct).
+- Hero + shared-student CTAs continue to link into `stage: "start"` / `stage: "roadmap"`. No role param at this level (no role picked yet).
+- Add lightweight `id="workspace-tour"` anchor to the "How the platform layers fit together" section so `/demo#workspace-tour` from external links scrolls cleanly (referenced in requirements #2).
 
-### 5. Responsive QA
+### 6. WorkspaceShell
+- No API change. It already accepts `backTo`. The demo route computes the correct value via `backTargetFromWorkspace`.
 
-Verify mobile / tablet / desktop for each dashboard route via Playwright screenshots at 375, 768, 1280; fix any wrap, overflow, or cramped-CTA regressions found.
+### 7. Continue-the-tour link in `RolePreviewShell`
+- Preserve `role` context: `next.path` already switches role, so no change. Kept as-is.
 
-### 6. Verification
+### 8. Cleanup / audit
+- Grep for any hardcoded `to: "/demo_/hub"`, `to: "/demo/pathway-studio"`, etc. — none expected; confirm and remove any stragglers.
+- No route deletions; existing legacy redirects stay (safe fall-through for old external links).
 
-- `bunx vitest run tests/unit` (all unit tests, including dashboard render contract and stage journey).
-- `bunx playwright test --project=dashboard-regression`.
-- `bunx playwright test --project=role-access` if any route file was edited beyond copy.
-- Manual screenshot review of all 7 dashboards at 3 breakpoints.
+## Tests
 
-## Out of scope
+Add `tests/unit/demo-nav.test.ts`:
+- `workspaceStageHref` returns expected `to` / `params` / `search`.
+- `backTargetFromWorkspace({ role: 'student' })` → `/demo/student` with label `Back to Student preview`.
+- `backTargetFromWorkspace({})` → `/demo` with label `Back to Demo Overview`.
+- Legacy redirect target for `/demo_/report?role=parent` produces `/demo/workspace/roadmap?role=parent&expand=true`.
 
-- New features, new tiles beyond even-count padding helpers, new routes.
-- Backend/schema/RLS changes.
-- Test ID / landmark / contract changes (`ROLE_DASHBOARD_TEST_IDS`, `data-dashboard-landmark`, `DASHBOARD_TESTID_CONTRACT_VERSION`).
-- Auth, 2FA, role-guard logic.
-- Design token / theme changes in `styles.css`.
+Existing playwright suites (`demo-signed-out`, `demo-layout`, `demo-contrast`, `demo-roles`) are not modified. Verify none regress.
 
-## Risk & size note
+## Verification
 
-This touches ~40 files (~10K LOC) as pure presentation edits. I will land it in role-batched commits (Student → Parent → Educator → School → District → Partner → Owner, then shared cards + shells), running unit + dashboard-regression after each batch so any regression is isolated to one role.
+- `bunx vitest run` (unit) — expect green including new `demo-nav.test.ts`.
+- `bunx playwright test tests/e2e/demo-signed-out.spec.ts` if touched.
+- Manual sanity: open `/demo/student` → Read Pathway Report → browser back → land back on `/demo/student`. Toggle "Open Full Sample Screen" → browser back → panel closes without leaving stage.
+
+## Out Of Scope
+
+- Redesigning Demo Overview, role previews, Pathway Report layout, or any visual polish beyond wiring.
+- Auth, RLS, dashboards, tests unrelated to demo nav.
+- The signed-in `/workspace/$stage` surface (uses `expandInPlace={false}` → controlled expansion path is opt-in, so unaffected).

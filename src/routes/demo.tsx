@@ -153,7 +153,8 @@ function DemoHub() {
         </section>
 
         {/* HOW IT WORKS */}
-        <section>
+        <section id="workspace-tour">
+
           <div className="mb-4 flex items-baseline gap-3">
             <span className="font-mono text-xs font-semibold tracking-widest text-primary">03</span>
             <div className="h-px flex-1 bg-border" />
