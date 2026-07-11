@@ -123,7 +123,7 @@ export function SchoolPageShell({
                 </p>
                 <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Loading school workspace…</span>
+                  <span>Loading School Workspace…</span>
                 </div>
               </div>
             ) : !data?.is_school_admin || data.orgs.length === 0 ? (
