@@ -117,7 +117,7 @@ export function OwnerShell({
   const navigate = useNavigate();
   const location = useLocation();
   const fetchRoles = useServerFn(getMyAdminRoles);
-  const [status, setStatus] = useState<"checking" | "allowed" | "denied">("checking");
+  const [status, setStatus] = useState<"checking" | "allowed" | "denied" | "error">("checking");
 
   useEffect(() => {
     let cancelled = false;
@@ -133,14 +133,25 @@ export function OwnerShell({
       })
       .catch(() => {
         if (!cancelled) {
-          setStatus("denied");
-          navigate({ to: "/dashboard", replace: true });
+          // Do NOT navigate away on transient server-fn errors — the
+          // dashboard regression suite asserts each dashboard renders a
+          // meaningful <main> even when loaders fail. Stay on this route
+          // and render the role-scoped fallback so <main> stays populated.
+          setStatus("error");
         }
       });
     return () => {
       cancelled = true;
     };
   }, [fetchRoles, navigate]);
+
+  if (status === "error") {
+    return (
+      <div className="flex min-h-dvh flex-col bg-background text-foreground">
+        <DashboardErrorFallback role="owner" />
+      </div>
+    );
+  }
 
   if (status !== "allowed") {
     return (
