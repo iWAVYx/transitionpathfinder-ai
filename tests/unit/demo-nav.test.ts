@@ -30,11 +30,12 @@ describe("demo nav helpers", () => {
       params: { stage: "start" },
       search: {},
     });
-    expect(workspaceStageHref("roadmap", { role: "parent" as never, expand: true })).toEqual({
+    expect(workspaceStageHref("roadmap", { role: "family", expand: true })).toEqual({
       to: "/demo/workspace/$stage",
       params: { stage: "roadmap" },
-      search: { role: "parent", expand: true },
+      search: { role: "family", expand: true },
     });
+
   });
 
   it("backTargetFromWorkspace returns role preview when role is set", () => {
