@@ -25,6 +25,7 @@ import {
 } from "@/lib/workspace/stages";
 import type { RoleAudience } from "@/lib/role-policy";
 import { cn } from "@/lib/utils";
+import { toTitleCase } from "@/lib/title-case";
 
 export interface StageJourneyCardProps {
   audience: RoleAudience;
