@@ -43,18 +43,18 @@ export interface StudioStage {
  * children).
  */
 export const STUDIO_STAGES: readonly StudioStage[] = [
-  { id: "cover",         label: "Cover",            slate: "Pathway Studio · Cover",     produces: "Where every voice meets a plan.", folio: "00",  to: "/demo",                act: "I"   },
-  { id: "intake",        label: "Starting Point",   slate: "Listen · Starting Point",    produces: "Family-completed intake — the seed.", folio: "01",  to: "/demo/intake",         act: "I"   },
-  { id: "voice",         label: "Student Voice",    slate: "Listen · Student Voice",     produces: "What the student says, in their words.", folio: "02",  to: "/demo/voice",          act: "I"   },
-  { id: "documents",     label: "Evidence",         slate: "Listen · Documents",         produces: "IEP, evaluations, and prior plans — read.", folio: "03",  to: "/demo/documents",      act: "I"   },
-  { id: "report",        label: "Pathway Report",   slate: "Synthesize · Pathway Report", produces: "Inputs become recommended pathways.", folio: "04",  to: "/demo/report",         act: "II"  },
-  { id: "opportunities", label: "Opportunities",    slate: "Synthesize · Opportunities", produces: "Real-world matches inside the report.", folio: "05",  to: "/demo/opportunities",  act: "II"  },
-  { id: "resources",     label: "Resources",        slate: "Synthesize · Resources",     produces: "Curated supports for the student & family.", folio: "06",  to: "/demo/resources",      act: "II"  },
-  { id: "meeting",       label: "Meeting Prep",     slate: "Plan · Meeting Prep",        produces: "An agenda the team agrees to in advance.", folio: "07",  to: "/demo/meeting",        act: "III" },
-  { id: "calendar",      label: "Calendar",         slate: "Plan · Calendar",            produces: "Shared deadlines and follow-ups.", folio: "08",  to: "/demo/calendar",       act: "III" },
-  { id: "plan",          label: "30 / 60 / 90",     slate: "Plan · 30 / 60 / 90",        produces: "The next ninety days, in writing.", folio: "09",  to: "/demo/plan",           act: "III" },
-  { id: "hub",           label: "Student Hub",      slate: "Stay Together · Hub",        produces: "A living workspace between meetings.", folio: "10",  to: "/demo/hub",            act: "IV"  },
-  { id: "next",          label: "What's Next",      slate: "Stay Together · What's Next", produces: "Clear next steps by role.", folio: "11",  to: "/demo/next",           act: "IV"  },
+  { id: "cover",         label: "Cover",            slate: "Pathway Studio · Cover",     produces: "Where every voice meets a plan.", folio: "00",  to: "/demo",                                act: "I"   },
+  { id: "intake",        label: "Starting Point",   slate: "Listen · Starting Point",    produces: "Family-completed intake — the seed.", folio: "01",  to: "/demo/workspace/start",       act: "I"   },
+  { id: "voice",         label: "Student Voice",    slate: "Listen · Student Voice",     produces: "What the student says, in their words.", folio: "02",  to: "/demo/workspace/voice",       act: "I"   },
+  { id: "documents",     label: "Evidence",         slate: "Listen · Documents",         produces: "IEP, evaluations, and prior plans — read.", folio: "03",  to: "/demo/workspace/evidence",  act: "I"   },
+  { id: "report",        label: "Pathway Report",   slate: "Synthesize · Pathway Report", produces: "Inputs become recommended pathways.", folio: "04",  to: "/demo/workspace/roadmap",    act: "II"  },
+  { id: "opportunities", label: "Opportunities",    slate: "Synthesize · Opportunities", produces: "Real-world matches inside the report.", folio: "05",  to: "/demo/workspace/connect",    act: "II"  },
+  { id: "resources",     label: "Resources",        slate: "Synthesize · Resources",     produces: "Curated supports for the student & family.", folio: "06",  to: "/demo/workspace/connect",   act: "II"  },
+  { id: "meeting",       label: "Meeting Prep",     slate: "Plan · Meeting Prep",        produces: "An agenda the team agrees to in advance.", folio: "07",  to: "/demo/workspace/family",      act: "III" },
+  { id: "calendar",      label: "Calendar",         slate: "Plan · Calendar",            produces: "Shared deadlines and follow-ups.", folio: "08",  to: "/demo/workspace/connect",             act: "III" },
+  { id: "plan",          label: "30 / 60 / 90",     slate: "Plan · 30 / 60 / 90",        produces: "The next ninety days, in writing.", folio: "09",  to: "/demo/workspace/school",           act: "III" },
+  { id: "hub",           label: "Student Hub",      slate: "Stay Together · Hub",        produces: "A living workspace between meetings.", folio: "10",  to: "/demo/workspace/connect",       act: "IV"  },
+  { id: "next",          label: "What's Next",      slate: "Stay Together · What's Next", produces: "Clear next steps by role.", folio: "11",  to: "/demo/workspace/action",             act: "IV"  },
 ] as const;
 
 export const CHAPTER_STAGES = STUDIO_STAGES.filter((s) => s.id !== "cover");
