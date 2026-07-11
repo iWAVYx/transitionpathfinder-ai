@@ -166,12 +166,17 @@ function AuthenticatedLayout() {
   if (loading || !user) {
     return (
       <main
-        className="flex min-h-screen items-center justify-center bg-background"
+        className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
         data-auth-state="loading"
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email) ?? undefined}
       >
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <h1 className="font-display text-xl font-medium tracking-tight">
+          Preparing Your Workspace
+        </h1>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Verifying your session and loading your dashboard. This only takes a moment.
+        </p>
       </main>
     );
   }
@@ -179,15 +184,21 @@ function AuthenticatedLayout() {
   if (!checkedOnboarding) {
     return (
       <main
-        className="flex min-h-screen items-center justify-center bg-background"
+        className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
         data-auth-state="checking-onboarding"
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email) ?? undefined}
       >
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <h1 className="font-display text-xl font-medium tracking-tight">
+          Checking Your Onboarding Status
+        </h1>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Loading your profile and preparing the right workspace for your role.
+        </p>
       </main>
     );
   }
+
 
   return (
     <div className="signed-in-shell">
