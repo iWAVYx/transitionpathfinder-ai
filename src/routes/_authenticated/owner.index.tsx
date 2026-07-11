@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -25,8 +25,6 @@ import {
 } from "@/lib/owner/owner.functions";
 import { adminListResourcesNeedingReview } from "@/lib/resource-sources.functions";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
-import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
-import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 import {
@@ -44,6 +42,7 @@ export const Route = createFileRoute("/_authenticated/owner/")({
   errorComponent: dashboardErrorComponent("owner"),
   component: OwnerDashboardPage,
 });
+
 
 export function OwnerDashboardPage() {
   const fetchMetrics = useServerFn(getDashboardMetrics);
