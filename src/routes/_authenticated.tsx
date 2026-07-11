@@ -14,6 +14,7 @@ import {
   ROLE_DASHBOARD_TEST_IDS,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
+import { DashboardErrorFallback } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated")({
   // Client-only gate: Supabase stores the session in localStorage, which the server
