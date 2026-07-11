@@ -151,11 +151,12 @@ export function OwnerDashboardPage() {
                   <p className="mt-2 font-display text-2xl">{reviewCounts.resourcesNeedingReview}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Open Review Queue →</p>
                 </Link>
-                <Link to="/owner/resource-review" hash="broken-links" aria-label="Open the broken links queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
+                <div className="rounded-2xl border border-border bg-background p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken Links</p>
                   <p className={`mt-2 font-display text-2xl ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Resolve In Queue →</p>
-                </Link>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Included In Review Queue</p>
+                </div>
+
                 <Link to="/owner/resource-sources" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source Libraries To Review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.sourcesNeedingReview}</p>
