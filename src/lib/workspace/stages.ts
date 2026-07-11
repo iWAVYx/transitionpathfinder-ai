@@ -209,7 +209,7 @@ export const WORKSPACE_STAGES: readonly WorkspaceStage[] = [
     description:
       "Break the pathway into concrete next steps with owners, due dates, and meeting follow-up.",
     order: 8,
-    signedInRoute: "/goals",
+    signedInRoute: "/action-items",
     demoRoute: "/demo/next",
     audiences: ["student", "family", "educator", "school_admin", "district_admin", "admin"],
     gradeBands: ["bridgeforward", "transitionforward"],
