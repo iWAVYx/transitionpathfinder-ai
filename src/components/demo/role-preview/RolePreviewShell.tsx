@@ -229,17 +229,17 @@ export function RolePreviewShell({
         <div className="grid gap-4 lg:grid-cols-3">
           <TripleCard
             icon={<Wrench className="h-4 w-4" />}
-            title="Key tools"
+            title="Key Tools"
             items={role.tools}
           />
           <TripleCard
             icon={<Target className="h-4 w-4" />}
-            title="Actions this role can take"
+            title="Actions This Role Can Take"
             items={role.actions}
           />
           <TripleCard
             icon={<FileText className="h-4 w-4" />}
-            title="Outputs they receive"
+            title="Outputs They Receive"
             items={role.outputs}
           />
         </div>
