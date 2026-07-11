@@ -72,3 +72,20 @@ export function backTargetFromWorkspace(
   }
   return { to: "/demo", label: "Back To Demo Overview" };
 }
+
+/**
+ * Redirect payload for legacy /demo_/* routes that fold into the
+ * Workspace Tour. Preserves ?role=… from the incoming URL so a
+ * bookmarked legacy link with role context still lands on the right
+ * role-aware Workspace Tour view.
+ */
+export function legacyWorkspaceRedirect(
+  stage: StageId,
+  incomingSearch: Record<string, unknown> | undefined,
+) {
+  const role = coerceRole(incomingSearch?.role);
+  return {
+    ...workspaceStageHref(stage, { role, expand: true }),
+    replace: true as const,
+  };
+}
