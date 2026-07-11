@@ -121,8 +121,18 @@ export function DistrictPageShell({
 
             <div className="mt-6">
               {loading && !data ? (
-                <div className="flex justify-center py-16">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <div className="py-12 text-center">
+                  <h2 className="font-display text-xl font-medium tracking-tight">
+                    Loading District Administration Data
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                    Aggregating schools, staff, and transition planning
+                    progress across your district.
+                  </p>
+                  <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading district workspace…</span>
+                  </div>
                 </div>
               ) : !data?.is_district_admin || data.districts.length === 0 ? (
                 <CreateDistrictCard onCreated={() => window.location.reload()} />

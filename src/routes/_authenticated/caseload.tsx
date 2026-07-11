@@ -49,10 +49,12 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
+import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 
 export const Route = createFileRoute("/_authenticated/caseload")({
   head: () => ({ meta: [{ title: "Caseload — TransitionForward" }] }),
+  errorComponent: dashboardErrorComponent("educator"),
   component: CaseloadPage,
 });
 

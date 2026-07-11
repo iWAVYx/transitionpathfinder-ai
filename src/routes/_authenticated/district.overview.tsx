@@ -23,11 +23,14 @@ import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist"
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 
+import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
+
 export const Route = createFileRoute("/_authenticated/district/overview")({
   head: () => ({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
+  errorComponent: dashboardErrorComponent("district_admin"),
   component: withRoleGuard(["district_admin", "admin"], DistrictOverviewPage),
 });
 

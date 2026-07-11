@@ -34,9 +34,14 @@ import {
   type ReviewQueueCounts,
 } from "@/components/owner/ReviewQueuesPanel";
 import { timeAgo } from "@/lib/time-ago";
+import {
+  DashboardErrorFallback,
+  dashboardErrorComponent,
+} from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
+  errorComponent: dashboardErrorComponent("owner"),
   component: OwnerDashboardPage,
 });
 
@@ -73,19 +78,24 @@ export function OwnerDashboardPage() {
       description="Website and platform overview for TransitionForward."
     >
       {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Loading metrics…
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-foreground">
+            Loading Admin Hub — Waitlist, Contacts, Review Queues, and System Status
+          </p>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Gathering platform metrics…</span>
+          </div>
         </div>
       ) : !metrics ? (
-        <p className="text-sm text-muted-foreground">No metrics available.</p>
+        <DashboardErrorFallback role="owner" />
       ) : (
         <div className="space-y-6 sm:space-y-8">
           <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
           <OnboardingChecklist surface="admin" />
 
           {/* Ops preview grid — one glanceable card per operational surface */}
-          <OwnerOperationsPreview metrics={metrics} queueCounts={queueCounts} reviewCounts={reviewCounts} />
+          <OwnerOperationsPreview metrics={metrics} reviewCounts={reviewCounts} />
 
 
           {/* Site status banner — pills wrap cleanly on mobile */}
@@ -175,11 +185,10 @@ export function OwnerDashboardPage() {
                   <FileText className="mr-1.5 h-3.5 w-3.5" /> Edit site content
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="w-full justify-start">
-                <Link to="/owner/analytics">
-                  <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> View analytics
-                </Link>
-              </Button>
+              {/* /owner/analytics is already the "Analytics snapshot" tile
+                  in the Operations preview above — do not add a second
+                  <Link to="/owner/analytics"> here or the dashboard
+                  regression flags duplicate hrefs inside <main>. */}
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/settings">
                   <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site settings
@@ -239,11 +248,9 @@ export function OwnerDashboardPage() {
 
 function OwnerOperationsPreview({
   metrics,
-  queueCounts,
   reviewCounts,
 }: {
   metrics: DashboardMetrics;
-  queueCounts: ReviewQueueCounts | null;
   reviewCounts: { resourcesNeedingReview: number; brokenLinks: number; sourcesNeedingReview: number } | null;
 }) {
   const tiles: Array<{
@@ -253,13 +260,11 @@ function OwnerOperationsPreview({
     to: string;
     tone: string;
   }> = [
-    {
-      label: "Waitlist",
-      value: metrics.totalWaitlist,
-      hint: `${metrics.newWaitlist} new`,
-      to: "/owner/waitlist",
-      tone: "text-primary",
-    },
+    // NOTE: /owner/waitlist, /owner/contacts, /owner/partner-submissions,
+    // and /owner/feedback are the actionable rows in <ReviewQueuesPanel />
+    // below. Do NOT re-add them here as tiles — the dashboard regression
+    // suite rejects duplicate <a href> inside <main>. Keep this preview
+    // to destinations that only appear once on the Admin Hub page.
     {
       label: "Users",
       value: metrics.totalUsers,
@@ -268,32 +273,11 @@ function OwnerOperationsPreview({
       tone: "text-primary",
     },
     {
-      label: "Contact submissions",
-      value: metrics.totalContacts,
-      hint: `${metrics.newContacts} new`,
-      to: "/owner/contacts",
-      tone: "text-primary",
-    },
-    {
       label: "Resource review queue",
       value: reviewCounts?.resourcesNeedingReview ?? 0,
       hint: `${reviewCounts?.brokenLinks ?? 0} broken links`,
       to: "/owner/resource-review",
       tone: (reviewCounts?.resourcesNeedingReview ?? 0) > 0 ? "text-amber-600" : "",
-    },
-    {
-      label: "Partner submissions",
-      value: queueCounts?.partnerSubmissions ?? 0,
-      hint: "Awaiting approval",
-      to: "/owner/partner-submissions",
-      tone: (queueCounts?.partnerSubmissions ?? 0) > 0 ? "text-amber-600" : "",
-    },
-    {
-      label: "Feedback / bugs",
-      value: queueCounts?.feedbackOpen ?? 0,
-      hint: "Open items",
-      to: "/owner/feedback",
-      tone: (queueCounts?.feedbackOpen ?? 0) > 0 ? "text-amber-600" : "",
     },
     {
       label: "Launch readiness",

@@ -13,10 +13,12 @@ import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 
 import { ensureRoleAccess } from "@/lib/route-role-guard";
+import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
+  errorComponent: dashboardErrorComponent("school_admin"),
   component: withRoleGuard(["school_admin", "admin"], SchoolOverviewPage),
 });
 
