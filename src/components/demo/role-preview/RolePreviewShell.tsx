@@ -348,3 +348,40 @@ function TripleCard({
     </div>
   );
 }
+
+/**
+ * RoleAwareCtaLink — renders a `<Link>` that, when the target points at
+ * the demo Workspace Tour, preserves the current role via `?role=` so
+ * "Back" from the tour returns to this role preview.
+ */
+function RoleAwareCtaLink({
+  to,
+  roleId,
+  children,
+  ...rest
+}: {
+  to: string;
+  roleId: import("@/lib/demo/role-previews").DemoRoleId;
+  children: React.ReactNode;
+} & Omit<React.ComponentProps<"a">, "href">) {
+  const workspaceMatch = to.match(/^\/demo\/workspace\/([^/?#]+)/);
+  if (workspaceMatch) {
+    const stage = workspaceMatch[1];
+    const isReport = stage === "roadmap";
+    return (
+      <Link
+        {...(rest as Record<string, unknown>)}
+        to="/demo/workspace/$stage"
+        params={{ stage }}
+        search={isReport ? { role: roleId, expand: true } : { role: roleId }}
+      >
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link {...(rest as Record<string, unknown>)} to={to}>
+      {children}
+    </Link>
+  );
+}
