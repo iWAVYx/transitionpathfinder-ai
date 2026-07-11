@@ -220,10 +220,16 @@ export function OwnerShell({
                     const Icon = n.icon;
                     return (
                       <li key={n.to}>
-                        <Link
-                          to={n.to}
+                        {/* Buttons + programmatic navigate — no <a href> so
+                            the Admin Hub sidebar destinations never appear
+                            as duplicate hrefs against the same-destination
+                            tiles inside <main>. */}
+                        <button
+                          type="button"
+                          onClick={() => navigate({ to: n.to })}
+                          aria-current={active ? "page" : undefined}
                           className={
-                            "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors " +
+                            "flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm transition-colors " +
                             (active
                               ? "bg-primary/10 text-primary font-medium"
                               : "text-foreground/80 hover:bg-muted hover:text-foreground")
@@ -231,7 +237,7 @@ export function OwnerShell({
                         >
                           <Icon className="h-4 w-4" />
                           {toTitleCase(n.label)}
-                        </Link>
+                        </button>
                       </li>
                     );
                   })}
@@ -240,13 +246,14 @@ export function OwnerShell({
             ))}
           </nav>
           <div className="border-t border-border px-3 py-3">
-            <Link
-              to="/"
-              className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/" })}
+              className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               Back to main app
-            </Link>
+            </button>
           </div>
         </aside>
 
@@ -262,24 +269,28 @@ export function OwnerShell({
               </div>
               {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
             </div>
-            {/* Mobile nav */}
+            {/* Mobile nav — buttons (not links) so tile hrefs in <main>
+                are never duplicated by nav anchors. */}
             <div className="mt-4 flex items-center gap-1.5 overflow-x-auto lg:hidden">
-              <Link
-                to="/"
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/" })}
                 className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Main app
-              </Link>
+              </button>
               <span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
               {NAV.map((n) => {
                 const active =
                   location.pathname === n.to ||
                   (n.to !== "/owner" && location.pathname.startsWith(n.to));
                 return (
-                  <Link
+                  <button
                     key={n.to}
-                    to={n.to}
+                    type="button"
+                    onClick={() => navigate({ to: n.to })}
+                    aria-current={active ? "page" : undefined}
                     className={
                       "whitespace-nowrap rounded-full px-3 py-1 text-xs " +
                       (active
@@ -288,7 +299,7 @@ export function OwnerShell({
                     }
                   >
                     {toTitleCase(n.label)}
-                  </Link>
+                  </button>
                 );
               })}
             </div>
