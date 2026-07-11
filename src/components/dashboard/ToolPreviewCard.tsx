@@ -67,7 +67,7 @@ export function ToolPreviewCard({
         <ul className="mt-4 space-y-1.5 text-sm">
           {bullets.slice(0, 3).map((b, i) => (
             <li key={i} className="flex items-baseline justify-between gap-3">
-              <span className="text-muted-foreground">{b.label}</span>
+              <span className="text-muted-foreground">{toTitleCase(b.label)}</span>
               <span className="font-medium text-foreground text-right">
                 {b.value ?? "—"}
                 {b.hint && <span className="ml-1 text-[11px] text-muted-foreground">{b.hint}</span>}
