@@ -620,6 +620,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: School,
         title: "Connected Schools",
+        previewId: "schools-list",
         status: "Manage",
         tone: "muted",
         summary: "Every school onboarded and their transition team.",
@@ -627,6 +628,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BarChart3,
         title: "School-By-School Progress",
+        previewId: "school-progress",
         status: "Compare",
         tone: "default",
         summary: "Planning status and report completion, side by side.",
@@ -634,6 +636,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: TrendingUp,
         title: "Readiness Trend",
+        previewId: "trends",
         status: "+6% this term",
         tone: "success",
         summary: "District-wide movement across the four readiness domains.",
@@ -648,6 +651,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FileText,
         title: "District Reports",
+        previewId: "report-completion",
         status: "612 complete",
         tone: "muted",
         summary: "Aggregate Pathway Reports and outcomes.",
