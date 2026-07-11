@@ -90,8 +90,8 @@ export function OwnerDashboardPage() {
         <DashboardErrorFallback role="owner" />
       ) : (
         <div className="space-y-6 sm:space-y-8">
-          <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
-          <OnboardingChecklist surface="admin" />
+          <NextBestAction surface="admin" />
+
 
           {/* Ops preview grid — one glanceable card per operational surface */}
           <OwnerOperationsPreview metrics={metrics} reviewCounts={reviewCounts} />
