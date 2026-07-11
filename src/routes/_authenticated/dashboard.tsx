@@ -74,10 +74,13 @@ function EntitlementGate() {
 }
 
 
+import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
+
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [{ title: "Your dashboard — TransitionForward" }],
   }),
+  errorComponent: dashboardErrorComponent("parent"),
   component: DashboardPageGuarded,
 });
 
