@@ -1302,7 +1302,7 @@ function QuickLink({
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
         {icon}
       </div>
-      <h3 className="mt-3 font-display text-lg">{title} →</h3>
+      <h3 className="mt-3 font-display text-lg">{toTitleCase(title)} →</h3>
       <p className="mt-1 text-xs text-muted-foreground">{body}</p>
     </Link>
   );
