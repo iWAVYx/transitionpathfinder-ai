@@ -148,17 +148,17 @@ export function OwnerDashboardPage() {
               </h2>
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                 <Link to="/owner/resource-review" hash="needing-review" aria-label="Open the resources needing review queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources needing review</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources Needing Review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.resourcesNeedingReview}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Open review queue →</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Open Review Queue →</p>
                 </Link>
                 <Link to="/owner/resource-review" hash="broken-links" aria-label="Open the broken links queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken links</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken Links</p>
                   <p className={`mt-2 font-display text-2xl ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Resolve in queue →</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Resolve In Queue →</p>
                 </Link>
                 <Link to="/owner/resource-sources" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source libraries to review</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source Libraries To Review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.sourcesNeedingReview}</p>
                 </Link>
               </div>
@@ -169,20 +169,20 @@ export function OwnerDashboardPage() {
 
           {/* Quick actions — secondary, collapsed on mobile to reduce density */}
           <CollapsibleSection
-            title="Quick actions"
-            description="Jump into common admin tasks."
+            title="Quick Actions"
+            description="Jump into the common admin tasks."
             icon={<SettingsIcon className="h-4 w-4 text-muted-foreground" />}
             defaultOpen={false}
           >
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/resources">
-                  <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Manage resources
+                  <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Manage Resources
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/content">
-                  <FileText className="mr-1.5 h-3.5 w-3.5" /> Edit site content
+                  <FileText className="mr-1.5 h-3.5 w-3.5" /> Edit Site Content
                 </Link>
               </Button>
               {/* /owner/analytics is already the "Analytics snapshot" tile
@@ -191,12 +191,12 @@ export function OwnerDashboardPage() {
                   regression flags duplicate hrefs inside <main>. */}
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/settings">
-                  <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site settings
+                  <SettingsIcon className="mr-1.5 h-3.5 w-3.5" /> Site Settings
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="w-full justify-start">
                 <Link to="/owner/partner-network">
-                  <Building2 className="mr-1.5 h-3.5 w-3.5" /> Partner network ({metrics.partnerInquiries})
+                  <Building2 className="mr-1.5 h-3.5 w-3.5" /> Partner Network ({metrics.partnerInquiries})
                 </Link>
               </Button>
             </div>
