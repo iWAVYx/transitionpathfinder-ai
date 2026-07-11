@@ -1199,17 +1199,17 @@ function Panel({
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             {icon}
           </div>
-          <div>
-            <h3 className="font-display text-xl font-medium tracking-tight">{title}</h3>
+          <div className="min-w-0">
+            <h3 className="font-display text-xl font-medium tracking-tight">{toTitleCase(title)}</h3>
             {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           </div>
         </div>
         {actionHref && actionLabel && (
           <Link
             to={actionHref as never}
-            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+            className="shrink-0 text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
-            {actionLabel} →
+            {toTitleCase(actionLabel)} →
           </Link>
         )}
       </div>
