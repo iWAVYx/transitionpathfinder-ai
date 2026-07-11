@@ -13,8 +13,8 @@ export function DistrictAdminOverviewGrid() {
   return (
     <ToolPreviewSection
       eyebrow="Your District Workspace"
-      title="District-wide adoption & readiness"
-      description="Roll-ups across every school in your district. Each tile jumps into the full analysis."
+      title="District Readiness And Adoption"
+      description="Roll-ups across every connected school — implementation progress, readiness trends, and service gaps that need attention."
     >
       <ToolPreviewGrid>
         <ToolPreviewCard
