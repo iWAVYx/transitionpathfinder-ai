@@ -113,8 +113,18 @@ export function SchoolPageShell({
 
           <div className="mt-6">
             {loading && !data ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <div className="py-12 text-center">
+                <h2 className="font-display text-xl font-medium tracking-tight">
+                  Loading School Administration Data
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                  Gathering connected staff, students, and transition planning
+                  activity for your school.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading school workspace…</span>
+                </div>
               </div>
             ) : !data?.is_school_admin || data.orgs.length === 0 ? (
               <CreateSchoolCard onCreated={() => window.location.reload()} />
