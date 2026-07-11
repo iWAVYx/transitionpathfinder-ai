@@ -41,6 +41,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
+  errorComponent: dashboardErrorComponent("owner"),
   component: OwnerDashboardPage,
 });
 
