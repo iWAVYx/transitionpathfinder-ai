@@ -18,8 +18,8 @@ export function EducatorOverviewGrid() {
   return (
     <ToolPreviewSection
       eyebrow="Your Caseload Workspace"
-      title="Every tool for your caseload, at a glance"
-      description="Each card links to the deep tool. Data respects RLS — you only see students you're assigned to."
+      title="Your Caseload, In One View"
+      description="Readiness, pending input, PPT prep, and Pathway Reports for every student assigned to you. You only see the students your role permits."
     >
       <ToolPreviewGrid>
         <ToolPreviewCard

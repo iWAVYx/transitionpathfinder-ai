@@ -916,15 +916,15 @@ function DashboardPage() {
           {/* Meeting Prep + Recommended Resources */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <Panel
-              title={snap.upcomingMeeting ? "Next meeting" : "Meeting prep"}
+              title={snap.upcomingMeeting ? "Next Meeting" : "Meeting Prep"}
               subtitle={
                 snap.upcomingMeeting?.scheduled_at
                   ? `${snap.upcomingMeeting.kind} · ${new Date(snap.upcomingMeeting.scheduled_at).toLocaleDateString()}`
-                  : "Prepare for the next PPT/IEP"
+                  : "Get ready for the next PPT with a calm, one-page agenda."
               }
               icon={<Calendar className="h-5 w-5" />}
               actionHref="/meetings"
-              actionLabel="All meetings"
+              actionLabel="All Meetings"
             >
               {!snap.upcomingMeeting ? (
                 <EmptyMini kind="meetings" label="No meeting scheduled. Add one to start prep." />
@@ -977,18 +977,18 @@ function DashboardPage() {
             </Panel>
 
             <Panel
-              title="Recommended resources"
-              subtitle={`Personalized for ${s.first_name}`}
+              title="Recommended Resources"
+              subtitle={`Tuned to ${s.first_name}'s grade, readiness, and priorities.`}
               icon={<GraduationCap className="h-5 w-5" />}
               actionHref="/resources"
-              actionLabel="Browse all"
+              actionLabel="Browse All"
             >
               <div className="mb-2 flex justify-end">
                 <Link
                   to="/resources/saved"
                   className="text-xs font-semibold text-primary hover:underline"
                 >
-                  View saved →
+                  View Saved →
                 </Link>
               </div>
               {snap.recommendedResources.length === 0 ? (
@@ -1130,29 +1130,29 @@ function DashboardPage() {
           </div>
 
           <div className="mt-10 mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <QuickLink to="/pathway" icon={<Sparkles className="h-5 w-5" />} title="Pathway tool" body="Generate or update the report." />
-            <QuickLink to="/ppt-prep" icon={<ClipboardList className="h-5 w-5" />} title="PPT prep" body="Calm one-page agenda + questions." />
-            <QuickLink to="/goals" icon={<Target className="h-5 w-5" />} title="Goals" body="Track progress over time." />
+            <QuickLink to="/pathway" icon={<Sparkles className="h-5 w-5" />} title="Pathway Tool" body="Generate or refresh the Pathway Report." />
+            <QuickLink to="/ppt-prep" icon={<ClipboardList className="h-5 w-5" />} title="PPT Prep" body="A calm one-page agenda and questions for the team." />
+            <QuickLink to="/goals" icon={<Target className="h-5 w-5" />} title="Goals" body="Track progress across every domain over time." />
             {s.grade_band === "6-8" ? (
               <QuickLink
                 to="/bridgeforward"
                 icon={<GraduationCap className="h-5 w-5" />}
                 title="BridgeForward"
-                body="Plan the move from middle to high school."
+                body="Plan the move from middle to high school with confidence."
               />
             ) : s.grade_band === "9-10" || s.grade_band === "11-12" ? (
               <QuickLink
                 to="/opportunities"
                 icon={<GraduationCap className="h-5 w-5" />}
                 title="Opportunities"
-                body="Internships, jobs, and partner programs."
+                body="Internships, jobs, and partner programs matched to your plan."
               />
             ) : (
               <QuickLink
                 to="/resources"
                 icon={<GraduationCap className="h-5 w-5" />}
                 title="Resources"
-                body="Curated supports for your family."
+                body="Curated supports for your family and student."
               />
             )}
           </div>
@@ -1199,17 +1199,17 @@ function Panel({
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             {icon}
           </div>
-          <div>
-            <h3 className="font-display text-xl font-medium tracking-tight">{title}</h3>
+          <div className="min-w-0">
+            <h3 className="font-display text-xl font-medium tracking-tight">{toTitleCase(title)}</h3>
             {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           </div>
         </div>
         {actionHref && actionLabel && (
           <Link
             to={actionHref as never}
-            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+            className="shrink-0 text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
-            {actionLabel} →
+            {toTitleCase(actionLabel)} →
           </Link>
         )}
       </div>
@@ -1302,7 +1302,7 @@ function QuickLink({
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
         {icon}
       </div>
-      <h3 className="mt-3 font-display text-lg">{title} →</h3>
+      <h3 className="mt-3 font-display text-lg">{toTitleCase(title)} →</h3>
       <p className="mt-1 text-xs text-muted-foreground">{body}</p>
     </Link>
   );

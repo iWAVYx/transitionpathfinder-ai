@@ -93,7 +93,7 @@ function PartnerDashboardFallback() {
       </div>
       <div className="flex min-h-[40vh] items-center justify-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" />
-        <span>Loading partner workspace…</span>
+        <span>Loading Partner Workspace…</span>
       </div>
     </SiteShell>
   );

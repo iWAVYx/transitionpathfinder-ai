@@ -19,8 +19,8 @@ export function PartnerOverviewGrid() {
   return (
     <ToolPreviewSection
       eyebrow="Your Partner Workspace"
-      title="Publish opportunities. Reach the right families."
-      description="Partners never see student data. Everything here is partner-scoped: your profile, your opportunities, and PartnerForward supports."
+      title="Publish Opportunities. Reach The Right Families."
+      description="Manage your organization profile, keep opportunities current, and access PartnerForward supports. This workspace is fully partner-scoped — no student data appears here."
     >
       <ToolPreviewGrid>
         <ToolPreviewCard

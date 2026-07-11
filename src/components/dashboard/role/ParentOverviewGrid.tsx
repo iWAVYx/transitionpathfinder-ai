@@ -19,8 +19,8 @@ export function ParentOverviewGrid() {
   return (
     <ToolPreviewSection
       eyebrow="Your Family Workspace"
-      title="Everything you need to keep the plan moving"
-      description="Each card is a live tool. Peek at status, then jump into the full page."
+      title="Everything You Need Before The Next Meeting"
+      description="Documents, priorities, prep questions, and the Pathway Report — organized so you walk into every PPT ready."
     >
       <ToolPreviewGrid>
         <ToolPreviewCard

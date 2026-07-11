@@ -28,7 +28,7 @@ function SchoolOverviewPage() {
     <SchoolPageShell
       path="/school/overview"
       title="School Overview"
-      subtitle="A school-level snapshot of staff, students, and transition planning activity."
+      subtitle="Implementation, team activity, and transition planning across your school — at a glance."
       data={data}
       loading={loading}
       orgId={orgId}
