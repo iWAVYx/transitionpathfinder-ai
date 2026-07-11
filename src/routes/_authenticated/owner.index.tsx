@@ -73,12 +73,17 @@ export function OwnerDashboardPage() {
       description="Website and platform overview for TransitionForward."
     >
       {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Loading metrics…
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-foreground">
+            Loading Admin Hub — Waitlist, Contacts, Review Queues, and System Status
+          </p>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Gathering platform metrics…</span>
+          </div>
         </div>
       ) : !metrics ? (
-        <p className="text-sm text-muted-foreground">No metrics available.</p>
+        <DashboardErrorFallback role="owner" />
       ) : (
         <div className="space-y-6 sm:space-y-8">
           <NextBestAction surface="admin" /><div className="mt-4"><JourneyStrip surface="admin" /></div>
