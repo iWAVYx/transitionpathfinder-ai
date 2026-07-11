@@ -95,7 +95,7 @@ export function OwnerDashboardPage() {
           <OnboardingChecklist surface="admin" />
 
           {/* Ops preview grid — one glanceable card per operational surface */}
-          <OwnerOperationsPreview metrics={metrics} queueCounts={queueCounts} reviewCounts={reviewCounts} />
+          <OwnerOperationsPreview metrics={metrics} reviewCounts={reviewCounts} />
 
 
           {/* Site status banner — pills wrap cleanly on mobile */}
