@@ -13,8 +13,8 @@ export function SchoolAdminOverviewGrid() {
   return (
     <ToolPreviewSection
       eyebrow="Your School Workspace"
-      title="School-level oversight at a glance"
-      description="Metrics roll up from student data you're authorized to see. Deep-link into each tool for specifics."
+      title="School-Level Implementation, At A Glance"
+      description="Planning status, team activity, and readiness trends across your school. Every tile deep-links into the underlying report."
     >
       <ToolPreviewGrid>
         <ToolPreviewCard
