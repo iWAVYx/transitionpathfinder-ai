@@ -75,12 +75,12 @@ export function OwnerDashboardPage() {
   return (
     <OwnerShell
       title="Admin Hub"
-      description="Website and platform overview for TransitionForward."
+      description="Platform operations, review queues, and launch readiness for TransitionForward."
     >
       {loading ? (
         <div className="space-y-2">
           <p className="text-sm font-medium text-foreground">
-            Loading Admin Hub — Waitlist, Contacts, Review Queues, and System Status
+            Loading Admin Hub — Waitlist, Contacts, Review Queues, And System Status
           </p>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
