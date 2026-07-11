@@ -53,7 +53,7 @@ export function PublicJourneyStrip({
           >
             <span
               aria-hidden
-              className="relative z-10 grid h-10 w-10 place-items-center rounded-full border-2 border-border bg-background text-[11px] font-semibold tracking-wide text-muted-foreground"
+              className="relative z-10 grid h-10 w-10 place-items-center rounded-full bg-background text-[11px] font-semibold tracking-wide text-muted-foreground/80"
             >
               {stage.order}
             </span>
