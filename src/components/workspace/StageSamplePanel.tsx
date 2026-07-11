@@ -201,7 +201,7 @@ export function StageSamplePanel({
         {detail ? (
           <button
             type="button"
-            onClick={() => setExpanded((v) => !v)}
+            onClick={toggleExpanded}
             aria-expanded={expanded}
             aria-controls={detailId}
             className="inline-flex items-center gap-1.5 self-start rounded-full border border-primary/40 bg-background px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/10 sm:self-auto"
