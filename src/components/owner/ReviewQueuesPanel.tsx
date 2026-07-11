@@ -6,7 +6,7 @@
  * Empty queues stay visible but render as a calm "All clear" state so
  * admins always know the queue exists.
  */
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
   ClipboardList,
   Mail,
