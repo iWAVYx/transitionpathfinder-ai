@@ -1,5 +1,6 @@
 import { AlertTriangle, Sparkles, ArrowRight, CircleDashed } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * DataGapsCard — surfaces the Pathway Report's "Data Gaps + Needs Review"
@@ -93,7 +94,7 @@ export function DataGapsCard({
             <AlertTriangle className="h-3 w-3" aria-hidden /> Data Gaps + Needs Review
           </p>
           <h2 id="data-gaps-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            What's Missing Before The Next PPT
+            {toTitleCase("What's Missing Before The Next PPT")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Concrete gaps the report has flagged — with the owner, the reason it matters, and how urgent it is.

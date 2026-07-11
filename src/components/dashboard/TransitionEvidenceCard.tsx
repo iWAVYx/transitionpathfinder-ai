@@ -1,5 +1,6 @@
 import { FileSearch, Sparkles, ArrowRight, FileCheck2, AlertTriangle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * TransitionEvidenceCard — school-level view of evidence coverage across
@@ -65,7 +66,7 @@ export function TransitionEvidenceCard({
             <FileSearch className="h-3 w-3" aria-hidden /> Building-Wide Transition Evidence
           </p>
           <h2 id="school-evidence-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            Evidence Coverage Across The Building
+            {toTitleCase("Evidence Coverage Across The Building")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             How much of the required transition evidence is on file — and where the coverage gaps live.

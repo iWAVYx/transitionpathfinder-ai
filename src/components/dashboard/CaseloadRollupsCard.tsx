@@ -1,5 +1,6 @@
 import { Users, Sparkles, ArrowRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * CaseloadRollupsCard — school-level rollup of every caseload in the
@@ -80,7 +81,7 @@ export function CaseloadRollupsCard({
             <Users className="h-3 w-3" aria-hidden /> Caseload Rollups
           </p>
           <h2 id="caseload-rollups-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            Every Caseload In The Building
+            {toTitleCase("Every Caseload In The Building")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Students served, Pathway Reports current, PPTs scheduled, and open data gaps — per case manager.

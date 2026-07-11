@@ -1,5 +1,6 @@
 import { ClipboardList, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * StudentFitSummariesCard — anonymized narrative fit summaries for a
@@ -95,7 +96,7 @@ export function StudentFitSummariesCard({
             <ClipboardList className="h-3 w-3" aria-hidden /> Student Fit Summaries
           </p>
           <h2 id="student-fit-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            The Why Behind Each Match
+            {toTitleCase("The Why Behind Each Match")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Narrative summaries derived from the Pathway Report — strengths, supports, and the recommended first step. No PII.

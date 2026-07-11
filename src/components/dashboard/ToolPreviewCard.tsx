@@ -67,7 +67,7 @@ export function ToolPreviewCard({
         <ul className="mt-4 space-y-1.5 text-sm">
           {bullets.slice(0, 3).map((b, i) => (
             <li key={i} className="flex items-baseline justify-between gap-3">
-              <span className="text-muted-foreground">{b.label}</span>
+              <span className="text-muted-foreground">{toTitleCase(b.label)}</span>
               <span className="font-medium text-foreground text-right">
                 {b.value ?? "—"}
                 {b.hint && <span className="ml-1 text-[11px] text-muted-foreground">{b.hint}</span>}
@@ -113,7 +113,7 @@ export function ToolPreviewSection({
     <section className="mt-10">
       {eyebrow && (
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-          {eyebrow}
+          {toTitleCase(eyebrow)}
         </p>
       )}
       <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">

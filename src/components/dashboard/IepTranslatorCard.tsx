@@ -1,5 +1,6 @@
 import { FileText, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * IepTranslatorCard — plain-language translation of the current IEP.
@@ -81,7 +82,7 @@ export function IepTranslatorCard({
             id="iep-translator-title"
             className="mt-1 font-display text-2xl font-medium tracking-tight"
           >
-            Your Student's IEP, In Plain Language
+            {toTitleCase("Your Student's IEP, In Plain Language")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             The same IEP the team reads — translated into what it means for

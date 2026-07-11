@@ -1,5 +1,6 @@
 import { Handshake, Sparkles, ArrowRight, MapPin, Users, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * PartnerMatchesCard — anonymized student matches for a partner
@@ -65,7 +66,7 @@ export function PartnerMatchesCard({
             <Handshake className="h-3 w-3" aria-hidden /> Partner Matches
           </p>
           <h2 id="partner-matches-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            {d.opportunityTitle}
+            {toTitleCase(d.opportunityTitle)}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Anonymized matches ranked by Pathway Report fit. Student identities are only revealed after the family consents.

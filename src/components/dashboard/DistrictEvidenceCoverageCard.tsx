@@ -1,5 +1,6 @@
 import { FileSearch, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * DistrictEvidenceCoverageCard — how much required transition evidence
@@ -63,7 +64,7 @@ export function DistrictEvidenceCoverageCard({
             <FileSearch className="h-3 w-3" aria-hidden /> District Evidence Coverage
           </p>
           <h2 id="district-evidence-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            What's Documented Across Every Building
+            {toTitleCase("What's Documented Across Every Building")}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Every required transition artifact, aggregated across the district. Lagging buildings surface for targeted support.

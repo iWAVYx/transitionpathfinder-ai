@@ -1,5 +1,6 @@
 import { ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toTitleCase } from "@/lib/title-case";
 
 /**
  * ComplianceOverviewCard — school-level IDEA + Indicator 13 compliance
@@ -67,7 +68,7 @@ export function ComplianceOverviewCard({
             <ShieldCheck className="h-3 w-3" aria-hidden /> IDEA + Indicator 13 Compliance
           </p>
           <h2 id="school-compliance-title" className="mt-1 font-display text-2xl font-medium tracking-tight">
-            {d.buildingName} Compliance Snapshot
+            {toTitleCase(`${d.buildingName} Compliance Snapshot`)}
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Aggregated from every Pathway Report in the building. Each metric ties back to the specific caseloads that own it.
