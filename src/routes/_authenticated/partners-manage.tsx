@@ -83,9 +83,17 @@ function PartnerDashboardFallback() {
         >
           Partner Workspace — Opportunities
         </p>
+        <h1 className="mt-2 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+          Partner Dashboard
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Loading your organization, active opportunities, and applicants —
+          this may take a moment on first load.
+        </p>
       </div>
-      <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
+      <div className="flex min-h-[40vh] items-center justify-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" />
+        <span>Loading partner workspace…</span>
       </div>
     </SiteShell>
   );
