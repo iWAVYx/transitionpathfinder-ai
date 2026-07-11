@@ -20,8 +20,8 @@ export function StudentOverviewGrid() {
   return (
     <ToolPreviewSection
       eyebrow="Your Workspace"
-      title="Everything you're working on"
-      description="Each card is a real tool. Peek at where you are, then jump in."
+      title="Your Plan, One Place"
+      description="These are the tools you'll use to share your voice, build your plan, and get ready for what's next. Tap any card to jump in."
     >
       <ToolPreviewGrid>
         <ToolPreviewCard
