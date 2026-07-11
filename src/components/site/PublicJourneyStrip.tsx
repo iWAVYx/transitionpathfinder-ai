@@ -34,7 +34,7 @@ export function PublicJourneyStrip({
       aria-label="Nine-stage transition workspace"
       data-testid="public-journey-strip"
       className={cn(
-        "rounded-3xl border bg-card/70 p-5 shadow-soft backdrop-blur sm:p-6",
+        "p-5 sm:p-6",
         className,
       )}
     >
@@ -45,10 +45,6 @@ export function PublicJourneyStrip({
       ) : null}
 
       <ol className="tfws-public-journey relative mt-4 flex snap-x snap-mandatory items-start gap-2 overflow-x-auto pb-2 sm:justify-between sm:gap-1 sm:overflow-visible">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute left-6 right-6 top-5 hidden h-px bg-border sm:block"
-        />
         {WORKSPACE_STAGES.map((stage) => (
           <li
             key={stage.id}
@@ -57,7 +53,7 @@ export function PublicJourneyStrip({
           >
             <span
               aria-hidden
-              className="relative z-10 grid h-10 w-10 place-items-center rounded-full border-2 border-border bg-background text-[11px] font-semibold tracking-wide text-muted-foreground"
+              className="relative z-10 grid h-10 w-10 place-items-center rounded-full bg-background text-[11px] font-semibold tracking-wide text-muted-foreground/80"
             >
               {stage.order}
             </span>
