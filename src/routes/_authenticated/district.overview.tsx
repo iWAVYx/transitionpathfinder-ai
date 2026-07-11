@@ -40,7 +40,7 @@ function DistrictOverviewPage() {
     <DistrictPageShell
       path="/district/overview"
       title="District Transition Planning Overview"
-      subtitle="Aggregate visibility across connected schools, staff, and student transition planning progress."
+      subtitle="Adoption, readiness trends, and service gaps across every connected school in your district."
       data={data}
       loading={loading}
       districtId={districtId}
