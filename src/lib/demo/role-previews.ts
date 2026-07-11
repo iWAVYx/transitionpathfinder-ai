@@ -369,6 +369,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Users2,
         title: "Caseload Snapshot",
+        previewId: "caseload",
         status: "18 students",
         tone: "default",
         summary: "Every student on your caseload with readiness signals.",
@@ -381,6 +382,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: BarChart3,
         title: "Readiness Signals",
+        previewId: "readiness-gaps",
         status: "2 gaps",
         tone: "warning",
         summary: "Top gaps across your caseload right now.",
@@ -400,6 +402,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: FileText,
         title: "Pathway Reports",
+        previewId: "report-completion",
         status: "12 of 18",
         tone: "success",
         summary: "Reports drafted, in progress, or ready for the PPT.",
@@ -417,6 +420,7 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: StickyNote,
         title: "Case Notes",
+        previewId: "notes",
         status: "New this week",
         tone: "muted",
         summary: "Running log of conversations, calls, and evidence.",
@@ -424,7 +428,6 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       {
         icon: Target,
         title: "Action Items",
-        previewId: "readiness-gaps",
         status: "7 assigned",
         tone: "default",
         summary: "Tasks assigned across students and families.",
