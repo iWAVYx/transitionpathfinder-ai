@@ -51,7 +51,12 @@ export const Route = createFileRoute("/_authenticated")({
       });
     }
   },
-  pendingMs: 0,
+  // Do NOT set pendingMs: 0 — that would flash the route-pending shell on
+  // every navigation, even when beforeLoad resolves in a few milliseconds
+  // from the local session. Use a high threshold so the pending shell only
+  // ever appears if beforeLoad genuinely stalls; otherwise AuthenticatedLayout
+  // mounts immediately after auth resolves and owns the shell from there.
+  pendingMs: 3000,
   pendingComponent: AuthenticatedPendingShell,
   component: AuthenticatedLayout,
 });
