@@ -24,8 +24,15 @@ export const Route = createFileRoute("/_authenticated")({
   // server functions are still enforced by `requireSupabaseAuth` middleware.
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
+    // Read session from localStorage (no network round-trip) so the route
+    // mounts immediately once the client has a session. `getUser()` would
+    // hit /auth/v1/user and, if that request stalls, keep every viewer in
+    // `pendingComponent` for 20+ seconds — the exact regression the student
+    // dashboard-setup probe reports. `requireSupabaseAuth` middleware still
+    // verifies the JWT on every protected server function, and the client
+    // effect below handles session expiry mid-session.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
       throw redirect({
         to: "/login",
         search: { redirect: location.pathname },
@@ -33,7 +40,8 @@ export const Route = createFileRoute("/_authenticated")({
     }
     // 2FA gate: if the user has a verified TOTP factor but hasn't completed
     // the challenge this session, bounce to /login/2fa. The /login/2fa route
-    // itself lives outside _authenticated so this doesn't loop.
+    // itself lives outside _authenticated so this doesn't loop. Kept in
+    // beforeLoad — AAL is derived from the local session, not the network.
     const { data: aal } =
       await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
@@ -43,9 +51,11 @@ export const Route = createFileRoute("/_authenticated")({
       });
     }
   },
+  pendingMs: 0,
   pendingComponent: AuthenticatedPendingShell,
   component: AuthenticatedLayout,
 });
+
 
 // Routes that should NOT redirect to onboarding even if not completed
 const ONBOARDING_EXEMPT = ["/onboarding", "/settings"];
@@ -74,7 +84,8 @@ function AuthenticatedPendingShell() {
 
   return (
     <main
-      className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
+      className="flex flex-col items-center justify-center gap-3 bg-background px-6 py-16 text-center"
+      style={{ minHeight: "100vh" }}
       data-auth-state="route-pending"
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       data-testid={testId ?? undefined}
@@ -87,6 +98,7 @@ function AuthenticatedPendingShell() {
       </p>
     </main>
   );
+
 }
 
 
@@ -166,49 +178,39 @@ function AuthenticatedLayout() {
     };
   }, [user, loading, location.pathname, navigate, loadProfile, loadAdminRoles, hintedDashboardTestId]);
 
+  // Session-loading gate: only block the tree while `useAuth` is still
+  // restoring the Supabase session from localStorage. Once we have a user,
+  // render the Outlet immediately — dashboard/data loading is the route's
+  // responsibility (each dashboard renders its own visible <main> shell
+  // with a role test id and a data-auth-state hint). The onboarding
+  // redirect and profile fetch run in the background so a slow profile
+  // server function can NEVER keep `/dashboard` hidden past 20s.
   if (loading || !user) {
+    const shellTestId =
+      dashboardTestId ??
+      hintedDashboardTestId ??
+      dashboardShellTestId(location.pathname, user?.email);
     return (
       <main
-        className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
-        data-auth-state="loading"
+        className="flex flex-col items-center justify-center gap-3 bg-background px-6 py-16 text-center"
+        style={{ minHeight: "100vh" }}
+        data-auth-state="session-loading"
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email) ?? undefined}
+        data-testid={shellTestId ?? undefined}
       >
         <h1 className="font-display text-xl font-medium tracking-tight">
           Preparing Your Workspace
         </h1>
         <p className="max-w-md text-sm text-muted-foreground">
-          Verifying your session and loading your dashboard. This only takes a moment.
+          Verifying your session. This only takes a moment.
         </p>
       </main>
     );
   }
 
-  if (!checkedOnboarding) {
-    return (
-      <main
-        className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
-        data-auth-state="checking-onboarding"
-        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-        data-testid={dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email) ?? undefined}
-      >
-        <h1 className="font-display text-xl font-medium tracking-tight">
-          Checking Your Onboarding Status
-        </h1>
-        <p className="max-w-md text-sm text-muted-foreground">
-          Loading your profile and preparing the right workspace for your role.
-        </p>
-      </main>
-    );
-  }
-
-
-  // Loader-fail resilience: if the profile server function can't be reached
-  // (e.g. transient 5xx, network partition, or the dashboard-regression
-  // suite forcing every server-fn call to 500), render a role-scoped
-  // fallback with a Title Case heading, a helpful sentence, and recovery
-  // actions instead of falling through to a blank / spinner-only <Outlet>.
-  if (profileError) {
+  // Profile fetch failed AND the user has not yet made it past onboarding
+  // — surface the role-scoped fallback instead of a blank shell.
+  if (profileError && !checkedOnboarding) {
     const role = fallbackRoleFromTestId(
       dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email),
     );
@@ -227,12 +229,16 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="signed-in-shell">
+    <div
+      className="signed-in-shell"
+      data-auth-state={checkedOnboarding ? "ready" : "content-pending"}
+    >
       <Outlet />
       <FeedbackButton />
     </div>
   );
 }
+
 
 function fallbackRoleFromTestId(
   testId: RoleDashboardTestId | null,
