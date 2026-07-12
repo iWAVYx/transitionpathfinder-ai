@@ -18,6 +18,15 @@ type Props = {
   allow?: RoleAudience[];
   /** Optional route-owned loading/denied shell, used when the page needs its own <main>. */
   fallback?: React.ReactNode;
+  /**
+   * When true, always render `children` immediately (even while the role
+   * check is in-flight) so the outer shell — including the semantic
+   * `<main>` — stays mounted across the checking → allowed transition.
+   * Denied users are still redirected via `useEffect`; RLS still protects
+   * data. Use for routes where an unmount/remount flicker would leave
+   * Playwright / a11y probes without a landmark to find.
+   */
+  keepMounted?: boolean;
   children: React.ReactNode;
 };
 
@@ -26,7 +35,7 @@ type Props = {
  * roles, redirects to an allowed section if they don't qualify, and shows
  * a friendly toast explaining why.
  */
-export function RoleGuard({ path, allow, fallback, children }: Props) {
+export function RoleGuard({ path, allow, fallback, keepMounted, children }: Props) {
   const navigate = useNavigate();
   const fetchRoles = useServerFn(getMyRoles);
   const [status, setStatus] = useState<"checking" | "allowed" | "denied">(
@@ -65,6 +74,13 @@ export function RoleGuard({ path, allow, fallback, children }: Props) {
       cancelled = true;
     };
   }, [fetchRoles, navigate, path, allow]);
+
+  if (keepMounted) {
+    // Always render children so the outer shell (and its <main>) stays
+    // mounted across the role-check transition. Denied users are still
+    // redirected by the effect above, and RLS protects any data reads.
+    return <>{children}</>;
+  }
 
   if (status === "checking" || status === "denied") {
     if (fallback) return <>{fallback}</>;
