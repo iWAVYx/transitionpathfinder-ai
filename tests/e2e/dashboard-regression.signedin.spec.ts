@@ -179,6 +179,36 @@ for (const role of ROLES) {
       });
     }
 
+    // Regression: once the signed-in session resolves, the shared dashboard
+    // shell must mount immediately and `data-auth-state` must never be left
+    // stuck on "route-pending". If beforeLoad flashes the pending shell and
+    // never hands off to AuthenticatedLayout, this test catches it.
+    test("mounts shared dashboard shell immediately after auth resolves", async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(role.dashboard, { waitUntil: "networkidle" });
+      await assertDashboardRouteReady(page, role);
+      const main = page.locator("main[data-auth-state]").first();
+      await expect(main).toBeVisible({ timeout: 15_000 });
+      // Poll until data-auth-state settles off "route-pending". The pending
+      // shell is allowed only as a brief flash during beforeLoad — once the
+      // session resolves, AuthenticatedLayout must own the shell.
+      await expect
+        .poll(
+          async () => page.locator("main").first().getAttribute("data-auth-state"),
+          {
+            timeout: 15_000,
+            message: `${role.key} /dashboard stuck on data-auth-state="route-pending" after auth resolved`,
+          },
+        )
+        .not.toBe("route-pending");
+      const state = await page.locator("main").first().getAttribute("data-auth-state");
+      expect(
+        state,
+        `${role.key} /dashboard must expose data-auth-state after auth resolves (got ${state})`,
+      ).not.toBeNull();
+      expect(state).not.toBe("route-pending");
+    });
+
     // Persistence: the dashboard surface that survives a hard refresh.
     // Strategy: capture stable text from the role's first "must-see"
     // region, reload, and assert it's still there. Catches loaders that
