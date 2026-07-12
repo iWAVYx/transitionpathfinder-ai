@@ -84,7 +84,8 @@ function AuthenticatedPendingShell() {
 
   return (
     <main
-      className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center"
+      className="flex flex-col items-center justify-center gap-3 bg-background px-6 py-16 text-center"
+      style={{ minHeight: "100vh" }}
       data-auth-state="route-pending"
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       data-testid={testId ?? undefined}
@@ -97,6 +98,7 @@ function AuthenticatedPendingShell() {
       </p>
     </main>
   );
+
 }
 
 
