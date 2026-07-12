@@ -4,6 +4,7 @@ import { getDemoRole } from "@/lib/demo/role-previews";
 import { IepTranslatorCard } from "@/components/dashboard/IepTranslatorCard";
 import { FamilyMeetingPrepCard } from "@/components/dashboard/FamilyMeetingPrepCard";
 import { AdvocacyResourcesCard } from "@/components/dashboard/AdvocacyResourcesCard";
+import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
 
 const role = getDemoRole("family");
 
@@ -21,6 +22,10 @@ export const Route = createFileRoute("/demo_/family")({
       role={role}
       extras={
         <>
+          {/* Same at-a-glance workspace shown on the signed-in family
+              dashboard — every tile has a Preview drawer with polished
+              loading / empty / error / permission / ready variants. */}
+          <ParentOverviewGrid isSample />
           <IepTranslatorCard isSample />
           <FamilyMeetingPrepCard isSample />
           <AdvocacyResourcesCard isSample />
@@ -29,3 +34,4 @@ export const Route = createFileRoute("/demo_/family")({
     />
   ),
 });
+
