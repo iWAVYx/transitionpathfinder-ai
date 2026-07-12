@@ -24,8 +24,15 @@ export const Route = createFileRoute("/_authenticated")({
   // server functions are still enforced by `requireSupabaseAuth` middleware.
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
+    // Read session from localStorage (no network round-trip) so the route
+    // mounts immediately once the client has a session. `getUser()` would
+    // hit /auth/v1/user and, if that request stalls, keep every viewer in
+    // `pendingComponent` for 20+ seconds — the exact regression the student
+    // dashboard-setup probe reports. `requireSupabaseAuth` middleware still
+    // verifies the JWT on every protected server function, and the client
+    // effect below handles session expiry mid-session.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
       throw redirect({
         to: "/login",
         search: { redirect: location.pathname },
@@ -33,7 +40,8 @@ export const Route = createFileRoute("/_authenticated")({
     }
     // 2FA gate: if the user has a verified TOTP factor but hasn't completed
     // the challenge this session, bounce to /login/2fa. The /login/2fa route
-    // itself lives outside _authenticated so this doesn't loop.
+    // itself lives outside _authenticated so this doesn't loop. Kept in
+    // beforeLoad — AAL is derived from the local session, not the network.
     const { data: aal } =
       await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
@@ -43,9 +51,11 @@ export const Route = createFileRoute("/_authenticated")({
       });
     }
   },
+  pendingMs: 0,
   pendingComponent: AuthenticatedPendingShell,
   component: AuthenticatedLayout,
 });
+
 
 // Routes that should NOT redirect to onboarding even if not completed
 const ONBOARDING_EXEMPT = ["/onboarding", "/settings"];
