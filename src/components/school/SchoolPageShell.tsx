@@ -77,7 +77,9 @@ export function SchoolPageShell({
       <SiteHeader />
       <main
         className="site-shell-main flex-1"
+        style={{ minHeight: "60vh" }}
         data-testid={ROLE_DASHBOARD_TEST_IDS.school_admin}
+        data-auth-state="ready"
       >
         <RoleGuard path={path}>
           <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">

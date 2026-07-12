@@ -23,8 +23,11 @@ export function SiteShell({
       <SiteHeader />
       <main
         className="site-shell-main flex-1"
+        style={{ minHeight: "60vh" }}
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={testId ?? undefined}
+        data-dashboard-role={testId ?? undefined}
+        data-auth-state="ready"
       >
         <DashboardMainLandmark pathname={location.pathname} />
         {children}
