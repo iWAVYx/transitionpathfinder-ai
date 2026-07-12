@@ -167,6 +167,7 @@ function DashboardPageGuarded() {
     <RoleGuard
       path="/dashboard"
       allow={["family", "student", "educator", "admin"]}
+      keepMounted
       fallback={<DashboardLoadingShell />}
     >
       <DashboardErrorBoundary>
