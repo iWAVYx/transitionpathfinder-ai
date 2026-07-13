@@ -300,10 +300,15 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
       if (q && !`${c.student} ${c.program}`.toLowerCase().includes(q)) return false;
       if ((c.fit?.score ?? 0) < minFit) return false;
       if (reviewFilter !== "all" && c.review !== reviewFilter) return false;
-      if (supportFilter !== "all" && !(c.supports ?? []).includes(supportFilter)) return false;
+      if (supportFilters.length > 0) {
+        const cardSupports = c.supports ?? [];
+        const matches = supportFilters.filter((s) => cardSupports.includes(s));
+        if (supportMode === "all" && matches.length !== supportFilters.length) return false;
+        if (supportMode === "any" && matches.length === 0) return false;
+      }
       return true;
     });
-  }, [items, query, minFit, reviewFilter, supportFilter]);
+  }, [items, query, minFit, reviewFilter, supportFilters, supportMode]);
 
   const byStage = STAGES.map((s) => ({ ...s, cards: filtered.filter((c) => c.stage === s.key) }));
   const totalActive = filtered.filter((c) => c.stage !== "not_fit").length;
