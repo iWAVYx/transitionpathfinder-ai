@@ -8,8 +8,13 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  PathwayConnectionsCard,
+  PathwayNextStepsCard,
+} from "@/components/pathway/PathwayConnectionsCard";
 import { listStudents, type Student } from "@/lib/students.functions";
 import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
+
 
 export const Route = createFileRoute("/_authenticated/pathway/family")({
   head: () => ({
