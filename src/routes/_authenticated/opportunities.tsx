@@ -268,7 +268,6 @@ function OpportunitiesPage() {
                   </p>
                 )}
               </div>
-              </div>
             )}
 
             {studentId && matches && matches.length > 0 && (
