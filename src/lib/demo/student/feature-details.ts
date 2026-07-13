@@ -43,6 +43,10 @@ export type StudentFeatureDetail = {
   rows: FeatureRow[];
   /** Optional key stats. */
   stats?: FeatureBullet[];
+  /** Headline shown when the feature has no data yet. */
+  emptyHeadline: string;
+  /** Body copy shown when the feature has no data yet. */
+  emptyBody: string;
 };
 
 export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDetail> = {
