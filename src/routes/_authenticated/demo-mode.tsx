@@ -69,6 +69,9 @@ function DemoModePage() {
           </Button>
         </section>
 
+        <PathwayTimeline />
+        <DocumentReadinessMeter />
+
         {/* Header */}
         <div className="rounded-3xl border bg-card p-6 shadow-soft">
           <div className="flex items-center gap-2">
