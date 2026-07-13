@@ -20,6 +20,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
+import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 
 export const Route = createFileRoute("/_authenticated/demo-mode")({
   head: () => ({ meta: [{ title: "Demo Mode — TransitionForward" }] }),
