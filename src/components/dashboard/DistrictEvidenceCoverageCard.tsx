@@ -92,6 +92,17 @@ export function DistrictEvidenceCoverageCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="documents"
+          eyebrow="District Evidence"
+          title="No Evidence Coverage Yet"
+          description="Once schools upload transition evidence — assessments, consents, referrals, and Student Voice statements — coverage percentages and lagging buildings will populate here."
+          primaryAction={{ label: "Add Schools", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open District Report", to: d.documentsHref }}
+          className="mt-5"
+        />
+      ) : (
       <ul className="mt-5 space-y-3">
         {d.rows.map((r) => {
           const p = pct(r);
@@ -117,6 +128,8 @@ export function DistrictEvidenceCoverageCard({
           );
         })}
       </ul>
+      )}
+
     </section>
   );
 }
