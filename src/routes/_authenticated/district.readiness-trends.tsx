@@ -9,6 +9,7 @@ import {
   type ReadinessTrendData,
 } from "@/lib/school-insights.functions";
 import { TrendsView } from "./school.readiness-trends";
+import { SchoolComparisonChart } from "@/components/district/SchoolComparisonChart";
 
 export const Route = createFileRoute("/_authenticated/district/readiness-trends")({
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
@@ -55,7 +56,12 @@ function DistrictReadinessTrendsPage() {
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
     >
-      {() => <TrendsView data={trend} loading={trendLoading} scopeLabel="district" />}
+      {() => (
+        <div className="space-y-6">
+          <SchoolComparisonChart />
+          <TrendsView data={trend} loading={trendLoading} scopeLabel="district" />
+        </div>
+      )}
     </DistrictPageShell>
   );
 }

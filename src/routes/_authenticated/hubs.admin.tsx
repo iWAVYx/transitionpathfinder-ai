@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
+import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -22,6 +23,9 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("platform-operations")!}>
+        <div className="mt-8">
+          <LaunchReadinessBoard />
+        </div>
         <div className="mt-8">
           <StageJourneyCard audience="admin" />
         </div>
