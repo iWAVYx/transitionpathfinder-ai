@@ -3,8 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, FileText } from "lucide-react";
 
 import type { HubDefinition } from "@/lib/hubs/registry";
+import { toTitleCase } from "@/lib/title-case";
 import { HubSpokeGrid } from "./HubSpokeGrid";
 import { RelatedLinksRail } from "./RelatedLinksRail";
+
 
 interface Props {
   hub: HubDefinition;
