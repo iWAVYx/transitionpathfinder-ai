@@ -167,12 +167,33 @@ export function DemoFeatureShell({
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Preview
               </h2>
-              <ul className="mt-2 divide-y divide-border rounded-2xl border bg-card">
-                {detail.rows.map((r, i) => (
-                  <FeatureRowItem key={i} row={r} />
-                ))}
-              </ul>
+              {detail.rows.length > 0 ? (
+                <ul className="mt-2 divide-y divide-border rounded-2xl border bg-card">
+                  {detail.rows.map((r, i) => (
+                    <FeatureRowItem key={i} row={r} />
+                  ))}
+                </ul>
+              ) : (
+                <IllustratedEmptyState
+                  kind="tasks"
+                  size="md"
+                  className="mt-2"
+                  title="Nothing To Show Yet"
+                  description="Once your team starts using this tool, live items land here — no setup required."
+                  action={
+                    detail.primaryAction ? (
+                      <Button asChild size="sm">
+                        <Link to={detail.primaryAction.to as never}>
+                          {toTitleCase(detail.primaryAction.label)}
+                          <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+                        </Link>
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              )}
             </section>
+
 
             <section
               className="rounded-2xl border bg-muted/20 p-5"
