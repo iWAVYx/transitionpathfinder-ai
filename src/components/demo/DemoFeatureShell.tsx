@@ -9,6 +9,8 @@ import {
   Link2,
   Database,
   Target,
+  ShieldCheck,
+  Workflow,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -76,6 +78,19 @@ export function DemoFeatureShell({
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             {detail.summary}
           </p>
+          {detail.primaryAction && (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <Button asChild size="sm">
+                <Link to={detail.primaryAction.to as never}>
+                  In your workspace: {detail.primaryAction.label}
+                  <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
+              <span className="text-[11px] text-muted-foreground">
+                Opens the real tool once you sign in.
+              </span>
+            </div>
+          )}
         </header>
 
         {richModule && <div className="mt-8">{richModule}</div>}
@@ -110,6 +125,25 @@ export function DemoFeatureShell({
                 ))}
               </ul>
             </section>
+
+            <section className="rounded-2xl border bg-muted/20 p-5">
+              <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <Workflow className="h-3 w-3" aria-hidden /> Connected To The Pathway Report
+              </h2>
+              <p className="mt-2 text-sm text-foreground/80">
+                {roleFlowCopy(role, detail)}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {detail.connectsTo.map((c) => (
+                  <span
+                    key={c}
+                    className="rounded-full border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground/80"
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </section>
           </div>
 
           <aside className="space-y-3">
@@ -119,6 +153,11 @@ export function DemoFeatureShell({
               icon={Link2}
               label="Connects to"
               value={detail.connectsTo.join(" · ")}
+            />
+            <MetaCard
+              icon={ShieldCheck}
+              label="Who can see this"
+              value={rolePermissionNote(role)}
             />
           </aside>
         </div>
@@ -137,17 +176,47 @@ export function DemoFeatureShell({
                 Back to {backLabel}
               </Link>
             </Button>
-            <Button asChild size="sm">
-              <Link to="/get-started">
-                Get Started
-                <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
-              </Link>
-            </Button>
+            {detail.primaryAction && (
+              <Button asChild size="sm">
+                <Link to={detail.primaryAction.to as never}>
+                  {detail.primaryAction.label}
+                  <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>
     </SiteShell>
   );
+}
+
+function rolePermissionNote(role: DemoRole): string {
+  switch (role) {
+    case "student":
+      return "You. Your family and case manager may also see this; no one else on the platform can.";
+    case "family":
+      return "Family members with access to this student, plus assigned educators. Never partners.";
+    case "educator":
+      return "You and staff on this student's team. Family sees a family-friendly view. Partners never see student PII.";
+    case "school-admin":
+      return "School-level aggregates for your school. No student PII leaves the caseload team.";
+    case "district-admin":
+      return "District aggregates only. Individual student records stay with school teams.";
+    case "partner":
+      return "Only your organization. Partners never see student PII, IEPs, Voice, or Pathway Reports.";
+  }
+}
+
+function roleFlowCopy(role: DemoRole, detail: DemoFeatureDetail): string {
+  const title = detail.title.toLowerCase();
+  if (role === "partner") {
+    return `${detail.title} lives on the partner side of the platform. Matched families discover your programs through the Pathway Report's recommendations without ever exposing student PII to your team.`;
+  }
+  if (title.includes("pathway report")) {
+    return "This is the central output of TransitionForward. Every other tile — Voice, Documents, Action Items, Meeting Prep — feeds it or acts on it.";
+  }
+  return `${detail.title} feeds into or acts on the Pathway Report. Updates here appear in ${detail.connectsTo.slice(0, 2).join(" and ") || "the report"} for the rest of the team.`;
 }
 
 function FeatureRowItem({
