@@ -12,7 +12,8 @@ import { CaseloadRollupsCard } from "@/components/dashboard/CaseloadRollupsCard"
 import { DistrictComplianceCard } from "@/components/dashboard/DistrictComplianceCard";
 import { DistrictEvidenceCoverageCard } from "@/components/dashboard/DistrictEvidenceCoverageCard";
 import { DistrictTrendMetricsCard } from "@/components/dashboard/DistrictTrendMetricsCard";
-import { PartnerImpactSummaryCard } from "@/components/dashboard/PartnerImpactSummaryCard";
+// PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
+// it's intentionally omitted from the rich-module map below.
 import { PartnerMatchesCard } from "@/components/dashboard/PartnerMatchesCard";
 import {
   getDemoFeature,
