@@ -15,6 +15,10 @@ import { DistrictTrendMetricsCard } from "@/components/dashboard/DistrictTrendMe
 // PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
 // it's intentionally omitted from the rich-module map below.
 import { PartnerMatchesCard } from "@/components/dashboard/PartnerMatchesCard";
+import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
+import { StudentFitSummariesCard } from "@/components/dashboard/StudentFitSummariesCard";
+import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
+import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
 import {
   getSampleCalendarEvents,
@@ -81,6 +85,24 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
     // Student
     case "student:student-voice":
       return <StudentVoiceModule />;
+    case "student:pathway-report":
+      return <StudentPathwaySections isSample />;
+    case "student:action-items":
+      return (
+        <NextStepsTimeline
+          eyebrow="Student 30 / 90 / 180 / 365-Day Plan"
+          title="Your Next Steps"
+          description="Small, concrete moves you own — each one connects to a Pathway Report goal or an upcoming PPT."
+        />
+      );
+    case "student:meeting-prep":
+      return (
+        <NextStepsTimeline
+          eyebrow="Meeting Prep Plan"
+          title="What To Bring To Your Next PPT"
+          description="Prep steps you can complete this week so your voice leads the conversation."
+        />
+      );
     // Family
     case "family:documents":
       return <IepTranslatorCard isSample />;
@@ -88,6 +110,18 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
       return <FamilyMeetingPrepCard isSample />;
     case "family:recommended-resources":
       return <AdvocacyResourcesCard isSample />;
+    case "family:pathway-report":
+      return <StudentPathwaySections isSample />;
+    case "family:student-profile":
+      return <StudentFitSummariesCard isSample />;
+    case "family:action-items":
+      return (
+        <NextStepsTimeline
+          eyebrow="Family 30 / 90 / 180 / 365-Day Plan"
+          title="Family Next Steps"
+          description="Family-owned items pulled from the Pathway Report — consent, uploads, meeting prep, and follow-ups."
+        />
+      );
     // Educator
     case "educator:pathway-reports":
       return <EvidenceReviewCard isSample />;
@@ -95,6 +129,24 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
       return <DataGapsCard isSample />;
     case "educator:caseload":
       return <CaseloadRollupsCard isSample />;
+    case "educator:action-items":
+      return (
+        <NextStepsTimeline
+          data={EDUCATOR_NEXT_ACTIONS}
+          eyebrow="Educator 30 / 90 / 180 / 365-Day Plan"
+          title="Your Caseload Next Actions"
+          description="Educator-owned actions that keep every Pathway Report defensible and every PPT on schedule."
+        />
+      );
+    case "educator:meeting-prep":
+      return (
+        <NextStepsTimeline
+          data={EDUCATOR_NEXT_ACTIONS}
+          eyebrow="Meeting Prep Plan"
+          title="PPTs This Cycle"
+          description="Agenda, evidence, and family follow-ups queued by student for the next 30 / 90 / 180 / 365 days."
+        />
+      );
     // School Admin
     case "school-admin:report-completion":
       return <ComplianceOverviewCard isSample />;
