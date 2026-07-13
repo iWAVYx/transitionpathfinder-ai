@@ -7,7 +7,6 @@ import {
   Wrench,
   Target,
   FileText,
-  LayoutDashboard,
 } from "lucide-react";
 import type { DemoRolePreview } from "@/lib/demo/role-previews";
 import {
@@ -21,9 +20,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
 import { SectionHeading } from "@/components/layout/SectionHeading";
-import { DemoToolPreviewCard, DemoToolPreviewGrid } from "./DemoToolPreviewCard";
-import { renderDemoPreview } from "@/components/demo/previews";
-import { retargetToolPreviewCta } from "@/lib/demo/role-preview-retarget";
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
@@ -67,7 +63,7 @@ export function RolePreviewShell({
   extras,
 }: {
   role: DemoRolePreview;
-  /** Optional role-specific content rendered after the Dashboard Preview section. */
+  /** Role-specific workspace dashboard matching the signed-in role experience. */
   extras?: React.ReactNode;
 }) {
   const Icon = role.icon;
@@ -140,58 +136,8 @@ export function RolePreviewShell({
         </div>
       </PageSection>
 
-      {/* DASHBOARD PREVIEW — the centerpiece */}
-      <PageSection>
-        <SectionHeading
-          index="01"
-          eyebrow="Dashboard preview"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <LayoutDashboard className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-              What this role sees at sign-in
-            </span>
-          }
-          description="Every tool below appears on the real signed-in dashboard for this role. Sample data only — no real students or organizations."
-          actions={
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/20">
-              <Sparkles className="h-3 w-3" aria-hidden /> Sample data
-            </span>
-          }
-        />
-
-        {/* At-a-glance strip */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {role.dashboardTiles.map((tile) => (
-            <div key={tile.label} className="rounded-2xl border bg-card p-4 shadow-soft">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {tile.label}
-              </p>
-              <p className="mt-2 font-display text-2xl leading-tight">{tile.value}</p>
-              {tile.hint && (
-                <p className="mt-1 text-xs text-muted-foreground">{tile.hint}</p>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <DemoToolPreviewGrid>
-          {role.toolPreviews.map((t) => (
-            <DemoToolPreviewCard
-              key={t.title}
-              icon={t.icon}
-              title={t.title}
-              status={t.status}
-              tone={t.tone}
-              summary={t.summary}
-              bullets={t.bullets}
-              cta={retargetToolPreviewCta(role.id, t.title, t.cta)}
-              footer={t.previewId ? renderDemoPreview(t.previewId) : undefined}
-            />
-          ))}
-        </DemoToolPreviewGrid>
-      </PageSection>
-
-      {extras ? <PageSection spacing="tight">{extras}</PageSection> : null}
+      {/* WORKSPACE DASHBOARD — same structure as the signed-in role dashboard. */}
+      {extras ? <PageSection>{extras}</PageSection> : null}
 
 
 
