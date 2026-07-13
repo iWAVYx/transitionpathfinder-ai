@@ -94,10 +94,13 @@ const LEVEL_LABEL: Record<ReadinessLevel, string> = {
 export function StudentPathwaySections({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: StudentPathwaySectionsData;
   /** Renders a "Sample Data" chip in the header. */
   isSample?: boolean;
+  /** When true, render the unified empty state instead of report sections. */
+  empty?: boolean;
 }) {
   const d: Required<StudentPathwaySectionsData> = {
     ...SAMPLE,
@@ -108,6 +111,7 @@ export function StudentPathwaySections({
       ...(data?.recommendedPathway ?? {}),
     },
   };
+
 
   return (
     <section
