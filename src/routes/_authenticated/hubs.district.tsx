@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/hubs/district")({
 function HubPage() {
   return (
     <SiteShell>
-      <HubShell hub={getHub("district-strategy")!}>
+      <HubShell hub={getHub("district-strategy")!} hideSpokes>
         <DistrictAdminOverviewGrid />
         <DistrictComplianceCard isSample />
         <DistrictEvidenceCoverageCard isSample />

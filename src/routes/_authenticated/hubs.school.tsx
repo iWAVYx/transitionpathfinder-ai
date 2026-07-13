@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/hubs/school")({
 function HubPage() {
   return (
     <SiteShell>
-      <HubShell hub={getHub("school-implementation")!}>
+      <HubShell hub={getHub("school-implementation")!} hideSpokes>
         <SchoolAdminOverviewGrid />
         <ComplianceOverviewCard isSample />
         <TransitionEvidenceCard isSample />
