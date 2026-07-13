@@ -23,6 +23,7 @@ export const Route = createFileRoute("/demo_/educator")({
       role={role}
       extras={
         <>
+          <EducatorOverviewGrid isSample />
           <EvidenceReviewCard isSample />
           <DataGapsCard isSample />
           <NextStepsTimeline
