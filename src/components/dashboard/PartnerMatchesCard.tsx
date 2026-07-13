@@ -50,11 +50,16 @@ function fitTone(fit: number) {
 export function PartnerMatchesCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: PartnerMatchesData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<PartnerMatchesData> = { ...SAMPLE, ...(data ?? {}), items: data?.items ?? SAMPLE.items };
+  const isEmpty = empty || d.items.length === 0;
+
 
   return (
     <section
