@@ -106,8 +106,6 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
     // Partner
     case "partner:active-opportunities":
       return <PartnerMatchesCard isSample />;
-    case "partner:partner-profile":
-      return <PartnerImpactSummaryCard isSample />;
     default:
       return null;
   }
