@@ -48,8 +48,8 @@ export function DemoFeatureShell({
         <div className="flex items-center justify-between gap-3">
           <Breadcrumbs
             trail={[
-              { label: "Demo", href: "/demo" },
-              { label: backLabel, href: backTo },
+              { label: "Demo", to: "/demo" },
+              { label: backLabel, to: backTo },
               { label: detail.title },
             ]}
           />
