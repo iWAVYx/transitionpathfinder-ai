@@ -100,9 +100,6 @@ function StudentPathwayPage() {
           </div>
         ) : latest ? (
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-          <div className="space-y-6">
             <CollaborationFlags
               flags={[
                 { key: "student_voice" },
