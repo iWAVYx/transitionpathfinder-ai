@@ -315,6 +315,13 @@ function PptPrepPage() {
           </p>
         </div>
         )}
+
+        {!(!loadingReports && reports.length === 0) && (
+          <div className="mt-6">
+            <PreMeetingChecklist />
+          </div>
+        )}
+
       </section>
       </div>
     </SiteShell>
