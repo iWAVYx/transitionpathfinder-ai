@@ -1,6 +1,8 @@
 import { TrendingUp, Sparkles, ArrowRight, TrendingDown, Minus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DistrictTrendMetricsCard — 6-term trend of key transition outcomes
