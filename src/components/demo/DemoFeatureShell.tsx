@@ -17,6 +17,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState";
 import { cn } from "@/lib/utils";
 import { toTitleCase } from "@/lib/title-case";
 import {
@@ -26,6 +27,7 @@ import {
   type DemoRole,
 } from "@/lib/demo/feature-routes";
 import { augmentFeature } from "@/lib/demo/feature-augment";
+
 
 /**
  * Dedicated demo feature page shell. Mirrors the same visual contract
@@ -87,28 +89,36 @@ export function DemoFeatureShell({
             {detail.summary}
           </p>
           {detail.primaryAction && (
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <Button asChild size="sm" data-testid="demo-feature-primary-action-header">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="shadow-elegant"
+                data-testid="demo-feature-primary-action-header"
+              >
                 <Link to={detail.primaryAction.to as never}>
-                  In your workspace: {detail.primaryAction.label}
+                  <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
+                  Open In Your Workspace: {toTitleCase(detail.primaryAction.label)}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
               <Button
                 asChild
-                size="sm"
+                size="lg"
                 variant="outline"
                 data-testid="demo-feature-secondary-action-header"
               >
                 <Link to={augmented.secondaryAction.to as never}>
-                  {augmented.secondaryAction.label}
+                  {toTitleCase(augmented.secondaryAction.label)}
                 </Link>
               </Button>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary/70" aria-hidden />
                 Opens the real tool once you sign in.
               </span>
             </div>
           )}
+
         </header>
 
         {richModule && <div className="mt-8">{richModule}</div>}
@@ -125,13 +135,21 @@ export function DemoFeatureShell({
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {s.label}
                     </p>
-                    <p className="mt-1 font-display text-base leading-tight text-foreground">
-                      {s.value ?? "—"}
-                    </p>
+                    {s.value ? (
+                      <p className="mt-1 font-display text-base leading-tight text-foreground">
+                        {s.value}
+                      </p>
+                    ) : (
+                      <div
+                        aria-hidden
+                        className="mx-auto mt-2 h-3 w-10 rounded-full bg-gradient-to-r from-muted via-muted-foreground/20 to-muted"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
             )}
+
 
             <section
               className="rounded-2xl border border-primary/25 bg-primary/5 p-5"
@@ -149,12 +167,33 @@ export function DemoFeatureShell({
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Preview
               </h2>
-              <ul className="mt-2 divide-y divide-border rounded-2xl border bg-card">
-                {detail.rows.map((r, i) => (
-                  <FeatureRowItem key={i} row={r} />
-                ))}
-              </ul>
+              {detail.rows.length > 0 ? (
+                <ul className="mt-2 divide-y divide-border rounded-2xl border bg-card">
+                  {detail.rows.map((r, i) => (
+                    <FeatureRowItem key={i} row={r} />
+                  ))}
+                </ul>
+              ) : (
+                <IllustratedEmptyState
+                  kind="tasks"
+                  size="md"
+                  className="mt-2"
+                  title="Nothing To Show Yet"
+                  description="Once your team starts using this tool, live items land here — no setup required."
+                  action={
+                    detail.primaryAction ? (
+                      <Button asChild size="sm">
+                        <Link to={detail.primaryAction.to as never}>
+                          {toTitleCase(detail.primaryAction.label)}
+                          <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+                        </Link>
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              )}
             </section>
+
 
             <section
               className="rounded-2xl border bg-muted/20 p-5"
@@ -238,12 +277,14 @@ export function DemoFeatureShell({
               </Link>
             </Button>
             {detail.primaryAction && (
-              <Button asChild size="sm" data-testid="demo-feature-primary-action">
+              <Button asChild data-testid="demo-feature-primary-action" className="shadow-elegant">
                 <Link to={detail.primaryAction.to as never}>
-                  {detail.primaryAction.label}
+                  <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
+                  {toTitleCase(detail.primaryAction.label)}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
+
             )}
           </div>
         </div>
