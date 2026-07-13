@@ -5,6 +5,11 @@ import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySec
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
 import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
+import { MissingInputsPanel } from "@/components/pathway/MissingInputsPanel";
+import { ReadinessScorecard } from "@/components/pathway/ReadinessScorecard";
+import { PlainLanguageCard } from "@/components/pathway/PlainLanguageCard";
+import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
+import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 
 const role = getDemoRole("student");
 
@@ -23,9 +28,17 @@ export const Route = createFileRoute("/demo_/student")({
       extras={
         <>
           <PathwayTimeline />
-          {/* Same at-a-glance workspace shown on the signed-in student
-              dashboard, wired to the shared feature-detail drawer so demo
-              visitors can preview each tool in place. */}
+          <CollaborationFlags
+            flags={[
+              { key: "student_voice" },
+              { key: "parent_input" },
+              { key: "partner_match" },
+            ]}
+          />
+          <MissingInputsPanel />
+          <ReadinessScorecard />
+          <PlainLanguageCard />
+          <RoleActionPlan defaultRole="student" />
           <StudentOverviewGrid isSample />
           <StudentPathwaySections isSample />
           <NextStepsTimeline />
