@@ -11,6 +11,8 @@ import {
   Target,
   ShieldCheck,
   Workflow,
+  Zap,
+  ListChecks,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -23,6 +25,7 @@ import {
   type DemoFeatureDetail,
   type DemoRole,
 } from "@/lib/demo/feature-routes";
+import { augmentFeature } from "@/lib/demo/feature-augment";
 
 /**
  * Dedicated demo feature page shell. Mirrors the same visual contract
@@ -31,6 +34,10 @@ import {
  * `richModule` slot lets us drop in the real signed-in feature module
  * (e.g. StudentVoiceModule, IepTranslatorCard) above the generic body
  * so demo visitors interact with the same component signed-in users do.
+ *
+ * The shell also renders four enrichment slots — Next Recommended Step,
+ * Feeds Into pipeline, Secondary Action, and role-specific Permission
+ * Note — computed by `augmentFeature()` from the registry entry.
  */
 export function DemoFeatureShell({
   role,
@@ -43,6 +50,7 @@ export function DemoFeatureShell({
 }) {
   const backTo = demoRoleDashboardPath(role);
   const backLabel = demoRoleDashboardLabel(role);
+  const augmented = augmentFeature(role, detail);
 
   return (
     <SiteShell>
@@ -86,12 +94,21 @@ export function DemoFeatureShell({
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                data-testid="demo-feature-secondary-action-header"
+              >
+                <Link to={augmented.secondaryAction.to as never}>
+                  {augmented.secondaryAction.label}
+                </Link>
+              </Button>
               <span className="text-[11px] text-muted-foreground">
                 Opens the real tool once you sign in.
               </span>
             </div>
           )}
-
         </header>
 
         {richModule && <div className="mt-8">{richModule}</div>}
@@ -116,6 +133,18 @@ export function DemoFeatureShell({
               </div>
             )}
 
+            <section
+              className="rounded-2xl border border-primary/25 bg-primary/5 p-5"
+              data-testid="demo-feature-next-step"
+            >
+              <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <Zap className="h-3 w-3" aria-hidden /> Next Recommended Step
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">
+                {augmented.nextStep}
+              </p>
+            </section>
+
             <section>
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Preview
@@ -127,18 +156,44 @@ export function DemoFeatureShell({
               </ul>
             </section>
 
-            <section className="rounded-2xl border bg-muted/20 p-5">
+            <section
+              className="rounded-2xl border bg-muted/20 p-5"
+              data-testid="demo-feature-connected-to"
+            >
               <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 <Workflow className="h-3 w-3" aria-hidden /> Connected To The Pathway Report
               </h2>
               <p className="mt-2 text-sm text-foreground/80">
-                {roleFlowCopy(role, detail)}
+                {augmented.pathwayRelationCopy}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {detail.connectsTo.map((c) => (
                   <span
                     key={c}
                     className="rounded-full border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground/80"
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </section>
+
+            <section
+              className="rounded-2xl border bg-card p-5"
+              data-testid="demo-feature-feeds-into"
+            >
+              <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <ListChecks className="h-3 w-3" aria-hidden /> Feeds Into
+              </h2>
+              <p className="mt-2 text-sm text-foreground/80">
+                Updates here surface in these other TransitionForward
+                surfaces so the whole team stays aligned.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {augmented.feedsInto.map((c) => (
+                  <span
+                    key={c}
+                    className="rounded-full border border-primary/25 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-primary"
                   >
                     {c}
                   </span>
@@ -158,7 +213,7 @@ export function DemoFeatureShell({
             <MetaCard
               icon={ShieldCheck}
               label="Who can see this"
-              value={rolePermissionNote(role)}
+              value={augmented.permissionNote}
             />
           </aside>
         </div>
@@ -166,12 +221,17 @@ export function DemoFeatureShell({
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/30 p-5">
           <div>
             <p className="text-sm text-muted-foreground">
-              This is a demo preview using sample data. In your workspace this
-              page shows live info from your team.
+              This is a demo preview using sample data. In your workspace
+              this page shows live info from your team.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm" data-testid="demo-feature-secondary-action">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              data-testid="demo-feature-secondary-action"
+            >
               <Link to={backTo as never}>
                 <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
                 Back to {backLabel}
@@ -186,39 +246,10 @@ export function DemoFeatureShell({
               </Button>
             )}
           </div>
-
         </div>
       </div>
     </SiteShell>
   );
-}
-
-function rolePermissionNote(role: DemoRole): string {
-  switch (role) {
-    case "student":
-      return "You. Your family and case manager may also see this; no one else on the platform can.";
-    case "family":
-      return "Family members with access to this student, plus assigned educators. Never partners.";
-    case "educator":
-      return "You and staff on this student's team. Family sees a family-friendly view. Partners never see student PII.";
-    case "school-admin":
-      return "School-level aggregates for your school. No student PII leaves the caseload team.";
-    case "district-admin":
-      return "District aggregates only. Individual student records stay with school teams.";
-    case "partner":
-      return "Only your organization. Partners never see student PII, IEPs, Voice, or Pathway Reports.";
-  }
-}
-
-function roleFlowCopy(role: DemoRole, detail: DemoFeatureDetail): string {
-  const title = detail.title.toLowerCase();
-  if (role === "partner") {
-    return `${detail.title} lives on the partner side of the platform. Matched families discover your programs through the Pathway Report's recommendations without ever exposing student PII to your team.`;
-  }
-  if (title.includes("pathway report")) {
-    return "This is the central output of TransitionForward. Every other tile — Voice, Documents, Action Items, Meeting Prep — feeds it or acts on it.";
-  }
-  return `${detail.title} feeds into or acts on the Pathway Report. Updates here appear in ${detail.connectsTo.slice(0, 2).join(" and ") || "the report"} for the rest of the team.`;
 }
 
 function FeatureRowItem({
@@ -230,16 +261,16 @@ function FeatureRowItem({
     row.status === "ok"
       ? CheckCircle2
       : row.status === "warning" || row.status === "critical"
-      ? AlertCircle
-      : Circle;
+        ? AlertCircle
+        : Circle;
   const tone =
     row.status === "ok"
       ? "text-emerald-600 dark:text-emerald-400"
       : row.status === "critical"
-      ? "text-destructive"
-      : row.status === "warning"
-      ? "text-amber-600 dark:text-amber-400"
-      : "text-muted-foreground";
+        ? "text-destructive"
+        : row.status === "warning"
+          ? "text-amber-600 dark:text-amber-400"
+          : "text-muted-foreground";
   return (
     <li className="flex items-start gap-3 p-4">
       <StatusIcon className={cn("mt-0.5 h-4 w-4 shrink-0", tone)} aria-hidden />

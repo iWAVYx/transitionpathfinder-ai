@@ -57,6 +57,7 @@ import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
 import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
 import { Route as DemoPartnerRouteImport } from './routes/demo_.partner'
+import { Route as DemoOwnerRouteImport } from './routes/demo_.owner'
 import { Route as DemoOpportunitiesRouteImport } from './routes/demo_.opportunities'
 import { Route as DemoNextRouteImport } from './routes/demo_.next'
 import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
@@ -441,6 +442,11 @@ const DemoPlanRoute = DemoPlanRouteImport.update({
 const DemoPartnerRoute = DemoPartnerRouteImport.update({
   id: '/demo_/partner',
   path: '/demo/partner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoOwnerRoute = DemoOwnerRouteImport.update({
+  id: '/demo_/owner',
+  path: '/demo/owner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoOpportunitiesRoute = DemoOpportunitiesRouteImport.update({
@@ -1325,6 +1331,7 @@ export interface FileRoutesByFullPath {
   '/demo/meeting': typeof DemoMeetingRoute
   '/demo/next': typeof DemoNextRoute
   '/demo/opportunities': typeof DemoOpportunitiesRoute
+  '/demo/owner': typeof DemoOwnerRoute
   '/demo/partner': typeof DemoPartnerRoute
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
@@ -1516,6 +1523,7 @@ export interface FileRoutesByTo {
   '/demo/meeting': typeof DemoMeetingRoute
   '/demo/next': typeof DemoNextRoute
   '/demo/opportunities': typeof DemoOpportunitiesRoute
+  '/demo/owner': typeof DemoOwnerRoute
   '/demo/partner': typeof DemoPartnerRoute
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
@@ -1711,6 +1719,7 @@ export interface FileRoutesById {
   '/demo_/meeting': typeof DemoMeetingRoute
   '/demo_/next': typeof DemoNextRoute
   '/demo_/opportunities': typeof DemoOpportunitiesRoute
+  '/demo_/owner': typeof DemoOwnerRoute
   '/demo_/partner': typeof DemoPartnerRoute
   '/demo_/plan': typeof DemoPlanRoute
   '/demo_/report': typeof DemoReportRoute
@@ -1906,6 +1915,7 @@ export interface FileRouteTypes {
     | '/demo/meeting'
     | '/demo/next'
     | '/demo/opportunities'
+    | '/demo/owner'
     | '/demo/partner'
     | '/demo/plan'
     | '/demo/report'
@@ -2097,6 +2107,7 @@ export interface FileRouteTypes {
     | '/demo/meeting'
     | '/demo/next'
     | '/demo/opportunities'
+    | '/demo/owner'
     | '/demo/partner'
     | '/demo/plan'
     | '/demo/report'
@@ -2291,6 +2302,7 @@ export interface FileRouteTypes {
     | '/demo_/meeting'
     | '/demo_/next'
     | '/demo_/opportunities'
+    | '/demo_/owner'
     | '/demo_/partner'
     | '/demo_/plan'
     | '/demo_/report'
@@ -2457,6 +2469,7 @@ export interface RootRouteChildren {
   DemoMeetingRoute: typeof DemoMeetingRoute
   DemoNextRoute: typeof DemoNextRoute
   DemoOpportunitiesRoute: typeof DemoOpportunitiesRoute
+  DemoOwnerRoute: typeof DemoOwnerRoute
   DemoPartnerRoute: typeof DemoPartnerRoute
   DemoPlanRoute: typeof DemoPlanRoute
   DemoReportRoute: typeof DemoReportRoute
@@ -2821,6 +2834,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/partner'
       fullPath: '/demo/partner'
       preLoaderRoute: typeof DemoPartnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/owner': {
+      id: '/demo_/owner'
+      path: '/demo/owner'
+      fullPath: '/demo/owner'
+      preLoaderRoute: typeof DemoOwnerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/opportunities': {
@@ -4257,6 +4277,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoMeetingRoute: DemoMeetingRoute,
   DemoNextRoute: DemoNextRoute,
   DemoOpportunitiesRoute: DemoOpportunitiesRoute,
+  DemoOwnerRoute: DemoOwnerRoute,
   DemoPartnerRoute: DemoPartnerRoute,
   DemoPlanRoute: DemoPlanRoute,
   DemoReportRoute: DemoReportRoute,
