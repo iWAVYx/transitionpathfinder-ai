@@ -95,6 +95,7 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDemoModeRouteImport } from './routes/_authenticated/demo-mode'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCaseloadRouteImport } from './routes/_authenticated/caseload'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -637,6 +638,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedCaseloadRoute = AuthenticatedCaseloadRouteImport.update({
   id: '/caseload',
   path: '/caseload',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
@@ -1294,6 +1300,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -1487,6 +1494,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/caseload': typeof AuthenticatedCaseloadRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -1682,6 +1690,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/caseload': typeof AuthenticatedCaseloadRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/demo-mode': typeof AuthenticatedDemoModeRoute
@@ -1878,6 +1887,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-school'
     | '/analytics'
+    | '/calendar'
     | '/caseload'
     | '/dashboard'
     | '/demo-mode'
@@ -2071,6 +2081,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-school'
     | '/analytics'
+    | '/calendar'
     | '/caseload'
     | '/dashboard'
     | '/demo-mode'
@@ -2265,6 +2276,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
     | '/_authenticated/analytics'
+    | '/_authenticated/calendar'
     | '/_authenticated/caseload'
     | '/_authenticated/dashboard'
     | '/_authenticated/demo-mode'
@@ -3100,6 +3112,13 @@ declare module '@tanstack/react-router' {
       path: '/caseload'
       fullPath: '/caseload'
       preLoaderRoute: typeof AuthenticatedCaseloadRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/analytics': {
@@ -4030,6 +4049,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedCaseloadRoute: typeof AuthenticatedCaseloadRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDemoModeRoute: typeof AuthenticatedDemoModeRoute
@@ -4108,6 +4128,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedCaseloadRoute: AuthenticatedCaseloadRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDemoModeRoute: AuthenticatedDemoModeRoute,
