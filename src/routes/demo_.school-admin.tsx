@@ -4,6 +4,7 @@ import { getDemoRole } from "@/lib/demo/role-previews";
 import { ComplianceOverviewCard } from "@/components/dashboard/ComplianceOverviewCard";
 import { TransitionEvidenceCard } from "@/components/dashboard/TransitionEvidenceCard";
 import { CaseloadRollupsCard } from "@/components/dashboard/CaseloadRollupsCard";
+import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
 
 const role = getDemoRole("school-admin");
 
