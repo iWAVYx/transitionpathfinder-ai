@@ -1,6 +1,8 @@
 import { FileSearch, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DistrictEvidenceCoverageCard — how much required transition evidence
