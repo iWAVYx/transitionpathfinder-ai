@@ -4,6 +4,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
 import {
   OWNER_FEATURE_DETAILS,
   OWNER_FEATURE_ORDER,
@@ -76,6 +77,8 @@ function DemoOwnerPage() {
             and pilot packages. Each tile opens a dedicated preview.
           </p>
         </header>
+
+        <LaunchReadinessBoard />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {OWNER_FEATURE_ORDER.map((id) => {

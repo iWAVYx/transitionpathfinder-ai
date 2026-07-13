@@ -18,6 +18,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
+import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 import {
   listAllDocuments,
   type CrossDocumentRow,
@@ -106,6 +107,9 @@ function DocumentsHubPage() {
       <div className="demo-shell">
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Documents" }]} />
+        <div className="mt-4">
+          <DocumentReadinessMeter />
+        </div>
       </div>
 
       <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">

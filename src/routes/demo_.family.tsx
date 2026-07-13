@@ -5,6 +5,7 @@ import { IepTranslatorCard } from "@/components/dashboard/IepTranslatorCard";
 import { FamilyMeetingPrepCard } from "@/components/dashboard/FamilyMeetingPrepCard";
 import { AdvocacyResourcesCard } from "@/components/dashboard/AdvocacyResourcesCard";
 import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
+import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 
 const role = getDemoRole("family");
 
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/demo_/family")({
       role={role}
       extras={
         <>
+          <DocumentReadinessMeter />
           {/* Same at-a-glance workspace shown on the signed-in family
               dashboard — every tile has a Preview drawer with polished
               loading / empty / error / permission / ready variants. */}

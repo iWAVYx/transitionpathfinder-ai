@@ -10,6 +10,7 @@ import { RolloutMilestonesCard, type RolloutMilestone } from "@/components/imple
 import { TrainingScheduleCard } from "@/components/implementation/TrainingScheduleCard";
 import { ReportingDeadlinesCard } from "@/components/implementation/ReportingDeadlinesCard";
 import { StaffProgressTable, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
+import { CompletionRingsBoard } from "@/components/implementation/CompletionRingsBoard";
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
   head: () => ({ meta: [{ title: "Implementation — TransitionForward" }] }),
@@ -30,6 +31,7 @@ function SchoolImplementationPage() {
     >
       {(org, dash) => (
         <div className="space-y-6">
+          <CompletionRingsBoard />
           <ReadinessScorecard orgId={org.id} />
           <SchoolImplementationExtras org={org} dash={dash} />
         </div>

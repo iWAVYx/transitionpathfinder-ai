@@ -13,6 +13,7 @@ import {
   PathwayNextStepsCard,
 } from "@/components/pathway/PathwayConnectionsCard";
 import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
+import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
 import { listStudents, type Student } from "@/lib/students.functions";
 import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
 
@@ -64,7 +65,10 @@ function StudentPathwayPage() {
     <SiteShell>
       <main data-testid="student-pathway-page" className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "My Pathway" }]} />
-        <header className="mt-4 mb-6">
+        <div className="mt-4">
+          <PathwayTimeline />
+        </div>
+        <header className="mt-6 mb-6">
           <div className="flex items-center gap-3">
             <Compass className="h-7 w-7 text-primary" />
             <h1 className="text-3xl font-semibold tracking-tight">My Pathway</h1>

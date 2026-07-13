@@ -20,6 +20,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
+import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 
 export const Route = createFileRoute("/_authenticated/demo-mode")({
   head: () => ({ meta: [{ title: "Demo Mode — TransitionForward" }] }),
@@ -66,6 +68,9 @@ function DemoModePage() {
             Mark as done <CheckCircle2 className="ml-1.5 h-4 w-4" />
           </Button>
         </section>
+
+        <PathwayTimeline />
+        <DocumentReadinessMeter />
 
         {/* Header */}
         <div className="rounded-3xl border bg-card p-6 shadow-soft">

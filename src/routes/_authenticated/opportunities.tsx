@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { OpportunityPipelineBoard } from "@/components/partner/OpportunityPipelineBoard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -166,6 +167,9 @@ function OpportunitiesPage() {
       <div className="demo-shell">
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Pathway Partner Network" }]} />
+        <div className="mt-4">
+          <OpportunityPipelineBoard />
+        </div>
       </div>
 
       <section className="tf-cover mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">

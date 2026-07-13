@@ -14,6 +14,7 @@ import {
   type CaseloadReadinessRow,
 } from "@/lib/educator.functions";
 import { ReadinessInterventionCell } from "@/components/pathway/ReadinessInterventionCell";
+import { ReadinessHeatmap } from "@/components/dashboard/ReadinessHeatmap";
 
 
 export const Route = createFileRoute("/_authenticated/educator/readiness-gaps")({
@@ -59,7 +60,10 @@ function EducatorReadinessGapsPage() {
         className="mx-auto max-w-6xl px-4 py-8"
       >
         <Breadcrumbs trail={[{ label: "Readiness Gaps" }]} />
-        <header className="mt-4 mb-6">
+        <div className="mt-4">
+          <ReadinessHeatmap />
+        </div>
+        <header className="mt-6 mb-6">
           <div className="flex items-center gap-3">
             <Gauge className="h-7 w-7 text-primary" />
             <h1 className="text-3xl font-semibold tracking-tight">
