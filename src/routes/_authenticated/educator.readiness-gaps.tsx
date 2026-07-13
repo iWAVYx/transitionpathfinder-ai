@@ -94,8 +94,10 @@ function EducatorReadinessGapsPage() {
                   <th className="p-3">Ind. Living</th>
                   <th className="p-3">Self-Advocacy</th>
                   <th className="p-3">Biggest Gap</th>
+                  <th className="p-3">Recommended Intervention</th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.student_id} className="border-t">
