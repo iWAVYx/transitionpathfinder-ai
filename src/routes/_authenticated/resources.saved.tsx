@@ -161,12 +161,8 @@ function SavedResourcesPage() {
           >
             Browse all resources
           </Link>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background"
-          >
-            Back to dashboard
-          </Link>
+          <BackToDashboard />
+
         </div>
       </header>
 
