@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/hubs/student")({
 function HubPage() {
   return (
     <SiteShell>
-      <HubShell hub={getHub("student-planning")!}>
+      <HubShell hub={getHub("student-planning")!} hideSpokes>
         <StudentOverviewGrid />
         <div className="mt-8">
           <StageJourneyCard audience="student" />

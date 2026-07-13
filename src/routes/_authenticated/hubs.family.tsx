@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/hubs/family")({
 function HubPage() {
   return (
     <SiteShell>
-      <HubShell hub={getHub("family-planning")!}>
+      <HubShell hub={getHub("family-planning")!} hideSpokes>
         <ParentOverviewGrid />
         <IepTranslatorCard isSample />
         <FamilyMeetingPrepCard isSample />

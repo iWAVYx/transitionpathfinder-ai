@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/hubs/partner")({
 function HubPage() {
   return (
     <SiteShell>
-      <HubShell hub={getHub("partner-opportunity")!}>
+      <HubShell hub={getHub("partner-opportunity")!} hideSpokes>
         <PartnerOverviewGrid />
         <PartnerMatchesCard isSample />
         <StudentFitSummariesCard isSample />

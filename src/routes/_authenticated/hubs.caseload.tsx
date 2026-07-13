@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/hubs/caseload")({
 function HubPage() {
   return (
     <SiteShell>
-      <HubShell hub={getHub("caseload-planning")!}>
+      <HubShell hub={getHub("caseload-planning")!} hideSpokes>
         <EducatorOverviewGrid />
         <EvidenceReviewCard isSample />
         <DataGapsCard isSample />
