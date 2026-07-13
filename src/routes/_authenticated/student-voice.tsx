@@ -27,6 +27,7 @@ import {
   STUDENT_VOICE_PROMPTS,
   type StudentVoicePrompt,
 } from "@/lib/student-voice-prompts";
+import { StudentVoiceModule } from "@/components/dashboard/student-voice/StudentVoiceModule";
 
 export const Route = createFileRoute("/_authenticated/student-voice")({
   head: () => ({
@@ -153,6 +154,10 @@ function StudentVoicePage() {
             These answers help your team build a plan around the real student.
             Skip what doesn't fit. Come back anytime to update.
           </p>
+        </div>
+
+        <div className="mt-8">
+          <StudentVoiceModule />
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
