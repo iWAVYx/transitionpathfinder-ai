@@ -121,6 +121,19 @@ function fmtDayLong(d: Date): string {
     day: "numeric",
   });
 }
+function tMinusLabel(iso: string): string {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const target = startOfDay(new Date(iso));
+  const days = Math.round((target.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+  if (days < 0) return `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} overdue`;
+  if (days === 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  if (days < 7) return `In ${days} days`;
+  if (days < 14) return "Next week";
+  return `In ${Math.round(days / 7)} weeks`;
+}
+
 
 function icsEscape(v: string): string {
   return v.replace(/[\\;,]/g, (m) => `\\${m}`).replace(/\n/g, "\\n");
