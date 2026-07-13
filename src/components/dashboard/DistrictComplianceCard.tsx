@@ -1,6 +1,8 @@
 import { ShieldCheck, Sparkles, ArrowRight, Building2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DistrictComplianceCard — district-wide IDEA + Indicator 13 rollup
