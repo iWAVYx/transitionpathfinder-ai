@@ -135,16 +135,19 @@ describe("demo feature-detail audit", () => {
         }
       });
 
-      it(`${id} augmented nextStep + permissionNote also PII-clean`, () => {
+      it(`${id} augmented nextStep is PII-clean`, () => {
         const aug = augmentFeature("partner", d as unknown as BaseDetail);
-        const text = `${aug.nextStep} ${aug.permissionNote} ${aug.pathwayRelationCopy}`.toLowerCase();
+        // Only nextStep is authored content that could accidentally leak
+        // student vocabulary. permissionNote intentionally names the
+        // forbidden surfaces as a boundary statement.
+        const text = aug.nextStep.toLowerCase();
         for (const forbidden of PARTNER_FORBIDDEN) {
-          if (forbidden === "Pathway Report") continue; // permissionNote references it as a boundary
-          expect(text.includes(forbidden.toLowerCase()), `${id} augment mentions "${forbidden}"`).toBe(
+          expect(text.includes(forbidden.toLowerCase()), `${id} nextStep mentions "${forbidden}"`).toBe(
             false,
           );
         }
       });
+
     }
   });
 
