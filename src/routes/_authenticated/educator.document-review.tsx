@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FolderOpen, ArrowLeft, ArrowRight, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { FolderOpen, ArrowRight, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
