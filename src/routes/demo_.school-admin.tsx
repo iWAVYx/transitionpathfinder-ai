@@ -4,6 +4,7 @@ import { getDemoRole } from "@/lib/demo/role-previews";
 import { ComplianceOverviewCard } from "@/components/dashboard/ComplianceOverviewCard";
 import { TransitionEvidenceCard } from "@/components/dashboard/TransitionEvidenceCard";
 import { CaseloadRollupsCard } from "@/components/dashboard/CaseloadRollupsCard";
+import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
 
 const role = getDemoRole("school-admin");
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/demo_/school-admin")({
       role={role}
       extras={
         <>
+          <SchoolAdminOverviewGrid isSample />
           <ComplianceOverviewCard isSample />
           <TransitionEvidenceCard isSample />
           <CaseloadRollupsCard isSample />
