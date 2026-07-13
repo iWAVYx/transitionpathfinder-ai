@@ -131,9 +131,100 @@ function DistrictImplementationPage() {
                 )}
               </div>
             ))}
+
+            <RolloutMilestonesCard scope="district" milestones={milestones} />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <TrainingScheduleCard scopeId={`district:${district.id}`} />
+              <ReportingDeadlinesCard scope="district" />
+            </div>
+
+            <StaffProgressTable
+              title="District Team Progress"
+              subtitle="Onboarding progress for district-level admins and coordinators."
+              rows={staffRows}
+              emptyLabel="No district team members yet. Invite school admins and coordinators to get started."
+            />
           </div>
         );
       }}
     </DistrictPageShell>
   );
+}
+
+function districtMilestones(d: DistrictDashboard): RolloutMilestone[] {
+  const m = d.metrics;
+  const anySchool = d.schools.length > 0;
+  const anyActiveSchool = d.schools.some((s) => s.active_members > 0);
+  const anyStudents = m.students_count > 0;
+  const anyReports = m.reports_count > 0;
+  const majority = m.pct_with_report >= 60;
+  const teamComplete = d.team.length >= 3;
+  return [
+    {
+      key: "district-created",
+      label: "District workspace created",
+      detail: "Your district workspace is set up and ready to connect schools.",
+      done: true,
+    },
+    {
+      key: "schools-connected",
+      label: "Schools connected",
+      detail: "At least one school is linked to your district.",
+      done: anySchool,
+    },
+    {
+      key: "school-admins",
+      label: "School administrators invited",
+      detail: "Each connected school has an active admin driving local rollout.",
+      done: anyActiveSchool,
+    },
+    {
+      key: "students-added",
+      label: "Students added to caseloads",
+      detail: "Educators have added students to begin transition planning.",
+      done: anyStudents,
+    },
+    {
+      key: "first-report",
+      label: "First Pathway Report generated",
+      detail: "At least one student has a completed Pathway Report.",
+      done: anyReports,
+    },
+    {
+      key: "majority-reports",
+      label: "60%+ of students have a Pathway Report",
+      detail: "The district is at meaningful adoption across schools.",
+      done: majority,
+    },
+    {
+      key: "district-team",
+      label: "District team fully staffed",
+      detail: "At least 3 district-level members are active in the workspace.",
+      done: teamComplete,
+    },
+  ];
+}
+
+function districtStaffRows(d: DistrictDashboard): StaffProgressRow[] {
+  return [
+    ...d.team.map((t) => ({
+      key: `t:${t.membership_id}`,
+      name: t.full_name || t.email || "Unnamed member",
+      role: t.role_within_org,
+      status: "active" as const,
+      joined: t.joined_at,
+      progress: 100,
+      detail: t.email ?? undefined,
+    })),
+    ...d.pending_team.map((t) => ({
+      key: `p:${t.membership_id}`,
+      name: t.full_name || t.email || "Pending invite",
+      role: t.role_within_org,
+      status: "pending" as const,
+      joined: t.joined_at,
+      progress: 25,
+      detail: t.email ?? undefined,
+    })),
+  ];
 }
