@@ -142,11 +142,7 @@ function RecommendedResourcesPage() {
         </ul>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/hubs/family">
-              <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden /> Back To Family Workspace
-            </Link>
-          </Button>
+          <BackToDashboard />
           <Button asChild variant="outline" size="sm">
             <Link to="/resources/saved">Open Saved Library</Link>
           </Button>
