@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   EDUCATOR_FEATURE_DETAILS,
   type EducatorFeatureId,
@@ -123,7 +124,7 @@ export function EducatorFeatureDrawer({
                   <Link
                     to={
                       (isSample
-                        ? sampleRoute(detail.primaryAction.to)
+                        ? resolveDemoFeatureRoute("educator", detail.id)
                         : detail.primaryAction.to) as string
                     }
                     onClick={() => onOpenChange(false)}
@@ -368,17 +369,3 @@ function emptyCta(id: EducatorFeatureId): string {
 }
 
 /** Signed-in route → nearest demo equivalent. */
-function sampleRoute(to: string): string {
-  const map: Record<string, string> = {
-    "/caseload": "/demo/hub",
-    "/educator/readiness-gaps": "/demo/hub",
-    "/teacher-portal": "/demo/intake",
-    "/reports": "/demo/report",
-    "/ppt-prep": "/demo/meeting",
-    "/educator/notes": "/demo/workspace",
-    "/educator/action-items": "/demo/next",
-    "/meetings": "/demo/calendar",
-    "/documents": "/demo/documents",
-  };
-  return map[to] ?? to;
-}

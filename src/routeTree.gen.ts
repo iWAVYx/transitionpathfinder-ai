@@ -198,6 +198,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as DemoFeatureRoleSlugRouteImport } from './routes/demo_.feature.$role.$slug'
 import { Route as AuthenticatedFamilyResourcesRecommendedRouteImport } from './routes/_authenticated/family.resources.recommended'
 import { Route as AuthenticatedDocumentsDocumentIdReviewRouteImport } from './routes/_authenticated/documents.$documentId.review'
 
@@ -1237,6 +1238,11 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoFeatureRoleSlugRoute = DemoFeatureRoleSlugRouteImport.update({
+  id: '/demo_/feature/$role/$slug',
+  path: '/demo/feature/$role/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedFamilyResourcesRecommendedRoute =
   AuthenticatedFamilyResourcesRecommendedRouteImport.update({
     id: '/family/resources/recommended',
@@ -1436,6 +1442,7 @@ export interface FileRoutesByFullPath {
   '/demo/workspace/': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
+  '/demo/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1626,6 +1633,7 @@ export interface FileRoutesByTo {
   '/demo/workspace': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
+  '/demo/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1820,6 +1828,7 @@ export interface FileRoutesById {
   '/demo_/workspace/': typeof DemoWorkspaceIndexRoute
   '/_authenticated/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/_authenticated/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
+  '/demo_/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -2014,6 +2023,7 @@ export interface FileRouteTypes {
     | '/demo/workspace/'
     | '/documents/$documentId/review'
     | '/family/resources/recommended'
+    | '/demo/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -2204,6 +2214,7 @@ export interface FileRouteTypes {
     | '/demo/workspace'
     | '/documents/$documentId/review'
     | '/family/resources/recommended'
+    | '/demo/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -2397,6 +2408,7 @@ export interface FileRouteTypes {
     | '/demo_/workspace/'
     | '/_authenticated/documents/$documentId/review'
     | '/_authenticated/family/resources/recommended'
+    | '/demo_/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -2465,6 +2477,7 @@ export interface RootRouteChildren {
   DemoWorkspaceStageRoute: typeof DemoWorkspaceStageRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   DemoWorkspaceIndexRoute: typeof DemoWorkspaceIndexRoute
+  DemoFeatureRoleSlugRoute: typeof DemoFeatureRoleSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -3797,6 +3810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo_/feature/$role/$slug': {
+      id: '/demo_/feature/$role/$slug'
+      path: '/demo/feature/$role/$slug'
+      fullPath: '/demo/feature/$role/$slug'
+      preLoaderRoute: typeof DemoFeatureRoleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/family/resources/recommended': {
       id: '/_authenticated/family/resources/recommended'
       path: '/family/resources/recommended'
@@ -4257,6 +4277,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoWorkspaceStageRoute: DemoWorkspaceStageRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   DemoWorkspaceIndexRoute: DemoWorkspaceIndexRoute,
+  DemoFeatureRoleSlugRoute: DemoFeatureRoleSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,

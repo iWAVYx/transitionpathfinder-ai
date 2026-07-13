@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   STUDENT_FEATURE_DETAILS,
   type StudentFeatureId,
@@ -127,7 +128,7 @@ export function StudentFeatureDrawer({
                   <Link
                     to={
                       (isSample
-                        ? sampleRoute(detail.primaryAction.to)
+                        ? resolveDemoFeatureRoute("student", detail.id)
                         : detail.primaryAction.to) as string
                     }
                     onClick={() => onOpenChange(false)}
@@ -344,15 +345,3 @@ function MetaCard({
   );
 }
 
-function sampleRoute(to: string): string {
-  const map: Record<string, string> = {
-    "/pathway/student": "/demo/report",
-    "/student-voice": "/demo/voice",
-    "/action-items": "/demo/next",
-    "/resources/saved": "/demo/resources",
-    "/ppt-prep": "/demo/meeting",
-    "/meetings": "/demo/calendar",
-    "/documents": "/demo/documents",
-  };
-  return map[to] ?? to;
-}

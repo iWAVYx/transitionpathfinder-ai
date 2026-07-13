@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   SCHOOL_ADMIN_FEATURE_DETAILS,
   type SchoolAdminFeatureId,
@@ -128,7 +129,7 @@ export function SchoolAdminFeatureDrawer({
                   <Link
                     to={
                       (isSample
-                        ? sampleRoute(detail.primaryAction.to)
+                        ? resolveDemoFeatureRoute("school-admin", detail.id)
                         : detail.primaryAction.to) as string
                     }
                     onClick={() => onOpenChange(false)}
@@ -373,17 +374,3 @@ function emptyCta(id: SchoolAdminFeatureId): string {
 }
 
 /** Signed-in route → nearest demo equivalent. */
-function sampleRoute(to: string): string {
-  const map: Record<string, string> = {
-    "/school/overview": "/demo/school-admin",
-    "/school/team": "/demo/school-admin",
-    "/school/planning-status": "/demo/school-admin",
-    "/school/reports": "/demo/report",
-    "/school/readiness-trends": "/demo/school-admin",
-    "/school/resource-usage": "/demo/resources",
-    "/school/calendar": "/demo/calendar",
-    "/school/support-needs": "/demo/school-admin",
-    "/school/implementation": "/demo/school-admin",
-  };
-  return map[to] ?? to;
-}

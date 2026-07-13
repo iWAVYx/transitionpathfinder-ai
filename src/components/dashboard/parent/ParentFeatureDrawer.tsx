@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   PARENT_FEATURE_DETAILS,
   type ParentFeatureId,
@@ -130,7 +131,7 @@ export function ParentFeatureDrawer({
                   <Link
                     to={
                       (isSample
-                        ? sampleRoute(detail.primaryAction.to)
+                        ? resolveDemoFeatureRoute("family", detail.id)
                         : detail.primaryAction.to) as string
                     }
                     onClick={() => onOpenChange(false)}
@@ -375,17 +376,3 @@ function emptyCta(id: ParentFeatureId): string {
 }
 
 /** Signed-in route → nearest demo equivalent. */
-function sampleRoute(to: string): string {
-  const map: Record<string, string> = {
-    "/pathway/family": "/demo/report",
-    "/documents": "/demo/documents",
-    "/family/action-items": "/demo/next",
-    "/family/consent": "/demo/hub",
-    "/family/priorities": "/demo/intake",
-    "/resources/saved": "/demo/resources",
-    "/ppt-prep": "/demo/meeting",
-    "/meetings": "/demo/calendar",
-    "/students": "/demo/hub",
-  };
-  return map[to] ?? to;
-}

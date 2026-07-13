@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   DISTRICT_ADMIN_FEATURE_DETAILS,
   type DistrictAdminFeatureId,
@@ -128,7 +129,7 @@ export function DistrictAdminFeatureDrawer({
                   <Link
                     to={
                       (isSample
-                        ? sampleRoute(detail.primaryAction.to)
+                        ? resolveDemoFeatureRoute("district-admin", detail.id)
                         : detail.primaryAction.to) as string
                     }
                     onClick={() => onOpenChange(false)}
@@ -348,15 +349,3 @@ function MetaCard({
   );
 }
 
-function sampleRoute(to: string): string {
-  const map: Record<string, string> = {
-    "/district/overview": "/demo/district-admin",
-    "/district/schools": "/demo/district-admin",
-    "/district/progress": "/demo/district-admin",
-    "/district/readiness-trends": "/demo/district-admin",
-    "/district/implementation": "/demo/district-admin",
-    "/district/reports": "/demo/report",
-    "/district/service-gaps": "/demo/district-admin",
-  };
-  return map[to] ?? to;
-}
