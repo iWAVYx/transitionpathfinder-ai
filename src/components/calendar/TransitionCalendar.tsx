@@ -416,6 +416,15 @@ export function TransitionCalendar({
         })}
       </div>
 
+      {/* Pathway-linked focus rail */}
+      {showFocusRail && (
+        <FocusRail
+          nextUp={nextUp}
+          prepPool={prepPool}
+          reminders={reminders}
+        />
+      )}
+
       {/* Body */}
       <div className="p-3 sm:p-4">
         {filtered.length === 0 ? (
@@ -428,6 +437,7 @@ export function TransitionCalendar({
           <AgendaView events={filtered} />
         )}
       </div>
+
     </section>
   );
 }
