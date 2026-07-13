@@ -12,6 +12,7 @@ import {
   PathwayConnectionsCard,
   PathwayNextStepsCard,
 } from "@/components/pathway/PathwayConnectionsCard";
+import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
 import { listStudents, type Student } from "@/lib/students.functions";
 import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
 
