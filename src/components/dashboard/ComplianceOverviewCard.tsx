@@ -52,11 +52,16 @@ const SAMPLE: Required<ComplianceOverviewData> = {
 export function ComplianceOverviewCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: ComplianceOverviewData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<ComplianceOverviewData> = { ...SAMPLE, ...(data ?? {}), metrics: data?.metrics ?? SAMPLE.metrics };
+  const isEmpty = empty || d.metrics.length === 0;
+
 
   return (
     <section
