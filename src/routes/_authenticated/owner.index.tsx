@@ -168,6 +168,13 @@ export function OwnerDashboardPage() {
 
           <ReviewQueuesPanel counts={queueCounts} loading={loading} />
 
+          {/* Full tile grid of every Admin Hub section, grouped by area.
+              This is the primary hub affordance — sub-pages remain full
+              destinations (not drawers) because admin workflows require
+              deep interaction. */}
+          <OwnerSectionsGrid />
+
+
           {/* Quick actions — secondary, collapsed on mobile to reduce density */}
           <CollapsibleSection
             title="Quick Actions"
