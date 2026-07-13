@@ -9,6 +9,8 @@ import {
   Link2,
   Database,
   Target,
+  ShieldCheck,
+  Workflow,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
