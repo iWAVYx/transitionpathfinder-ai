@@ -7,11 +7,21 @@ import {
   XCircle,
   ArrowRight,
   ExternalLink,
+  CalendarClock,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import type { PartnerMatch } from "@/lib/partner-matching.functions";
+import {
+  LIFECYCLE_STORAGE_KEY,
+  keyFor,
+  readDeadlineStore,
+  readLifecycleStore,
+  writeDeadlineStore,
+  type LifecycleStage,
+} from "@/lib/opportunity-pipeline-store";
 
 /**
  * Lightweight, client-side lifecycle tracker for saved partner matches.
@@ -21,12 +31,7 @@ import type { PartnerMatch } from "@/lib/partner-matching.functions";
  * lands, this can be replaced by an authoritative query.
  */
 
-export type LifecycleStage =
-  | "saved"
-  | "contacted"
-  | "applied"
-  | "enrolled"
-  | "not_a_fit";
+export type { LifecycleStage };
 
 const STAGES: {
   key: LifecycleStage;
@@ -42,26 +47,11 @@ const STAGES: {
   { key: "not_a_fit", label: "Not a fit", icon: XCircle, tone: "bg-rose-100 text-rose-900", hint: "Ruled out" },
 ];
 
-const STORAGE_KEY = "tf.opportunity-lifecycle.v1";
-
 type Store = Record<string, LifecycleStage>;
-
-function readStore(): Store {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}") as Store;
-  } catch {
-    return {};
-  }
-}
 
 function writeStore(next: Store) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-}
-
-function keyFor(studentId: string, partnerId: string) {
-  return `${studentId}::${partnerId}`;
+  window.localStorage.setItem(LIFECYCLE_STORAGE_KEY, JSON.stringify(next));
 }
 
 export function OpportunityLifecycleTracker({
