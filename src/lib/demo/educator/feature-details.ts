@@ -242,7 +242,7 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       "PPTs, IEP reviews, and check-ins across your caseload — in one place.",
     what: "See what's this week, jump into prep, and sync to your school calendar.",
     dataSource: "Meetings you schedule · deadlines from Pathway Reports",
-    primaryAction: { label: "Open Calendar", to: "/meetings" },
+    primaryAction: { label: "Open Calendar", to: "/calendar" },
     connectsTo: ["Meeting Prep", "Action Items"],
     stats: [
       { label: "This week", value: "2" },
