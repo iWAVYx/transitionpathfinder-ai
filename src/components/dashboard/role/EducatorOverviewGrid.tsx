@@ -75,7 +75,7 @@ const TILES: Tile[] = [
       { label: "Due this week", value: "2" },
       { label: "Overdue", value: "1" },
     ],
-    cta: { label: "Add Input", to: "/teacher-portal" },
+    cta: { label: "Add Input", to: "/educator/pending-input" },
   },
   {
     featureId: "pathway-reports",
@@ -150,7 +150,7 @@ const TILES: Tile[] = [
       { label: "Reviewed today", value: "2" },
       { label: "Awaiting family", value: "1" },
     ],
-    cta: { label: "Open Documents", to: "/documents" },
+    cta: { label: "Open Review Queue", to: "/educator/document-review" },
   },
 ];
 

@@ -8,6 +8,10 @@ import {
   Link2,
   Database,
   Target,
+  Inbox,
+  Lock,
+  Loader2,
+  RefreshCw,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -26,25 +30,30 @@ import {
 } from "@/lib/demo/student/feature-details";
 
 /**
- * StudentFeatureDrawer — one shared feature-detail drawer used by every
- * student dashboard tile (both signed-in and /demo/student). Renders a
- * focused preview of the feature: what it does, what data feeds it, the
- * next action, and the connections into the rest of the platform.
- *
- * The drawer is intentionally read-only. The "Open …" CTA routes the user
- * into the full workflow.
+ * Shared drawer for the Student dashboard. Mirrors the Parent / Educator /
+ * School Admin drawer contract: loading · error · permission · empty · ready.
  */
+export type StudentFeatureState =
+  | "loading"
+  | "error"
+  | "permission"
+  | "empty"
+  | "ready";
+
 export function StudentFeatureDrawer({
   featureId,
   icon,
   onOpenChange,
   isSample = false,
+  state = "ready",
+  onRetry,
 }: {
   featureId: StudentFeatureId | null;
   icon?: LucideIcon;
   onOpenChange: (open: boolean) => void;
-  /** Route CTAs to demo equivalents when true. */
   isSample?: boolean;
+  state?: StudentFeatureState;
+  onRetry?: () => void;
 }) {
   const detail = featureId ? STUDENT_FEATURE_DETAILS[featureId] : null;
   const Icon = icon;
@@ -84,75 +93,204 @@ export function StudentFeatureDrawer({
             </SheetHeader>
 
             <div className="flex-1 space-y-6 px-6 py-6">
-              {detail.stats && detail.stats.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
-                  {detail.stats.map((s) => (
-                    <div
-                      key={s.label}
-                      className="rounded-xl border bg-card p-3 text-center"
-                    >
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {s.label}
-                      </p>
-                      <p className="mt-1 font-display text-base leading-tight text-foreground">
-                        {s.value ?? "—"}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+              {state === "loading" && <LoadingBody />}
+              {state === "error" && <ErrorBody onRetry={onRetry} />}
+              {state === "permission" && (
+                <PermissionBody featureTitle={detail.title} />
               )}
-
-              <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Preview
-                </h3>
-                <ul className="mt-2 divide-y divide-border rounded-xl border bg-card">
-                  {detail.rows.map((r, i) => (
-                    <FeatureRowItem key={i} row={r} />
-                  ))}
-                </ul>
-              </section>
-
-              <section className="grid gap-3 sm:grid-cols-2">
-                <MetaCard
-                  icon={Database}
-                  label="Data source"
-                  value={detail.dataSource}
+              {state === "empty" && (
+                <EmptyBody
+                  headline={detail.emptyHeadline}
+                  body={detail.emptyBody}
+                  connectsTo={detail.connectsTo}
                 />
-                <MetaCard
-                  icon={Target}
-                  label="What you can do"
-                  value={detail.what}
-                />
-                <MetaCard
-                  icon={Link2}
-                  label="Connects to"
-                  value={detail.connectsTo.join(" · ")}
-                />
-              </section>
+              )}
+              {state === "ready" && <ReadyBody detail={detail} />}
             </div>
 
             <div className="sticky bottom-0 border-t bg-background/95 px-6 py-4 backdrop-blur">
-              <Button asChild size="lg" className="w-full">
-                <Link
-                  to={
-                    (isSample
-                      ? sampleRoute(detail.primaryAction.to)
-                      : detail.primaryAction.to) as string
-                  }
-                  onClick={() => onOpenChange(false)}
-                >
-                  {toTitleCase(
-                    isSample ? `Preview ${detail.title}` : detail.primaryAction.label,
-                  )}
-                  <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
-                </Link>
+              <Button
+                asChild={state !== "loading" && state !== "permission"}
+                size="lg"
+                className="w-full"
+                disabled={state === "loading" || state === "permission"}
+                aria-disabled={state === "loading" || state === "permission"}
+              >
+                {state === "loading" || state === "permission" ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    {state === "loading" && (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    )}
+                    {state === "loading" ? "Loading…" : "Access needed"}
+                  </span>
+                ) : (
+                  <Link
+                    to={
+                      (isSample
+                        ? sampleRoute(detail.primaryAction.to)
+                        : detail.primaryAction.to) as string
+                    }
+                    onClick={() => onOpenChange(false)}
+                  >
+                    {toTitleCase(
+                      isSample ? `Preview ${detail.title}` : detail.primaryAction.label,
+                    )}
+                    <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+                  </Link>
+                )}
               </Button>
             </div>
           </>
         )}
       </SheetContent>
     </Sheet>
+  );
+}
+
+function ReadyBody({
+  detail,
+}: {
+  detail: (typeof STUDENT_FEATURE_DETAILS)[StudentFeatureId];
+}) {
+  return (
+    <>
+      {detail.stats && detail.stats.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {detail.stats.map((s) => (
+            <div key={s.label} className="rounded-xl border bg-card p-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {s.label}
+              </p>
+              <p className="mt-1 font-display text-base leading-tight text-foreground">
+                {s.value ?? "—"}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <section>
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Preview
+        </h3>
+        <ul className="mt-2 divide-y divide-border rounded-xl border bg-card">
+          {detail.rows.map((r, i) => (
+            <FeatureRowItem key={i} row={r} />
+          ))}
+        </ul>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2">
+        <MetaCard icon={Database} label="Data source" value={detail.dataSource} />
+        <MetaCard icon={Target} label="What you can do" value={detail.what} />
+        <MetaCard
+          icon={Link2}
+          label="Connects to"
+          value={detail.connectsTo.join(" · ")}
+        />
+      </section>
+    </>
+  );
+}
+
+function LoadingBody() {
+  return (
+    <div role="status" aria-live="polite" className="space-y-4">
+      <div className="grid grid-cols-3 gap-2">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-xl border bg-card p-3">
+            <div className="h-3 w-16 animate-pulse rounded bg-muted-foreground/15" />
+            <div className="mt-2 h-5 w-12 animate-pulse rounded bg-muted-foreground/20" />
+          </div>
+        ))}
+      </div>
+      <ul className="divide-y divide-border rounded-xl border bg-card">
+        {[0, 1, 2, 3].map((i) => (
+          <li key={i} className="flex items-center gap-3 p-3">
+            <div className="h-4 w-4 shrink-0 animate-pulse rounded-full bg-muted-foreground/20" />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-3 w-3/4 animate-pulse rounded bg-muted-foreground/20" />
+              <div className="h-2.5 w-1/2 animate-pulse rounded bg-muted-foreground/15" />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-center text-xs text-muted-foreground">
+        <Loader2 className="mr-1 inline h-3 w-3 animate-spin" aria-hidden /> Loading
+      </p>
+      <span className="sr-only">Loading feature details</span>
+    </div>
+  );
+}
+
+function ErrorBody({ onRetry }: { onRetry?: () => void }) {
+  return (
+    <div
+      role="alert"
+      className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center"
+    >
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+        <AlertCircle className="h-5 w-5" aria-hidden />
+      </div>
+      <h3 className="mt-3 font-display text-base font-medium">
+        We couldn't load this right now.
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Your info is safe. Try again, or open the full page.
+      </p>
+      {onRetry && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-4"
+          onClick={onRetry}
+        >
+          <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden /> Try Again
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function PermissionBody({ featureTitle }: { featureTitle: string }) {
+  return (
+    <div className="rounded-2xl border bg-muted/30 p-5 text-center">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <Lock className="h-5 w-5" aria-hidden />
+      </div>
+      <h3 className="mt-3 font-display text-base font-medium">
+        Ask your team to share {toTitleCase(featureTitle)}.
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        This isn't shared with you yet. Ask your case manager or family to open it up.
+      </p>
+    </div>
+  );
+}
+
+function EmptyBody({
+  headline,
+  body,
+  connectsTo,
+}: {
+  headline: string;
+  body: string;
+  connectsTo: string[];
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed bg-card p-6 text-center">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Inbox className="h-5 w-5" aria-hidden />
+      </div>
+      <h3 className="mt-3 font-display text-base font-medium">{headline}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+      {connectsTo.length > 0 && (
+        <p className="mt-4 text-[11px] uppercase tracking-wider text-muted-foreground">
+          Connects to: {connectsTo.join(" · ")}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -206,11 +344,6 @@ function MetaCard({
   );
 }
 
-/**
- * Best-effort mapping from signed-in feature route to the closest demo
- * page. If no demo equivalent exists, keep the signed-in route so the CTA
- * still lands somewhere useful.
- */
 function sampleRoute(to: string): string {
   const map: Record<string, string> = {
     "/pathway/student": "/demo/report",
