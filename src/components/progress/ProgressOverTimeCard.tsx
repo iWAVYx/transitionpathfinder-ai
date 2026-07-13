@@ -1,6 +1,6 @@
 import { TrendingUp, CheckCircle2, FileText, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { titleCase } from "@/lib/title-case";
+import { toTitleCase } from "@/lib/title-case";
 
 type Point = { label: string; value: number };
 
@@ -51,12 +51,12 @@ export function ProgressOverTimeCard({
     >
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="tf-eyebrow">{titleCase("Progress Over Time")}</p>
+          <p className="tf-eyebrow">{toTitleCase("Progress Over Time")}</p>
           <h3
             id="progress-over-time-heading"
             className="mt-1 font-display text-xl leading-tight tracking-tight sm:text-2xl"
           >
-            {titleCase(`${studentName}'s Momentum`)}
+            {toTitleCase(`${studentName}'s Momentum`)}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             A quick read on readiness change, activity, and follow-through.
@@ -122,7 +122,7 @@ export function ProgressOverTimeCard({
       {sinceLastMeeting.length > 0 && (
         <div className="mt-5 rounded-xl border bg-muted/30 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {titleCase("Since Last Meeting")}
+            {toTitleCase("Since Last Meeting")}
           </p>
           <ul className="mt-2 space-y-1.5 text-sm">
             {sinceLastMeeting.map((line) => (
@@ -152,7 +152,7 @@ function Metric({
       <div className="flex items-center gap-1.5 text-muted-foreground">
         {icon}
         <dt className="text-[11px] font-medium uppercase tracking-wider">
-          {titleCase(label)}
+          {toTitleCase(label)}
         </dt>
       </div>
       <dd className="mt-1 font-display text-xl">{value}</dd>

@@ -1,6 +1,6 @@
 import { Sparkles, AlertTriangle, CheckCircle2, FileSearch } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { titleCase } from "@/lib/title-case";
+import { toTitleCase } from "@/lib/title-case";
 
 export type ExtractedSignal = {
   label: string;
@@ -49,13 +49,13 @@ export function DocumentSignalsCard({
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="tf-eyebrow inline-flex items-center gap-1.5">
-            <FileSearch className="h-3 w-3" /> {titleCase("Extracted Signals")}
+            <FileSearch className="h-3 w-3" /> {toTitleCase("Extracted Signals")}
           </p>
           <h3
             id="signals-heading"
             className="mt-1 font-display text-xl leading-tight tracking-tight sm:text-2xl"
           >
-            {titleCase(documentTitle)}
+            {toTitleCase(documentTitle)}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             What our AI read from this document. Every value can be edited, kept, or rejected in review.
@@ -79,7 +79,7 @@ export function DocumentSignalsCard({
         {signals.map((s) => (
           <li key={s.label} className="flex flex-wrap items-start justify-between gap-3 p-3 sm:p-4">
             <div className="min-w-0">
-              <p className="text-sm font-medium">{titleCase(s.label)}</p>
+              <p className="text-sm font-medium">{toTitleCase(s.label)}</p>
               <p className="mt-0.5 text-sm text-muted-foreground">{s.value}</p>
               {s.section && (
                 <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground/80">
