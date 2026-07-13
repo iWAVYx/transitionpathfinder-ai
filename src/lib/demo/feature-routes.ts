@@ -2,12 +2,11 @@
  * Single source of truth for demo-mode feature previews.
  *
  * Every role dashboard (Student / Family / Educator / School Admin /
- * District Admin / Partner) has tiles with a "Preview" button. In demo
- * mode we no longer route to generic marketing pages — instead every
- * (role, featureId) pair resolves to a dedicated demo feature page at
- * `/demo/feature/<role>/<slug>` that renders the same visual contract
- * as the drawer body, wrapped in a full-page shell with sample data +
- * back-to-role-dashboard navigation.
+ * District Admin / Partner / Owner) has tiles with a "Preview" button.
+ * In demo mode every (role, featureId) pair resolves to a dedicated
+ * demo feature page at `/demo/feature/<role>/<slug>` that renders the
+ * same visual contract as the drawer body, wrapped in a full-page
+ * shell with sample data + back-to-role-dashboard navigation.
  *
  * The dynamic route `src/routes/demo_.feature.$role.$slug.tsx` looks up
  * the entry here and renders <DemoFeatureShell>.
@@ -43,6 +42,11 @@ import {
   type PartnerFeatureId,
   type PartnerFeatureDetail,
 } from "@/lib/demo/partner/feature-details";
+import {
+  OWNER_FEATURE_DETAILS,
+  type OwnerFeatureId,
+  type OwnerFeatureDetail,
+} from "@/lib/demo/owner/feature-details";
 
 export type DemoRole =
   | "student"
@@ -50,7 +54,8 @@ export type DemoRole =
   | "educator"
   | "school-admin"
   | "district-admin"
-  | "partner";
+  | "partner"
+  | "owner";
 
 /** Uniform shape shared by every role's feature-details map. */
 export type DemoFeatureDetail =
@@ -59,7 +64,8 @@ export type DemoFeatureDetail =
   | EducatorFeatureDetail
   | SchoolAdminFeatureDetail
   | DistrictAdminFeatureDetail
-  | PartnerFeatureDetail;
+  | PartnerFeatureDetail
+  | OwnerFeatureDetail;
 
 const REGISTRY: Record<DemoRole, Record<string, DemoFeatureDetail>> = {
   student: STUDENT_FEATURE_DETAILS as Record<StudentFeatureId, StudentFeatureDetail>,
@@ -74,6 +80,7 @@ const REGISTRY: Record<DemoRole, Record<string, DemoFeatureDetail>> = {
     DistrictAdminFeatureDetail
   >,
   partner: PARTNER_FEATURE_DETAILS as Record<PartnerFeatureId, PartnerFeatureDetail>,
+  owner: OWNER_FEATURE_DETAILS as Record<OwnerFeatureId, OwnerFeatureDetail>,
 };
 
 const ROLE_DASHBOARD: Record<DemoRole, string> = {
@@ -83,6 +90,7 @@ const ROLE_DASHBOARD: Record<DemoRole, string> = {
   "school-admin": "/demo/school-admin",
   "district-admin": "/demo/district-admin",
   partner: "/demo/partner",
+  owner: "/demo/owner",
 };
 
 const ROLE_LABEL: Record<DemoRole, string> = {
@@ -92,6 +100,7 @@ const ROLE_LABEL: Record<DemoRole, string> = {
   "school-admin": "School Admin Dashboard",
   "district-admin": "District Admin Dashboard",
   partner: "Partner Dashboard",
+  owner: "Owner Hub",
 };
 
 export function isDemoRole(v: unknown): v is DemoRole {
@@ -111,6 +120,21 @@ export function demoRoleDashboardPath(role: DemoRole): string {
 
 export function demoRoleDashboardLabel(role: DemoRole): string {
   return ROLE_LABEL[role];
+}
+
+/** Every (role, featureId) pair for the audit + inventory snapshot. */
+export function listDemoFeatures(): Array<{
+  role: DemoRole;
+  featureId: string;
+  detail: DemoFeatureDetail;
+}> {
+  const out: Array<{ role: DemoRole; featureId: string; detail: DemoFeatureDetail }> = [];
+  for (const role of Object.keys(REGISTRY) as DemoRole[]) {
+    for (const [featureId, detail] of Object.entries(REGISTRY[role])) {
+      out.push({ role, featureId, detail });
+    }
+  }
+  return out;
 }
 
 /**
