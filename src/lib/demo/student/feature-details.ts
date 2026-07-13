@@ -3,9 +3,6 @@
  * and the /demo/student preview. Nothing here is real data. The signed-in
  * dashboard also uses these as the illustrative baseline whenever a live
  * value is not yet available for the tile preview footer.
- *
- * Feature ids match the tile ids in StudentOverviewGrid so the drawer can
- * look up the right block in one place.
  */
 
 export type StudentFeatureId =
@@ -31,18 +28,14 @@ export type StudentFeatureDetail = {
   title: string;
   eyebrow: string;
   summary: string;
-  /** What this feature does — one plain sentence. */
   what: string;
-  /** Where the data comes from. */
   dataSource: string;
-  /** What action the user can take from here. */
   primaryAction: { label: string; to: string };
-  /** Where this connects into the rest of TransitionForward. */
   connectsTo: string[];
-  /** Preview rows shown inside the drawer body. */
   rows: FeatureRow[];
-  /** Optional key stats. */
   stats?: FeatureBullet[];
+  emptyHeadline: string;
+  emptyBody: string;
 };
 
 export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDetail> = {
@@ -68,6 +61,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "Self-advocacy", secondary: "Growing", meta: "Voice prompts complete", status: "ok" },
       { primary: "Team & supports", secondary: "In place", meta: "Case manager · family", status: "ok" },
     ],
+    emptyHeadline: "Your report is being built.",
+    emptyBody:
+      "As you answer Student Voice prompts and your team adds input, your Pathway Report will appear here.",
   },
 
   "student-voice": {
@@ -92,6 +88,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "What worries you about after school?", secondary: "Not yet", status: "warning" },
       { primary: "What do you want to say at the meeting?", secondary: "Not yet", status: "warning" },
     ],
+    emptyHeadline: "No prompts answered yet.",
+    emptyBody:
+      "Answer a few short prompts about your strengths and hopes — your team will read them before your next meeting.",
   },
 
   "action-items": {
@@ -115,6 +114,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "Tour Capital Community College", secondary: "Planned · Oct 2", status: "muted" },
       { primary: "Practice travel-training route", secondary: "In progress", status: "ok" },
     ],
+    emptyHeadline: "No action items yet.",
+    emptyBody:
+      "Once your team assigns next steps or you add your own, they'll show up here.",
   },
 
   "saved-resources": {
@@ -135,6 +137,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "Travel Training Toolkit", secondary: "Toolkit · video + PDF" },
       { primary: "Self-Advocacy Practice Cards", secondary: "Cards · 12 prompts" },
     ],
+    emptyHeadline: "Nothing saved yet.",
+    emptyBody:
+      "Bookmark guides, checklists, and tools so you can find them again fast.",
   },
 
   "meeting-prep": {
@@ -158,6 +163,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "Review employment goal progress", secondary: "Agenda item", status: "muted" },
       { primary: "Update self-advocacy goal", secondary: "Agenda item · needs owner", status: "warning" },
     ],
+    emptyHeadline: "No meeting scheduled yet.",
+    emptyBody:
+      "When your team sets a PPT or IEP date, prep tools will appear here.",
   },
 
   calendar: {
@@ -179,6 +187,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "College tour — Capital CC", secondary: "Oct 2 · morning", meta: "Optional · family welcome", status: "muted" },
       { primary: "Check-in with case manager", secondary: "Oct 9 · 15 min", meta: "Virtual", status: "muted" },
     ],
+    emptyHeadline: "Nothing on the calendar.",
+    emptyBody:
+      "PPTs, tours, and check-ins your team schedules will show up here.",
   },
 
   documents: {
@@ -201,6 +212,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { primary: "Family notes for the PPT", secondary: "Doc · shared by parent", meta: "Sep 3", status: "muted" },
       { primary: "Latest evaluation", secondary: "Awaiting upload", meta: "Ask your case manager", status: "warning" },
     ],
+    emptyHeadline: "No documents shared with you yet.",
+    emptyBody:
+      "When your family or case manager shares your IEP or an evaluation, it will appear here.",
   },
 };
 

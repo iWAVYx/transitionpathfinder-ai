@@ -24,23 +24,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import {
-  STUDENT_FEATURE_DETAILS,
-  type StudentFeatureId,
+  DISTRICT_ADMIN_FEATURE_DETAILS,
+  type DistrictAdminFeatureId,
   type FeatureRow,
-} from "@/lib/demo/student/feature-details";
+} from "@/lib/demo/district-admin/feature-details";
 
 /**
- * Shared drawer for the Student dashboard. Mirrors the Parent / Educator /
- * School Admin drawer contract: loading · error · permission · empty · ready.
+ * Shared drawer for the District Admin dashboard. Mirrors the School Admin /
+ * Parent / Educator drawer contract: loading · error · permission · empty · ready.
+ * District is aggregate-only — never individual student records.
  */
-export type StudentFeatureState =
+export type DistrictAdminFeatureState =
   | "loading"
   | "error"
   | "permission"
   | "empty"
   | "ready";
 
-export function StudentFeatureDrawer({
+export function DistrictAdminFeatureDrawer({
   featureId,
   icon,
   onOpenChange,
@@ -48,14 +49,14 @@ export function StudentFeatureDrawer({
   state = "ready",
   onRetry,
 }: {
-  featureId: StudentFeatureId | null;
+  featureId: DistrictAdminFeatureId | null;
   icon?: LucideIcon;
   onOpenChange: (open: boolean) => void;
   isSample?: boolean;
-  state?: StudentFeatureState;
+  state?: DistrictAdminFeatureState;
   onRetry?: () => void;
 }) {
-  const detail = featureId ? STUDENT_FEATURE_DETAILS[featureId] : null;
+  const detail = featureId ? DISTRICT_ADMIN_FEATURE_DETAILS[featureId] : null;
   const Icon = icon;
 
   return (
@@ -133,7 +134,9 @@ export function StudentFeatureDrawer({
                     onClick={() => onOpenChange(false)}
                   >
                     {toTitleCase(
-                      isSample ? `Preview ${detail.title}` : detail.primaryAction.label,
+                      isSample
+                        ? `Preview ${detail.title}`
+                        : detail.primaryAction.label,
                     )}
                     <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                   </Link>
@@ -150,7 +153,7 @@ export function StudentFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof STUDENT_FEATURE_DETAILS)[StudentFeatureId];
+  detail: (typeof DISTRICT_ADMIN_FEATURE_DETAILS)[DistrictAdminFeatureId];
 }) {
   return (
     <>
@@ -236,7 +239,7 @@ function ErrorBody({ onRetry }: { onRetry?: () => void }) {
         We couldn't load this right now.
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Your info is safe. Try again, or open the full page.
+        District aggregates are safe. Try again, or open the full page.
       </p>
       {onRetry && (
         <Button
@@ -260,10 +263,11 @@ function PermissionBody({ featureTitle }: { featureTitle: string }) {
         <Lock className="h-5 w-5" aria-hidden />
       </div>
       <h3 className="mt-3 font-display text-base font-medium">
-        Ask your team to share {toTitleCase(featureTitle)}.
+        Access needed to view {toTitleCase(featureTitle)}.
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        This isn't shared with you yet. Ask your case manager or family to open it up.
+        Your role doesn't include this district-level view yet. Ask your
+        platform admin to expand district-admin access.
       </p>
     </div>
   );
@@ -346,13 +350,13 @@ function MetaCard({
 
 function sampleRoute(to: string): string {
   const map: Record<string, string> = {
-    "/pathway/student": "/demo/report",
-    "/student-voice": "/demo/voice",
-    "/action-items": "/demo/next",
-    "/resources/saved": "/demo/resources",
-    "/ppt-prep": "/demo/meeting",
-    "/meetings": "/demo/calendar",
-    "/documents": "/demo/documents",
+    "/district/overview": "/demo/district-admin",
+    "/district/schools": "/demo/district-admin",
+    "/district/progress": "/demo/district-admin",
+    "/district/readiness-trends": "/demo/district-admin",
+    "/district/implementation": "/demo/district-admin",
+    "/district/reports": "/demo/report",
+    "/district/service-gaps": "/demo/district-admin",
   };
   return map[to] ?? to;
 }

@@ -4,6 +4,7 @@ import { getDemoRole } from "@/lib/demo/role-previews";
 import { DistrictComplianceCard } from "@/components/dashboard/DistrictComplianceCard";
 import { DistrictEvidenceCoverageCard } from "@/components/dashboard/DistrictEvidenceCoverageCard";
 import { DistrictTrendMetricsCard } from "@/components/dashboard/DistrictTrendMetricsCard";
+import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
 
 const role = getDemoRole("district-admin");
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/demo_/district-admin")({
       role={role}
       extras={
         <>
+          <DistrictAdminOverviewGrid isSample />
           <DistrictComplianceCard isSample />
           <DistrictEvidenceCoverageCard isSample />
           <DistrictTrendMetricsCard isSample />

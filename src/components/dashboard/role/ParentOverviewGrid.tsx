@@ -126,7 +126,7 @@ const TILES: Tile[] = [
     tone: "muted",
     summary: "Guides tuned to your student's grade, readiness, and family priorities.",
     bullets: [{ label: "Saved", value: "2" }],
-    cta: { label: "Open Resources", to: "/resources/saved" },
+    cta: { label: "Open Resources", to: "/family/resources/recommended" },
   },
   {
     featureId: "consent",
@@ -149,7 +149,7 @@ const TILES: Tile[] = [
       { label: "Joined", value: "2" },
       { label: "Pending", value: "1" },
     ],
-    cta: { label: "Send An Invite", to: "/students" },
+    cta: { label: "Send An Invite", to: "/family/invites" },
   },
 ];
 

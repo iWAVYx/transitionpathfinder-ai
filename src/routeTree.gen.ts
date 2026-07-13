@@ -113,6 +113,7 @@ import { Route as AuthenticatedSchoolReadinessTrendsRouteImport } from './routes
 import { Route as AuthenticatedSchoolPlanningStatusRouteImport } from './routes/_authenticated/school.planning-status'
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
+import { Route as AuthenticatedSchoolCalendarRouteImport } from './routes/_authenticated/school.calendar'
 import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authenticated/resources.saved'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
 import { Route as AuthenticatedPathwayStudentRouteImport } from './routes/_authenticated/pathway.student'
@@ -171,10 +172,13 @@ import { Route as AuthenticatedHubsCaseloadRouteImport } from './routes/_authent
 import { Route as AuthenticatedHubsAdminRouteImport } from './routes/_authenticated/hubs.admin'
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
 import { Route as AuthenticatedFamilyPrioritiesRouteImport } from './routes/_authenticated/family.priorities'
+import { Route as AuthenticatedFamilyInvitesRouteImport } from './routes/_authenticated/family.invites'
 import { Route as AuthenticatedFamilyConsentRouteImport } from './routes/_authenticated/family.consent'
 import { Route as AuthenticatedFamilyActionItemsRouteImport } from './routes/_authenticated/family.action-items'
 import { Route as AuthenticatedEducatorReadinessGapsRouteImport } from './routes/_authenticated/educator.readiness-gaps'
+import { Route as AuthenticatedEducatorPendingInputRouteImport } from './routes/_authenticated/educator.pending-input'
 import { Route as AuthenticatedEducatorNotesRouteImport } from './routes/_authenticated/educator.notes'
+import { Route as AuthenticatedEducatorDocumentReviewRouteImport } from './routes/_authenticated/educator.document-review'
 import { Route as AuthenticatedEducatorActionItemsRouteImport } from './routes/_authenticated/educator.action-items'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
 import { Route as AuthenticatedDistrictServiceGapsRouteImport } from './routes/_authenticated/district.service-gaps'
@@ -194,6 +198,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as AuthenticatedFamilyResourcesRecommendedRouteImport } from './routes/_authenticated/family.resources.recommended'
 import { Route as AuthenticatedDocumentsDocumentIdReviewRouteImport } from './routes/_authenticated/documents.$documentId.review'
 
 const WaitlistRoute = WaitlistRouteImport.update({
@@ -734,6 +739,12 @@ const AuthenticatedSchoolImplementationRoute =
     path: '/school/implementation',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSchoolCalendarRoute =
+  AuthenticatedSchoolCalendarRouteImport.update({
+    id: '/school/calendar',
+    path: '/school/calendar',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedResourcesSavedRoute =
   AuthenticatedResourcesSavedRouteImport.update({
     id: '/resources/saved',
@@ -1072,6 +1083,12 @@ const AuthenticatedFamilyPrioritiesRoute =
     path: '/family/priorities',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFamilyInvitesRoute =
+  AuthenticatedFamilyInvitesRouteImport.update({
+    id: '/family/invites',
+    path: '/family/invites',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFamilyConsentRoute =
   AuthenticatedFamilyConsentRouteImport.update({
     id: '/family/consent',
@@ -1090,10 +1107,22 @@ const AuthenticatedEducatorReadinessGapsRoute =
     path: '/educator/readiness-gaps',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedEducatorPendingInputRoute =
+  AuthenticatedEducatorPendingInputRouteImport.update({
+    id: '/educator/pending-input',
+    path: '/educator/pending-input',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEducatorNotesRoute =
   AuthenticatedEducatorNotesRouteImport.update({
     id: '/educator/notes',
     path: '/educator/notes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEducatorDocumentReviewRoute =
+  AuthenticatedEducatorDocumentReviewRouteImport.update({
+    id: '/educator/document-review',
+    path: '/educator/document-review',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedEducatorActionItemsRoute =
@@ -1208,6 +1237,12 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedFamilyResourcesRecommendedRoute =
+  AuthenticatedFamilyResourcesRecommendedRouteImport.update({
+    id: '/family/resources/recommended',
+    path: '/family/resources/recommended',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDocumentsDocumentIdReviewRoute =
   AuthenticatedDocumentsDocumentIdReviewRouteImport.update({
     id: '/$documentId/review',
@@ -1318,10 +1353,13 @@ export interface FileRoutesByFullPath {
   '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
+  '/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
+  '/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/family/invites': typeof AuthenticatedFamilyInvitesRoute
   '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/hubs/admin': typeof AuthenticatedHubsAdminRoute
@@ -1380,6 +1418,7 @@ export interface FileRoutesByFullPath {
   '/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
+  '/school/calendar': typeof AuthenticatedSchoolCalendarRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1396,6 +1435,7 @@ export interface FileRoutesByFullPath {
   '/workspace/': typeof AuthenticatedWorkspaceIndexRoute
   '/demo/workspace/': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
+  '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1503,10 +1543,13 @@ export interface FileRoutesByTo {
   '/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
+  '/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
+  '/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/family/invites': typeof AuthenticatedFamilyInvitesRoute
   '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/hubs/admin': typeof AuthenticatedHubsAdminRoute
@@ -1565,6 +1608,7 @@ export interface FileRoutesByTo {
   '/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
+  '/school/calendar': typeof AuthenticatedSchoolCalendarRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1581,6 +1625,7 @@ export interface FileRoutesByTo {
   '/workspace': typeof AuthenticatedWorkspaceIndexRoute
   '/demo/workspace': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
+  '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1692,10 +1737,13 @@ export interface FileRoutesById {
   '/_authenticated/district/service-gaps': typeof AuthenticatedDistrictServiceGapsRoute
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
+  '/_authenticated/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
   '/_authenticated/educator/notes': typeof AuthenticatedEducatorNotesRoute
+  '/_authenticated/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/_authenticated/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/_authenticated/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/_authenticated/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/_authenticated/family/invites': typeof AuthenticatedFamilyInvitesRoute
   '/_authenticated/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
   '/_authenticated/hubs/admin': typeof AuthenticatedHubsAdminRoute
@@ -1754,6 +1802,7 @@ export interface FileRoutesById {
   '/_authenticated/pathway/student': typeof AuthenticatedPathwayStudentRoute
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/resources/saved': typeof AuthenticatedResourcesSavedRoute
+  '/_authenticated/school/calendar': typeof AuthenticatedSchoolCalendarRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/_authenticated/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1770,6 +1819,7 @@ export interface FileRoutesById {
   '/_authenticated/workspace/': typeof AuthenticatedWorkspaceIndexRoute
   '/demo_/workspace/': typeof DemoWorkspaceIndexRoute
   '/_authenticated/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
+  '/_authenticated/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1881,10 +1931,13 @@ export interface FileRouteTypes {
     | '/district/service-gaps'
     | '/district/team'
     | '/educator/action-items'
+    | '/educator/document-review'
     | '/educator/notes'
+    | '/educator/pending-input'
     | '/educator/readiness-gaps'
     | '/family/action-items'
     | '/family/consent'
+    | '/family/invites'
     | '/family/priorities'
     | '/forms/$slug'
     | '/hubs/admin'
@@ -1943,6 +1996,7 @@ export interface FileRouteTypes {
     | '/pathway/student'
     | '/reports/$reportId'
     | '/resources/saved'
+    | '/school/calendar'
     | '/school/implementation'
     | '/school/overview'
     | '/school/planning-status'
@@ -1959,6 +2013,7 @@ export interface FileRouteTypes {
     | '/workspace/'
     | '/demo/workspace/'
     | '/documents/$documentId/review'
+    | '/family/resources/recommended'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -2066,10 +2121,13 @@ export interface FileRouteTypes {
     | '/district/service-gaps'
     | '/district/team'
     | '/educator/action-items'
+    | '/educator/document-review'
     | '/educator/notes'
+    | '/educator/pending-input'
     | '/educator/readiness-gaps'
     | '/family/action-items'
     | '/family/consent'
+    | '/family/invites'
     | '/family/priorities'
     | '/forms/$slug'
     | '/hubs/admin'
@@ -2128,6 +2186,7 @@ export interface FileRouteTypes {
     | '/pathway/student'
     | '/reports/$reportId'
     | '/resources/saved'
+    | '/school/calendar'
     | '/school/implementation'
     | '/school/overview'
     | '/school/planning-status'
@@ -2144,6 +2203,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/demo/workspace'
     | '/documents/$documentId/review'
+    | '/family/resources/recommended'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -2254,10 +2314,13 @@ export interface FileRouteTypes {
     | '/_authenticated/district/service-gaps'
     | '/_authenticated/district/team'
     | '/_authenticated/educator/action-items'
+    | '/_authenticated/educator/document-review'
     | '/_authenticated/educator/notes'
+    | '/_authenticated/educator/pending-input'
     | '/_authenticated/educator/readiness-gaps'
     | '/_authenticated/family/action-items'
     | '/_authenticated/family/consent'
+    | '/_authenticated/family/invites'
     | '/_authenticated/family/priorities'
     | '/_authenticated/forms/$slug'
     | '/_authenticated/hubs/admin'
@@ -2316,6 +2379,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pathway/student'
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/resources/saved'
+    | '/_authenticated/school/calendar'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
     | '/_authenticated/school/planning-status'
@@ -2332,6 +2396,7 @@ export interface FileRouteTypes {
     | '/_authenticated/workspace/'
     | '/demo_/workspace/'
     | '/_authenticated/documents/$documentId/review'
+    | '/_authenticated/family/resources/recommended'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -3137,6 +3202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchoolImplementationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/school/calendar': {
+      id: '/_authenticated/school/calendar'
+      path: '/school/calendar'
+      fullPath: '/school/calendar'
+      preLoaderRoute: typeof AuthenticatedSchoolCalendarRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/resources/saved': {
       id: '/_authenticated/resources/saved'
       path: '/resources/saved'
@@ -3543,6 +3615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFamilyPrioritiesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/family/invites': {
+      id: '/_authenticated/family/invites'
+      path: '/family/invites'
+      fullPath: '/family/invites'
+      preLoaderRoute: typeof AuthenticatedFamilyInvitesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/family/consent': {
       id: '/_authenticated/family/consent'
       path: '/family/consent'
@@ -3564,11 +3643,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEducatorReadinessGapsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/educator/pending-input': {
+      id: '/_authenticated/educator/pending-input'
+      path: '/educator/pending-input'
+      fullPath: '/educator/pending-input'
+      preLoaderRoute: typeof AuthenticatedEducatorPendingInputRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/educator/notes': {
       id: '/_authenticated/educator/notes'
       path: '/educator/notes'
       fullPath: '/educator/notes'
       preLoaderRoute: typeof AuthenticatedEducatorNotesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/educator/document-review': {
+      id: '/_authenticated/educator/document-review'
+      path: '/educator/document-review'
+      fullPath: '/educator/document-review'
+      preLoaderRoute: typeof AuthenticatedEducatorDocumentReviewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/educator/action-items': {
@@ -3703,6 +3796,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/auth/preview'
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/family/resources/recommended': {
+      id: '/_authenticated/family/resources/recommended'
+      path: '/family/resources/recommended'
+      fullPath: '/family/resources/recommended'
+      preLoaderRoute: typeof AuthenticatedFamilyResourcesRecommendedRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/documents/$documentId/review': {
       id: '/_authenticated/documents/$documentId/review'
@@ -3928,10 +4028,13 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictServiceGapsRoute: typeof AuthenticatedDistrictServiceGapsRoute
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
   AuthenticatedEducatorActionItemsRoute: typeof AuthenticatedEducatorActionItemsRoute
+  AuthenticatedEducatorDocumentReviewRoute: typeof AuthenticatedEducatorDocumentReviewRoute
   AuthenticatedEducatorNotesRoute: typeof AuthenticatedEducatorNotesRoute
+  AuthenticatedEducatorPendingInputRoute: typeof AuthenticatedEducatorPendingInputRoute
   AuthenticatedEducatorReadinessGapsRoute: typeof AuthenticatedEducatorReadinessGapsRoute
   AuthenticatedFamilyActionItemsRoute: typeof AuthenticatedFamilyActionItemsRoute
   AuthenticatedFamilyConsentRoute: typeof AuthenticatedFamilyConsentRoute
+  AuthenticatedFamilyInvitesRoute: typeof AuthenticatedFamilyInvitesRoute
   AuthenticatedFamilyPrioritiesRoute: typeof AuthenticatedFamilyPrioritiesRoute
   AuthenticatedHubsAdminRoute: typeof AuthenticatedHubsAdminRoute
   AuthenticatedHubsCaseloadRoute: typeof AuthenticatedHubsCaseloadRoute
@@ -3946,6 +4049,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPartnersManageProfileRoute: typeof AuthenticatedPartnersManageProfileRoute
   AuthenticatedPartnersManageResourcesRoute: typeof AuthenticatedPartnersManageResourcesRoute
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
+  AuthenticatedSchoolCalendarRoute: typeof AuthenticatedSchoolCalendarRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolPlanningStatusRoute: typeof AuthenticatedSchoolPlanningStatusRoute
@@ -3956,6 +4060,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
+  AuthenticatedFamilyResourcesRecommendedRoute: typeof AuthenticatedFamilyResourcesRecommendedRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -4006,11 +4111,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDistrictServiceGapsRoute: AuthenticatedDistrictServiceGapsRoute,
   AuthenticatedDistrictTeamRoute: AuthenticatedDistrictTeamRoute,
   AuthenticatedEducatorActionItemsRoute: AuthenticatedEducatorActionItemsRoute,
+  AuthenticatedEducatorDocumentReviewRoute:
+    AuthenticatedEducatorDocumentReviewRoute,
   AuthenticatedEducatorNotesRoute: AuthenticatedEducatorNotesRoute,
+  AuthenticatedEducatorPendingInputRoute:
+    AuthenticatedEducatorPendingInputRoute,
   AuthenticatedEducatorReadinessGapsRoute:
     AuthenticatedEducatorReadinessGapsRoute,
   AuthenticatedFamilyActionItemsRoute: AuthenticatedFamilyActionItemsRoute,
   AuthenticatedFamilyConsentRoute: AuthenticatedFamilyConsentRoute,
+  AuthenticatedFamilyInvitesRoute: AuthenticatedFamilyInvitesRoute,
   AuthenticatedFamilyPrioritiesRoute: AuthenticatedFamilyPrioritiesRoute,
   AuthenticatedHubsAdminRoute: AuthenticatedHubsAdminRoute,
   AuthenticatedHubsCaseloadRoute: AuthenticatedHubsCaseloadRoute,
@@ -4030,6 +4140,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPartnersManageResourcesRoute:
     AuthenticatedPartnersManageResourcesRoute,
   AuthenticatedResourcesSavedRoute: AuthenticatedResourcesSavedRoute,
+  AuthenticatedSchoolCalendarRoute: AuthenticatedSchoolCalendarRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
@@ -4043,6 +4154,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
   AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
+  AuthenticatedFamilyResourcesRecommendedRoute:
+    AuthenticatedFamilyResourcesRecommendedRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
