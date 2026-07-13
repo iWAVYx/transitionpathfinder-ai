@@ -8,8 +8,13 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  PathwayConnectionsCard,
+  PathwayNextStepsCard,
+} from "@/components/pathway/PathwayConnectionsCard";
 import { listStudents, type Student } from "@/lib/students.functions";
 import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
+
 
 export const Route = createFileRoute("/_authenticated/pathway/student")({
   head: () => ({
@@ -126,18 +131,26 @@ function StudentPathwayPage() {
                 ))}
               </CardContent>
             </Card>
+
+            <PathwayNextStepsCard role="student" hasReport />
+            <PathwayConnectionsCard role="student" />
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
-            <h2 className="text-lg font-medium">No pathway report yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Start your pathway to generate your first plan in your own words.
-            </p>
-            <Button asChild className="mt-4">
-              <Link to="/pathway">Start my pathway</Link>
-            </Button>
+          <div className="space-y-6">
+            <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
+              <h2 className="text-lg font-medium">No pathway report yet</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Start your pathway to generate your first plan in your own words.
+              </p>
+              <Button asChild className="mt-4">
+                <Link to="/pathway">Start my pathway</Link>
+              </Button>
+            </div>
+            <PathwayNextStepsCard role="student" hasReport={false} />
+            <PathwayConnectionsCard role="student" />
           </div>
         )}
+
       </main>
     </SiteShell>
   );

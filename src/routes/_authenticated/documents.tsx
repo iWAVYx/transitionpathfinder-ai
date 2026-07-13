@@ -17,11 +17,13 @@ import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState"
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import {
   listAllDocuments,
   type CrossDocumentRow,
   type DocumentReviewStatus,
 } from "@/lib/cross-docs.functions";
+
 
 export const Route = createFileRoute("/_authenticated/documents")({
   head: () => ({ meta: [{ title: "Documents — TransitionForward" }] }),
@@ -151,6 +153,10 @@ function DocumentsHubPage() {
             {STATUS_META[filter].description}
           </p>
         )}
+
+        <MissingDocumentsChecklist rows={rows} className="mt-6" />
+
+
 
         <div className="mt-6 flex items-center gap-3">
           <div className="relative flex-1">
