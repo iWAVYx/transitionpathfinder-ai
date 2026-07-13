@@ -4,7 +4,11 @@ import { Rocket, Sprout, Waypoints, TrendingUp } from "lucide-react";
 import { DistrictPageShell, useDistrictDashboard } from "@/components/district/DistrictPageShell";
 import { Badge } from "@/components/ui/badge";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
-import type { DistrictSchool } from "@/lib/district-admin.functions";
+import type { DistrictSchool, DistrictDashboard } from "@/lib/district-admin.functions";
+import { RolloutMilestonesCard, type RolloutMilestone } from "@/components/implementation/RolloutMilestonesCard";
+import { TrainingScheduleCard } from "@/components/implementation/TrainingScheduleCard";
+import { ReportingDeadlinesCard } from "@/components/implementation/ReportingDeadlinesCard";
+import { StaffProgressTable, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
 
 export const Route = createFileRoute("/_authenticated/district/implementation")({
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
