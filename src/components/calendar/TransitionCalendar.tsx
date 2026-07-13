@@ -217,6 +217,28 @@ export function TransitionCalendar({
     return map;
   }, [filtered]);
 
+  const upcoming = useMemo(() => {
+    const now = Date.now();
+    return [...filtered]
+      .filter((e) => new Date(e.start).getTime() >= now - 24 * 60 * 60 * 1000)
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+  }, [filtered]);
+
+  const nextUp = upcoming[0];
+  const prepPool = useMemo(
+    () =>
+      upcoming
+        .filter((e) => e.prep && e.prep.length > 0)
+        .slice(0, 3),
+    [upcoming],
+  );
+  const reminders = useMemo(
+    () => upcoming.filter((e) => e.reminder).slice(0, 4),
+    [upcoming],
+  );
+  const showFocusRail = Boolean(nextUp || prepPool.length || reminders.length);
+
+
   const step = view === "month" ? "month" : view === "week" ? "week" : "week";
   function shift(delta: -1 | 1) {
     setCursor((c) => {
