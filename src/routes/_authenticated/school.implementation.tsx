@@ -126,3 +126,88 @@ function Bar({ label, value }: { label: string; value: number }) {
     </li>
   );
 }
+
+function SchoolImplementationExtras({ org, dash }: { org: SchoolOrg; dash: SchoolDashboard }) {
+  const m = dash.metrics;
+  const milestones: RolloutMilestone[] = [
+    {
+      key: "school-created",
+      label: "School workspace created",
+      detail: "Your school workspace is ready for staff and students.",
+      done: true,
+    },
+    {
+      key: "staff-invited",
+      label: "Staff invited",
+      detail: "Educators and case managers have been invited to the workspace.",
+      done: m.total_members > 1,
+    },
+    {
+      key: "staff-active",
+      label: "Staff onboarded",
+      detail: "At least 3 staff members are active and using the platform.",
+      done: m.active_members >= 3,
+    },
+    {
+      key: "students-added",
+      label: "Students added",
+      detail: "Students have been added to educator caseloads.",
+      done: m.students_count > 0,
+    },
+    {
+      key: "documents-uploaded",
+      label: "IEP & evaluation documents uploaded",
+      detail: "Source documents are in place so Pathway Reports can be generated.",
+      done: m.documents_count > 0,
+    },
+    {
+      key: "first-report",
+      label: "First Pathway Report generated",
+      detail: "Your team has produced its first Pathway Report from a student's records.",
+      done: m.reports_count > 0,
+    },
+    {
+      key: "majority-reports",
+      label: "Majority of students have a Pathway Report",
+      detail: "At least 60% of students on caseloads have an active Pathway Report.",
+      done: m.students_count > 0 && m.reports_count / m.students_count >= 0.6,
+    },
+  ];
+
+  const rows: StaffProgressRow[] = [
+    ...dash.members.map((mem) => ({
+      key: `m:${mem.membership_id}`,
+      name: mem.full_name || mem.email || "Unnamed member",
+      role: mem.role_within_org,
+      status: "active" as const,
+      joined: mem.joined_at,
+      progress: 100,
+      detail: mem.email ?? undefined,
+    })),
+    ...dash.pending_members.map((mem) => ({
+      key: `p:${mem.membership_id}`,
+      name: mem.full_name || mem.email || "Pending invite",
+      role: mem.role_within_org,
+      status: "pending" as const,
+      joined: mem.joined_at,
+      progress: 25,
+      detail: mem.email ?? undefined,
+    })),
+  ];
+
+  return (
+    <>
+      <RolloutMilestonesCard scope="school" milestones={milestones} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TrainingScheduleCard scopeId={`school:${org.id}`} />
+        <ReportingDeadlinesCard scope="school" />
+      </div>
+      <StaffProgressTable
+        title="Staff Onboarding Progress"
+        subtitle="Active and pending members of your school workspace."
+        rows={rows}
+        emptyLabel="No staff invited yet. Invite educators and case managers to get started."
+      />
+    </>
+  );
+}
