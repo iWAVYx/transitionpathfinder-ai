@@ -268,6 +268,11 @@ function OpportunitiesPage() {
                   </p>
                 )}
               </div>
+              </div>
+            )}
+
+            {studentId && matches && matches.length > 0 && (
+              <OpportunityLifecycleTracker studentId={studentId} matches={matches} />
             )}
           </section>
         )}
