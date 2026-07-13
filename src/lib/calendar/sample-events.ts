@@ -39,7 +39,22 @@ export interface CalendarEvent {
   href?: string;
   /** Short one-line description shown in the agenda / hover. */
   description?: string;
+  /**
+   * Pathway Report goal or horizon this event feeds. Renders as a chip in
+   * the agenda and drives the "Pathway-Linked" focus rail summary.
+   */
+  pathwayGoal?: { label: string; href?: string };
+  /** Concrete prep prompts a user can knock out before this event. */
+  prep?: string[];
+  /**
+   * Human reminder cadence, e.g. "2 days before" — surfaced in the
+   * reminders rail. Absent = no automatic reminder.
+   */
+  reminder?: string;
+  /** Owner label shown on the agenda pill, e.g. "Family action". */
+  owner?: string;
 }
+
 
 const DAY = 24 * 60 * 60 * 1000;
 
