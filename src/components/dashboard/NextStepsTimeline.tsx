@@ -131,22 +131,29 @@ export function NextStepsTimeline({
                   </p>
                 </div>
               </div>
-              <ul className="mt-3 space-y-2 text-xs">
-                {h.items.map((it, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 border-b border-dashed border-border/60 pb-2 last:border-b-0 last:pb-0"
-                  >
-                    <span
-                      aria-hidden
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60"
-                    />
-                    <span className="leading-relaxed text-foreground/90">
-                      {it}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {h.items.length > 0 ? (
+                <ul className="mt-3 space-y-2 text-xs">
+                  {h.items.map((it, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 border-b border-dashed border-border/60 pb-2 last:border-b-0 last:pb-0"
+                    >
+                      <span
+                        aria-hidden
+                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60"
+                      />
+                      <span className="leading-relaxed text-foreground/90">
+                        {it}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-3 rounded-xl border border-dashed border-border/60 bg-muted/30 p-3 text-center text-[11px] leading-relaxed text-muted-foreground">
+                  No Steps Yet For This Horizon. New Items Land Here Each Time Your Pathway Report Refreshes.
+                </div>
+              )}
+
             </li>
           );
         })}
