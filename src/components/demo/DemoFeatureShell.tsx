@@ -277,12 +277,14 @@ export function DemoFeatureShell({
               </Link>
             </Button>
             {detail.primaryAction && (
-              <Button asChild size="sm" data-testid="demo-feature-primary-action">
+              <Button asChild data-testid="demo-feature-primary-action" className="shadow-elegant">
                 <Link to={detail.primaryAction.to as never}>
-                  {detail.primaryAction.label}
+                  <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
+                  {toTitleCase(detail.primaryAction.label)}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
+
             )}
           </div>
         </div>
