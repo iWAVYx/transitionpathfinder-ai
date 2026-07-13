@@ -7,6 +7,7 @@ import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
 import { ReadinessHeatmap } from "@/components/dashboard/ReadinessHeatmap";
+import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
 
 const role = getDemoRole("educator");
 
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/demo_/educator")({
       role={role}
       extras={
         <>
+          <RoleOnboardingChecklist role="educator" />
           <ReadinessHeatmap />
           <EducatorOverviewGrid isSample />
           <EvidenceReviewCard isSample />
