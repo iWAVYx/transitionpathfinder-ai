@@ -3,6 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles, Users, CalendarCheck, ArrowRight } from "lucide-react";
 import { getImpactSummary } from "@/lib/partnerforward.functions";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 type Summary = {
   total_events: number;
