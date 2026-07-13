@@ -7336,3 +7336,30 @@ nav.no-print[aria-label="Report outline"] {
     padding-left: 0 !important;
   }
 }
+
+/* ============================================================
+ * Dashboard polish pass — motion-safe interactive effects.
+ * All keyframes gated behind prefers-reduced-motion: no-preference
+ * so users who opt out of motion see static end-states.
+ * ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes milestone-glow {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 0%, transparent); }
+    50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--primary) 20%, transparent); }
+  }
+  @keyframes status-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+  }
+  @keyframes bar-grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes ring-fill {
+    from { stroke-dashoffset: var(--ring-circ, 220); }
+  }
+  .tf-milestone-glow { animation: milestone-glow 2.4s ease-in-out infinite; }
+  .tf-status-pulse { animation: status-pulse 1.8s ease-in-out infinite; }
+  .tf-bar-grow { transform-origin: left; animation: bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .tf-ring-fill { animation: ring-fill 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
