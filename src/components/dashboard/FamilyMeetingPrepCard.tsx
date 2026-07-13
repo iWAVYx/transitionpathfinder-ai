@@ -1,6 +1,8 @@
 import { MessageCircleQuestion, Sparkles, ArrowRight, Users2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * FamilyMeetingPrepCard — meeting-prep questions grouped by audience
