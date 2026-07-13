@@ -34,12 +34,15 @@ import {
   ROLE_DASHBOARD_TEST_IDS,
 } from "@/lib/dashboard-testids";
 
-type NavItem = {
+export type OwnerNavItem = {
   to: string;
   label: string;
   icon: typeof LayoutDashboard;
   group: string;
 };
+
+type NavItem = OwnerNavItem;
+
 
 // Sections mirror the 10-section Admin Hub spec. Order matters — sidebar
 // renders groups in this declaration order, and "Overview" leads.
