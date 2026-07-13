@@ -64,7 +64,7 @@ export function StudentVoiceFeatureDrawer({
     <Sheet open={!!detail} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-lg"
+        className="flex w-full flex-col gap-0 overflow-y-auto overscroll-contain p-0 sm:max-w-lg"
       >
         {detail && (
           <>
