@@ -15,6 +15,10 @@ import { DistrictTrendMetricsCard } from "@/components/dashboard/DistrictTrendMe
 // PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
 // it's intentionally omitted from the rich-module map below.
 import { PartnerMatchesCard } from "@/components/dashboard/PartnerMatchesCard";
+import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
+import { StudentFitSummariesCard } from "@/components/dashboard/StudentFitSummariesCard";
+import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
+import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
 import {
   getSampleCalendarEvents,
