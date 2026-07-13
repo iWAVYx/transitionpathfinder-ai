@@ -277,7 +277,10 @@ export function StudentPathwaySections({
         AI-assisted — your team reviews everything here before it's shared. You
         can always update your Voice or ask a question at your next meeting.
       </p>
+      </>
+      )}
     </section>
+
   );
 }
 
