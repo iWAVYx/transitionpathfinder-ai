@@ -113,12 +113,16 @@ const AUDIENCE_STYLES: Record<
 export function FamilyMeetingPrepCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: FamilyMeetingPrepData;
   isSample?: boolean;
+  empty?: boolean;
 }) {
   const d: Required<FamilyMeetingPrepData> = { ...SAMPLE, ...(data ?? {}) };
   const totalQuestions = d.groups.reduce((n, g) => n + g.questions.length, 0);
+  const isEmpty = empty || totalQuestions === 0;
+
 
   return (
     <section
