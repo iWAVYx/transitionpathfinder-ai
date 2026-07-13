@@ -14,6 +14,11 @@ import {
 } from "@/components/pathway/PathwayConnectionsCard";
 import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
 import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
+import { MissingInputsPanel } from "@/components/pathway/MissingInputsPanel";
+import { ReadinessScorecard } from "@/components/pathway/ReadinessScorecard";
+import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
+import { PlainLanguageCard } from "@/components/pathway/PlainLanguageCard";
+import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 import { listStudents, type Student } from "@/lib/students.functions";
 import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
 
