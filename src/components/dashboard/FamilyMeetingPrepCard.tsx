@@ -161,6 +161,17 @@ export function FamilyMeetingPrepCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="meetings"
+          eyebrow="Meeting Prep"
+          title="No Meeting Prep Yet"
+          description="Meeting-prep questions appear here as soon as your team schedules a PPT or your Pathway Report has priorities to translate."
+          primaryAction={{ label: "Open Pathway Report", to: "/pathway/family" }}
+          secondaryAction={{ label: "Add Family Priorities", to: "/family/priorities" }}
+          className="mt-5"
+        />
+      ) : (
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {d.groups.map((g) => (
           <div
@@ -195,6 +206,8 @@ export function FamilyMeetingPrepCard({
           </div>
         ))}
       </div>
+      )}
     </section>
   );
 }
+
