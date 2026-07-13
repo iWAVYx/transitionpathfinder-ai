@@ -77,12 +77,17 @@ const SAMPLE: Required<DataGapsData> = {
 export function DataGapsCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DataGapsData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DataGapsData> = { ...SAMPLE, ...(data ?? {}), items: data?.items ?? SAMPLE.items };
+  const isEmpty = empty || d.items.length === 0;
   const highCount = d.items.filter((i) => (i.severity ?? "medium") === "high").length;
+
 
   return (
     <section
