@@ -29,6 +29,7 @@ import {
   persistPartnerMatch,
   type PartnerMatch,
 } from "@/lib/partner-matching.functions";
+import { OpportunityLifecycleTracker } from "@/components/opportunities/OpportunityLifecycleTracker";
 
 export const Route = createFileRoute("/_authenticated/opportunities")({
   head: () => ({ meta: [{ title: "Pathway Partner Network — TransitionForward" }] }),
@@ -267,6 +268,10 @@ function OpportunitiesPage() {
                   </p>
                 )}
               </div>
+            )}
+
+            {studentId && matches && matches.length > 0 && (
+              <OpportunityLifecycleTracker studentId={studentId} matches={matches} />
             )}
           </section>
         )}
