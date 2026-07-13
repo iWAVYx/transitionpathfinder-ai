@@ -54,6 +54,10 @@ const PLATFORM_PRIMITIVES = [
   "Application",
   "Progress",
   "Incentive",
+  "Report",
+  "Support",
+  "Usage",
+
 ];
 
 // PII vocabulary partners must never touch.
