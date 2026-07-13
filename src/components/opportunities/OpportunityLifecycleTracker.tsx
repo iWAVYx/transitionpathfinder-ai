@@ -62,12 +62,25 @@ export function OpportunityLifecycleTracker({
   matches: PartnerMatch[];
 }) {
   const [store, setStore] = useState<Store>({});
+  const [deadlines, setDeadlines] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setStore(readStore());
+    setStore(readLifecycleStore());
+    setDeadlines(readDeadlineStore());
     setHydrated(true);
   }, []);
+
+  function setDeadline(partnerId: string, iso: string) {
+    setDeadlines((prev) => {
+      const next = { ...prev };
+      const k = keyFor(studentId, partnerId);
+      if (!iso) delete next[k];
+      else next[k] = iso;
+      writeDeadlineStore(next);
+      return next;
+    });
+  }
 
   const trackedMatches = useMemo(() => {
     if (!hydrated) return [] as (PartnerMatch & { stage: LifecycleStage })[];
