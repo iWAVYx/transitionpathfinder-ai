@@ -87,9 +87,12 @@ function Sparkline({ points, positive }: { points: number[]; positive: boolean }
 export function DistrictTrendMetricsCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DistrictTrendMetricsData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DistrictTrendMetricsData> = {
     ...SAMPLE,
@@ -97,6 +100,8 @@ export function DistrictTrendMetricsCard({
     terms: data?.terms ?? SAMPLE.terms,
     series: data?.series ?? SAMPLE.series,
   };
+  const isEmpty = empty || d.series.length === 0;
+
 
   return (
     <section
