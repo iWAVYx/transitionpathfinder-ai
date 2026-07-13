@@ -11,6 +11,7 @@ import { PlainLanguageCard } from "@/components/pathway/PlainLanguageCard";
 import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
 import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
+import { TrustCenterCard } from "@/components/trust/TrustCenterCard";
 
 const role = getDemoRole("student");
 
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/demo_/student")({
           <PlainLanguageCard />
           <RoleActionPlan defaultRole="student" />
           <ProgressOverTimeCard studentName="You" />
+          <TrustCenterCard studentName="You" />
           <StudentOverviewGrid isSample />
           <StudentPathwaySections isSample />
           <NextStepsTimeline />

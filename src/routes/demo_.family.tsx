@@ -9,6 +9,7 @@ import { DocumentReadinessMeter } from "@/components/documents/DocumentReadiness
 import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
 import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
 import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
+import { TrustCenterCard } from "@/components/trust/TrustCenterCard";
 
 const role = getDemoRole("family");
 
@@ -40,6 +41,7 @@ export const Route = createFileRoute("/demo_/family")({
           />
           <ProgressOverTimeCard studentName="Jordan" />
           <DocumentSignalsCard />
+          <TrustCenterCard studentName="Jordan" />
           <IepTranslatorCard isSample />
           <FamilyMeetingPrepCard isSample />
           <AdvocacyResourcesCard isSample />
