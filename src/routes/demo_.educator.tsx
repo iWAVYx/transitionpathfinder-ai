@@ -6,6 +6,7 @@ import { DataGapsCard } from "@/components/dashboard/DataGapsCard";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
+import { ReadinessHeatmap } from "@/components/dashboard/ReadinessHeatmap";
 
 const role = getDemoRole("educator");
 
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/demo_/educator")({
       role={role}
       extras={
         <>
+          <ReadinessHeatmap />
           <EducatorOverviewGrid isSample />
           <EvidenceReviewCard isSample />
           <DataGapsCard isSample />

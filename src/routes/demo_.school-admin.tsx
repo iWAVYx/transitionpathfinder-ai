@@ -5,6 +5,7 @@ import { ComplianceOverviewCard } from "@/components/dashboard/ComplianceOvervie
 import { TransitionEvidenceCard } from "@/components/dashboard/TransitionEvidenceCard";
 import { CaseloadRollupsCard } from "@/components/dashboard/CaseloadRollupsCard";
 import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
+import { CompletionRingsBoard } from "@/components/implementation/CompletionRingsBoard";
 
 const role = getDemoRole("school-admin");
 
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/demo_/school-admin")({
       role={role}
       extras={
         <>
+          <CompletionRingsBoard />
           <SchoolAdminOverviewGrid isSample />
           <ComplianceOverviewCard isSample />
           <TransitionEvidenceCard isSample />

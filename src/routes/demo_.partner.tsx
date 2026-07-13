@@ -6,6 +6,7 @@ import { StudentFitSummariesCard } from "@/components/dashboard/StudentFitSummar
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { PARTNER_OUTREACH_ACTIONS } from "@/lib/dashboard/partner-outreach-actions";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
+import { OpportunityPipelineBoard } from "@/components/partner/OpportunityPipelineBoard";
 
 const role = getDemoRole("partner");
 
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/demo_/partner")({
       role={role}
       extras={
         <>
+          <OpportunityPipelineBoard />
           <PartnerOverviewGrid isSample />
           <PartnerMatchesCard isSample />
           <StudentFitSummariesCard isSample />

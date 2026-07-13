@@ -4,6 +4,7 @@ import { getDemoRole } from "@/lib/demo/role-previews";
 import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
+import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
 
 const role = getDemoRole("student");
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/demo_/student")({
       role={role}
       extras={
         <>
+          <PathwayTimeline />
           {/* Same at-a-glance workspace shown on the signed-in student
               dashboard, wired to the shared feature-detail drawer so demo
               visitors can preview each tool in place. */}
