@@ -137,6 +137,17 @@ export function DistrictTrendMetricsCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="reports"
+          eyebrow="District Trends"
+          title="No Trend History Yet"
+          description="After a few terms of Pathway Reports, work-based learning logs, and PPT cycles, six-term outcome trends and target lines will appear here."
+          primaryAction={{ label: "Add Schools", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open District Report", to: d.reportsHref }}
+          className="mt-5"
+        />
+      ) : (
       <ul className="mt-5 grid gap-3 md:grid-cols-2">
         {d.series.map((s) => {
           const t = trendDelta(s);
@@ -169,6 +180,8 @@ export function DistrictTrendMetricsCard({
           );
         })}
       </ul>
+      )}
+
     </section>
   );
 }
