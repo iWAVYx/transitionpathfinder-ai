@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
 import { SectionHeading } from "@/components/layout/SectionHeading";
+import { toTitleCase } from "@/lib/title-case";
+
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
