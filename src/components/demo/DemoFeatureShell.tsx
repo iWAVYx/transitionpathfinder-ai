@@ -135,13 +135,21 @@ export function DemoFeatureShell({
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {s.label}
                     </p>
-                    <p className="mt-1 font-display text-base leading-tight text-foreground">
-                      {s.value ?? "—"}
-                    </p>
+                    {s.value ? (
+                      <p className="mt-1 font-display text-base leading-tight text-foreground">
+                        {s.value}
+                      </p>
+                    ) : (
+                      <div
+                        aria-hidden
+                        className="mx-auto mt-2 h-3 w-10 rounded-full bg-gradient-to-r from-muted via-muted-foreground/20 to-muted"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
             )}
+
 
             <section
               className="rounded-2xl border border-primary/25 bg-primary/5 p-5"
