@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   PARTNER_FEATURE_DETAILS,
   type PartnerFeatureId,
@@ -134,7 +135,7 @@ export function PartnerFeatureDrawer({
                   <Link
                     to={
                       (isSample
-                        ? sampleRoute(detail.primaryAction.to)
+                        ? resolveDemoFeatureRoute("partner", detail.id)
                         : detail.primaryAction.to) as string
                     }
                     onClick={() => onOpenChange(false)}
@@ -354,13 +355,3 @@ function MetaCard({
   );
 }
 
-function sampleRoute(to: string): string {
-  const map: Record<string, string> = {
-    "/partners-manage/profile": "/demo/partner",
-    "/partners-manage/opportunities": "/demo/opportunities",
-    "/partners-manage/deadlines": "/demo/partner",
-    "/partnerforward/incentives": "/partnerforward/incentives",
-    "/partners-manage/resources": "/demo/resources",
-  };
-  return map[to] ?? to;
-}
