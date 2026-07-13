@@ -1,6 +1,8 @@
 import { Handshake, Sparkles, ArrowRight, MapPin, Users, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * PartnerMatchesCard — anonymized student matches for a partner
@@ -48,11 +50,16 @@ function fitTone(fit: number) {
 export function PartnerMatchesCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: PartnerMatchesData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<PartnerMatchesData> = { ...SAMPLE, ...(data ?? {}), items: data?.items ?? SAMPLE.items };
+  const isEmpty = empty || d.items.length === 0;
+
 
   return (
     <section
@@ -90,6 +97,18 @@ export function PartnerMatchesCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="students"
+          eyebrow="Partner Matches"
+          title="No Matches Yet For This Opportunity"
+          description="Post an opportunity — anonymized fit-ranked matches (pathway, grade band, availability, distance) will surface here so you can plan cohort size before family consent."
+          primaryAction={{ label: "Post An Opportunity", to: d.opportunitiesHref }}
+          secondaryAction={{ label: "Open Partner Report", to: "/partners-manage/impact" }}
+          className="mt-5"
+        />
+      ) : (
+      <>
       <ul className="mt-5 grid gap-3 md:grid-cols-2">
         {d.items.map((m) => (
           <li key={m.code} className="flex flex-col gap-3 rounded-2xl border bg-background p-4">
@@ -129,6 +148,9 @@ export function PartnerMatchesCard({
       <p className="mt-5 text-[11px] italic leading-relaxed text-muted-foreground">
         Partners never see student PII. Match codes anonymize each candidate until the case manager releases identity with family consent.
       </p>
+      </>
+      )}
+
     </section>
   );
 }

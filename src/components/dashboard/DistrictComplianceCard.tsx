@@ -1,6 +1,8 @@
 import { ShieldCheck, Sparkles, ArrowRight, Building2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DistrictComplianceCard — district-wide IDEA + Indicator 13 rollup
@@ -53,12 +55,17 @@ function weightedAvg(rows: DistrictBuildingCompliance[], key: keyof Omit<Distric
 export function DistrictComplianceCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DistrictComplianceData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DistrictComplianceData> = { ...SAMPLE, ...(data ?? {}), buildings: data?.buildings ?? SAMPLE.buildings };
+  const isEmpty = empty || d.buildings.length === 0;
   const seniors = d.buildings.reduce((s, r) => s + r.seniors, 0);
+
   const districtRoll = {
     indicator13: weightedAvg(d.buildings, "indicator13"),
     assessmentsCurrent: weightedAvg(d.buildings, "assessmentsCurrent"),
@@ -102,6 +109,18 @@ export function DistrictComplianceCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="reports"
+          eyebrow="District Compliance"
+          title="No Buildings Reporting Yet"
+          description="As schools onboard and educators generate Pathway Reports, this district-wide rollup will show weighted IDEA + Indicator 13 metrics with drill-through to each building and caseload."
+          primaryAction={{ label: "Add Schools", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open District Report", to: d.reportsHref }}
+          className="mt-5"
+        />
+      ) : (
+      <>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <RollupStat label="Indicator 13" value={`${districtRoll.indicator13}%`} target={90} />
         <RollupStat label="Current Assessments" value={`${districtRoll.assessmentsCurrent}%`} target={95} />
@@ -140,6 +159,9 @@ export function DistrictComplianceCard({
           </tbody>
         </table>
       </div>
+      </>
+      )}
+
     </section>
   );
 }

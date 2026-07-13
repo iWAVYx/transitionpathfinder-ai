@@ -1,6 +1,8 @@
 import { AlertTriangle, Sparkles, ArrowRight, CircleDashed } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DataGapsCard — surfaces the Pathway Report's "Data Gaps + Needs Review"
@@ -75,12 +77,17 @@ const SAMPLE: Required<DataGapsData> = {
 export function DataGapsCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DataGapsData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DataGapsData> = { ...SAMPLE, ...(data ?? {}), items: data?.items ?? SAMPLE.items };
+  const isEmpty = empty || d.items.length === 0;
   const highCount = d.items.filter((i) => (i.severity ?? "medium") === "high").length;
+
 
   return (
     <section
@@ -118,6 +125,17 @@ export function DataGapsCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="tasks"
+          eyebrow="Data Gaps"
+          title="No Gaps Flagged Yet"
+          description="Gaps surface once a Pathway Report is built and reviewed — missing assessments, consents, or referrals will show up here with an owner, an impact statement, and a due date."
+          primaryAction={{ label: "Open Pathway Report", to: d.reportHref }}
+          secondaryAction={{ label: "Open Action Items", to: "/action-items" }}
+          className="mt-5"
+        />
+      ) : (
       <ol className="mt-5 space-y-3">
         {d.items.map((it, i) => {
           const sev = it.severity ?? "medium";
@@ -146,6 +164,8 @@ export function DataGapsCard({
           );
         })}
       </ol>
+      )}
+
     </section>
   );
 }

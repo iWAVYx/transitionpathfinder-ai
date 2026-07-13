@@ -1,6 +1,8 @@
 import { TrendingUp, Sparkles, ArrowRight, TrendingDown, Minus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DistrictTrendMetricsCard — 6-term trend of key transition outcomes
@@ -85,9 +87,12 @@ function Sparkline({ points, positive }: { points: number[]; positive: boolean }
 export function DistrictTrendMetricsCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DistrictTrendMetricsData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DistrictTrendMetricsData> = {
     ...SAMPLE,
@@ -95,6 +100,8 @@ export function DistrictTrendMetricsCard({
     terms: data?.terms ?? SAMPLE.terms,
     series: data?.series ?? SAMPLE.series,
   };
+  const isEmpty = empty || d.series.length === 0;
+
 
   return (
     <section
@@ -130,6 +137,17 @@ export function DistrictTrendMetricsCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="reports"
+          eyebrow="District Trends"
+          title="No Trend History Yet"
+          description="After a few terms of Pathway Reports, work-based learning logs, and PPT cycles, six-term outcome trends and target lines will appear here."
+          primaryAction={{ label: "Add Schools", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open District Report", to: d.reportsHref }}
+          className="mt-5"
+        />
+      ) : (
       <ul className="mt-5 grid gap-3 md:grid-cols-2">
         {d.series.map((s) => {
           const t = trendDelta(s);
@@ -162,6 +180,8 @@ export function DistrictTrendMetricsCard({
           );
         })}
       </ul>
+      )}
+
     </section>
   );
 }

@@ -1,6 +1,8 @@
 import { FileSearch, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DistrictEvidenceCoverageCard — how much required transition evidence
@@ -46,11 +48,16 @@ function tone(p: number) {
 export function DistrictEvidenceCoverageCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DistrictEvidenceCoverageData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DistrictEvidenceCoverageData> = { ...SAMPLE, ...(data ?? {}), rows: data?.rows ?? SAMPLE.rows };
+  const isEmpty = empty || d.rows.length === 0;
+
 
   return (
     <section
@@ -85,6 +92,17 @@ export function DistrictEvidenceCoverageCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="documents"
+          eyebrow="District Evidence"
+          title="No Evidence Coverage Yet"
+          description="Once schools upload transition evidence — assessments, consents, referrals, and Student Voice statements — coverage percentages and lagging buildings will populate here."
+          primaryAction={{ label: "Add Schools", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open District Report", to: d.documentsHref }}
+          className="mt-5"
+        />
+      ) : (
       <ul className="mt-5 space-y-3">
         {d.rows.map((r) => {
           const p = pct(r);
@@ -110,6 +128,8 @@ export function DistrictEvidenceCoverageCard({
           );
         })}
       </ul>
+      )}
+
     </section>
   );
 }
