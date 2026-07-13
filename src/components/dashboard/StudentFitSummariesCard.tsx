@@ -182,6 +182,8 @@ export function StudentFitSummariesCard({
           </li>
         ))}
       </ol>
+      )}
     </section>
+
   );
 }
