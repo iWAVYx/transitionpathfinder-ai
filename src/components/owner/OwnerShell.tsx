@@ -34,16 +34,19 @@ import {
   ROLE_DASHBOARD_TEST_IDS,
 } from "@/lib/dashboard-testids";
 
-type NavItem = {
+export type OwnerNavItem = {
   to: string;
   label: string;
   icon: typeof LayoutDashboard;
   group: string;
 };
 
+type NavItem = OwnerNavItem;
+
+
 // Sections mirror the 10-section Admin Hub spec. Order matters — sidebar
 // renders groups in this declaration order, and "Overview" leads.
-const NAV: NavItem[] = [
+export const OWNER_NAV: NavItem[] = [
   // 1. Overview
   { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
   { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
@@ -192,7 +195,7 @@ export function OwnerShell({
     );
   }
 
-  const groups = Array.from(new Set(NAV.map((n) => n.group)));
+  const groups = Array.from(new Set(OWNER_NAV.map((n) => n.group)));
 
   return (
     <div className="min-h-dvh bg-muted/30 text-foreground">
@@ -213,7 +216,7 @@ export function OwnerShell({
                   {toTitleCase(g)}
                 </div>
                 <ul className="space-y-0.5">
-                  {NAV.filter((n) => n.group === g).map((n) => {
+                  {OWNER_NAV.filter((n) => n.group === g).map((n) => {
                     const active =
                       location.pathname === n.to ||
                       (n.to !== "/owner" && location.pathname.startsWith(n.to));
@@ -281,7 +284,7 @@ export function OwnerShell({
                 Main app
               </button>
               <span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
-              {NAV.map((n) => {
+              {OWNER_NAV.map((n) => {
                 const active =
                   location.pathname === n.to ||
                   (n.to !== "/owner" && location.pathname.startsWith(n.to));
