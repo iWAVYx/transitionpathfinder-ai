@@ -1,4 +1,5 @@
 import { AlertCircle, ArrowRight, CheckCircle2, Clock, Users, FileText } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -190,9 +191,7 @@ export function PriorityBriefing({ role }: { role: RoleKey }) {
           </p>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-medium">{c.nextBestStep.label}</p>
-            <Button size="sm">
-              {c.nextBestStep.cta} <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
+            <NextBestStepLink role={role} label={c.nextBestStep.cta} />
           </div>
         </div>
 
