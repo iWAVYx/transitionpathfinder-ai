@@ -48,11 +48,16 @@ function tone(p: number) {
 export function DistrictEvidenceCoverageCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DistrictEvidenceCoverageData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DistrictEvidenceCoverageData> = { ...SAMPLE, ...(data ?? {}), rows: data?.rows ?? SAMPLE.rows };
+  const isEmpty = empty || d.rows.length === 0;
+
 
   return (
     <section
