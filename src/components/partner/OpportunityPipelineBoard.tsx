@@ -81,6 +81,39 @@ const ALL_SUPPORTS = [
   "Transportation",
 ];
 
+type FilterPreset = {
+  id: string;
+  name: string;
+  supports: string[];
+  minFit?: number;
+  review?: ReviewStatus | "all";
+};
+
+const BUILTIN_PRESETS: FilterPreset[] = [
+  {
+    id: "sensory-friendly",
+    name: "Sensory-Friendly",
+    supports: ["Quiet Environment", "Visual Schedule"],
+    minFit: 60,
+    review: "all",
+  },
+  {
+    id: "communication-supports",
+    name: "Communication Supports",
+    supports: ["ASL Interpreter", "Visual Schedule"],
+    review: "all",
+  },
+  {
+    id: "job-ready",
+    name: "Job-Ready with Coaching",
+    supports: ["Job Coach", "Transportation", "Extended Time"],
+    minFit: 70,
+    review: "approved",
+  },
+];
+
+const PRESET_STORAGE_KEY = "tf.pipeline-filter-presets.v1";
+
 const DEFAULT_CHECKLIST_BY_STAGE: Record<Stage, string[]> = {
   saved: ["Confirm student interest", "Share program overview with family", "Verify eligibility"],
   contacted: ["Log outreach note", "Schedule intro call", "Send accessibility supports summary"],
