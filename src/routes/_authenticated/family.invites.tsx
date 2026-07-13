@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { UserPlus, ArrowLeft } from "lucide-react";
+import { UserPlus, ArrowLeft, Mail, ShieldCheck } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { InvitePeopleCard } from "@/components/dashboard/InvitePeopleCard";
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
 
 export const Route = createFileRoute("/_authenticated/family/invites")({
@@ -48,10 +47,17 @@ function FamilyInvitesPage() {
           <div className="rounded-2xl border bg-card p-5 shadow-soft">
             <h2 className="font-display text-lg font-medium">Send An Invite</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Choose the person's role and email. They'll receive a secure invitation link.
+              Open a student profile to invite a co-parent, case manager, coach, or advocate.
+              Every invitation includes a role (view, comment, or edit).
             </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-center gap-2 text-muted-foreground"><Mail className="h-4 w-4" aria-hidden /> Secure invite by email</li>
+              <li className="flex items-center gap-2 text-muted-foreground"><ShieldCheck className="h-4 w-4" aria-hidden /> Revoke sharing anytime</li>
+            </ul>
             <div className="mt-4">
-              <InvitePeopleCard />
+              <Button asChild size="sm">
+                <Link to="/students">Choose Student To Invite From</Link>
+              </Button>
             </div>
           </div>
 
