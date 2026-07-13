@@ -729,3 +729,113 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
     </ol>
   );
 }
+
+/* ---------------------------------------------- Focus rail */
+
+function FocusRail({
+  nextUp,
+  prepPool,
+  reminders,
+}: {
+  nextUp: CalendarEvent | undefined;
+  prepPool: CalendarEvent[];
+  reminders: CalendarEvent[];
+}) {
+  return (
+    <div
+      className="grid gap-3 border-b bg-muted/20 p-3 sm:grid-cols-3 sm:p-4"
+      data-testid="calendar-focus-rail"
+    >
+      {/* Next Up */}
+      <div className="rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <Sparkles className="h-3 w-3" aria-hidden /> Next Up
+        </div>
+        {nextUp ? (
+          <div className="mt-1.5">
+            <p className="text-sm font-medium leading-snug text-foreground">
+              {nextUp.title}
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {tMinusLabel(nextUp.start)} ·{" "}
+              {nextUp.allDay ? "All day" : fmtTime(nextUp.start)}
+              {nextUp.scope ? ` · ${nextUp.scope}` : ""}
+            </p>
+            {nextUp.pathwayGoal && (
+              <span className="mt-1.5 inline-flex max-w-full items-center gap-1 truncate rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-primary/20">
+                <Target className="h-3 w-3 shrink-0" aria-hidden />
+                <span className="truncate">{nextUp.pathwayGoal.label}</span>
+              </span>
+            )}
+            {nextUp.href && (
+              <Link
+                to={nextUp.href as never}
+                className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+              >
+                Open prep <ArrowRight className="h-3 w-3" aria-hidden />
+              </Link>
+            )}
+          </div>
+        ) : (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            Nothing scheduled next.
+          </p>
+        )}
+      </div>
+
+      {/* Prep Prompts */}
+      <div className="rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <ListChecks className="h-3 w-3" aria-hidden /> Prep Prompts
+        </div>
+        {prepPool.length === 0 ? (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            No prep queued — your calendar is clear.
+          </p>
+        ) : (
+          <ul className="mt-1.5 space-y-1.5">
+            {prepPool.map((e) => (
+              <li key={e.id} className="text-[11px] leading-snug">
+                <p className="font-medium text-foreground/90">
+                  {e.title}
+                  <span className="ml-1 text-muted-foreground">
+                    · {tMinusLabel(e.start)}
+                  </span>
+                </p>
+                <p className="mt-0.5 text-muted-foreground">
+                  {(e.prep ?? [])[0]}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Reminders */}
+      <div className="rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <Bell className="h-3 w-3" aria-hidden /> Reminders
+        </div>
+        {reminders.length === 0 ? (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            No reminders set yet.
+          </p>
+        ) : (
+          <ul className="mt-1.5 space-y-1.5 text-[11px]">
+            {reminders.map((e) => (
+              <li key={e.id} className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground/90">{e.title}</p>
+                  <p className="text-muted-foreground">
+                    {e.reminder} · {tMinusLabel(e.start)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
