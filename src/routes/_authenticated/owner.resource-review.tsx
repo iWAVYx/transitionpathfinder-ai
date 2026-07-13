@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -288,9 +289,8 @@ function ReviewQueuePage() {
             <Button asChild size="sm" variant="outline">
               <Link to="/owner/resources">Open Resource Library</Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/owner">Back to dashboard</Link>
-            </Button>
+            <BackToDashboard to="/owner" />
+
           </div>
         </div>
       ) : (

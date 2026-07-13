@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -161,12 +162,8 @@ function SavedResourcesPage() {
           >
             Browse all resources
           </Link>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background"
-          >
-            Back to dashboard
-          </Link>
+          <BackToDashboard />
+
         </div>
       </header>
 

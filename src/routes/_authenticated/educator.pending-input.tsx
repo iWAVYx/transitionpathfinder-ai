@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ClipboardList, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
+import { ClipboardList, ArrowRight, AlertCircle } from "lucide-react";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -91,11 +92,7 @@ function PendingInputPage() {
         </ul>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/hubs/caseload">
-              <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden /> Back To Caseload
-            </Link>
-          </Button>
+          <BackToDashboard />
           <Button asChild variant="outline" size="sm">
             <Link to="/teacher-portal">Open Teacher Portal</Link>
           </Button>
