@@ -183,6 +183,8 @@ export function NextStepsTimeline({
           );
         })}
       </ol>
+      )}
     </section>
+
   );
 }
