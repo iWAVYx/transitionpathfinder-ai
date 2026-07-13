@@ -10,6 +10,7 @@ import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard"
 import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
 import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 import { TrustCenterCard } from "@/components/trust/TrustCenterCard";
+import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
 
 const role = getDemoRole("family");
 
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/demo_/family")({
       role={role}
       extras={
         <>
+          <RoleOnboardingChecklist role="family" />
           <DocumentReadinessMeter />
           {/* Same at-a-glance workspace shown on the signed-in family
               dashboard — every tile has a Preview drawer with polished

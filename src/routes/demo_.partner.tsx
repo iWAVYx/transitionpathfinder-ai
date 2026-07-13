@@ -8,6 +8,7 @@ import { PARTNER_OUTREACH_ACTIONS } from "@/lib/dashboard/partner-outreach-actio
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
 import { OpportunityPipelineBoard } from "@/components/partner/OpportunityPipelineBoard";
 import { PartnerImpactCard } from "@/components/partner/PartnerImpactCard";
+import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
 
 const role = getDemoRole("partner");
 
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/demo_/partner")({
       role={role}
       extras={
         <>
+          <RoleOnboardingChecklist role="partner" />
           <OpportunityPipelineBoard />
           <PartnerImpactCard />
           <PartnerOverviewGrid isSample />

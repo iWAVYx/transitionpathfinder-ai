@@ -12,6 +12,7 @@ import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
 import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
 import { TrustCenterCard } from "@/components/trust/TrustCenterCard";
+import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
 
 const role = getDemoRole("student");
 
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/demo_/student")({
       role={role}
       extras={
         <>
+          <RoleOnboardingChecklist role="student" />
           <PathwayTimeline />
           <CollaborationFlags
             flags={[
