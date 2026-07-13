@@ -1,5 +1,6 @@
 import { Briefcase, CheckCircle2, Clock, Archive, FileEdit } from "lucide-react";
 import { OPPORTUNITY_STATUS_LABEL } from "@/lib/opportunity-status";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
 
 type Opp = { id: string; status: string };
 
@@ -28,11 +29,25 @@ export function OpportunityStatusStats({ opps }: { opps: Opp[] }) {
     { key: "inactive", label: OPPORTUNITY_STATUS_LABEL.inactive, icon: <Archive className="h-3.5 w-3.5" />, tone: "text-muted-foreground" },
   ];
 
+  const isEmpty = opps.length === 0;
+
   return (
     <div className="rounded-2xl border bg-card p-5 shadow-soft">
       <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
         <Briefcase className="h-3.5 w-3.5" /> Opportunity pipeline
       </div>
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="tasks"
+          eyebrow="Opportunity Pipeline"
+          title="No Opportunities Yet"
+          description="Draft an opportunity to describe the role, cadence, and eligibility. Submit for review to appear in family- and student-facing search."
+          primaryAction={{ label: "Post An Opportunity", to: "/partners-manage" }}
+          secondaryAction={{ label: "Open Partner Report", to: "/partners-manage/impact" }}
+          className="mt-3"
+        />
+      ) : (
+      <>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tiles.map((t) => (
           <div key={t.key} className="rounded-xl border bg-background p-3">
@@ -46,6 +61,9 @@ export function OpportunityStatusStats({ opps }: { opps: Opp[] }) {
       <p className="mt-3 text-xs text-muted-foreground">
         Drafts are private. Submit for review to be listed in family- and student-facing search.
       </p>
+      </>
+      )}
     </div>
   );
 }
+
