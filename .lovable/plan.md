@@ -1,95 +1,62 @@
-# All-Roles Rollout: Empty States, Feature-Page Polish & Full Feature-Depth Audit
+## Product-Depth Upgrade Pass
 
-Extend the recent Student / Family / Educator work to every remaining role — **School Admin, District Admin, Partner, and Owner** — and execute the previously-approved `.lovable/plan.md` audit against every role at the same time. Everything below is copy, fixture data, presentational components, and tests. No RLS, schema, or signed-in query changes.
+This is a large, multi-area enhancement. To keep quality high and avoid regressions (auth, RLS, existing tests), I'll execute it in **five phases**, each self-contained, tested, and safe to ship. After each phase I'll report and pause so you can redirect.
 
-## 1. Unified Empty States + Primary CTAs (Dashboards)
+I will **not** touch: auth, RLS/schema, existing dedicated feature pages, or existing test coverage (only add).
 
-Roll the shared `ModuleEmptyState` component out across every remaining role's dashboard and modules so a data-less state always shows: eyebrow, Title Case headline, supportive body, illustration, primary CTA, secondary CTA.
+---
 
-Touched surfaces (module → primary CTA):
+### Phase 1 — Calendar Upgrade (Feature #1)
 
-- **School Admin** (`demo_.school-admin.tsx`, `SchoolAdminFeatureDrawer`, `ComplianceOverviewCard`, `CaseloadRollupsCard`, `DataGapsCard`)
-  - Empty → "Invite Educators" / "Open School Report"
-- **District Admin** (`demo_.district-admin.tsx`, `DistrictAdminFeatureDrawer`, `DistrictComplianceCard`, `DistrictEvidenceCoverageCard`, `DistrictTrendMetricsCard`)
-  - Empty → "Add Schools" / "Open District Report"
-- **Partner** (`demo_.partner.tsx`, `PartnerFeatureDrawer`, `PartnerImpactSummaryCard`, `PartnerMatchesCard`, `OpportunityStatusStats`)
-  - Empty → "Post an Opportunity" / "Open Partner Report"
-- **Owner** (`demo_.owner.tsx`) — every hub tile (Testing, Diagnostics, Roles, Content, Demo Hub, Audit, Analytics) gets a consistent empty surface with owner-appropriate CTAs (e.g. "Seed Demo Data", "Open Diagnostics").
+Signed-in `/calendar` (`_authenticated/calendar.tsx`) plus role-specific demo previews.
 
-Auto-detect empty via array-length props; keep the visual language identical to the Student/Family/Educator rollout.
+- Add Week and Agenda views to `TransitionCalendar` (Month already exists). Today, Prev/Next, view switcher, type filters, empty state — audit and complete any that are missing.
+- Feed events from: meetings, action-item due dates, document due dates (new), Pathway Report review dates (new), opportunity deadlines (new), implementation milestones (new, admin roles), partner program dates (new, partner), owner review checkpoints (new).
+- Demo previews per role using `getSampleCalendarEvents()` (already role-scoped) — verify every role's sample set matches the spec above and add missing types.
+- New demo route slice: `Calendar` tile on every role dashboard opens the correctly-scoped preview.
 
-## 2. Feature-Page Polish for Every Role (`/demo/feature/*`)
+### Phase 2 — Documents + Pathway Report Upgrades (Features #2, #3)
 
-Every entry in every role's `feature-details.ts` gets the same premium empty-state + CTA treatment already applied to Student / Family / Educator:
+- Documents: add Missing Document Checklist, upload/processing status chips, doc-type taxonomy, "Feeds Into Pathway Report" badge, suggested-missing surface. Respect existing RLS — presentation only over existing `documents` server fns.
+- Pathway Report: version history strip, "What Changed Since Last Version" diff card, missing-inputs list, role-specific summary block, recommended next steps, download/share (existing permissions), cross-links to Student Voice / Documents / Action Items / Resources / Opportunities / Meeting Prep.
+- Role gating enforced in UI (partner sees no private report; district admin sees aggregate only).
+- Demo previews mirror both.
 
-- `emptyHeadline` / `emptyBody` rewritten to be specific and actionable.
-- `primaryAction` verified as the single most useful next step.
-- New `secondaryAction` on every entry.
-- Consistent eyebrow / illustration slot rendered by `DemoFeatureShell`.
+### Phase 3 — Meeting Prep + Action Items + Readiness Gaps (Features #4, #5, #6)
 
-Applies to: `student`, `parent`, `educator`, `school-admin`, `district-admin`, `partner`, and the new `owner` registry (see §3).
+- Meeting Prep: agenda-builder pulling from Student Voice, family concerns, readiness gaps, docs, Pathway recommendations, action items, upcoming calendar. Add printable summary.
+- Action Items: extend row model with priority, source, related goal/report section, related student, notes, start/done actions. Presentational — server fns already carry most fields; add UI + any missing optional columns.
+- Readiness Gaps: domain, severity, reason, evidence gap, intervention, owner role, due, status, report-section link, suggested resource/action. Role-scoped views.
 
-## 3. Execute the Full `.lovable/plan.md` Audit
+### Phase 4 — Partner Opportunities + Admin Dashboards (Features #7, #8)
 
-For every entry in every role's `feature-details.ts` (46 features + Owner set), revise:
+- Opportunities: fit-criteria builder, accessibility/support fields, transportation, review lifecycle (draft/submitted/live/archived), impact tracking, PartnerForward incentive link. Partner PII invariants preserved and covered by existing partner-role test — I'll extend.
+- Owner / School Admin / District Admin implementation dashboards: implementation health, launch/readiness status, support flags, staff & school onboarding, report completion blockers, review-queue, risk flags, recommended next action; owner waitlist segmentation, follow-up status, partner submissions review, feedback triage, bug priority, analytics snapshot, demo readiness, launch readiness; district school comparison + exportable overview.
 
-`summary`, `what`, `rows`, `stats`, `connectsTo`, `emptyHeadline`, `emptyBody`, `primaryAction`, plus new `secondaryAction`, `nextStep`, `permissionNote`, `feedsInto`.
+### Phase 5 — Demo Parity + Copy + Tests (Features #9, #10, #11)
 
-Each page will surface:
+- Every upgraded feature has a matching Workspace/demo preview using safe sample data, role context preserved, opened from the role's dashboard tile.
+- Copy sweep: Title Case for headings/tiles/tabs/section titles; sentence case body; no placeholder copy; no duplicate `<main>` links.
+- Tests:
+  - `bun run test:unit` — extend `demo-feature-details-audit`, `feature-inventory-audit` for new fields; add calendar-view smoke unit test.
+  - `bunx playwright test --project=dashboard-setup`
+  - `bunx playwright test --project=dashboard-regression`
+  - `bunx playwright test --project=role-access`
+  - Role-gated Playwright projects auto-skip when creds absent; I'll report ran-vs-skipped.
 
-- Real product value (concrete decision, input, review, prep step, next action)
-- Ecosystem ties (`connectsTo` + `feedsInto`, always naming the Pathway Report where relevant)
-- Role-specific framing per the tone table already in `.lovable/plan.md`
-- Collaboration hooks (which role acts next)
-- Pathway-Report centrality (`feeds`, `generated from`, `review`, `act on`, or `track`)
+---
 
-### Owner Registry (new)
+### Technical Notes
 
-- Add `src/lib/demo/owner/feature-details.ts` covering Testing, Diagnostics, Roles, Content, Demo Hub, Audit, Analytics.
-- Wire into `src/lib/demo/feature-routes.ts` and the audit test.
-- Sample data only; real Owner Hub routes untouched.
+- Calendar view engine stays local (existing `TransitionCalendar` component) — no new deps.
+- All new event/doc/report/opportunity fields are additive columns or presentational only; where a field doesn't yet exist server-side, it lives in the demo/sample layer this pass, with a follow-up note if you want persistence next.
+- Role gating uses existing `RoleGuard` / role predicates; no new RLS.
+- Every new drawer/dialog uses the recently-hardened Sheet scroll pattern (`touch-none` overlay, `touch-pan-y` + `overscroll-contain` content).
 
-### Shell Enhancements (additive to `DemoFeatureShell.tsx`)
+### Deliverables per phase
 
-- **"Feeds Into" pipeline chips** — driven by `feedsInto`.
-- **"Next Recommended Step"** card under stats — driven by `nextStep`.
-- **Secondary action** button in header + footer — driven by `secondaryAction`.
+Each phase ends with: files changed list, tests run + results, and a short summary of what a user in each role will now see. I'll pause between phases for your go/no-go.
 
-## 4. Verification
+### Question before I start
 
-Expand tests:
-
-- `tests/unit/demo-feature-details-audit.test.ts` — enforce presence + non-triviality of `nextStep`, `permissionNote`, `feedsInto`, `secondaryAction`; role-vocabulary probes; Pathway-Report verb probe; Partner PII invariant extended to new fields.
-- New `tests/unit/feature-inventory-audit.test.ts` — snapshot the (role, featureId, destination, purpose, connectsTo, primaryAction, permission) matrix.
-- `tests/e2e/demo-feature-parity.spec.ts` — assert the Next-Step card, Feeds-Into chips, and secondary action render on every page.
-
-Run after the pass:
-
-```text
-bun run test:unit
-bunx playwright test --project=anon tests/e2e/demo-feature-parity.spec.ts
-```
-
-Role-gated projects (`dashboard-setup`, `dashboard-regression`, `role-access`) auto-skip without seeded credentials; I'll report which ran vs. skipped.
-
-## Deliverables
-
-- `src/components/dashboard/ModuleEmptyState.tsx` rollout across all remaining role dashboards, drawers, and cards listed in §1.
-- Rewritten `feature-details.ts` for `student`, `parent`, `educator`, `school-admin`, `district-admin`, `partner`.
-- New `src/lib/demo/owner/feature-details.ts` + registry wiring in `src/lib/demo/feature-routes.ts`.
-- Additive `DemoFeatureShell.tsx` slots (Feeds Into, Next Step, secondary action).
-- Expanded `tests/unit/demo-feature-details-audit.test.ts`.
-- New `tests/unit/feature-inventory-audit.test.ts`.
-- Expanded `tests/e2e/demo-feature-parity.spec.ts`.
-
-## Scope Boundaries
-
-- No RLS, schema, or real signed-in query changes.
-- No changes to real Owner Hub routes (owner demo pages use sample data only).
-- Presentation, fixtures, and tests only.
-
-## Estimated Size
-
-Roughly 7 registry files rewritten, 1 new registry, ~10 dashboard components touched for empty-state rollout, 1 shell edit, 2 test files touched, 1 new test. ~2–2.5K net LOC across data, presentation, and tests.
-
-Approve to proceed, or tell me to narrow (e.g. skip Owner, or ship §1 first and audit second).
+**Do you want me to execute all 5 phases back-to-back in this session, or pause after each phase for review?** Back-to-back is faster but produces a very large diff; pausing lets you course-correct.
