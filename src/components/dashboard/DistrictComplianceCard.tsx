@@ -55,12 +55,17 @@ function weightedAvg(rows: DistrictBuildingCompliance[], key: keyof Omit<Distric
 export function DistrictComplianceCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: DistrictComplianceData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<DistrictComplianceData> = { ...SAMPLE, ...(data ?? {}), buildings: data?.buildings ?? SAMPLE.buildings };
+  const isEmpty = empty || d.buildings.length === 0;
   const seniors = d.buildings.reduce((s, r) => s + r.seniors, 0);
+
   const districtRoll = {
     indicator13: weightedAvg(d.buildings, "indicator13"),
     assessmentsCurrent: weightedAvg(d.buildings, "assessmentsCurrent"),
