@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { AnimatedCounter } from "@/components/effects/AnimatedCounter";
 import {
@@ -11,6 +11,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import {
@@ -78,6 +80,39 @@ const ALL_SUPPORTS = [
   "ASL Interpreter",
   "Transportation",
 ];
+
+type FilterPreset = {
+  id: string;
+  name: string;
+  supports: string[];
+  minFit?: number;
+  review?: ReviewStatus | "all";
+};
+
+const BUILTIN_PRESETS: FilterPreset[] = [
+  {
+    id: "sensory-friendly",
+    name: "Sensory-Friendly",
+    supports: ["Quiet Environment", "Visual Schedule"],
+    minFit: 60,
+    review: "all",
+  },
+  {
+    id: "communication-supports",
+    name: "Communication Supports",
+    supports: ["ASL Interpreter", "Visual Schedule"],
+    review: "all",
+  },
+  {
+    id: "job-ready",
+    name: "Job-Ready with Coaching",
+    supports: ["Job Coach", "Transportation", "Extended Time"],
+    minFit: 70,
+    review: "approved",
+  },
+];
+
+const PRESET_STORAGE_KEY = "tf.pipeline-filter-presets.v1";
 
 const DEFAULT_CHECKLIST_BY_STAGE: Record<Stage, string[]> = {
   saved: ["Confirm student interest", "Share program overview with family", "Verify eligibility"],
@@ -176,8 +211,67 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
   const [query, setQuery] = useState("");
   const [minFit, setMinFit] = useState(0);
   const [reviewFilter, setReviewFilter] = useState<ReviewStatus | "all">("all");
-  const [supportFilter, setSupportFilter] = useState<string | "all">("all");
+  const [supportFilters, setSupportFilters] = useState<string[]>([]);
+  const [supportMode, setSupportMode] = useState<"any" | "all">("any");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [userPresets, setUserPresets] = useState<FilterPreset[]>([]);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(PRESET_STORAGE_KEY);
+      if (raw) setUserPresets(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const persistPresets = (next: FilterPreset[]) => {
+    setUserPresets(next);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+    }
+  };
+
+  const toggleSupport = (s: string) => {
+    setActivePresetId(null);
+    setSupportFilters((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
+    );
+  };
+
+  const applyPreset = (p: FilterPreset) => {
+    setSupportFilters(p.supports);
+    if (typeof p.minFit === "number") setMinFit(p.minFit);
+    if (p.review) setReviewFilter(p.review);
+    setSupportMode("all");
+    setActivePresetId(p.id);
+  };
+
+  const saveCurrentAsPreset = () => {
+    if (typeof window === "undefined") return;
+    const name = window.prompt("Name this filter preset");
+    if (!name?.trim()) return;
+    const preset: FilterPreset = {
+      id: `user-${Date.now()}`,
+      name: name.trim(),
+      supports: supportFilters,
+      minFit,
+      review: reviewFilter,
+    };
+    persistPresets([...userPresets, preset]);
+    setActivePresetId(preset.id);
+  };
+
+  const deletePreset = (id: string) => {
+    persistPresets(userPresets.filter((p) => p.id !== id));
+    if (activePresetId === id) setActivePresetId(null);
+  };
 
   const move = (id: string, nextStage: Stage) => {
     setItems((prev) => prev.map((c) => (c.id === id ? { ...c, stage: nextStage } : c)));
@@ -206,10 +300,15 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
       if (q && !`${c.student} ${c.program}`.toLowerCase().includes(q)) return false;
       if ((c.fit?.score ?? 0) < minFit) return false;
       if (reviewFilter !== "all" && c.review !== reviewFilter) return false;
-      if (supportFilter !== "all" && !(c.supports ?? []).includes(supportFilter)) return false;
+      if (supportFilters.length > 0) {
+        const cardSupports = c.supports ?? [];
+        const matches = supportFilters.filter((s) => cardSupports.includes(s));
+        if (supportMode === "all" && matches.length !== supportFilters.length) return false;
+        if (supportMode === "any" && matches.length === 0) return false;
+      }
       return true;
     });
-  }, [items, query, minFit, reviewFilter, supportFilter]);
+  }, [items, query, minFit, reviewFilter, supportFilters, supportMode]);
 
   const byStage = STAGES.map((s) => ({ ...s, cards: filtered.filter((c) => c.stage === s.key) }));
   const totalActive = filtered.filter((c) => c.stage !== "not_fit").length;
@@ -248,8 +347,55 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
         </div>
       </header>
 
+      {/* Preset bar */}
+      <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border bg-background/60 p-2">
+        <span className="ml-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Presets
+        </span>
+        {[...BUILTIN_PRESETS, ...userPresets].map((p) => {
+          const active = activePresetId === p.id;
+          const isUser = p.id.startsWith("user-");
+          return (
+            <span key={p.id} className="inline-flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => applyPreset(p)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
+                  active
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "hover:border-primary/50 hover:text-primary",
+                )}
+                aria-pressed={active}
+              >
+                <Star className={cn("h-3 w-3", active && "fill-current")} aria-hidden />
+                {p.name}
+              </button>
+              {isUser && (
+                <button
+                  type="button"
+                  onClick={() => deletePreset(p.id)}
+                  className="rounded-full p-0.5 text-muted-foreground hover:text-destructive"
+                  aria-label={`Delete preset ${p.name}`}
+                >
+                  <Trash2 className="h-3 w-3" aria-hidden />
+                </button>
+              )}
+            </span>
+          );
+        })}
+        <button
+          type="button"
+          onClick={saveCurrentAsPreset}
+          disabled={supportFilters.length === 0}
+          className="ml-auto rounded-full border border-dashed px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          + Save Current
+        </button>
+      </div>
+
       {/* Filter bar */}
-      <div className="mb-4 grid gap-2 rounded-2xl border bg-background/60 p-3 md:grid-cols-4">
+      <div className="mb-3 grid gap-2 rounded-2xl border bg-background/60 p-3 md:grid-cols-3">
         <label className="relative flex items-center">
           <Search className="pointer-events-none absolute left-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden />
           <input
@@ -266,7 +412,7 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
           <span className="whitespace-nowrap">Min Fit</span>
           <input
             type="range" min={0} max={100} step={5} value={minFit}
-            onChange={(e) => setMinFit(Number(e.target.value))}
+            onChange={(e) => { setMinFit(Number(e.target.value)); setActivePresetId(null); }}
             aria-label="Minimum fit score"
             className="flex-1"
           />
@@ -276,7 +422,7 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
           <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
           <select
             value={reviewFilter}
-            onChange={(e) => setReviewFilter(e.target.value as ReviewStatus | "all")}
+            onChange={(e) => { setReviewFilter(e.target.value as ReviewStatus | "all"); setActivePresetId(null); }}
             aria-label="Filter by review status"
             className="flex-1 rounded-md border bg-background px-2 py-1.5 text-xs"
           >
@@ -286,29 +432,65 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
             <option value="changes_requested">Changes Requested</option>
           </select>
         </label>
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Accessibility className="h-3.5 w-3.5" aria-hidden />
-          <select
-            value={supportFilter}
-            onChange={(e) => setSupportFilter(e.target.value)}
-            aria-label="Filter by accessibility support"
-            className="flex-1 rounded-md border bg-background px-2 py-1.5 text-xs"
-          >
-            <option value="all">All Supports</option>
-            {ALL_SUPPORTS.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </label>
       </div>
 
-      {(query || minFit > 0 || reviewFilter !== "all" || supportFilter !== "all") && (
+      {/* Accessibility supports (multi-select) */}
+      <div className="mb-4 rounded-2xl border bg-background/60 p-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Accessibility className="h-3.5 w-3.5" aria-hidden />
+            <span className="font-semibold uppercase tracking-wider">Accessibility Supports</span>
+          </div>
+          <div className="inline-flex overflow-hidden rounded-full border text-[11px]">
+            <button
+              type="button"
+              onClick={() => setSupportMode("any")}
+              className={cn("px-2 py-0.5 font-medium", supportMode === "any" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+              aria-pressed={supportMode === "any"}
+            >
+              Match Any
+            </button>
+            <button
+              type="button"
+              onClick={() => setSupportMode("all")}
+              className={cn("px-2 py-0.5 font-medium", supportMode === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+              aria-pressed={supportMode === "all"}
+            >
+              Match All
+            </button>
+          </div>
+        </div>
+        <ul className="flex flex-wrap gap-1.5">
+          {ALL_SUPPORTS.map((s) => {
+            const active = supportFilters.includes(s);
+            return (
+              <li key={s}>
+                <button
+                  type="button"
+                  onClick={() => toggleSupport(s)}
+                  aria-pressed={active}
+                  className={cn(
+                    "rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
+                    active
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:border-primary/50 hover:text-primary",
+                  )}
+                >
+                  {active ? "✓ " : ""}{s}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {(query || minFit > 0 || reviewFilter !== "all" || supportFilters.length > 0) && (
         <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
           <Filter className="h-3 w-3" aria-hidden />
           <span>Showing {filtered.length} of {items.length}</span>
           <button
             type="button"
-            onClick={() => { setQuery(""); setMinFit(0); setReviewFilter("all"); setSupportFilter("all"); }}
+            onClick={() => { setQuery(""); setMinFit(0); setReviewFilter("all"); setSupportFilters([]); setActivePresetId(null); }}
             className="rounded-full border px-2 py-0.5 text-[11px] font-medium hover:border-primary/50 hover:text-primary"
           >
             Reset Filters
