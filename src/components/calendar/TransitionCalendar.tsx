@@ -20,7 +20,12 @@ import {
   Download,
   Plus,
   Sparkles,
+  Bell,
+  ListChecks,
+  Target,
+  ArrowRight,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type {
