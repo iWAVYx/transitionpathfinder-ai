@@ -39,10 +39,17 @@
       "family",
       "student"
     ],
+    "/calendar": [
+      "admin",
+      "educator",
+      "family",
+      "student"
+    ],
     "/caseload": [
       "admin",
       "educator"
     ],
+
     "/district/overview": [
       "admin",
       "district_admin"
