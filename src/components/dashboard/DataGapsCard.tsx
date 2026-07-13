@@ -125,6 +125,17 @@ export function DataGapsCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="tasks"
+          eyebrow="Data Gaps"
+          title="No Gaps Flagged Yet"
+          description="Gaps surface once a Pathway Report is built and reviewed — missing assessments, consents, or referrals will show up here with an owner, an impact statement, and a due date."
+          primaryAction={{ label: "Open Pathway Report", to: d.reportHref }}
+          secondaryAction={{ label: "Open Action Items", to: "/action-items" }}
+          className="mt-5"
+        />
+      ) : (
       <ol className="mt-5 space-y-3">
         {d.items.map((it, i) => {
           const sev = it.severity ?? "medium";
@@ -153,6 +164,8 @@ export function DataGapsCard({
           );
         })}
       </ol>
+      )}
+
     </section>
   );
 }
