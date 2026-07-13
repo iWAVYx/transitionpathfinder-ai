@@ -66,7 +66,7 @@ export function ParentFeatureDrawer({
     <Sheet open={!!detail} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col gap-0 overflow-y-auto overscroll-contain p-0 sm:max-w-lg"
+        className="flex w-full flex-col gap-0 overflow-y-auto overscroll-contain touch-pan-y p-0 sm:max-w-lg"
       >
         {detail && (
           <>
