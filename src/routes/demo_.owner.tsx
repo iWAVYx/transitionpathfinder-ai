@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
+import { PriorityBriefing } from "@/components/role/PriorityBriefing";
 import {
   OWNER_FEATURE_DETAILS,
   OWNER_FEATURE_ORDER,
@@ -78,6 +79,7 @@ function DemoOwnerPage() {
           </p>
         </header>
 
+        <PriorityBriefing role="owner" />
         <LaunchReadinessBoard />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

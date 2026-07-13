@@ -9,6 +9,7 @@ import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverview
 import { OpportunityPipelineBoard } from "@/components/partner/OpportunityPipelineBoard";
 import { PartnerImpactCard } from "@/components/partner/PartnerImpactCard";
 import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
+import { PriorityBriefing } from "@/components/role/PriorityBriefing";
 
 const role = getDemoRole("partner");
 
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/demo_/partner")({
       role={role}
       extras={
         <>
+          <PriorityBriefing role="partner" />
           <RoleOnboardingChecklist role="partner" />
           <OpportunityPipelineBoard />
           <PartnerImpactCard />
