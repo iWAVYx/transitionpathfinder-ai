@@ -42,7 +42,7 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
               <Compass className="h-3.5 w-3.5" aria-hidden /> Role Workspace
             </p>
             <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-              {hub.title}
+              {toTitleCase(hub.title)}
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/80">
               <span className="font-medium text-foreground">{hub.who}</span>{" "}
@@ -58,9 +58,10 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
               to={hub.nextAction.to}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:shadow-lift"
             >
-              {hub.nextAction.label}
+              {toTitleCase(hub.nextAction.label)}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
+
           </div>
         </div>
       </header>
