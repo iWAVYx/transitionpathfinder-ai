@@ -10,6 +10,7 @@ import { ReadinessScorecard } from "@/components/pathway/ReadinessScorecard";
 import { PlainLanguageCard } from "@/components/pathway/PlainLanguageCard";
 import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
 import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
+import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
 
 const role = getDemoRole("student");
 
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/demo_/student")({
           <ReadinessScorecard />
           <PlainLanguageCard />
           <RoleActionPlan defaultRole="student" />
+          <ProgressOverTimeCard studentName="You" />
           <StudentOverviewGrid isSample />
           <StudentPathwaySections isSample />
           <NextStepsTimeline />

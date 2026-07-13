@@ -6,6 +6,9 @@ import { FamilyMeetingPrepCard } from "@/components/dashboard/FamilyMeetingPrepC
 import { AdvocacyResourcesCard } from "@/components/dashboard/AdvocacyResourcesCard";
 import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
+import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
+import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
+import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 
 const role = getDemoRole("family");
 
@@ -28,6 +31,15 @@ export const Route = createFileRoute("/demo_/family")({
               dashboard — every tile has a Preview drawer with polished
               loading / empty / error / permission / ready variants. */}
           <ParentOverviewGrid isSample />
+          <CollaborationFlags
+            flags={[
+              { key: "parent_input" },
+              { key: "document_review" },
+              { key: "partner_match" },
+            ]}
+          />
+          <ProgressOverTimeCard studentName="Jordan" />
+          <DocumentSignalsCard />
           <IepTranslatorCard isSample />
           <FamilyMeetingPrepCard isSample />
           <AdvocacyResourcesCard isSample />
