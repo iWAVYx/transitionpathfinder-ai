@@ -40,9 +40,9 @@ export function BackToDashboard({
     }
     let cancelled = false;
     loadRoles()
-      .then((roles) => {
+      .then((result) => {
         if (cancelled) return;
-        setResolved(fallbackPathFor(roles ?? []));
+        setResolved(fallbackPathFor(result?.roles ?? []));
       })
       .catch(() => {
         /* keep the safe /dashboard default */
