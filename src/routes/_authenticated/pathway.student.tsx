@@ -102,8 +102,22 @@ function StudentPathwayPage() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
+          <div className="space-y-6">
+            <CollaborationFlags
+              flags={[
+                { key: "student_voice" },
+                { key: "parent_input" },
+                { key: "partner_match" },
+              ]}
+            />
+            <MissingInputsPanel />
+            <ReadinessScorecard />
+            <PlainLanguageCard />
+            <RoleActionPlan defaultRole="student" />
+            <Card>
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" /> Latest report
+                  <FileText className="h-5 w-5" /> Latest Report
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -113,32 +127,13 @@ function StudentPathwayPage() {
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>
                     <Link to="/reports/$reportId" params={{ reportId: latest.id }}>
-                      Open my report <ArrowRight className="ml-1 h-4 w-4" />
+                      Open My Report <ArrowRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/pathway">Update my pathway</Link>
+                    <Link to="/pathway">Update My Pathway</Link>
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Focus areas</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2">
-                {[
-                  ["Employment", "Jobs, internships, career interests"],
-                  ["Education", "College, training, adult ed"],
-                  ["Independent Living", "Daily life skills and community"],
-                  ["Advocacy", "Speaking up for what you need"],
-                ].map(([title, body]) => (
-                  <div key={title} className="rounded-md border p-4">
-                    <div className="font-medium">{title}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{body}</div>
-                  </div>
-                ))}
               </CardContent>
             </Card>
 
@@ -152,8 +147,9 @@ function StudentPathwayPage() {
           </div>
         ) : (
           <div className="space-y-6">
+            <MissingInputsPanel />
             <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
-              <h2 className="text-lg font-medium">No pathway report yet</h2>
+              <h2 className="text-lg font-medium">No Pathway Report Yet</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Start your pathway to generate your first plan in your own words.
               </p>
