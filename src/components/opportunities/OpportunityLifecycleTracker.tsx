@@ -7,11 +7,21 @@ import {
   XCircle,
   ArrowRight,
   ExternalLink,
+  CalendarClock,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import type { PartnerMatch } from "@/lib/partner-matching.functions";
+import {
+  LIFECYCLE_STORAGE_KEY,
+  keyFor,
+  readDeadlineStore,
+  readLifecycleStore,
+  writeDeadlineStore,
+  type LifecycleStage,
+} from "@/lib/opportunity-pipeline-store";
 
 /**
  * Lightweight, client-side lifecycle tracker for saved partner matches.
@@ -21,12 +31,7 @@ import type { PartnerMatch } from "@/lib/partner-matching.functions";
  * lands, this can be replaced by an authoritative query.
  */
 
-export type LifecycleStage =
-  | "saved"
-  | "contacted"
-  | "applied"
-  | "enrolled"
-  | "not_a_fit";
+export type { LifecycleStage };
 
 const STAGES: {
   key: LifecycleStage;
@@ -42,26 +47,11 @@ const STAGES: {
   { key: "not_a_fit", label: "Not a fit", icon: XCircle, tone: "bg-rose-100 text-rose-900", hint: "Ruled out" },
 ];
 
-const STORAGE_KEY = "tf.opportunity-lifecycle.v1";
-
 type Store = Record<string, LifecycleStage>;
-
-function readStore(): Store {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}") as Store;
-  } catch {
-    return {};
-  }
-}
 
 function writeStore(next: Store) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-}
-
-function keyFor(studentId: string, partnerId: string) {
-  return `${studentId}::${partnerId}`;
+  window.localStorage.setItem(LIFECYCLE_STORAGE_KEY, JSON.stringify(next));
 }
 
 export function OpportunityLifecycleTracker({
@@ -72,12 +62,25 @@ export function OpportunityLifecycleTracker({
   matches: PartnerMatch[];
 }) {
   const [store, setStore] = useState<Store>({});
+  const [deadlines, setDeadlines] = useState<Record<string, string>>({});
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setStore(readStore());
+    setStore(readLifecycleStore());
+    setDeadlines(readDeadlineStore());
     setHydrated(true);
   }, []);
+
+  function setDeadline(partnerId: string, iso: string) {
+    setDeadlines((prev) => {
+      const next = { ...prev };
+      const k = keyFor(studentId, partnerId);
+      if (!iso) delete next[k];
+      else next[k] = iso;
+      writeDeadlineStore(next);
+      return next;
+    });
+  }
 
   const trackedMatches = useMemo(() => {
     if (!hydrated) return [] as (PartnerMatch & { stage: LifecycleStage })[];
@@ -206,6 +209,16 @@ export function OpportunityLifecycleTracker({
                     </a>
                   </Button>
                 )}
+                <label className="inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-muted-foreground">
+                  <CalendarClock className="h-3 w-3" />
+                  <span className="sr-only">Deadline for {m.organization_name}</span>
+                  <Input
+                    type="date"
+                    value={deadlines[keyFor(studentId, m.partner_id)] ?? ""}
+                    onChange={(e) => setDeadline(m.partner_id, e.target.value)}
+                    className="h-6 w-[130px] border-0 bg-transparent p-0 text-[11px] focus-visible:ring-0"
+                  />
+                </label>
               </div>
             </div>
           );

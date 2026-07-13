@@ -79,6 +79,7 @@ import { ValueCallout } from "@/components/value/ValueCallout";
 import { CHAPTER_VALUE_DEFAULTS } from "@/lib/value-lens";
 import { ReportPartOpener } from "@/components/pathway/ReportPartOpener";
 import { PathwayReportBody } from "@/components/pathway/report/PathwayReportBody";
+import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
 import {
   PublicationPage,
   PublicationSpread,
@@ -1394,6 +1395,11 @@ export function ReportView({
       {/* ============ Opportunity matches ============ */}
       {!hasV2 && r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
+          {studentId && (
+            <div className="mb-5">
+              <OpportunityPipelineSummary studentId={studentId} studentDisplayName={name} />
+            </div>
+          )}
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
               <div key={i} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">

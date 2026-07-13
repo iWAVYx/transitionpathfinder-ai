@@ -12,6 +12,7 @@ import {
   PathwayConnectionsCard,
   PathwayNextStepsCard,
 } from "@/components/pathway/PathwayConnectionsCard";
+import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
 import { listStudents, type Student } from "@/lib/students.functions";
 import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
 
@@ -134,6 +135,11 @@ function StudentPathwayPage() {
 
             <PathwayNextStepsCard role="student" hasReport />
             <PathwayConnectionsCard role="student" />
+            {students[0] && (
+              <OpportunityPipelineSummary
+                studentId={students[0].id}
+                studentDisplayName={students[0].first_name || undefined}
+              />)}
           </div>
         ) : (
           <div className="space-y-6">
