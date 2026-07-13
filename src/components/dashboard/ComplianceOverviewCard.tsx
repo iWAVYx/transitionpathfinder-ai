@@ -99,7 +99,7 @@ export function ComplianceOverviewCard({
 
       {isEmpty ? (
         <ModuleEmptyState
-          kind="report"
+          kind="reports"
           eyebrow="School Compliance"
           title="No Compliance Data Yet"
           description="Once caseloads generate Pathway Reports and educators sign off, IDEA + Indicator 13 metrics will appear here — with a drill-through to the caseload that owns each gap."
