@@ -1,8 +1,66 @@
 import { AlertCircle, ArrowRight, CheckCircle2, Clock, Users, FileText } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { track } from "@/lib/analytics-events";
+
+const PENDING_KEY = "tf.priority-briefing.pending-next-step.v1";
+const COMPLETION_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
+type PendingClick = {
+  role: RoleKey;
+  to: string;
+  label: string;
+  at: number;
+};
+
+function readPending(): PendingClick | null {
+  try {
+    const raw = window.localStorage.getItem(PENDING_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PendingClick;
+  } catch {
+    return null;
+  }
+}
+
+function writePending(p: PendingClick) {
+  try {
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(p));
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearPending() {
+  try {
+    window.localStorage.removeItem(PENDING_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Call from a destination page to record explicit workflow completion
+ * (e.g. after a form submit or key action tied to the next-best step).
+ */
+export function markPriorityBriefingCompleted(
+  role: RoleKey,
+  outcome: "explicit" | "returned" = "explicit",
+) {
+  const pending = readPending();
+  if (!pending || pending.role !== role) return;
+  track("priority_briefing_next_step_completed", {
+    role,
+    to: pending.to,
+    label: pending.label,
+    outcome,
+    elapsed_ms: Date.now() - pending.at,
+  });
+  clearPending();
+}
 
 export type RoleKey =
   | "student"
