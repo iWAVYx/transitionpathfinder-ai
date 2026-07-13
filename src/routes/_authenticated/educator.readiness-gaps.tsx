@@ -13,6 +13,8 @@ import {
   listCaseloadReadiness,
   type CaseloadReadinessRow,
 } from "@/lib/educator.functions";
+import { ReadinessInterventionCell } from "@/components/pathway/ReadinessInterventionCell";
+
 
 export const Route = createFileRoute("/_authenticated/educator/readiness-gaps")({
   head: () => ({
@@ -92,8 +94,10 @@ function EducatorReadinessGapsPage() {
                   <th className="p-3">Ind. Living</th>
                   <th className="p-3">Self-Advocacy</th>
                   <th className="p-3">Biggest Gap</th>
+                  <th className="p-3">Recommended Intervention</th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.student_id} className="border-t">
@@ -130,7 +134,14 @@ function EducatorReadinessGapsPage() {
                         <span className="text-muted-foreground">—</span>
                       )}
                     </td>
+                    <td className="p-3 align-top">
+                      <ReadinessInterventionCell
+                        pillar={r.gap_pillar}
+                        score={r.overall}
+                      />
+                    </td>
                   </tr>
+
                 ))}
               </tbody>
             </table>

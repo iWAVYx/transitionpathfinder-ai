@@ -29,6 +29,8 @@ import {
 } from "@/lib/ppt.functions";
 import { createStudentActionItem } from "@/lib/action-items.functions";
 import { MeetingPrepPartners } from "@/components/pathway/MeetingPrepPartners";
+import { PreMeetingChecklist } from "@/components/pathway/PreMeetingChecklist";
+
 
 import { toTitleCase } from "@/lib/title-case";
 
@@ -313,6 +315,13 @@ function PptPrepPage() {
           </p>
         </div>
         )}
+
+        {!(!loadingReports && reports.length === 0) && (
+          <div className="mt-6">
+            <PreMeetingChecklist />
+          </div>
+        )}
+
       </section>
       </div>
     </SiteShell>
