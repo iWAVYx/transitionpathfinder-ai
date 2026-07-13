@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, ArrowLeft, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight } from "lucide-react";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
