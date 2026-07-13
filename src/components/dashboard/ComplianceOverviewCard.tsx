@@ -97,6 +97,18 @@ export function ComplianceOverviewCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="report"
+          eyebrow="School Compliance"
+          title="No Compliance Data Yet"
+          description="Once caseloads generate Pathway Reports and educators sign off, IDEA + Indicator 13 metrics will appear here — with a drill-through to the caseload that owns each gap."
+          primaryAction={{ label: "Invite Educators", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open School Report", to: d.reportsHref }}
+          className="mt-5"
+        />
+      ) : (
+      <>
       <ul className="mt-5 grid gap-3 md:grid-cols-2">
         {d.metrics.map((m) => {
           const tone = m.tone ?? "success";
@@ -127,6 +139,9 @@ export function ComplianceOverviewCard({
       <p className="mt-5 text-[11px] italic leading-relaxed text-muted-foreground">
         AI-assisted aggregation from source documents — every metric can be drilled to the specific caseload and student file it summarizes.
       </p>
+      </>
+      )}
+
     </section>
   );
 }
