@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
   listCaseloadActionItems,
   type CaseloadActionRow,
 } from "@/lib/educator.functions";
@@ -137,6 +138,9 @@ function EducatorActionItemsPage() {
             )}
           </div>
         )}
+        <div className="mt-8">
+          <BackToDashboard />
+        </div>
       </main>
     </SiteShell>
   );

@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
   Select,
   SelectContent,
   SelectItem,
@@ -164,6 +165,9 @@ function FamilyPrioritiesPage() {
             </div>
           </div>
         )}
+        <div className="mt-8">
+          <BackToDashboard />
+        </div>
       </main>
     </SiteShell>
   );

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
   listCaseloadNotes,
   type CaseloadNoteRow,
 } from "@/lib/educator.functions";
@@ -123,6 +124,9 @@ function EducatorNotesPage() {
             ))}
           </ul>
         )}
+        <div className="mt-8">
+          <BackToDashboard />
+        </div>
       </main>
     </SiteShell>
   );
