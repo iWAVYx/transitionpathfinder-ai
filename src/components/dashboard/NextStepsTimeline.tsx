@@ -73,11 +73,18 @@ export function NextStepsTimeline({
   title = "Your Next Steps",
   eyebrow = "30 / 90 / 180 / 365-Day Plan",
   description = "Small, concrete steps that ladder up to your postsecondary goals. Each item has an owner in the full plan.",
+  empty = false,
+  emptyPrimaryAction = { label: "Open Pathway Report", to: "/pathway/student" },
+  emptySecondaryAction = { label: "Start Student Voice", to: "/student-voice" },
 }: {
   data?: NextStepsTimelineData;
   title?: string;
   eyebrow?: string;
   description?: string;
+  /** When true, render the unified empty state instead of the timeline. */
+  empty?: boolean;
+  emptyPrimaryAction?: { label: string; to: string };
+  emptySecondaryAction?: { label: string; to: string };
 }) {
   const merged: Record<HorizonKey, HorizonBlock> = {
     d30: { ...SAMPLE.d30, ...(data?.d30 ?? {}) },
@@ -85,6 +92,9 @@ export function NextStepsTimeline({
     d180: { ...SAMPLE.d180, ...(data?.d180 ?? {}) },
     d365: { ...SAMPLE.d365, ...(data?.d365 ?? {}) },
   };
+  const allEmpty =
+    empty ||
+    ORDER.every((k) => (merged[k].items?.length ?? 0) === 0);
 
   return (
     <section
@@ -104,6 +114,19 @@ export function NextStepsTimeline({
           {description}
         </p>
       </header>
+
+      {allEmpty ? (
+        <ModuleEmptyState
+          kind="tasks"
+          eyebrow="Action Items"
+          title="No Next Steps Yet"
+          description="Your 30 / 90 / 180 / 365-day plan appears here the moment your Pathway Report has anything to schedule."
+          primaryAction={emptyPrimaryAction}
+          secondaryAction={emptySecondaryAction}
+          className="mt-6"
+        />
+      ) : (
+
 
       <ol className="mt-6 grid gap-4 md:grid-cols-4">
         {ORDER.map((key, idx) => {
