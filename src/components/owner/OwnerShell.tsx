@@ -195,7 +195,7 @@ export function OwnerShell({
     );
   }
 
-  const groups = Array.from(new Set(OWNER_OWNER_NAV.map((n) => n.group)));
+  const groups = Array.from(new Set(OWNER_NAV.map((n) => n.group)));
 
   return (
     <div className="min-h-dvh bg-muted/30 text-foreground">
@@ -216,7 +216,7 @@ export function OwnerShell({
                   {toTitleCase(g)}
                 </div>
                 <ul className="space-y-0.5">
-                  {OWNER_OWNER_NAV.filter((n) => n.group === g).map((n) => {
+                  {OWNER_NAV.filter((n) => n.group === g).map((n) => {
                     const active =
                       location.pathname === n.to ||
                       (n.to !== "/owner" && location.pathname.startsWith(n.to));
@@ -284,7 +284,7 @@ export function OwnerShell({
                 Main app
               </button>
               <span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
-              {OWNER_OWNER_NAV.map((n) => {
+              {OWNER_NAV.map((n) => {
                 const active =
                   location.pathname === n.to ||
                   (n.to !== "/owner" && location.pathname.startsWith(n.to));
