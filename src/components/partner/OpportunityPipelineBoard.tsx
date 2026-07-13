@@ -11,6 +11,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import {
