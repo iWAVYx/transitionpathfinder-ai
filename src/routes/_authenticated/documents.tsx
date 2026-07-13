@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
+import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
+import { VisibilityBadge, PermissionLabel } from "@/components/permissions/VisibilityBadge";
 import {
   listAllDocuments,
   type CrossDocumentRow,
@@ -160,6 +162,8 @@ function DocumentsHubPage() {
 
         <MissingDocumentsChecklist rows={rows} className="mt-6" />
 
+        <DocumentSignalsCard className="mt-6" />
+
 
 
         <div className="mt-6 flex items-center gap-3">
@@ -198,6 +202,8 @@ function DocumentsHubPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <VisibilityBadge visibility="team" />
+                    <PermissionLabel can={["view", "comment"]} />
                     <StatusBadge status={d.review_status} />
                     {d.review_status === "uploaded" || d.review_status === "linked" ? (
                       <Button asChild size="sm" variant="outline">
