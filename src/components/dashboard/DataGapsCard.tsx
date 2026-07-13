@@ -1,6 +1,8 @@
 import { AlertTriangle, Sparkles, ArrowRight, CircleDashed } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * DataGapsCard — surfaces the Pathway Report's "Data Gaps + Needs Review"
