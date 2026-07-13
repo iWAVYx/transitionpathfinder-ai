@@ -1,6 +1,8 @@
 import { ClipboardList, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * StudentFitSummariesCard — anonymized narrative fit summaries for a
@@ -78,11 +80,16 @@ function fitTone(fit: number) {
 export function StudentFitSummariesCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: StudentFitSummariesData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<StudentFitSummariesData> = { ...SAMPLE, ...(data ?? {}), items: data?.items ?? SAMPLE.items };
+  const isEmpty = empty || d.items.length === 0;
+
 
   return (
     <section
@@ -117,9 +124,21 @@ export function StudentFitSummariesCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="students"
+          eyebrow="Student Profile"
+          title="Your Student Profile Is Waiting"
+          description="Answer a few Student Voice prompts and add a strength or interest — we'll draft anonymized fit summaries you can share with your team."
+          primaryAction={{ label: "Start Student Voice", to: "/student-voice" }}
+          secondaryAction={{ label: "Open Pathway Report", to: d.detailsHref }}
+          className="mt-5"
+        />
+      ) : (
       <ol className="mt-5 space-y-4">
         {d.items.map((s) => (
           <li key={s.code} className="rounded-2xl border bg-background p-4">
+
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-dashed border-border/60 pb-3">
               <div className="min-w-0">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{s.code}</p>
@@ -163,6 +182,8 @@ export function StudentFitSummariesCard({
           </li>
         ))}
       </ol>
+      )}
     </section>
+
   );
 }

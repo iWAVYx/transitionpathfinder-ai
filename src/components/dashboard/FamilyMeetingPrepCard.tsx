@@ -1,6 +1,8 @@
 import { MessageCircleQuestion, Sparkles, ArrowRight, Users2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * FamilyMeetingPrepCard — meeting-prep questions grouped by audience
@@ -111,12 +113,16 @@ const AUDIENCE_STYLES: Record<
 export function FamilyMeetingPrepCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: FamilyMeetingPrepData;
   isSample?: boolean;
+  empty?: boolean;
 }) {
   const d: Required<FamilyMeetingPrepData> = { ...SAMPLE, ...(data ?? {}) };
   const totalQuestions = d.groups.reduce((n, g) => n + g.questions.length, 0);
+  const isEmpty = empty || totalQuestions === 0;
+
 
   return (
     <section
@@ -155,6 +161,17 @@ export function FamilyMeetingPrepCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="meetings"
+          eyebrow="Meeting Prep"
+          title="No Meeting Prep Yet"
+          description="Meeting-prep questions appear here as soon as your team schedules a PPT or your Pathway Report has priorities to translate."
+          primaryAction={{ label: "Open Pathway Report", to: "/pathway/family" }}
+          secondaryAction={{ label: "Add Family Priorities", to: "/family/priorities" }}
+          className="mt-5"
+        />
+      ) : (
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {d.groups.map((g) => (
           <div
@@ -189,6 +206,8 @@ export function FamilyMeetingPrepCard({
           </div>
         ))}
       </div>
+      )}
     </section>
   );
 }
+

@@ -7,6 +7,8 @@ import {
   Quote,
   ArrowRight,
 } from "lucide-react";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * Student-lens preview of the Pathway Report sections.
@@ -92,10 +94,13 @@ const LEVEL_LABEL: Record<ReadinessLevel, string> = {
 export function StudentPathwaySections({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: StudentPathwaySectionsData;
   /** Renders a "Sample Data" chip in the header. */
   isSample?: boolean;
+  /** When true, render the unified empty state instead of report sections. */
+  empty?: boolean;
 }) {
   const d: Required<StudentPathwaySectionsData> = {
     ...SAMPLE,
@@ -106,6 +111,7 @@ export function StudentPathwaySections({
       ...(data?.recommendedPathway ?? {}),
     },
   };
+
 
   return (
     <section
@@ -145,8 +151,22 @@ export function StudentPathwaySections({
         </div>
       </header>
 
+      {empty ? (
+        <ModuleEmptyState
+          kind="reports"
+          eyebrow="Pathway Report"
+          title="Your Pathway Report Is Almost Ready"
+          description="Add a few Student Voice answers and upload the most recent evaluation — we'll draft your Pathway Report the moment there's enough evidence."
+          primaryAction={{ label: "Start Student Voice", to: "/student-voice" }}
+          secondaryAction={{ label: "Upload A Document", to: "/documents" }}
+          className="mt-6"
+        />
+      ) : (
+      <>
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Snapshot */}
+
+
         <div className="rounded-2xl border bg-background p-4">
           <p className="tf-eyebrow">Student Snapshot</p>
           <h3 className="mt-1 font-display text-base font-medium tracking-tight">
@@ -257,7 +277,10 @@ export function StudentPathwaySections({
         AI-assisted — your team reviews everything here before it's shared. You
         can always update your Voice or ask a question at your next meeting.
       </p>
+      </>
+      )}
     </section>
+
   );
 }
 
