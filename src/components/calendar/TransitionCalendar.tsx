@@ -657,7 +657,7 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
                           {e.description}
                         </p>
                       )}
-                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
                         <span>
                           {e.allDay
                             ? "All day"
@@ -665,7 +665,36 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
                         </span>
                         {e.location && <span>{e.location}</span>}
                         {e.scope && <span>· {e.scope}</span>}
+                        {e.owner && (
+                          <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-foreground/80">
+                            {e.owner}
+                          </span>
+                        )}
+                        {e.reminder && (
+                          <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
+                            <Bell className="h-3 w-3" aria-hidden /> {e.reminder}
+                          </span>
+                        )}
                       </div>
+                      {e.pathwayGoal && (
+                        <span className="mt-2 inline-flex max-w-full items-center gap-1 truncate rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-primary/20">
+                          <Target className="h-3 w-3 shrink-0" aria-hidden />
+                          <span className="truncate">{e.pathwayGoal.label}</span>
+                        </span>
+                      )}
+                      {e.prep && e.prep.length > 0 && (
+                        <details className="mt-2 rounded-lg border border-dashed border-border/70 bg-muted/20 px-2.5 py-1.5">
+                          <summary className="cursor-pointer text-[11px] font-medium text-foreground/80">
+                            <ListChecks className="mr-1 inline h-3 w-3 text-primary" aria-hidden />
+                            Prep ({e.prep.length})
+                          </summary>
+                          <ul className="mt-1.5 space-y-1 pl-4 text-[11px] leading-relaxed text-foreground/80">
+                            {e.prep.map((p, i) => (
+                              <li key={i} className="list-disc">{p}</li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
                     </div>
                     <span
                       className={cn(
@@ -677,6 +706,7 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
                     </span>
                   </div>
                 );
+
                 return (
                   <li key={e.id}>
                     {e.href ? (
