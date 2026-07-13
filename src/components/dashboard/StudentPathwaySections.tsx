@@ -162,8 +162,10 @@ export function StudentPathwaySections({
           className="mt-6"
         />
       ) : (
+      <>
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         {/* Snapshot */}
+
 
         <div className="rounded-2xl border bg-background p-4">
           <p className="tf-eyebrow">Student Snapshot</p>
