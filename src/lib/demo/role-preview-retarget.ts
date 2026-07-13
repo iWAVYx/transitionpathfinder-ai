@@ -29,6 +29,7 @@ const TITLE_TO_FEATURE_ID: Record<DemoRoleId, Record<string, string>> = {
   family: {
     "Connected Student": "student-profile",
     Documents: "documents",
+    "Family Priorities": "student-profile",
     "Pathway Report — Family View": "pathway-report",
     "Meeting Prep": "meeting-prep",
     "Action Items": "action-items",
