@@ -82,11 +82,7 @@ function FamilyInvitesPage() {
         </div>
 
         <div className="mt-8">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/hubs/family">
-              <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden /> Back To Family Workspace
-            </Link>
-          </Button>
+          <BackToDashboard />
         </div>
       </main>
     </SiteShell>
