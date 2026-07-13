@@ -34,6 +34,7 @@ const PLATFORM_PRIMITIVES = [
   "Recommended Resources",
   "Saved Resources",
   "Opportunities",
+  "Programs",
   "Partner",
   "Consent",
   "Sharing",
@@ -47,6 +48,12 @@ const PLATFORM_PRIMITIVES = [
   "Analytics",
   "Implementation",
   "Rollout",
+  "School",
+  "District",
+  "Service",
+  "Application",
+  "Progress",
+  "Incentive",
 ];
 
 // PII vocabulary partners must never touch.
