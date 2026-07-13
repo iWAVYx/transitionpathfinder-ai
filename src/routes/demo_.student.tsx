@@ -28,10 +28,6 @@ export const Route = createFileRoute("/demo_/student")({
       extras={
         <>
           <PathwayTimeline />
-          {/* Same at-a-glance workspace shown on the signed-in student
-              dashboard, wired to the shared feature-detail drawer so demo
-              visitors can preview each tool in place. */}
-          <PathwayTimeline />
           <CollaborationFlags
             flags={[
               { key: "student_voice" },
