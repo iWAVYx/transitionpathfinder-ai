@@ -5,6 +5,7 @@ import { EvidenceReviewCard } from "@/components/dashboard/EvidenceReviewCard";
 import { DataGapsCard } from "@/components/dashboard/DataGapsCard";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
+import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
 
 const role = getDemoRole("educator");
 
