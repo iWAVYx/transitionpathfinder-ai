@@ -109,6 +109,18 @@ export function CaseloadRollupsCard({
         </div>
       </header>
 
+      {isEmpty ? (
+        <ModuleEmptyState
+          kind="students"
+          eyebrow="Caseload Rollups"
+          title="No Caseloads To Roll Up Yet"
+          description="Invite educators and assign case managers — students and Pathway Report progress will populate here per grade band and per case manager."
+          primaryAction={{ label: "Invite Educators", to: "/settings/invites" }}
+          secondaryAction={{ label: "Open School Report", to: d.buildingHref }}
+          className="mt-5"
+        />
+      ) : (
+      <>
       <div className="mt-4 grid gap-3 sm:grid-cols-4">
         <RollupStat label="Students Served" value={totals.students.toString()} />
         <RollupStat label="Reports Current" value={`${reportPct}%`} sub={`${totals.reportsCurrent} of ${totals.students}`} />
@@ -157,6 +169,9 @@ export function CaseloadRollupsCard({
           </tbody>
         </table>
       </div>
+      </>
+      )}
+
     </section>
   );
 }
