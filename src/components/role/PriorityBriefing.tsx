@@ -364,58 +364,68 @@ export function PriorityBriefing({ role }: { role: RoleKey }) {
   );
 }
 
-function NextBestStepLink({ role, label }: { role: RoleKey; label: string }) {
-  const common = {
-    preload: "intent" as const,
-    className: "inline-flex",
+const ROUTE_BY_ROLE: Record<RoleKey, string> = {
+  student: "/meetings",
+  family: "/pathway/family",
+  educator: "/educator/pending-input",
+  "school-admin": "/admin-school",
+  "district-admin": "/district/schools",
+  partner: "/opportunities",
+  owner: "/owner/launch",
+};
+
+function NextBestStepLink({
+  role,
+  label,
+  stepLabel,
+}: {
+  role: RoleKey;
+  label: string;
+  stepLabel: string;
+}) {
+  const to = ROUTE_BY_ROLE[role];
+  const handleClick = () => {
+    const payload: PendingClick = {
+      role,
+      to,
+      label: stepLabel,
+      at: Date.now(),
+    };
+    writePending(payload);
+    track("priority_briefing_next_step_clicked", {
+      role,
+      to,
+      cta: label,
+      label: stepLabel,
+    });
   };
   const inner = (
     <Button size="sm" asChild={false} className="pointer-events-none">
       {label} <ArrowRight className="ml-1 h-4 w-4" />
     </Button>
   );
+  const common = {
+    preload: "intent" as const,
+    className: "inline-flex",
+    onClick: handleClick,
+    "aria-label": label,
+    "data-analytics-id": "priority-briefing-next-step",
+    "data-analytics-role": role,
+  };
   switch (role) {
     case "student":
-      return (
-        <Link to="/meetings" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/meetings" {...common}>{inner}</Link>;
     case "family":
-      return (
-        <Link to="/pathway/family" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/pathway/family" {...common}>{inner}</Link>;
     case "educator":
-      return (
-        <Link to="/educator/pending-input" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/educator/pending-input" {...common}>{inner}</Link>;
     case "school-admin":
-      return (
-        <Link to="/admin-school" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/admin-school" {...common}>{inner}</Link>;
     case "district-admin":
-      return (
-        <Link to="/district/schools" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/district/schools" {...common}>{inner}</Link>;
     case "partner":
-      return (
-        <Link to="/opportunities" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/opportunities" {...common}>{inner}</Link>;
     case "owner":
-      return (
-        <Link to="/owner/launch" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/owner/launch" {...common}>{inner}</Link>;
   }
 }
