@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Gauge, Loader2 } from "lucide-react";
@@ -135,6 +136,9 @@ function EducatorReadinessGapsPage() {
             </table>
           </div>
         )}
+        <div className="mt-8">
+          <BackToDashboard />
+        </div>
       </main>
     </SiteShell>
   );

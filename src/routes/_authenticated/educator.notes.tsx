@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { NotebookPen, Loader2, Search } from "lucide-react";
@@ -123,6 +124,9 @@ function EducatorNotesPage() {
             ))}
           </ul>
         )}
+        <div className="mt-8">
+          <BackToDashboard />
+        </div>
       </main>
     </SiteShell>
   );

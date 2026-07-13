@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -137,6 +138,9 @@ function EducatorActionItemsPage() {
             )}
           </div>
         )}
+        <div className="mt-8">
+          <BackToDashboard />
+        </div>
       </main>
     </SiteShell>
   );
