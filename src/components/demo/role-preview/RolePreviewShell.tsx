@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
 import { SectionHeading } from "@/components/layout/SectionHeading";
+import { toTitleCase } from "@/lib/title-case";
+
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
@@ -75,7 +77,7 @@ export function RolePreviewShell({
         <Breadcrumbs
           trail={[
             { label: "Demo", to: "/demo" },
-            { label: `${role.label} Preview` },
+            { label: `${toTitleCase(role.label)} Preview` },
           ]}
         />
       </PageSection>
@@ -94,19 +96,20 @@ export function RolePreviewShell({
                   <Icon className="h-5 w-5" />
                 </span>
                 <Badge variant="outline" className="border-primary text-primary">
-                  {role.label} · Demo
+                  {toTitleCase(role.label)} · Demo
                 </Badge>
               </div>
               <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                {role.tagline}
+                {toTitleCase(role.tagline)}
               </p>
               <h1 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {role.headline}
+                {toTitleCase(role.headline)}
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
                 {role.intro}
               </p>
             </div>
+
 
             <aside className="rounded-2xl border bg-background/80 p-5 text-sm shadow-soft">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -259,9 +262,10 @@ export function RolePreviewShell({
             <span className="text-sm text-muted-foreground">Continue the tour</span>
             <Button asChild variant="ghost" size="sm">
               <Link to={next.path}>
-                Next: {next.label} preview <ArrowRight className="ml-1.5 h-4 w-4" />
+                Next: {toTitleCase(next.label)} preview <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </Button>
+
           </div>
         </PageSection>
       )}
