@@ -89,28 +89,36 @@ export function DemoFeatureShell({
             {detail.summary}
           </p>
           {detail.primaryAction && (
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <Button asChild size="sm" data-testid="demo-feature-primary-action-header">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="shadow-elegant"
+                data-testid="demo-feature-primary-action-header"
+              >
                 <Link to={detail.primaryAction.to as never}>
-                  In your workspace: {detail.primaryAction.label}
+                  <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
+                  Open In Your Workspace: {toTitleCase(detail.primaryAction.label)}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
               <Button
                 asChild
-                size="sm"
+                size="lg"
                 variant="outline"
                 data-testid="demo-feature-secondary-action-header"
               >
                 <Link to={augmented.secondaryAction.to as never}>
-                  {augmented.secondaryAction.label}
+                  {toTitleCase(augmented.secondaryAction.label)}
                 </Link>
               </Button>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary/70" aria-hidden />
                 Opens the real tool once you sign in.
               </span>
             </div>
           )}
+
         </header>
 
         {richModule && <div className="mt-8">{richModule}</div>}
