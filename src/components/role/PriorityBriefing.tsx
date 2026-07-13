@@ -1,8 +1,66 @@
 import { AlertCircle, ArrowRight, CheckCircle2, Clock, Users, FileText } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { track } from "@/lib/analytics-events";
+
+const PENDING_KEY = "tf.priority-briefing.pending-next-step.v1";
+const COMPLETION_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
+type PendingClick = {
+  role: RoleKey;
+  to: string;
+  label: string;
+  at: number;
+};
+
+function readPending(): PendingClick | null {
+  try {
+    const raw = window.localStorage.getItem(PENDING_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PendingClick;
+  } catch {
+    return null;
+  }
+}
+
+function writePending(p: PendingClick) {
+  try {
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(p));
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearPending() {
+  try {
+    window.localStorage.removeItem(PENDING_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Call from a destination page to record explicit workflow completion
+ * (e.g. after a form submit or key action tied to the next-best step).
+ */
+export function markPriorityBriefingCompleted(
+  role: RoleKey,
+  outcome: "explicit" | "returned" = "explicit",
+) {
+  const pending = readPending();
+  if (!pending || pending.role !== role) return;
+  track("priority_briefing_next_step_completed", {
+    role,
+    to: pending.to,
+    label: pending.label,
+    outcome,
+    elapsed_ms: Date.now() - pending.at,
+  });
+  clearPending();
+}
 
 export type RoleKey =
   | "student"
@@ -167,6 +225,32 @@ function sevBadge(sev: "high" | "med" | "low") {
 
 export function PriorityBriefing({ role }: { role: RoleKey }) {
   const c = COPY[role];
+
+  useEffect(() => {
+    track("priority_briefing_viewed", {
+      role,
+      next_step_label: c.nextBestStep.label,
+      next_step_cta: c.nextBestStep.cta,
+      needs_attention_count: c.needsAttention.length,
+      missing_count: c.missing.length,
+    });
+
+    // If the user had a pending click for this role and has now returned to
+    // a page containing the briefing (i.e. not the destination itself),
+    // count that as a "returned" completion signal.
+    const pending = readPending();
+    if (
+      pending &&
+      pending.role === role &&
+      Date.now() - pending.at < COMPLETION_WINDOW_MS &&
+      typeof window !== "undefined" &&
+      window.location?.pathname !== pending.to
+    ) {
+      markPriorityBriefingCompleted(role, "returned");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
+
   return (
     <Card className="border-primary/20 shadow-soft">
       <CardHeader>
@@ -191,9 +275,10 @@ export function PriorityBriefing({ role }: { role: RoleKey }) {
           </p>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-medium">{c.nextBestStep.label}</p>
-            <NextBestStepLink role={role} label={c.nextBestStep.cta} />
+            <NextBestStepLink role={role} label={c.nextBestStep.cta} stepLabel={c.nextBestStep.label} />
           </div>
         </div>
+
 
         <div className="grid gap-4 md:grid-cols-2">
           {/* Needs attention */}
@@ -279,58 +364,68 @@ export function PriorityBriefing({ role }: { role: RoleKey }) {
   );
 }
 
-function NextBestStepLink({ role, label }: { role: RoleKey; label: string }) {
-  const common = {
-    preload: "intent" as const,
-    className: "inline-flex",
+const ROUTE_BY_ROLE: Record<RoleKey, string> = {
+  student: "/meetings",
+  family: "/pathway/family",
+  educator: "/educator/pending-input",
+  "school-admin": "/admin-school",
+  "district-admin": "/district/schools",
+  partner: "/opportunities",
+  owner: "/owner/launch",
+};
+
+function NextBestStepLink({
+  role,
+  label,
+  stepLabel,
+}: {
+  role: RoleKey;
+  label: string;
+  stepLabel: string;
+}) {
+  const to = ROUTE_BY_ROLE[role];
+  const handleClick = () => {
+    const payload: PendingClick = {
+      role,
+      to,
+      label: stepLabel,
+      at: Date.now(),
+    };
+    writePending(payload);
+    track("priority_briefing_next_step_clicked", {
+      role,
+      to,
+      cta: label,
+      label: stepLabel,
+    });
   };
   const inner = (
     <Button size="sm" asChild={false} className="pointer-events-none">
       {label} <ArrowRight className="ml-1 h-4 w-4" />
     </Button>
   );
+  const common = {
+    preload: "intent" as const,
+    className: "inline-flex",
+    onClick: handleClick,
+    "aria-label": label,
+    "data-analytics-id": "priority-briefing-next-step",
+    "data-analytics-role": role,
+  };
   switch (role) {
     case "student":
-      return (
-        <Link to="/meetings" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/meetings" {...common}>{inner}</Link>;
     case "family":
-      return (
-        <Link to="/pathway/family" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/pathway/family" {...common}>{inner}</Link>;
     case "educator":
-      return (
-        <Link to="/educator/pending-input" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/educator/pending-input" {...common}>{inner}</Link>;
     case "school-admin":
-      return (
-        <Link to="/admin-school" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/admin-school" {...common}>{inner}</Link>;
     case "district-admin":
-      return (
-        <Link to="/district/schools" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/district/schools" {...common}>{inner}</Link>;
     case "partner":
-      return (
-        <Link to="/opportunities" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/opportunities" {...common}>{inner}</Link>;
     case "owner":
-      return (
-        <Link to="/owner/launch" {...common} aria-label={label}>
-          {inner}
-        </Link>
-      );
+      return <Link to="/owner/launch" {...common}>{inner}</Link>;
   }
 }
