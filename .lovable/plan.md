@@ -1,99 +1,89 @@
-# Dashboard Functionality, Polish & Interaction Pass
+# Paid-Product Value Audit & Refinement Pass
 
-Scope: Student, Parent/Guardian, Educator/Case Manager, School Admin, District Admin, Partner, Platform Admin — plus the matching `/demo/*` and Transition Workspace previews. Build on the current dashboard system; nothing structural gets ripped out.
+This is a large, cross-cutting pass touching 10 value areas. To keep it shippable and reviewable, I'll break it into 4 sequenced waves. Each wave ends with `bun run test:unit` + the three Playwright projects you named. Nothing removes existing routes, auth, tests, or dashboard structure — every change strengthens what's already there.
 
-## Working Principles
+## Wave 1 — Flagship Deliverables (Pathway Report + Meeting Prep + Action Items)
 
-- Reuse existing components (`SiteShell`, `HubShell`, `StageJourneyCard`, dashboard tiles, `ReportView`, existing readiness/opportunity cards). Add new components alongside; don't replace.
-- Title Case for headings/tiles/tabs (via `src/lib/title-case.ts`); sentence case for descriptions.
-- Every new effect: `prefers-reduced-motion` respected, non-animated fallback, no layout shift, keyboard-reachable, works down to ~360px.
-- Semantic tokens only (no raw hex / `text-white` / `bg-black`). Reuse `animate-fade-in`, `animate-scale-in`, `hover-scale`, plus 1–2 new keyframes added to `src/styles.css` (`milestone-glow`, `status-pulse`).
-- Demo previews import the same real components with sample props — no parallel demo-only UIs.
+**Pathway Report (`src/components/pathway/ReportView.tsx` and related)**
+- Add a `ReportHeaderBar` with: version chip, "Last Updated," export/share button, and a "What Changed Since Last Version" diff drawer (reads `pathway_report_versions`).
+- New `MissingInputsPanel` — flags absent Student Voice, missing IEP upload, unfilled intake fields, no partner matches, no meeting scheduled. Each flag links to the correct feature page.
+- New `ReadinessScorecard` (compact 4-domain scorecard: Academic, Independent Living, Employment, Community — pulled from `readiness_scores`).
+- New `RoleActionPlan` tabs: Family Next Steps / Educator Next Steps / Student Next Steps — each with 3–5 concrete actions.
+- Plain-language translator card: "What This Means" summary above dense IEP/transition sections.
+- Cross-links section: Documents fed in · Student Voice responses · Related action items · Meeting prep · Suggested opportunities.
 
-## Phase A — Shared Foundation
+**Meeting Prep (`src/routes/_authenticated/meeting-prep.*` and components)**
+- New `AgendaBuilder` (drag-order agenda items, time estimates, owner).
+- `QuestionsToAskCard` (pre-seeded per role, user-editable).
+- `DocumentsToBringChecklist` (pulls from documents; check off as attached).
+- `StudentPrioritiesCard` + `FamilyConcernsCard` (short input, saved to `meeting_prep_items`).
+- `ReadinessGapsCallout` (feeds from Pathway Report).
+- `DecisionsNeededCard` + `UnresolvedItemsCard`.
+- `PostMeetingFollowUpCard` (auto-generates action items with owners/dates).
+- `PrintableSummaryView` route/view — print-safe layout.
 
-1. `src/styles.css`: add `@keyframes milestone-glow`, `status-pulse`, `pipeline-slide`; wrap all new keyframes in `@media (prefers-reduced-motion: no-preference)`.
-2. `src/components/effects/` (new): `MotionSafe.tsx` helper (renders animated child only when motion allowed, falls back to static), `AnimatedCounter.tsx` (count-up with intersection observer + reduced-motion static value), `ProgressRing.tsx` (SVG ring with animated stroke-dashoffset).
-3. `src/lib/back-to-dashboard.ts`: tiny helper returning the correct dashboard path per role (used by feature-page "Back To Dashboard" buttons).
+**Action Items (`src/components/actions/*`, `action_items` table already has 15 cols)**
+- Redesign `ActionItemRow` to always show: Owner · Role · Due · Status · Priority · Source · Related Goal/Report Section · Next Step · Update button.
+- New `ActionItemDrawer` with edit-in-place + activity log.
 
-## Phase B — Per-Role Interactive Feature
+## Wave 2 — Documents, Roles, Progress
 
-Each role gets ONE signature effect tied to a real feature, plus a functionality/polish sweep on the surrounding dashboard tiles.
+**Document Intelligence**
+- `DocumentCard` shows: Type badge · Processing status pill · "Fed into Pathway Report" chip · "Human review needed" flag · Visibility label · Permission chips.
+- New `MissingDocumentsChecklist` (IEP, transition plan, evaluation, consent — with upload CTAs).
+- `ExtractedSignalsPanel` on document detail (from `document_extractions`).
 
-### Student — Animated Pathway Timeline
-- New: `src/components/pathway/PathwayTimeline.tsx` — vertical/horizontal timeline of pathway steps (`explore → prepare → apply → transition → thrive`). Completed step = check with `milestone-glow`; current step = `status-pulse`; hover/focus opens a popover with the step's next action and links into the Pathway Report section.
-- Wire into: `pathway.student.tsx`, `hubs.student.tsx`, `demo-mode.tsx`, `demo_.student.tsx`.
+**Role Collaboration Indicators**
+- New shared `<CollaborationFlags />` primitive used on Pathway Report + shared plan view + dashboards. Renders any of: Parent Input Needed · Student Voice Missing · Educator Review Needed · Document Review Needed · Partner Match Available · School Support Flag · District Support Needed. Each flag is a link to the resolving action.
 
-### Parent / Guardian — Document Readiness Meter + Meeting-Prep Progress
-- New: `src/components/documents/DocumentReadinessMeter.tsx` — `ProgressRing` fed by existing `MissingDocumentsChecklist` state; animated fill; drag-over highlight if upload dropzone present.
-- Extend `PreMeetingChecklist` with animated stroke-through + progress bar as items toggle.
-- Wire into: `documents.tsx`, `ppt-prep.tsx`, `pathway.family.tsx`, `demo_.family.tsx`, `demo_.documents.tsx`, `demo_.meeting.tsx`.
+**Progress Over Time**
+- New `ProgressOverTimeCard` (per-student): readiness delta sparkline, completed milestones count, report version count, action-completion rate, "Since Last Meeting" summary.
+- Add to student, family, educator dashboards.
 
-### Educator / Case Manager — Readiness Heatmap
-- New: `src/components/dashboard/ReadinessHeatmap.tsx` — grid of caseload × readiness domains, cells colored by severity (`bg-destructive/20 → bg-primary/20`), urgent gaps pulse. Click cell → expands severity + intervention + owner + status (reuses `ReadinessInterventionCell`).
-- Wire into: `caseload.tsx`, `educator.readiness-gaps.tsx`, `demo_.educator.tsx`.
+## Wave 3 — Trust, School/District ROI, Partner Value
 
-### School Admin — Implementation Completion Rings
-- New: `src/components/implementation/CompletionRingsBoard.tsx` — one `ProgressRing` per grade/caseload cluster from existing rollout data; hover reveals blocker list.
-- Wire into: `school.implementation.tsx`, `school.overview.tsx`, `demo_.school-admin.tsx`.
+**Trust / Privacy / Compliance**
+- New `PermissionLabel` + `VisibilityBadge` primitives; adopt on documents, notes, share views.
+- `ConsentControlsPanel` on student settings (view/collaborate/manage — read-only surfacing of `student_relationships`).
+- Add AI disclaimer footer to AI-generated sections of Pathway Report + Meeting Prep summaries.
+- Permission-safe empty states (never leak "you don't have access" without a next step).
 
-### District Admin — School Comparison Chart
-- New: `src/components/district/SchoolComparisonChart.tsx` — animated horizontal bar chart of readiness % by school with hover tooltip (student count, top gap, trend arrow). Sort by name / readiness / trend.
-- Wire into: `district.readiness-trends.tsx`, `district.overview.tsx`, `demo_.district-admin.tsx`.
+**School / District ROI**
+- Extend existing `district.implementation.tsx` and `school.implementation.tsx` with: Implementation Health score, Completion Rates, Readiness Trends chart, Staff Usage table, Support Needs list, Risk Flags, Next Recommended Step callout, "Export Summary" (CSV/PDF-print).
 
-### Partner — Pipeline Kanban
-- Promote existing `OpportunityLifecycleTracker` data into `src/components/partner/OpportunityPipelineBoard.tsx` — columns Saved / Contacted / Applied / Enrolled / Not A Fit. Cards animate between columns using FLIP (measure → animate transform). Impact counters use `AnimatedCounter`.
-- Wire into: `partners-manage.impact.tsx`, `partners-manage.opportunities.tsx`, `demo_.partner.tsx`.
+**Partner Value**
+- Extend `OpportunityPipelineBoard` + partner workspace with: Opportunity Quality Checklist, Eligibility Builder card, Accessibility Support fields (already partially there), Program Deadlines column, Impact Metrics tile, PartnerForward Incentives resource strip, Review Status column.
 
-### Platform Admin — Launch Readiness Command Center
-- New: `src/components/platform/LaunchReadinessBoard.tsx` — checklist grouped by (Data, Access, Comms, Compliance) with `status-pulse` on Attention items, `ProgressRing` for overall readiness, hover reveals risk description + owner.
-- Wire into: `hubs.admin.tsx`, existing `/admin` overview, `demo_.owner.tsx`.
+## Wave 4 — Onboarding, Copy, Polish
 
-## Phase C — Functionality Sweep (per dashboard)
+**Role Onboarding**
+- New `RoleOnboardingChecklist` component rendered on each role's dashboard until 100% complete. Steps: Complete Profile · Upload Document · Invite Team · Add Student / Connect School · Generate Or Review Pathway Report · Schedule Or Prepare For Meeting · Complete First Action Item. Persist per-user progress in `user_ui_prefs`.
 
-For each role dashboard:
-- Verify every tile links to a live feature route (audit against `ROUTE_AUDIENCES`); fix any dead/duplicate links.
-- Ensure each feature page has: Current Status pill, Next Best Step callout, Primary Action button, empty / loading / error states, Back To Dashboard link (via new helper), and (where relevant) a link to the Pathway Report.
-- Strengthen shallow features where quick wins land in this pass:
-  - Calendar: month / week / agenda view switcher (tabs).
-  - Action Items: status + owner + due + source + related goal columns; sortable.
-  - Readiness Gaps: severity / intervention / owner / status columns; filter tabs.
-  - Opportunities: fit criteria, dates, accessibility supports, review status chips.
+**Copy & Polish Pass**
+- Title Case sweep on headings, tile titles, tabs, section labels (use existing `src/lib/title-case.ts`).
+- Sentence case for descriptions.
+- Remove generic filler ("Welcome to your dashboard", "Manage your data", etc.).
+- Guided empty states everywhere with a primary CTA.
+- Mobile/tablet check on new components (aspect wrappers, tap targets ≥ 44px).
+- Preserve demo ↔ signed-in parity: mirror every new component into matching `demo_.*` route.
 
-## Phase D — Polish Pass
+## Testing (run after each wave)
 
-- Normalize section spacing (`space-y-6` on dashboard grids, `gap-4` on tile grids).
-- Enforce Title Case on headings via `titleCase()`; audit tile titles, tabs, section labels.
-- Consistent status badges (reuse `Badge variant="outline"` with semantic color classes).
-- Responsive: apply the `grid-cols-[minmax(0,1fr)_auto] sm:flex` header pattern from the responsive-layout rules to any header row that currently wraps oddly.
-- Remove duplicate links inside `<main>` (audit each role dashboard).
-
-## Phase E — Demo Preview Parity
-
-- Each new component accepts a `sample` prop / demo dataset so `demo_.*` routes render the identical effect with safe sample data.
-- No new demo-only widgets — demo routes import the same components used in signed-in dashboards.
-
-## Phase F — Verification
-
-Run in order:
-```
+```bash
 bun run test:unit
 bunx playwright test --project=dashboard-setup
 bunx playwright test --project=dashboard-regression
 bunx playwright test --project=role-access
 ```
-Fix regressions surfaced by unit tests (dashboard render contract, tile destinations, hub registry, demo feature map). Playwright regressions get triaged — visual diffs updated only if intentional.
 
-## Out Of Scope
+## Guardrails
 
-- No RLS, migration, or auth changes.
-- No new backend tables or server functions.
-- No new top-level routes beyond what already exists.
-- No changes to `src/integrations/supabase/*` or `.env`.
+- No changes to auth, RLS, or role permissions.
+- No route removals; only additions and enhancements.
+- No dashboard structure removed; components composed into existing shells.
+- Demo/signed-in parity preserved for every new component.
+- All new interactive elements use existing shadcn primitives + design tokens.
 
-## Deliverables
+## What I'll ship in this next turn
 
-- ~12 new components under `src/components/{effects,pathway,documents,dashboard,implementation,district,partner,platform}/`.
-- Edits to ~20 existing route files to wire in the effects, tighten CTAs, and add Back To Dashboard.
-- CSS additions in `src/styles.css` for the three new keyframes.
-- Green unit tests; triaged Playwright results.
+If approved, I'll start with **Wave 1** (Pathway Report + Meeting Prep + Action Items) since those are the paid-value core. Waves 2–4 follow in subsequent turns so each is reviewable and tests stay green.
