@@ -277,14 +277,14 @@ export const getNextBestAction = createServerFn({ method: "POST" })
           reason: `${withReport.size}/${totalStudents} have a report`,
           tone: "warning",
           secondaryLabel: "View readiness",
-          secondaryHref: "/school/readiness",
+          secondaryHref: "/school/readiness-trends",
         };
       }
       return {
         headline: "Every student has a Pathway Report",
         body: "Great work. Review trends and identify next-phase supports for the cohort.",
         ctaLabel: "Open school readiness",
-        ctaHref: "/school/readiness",
+        ctaHref: "/school/readiness-trends",
         reason: `${totalStudents}/${totalStudents} complete`,
         tone: "success",
       };
