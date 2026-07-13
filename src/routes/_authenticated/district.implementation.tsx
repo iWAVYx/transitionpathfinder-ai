@@ -70,13 +70,15 @@ function DistrictImplementationPage() {
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
     >
-      {(_district, d) => {
+      {(district, d) => {
         const byStage: Record<Stage, DistrictSchool[]> = {
           onboarding: [],
           active: [],
           mature: [],
         };
         for (const s of d.schools) byStage[stageFor(s)].push(s);
+        const milestones = districtMilestones(d);
+        const staffRows = districtStaffRows(d);
         return (
           <div className="space-y-6">
             <div className="rounded-2xl border bg-card p-5 shadow-soft">
