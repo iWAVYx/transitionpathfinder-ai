@@ -1,6 +1,8 @@
 import { Handshake, Sparkles, ArrowRight, MapPin, Users, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * PartnerMatchesCard — anonymized student matches for a partner
