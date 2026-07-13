@@ -262,9 +262,10 @@ export function RolePreviewShell({
             <span className="text-sm text-muted-foreground">Continue the tour</span>
             <Button asChild variant="ghost" size="sm">
               <Link to={next.path}>
-                Next: {next.label} preview <ArrowRight className="ml-1.5 h-4 w-4" />
+                Next: {toTitleCase(next.label)} preview <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </Button>
+
           </div>
         </PageSection>
       )}
