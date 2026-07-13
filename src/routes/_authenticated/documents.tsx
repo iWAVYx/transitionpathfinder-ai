@@ -17,11 +17,13 @@ import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState"
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import {
   listAllDocuments,
   type CrossDocumentRow,
   type DocumentReviewStatus,
 } from "@/lib/cross-docs.functions";
+
 
 export const Route = createFileRoute("/_authenticated/documents")({
   head: () => ({ meta: [{ title: "Documents — TransitionForward" }] }),
