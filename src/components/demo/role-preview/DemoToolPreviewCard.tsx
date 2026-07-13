@@ -97,6 +97,7 @@ export function DemoToolPreviewCard({
           <Link
             to={cta.to as string}
             params={cta.params as never}
+            data-testid="demo-tool-preview-cta"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
           >
             {toTitleCase(cta.label)}

@@ -23,6 +23,7 @@ import { PageSection } from "@/components/layout/PageSection";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { DemoToolPreviewCard, DemoToolPreviewGrid } from "./DemoToolPreviewCard";
 import { renderDemoPreview } from "@/components/demo/previews";
+import { retargetToolPreviewCta } from "@/lib/demo/role-preview-retarget";
 
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
@@ -183,7 +184,7 @@ export function RolePreviewShell({
               tone={t.tone}
               summary={t.summary}
               bullets={t.bullets}
-              cta={t.cta}
+              cta={retargetToolPreviewCta(role.id, t.title, t.cta)}
               footer={t.previewId ? renderDemoPreview(t.previewId) : undefined}
             />
           ))}
