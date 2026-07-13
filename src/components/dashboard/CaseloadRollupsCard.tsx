@@ -1,6 +1,8 @@
 import { Users, Sparkles, ArrowRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * CaseloadRollupsCard — school-level rollup of every caseload in the
