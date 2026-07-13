@@ -225,6 +225,32 @@ function sevBadge(sev: "high" | "med" | "low") {
 
 export function PriorityBriefing({ role }: { role: RoleKey }) {
   const c = COPY[role];
+
+  useEffect(() => {
+    track("priority_briefing_viewed", {
+      role,
+      next_step_label: c.nextBestStep.label,
+      next_step_cta: c.nextBestStep.cta,
+      needs_attention_count: c.needsAttention.length,
+      missing_count: c.missing.length,
+    });
+
+    // If the user had a pending click for this role and has now returned to
+    // a page containing the briefing (i.e. not the destination itself),
+    // count that as a "returned" completion signal.
+    const pending = readPending();
+    if (
+      pending &&
+      pending.role === role &&
+      Date.now() - pending.at < COMPLETION_WINDOW_MS &&
+      typeof window !== "undefined" &&
+      window.location?.pathname !== pending.to
+    ) {
+      markPriorityBriefingCompleted(role, "returned");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
+
   return (
     <Card className="border-primary/20 shadow-soft">
       <CardHeader>
@@ -249,9 +275,10 @@ export function PriorityBriefing({ role }: { role: RoleKey }) {
           </p>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-medium">{c.nextBestStep.label}</p>
-            <NextBestStepLink role={role} label={c.nextBestStep.cta} />
+            <NextBestStepLink role={role} label={c.nextBestStep.cta} stepLabel={c.nextBestStep.label} />
           </div>
         </div>
+
 
         <div className="grid gap-4 md:grid-cols-2">
           {/* Needs attention */}
