@@ -183,7 +183,7 @@ export function RolePreviewShell({
               tone={t.tone}
               summary={t.summary}
               bullets={t.bullets}
-              cta={t.cta}
+              cta={retargetToolPreviewCta(role.id, t.title, t.cta)}
               footer={t.previewId ? renderDemoPreview(t.previewId) : undefined}
             />
           ))}
