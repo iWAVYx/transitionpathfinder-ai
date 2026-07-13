@@ -278,3 +278,59 @@ export function PriorityBriefing({ role }: { role: RoleKey }) {
     </Card>
   );
 }
+
+function NextBestStepLink({ role, label }: { role: RoleKey; label: string }) {
+  const common = {
+    preload: "intent" as const,
+    className: "inline-flex",
+  };
+  const inner = (
+    <Button size="sm" asChild={false} className="pointer-events-none">
+      {label} <ArrowRight className="ml-1 h-4 w-4" />
+    </Button>
+  );
+  switch (role) {
+    case "student":
+      return (
+        <Link to="/meetings" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+    case "family":
+      return (
+        <Link to="/pathway/family" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+    case "educator":
+      return (
+        <Link to="/educator/pending-input" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+    case "school-admin":
+      return (
+        <Link to="/admin-school" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+    case "district-admin":
+      return (
+        <Link to="/district/schools" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+    case "partner":
+      return (
+        <Link to="/opportunities" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+    case "owner":
+      return (
+        <Link to="/owner/launch" {...common} aria-label={label}>
+          {inner}
+        </Link>
+      );
+  }
+}
