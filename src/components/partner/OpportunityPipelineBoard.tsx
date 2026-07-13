@@ -211,8 +211,67 @@ export function OpportunityPipelineBoard({ cards = SAMPLE, className }: Props) {
   const [query, setQuery] = useState("");
   const [minFit, setMinFit] = useState(0);
   const [reviewFilter, setReviewFilter] = useState<ReviewStatus | "all">("all");
-  const [supportFilter, setSupportFilter] = useState<string | "all">("all");
+  const [supportFilters, setSupportFilters] = useState<string[]>([]);
+  const [supportMode, setSupportMode] = useState<"any" | "all">("any");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [userPresets, setUserPresets] = useState<FilterPreset[]>([]);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(PRESET_STORAGE_KEY);
+      if (raw) setUserPresets(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const persistPresets = (next: FilterPreset[]) => {
+    setUserPresets(next);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+    }
+  };
+
+  const toggleSupport = (s: string) => {
+    setActivePresetId(null);
+    setSupportFilters((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
+    );
+  };
+
+  const applyPreset = (p: FilterPreset) => {
+    setSupportFilters(p.supports);
+    if (typeof p.minFit === "number") setMinFit(p.minFit);
+    if (p.review) setReviewFilter(p.review);
+    setSupportMode("all");
+    setActivePresetId(p.id);
+  };
+
+  const saveCurrentAsPreset = () => {
+    if (typeof window === "undefined") return;
+    const name = window.prompt("Name this filter preset");
+    if (!name?.trim()) return;
+    const preset: FilterPreset = {
+      id: `user-${Date.now()}`,
+      name: name.trim(),
+      supports: supportFilters,
+      minFit,
+      review: reviewFilter,
+    };
+    persistPresets([...userPresets, preset]);
+    setActivePresetId(preset.id);
+  };
+
+  const deletePreset = (id: string) => {
+    persistPresets(userPresets.filter((p) => p.id !== id));
+    if (activePresetId === id) setActivePresetId(null);
+  };
 
   const move = (id: string, nextStage: Stage) => {
     setItems((prev) => prev.map((c) => (c.id === id ? { ...c, stage: nextStage } : c)));
