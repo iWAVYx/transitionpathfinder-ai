@@ -1,6 +1,8 @@
 import { ClipboardList, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * StudentFitSummariesCard — anonymized narrative fit summaries for a
