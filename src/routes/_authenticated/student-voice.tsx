@@ -27,6 +27,7 @@ import {
   STUDENT_VOICE_PROMPTS,
   type StudentVoicePrompt,
 } from "@/lib/student-voice-prompts";
+import { StudentVoiceModule } from "@/components/dashboard/student-voice/StudentVoiceModule";
 
 export const Route = createFileRoute("/_authenticated/student-voice")({
   head: () => ({
