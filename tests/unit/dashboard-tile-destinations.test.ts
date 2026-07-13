@@ -30,7 +30,10 @@ type Cta = { to: string; search: string; raw: string };
 // so `?status=approved` and `?status=pending_review` count as distinct.
 function extractCtas(src: string): Cta[] {
   const out: Cta[] = [];
-  const re = /cta=\{\{([\s\S]*?)\}\}/g;
+  // Match both JSX prop form `cta={{ ... }}` and object-property form
+  // `cta: { ... }` used inside TILES arrays. Body is captured up to the
+  // matching closing brace (single-level, sufficient for our shapes).
+  const re = /\bcta\s*(?:=\{|:\s*)\{([\s\S]*?)\}/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(src))) {
     const body = m[1];
