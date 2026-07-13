@@ -171,14 +171,14 @@ export function DemoFeatureShell({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" data-testid="demo-feature-secondary-action">
               <Link to={backTo as never}>
                 <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
                 Back to {backLabel}
               </Link>
             </Button>
             {detail.primaryAction && (
-              <Button asChild size="sm">
+              <Button asChild size="sm" data-testid="demo-feature-primary-action">
                 <Link to={detail.primaryAction.to as never}>
                   {detail.primaryAction.label}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
@@ -186,6 +186,7 @@ export function DemoFeatureShell({
               </Button>
             )}
           </div>
+
         </div>
       </div>
     </SiteShell>
