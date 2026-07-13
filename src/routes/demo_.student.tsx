@@ -5,6 +5,11 @@ import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySec
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
 import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
+import { MissingInputsPanel } from "@/components/pathway/MissingInputsPanel";
+import { ReadinessScorecard } from "@/components/pathway/ReadinessScorecard";
+import { PlainLanguageCard } from "@/components/pathway/PlainLanguageCard";
+import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
+import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 
 const role = getDemoRole("student");
 
