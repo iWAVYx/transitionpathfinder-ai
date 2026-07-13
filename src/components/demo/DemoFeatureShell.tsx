@@ -17,6 +17,7 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState";
 import { cn } from "@/lib/utils";
 import { toTitleCase } from "@/lib/title-case";
 import {
@@ -26,6 +27,7 @@ import {
   type DemoRole,
 } from "@/lib/demo/feature-routes";
 import { augmentFeature } from "@/lib/demo/feature-augment";
+
 
 /**
  * Dedicated demo feature page shell. Mirrors the same visual contract
