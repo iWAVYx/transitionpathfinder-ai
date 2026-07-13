@@ -1,62 +1,99 @@
-## Product-Depth Upgrade Pass
+# Dashboard Functionality, Polish & Interaction Pass
 
-This is a large, multi-area enhancement. To keep quality high and avoid regressions (auth, RLS, existing tests), I'll execute it in **five phases**, each self-contained, tested, and safe to ship. After each phase I'll report and pause so you can redirect.
+Scope: Student, Parent/Guardian, Educator/Case Manager, School Admin, District Admin, Partner, Platform Admin — plus the matching `/demo/*` and Transition Workspace previews. Build on the current dashboard system; nothing structural gets ripped out.
 
-I will **not** touch: auth, RLS/schema, existing dedicated feature pages, or existing test coverage (only add).
+## Working Principles
 
----
+- Reuse existing components (`SiteShell`, `HubShell`, `StageJourneyCard`, dashboard tiles, `ReportView`, existing readiness/opportunity cards). Add new components alongside; don't replace.
+- Title Case for headings/tiles/tabs (via `src/lib/title-case.ts`); sentence case for descriptions.
+- Every new effect: `prefers-reduced-motion` respected, non-animated fallback, no layout shift, keyboard-reachable, works down to ~360px.
+- Semantic tokens only (no raw hex / `text-white` / `bg-black`). Reuse `animate-fade-in`, `animate-scale-in`, `hover-scale`, plus 1–2 new keyframes added to `src/styles.css` (`milestone-glow`, `status-pulse`).
+- Demo previews import the same real components with sample props — no parallel demo-only UIs.
 
-### Phase 1 — Calendar Upgrade (Feature #1)
+## Phase A — Shared Foundation
 
-Signed-in `/calendar` (`_authenticated/calendar.tsx`) plus role-specific demo previews.
+1. `src/styles.css`: add `@keyframes milestone-glow`, `status-pulse`, `pipeline-slide`; wrap all new keyframes in `@media (prefers-reduced-motion: no-preference)`.
+2. `src/components/effects/` (new): `MotionSafe.tsx` helper (renders animated child only when motion allowed, falls back to static), `AnimatedCounter.tsx` (count-up with intersection observer + reduced-motion static value), `ProgressRing.tsx` (SVG ring with animated stroke-dashoffset).
+3. `src/lib/back-to-dashboard.ts`: tiny helper returning the correct dashboard path per role (used by feature-page "Back To Dashboard" buttons).
 
-- Add Week and Agenda views to `TransitionCalendar` (Month already exists). Today, Prev/Next, view switcher, type filters, empty state — audit and complete any that are missing.
-- Feed events from: meetings, action-item due dates, document due dates (new), Pathway Report review dates (new), opportunity deadlines (new), implementation milestones (new, admin roles), partner program dates (new, partner), owner review checkpoints (new).
-- Demo previews per role using `getSampleCalendarEvents()` (already role-scoped) — verify every role's sample set matches the spec above and add missing types.
-- New demo route slice: `Calendar` tile on every role dashboard opens the correctly-scoped preview.
+## Phase B — Per-Role Interactive Feature
 
-### Phase 2 — Documents + Pathway Report Upgrades (Features #2, #3)
+Each role gets ONE signature effect tied to a real feature, plus a functionality/polish sweep on the surrounding dashboard tiles.
 
-- Documents: add Missing Document Checklist, upload/processing status chips, doc-type taxonomy, "Feeds Into Pathway Report" badge, suggested-missing surface. Respect existing RLS — presentation only over existing `documents` server fns.
-- Pathway Report: version history strip, "What Changed Since Last Version" diff card, missing-inputs list, role-specific summary block, recommended next steps, download/share (existing permissions), cross-links to Student Voice / Documents / Action Items / Resources / Opportunities / Meeting Prep.
-- Role gating enforced in UI (partner sees no private report; district admin sees aggregate only).
-- Demo previews mirror both.
+### Student — Animated Pathway Timeline
+- New: `src/components/pathway/PathwayTimeline.tsx` — vertical/horizontal timeline of pathway steps (`explore → prepare → apply → transition → thrive`). Completed step = check with `milestone-glow`; current step = `status-pulse`; hover/focus opens a popover with the step's next action and links into the Pathway Report section.
+- Wire into: `pathway.student.tsx`, `hubs.student.tsx`, `demo-mode.tsx`, `demo_.student.tsx`.
 
-### Phase 3 — Meeting Prep + Action Items + Readiness Gaps (Features #4, #5, #6)
+### Parent / Guardian — Document Readiness Meter + Meeting-Prep Progress
+- New: `src/components/documents/DocumentReadinessMeter.tsx` — `ProgressRing` fed by existing `MissingDocumentsChecklist` state; animated fill; drag-over highlight if upload dropzone present.
+- Extend `PreMeetingChecklist` with animated stroke-through + progress bar as items toggle.
+- Wire into: `documents.tsx`, `ppt-prep.tsx`, `pathway.family.tsx`, `demo_.family.tsx`, `demo_.documents.tsx`, `demo_.meeting.tsx`.
 
-- Meeting Prep: agenda-builder pulling from Student Voice, family concerns, readiness gaps, docs, Pathway recommendations, action items, upcoming calendar. Add printable summary.
-- Action Items: extend row model with priority, source, related goal/report section, related student, notes, start/done actions. Presentational — server fns already carry most fields; add UI + any missing optional columns.
-- Readiness Gaps: domain, severity, reason, evidence gap, intervention, owner role, due, status, report-section link, suggested resource/action. Role-scoped views.
+### Educator / Case Manager — Readiness Heatmap
+- New: `src/components/dashboard/ReadinessHeatmap.tsx` — grid of caseload × readiness domains, cells colored by severity (`bg-destructive/20 → bg-primary/20`), urgent gaps pulse. Click cell → expands severity + intervention + owner + status (reuses `ReadinessInterventionCell`).
+- Wire into: `caseload.tsx`, `educator.readiness-gaps.tsx`, `demo_.educator.tsx`.
 
-### Phase 4 — Partner Opportunities + Admin Dashboards (Features #7, #8)
+### School Admin — Implementation Completion Rings
+- New: `src/components/implementation/CompletionRingsBoard.tsx` — one `ProgressRing` per grade/caseload cluster from existing rollout data; hover reveals blocker list.
+- Wire into: `school.implementation.tsx`, `school.overview.tsx`, `demo_.school-admin.tsx`.
 
-- Opportunities: fit-criteria builder, accessibility/support fields, transportation, review lifecycle (draft/submitted/live/archived), impact tracking, PartnerForward incentive link. Partner PII invariants preserved and covered by existing partner-role test — I'll extend.
-- Owner / School Admin / District Admin implementation dashboards: implementation health, launch/readiness status, support flags, staff & school onboarding, report completion blockers, review-queue, risk flags, recommended next action; owner waitlist segmentation, follow-up status, partner submissions review, feedback triage, bug priority, analytics snapshot, demo readiness, launch readiness; district school comparison + exportable overview.
+### District Admin — School Comparison Chart
+- New: `src/components/district/SchoolComparisonChart.tsx` — animated horizontal bar chart of readiness % by school with hover tooltip (student count, top gap, trend arrow). Sort by name / readiness / trend.
+- Wire into: `district.readiness-trends.tsx`, `district.overview.tsx`, `demo_.district-admin.tsx`.
 
-### Phase 5 — Demo Parity + Copy + Tests (Features #9, #10, #11)
+### Partner — Pipeline Kanban
+- Promote existing `OpportunityLifecycleTracker` data into `src/components/partner/OpportunityPipelineBoard.tsx` — columns Saved / Contacted / Applied / Enrolled / Not A Fit. Cards animate between columns using FLIP (measure → animate transform). Impact counters use `AnimatedCounter`.
+- Wire into: `partners-manage.impact.tsx`, `partners-manage.opportunities.tsx`, `demo_.partner.tsx`.
 
-- Every upgraded feature has a matching Workspace/demo preview using safe sample data, role context preserved, opened from the role's dashboard tile.
-- Copy sweep: Title Case for headings/tiles/tabs/section titles; sentence case body; no placeholder copy; no duplicate `<main>` links.
-- Tests:
-  - `bun run test:unit` — extend `demo-feature-details-audit`, `feature-inventory-audit` for new fields; add calendar-view smoke unit test.
-  - `bunx playwright test --project=dashboard-setup`
-  - `bunx playwright test --project=dashboard-regression`
-  - `bunx playwright test --project=role-access`
-  - Role-gated Playwright projects auto-skip when creds absent; I'll report ran-vs-skipped.
+### Platform Admin — Launch Readiness Command Center
+- New: `src/components/platform/LaunchReadinessBoard.tsx` — checklist grouped by (Data, Access, Comms, Compliance) with `status-pulse` on Attention items, `ProgressRing` for overall readiness, hover reveals risk description + owner.
+- Wire into: `hubs.admin.tsx`, existing `/admin` overview, `demo_.owner.tsx`.
 
----
+## Phase C — Functionality Sweep (per dashboard)
 
-### Technical Notes
+For each role dashboard:
+- Verify every tile links to a live feature route (audit against `ROUTE_AUDIENCES`); fix any dead/duplicate links.
+- Ensure each feature page has: Current Status pill, Next Best Step callout, Primary Action button, empty / loading / error states, Back To Dashboard link (via new helper), and (where relevant) a link to the Pathway Report.
+- Strengthen shallow features where quick wins land in this pass:
+  - Calendar: month / week / agenda view switcher (tabs).
+  - Action Items: status + owner + due + source + related goal columns; sortable.
+  - Readiness Gaps: severity / intervention / owner / status columns; filter tabs.
+  - Opportunities: fit criteria, dates, accessibility supports, review status chips.
 
-- Calendar view engine stays local (existing `TransitionCalendar` component) — no new deps.
-- All new event/doc/report/opportunity fields are additive columns or presentational only; where a field doesn't yet exist server-side, it lives in the demo/sample layer this pass, with a follow-up note if you want persistence next.
-- Role gating uses existing `RoleGuard` / role predicates; no new RLS.
-- Every new drawer/dialog uses the recently-hardened Sheet scroll pattern (`touch-none` overlay, `touch-pan-y` + `overscroll-contain` content).
+## Phase D — Polish Pass
 
-### Deliverables per phase
+- Normalize section spacing (`space-y-6` on dashboard grids, `gap-4` on tile grids).
+- Enforce Title Case on headings via `titleCase()`; audit tile titles, tabs, section labels.
+- Consistent status badges (reuse `Badge variant="outline"` with semantic color classes).
+- Responsive: apply the `grid-cols-[minmax(0,1fr)_auto] sm:flex` header pattern from the responsive-layout rules to any header row that currently wraps oddly.
+- Remove duplicate links inside `<main>` (audit each role dashboard).
 
-Each phase ends with: files changed list, tests run + results, and a short summary of what a user in each role will now see. I'll pause between phases for your go/no-go.
+## Phase E — Demo Preview Parity
 
-### Question before I start
+- Each new component accepts a `sample` prop / demo dataset so `demo_.*` routes render the identical effect with safe sample data.
+- No new demo-only widgets — demo routes import the same components used in signed-in dashboards.
 
-**Do you want me to execute all 5 phases back-to-back in this session, or pause after each phase for review?** Back-to-back is faster but produces a very large diff; pausing lets you course-correct.
+## Phase F — Verification
+
+Run in order:
+```
+bun run test:unit
+bunx playwright test --project=dashboard-setup
+bunx playwright test --project=dashboard-regression
+bunx playwright test --project=role-access
+```
+Fix regressions surfaced by unit tests (dashboard render contract, tile destinations, hub registry, demo feature map). Playwright regressions get triaged — visual diffs updated only if intentional.
+
+## Out Of Scope
+
+- No RLS, migration, or auth changes.
+- No new backend tables or server functions.
+- No new top-level routes beyond what already exists.
+- No changes to `src/integrations/supabase/*` or `.env`.
+
+## Deliverables
+
+- ~12 new components under `src/components/{effects,pathway,documents,dashboard,implementation,district,partner,platform}/`.
+- Edits to ~20 existing route files to wire in the effects, tighten CTAs, and add Back To Dashboard.
+- CSS additions in `src/styles.css` for the three new keyframes.
+- Green unit tests; triaged Playwright results.
