@@ -209,6 +209,16 @@ export function OpportunityLifecycleTracker({
                     </a>
                   </Button>
                 )}
+                <label className="inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-[11px] text-muted-foreground">
+                  <CalendarClock className="h-3 w-3" />
+                  <span className="sr-only">Deadline for {m.organization_name}</span>
+                  <Input
+                    type="date"
+                    value={deadlines[keyFor(studentId, m.partner_id)] ?? ""}
+                    onChange={(e) => setDeadline(m.partner_id, e.target.value)}
+                    className="h-6 w-[130px] border-0 bg-transparent p-0 text-[11px] focus-visible:ring-0"
+                  />
+                </label>
               </div>
             </div>
           );
