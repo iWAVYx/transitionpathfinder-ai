@@ -20,7 +20,12 @@ import {
   Download,
   Plus,
   Sparkles,
+  Bell,
+  ListChecks,
+  Target,
+  ArrowRight,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type {
@@ -116,6 +121,19 @@ function fmtDayLong(d: Date): string {
     day: "numeric",
   });
 }
+function tMinusLabel(iso: string): string {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const target = startOfDay(new Date(iso));
+  const days = Math.round((target.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+  if (days < 0) return `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} overdue`;
+  if (days === 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  if (days < 7) return `In ${days} days`;
+  if (days < 14) return "Next week";
+  return `In ${Math.round(days / 7)} weeks`;
+}
+
 
 function icsEscape(v: string): string {
   return v.replace(/[\\;,]/g, (m) => `\\${m}`).replace(/\n/g, "\\n");
@@ -198,6 +216,28 @@ export function TransitionCalendar({
       );
     return map;
   }, [filtered]);
+
+  const upcoming = useMemo(() => {
+    const now = Date.now();
+    return [...filtered]
+      .filter((e) => new Date(e.start).getTime() >= now - 24 * 60 * 60 * 1000)
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+  }, [filtered]);
+
+  const nextUp = upcoming[0];
+  const prepPool = useMemo(
+    () =>
+      upcoming
+        .filter((e) => e.prep && e.prep.length > 0)
+        .slice(0, 3),
+    [upcoming],
+  );
+  const reminders = useMemo(
+    () => upcoming.filter((e) => e.reminder).slice(0, 4),
+    [upcoming],
+  );
+  const showFocusRail = Boolean(nextUp || prepPool.length || reminders.length);
+
 
   const step = view === "month" ? "month" : view === "week" ? "week" : "week";
   function shift(delta: -1 | 1) {
@@ -376,6 +416,15 @@ export function TransitionCalendar({
         })}
       </div>
 
+      {/* Pathway-linked focus rail */}
+      {showFocusRail && (
+        <FocusRail
+          nextUp={nextUp}
+          prepPool={prepPool}
+          reminders={reminders}
+        />
+      )}
+
       {/* Body */}
       <div className="p-3 sm:p-4">
         {filtered.length === 0 ? (
@@ -388,6 +437,7 @@ export function TransitionCalendar({
           <AgendaView events={filtered} />
         )}
       </div>
+
     </section>
   );
 }
@@ -607,7 +657,7 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
                           {e.description}
                         </p>
                       )}
-                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
                         <span>
                           {e.allDay
                             ? "All day"
@@ -615,7 +665,36 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
                         </span>
                         {e.location && <span>{e.location}</span>}
                         {e.scope && <span>· {e.scope}</span>}
+                        {e.owner && (
+                          <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-foreground/80">
+                            {e.owner}
+                          </span>
+                        )}
+                        {e.reminder && (
+                          <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
+                            <Bell className="h-3 w-3" aria-hidden /> {e.reminder}
+                          </span>
+                        )}
                       </div>
+                      {e.pathwayGoal && (
+                        <span className="mt-2 inline-flex max-w-full items-center gap-1 truncate rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-primary/20">
+                          <Target className="h-3 w-3 shrink-0" aria-hidden />
+                          <span className="truncate">{e.pathwayGoal.label}</span>
+                        </span>
+                      )}
+                      {e.prep && e.prep.length > 0 && (
+                        <details className="mt-2 rounded-lg border border-dashed border-border/70 bg-muted/20 px-2.5 py-1.5">
+                          <summary className="cursor-pointer text-[11px] font-medium text-foreground/80">
+                            <ListChecks className="mr-1 inline h-3 w-3 text-primary" aria-hidden />
+                            Prep ({e.prep.length})
+                          </summary>
+                          <ul className="mt-1.5 space-y-1 pl-4 text-[11px] leading-relaxed text-foreground/80">
+                            {e.prep.map((p, i) => (
+                              <li key={i} className="list-disc">{p}</li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
                     </div>
                     <span
                       className={cn(
@@ -627,6 +706,7 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
                     </span>
                   </div>
                 );
+
                 return (
                   <li key={e.id}>
                     {e.href ? (
@@ -647,5 +727,115 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
         );
       })}
     </ol>
+  );
+}
+
+/* ---------------------------------------------- Focus rail */
+
+function FocusRail({
+  nextUp,
+  prepPool,
+  reminders,
+}: {
+  nextUp: CalendarEvent | undefined;
+  prepPool: CalendarEvent[];
+  reminders: CalendarEvent[];
+}) {
+  return (
+    <div
+      className="grid gap-3 border-b bg-muted/20 p-3 sm:grid-cols-3 sm:p-4"
+      data-testid="calendar-focus-rail"
+    >
+      {/* Next Up */}
+      <div className="rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <Sparkles className="h-3 w-3" aria-hidden /> Next Up
+        </div>
+        {nextUp ? (
+          <div className="mt-1.5">
+            <p className="text-sm font-medium leading-snug text-foreground">
+              {nextUp.title}
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {tMinusLabel(nextUp.start)} ·{" "}
+              {nextUp.allDay ? "All day" : fmtTime(nextUp.start)}
+              {nextUp.scope ? ` · ${nextUp.scope}` : ""}
+            </p>
+            {nextUp.pathwayGoal && (
+              <span className="mt-1.5 inline-flex max-w-full items-center gap-1 truncate rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary ring-1 ring-primary/20">
+                <Target className="h-3 w-3 shrink-0" aria-hidden />
+                <span className="truncate">{nextUp.pathwayGoal.label}</span>
+              </span>
+            )}
+            {nextUp.href && (
+              <Link
+                to={nextUp.href as never}
+                className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+              >
+                Open prep <ArrowRight className="h-3 w-3" aria-hidden />
+              </Link>
+            )}
+          </div>
+        ) : (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            Nothing scheduled next.
+          </p>
+        )}
+      </div>
+
+      {/* Prep Prompts */}
+      <div className="rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <ListChecks className="h-3 w-3" aria-hidden /> Prep Prompts
+        </div>
+        {prepPool.length === 0 ? (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            No prep queued — your calendar is clear.
+          </p>
+        ) : (
+          <ul className="mt-1.5 space-y-1.5">
+            {prepPool.map((e) => (
+              <li key={e.id} className="text-[11px] leading-snug">
+                <p className="font-medium text-foreground/90">
+                  {e.title}
+                  <span className="ml-1 text-muted-foreground">
+                    · {tMinusLabel(e.start)}
+                  </span>
+                </p>
+                <p className="mt-0.5 text-muted-foreground">
+                  {(e.prep ?? [])[0]}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Reminders */}
+      <div className="rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <Bell className="h-3 w-3" aria-hidden /> Reminders
+        </div>
+        {reminders.length === 0 ? (
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
+            No reminders set yet.
+          </p>
+        ) : (
+          <ul className="mt-1.5 space-y-1.5 text-[11px]">
+            {reminders.map((e) => (
+              <li key={e.id} className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground/90">{e.title}</p>
+                  <p className="text-muted-foreground">
+                    {e.reminder} · {tMinusLabel(e.start)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }
