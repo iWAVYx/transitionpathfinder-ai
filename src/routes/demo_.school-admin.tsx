@@ -22,6 +22,7 @@ export const Route = createFileRoute("/demo_/school-admin")({
       role={role}
       extras={
         <>
+          <SchoolAdminOverviewGrid isSample />
           <ComplianceOverviewCard isSample />
           <TransitionEvidenceCard isSample />
           <CaseloadRollupsCard isSample />
