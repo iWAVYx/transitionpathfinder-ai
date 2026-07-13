@@ -7,6 +7,8 @@ import {
   Quote,
   ArrowRight,
 } from "lucide-react";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * Student-lens preview of the Pathway Report sections.
