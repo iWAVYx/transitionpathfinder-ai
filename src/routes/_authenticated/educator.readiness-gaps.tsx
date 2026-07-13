@@ -13,6 +13,8 @@ import {
   listCaseloadReadiness,
   type CaseloadReadinessRow,
 } from "@/lib/educator.functions";
+import { ReadinessInterventionCell } from "@/components/pathway/ReadinessInterventionCell";
+
 
 export const Route = createFileRoute("/_authenticated/educator/readiness-gaps")({
   head: () => ({
