@@ -150,7 +150,7 @@ export function RolePreviewShell({
           <SectionHeading
             index="02"
             eyebrow="Value"
-            title="What this role gets"
+            title="What This Role Gets"
             size="sm"
             className="mb-4"
           />
@@ -173,7 +173,7 @@ export function RolePreviewShell({
         <SectionHeading
           index="03"
           eyebrow="Under the hood"
-          title="Tools, actions, outputs"
+          title="Tools, Actions, Outputs"
           size="sm"
         />
         <div className="grid gap-4 lg:grid-cols-3">
