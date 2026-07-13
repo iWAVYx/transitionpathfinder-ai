@@ -5,7 +5,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, TrendingUp, Target, FileText, ClipboardList } from "lucide-react";
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
-import { getSchoolReadiness, type SchoolReadiness } from "@/lib/school-admin.functions";
+import { getSchoolReadiness, type SchoolReadiness, type SchoolDashboard, type SchoolOrg } from "@/lib/school-admin.functions";
+import { RolloutMilestonesCard, type RolloutMilestone } from "@/components/implementation/RolloutMilestonesCard";
+import { TrainingScheduleCard } from "@/components/implementation/TrainingScheduleCard";
+import { ReportingDeadlinesCard } from "@/components/implementation/ReportingDeadlinesCard";
+import { StaffProgressTable, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
   head: () => ({ meta: [{ title: "Implementation — TransitionForward" }] }),
