@@ -46,7 +46,7 @@ type NavItem = OwnerNavItem;
 
 // Sections mirror the 10-section Admin Hub spec. Order matters — sidebar
 // renders groups in this declaration order, and "Overview" leads.
-const NAV: NavItem[] = [
+export const OWNER_NAV: NavItem[] = [
   // 1. Overview
   { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
   { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
