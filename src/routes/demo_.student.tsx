@@ -31,6 +31,18 @@ export const Route = createFileRoute("/demo_/student")({
           {/* Same at-a-glance workspace shown on the signed-in student
               dashboard, wired to the shared feature-detail drawer so demo
               visitors can preview each tool in place. */}
+          <PathwayTimeline />
+          <CollaborationFlags
+            flags={[
+              { key: "student_voice" },
+              { key: "parent_input" },
+              { key: "partner_match" },
+            ]}
+          />
+          <MissingInputsPanel />
+          <ReadinessScorecard />
+          <PlainLanguageCard />
+          <RoleActionPlan defaultRole="student" />
           <StudentOverviewGrid isSample />
           <StudentPathwaySections isSample />
           <NextStepsTimeline />
