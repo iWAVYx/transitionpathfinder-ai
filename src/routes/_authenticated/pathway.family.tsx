@@ -162,6 +162,12 @@ function FamilyPathwayPage() {
 
             <PathwayNextStepsCard role="family" hasReport />
             <PathwayConnectionsCard role="family" />
+            {students[0] && (
+              <OpportunityPipelineSummary
+                studentId={students[0].id}
+                studentDisplayName={students[0].first_name || undefined}
+              />
+            )}
           </div>
         ) : (
           <div className="space-y-6">
