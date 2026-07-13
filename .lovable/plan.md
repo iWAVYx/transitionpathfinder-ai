@@ -1,73 +1,95 @@
-# Feature-Depth Audit & Strengthening
+# All-Roles Rollout: Empty States, Feature-Page Polish & Full Feature-Depth Audit
 
-The `DemoFeatureShell` pipeline and one baseline audit test already exist. What's missing is a rigorous pass across every entry (46 features across 6 roles + Owner), plus stricter enforcement so filler cannot creep back in. This plan does that pass and locks it down.
+Extend the recent Student / Family / Educator work to every remaining role — **School Admin, District Admin, Partner, and Owner** — and execute the previously-approved `.lovable/plan.md` audit against every role at the same time. Everything below is copy, fixture data, presentational components, and tests. No RLS, schema, or signed-in query changes.
 
-## What Gets Strengthened, Per Role
+## 1. Unified Empty States + Primary CTAs (Dashboards)
 
-For each entry in every `feature-details.ts`, revise `summary`, `what`, `rows`, `stats`, `connectsTo`, `emptyHeadline/Body`, `primaryAction`, and add a new `secondaryAction`, `nextStep`, `permissionNote`, and `feedsInto` field so every page shows:
+Roll the shared `ModuleEmptyState` component out across every remaining role's dashboard and modules so a data-less state always shows: eyebrow, Title Case headline, supportive body, illustration, primary CTA, secondary CTA.
 
-- **Real product value** — a concrete decision, input, review, prep step, or next action.
-- **Ecosystem ties** — visible `connectsTo` + `feedsInto` (e.g. Documents → Pathway Report; Voice → Goals; Action Items → Report readiness gaps).
-- **Role-specific framing** — Student (encouraging + action-oriented), Family (next steps, consent, meeting prep), Educator (readiness gaps, IEP alignment, caseload), School Admin (school completion, blockers), District Admin (aggregate trends, implementation), Partner (posting/managing programs, deadlines, fit — no PII).
-- **Collaboration hooks** — copy that names the other role that acts next (e.g. "Family marks read → Educator sees confirmation on caseload").
-- **Pathway-Report centrality** — every feature explicitly states whether it feeds into, is generated from, reviews, acts on, or tracks progress after the Pathway Report.
+Touched surfaces (module → primary CTA):
 
-## Owner / Admin Hub
+- **School Admin** (`demo_.school-admin.tsx`, `SchoolAdminFeatureDrawer`, `ComplianceOverviewCard`, `CaseloadRollupsCard`, `DataGapsCard`)
+  - Empty → "Invite Educators" / "Open School Report"
+- **District Admin** (`demo_.district-admin.tsx`, `DistrictAdminFeatureDrawer`, `DistrictComplianceCard`, `DistrictEvidenceCoverageCard`, `DistrictTrendMetricsCard`)
+  - Empty → "Add Schools" / "Open District Report"
+- **Partner** (`demo_.partner.tsx`, `PartnerFeatureDrawer`, `PartnerImpactSummaryCard`, `PartnerMatchesCard`, `OpportunityStatusStats`)
+  - Empty → "Post an Opportunity" / "Open Partner Report"
+- **Owner** (`demo_.owner.tsx`) — every hub tile (Testing, Diagnostics, Roles, Content, Demo Hub, Audit, Analytics) gets a consistent empty surface with owner-appropriate CTAs (e.g. "Seed Demo Data", "Open Diagnostics").
 
-Owner has no `/demo/feature/*` mirror today. Add a `src/lib/demo/owner/feature-details.ts` covering the real Owner Hub sections (Testing, Diagnostics, Roles, Content, Demo Hub, Audit, Analytics), wire it into `feature-routes.ts` and the audit — sample data only, gated behind Platform Admin on the signed-in side.
+Auto-detect empty via array-length props; keep the visual language identical to the Student/Family/Educator rollout.
 
-## Shell Enhancements
+## 2. Feature-Page Polish for Every Role (`/demo/feature/*`)
 
-`DemoFeatureShell.tsx` gets three additive slots so the new data actually renders:
+Every entry in every role's `feature-details.ts` gets the same premium empty-state + CTA treatment already applied to Student / Family / Educator:
 
-- **"Feeds Into" pipeline chips** — reuse the existing Workflow section, driven by `feedsInto`.
-- **"Next Recommended Step"** — small card under stats using `nextStep`.
-- **Secondary action** — second button in header + footer using `secondaryAction`.
+- `emptyHeadline` / `emptyBody` rewritten to be specific and actionable.
+- `primaryAction` verified as the single most useful next step.
+- New `secondaryAction` on every entry.
+- Consistent eyebrow / illustration slot rendered by `DemoFeatureShell`.
 
-## Verification (Automated)
+Applies to: `student`, `parent`, `educator`, `school-admin`, `district-admin`, `partner`, and the new `owner` registry (see §3).
 
-Expand `tests/unit/demo-feature-details-audit.test.ts` to enforce:
+## 3. Execute the Full `.lovable/plan.md` Audit
 
-- `nextStep`, `permissionNote`, `feedsInto`, `secondaryAction` present and non-trivial.
-- Role-specific vocabulary probes (e.g. Student summaries avoid clinical jargon; Educator summaries mention readiness/IEP/caseload at least once across their set; District summaries mention aggregate/trend/implementation).
-- Every Pathway-Report-related tile declares one of `feeds`, `generated from`, `review`, `act on`, `track` in `what`.
-- Partner PII invariant extended to `nextStep` and `permissionNote`.
+For every entry in every role's `feature-details.ts` (46 features + Owner set), revise:
 
-Extend `tests/e2e/demo-feature-parity.spec.ts` (from the previous turn) to also assert the new Next-Step card, Feeds-Into chips, and secondary action button render on every page.
+`summary`, `what`, `rows`, `stats`, `connectsTo`, `emptyHeadline`, `emptyBody`, `primaryAction`, plus new `secondaryAction`, `nextStep`, `permissionNote`, `feedsInto`.
 
-Add `tests/unit/feature-inventory-audit.test.ts` that emits the required matrix (role, featureId, destination, purpose, connectsTo, primaryAction, permission) as a snapshot — the reviewable checklist the user asked for.
+Each page will surface:
 
-## Test Runs
+- Real product value (concrete decision, input, review, prep step, next action)
+- Ecosystem ties (`connectsTo` + `feedsInto`, always naming the Pathway Report where relevant)
+- Role-specific framing per the tone table already in `.lovable/plan.md`
+- Collaboration hooks (which role acts next)
+- Pathway-Report centrality (`feeds`, `generated from`, `review`, `act on`, or `track`)
 
-After the pass:
+### Owner Registry (new)
 
-```
+- Add `src/lib/demo/owner/feature-details.ts` covering Testing, Diagnostics, Roles, Content, Demo Hub, Audit, Analytics.
+- Wire into `src/lib/demo/feature-routes.ts` and the audit test.
+- Sample data only; real Owner Hub routes untouched.
+
+### Shell Enhancements (additive to `DemoFeatureShell.tsx`)
+
+- **"Feeds Into" pipeline chips** — driven by `feedsInto`.
+- **"Next Recommended Step"** card under stats — driven by `nextStep`.
+- **Secondary action** button in header + footer — driven by `secondaryAction`.
+
+## 4. Verification
+
+Expand tests:
+
+- `tests/unit/demo-feature-details-audit.test.ts` — enforce presence + non-triviality of `nextStep`, `permissionNote`, `feedsInto`, `secondaryAction`; role-vocabulary probes; Pathway-Report verb probe; Partner PII invariant extended to new fields.
+- New `tests/unit/feature-inventory-audit.test.ts` — snapshot the (role, featureId, destination, purpose, connectsTo, primaryAction, permission) matrix.
+- `tests/e2e/demo-feature-parity.spec.ts` — assert the Next-Step card, Feeds-Into chips, and secondary action render on every page.
+
+Run after the pass:
+
+```text
 bun run test:unit
 bunx playwright test --project=anon tests/e2e/demo-feature-parity.spec.ts
-bunx playwright test --project=dashboard-setup
-bunx playwright test --project=dashboard-regression
-bunx playwright test --project=role-access
 ```
 
-The `dashboard-setup`/`dashboard-regression`/`role-access` projects need seeded role credentials in env; without them the specs auto-skip (documented in `tests/e2e/helpers/roles.ts`). I will report which ran vs. skipped.
-
-## Scope Boundaries
-
-- No changes to real signed-in DB queries or RLS.
-- Copy + fixture data + shell slots + tests only.
-- Owner demo pages use sample data; the real Owner Hub routes are unchanged.
+Role-gated projects (`dashboard-setup`, `dashboard-regression`, `role-access`) auto-skip without seeded credentials; I'll report which ran vs. skipped.
 
 ## Deliverables
 
-- Updated `src/lib/demo/{student,parent,educator,school-admin,district-admin,partner}/feature-details.ts`
-- New `src/lib/demo/owner/feature-details.ts` + registry wiring in `src/lib/demo/feature-routes.ts`
-- Updated `src/components/demo/DemoFeatureShell.tsx` (additive slots)
-- Expanded `tests/unit/demo-feature-details-audit.test.ts`
-- New `tests/unit/feature-inventory-audit.test.ts` (snapshot matrix)
-- Expanded `tests/e2e/demo-feature-parity.spec.ts`
+- `src/components/dashboard/ModuleEmptyState.tsx` rollout across all remaining role dashboards, drawers, and cards listed in §1.
+- Rewritten `feature-details.ts` for `student`, `parent`, `educator`, `school-admin`, `district-admin`, `partner`.
+- New `src/lib/demo/owner/feature-details.ts` + registry wiring in `src/lib/demo/feature-routes.ts`.
+- Additive `DemoFeatureShell.tsx` slots (Feeds Into, Next Step, secondary action).
+- Expanded `tests/unit/demo-feature-details-audit.test.ts`.
+- New `tests/unit/feature-inventory-audit.test.ts`.
+- Expanded `tests/e2e/demo-feature-parity.spec.ts`.
 
-## Estimated Change Size
+## Scope Boundaries
 
-~7 registry files rewritten in place, 1 new registry, 1 shell edit, 2 test files touched, 1 new test. Roughly 1.5–2K net LOC across data + tests.
+- No RLS, schema, or real signed-in query changes.
+- No changes to real Owner Hub routes (owner demo pages use sample data only).
+- Presentation, fixtures, and tests only.
 
-Approve to proceed, or tell me to narrow scope (e.g. skip Owner, or only stricten copy without adding new fields).
+## Estimated Size
+
+Roughly 7 registry files rewritten, 1 new registry, ~10 dashboard components touched for empty-state rollout, 1 shell edit, 2 test files touched, 1 new test. ~2–2.5K net LOC across data, presentation, and tests.
+
+Approve to proceed, or tell me to narrow (e.g. skip Owner, or ship §1 first and audit second).
