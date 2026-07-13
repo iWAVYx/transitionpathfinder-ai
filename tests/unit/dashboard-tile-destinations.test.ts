@@ -31,12 +31,23 @@ type Cta = { to: string; search: string; raw: string };
 function extractCtas(src: string): Cta[] {
   const out: Cta[] = [];
   // Match both JSX prop form `cta={{ ... }}` and object-property form
-  // `cta: { ... }` used inside TILES arrays. Body is captured up to the
-  // matching closing brace (single-level, sufficient for our shapes).
-  const re = /\bcta\s*(?:=\{|:\s*)\{([\s\S]*?)\}/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(src))) {
-    const body = m[1];
+  // `cta: { ... }` (used inside TILES arrays). Body captured with a
+  // brace-balanced scan so nested `search: { ... }` is included.
+  const headRe = /\bcta\s*(?:=\{\s*\{|:\s*\{)/g;
+  let head: RegExpExecArray | null;
+  while ((head = headRe.exec(src))) {
+    let depth = 1;
+    let i = head.index + head[0].length;
+    const start = i;
+    while (i < src.length && depth > 0) {
+      const ch = src[i];
+      if (ch === "{") depth++;
+      else if (ch === "}") depth--;
+      i++;
+    }
+    if (depth !== 0) continue;
+    const body = src.slice(start, i - 1);
+
     const toMatch = body.match(/\bto:\s*["']([^"']+)["']/);
     if (!toMatch) continue;
     const to = toMatch[1];
