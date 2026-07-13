@@ -134,7 +134,14 @@ function EducatorReadinessGapsPage() {
                         <span className="text-muted-foreground">—</span>
                       )}
                     </td>
+                    <td className="p-3 align-top">
+                      <ReadinessInterventionCell
+                        pillar={r.gap_pillar}
+                        score={r.overall}
+                      />
+                    </td>
                   </tr>
+
                 ))}
               </tbody>
             </table>
