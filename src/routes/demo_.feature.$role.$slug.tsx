@@ -15,11 +15,17 @@ import { DistrictTrendMetricsCard } from "@/components/dashboard/DistrictTrendMe
 // PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
 // it's intentionally omitted from the rich-module map below.
 import { PartnerMatchesCard } from "@/components/dashboard/PartnerMatchesCard";
+import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
+import {
+  getSampleCalendarEvents,
+  type SampleCalendarRole,
+} from "@/lib/calendar/sample-events";
 import {
   getDemoFeature,
   isDemoRole,
   type DemoRole,
 } from "@/lib/demo/feature-routes";
+
 
 /**
  * Dedicated demo feature page. One dynamic route serves every
@@ -106,7 +112,61 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
     // Partner
     case "partner:active-opportunities":
       return <PartnerMatchesCard isSample />;
-    default:
+    default: {
+      // Calendar features share one rich module across every role.
+      if (slug === "calendar") {
+        const calRole = mapRoleForCalendar(role);
+        return (
+          <TransitionCalendar
+            events={getSampleCalendarEvents(calRole)}
+            sample
+            initialView="month"
+            eyebrow={eyebrowForRole(calRole)}
+            addEventHref="/meetings"
+            exportFilename={`transitionforward-${calRole}-calendar`}
+            emptyStateTitle="Nothing on the calendar yet."
+            emptyStateBody={emptyStateBodyForRole(calRole)}
+          />
+        );
+      }
       return null;
+    }
   }
 }
+
+function mapRoleForCalendar(role: DemoRole): SampleCalendarRole {
+  // DemoRole and SampleCalendarRole share the same string set today.
+  return role as SampleCalendarRole;
+}
+
+function eyebrowForRole(role: SampleCalendarRole): string {
+  switch (role) {
+    case "student": return "Your Calendar";
+    case "family": return "Family Calendar";
+    case "educator": return "Caseload Calendar";
+    case "school-admin": return "School Calendar";
+    case "district-admin": return "District Calendar";
+    case "partner": return "Partner Calendar";
+    case "owner": return "Platform Calendar";
+  }
+}
+
+function emptyStateBodyForRole(role: SampleCalendarRole): string {
+  switch (role) {
+    case "student":
+      return "Your PPT meetings, action-item deadlines, and tour dates will land here as your team schedules them.";
+    case "family":
+      return "PPT meetings, document deadlines, consent renewals, and family action items land here.";
+    case "educator":
+      return "Caseload meetings, report review deadlines, and student action-item due dates land here.";
+    case "school-admin":
+      return "Planning-status milestones, PD sessions, and report deadlines land here.";
+    case "district-admin":
+      return "District rollout milestones, training dates, and reporting deadlines land here.";
+    case "partner":
+      return "Program dates, application windows, and renewal reminders land here.";
+    case "owner":
+      return "Launch reviews, feedback triage, and system checks land here.";
+  }
+}
+

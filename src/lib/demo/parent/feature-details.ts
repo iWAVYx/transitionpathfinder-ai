@@ -197,7 +197,7 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       "PPTs, IEP reviews, tours, and check-ins in one place, so nothing sneaks up on your family.",
     what: "See what's upcoming, add to your personal calendar, and jump into meeting prep.",
     dataSource: "Meetings scheduled by your team · deadlines from the Pathway Report",
-    primaryAction: { label: "Open Calendar", to: "/meetings" },
+    primaryAction: { label: "Open Calendar", to: "/calendar" },
     connectsTo: ["Meeting Prep", "Action Items"],
     stats: [
       { label: "This week", value: "1" },

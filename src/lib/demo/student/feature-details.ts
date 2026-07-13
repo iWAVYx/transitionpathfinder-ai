@@ -176,7 +176,7 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       "PPTs, IEP reviews, tours, and check-ins in one place, so nothing sneaks up on you.",
     what: "See what's coming up, add a meeting to your personal calendar, and jump into prep.",
     dataSource: "Meetings scheduled by your team · deadlines from your report",
-    primaryAction: { label: "Open Calendar", to: "/meetings" },
+    primaryAction: { label: "Open Calendar", to: "/calendar" },
     connectsTo: ["Meeting Prep", "Action Items"],
     stats: [
       { label: "This week", value: "1" },

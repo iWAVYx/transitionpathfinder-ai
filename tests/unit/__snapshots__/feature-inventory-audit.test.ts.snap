@@ -136,7 +136,7 @@ exports[`feature inventory audit > inventory matrix matches snapshot 1`] = `
     "role": "student",
     "secondaryAction": "Start Meeting Prep",
     "title": "Upcoming Meetings",
-    "workspaceDestination": "/meetings",
+    "workspaceDestination": "/calendar",
   },
   {
     "connectsTo": [
@@ -293,7 +293,7 @@ exports[`feature inventory audit > inventory matrix matches snapshot 1`] = `
     "role": "family",
     "secondaryAction": "Start Meeting Prep",
     "title": "Calendar",
-    "workspaceDestination": "/meetings",
+    "workspaceDestination": "/calendar",
   },
   {
     "connectsTo": [
@@ -549,7 +549,7 @@ exports[`feature inventory audit > inventory matrix matches snapshot 1`] = `
     "role": "educator",
     "secondaryAction": "Start Meeting Prep",
     "title": "Calendar",
-    "workspaceDestination": "/meetings",
+    "workspaceDestination": "/calendar",
   },
   {
     "connectsTo": [
