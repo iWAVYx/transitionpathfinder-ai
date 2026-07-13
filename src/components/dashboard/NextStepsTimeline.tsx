@@ -1,5 +1,7 @@
 import { CalendarClock, Rocket, Target, Milestone } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
+import { ModuleEmptyState } from "@/components/dashboard/ModuleEmptyState";
+
 
 /**
  * NextStepsTimeline — 30 / 90 / 180 / 365-day horizon strip.
