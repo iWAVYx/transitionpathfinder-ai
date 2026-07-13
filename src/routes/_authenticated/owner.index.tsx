@@ -31,6 +31,7 @@ import {
   ReviewQueuesPanel,
   type ReviewQueueCounts,
 } from "@/components/owner/ReviewQueuesPanel";
+import { OwnerSectionsGrid } from "@/components/owner/OwnerSectionsGrid";
 import { timeAgo } from "@/lib/time-ago";
 import {
   DashboardErrorFallback,
