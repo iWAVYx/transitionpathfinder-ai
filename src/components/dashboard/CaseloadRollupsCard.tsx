@@ -53,11 +53,16 @@ function gapsTone(g: number) {
 export function CaseloadRollupsCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: CaseloadRollupsData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<CaseloadRollupsData> = { ...SAMPLE, ...(data ?? {}), rows: data?.rows ?? SAMPLE.rows };
+  const isEmpty = empty || d.rows.length === 0;
+
 
   const totals = d.rows.reduce(
     (acc, r) => {
