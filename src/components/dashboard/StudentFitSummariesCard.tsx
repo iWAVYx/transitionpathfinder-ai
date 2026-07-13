@@ -78,11 +78,16 @@ function fitTone(fit: number) {
 export function StudentFitSummariesCard({
   data,
   isSample = true,
+  empty = false,
 }: {
   data?: StudentFitSummariesData;
   isSample?: boolean;
+  /** Force the unified empty state (no sample fallback). */
+  empty?: boolean;
 }) {
   const d: Required<StudentFitSummariesData> = { ...SAMPLE, ...(data ?? {}), items: data?.items ?? SAMPLE.items };
+  const isEmpty = empty || d.items.length === 0;
+
 
   return (
     <section
