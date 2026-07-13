@@ -11,6 +11,7 @@ import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard
 import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
 import { TrustCenterCard } from "@/components/trust/TrustCenterCard";
 import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
+import { PriorityBriefing } from "@/components/role/PriorityBriefing";
 
 const role = getDemoRole("family");
 
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/demo_/family")({
       role={role}
       extras={
         <>
+          <PriorityBriefing role="family" />
           <RoleOnboardingChecklist role="family" />
           <DocumentReadinessMeter />
           {/* Same at-a-glance workspace shown on the signed-in family

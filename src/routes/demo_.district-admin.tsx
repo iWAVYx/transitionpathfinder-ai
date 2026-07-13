@@ -8,6 +8,7 @@ import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictA
 import { SchoolComparisonChart } from "@/components/district/SchoolComparisonChart";
 import { ImplementationHealthCard } from "@/components/implementation/ImplementationHealthCard";
 import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
+import { PriorityBriefing } from "@/components/role/PriorityBriefing";
 
 const role = getDemoRole("district-admin");
 
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/demo_/district-admin")({
       role={role}
       extras={
         <>
+          <PriorityBriefing role="district-admin" />
           <RoleOnboardingChecklist role="district-admin" />
           <SchoolComparisonChart />
           <ImplementationHealthCard
