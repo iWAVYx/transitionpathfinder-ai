@@ -156,6 +156,10 @@ function StudentVoicePage() {
           </p>
         </div>
 
+        <div className="mt-8">
+          <StudentVoiceModule />
+        </div>
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {students.length > 1 && (
             <div>
