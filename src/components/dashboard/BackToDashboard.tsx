@@ -54,7 +54,7 @@ export function BackToDashboard({
 
   return (
     <Link
-      to={resolved}
+      to={resolved as string}
       data-testid="back-to-dashboard"
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground",
