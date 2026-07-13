@@ -28,7 +28,12 @@ function SchoolImplementationPage() {
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
     >
-      {(org) => <ReadinessScorecard orgId={org.id} />}
+      {(org, dash) => (
+        <div className="space-y-6">
+          <ReadinessScorecard orgId={org.id} />
+          <SchoolImplementationExtras org={org} dash={dash} />
+        </div>
+      )}
     </SchoolPageShell>
   );
 }
