@@ -129,7 +129,7 @@ function DemoHub() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="outline">
                   <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
-                    <ClipboardList className="mr-1.5 h-4 w-4" /> Walk the Workspace tour
+                    <ClipboardList className="mr-1.5 h-4 w-4" /> Walk the Workspace Tour
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="outline">
