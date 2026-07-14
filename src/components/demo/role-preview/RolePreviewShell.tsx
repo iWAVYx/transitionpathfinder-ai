@@ -198,30 +198,53 @@ export function RolePreviewShell({
         </PageSection>
       ) : null}
 
-      {/* Activity Zone — Workspace above already renders every feature
-          card, so the previous "What Needs Attention" tool grid was a
-          duplicate of the same links (and its CTAs routed to generic
-          /demo/voice, /demo/plan, /demo/report pages instead of the
-          role-specific feature pages). Keep only the Actions / Outputs /
-          Value column, which is genuinely additional context. */}
+      {/* Interactive Next Actions — replaces the old static Actions/Outputs
+          list so every role preview shows the same live NextActionCard the
+          signed-in dashboards render, seeded with role-specific demo
+          fixtures. Value bullets remain on the right as supporting context. */}
       <PageSection spacing="tight">
         <CommandZone eyebrow="Activity / Next Steps" title="Actions And Outputs">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-5">
-              <MiniList icon={<Target className="h-3.5 w-3.5" />} title="Actions" items={role.actions} />
-              <MiniList icon={<FileText className="h-3.5 w-3.5" />} title="Outputs" items={role.outputs} />
+          <div className="grid gap-6 md:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+            <NextActionCard
+              actions={DEMO_NEXT_ACTIONS[demoRoleToNextActionRole(role.id)] ?? []}
+              recentlyCompleted={(DEMO_NEXT_ACTIONS[demoRoleToNextActionRole(role.id)] ?? [])
+                .filter((a) => a.status === "completed")
+                .slice(0, 3)}
+              title="Your Next Actions"
+              eyebrow="What Needs Attention"
+              description="Sample next actions for this role — click through to see where each one leads."
+              defaultLimit={5}
+            />
+            <div className="space-y-3">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                Why This Matters
+              </p>
+              <ul className="space-y-2">
+                {role.valueBullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-[13px] leading-snug">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span className="text-foreground/85">{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="pt-2">
+                <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Typical Outputs
+                </p>
+                <ul className="mt-2 space-y-1.5">
+                  {role.outputs.slice(0, 4).map((o) => (
+                    <li key={o} className="flex items-start gap-2 text-[13px] leading-snug text-foreground/80">
+                      <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span>{o}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <ul className="space-y-2 md:border-l md:border-border/60 md:pl-6">
-              {role.valueBullets.map((b) => (
-                <li key={b} className="flex items-start gap-2 text-[13px] leading-snug">
-                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                  <span className="text-foreground/85">{b}</span>
-                </li>
-              ))}
-            </ul>
           </div>
         </CommandZone>
       </PageSection>
+
 
       {/* BOUNDARY (partner) */}
       {role.boundary && (
