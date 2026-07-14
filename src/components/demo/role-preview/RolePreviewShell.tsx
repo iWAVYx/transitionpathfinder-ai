@@ -146,7 +146,7 @@ export function RolePreviewShell({
 
       {/* VALUE STRIP */}
       <PageSection spacing="tight">
-        <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+        <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
           <SectionHeading
             index="02"
             eyebrow="Value"
@@ -198,7 +198,7 @@ export function RolePreviewShell({
       {/* BOUNDARY (partner) */}
       {role.boundary && (
         <PageSection spacing="tight">
-          <div className="rounded-3xl border-2 border-amber-500/40 bg-amber-50 p-6 dark:bg-amber-950/20 sm:p-8">
+          <div className="rounded-3xl border-2 border-amber-500/40 bg-amber-50 p-5 dark:bg-amber-950/20 sm:p-6">
             <div className="flex items-start gap-3">
               <Shield className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-400" />
               <div className="min-w-0">
@@ -224,10 +224,10 @@ export function RolePreviewShell({
 
       {/* CTA */}
       <PageSection spacing="tight">
-        <div className="rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
+        <div className="rounded-3xl border bg-gradient-hero p-5 shadow-soft sm:p-6">
           <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <div className="min-w-0">
-              <h2 className="font-display text-2xl">Ready to take the next step?</h2>
+              <h2 className="font-display text-xl sm:text-2xl">Ready To Take The Next Step?</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Join the waitlist, request a pilot, or keep exploring how each role fits together.
               </p>
@@ -283,12 +283,12 @@ function TripleCard({
   items: string[];
 }) {
   return (
-    <div className="flex h-full flex-col rounded-3xl border bg-card p-5 shadow-soft">
-      <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+    <div className="flex h-full flex-col rounded-3xl border bg-card p-4 shadow-soft">
+      <div className="flex items-center gap-2 border-b border-border/60 pb-2">
         <span className="text-primary">{icon}</span>
         <h3 className="font-display text-base">{title}</h3>
       </div>
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-2.5 space-y-1.5">
         {items.map((i) => (
           <li key={i} className="flex items-start gap-2 text-sm">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
