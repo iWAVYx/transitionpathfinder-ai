@@ -3,8 +3,6 @@ import {
   ArrowRight,
   Sparkles,
   Shield,
-  CheckCircle2,
-  FileText,
 } from "lucide-react";
 import type { DemoRolePreview } from "@/lib/demo/role-previews";
 import {
@@ -214,51 +212,19 @@ export function RolePreviewShell({
 
       {/* Interactive Next Actions — replaces the old static Actions/Outputs
           list so every role preview shows the same live NextActionCard the
-          signed-in dashboards render, seeded with role-specific demo
-          fixtures. The card now stretches the full width of the zone, with
-          supporting context in a compact horizontal strip beneath it. */}
+          signed-in dashboards render, seeded with role-specific demo fixtures. */}
       <PageSection spacing="tight">
         <CommandZone eyebrow="Activity / Next Steps" title="Actions And Outputs">
-          <div className="space-y-5">
-            <NextActionCard
-              actions={DEMO_NEXT_ACTIONS[demoRoleToNextActionRole(role.id)] ?? []}
-              recentlyCompleted={(DEMO_NEXT_ACTIONS[demoRoleToNextActionRole(role.id)] ?? [])
-                .filter((a) => a.status === "completed")
-                .slice(0, 3)}
-              title="Your Next Actions"
-              eyebrow="What Needs Attention"
-              description="Sample next actions for this role — click through to see where each one leads."
-              defaultLimit={5}
-            />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-              <div className="space-y-2">
-                <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                  Why This Matters
-                </p>
-                <ul className="grid gap-x-3 gap-y-1.5 sm:grid-cols-2">
-                  {role.valueBullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2 text-[13px] leading-snug">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                      <span className="text-foreground/85">{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                  Typical Outputs
-                </p>
-                <ul className="grid gap-x-3 gap-y-1 sm:grid-cols-2">
-                  {role.outputs.slice(0, 4).map((o) => (
-                    <li key={o} className="flex items-start gap-2 text-[13px] leading-snug text-foreground/80">
-                      <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span>{o}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS[demoRoleToNextActionRole(role.id)] ?? []}
+            recentlyCompleted={(DEMO_NEXT_ACTIONS[demoRoleToNextActionRole(role.id)] ?? [])
+              .filter((a) => a.status === "completed")
+              .slice(0, 3)}
+            title="Your Next Actions"
+            eyebrow="What Needs Attention"
+            description="Sample next actions for this role — click through to see where each one leads."
+            defaultLimit={5}
+          />
         </CommandZone>
       </PageSection>
 
