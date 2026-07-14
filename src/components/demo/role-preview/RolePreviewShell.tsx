@@ -23,6 +23,21 @@ import {
   CommandMetricStrip,
   CommandZone,
 } from "@/components/dashboard/CommandCenter";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
+import type { NextActionRole } from "@/lib/next-actions/types";
+import type { DemoRoleId } from "@/lib/demo/role-previews";
+
+function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
+  switch (id) {
+    case "school-admin":
+      return "school_admin";
+    case "district-admin":
+      return "district_admin";
+    default:
+      return id as NextActionRole;
+  }
+}
 
 
 /**
