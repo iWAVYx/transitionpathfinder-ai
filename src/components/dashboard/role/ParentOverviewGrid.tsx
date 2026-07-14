@@ -25,6 +25,7 @@ import {
   PARENT_FEATURE_DETAILS,
   type ParentFeatureId,
 } from "@/lib/demo/parent/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: ParentFeatureId;
