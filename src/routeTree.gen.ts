@@ -107,6 +107,7 @@ import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/em
 import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace.$stage'
 import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authenticated/workspace.$stage'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
+import { Route as AuthenticatedStudentHistoryRouteImport } from './routes/_authenticated/student.history'
 import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
 import { Route as AuthenticatedSchoolSupportNeedsRouteImport } from './routes/_authenticated/school.support-needs'
 import { Route as AuthenticatedSchoolResourceUsageRouteImport } from './routes/_authenticated/school.resource-usage'
@@ -705,6 +706,12 @@ const AuthenticatedStudentsStudentIdRoute =
     id: '/$studentId',
     path: '/$studentId',
     getParentRoute: () => AuthenticatedStudentsRoute,
+  } as any)
+const AuthenticatedStudentHistoryRoute =
+  AuthenticatedStudentHistoryRouteImport.update({
+    id: '/student/history',
+    path: '/student/history',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSchoolTeamRoute = AuthenticatedSchoolTeamRouteImport.update({
   id: '/school/team',
@@ -1455,6 +1462,7 @@ export interface FileRoutesByFullPath {
   '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
+  '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -1649,6 +1657,7 @@ export interface FileRoutesByTo {
   '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
+  '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -1847,6 +1856,7 @@ export interface FileRoutesById {
   '/_authenticated/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/_authenticated/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
+  '/_authenticated/student/history': typeof AuthenticatedStudentHistoryRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/_authenticated/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
   '/demo_/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -2045,6 +2055,7 @@ export interface FileRouteTypes {
     | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
+    | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
     | '/demo/workspace/$stage'
@@ -2239,6 +2250,7 @@ export interface FileRouteTypes {
     | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
+    | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
     | '/demo/workspace/$stage'
@@ -2436,6 +2448,7 @@ export interface FileRouteTypes {
     | '/_authenticated/school/resource-usage'
     | '/_authenticated/school/support-needs'
     | '/_authenticated/school/team'
+    | '/_authenticated/student/history'
     | '/_authenticated/students/$studentId'
     | '/_authenticated/workspace/$stage'
     | '/demo_/workspace/$stage'
@@ -3210,6 +3223,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/students/$studentId'
       preLoaderRoute: typeof AuthenticatedStudentsStudentIdRouteImport
       parentRoute: typeof AuthenticatedStudentsRoute
+    }
+    '/_authenticated/student/history': {
+      id: '/_authenticated/student/history'
+      path: '/student/history'
+      fullPath: '/student/history'
+      preLoaderRoute: typeof AuthenticatedStudentHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/school/team': {
       id: '/_authenticated/school/team'
@@ -4139,6 +4159,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolResourceUsageRoute: typeof AuthenticatedSchoolResourceUsageRoute
   AuthenticatedSchoolSupportNeedsRoute: typeof AuthenticatedSchoolSupportNeedsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
+  AuthenticatedStudentHistoryRoute: typeof AuthenticatedStudentHistoryRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
   AuthenticatedFamilyResourcesRecommendedRoute: typeof AuthenticatedFamilyResourcesRecommendedRoute
@@ -4235,6 +4256,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolResourceUsageRoute: AuthenticatedSchoolResourceUsageRoute,
   AuthenticatedSchoolSupportNeedsRoute: AuthenticatedSchoolSupportNeedsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
+  AuthenticatedStudentHistoryRoute: AuthenticatedStudentHistoryRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
   AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
   AuthenticatedFamilyResourcesRecommendedRoute:
