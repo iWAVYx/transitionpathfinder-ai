@@ -72,6 +72,12 @@ function HubPage() {
                 description: "Rollout milestones, family outreach windows, and PPT cycles.",
                 to: "/school/calendar",
               },
+              {
+                icon: History,
+                title: "Records & Disclosure History",
+                description: "Per-student audit trail of document access, sharing changes, and plan edits.",
+                to: "/school/history",
+              },
             ]}
           />
         </DashboardSection>
