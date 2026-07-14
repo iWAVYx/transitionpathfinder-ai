@@ -60,10 +60,10 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
             Next Best Step — Student Dashboard
           </p>
           <Breadcrumbs trail={[{ label: "My plan" }]} />
-          <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
+          <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             Welcome, {toTitleCase(firstName)}.
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg">
             You're signed in as a student. To see your transition plan, a family member,
             educator, or case manager needs to add you as a collaborator on your plan.
           </p>
@@ -133,10 +133,10 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
 
         <div className="tf-cover mt-6 px-6 py-8 sm:px-10 sm:py-10">
           <p className="tf-eyebrow">Your Transition Plan</p>
-          <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
             Hi, {toTitleCase(s.preferred_name ?? s.first_name)}.
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             This is your space. Here's what your team is working on with you —
             your goals, your meetings, and the next steps that move your plan forward.
           </p>

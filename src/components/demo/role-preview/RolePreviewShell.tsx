@@ -148,10 +148,10 @@ export function RolePreviewShell({
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {toTitleCase(role.tagline)}
               </p>
-              <h1 className="mt-1 font-display text-2xl leading-tight tracking-tight sm:text-3xl">
+              <h1 className="mt-1 font-display text-3xl leading-tight tracking-tight sm:text-4xl">
                 {toTitleCase(role.headline)}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
                 {role.intro}
               </p>
             </div>
@@ -199,7 +199,7 @@ export function RolePreviewShell({
                 <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary">
                   Workspace
                 </p>
-                <h2 className="font-display text-lg tracking-tight">Your Role Dashboard</h2>
+                <h2 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">Your Role Dashboard</h2>
               </div>
               <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 Primary work area

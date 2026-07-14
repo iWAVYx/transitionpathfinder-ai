@@ -59,12 +59,12 @@ export function NextActionCard({
           <p className="tf-eyebrow">{eyebrow}</p>
           <h2
             id="next-actions-title"
-            className="mt-1 flex items-center gap-2 font-display text-2xl font-medium tracking-tight"
+            className="mt-1 flex items-center gap-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl"
           >
             <ListChecks className="h-5 w-5 text-primary" aria-hidden />
             {title}
           </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground sm:text-base">
             {description}
           </p>
         </div>
