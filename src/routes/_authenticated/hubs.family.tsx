@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FileText, Users2, BookOpen, ShieldCheck, HeartHandshake } from "lucide-react";
+import { FileText, Users2, BookOpen, ShieldCheck, HeartHandshake, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
