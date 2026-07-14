@@ -8,6 +8,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -49,6 +51,20 @@ function HubPage() {
         </DashboardSection>
         <DashboardSection
           eyebrow="Activity / Next Steps"
+          title="Your Next Actions"
+          description="What needs your attention right now."
+          gap="tight"
+        >
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.student}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.student}
+            historyRoute="/student/history"
+            suggestionLabel="Open Student Voice"
+            suggestionRoute="/student-voice"
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where you are on the transition timeline and what comes next."
         >

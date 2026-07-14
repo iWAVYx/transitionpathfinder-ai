@@ -6,6 +6,8 @@ import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -30,6 +32,20 @@ function HubPage() {
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Activity / Next Steps"
+          title="Platform Next Actions"
+          description="Reviews, approvals, and platform health items that need admin attention."
+          gap="tight"
+        >
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.admin}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.admin}
+            historyRoute="/owner/activity"
+            suggestionLabel="Open Launch Readiness"
+            suggestionRoute="/hubs/admin"
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where the platform sits across the transition rollout lifecycle."
         >

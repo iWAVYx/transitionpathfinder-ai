@@ -8,8 +8,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
-import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
-import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -85,15 +85,19 @@ function HubPage() {
         </DashboardSection>
         <DashboardSection
           eyebrow="Activity / Next Steps"
-          title="30 / 90 / 180 / 365-Day Plan"
-          description="Educator-owned actions that keep every Pathway Report defensible."
+          title="Your Caseload Next Actions"
+          description="Ranked by urgency — overdue and due-soon items surface first."
           gap="tight"
         >
-          <NextStepsTimeline
-            data={EDUCATOR_NEXT_ACTIONS}
-            eyebrow="Educator 30 / 90 / 180 / 365-Day Plan"
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.educator}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.educator}
+            historyRoute="/educator/history"
             title="Your Caseload Next Actions"
+            eyebrow="What Needs Attention"
             description="The educator-owned actions that keep every Pathway Report defensible and every PPT on schedule."
+            suggestionLabel="Open Caseload Roster"
+            suggestionRoute="/caseload"
           />
         </DashboardSection>
         <DashboardSection

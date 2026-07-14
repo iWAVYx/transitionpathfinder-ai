@@ -8,6 +8,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -85,6 +87,20 @@ function HubPage() {
         </DashboardSection>
         <DashboardSection
           eyebrow="Activity / Next Steps"
+          title="Your Family Next Actions"
+          description="What needs your attention to keep the plan moving."
+          gap="tight"
+        >
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.family}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.family}
+            historyRoute="/family/history"
+            suggestionLabel="Open Family Priorities"
+            suggestionRoute="/family/priorities"
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where your student sits on the transition timeline."
           gap="tight"

@@ -145,6 +145,82 @@ export type Database = {
           },
         ]
       }
+      activity_history: {
+        Row: {
+          actor_role: string | null
+          actor_user_id: string | null
+          event_type: string
+          id: string
+          metadata: Json
+          occurred_at: string
+          organization_id: string | null
+          related_action_id: string | null
+          related_document_id: string | null
+          related_meeting_id: string | null
+          related_opportunity_id: string | null
+          related_report_id: string | null
+          student_id: string | null
+          subject_route: string | null
+          subject_title: string
+        }
+        Insert: {
+          actor_role?: string | null
+          actor_user_id?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          organization_id?: string | null
+          related_action_id?: string | null
+          related_document_id?: string | null
+          related_meeting_id?: string | null
+          related_opportunity_id?: string | null
+          related_report_id?: string | null
+          student_id?: string | null
+          subject_route?: string | null
+          subject_title: string
+        }
+        Update: {
+          actor_role?: string | null
+          actor_user_id?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          organization_id?: string | null
+          related_action_id?: string | null
+          related_document_id?: string | null
+          related_meeting_id?: string | null
+          related_opportunity_id?: string | null
+          related_report_id?: string | null
+          student_id?: string | null
+          subject_route?: string | null
+          subject_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_history_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_history_related_action_id_fkey"
+            columns: ["related_action_id"]
+            isOneToOne: false
+            referencedRelation: "next_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_history_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_activity_logs: {
         Row: {
           action_type: string
@@ -3108,6 +3184,114 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      next_actions: {
+        Row: {
+          audience: string | null
+          blocked_reason: string | null
+          completed_at: string | null
+          completed_by: string | null
+          completion_note: string | null
+          created_at: string
+          cta_label: string | null
+          cta_route: string | null
+          dedupe_key: string | null
+          due_at: string | null
+          id: string
+          kind: string
+          metadata: Json
+          organization_id: string | null
+          owner_role: string
+          owner_user_id: string
+          priority: number
+          reason: string | null
+          related_document_id: string | null
+          related_meeting_id: string | null
+          related_opportunity_id: string | null
+          related_report_id: string | null
+          secondary_label: string | null
+          secondary_route: string | null
+          status: string
+          student_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string | null
+          blocked_reason?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          completion_note?: string | null
+          created_at?: string
+          cta_label?: string | null
+          cta_route?: string | null
+          dedupe_key?: string | null
+          due_at?: string | null
+          id?: string
+          kind: string
+          metadata?: Json
+          organization_id?: string | null
+          owner_role: string
+          owner_user_id: string
+          priority?: number
+          reason?: string | null
+          related_document_id?: string | null
+          related_meeting_id?: string | null
+          related_opportunity_id?: string | null
+          related_report_id?: string | null
+          secondary_label?: string | null
+          secondary_route?: string | null
+          status?: string
+          student_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string | null
+          blocked_reason?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          completion_note?: string | null
+          created_at?: string
+          cta_label?: string | null
+          cta_route?: string | null
+          dedupe_key?: string | null
+          due_at?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json
+          organization_id?: string | null
+          owner_role?: string
+          owner_user_id?: string
+          priority?: number
+          reason?: string | null
+          related_document_id?: string | null
+          related_meeting_id?: string | null
+          related_opportunity_id?: string | null
+          related_report_id?: string | null
+          secondary_label?: string | null
+          secondary_route?: string | null
+          status?: string
+          student_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "next_actions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "next_actions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
