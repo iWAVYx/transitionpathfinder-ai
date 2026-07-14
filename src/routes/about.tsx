@@ -1501,6 +1501,7 @@ function AboutPage() {
         <PinnedStory />
         <FounderMessage />
         <AheadBesideBehind />
+        <AheadBesideBehindWalkthrough />
         <JourneyPath />
         <StudentCentered />
         <Transformation />
