@@ -1,14 +1,16 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { legacyWorkspaceRedirect } from "@/lib/demo/nav";
+import { createFileRoute } from "@tanstack/react-router";
+import { LegacyDemoStagePage } from "@/components/demo/LegacyDemoStagePage";
 
-// Legacy Transition Studio route — folded into the Workspace Tour so
-// there is a single public demo experience. Redirects to the matching
-// Workspace Tour stage with its full-sample panel already expanded and
-// preserves any incoming ?role= param so back-navigation returns to the
-// correct role preview.
+// Legacy /demo/plan URL alias — renders the "school" Transition
+// Workspace stage inline while keeping this URL. Do NOT redirect to
+// /demo/workspace/* — external links, bookmarks, and tests depend on
+// this URL staying stable.
 export const Route = createFileRoute("/demo_/plan")({
-  validateSearch: (raw: Record<string, unknown>) => raw,
-  beforeLoad: ({ search }) => {
-    throw redirect(legacyWorkspaceRedirect("school", search));
-  },
+  head: () => ({
+    meta: [
+      { title: "Demo — TransitionForward" },
+      { name: "description", content: "Public sample workspace step. Sample data only." },
+    ],
+  }),
+  component: () => <LegacyDemoStagePage stageId="school" legacyPath="/demo/plan" />,
 });
