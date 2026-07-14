@@ -32,6 +32,7 @@ function DemoConnectionPage() {
   const ids = Object.keys(DEMO_FEATURE_MAP) as DemoElementId[];
   return (
     <SiteShell>
+      <DemoRoleLens />
       <div className="demo-shell eh-issue">
         <PublicationPage
           kicker="Internal · Audit"
