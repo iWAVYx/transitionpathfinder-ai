@@ -249,7 +249,7 @@ function DistrictAdminTile({ tile, onPreview, isSample = false }: { tile: Tile; 
           <Eye className="h-3.5 w-3.5" aria-hidden /> Preview
         </button>
         <Link
-          to={tile.cta.to as string}
+          to={ctaTo}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
           {toTitleCase(tile.cta.label)}
