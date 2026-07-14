@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Activity, ClipboardList, Users, Wrench } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
-import { PriorityBriefing } from "@/components/role/PriorityBriefing";
+import {
+  CommandMetricStrip,
+  CommandRows,
+  CommandZone,
+} from "@/components/dashboard/CommandCenter";
 import {
   OWNER_FEATURE_DETAILS,
   OWNER_FEATURE_ORDER,
@@ -42,15 +45,29 @@ export const Route = createFileRoute("/demo_/owner")({
 });
 
 function DemoOwnerPage() {
+  const featureRows = OWNER_FEATURE_ORDER.map((id) => {
+    const d = OWNER_FEATURE_DETAILS[id];
+    const risk = d.rows.some((row) => row.status === "critical");
+    const warn = d.rows.some((row) => row.status === "warning");
+    return {
+      icon: id === "analytics" ? Activity : id === "role-audit" ? Users : Wrench,
+      label: d.title,
+      detail: d.summary,
+      status: risk ? "Blocker" : warn ? "Attention" : d.stats?.[0]?.value ?? d.eyebrow,
+      tone: risk ? "risk" as const : warn ? "warn" as const : "neutral" as const,
+      to: `/demo/feature/owner/${id}`,
+    };
+  });
+
   return (
     <SiteShell>
-      <div className="container max-w-6xl py-8 space-y-6">
+      <div className="container max-w-6xl space-y-7 py-8">
         <Breadcrumbs
           trail={[{ label: "Demo", to: "/demo" }, { label: "Owner Hub" }]}
         />
 
-        <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 flex items-start gap-3">
-          <ShieldCheck className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+        <div className="flex items-start gap-3 border-l-2 border-primary/40 bg-primary/5 py-3 pl-4">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
           <div className="text-sm">
             <div className="font-semibold">
               You're previewing the Platform Owner Hub
@@ -62,66 +79,56 @@ function DemoOwnerPage() {
           </div>
         </div>
 
-        <header className="rounded-3xl border bg-gradient-hero p-6 shadow-soft">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            <span>Platform Admin</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] uppercase tracking-wider text-primary ring-1 ring-primary/20">
-              <Sparkles className="h-3 w-3" aria-hidden /> Sample data
-            </span>
-          </div>
+        <header className="border-b border-border/70 pb-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Platform Admin · Sample Data</p>
           <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
             Owner Hub
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Operational surfaces for keeping TransitionForward healthy — testing,
-            diagnostics, role governance, content, demo tenants, activity, analytics,
-            and pilot packages. Each tile opens a dedicated preview.
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Operational health, review queues, role readiness, and support/compliance surfaces.
           </p>
         </header>
 
-        <PriorityBriefing role="owner" />
-        <LaunchReadinessBoard />
+        <CommandMetricStrip
+          items={[
+            { label: "Operational Surfaces", value: OWNER_FEATURE_ORDER.length, hint: "Admin work areas" },
+            { label: "Queues Flagged", value: 2, hint: "Testing + role audit", tone: "warn" },
+            { label: "Health", value: "99.97%", hint: "30d uptime", tone: "success" },
+            { label: "Pilots", value: 6, hint: "2 onboarding" },
+          ]}
+        />
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {OWNER_FEATURE_ORDER.map((id) => {
-            const d = OWNER_FEATURE_DETAILS[id];
-            return (
-              <article
-                key={id}
-                className="flex flex-col rounded-2xl border bg-card p-5 shadow-soft"
-                data-testid={`demo-owner-tile-${id}`}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {d.eyebrow}
-                </p>
-                <h2 className="mt-1 font-display text-lg leading-tight">
-                  {d.title}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
-                  {d.summary}
-                </p>
-                {d.stats && d.stats.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {d.stats.slice(0, 3).map((s) => (
-                      <Badge key={s.label} variant="outline" className="text-[10px]">
-                        {s.label}: {s.value ?? "—"}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-auto pt-4">
-                  <Button asChild size="sm" variant="outline" className="w-full">
-                    <Link to="/demo/feature/$role/$slug" params={{ role: "owner", slug: id }}>
-                      Open Preview <ArrowRight className="ml-1.5 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </article>
-            );
-          })}
+        <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] py-5 sm:py-6">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-primary/15 pb-3">
+            <div>
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary">Workspace</p>
+              <h2 className="font-display text-lg tracking-tight">Launch Readiness Board</h2>
+            </div>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Primary work area</span>
+          </div>
+          <div data-preserve-workspace-internals>
+            <LaunchReadinessBoard />
+          </div>
+        </section>
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          <CommandZone eyebrow="Operations" title="Admin Surfaces">
+            <div data-testid="demo-owner-tile-list">
+              <CommandRows rows={featureRows} />
+            </div>
+          </CommandZone>
+          <CommandZone eyebrow="Support / Compliance" title="Queues And Readiness">
+            <CommandRows
+              rows={[
+                { icon: ClipboardList, label: "Testing Scripts", detail: "Release-readiness pass/fail evidence.", status: "2 blocked", tone: "risk", to: "/demo/feature/owner/testing" },
+                { icon: Activity, label: "System Diagnostics", detail: "Queue depth, jobs, integrations, and error rates.", status: "Healthy", tone: "success", to: "/demo/feature/owner/diagnostics" },
+                { icon: Users, label: "Role Audit", detail: "Privileged role changes and pending invitations.", status: "Review", tone: "warn", to: "/demo/feature/owner/role-audit" },
+              ]}
+            />
+          </CommandZone>
         </div>
 
-        <div className="rounded-xl border bg-card p-6 flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border/70 pt-5">
           <div>
             <h3 className="font-semibold">Ready to run the real Owner Hub?</h3>
             <p className="text-sm text-muted-foreground">
