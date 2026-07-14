@@ -772,6 +772,299 @@ function Transformation() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Ahead · Beside · Behind — signature framework                              */
+/* -------------------------------------------------------------------------- */
+
+const STANCES = [
+  {
+    kicker: "Ahead",
+    title: "Preparing The Path",
+    body:
+      "Support planning before the next meeting, deadline, opportunity, or transition step arrives — resources, pathway options, documents, calendars, partner opportunities, and readiness signals ready when the student needs them.",
+    accent: "#ffd9a0",
+    glyph: (
+      <svg viewBox="0 0 80 80" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <circle cx="40" cy="40" r="6" />
+        <path d="M40 34 L40 12" />
+        <path d="M32 20 L40 12 L48 20" />
+        <path d="M20 60 Q40 48 60 60" opacity="0.5" />
+      </svg>
+    ),
+  },
+  {
+    kicker: "Beside",
+    title: "Moving Together",
+    body:
+      "Bring students, families, educators, case managers, schools, districts, and partners into a shared workspace where goals, preferences, documents, meetings, and next steps stay connected — role by role, without losing the whole picture.",
+    accent: "#a8e6cf",
+    glyph: (
+      <svg viewBox="0 0 80 80" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <circle cx="40" cy="40" r="6" />
+        <circle cx="18" cy="40" r="4" />
+        <circle cx="62" cy="40" r="4" />
+        <path d="M22 40 L34 40" />
+        <path d="M46 40 L58 40" />
+        <path d="M14 58 Q40 48 66 58" opacity="0.5" />
+      </svg>
+    ),
+  },
+  {
+    kicker: "Behind",
+    title: "Keeping The Record",
+    body:
+      "Preserve the decisions, uploads, reports, notes, progress, permissions, and evidence that help everyone understand what happened, why it mattered, and what comes next — so nothing important gets lost between transitions.",
+    accent: "#b5d8ff",
+    glyph: (
+      <svg viewBox="0 0 80 80" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <circle cx="40" cy="40" r="6" />
+        <path d="M40 46 L40 68" />
+        <path d="M32 60 L40 68 L48 60" />
+        <rect x="24" y="14" width="32" height="18" rx="2" opacity="0.6" />
+        <path d="M30 22 L50 22" opacity="0.6" />
+      </svg>
+    ),
+  },
+];
+
+function AheadBesideBehind() {
+  return (
+    <section className="relative overflow-hidden bg-[#0b0a09] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,220,160,0.10),transparent_60%)]" />
+      <div className="relative mx-auto max-w-[1400px] px-4 py-20 sm:px-6 md:py-28">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+            The Framework
+          </div>
+          <h2 className="font-serif text-[clamp(2rem,6vw,5rem)] font-light leading-[1.02]">
+            Ahead,{" "}
+            <span className="italic text-white/80">Beside,</span>{" "}
+            Behind.
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-white/70 sm:text-lg">
+            Transition Forward helps every stakeholder walk ahead of, beside, and behind
+            the student as they move toward life after school. Three stances. One shared
+            path.
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-6 md:mt-20 md:grid-cols-3 md:gap-8">
+          {STANCES.map((s, i) => (
+            <motion.article
+              key={s.kicker}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-15%" }}
+              transition={{ duration: 0.8, delay: i * 0.12, ease: [0.22, 0.61, 0.36, 1] }}
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm md:p-10"
+            >
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-px"
+                style={{ background: `linear-gradient(to right, transparent, ${s.accent}, transparent)` }}
+              />
+              <div style={{ color: s.accent }} className="mb-6">
+                {s.glyph}
+              </div>
+              <div className="text-[10px] uppercase tracking-[0.45em]" style={{ color: s.accent }}>
+                {s.kicker}
+              </div>
+              <h3 className="mt-3 font-serif text-3xl font-light leading-tight md:text-4xl">
+                {s.title}
+              </h3>
+              <p className="mt-5 text-[15px] leading-relaxed text-white/70">
+                {s.body}
+              </p>
+              <div
+                aria-hidden
+                className="mt-8 h-px w-12"
+                style={{ background: s.accent, opacity: 0.6 }}
+              />
+            </motion.article>
+          ))}
+        </div>
+
+        <div className="mx-auto mt-16 max-w-2xl text-center text-sm italic text-white/55 md:mt-20">
+          The student remains at the center. Every stance exists to help them move forward
+          with more clarity than they had yesterday.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Student-Centered — the reason the platform exists                          */
+/* -------------------------------------------------------------------------- */
+
+function StudentCentered() {
+  return (
+    <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
+      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-20 md:grid-cols-[6fr_5fr] md:gap-20 md:py-28">
+        <div className="flex flex-col justify-center">
+          <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+            <span className="h-px w-8 bg-[#1c1814]/30" />
+            The Student At The Center
+          </div>
+          <h2 className="font-serif text-[clamp(2rem,4.6vw,3.6rem)] font-light leading-[1.05]">
+            The student is not a profile in a system.
+            <span className="italic"> They are the reason for it.</span>
+          </h2>
+          <p className="mt-6 text-base text-[#1c1814]/80 sm:text-lg">
+            Their strengths, preferences, interests, goals, questions, and next steps
+            should shape the plan — not the other way around. Transition Forward is built
+            to help students understand their own path, participate in planning, and see
+            their future as something they can move toward with support.
+          </p>
+          <ul className="mt-8 grid grid-cols-1 gap-x-8 gap-y-3 text-[15px] text-[#1c1814]/75 sm:grid-cols-2">
+            {[
+              "Student voice and preferences",
+              "Interests and pathway options",
+              "Goals and next steps",
+              "Confidence and agency",
+              "Family and team support",
+              "A plan the student can read",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1c1814]/50" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="relative">
+          <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5">
+            <img
+              src={studentPhoto}
+              alt="A Connecticut student preparing for what comes next"
+              className="h-full w-full object-cover object-[50%_25%]"
+            />
+          </div>
+          <div className="absolute -bottom-4 right-6 rounded-full bg-[#1c1814] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#f4ede3] shadow-lg">
+            The Path Is Theirs
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Collaboration + Ecosystem + CT-Aware — one editorial band                  */
+/* -------------------------------------------------------------------------- */
+
+function EcosystemAndCare() {
+  const stakeholders = [
+    "Students",
+    "Families",
+    "Educators & Case Managers",
+    "School Administrators",
+    "District Administrators",
+    "Community Partners",
+  ];
+  const surfaces = [
+    "Transition Workspace",
+    "Pathway Report",
+    "Role Dashboards",
+    "Document Uploads",
+    "Meeting Preparation",
+    "Calendars",
+    "Partner Opportunities",
+    "Resources",
+    "Permissions & Recordkeeping",
+    "District & School Visibility",
+  ];
+
+  return (
+    <section className="relative overflow-hidden bg-[#0b0a09] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(168,230,207,0.08),transparent_55%)]" />
+      <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-28">
+        {/* Collaboration */}
+        <div className="grid gap-12 md:grid-cols-[5fr_6fr] md:gap-20">
+          <div>
+            <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+              A Shared Workspace
+            </div>
+            <h2 className="font-serif text-[clamp(1.9rem,4.4vw,3.4rem)] font-light leading-[1.05]">
+              Planning works best when information
+              <span className="italic"> does not live in separate places.</span>
+            </h2>
+          </div>
+          <div className="flex flex-col justify-end">
+            <p className="text-base text-white/75 sm:text-lg">
+              Transition Forward connects documents, meetings, notes, uploads, calendars,
+              resources, opportunities, role dashboards, and pathway reports so each
+              person can contribute from their role without losing the whole picture.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {stakeholders.map((s) => (
+                <span
+                  key={s}
+                  className="rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-[11px] uppercase tracking-[0.15em] text-white/75"
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent md:my-24" />
+
+        {/* Ecosystem */}
+        <div className="grid gap-12 md:grid-cols-[5fr_6fr] md:gap-20">
+          <div>
+            <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+              One Ecosystem
+            </div>
+            <h2 className="font-serif text-[clamp(1.9rem,4.4vw,3.4rem)] font-light leading-[1.05]">
+              Not a stack of features.
+              <span className="italic"> A shared path forward.</span>
+            </h2>
+            <p className="mt-6 text-base text-white/70">
+              Each surface exists to make the next step easier to prepare for, act on, and
+              remember.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-[15px] text-white/75 sm:grid-cols-2">
+            {surfaces.map((s) => (
+              <div key={s} className="flex items-start gap-3 border-l border-white/10 pl-4">
+                <span>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent md:my-24" />
+
+        {/* CT-Aware */}
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+            Built With Care
+          </div>
+          <h2 className="font-serif text-[clamp(1.9rem,4.4vw,3.4rem)] font-light leading-[1.05]">
+            Designed with awareness of what
+            <span className="italic"> transition planning actually requires.</span>
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-white/70 sm:text-lg">
+            Transition Forward is designed to support special education transition
+            planning, secure recordkeeping, role-based access, document handling, audit
+            history, and the need for clear evidence behind decisions and next steps. It
+            helps teams organize their work and makes planning easier to review — it does
+            not replace district legal obligations or official IEP systems.
+          </p>
+          <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/60">
+            <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
+            CT-Aware · Records-First · Student-Centered
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Closing cinematic CTA                                                      */
 /* -------------------------------------------------------------------------- */
 
