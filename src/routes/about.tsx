@@ -36,6 +36,12 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // Imagery — reused project assets, cropped via aspect wrappers per project rules.
 import heroImgAsset from "@/assets/raising-hands-class.png.asset.json";
