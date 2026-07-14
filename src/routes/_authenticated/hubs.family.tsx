@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
 import { IepTranslatorCard } from "@/components/dashboard/IepTranslatorCard";
@@ -27,12 +28,22 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("family-planning")!} hideSpokes>
         <ParentOverviewGrid />
-        <IepTranslatorCard isSample />
-        <FamilyMeetingPrepCard isSample />
-        <AdvocacyResourcesCard isSample />
-        <div className="mt-8">
+        <DashboardSection
+          eyebrow="Family Toolkit"
+          title="Documents, Meetings & Advocacy"
+          description="Plain-language IEP support, meeting prep, and advocacy resources for your student."
+        >
+          <IepTranslatorCard isSample />
+          <FamilyMeetingPrepCard isSample />
+          <AdvocacyResourcesCard isSample />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where your student is on the transition timeline and what comes next for the family."
+        >
           <StageJourneyCard audience="family" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );
