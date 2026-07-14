@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { FileSearch, AlertTriangle, ListChecks, CalendarClock, Users2 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
+import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
-import { EvidenceReviewCard } from "@/components/dashboard/EvidenceReviewCard";
-import { DataGapsCard } from "@/components/dashboard/DataGapsCard";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
 import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
 import { getHub } from "@/lib/hubs/registry";
@@ -31,17 +31,54 @@ function HubPage() {
         <EducatorOverviewGrid />
         <DashboardSection
           eyebrow="Caseload Signals"
-          title="Evidence & Data Gaps"
-          description="Priority reviews and missing inputs across your caseload."
-          layout="grid-2"
+          title="Priority Reviews & Gaps"
+          description="What needs your attention across the caseload — click through for full detail."
+          gap="tight"
         >
-          <EvidenceReviewCard isSample />
-          <DataGapsCard isSample />
+          <DashboardRowList
+            rows={[
+              {
+                icon: FileSearch,
+                title: "Evidence Review Queue",
+                description: "Files awaiting your sign-off before they feed the Pathway Report.",
+                to: "/educator/document-review",
+                status: "8 in queue",
+                tone: "warn",
+              },
+              {
+                icon: AlertTriangle,
+                title: "Data Gaps",
+                description: "Missing inputs blocking defensible Indicator 13 documentation.",
+                to: "/educator/readiness-gaps",
+                status: "5 flagged",
+                tone: "risk",
+              },
+              {
+                icon: ListChecks,
+                title: "Action Items",
+                description: "The next educator-owned actions across your caseload.",
+                to: "/educator/action-items",
+              },
+              {
+                icon: CalendarClock,
+                title: "Meeting Queue",
+                description: "Upcoming PPTs and prep windows for the next 30 days.",
+                to: "/meetings",
+              },
+              {
+                icon: Users2,
+                title: "Caseload Roster",
+                description: "Full student list with status, plan dates, and shared team members.",
+                to: "/caseload",
+              },
+            ]}
+          />
         </DashboardSection>
         <DashboardSection
           eyebrow="Next Actions"
           title="30 / 90 / 180 / 365-Day Plan"
-          description="The educator-owned actions that keep every Pathway Report defensible and every PPT on schedule."
+          description="Educator-owned actions that keep every Pathway Report defensible."
+          gap="tight"
         >
           <NextStepsTimeline
             data={EDUCATOR_NEXT_ACTIONS}
@@ -53,7 +90,8 @@ function HubPage() {
         <DashboardSection
           eyebrow="Your Pathway"
           title="Stage Journey"
-          description="Where your caseload is on the transition planning timeline."
+          description="Where your caseload sits on the transition planning timeline."
+          gap="tight"
         >
           <StageJourneyCard audience="educator" />
         </DashboardSection>
