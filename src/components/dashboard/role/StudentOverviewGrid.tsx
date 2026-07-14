@@ -21,6 +21,7 @@ import {
   STUDENT_FEATURE_DETAILS,
   type StudentFeatureId,
 } from "@/lib/demo/student/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: StudentFeatureId;
