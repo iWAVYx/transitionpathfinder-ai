@@ -228,7 +228,7 @@ function CaseloadPage() {
           </StatGrid>
 
           {/* Educator quick links — surfaces tied to caseload work */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 divide-y divide-border/60 border-y border-border/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             <EducatorQuickLink to="/teacher-portal" icon={<ShieldAlert className="h-4 w-4" />} label="Teacher Portal" desc="Milestones & compliance" />
             <EducatorQuickLink to="/meeting-templates" icon={<ClipboardCheck className="h-4 w-4" />} label="Templates" desc="Agendas & checklists" />
             <EducatorQuickLink to="/goals" icon={<Target className="h-4 w-4" />} label="Goal Tracker" desc="Transition goals" />
@@ -275,7 +275,7 @@ function CaseloadPage() {
           </div>
 
           {/* Caseload list */}
-          <div id="caseload-list" className="rounded-2xl border bg-card shadow-soft scroll-mt-24">
+          <div id="caseload-list" className="scroll-mt-24 border-y border-border/70">
             {loading ? (
               <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
@@ -331,7 +331,7 @@ function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.
   return (
     <Link
       to={to}
-      className="group flex flex-col gap-1 rounded-2xl border bg-card p-3 shadow-soft transition hover:border-primary/40 hover:shadow-md"
+      className="group flex flex-col gap-1 px-2 py-3 transition hover:bg-muted/35"
     >
       <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         {icon} {label}
@@ -518,7 +518,7 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
   }
 
   return (
-    <div className="mt-4 grid gap-4 rounded-xl border bg-background p-4 md:grid-cols-2">
+    <div className="mt-4 grid gap-4 border-t border-border/60 pt-4 md:grid-cols-2">
       {/* Quick note */}
       <form onSubmit={handleSaveNote} className="space-y-2">
         <Label className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
