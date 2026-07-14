@@ -33,22 +33,23 @@ interface Props {
  */
 export function HubShell({ hub, children, hideSpokes = false }: Props) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
-      {/* Compact identity banner — one row, one heading. */}
-      <header className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 shadow-soft sm:p-5">
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+      {/* Command-center header — accent bar + identity + primary action. */}
+      <header className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.07] via-background to-accent/[0.06] shadow-sm">
+        <span className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-accent/60" aria-hidden />
+        <div className="grid gap-3 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-              <Compass className="h-3.5 w-3.5" aria-hidden /> Role Workspace
+            <p className="flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <Compass className="h-3 w-3" aria-hidden /> Role Workspace
             </p>
-            <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+            <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-[26px]">
               {toTitleCase(hub.title)}
             </h1>
-            <p className="mt-1.5 max-w-3xl text-sm leading-snug text-foreground/80">
+            <p className="mt-1 max-w-3xl text-[13px] leading-snug text-foreground/80">
               <span className="font-medium text-foreground">{hub.who}</span>{" "}
               <span className="text-muted-foreground">{hub.problem}</span>
             </p>
-            <p className="mt-2.5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1 text-[11px] text-foreground/80">
+            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-background/70 px-2.5 py-0.5 text-[11px] text-foreground/80">
               <FileText className="h-3 w-3 text-primary" aria-hidden />
               {hub.pathwayConnection}
             </p>
@@ -61,7 +62,6 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
               {toTitleCase(hub.nextAction.label)}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
-
           </div>
         </div>
       </header>

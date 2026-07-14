@@ -45,39 +45,39 @@ export function ToolPreviewCard({
   footer,
 }: ToolPreviewCardProps) {
   return (
-    <div className="group relative flex h-full min-h-[13rem] flex-col rounded-2xl border border-border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="h-[18px] w-[18px]" aria-hidden />
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            <Icon className="h-4 w-4" aria-hidden />
+          </div>
+          <h3 className="min-w-0 truncate font-display text-[15px] font-semibold tracking-tight">{toTitleCase(title)}</h3>
         </div>
-        <span aria-hidden />
-        {status ? (
+        {status && (
           <span
             className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[11px] font-semibold uppercase tracking-wider leading-none ring-1 ${TONE[tone]}`}
           >
             {status}
           </span>
-        ) : (
-          <span aria-hidden />
         )}
       </div>
-      <h3 className="mt-3 font-display text-base font-semibold tracking-tight sm:text-lg">{toTitleCase(title)}</h3>
-      {summary && <p className="mt-1 text-sm leading-snug text-muted-foreground">{summary}</p>}
+      {summary && <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{summary}</p>}
       {bullets && bullets.length > 0 && (
-        <ul className="mt-3 space-y-1 text-sm">
-          {bullets.slice(0, 3).map((b, i) => (
-            <li key={i} className="flex items-baseline justify-between gap-3">
-              <span className="text-muted-foreground">{toTitleCase(b.label)}</span>
-              <span className="font-medium text-foreground text-right">
+        <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
+          {bullets.slice(0, 4).map((b, i) => (
+            <div key={i} className="flex min-w-0 flex-col">
+              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
+              <dd className="truncate text-[13px] font-semibold text-foreground">
                 {b.value ?? "—"}
-                {b.hint && <span className="ml-1 text-[11px] text-muted-foreground">{b.hint}</span>}
-              </span>
-            </li>
+                {b.hint && <span className="ml-1 text-[10px] font-normal text-muted-foreground">{b.hint}</span>}
+              </dd>
+            </div>
           ))}
-        </ul>
+        </dl>
       )}
-      {footer && <div className="mt-3">{footer}</div>}
-      <div className="mt-auto pt-4">
+      {footer && <div className="mt-2 px-3.5">{footer}</div>}
+      <div className="mt-auto flex items-center justify-end gap-2 border-t border-border/60 bg-muted/20 px-3.5 py-2">
         <Link
           to={cta.to as string}
           params={cta.params as never}
