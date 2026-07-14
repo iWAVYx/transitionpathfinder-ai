@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldCheck, ClipboardList, Users2, BarChart3, CalendarDays } from "lucide-react";
+import { ShieldCheck, ClipboardList, Users2, BarChart3, CalendarDays, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
