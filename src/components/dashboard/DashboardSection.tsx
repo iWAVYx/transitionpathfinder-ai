@@ -29,12 +29,23 @@ export interface DashboardSectionProps {
    * `card` only when the children are loose rows that need containment.
    */
   surface?: "flat" | "card";
+  /**
+   * Layout for direct children. `stack` (default) keeps existing vertical
+   * stacking; `grid-2` / `grid-3` place children on a responsive grid so
+   * multi-card zones stop reading as a single tall column.
+   */
+  layout?: "stack" | "grid-2" | "grid-3";
 }
 
-const GAP_CLASS: Record<NonNullable<DashboardSectionProps["gap"]>, string> = {
+const STACK_GAP: Record<NonNullable<DashboardSectionProps["gap"]>, string> = {
   tight: "space-y-3",
   default: "space-y-4",
   loose: "space-y-6",
+};
+const GRID_GAP: Record<NonNullable<DashboardSectionProps["gap"]>, string> = {
+  tight: "gap-3",
+  default: "gap-4",
+  loose: "gap-6",
 };
 
 export function DashboardSection({
