@@ -25,6 +25,7 @@ import {
   EDUCATOR_FEATURE_DETAILS,
   type EducatorFeatureId,
 } from "@/lib/demo/educator/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: EducatorFeatureId;
