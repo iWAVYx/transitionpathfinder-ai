@@ -33,6 +33,7 @@ function HubPage() {
           eyebrow="Opportunity Signals"
           title="Matches & Student Fit"
           description="Aggregate matches on your published opportunities and student-fit summaries — no PII."
+          layout="grid-2"
         >
           <PartnerMatchesCard isSample />
           <StudentFitSummariesCard isSample />

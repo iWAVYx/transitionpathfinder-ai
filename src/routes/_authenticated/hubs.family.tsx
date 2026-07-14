@@ -32,6 +32,7 @@ function HubPage() {
           eyebrow="Family Toolkit"
           title="Documents, Meetings & Advocacy"
           description="Plain-language IEP support, meeting prep, and advocacy resources for your student."
+          layout="grid-3"
         >
           <IepTranslatorCard isSample />
           <FamilyMeetingPrepCard isSample />
