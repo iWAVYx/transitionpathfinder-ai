@@ -5,7 +5,8 @@ import {
   type StageId,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
-import { SmartBackLink } from "@/components/site/SmartBackLink";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StageSpine } from "./StageSpine";
 import { StageHeader } from "./StageHeader";
@@ -57,13 +58,16 @@ export function WorkspaceShell({
       data-active-stage={activeStageId}
     >
       {backTo ? (
-        <SmartBackLink
-          fallbackTo={backTo.to}
-          label={backTo.label ?? "Back"}
-          className="self-start"
-          delayMs={250}
-          onBeforeNavigate={() => setIsExiting(true)}
-        />
+        <Link
+          to={backTo.to}
+          onClick={() => setIsExiting(true)}
+          className={cn(
+            "inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {backTo.label ?? "Back"}
+        </Link>
       ) : null}
       {eyebrow ? (
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
