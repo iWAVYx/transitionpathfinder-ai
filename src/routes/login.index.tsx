@@ -203,7 +203,13 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
             </aside>
 
             <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-lift md:col-span-3 md:p-8">
-              <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
+              <Link to="/" className="inline-flex">
+                <Button variant="ghost" size="sm" className="gap-2 px-0 text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="h-4 w-4" /> Back to home
+                </Button>
+              </Link>
+
+              <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")} className="mt-3">
                 {search.mfa === "expired" && (
                   <p className="mb-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
                     Your Two-Factor Verification expired. Please sign in again.
