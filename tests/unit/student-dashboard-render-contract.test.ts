@@ -97,10 +97,10 @@ describe("student /dashboard render contract", () => {
     expect(demoWorkspace).toMatch(/createFileRoute\("\/demo_\/workspace\/\$stage"\)/);
     expect(demoWorkspace).toMatch(/stageParam\.parse\(raw\.stage\)/);
     expect(demoWorkspace).toMatch(/<SiteShell>/);
-    // The legacy demo report route now redirects into the single Workspace Tour
-    // experience so there is no separate profile-bearing report shell.
+    // The legacy demo report route renders the Workspace Tour "roadmap"
+    // stage inline while keeping the /demo/report URL — no redirect.
     expect(demoReport).toMatch(/createFileRoute\("\/demo_\/report"\)/);
-    expect(demoReport).toMatch(/legacyWorkspaceRedirect\("roadmap"/);
+    expect(demoReport).toMatch(/LegacyDemoStagePage[\s\S]*stageId="roadmap"/);
 
     expect(studioShell).toMatch(/<main className="tf-studio-canvas"/);
   });
