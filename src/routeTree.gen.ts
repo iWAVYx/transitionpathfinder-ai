@@ -182,6 +182,7 @@ import { Route as AuthenticatedFamilyActionItemsRouteImport } from './routes/_au
 import { Route as AuthenticatedEducatorReadinessGapsRouteImport } from './routes/_authenticated/educator.readiness-gaps'
 import { Route as AuthenticatedEducatorPendingInputRouteImport } from './routes/_authenticated/educator.pending-input'
 import { Route as AuthenticatedEducatorNotesRouteImport } from './routes/_authenticated/educator.notes'
+import { Route as AuthenticatedEducatorHistoryRouteImport } from './routes/_authenticated/educator.history'
 import { Route as AuthenticatedEducatorDocumentReviewRouteImport } from './routes/_authenticated/educator.document-review'
 import { Route as AuthenticatedEducatorActionItemsRouteImport } from './routes/_authenticated/educator.action-items'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
@@ -1146,6 +1147,12 @@ const AuthenticatedEducatorNotesRoute =
     path: '/educator/notes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedEducatorHistoryRoute =
+  AuthenticatedEducatorHistoryRouteImport.update({
+    id: '/educator/history',
+    path: '/educator/history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEducatorDocumentReviewRoute =
   AuthenticatedEducatorDocumentReviewRouteImport.update({
     id: '/educator/document-review',
@@ -1388,6 +1395,7 @@ export interface FileRoutesByFullPath {
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
+  '/educator/history': typeof AuthenticatedEducatorHistoryRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
   '/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
@@ -1583,6 +1591,7 @@ export interface FileRoutesByTo {
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
+  '/educator/history': typeof AuthenticatedEducatorHistoryRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
   '/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
@@ -1782,6 +1791,7 @@ export interface FileRoutesById {
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/_authenticated/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
+  '/_authenticated/educator/history': typeof AuthenticatedEducatorHistoryRoute
   '/_authenticated/educator/notes': typeof AuthenticatedEducatorNotesRoute
   '/_authenticated/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/_authenticated/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
@@ -1981,6 +1991,7 @@ export interface FileRouteTypes {
     | '/district/team'
     | '/educator/action-items'
     | '/educator/document-review'
+    | '/educator/history'
     | '/educator/notes'
     | '/educator/pending-input'
     | '/educator/readiness-gaps'
@@ -2176,6 +2187,7 @@ export interface FileRouteTypes {
     | '/district/team'
     | '/educator/action-items'
     | '/educator/document-review'
+    | '/educator/history'
     | '/educator/notes'
     | '/educator/pending-input'
     | '/educator/readiness-gaps'
@@ -2374,6 +2386,7 @@ export interface FileRouteTypes {
     | '/_authenticated/district/team'
     | '/_authenticated/educator/action-items'
     | '/_authenticated/educator/document-review'
+    | '/_authenticated/educator/history'
     | '/_authenticated/educator/notes'
     | '/_authenticated/educator/pending-input'
     | '/_authenticated/educator/readiness-gaps'
@@ -3749,6 +3762,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEducatorNotesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/educator/history': {
+      id: '/_authenticated/educator/history'
+      path: '/educator/history'
+      fullPath: '/educator/history'
+      preLoaderRoute: typeof AuthenticatedEducatorHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/educator/document-review': {
       id: '/_authenticated/educator/document-review'
       path: '/educator/document-review'
@@ -4129,6 +4149,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
   AuthenticatedEducatorActionItemsRoute: typeof AuthenticatedEducatorActionItemsRoute
   AuthenticatedEducatorDocumentReviewRoute: typeof AuthenticatedEducatorDocumentReviewRoute
+  AuthenticatedEducatorHistoryRoute: typeof AuthenticatedEducatorHistoryRoute
   AuthenticatedEducatorNotesRoute: typeof AuthenticatedEducatorNotesRoute
   AuthenticatedEducatorPendingInputRoute: typeof AuthenticatedEducatorPendingInputRoute
   AuthenticatedEducatorReadinessGapsRoute: typeof AuthenticatedEducatorReadinessGapsRoute
@@ -4216,6 +4237,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEducatorActionItemsRoute: AuthenticatedEducatorActionItemsRoute,
   AuthenticatedEducatorDocumentReviewRoute:
     AuthenticatedEducatorDocumentReviewRoute,
+  AuthenticatedEducatorHistoryRoute: AuthenticatedEducatorHistoryRoute,
   AuthenticatedEducatorNotesRoute: AuthenticatedEducatorNotesRoute,
   AuthenticatedEducatorPendingInputRoute:
     AuthenticatedEducatorPendingInputRoute,
