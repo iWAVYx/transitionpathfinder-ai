@@ -4,7 +4,7 @@ import { ArrowRight, Sparkles, Users, ClipboardList, FileText } from "lucide-rea
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
+
 import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
 
 export const Route = createFileRoute("/demo")({
