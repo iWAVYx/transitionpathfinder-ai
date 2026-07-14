@@ -200,28 +200,29 @@ export function RolePreviewShell({
         </PageSection>
       ) : null}
 
-      {/* Operations Zone */}
+      {/* Activity Zone — Workspace above already renders every feature
+          card, so the previous "What Needs Attention" tool grid was a
+          duplicate of the same links (and its CTAs routed to generic
+          /demo/voice, /demo/plan, /demo/report pages instead of the
+          role-specific feature pages). Keep only the Actions / Outputs /
+          Value column, which is genuinely additional context. */}
       <PageSection spacing="tight">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-          <CommandZone eyebrow="Operations" title="What Needs Attention">
-            <CommandRows rows={toolRowsFor(role)} />
-          </CommandZone>
-
-          <CommandZone eyebrow="Activity / Next Steps" title="Actions And Outputs">
+        <CommandZone eyebrow="Activity / Next Steps" title="Actions And Outputs">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-5">
               <MiniList icon={<Target className="h-3.5 w-3.5" />} title="Actions" items={role.actions} />
               <MiniList icon={<FileText className="h-3.5 w-3.5" />} title="Outputs" items={role.outputs} />
-              <ul className="space-y-2 border-t border-border/60 pt-3">
-                {role.valueBullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-[13px] leading-snug">
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span className="text-foreground/85">{b}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-          </CommandZone>
-        </div>
+            <ul className="space-y-2 md:border-l md:border-border/60 md:pl-6">
+              {role.valueBullets.map((b) => (
+                <li key={b} className="flex items-start gap-2 text-[13px] leading-snug">
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span className="text-foreground/85">{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </CommandZone>
       </PageSection>
 
       {/* BOUNDARY (partner) */}
