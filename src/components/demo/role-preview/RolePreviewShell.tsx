@@ -362,6 +362,42 @@ function TripleCard({
 }
 
 /**
+ * MiniList — flat, card-less column for the Under-the-Hood zone. Replaces
+ * TripleCard's card wrapper with a compact icon + title + bullet list so
+ * three columns sit visually quieter beneath the Workspace zone.
+ */
+function MiniList({
+  icon,
+  title,
+  items,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  items: string[];
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="mb-1.5 flex items-center gap-1.5">
+        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/15">
+          {icon}
+        </span>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/80">
+          {title}
+        </h3>
+      </div>
+      <ul className="space-y-1">
+        {items.map((i) => (
+          <li key={i} className="flex items-start gap-1.5 text-[12.5px] leading-snug text-foreground/85">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/70" />
+            <span>{i}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
  * RoleAwareCtaLink — renders a `<Link>` that, when the target points at
  * the demo Workspace Tour, preserves the current role via `?role=` so
  * "Back" from the tour returns to this role preview.
