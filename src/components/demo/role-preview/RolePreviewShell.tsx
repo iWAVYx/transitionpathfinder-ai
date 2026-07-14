@@ -60,6 +60,21 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
   );
 }
 
+/**
+ * Per-role accent palette — mirrors the signed-in HubShell accents so a
+ * visitor previewing /demo/family sees the same rose accent that the
+ * signed-in Family hub uses, /demo/educator the same emerald, and so on.
+ */
+const DEMO_ROLE_ACCENTS: Record<string, { primary: string; primaryFg: string; accent: string }> = {
+  student:        { primary: "oklch(0.60 0.14 235)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.90 0.06 230)" },
+  family:         { primary: "oklch(0.60 0.16 15)",  primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 20)" },
+  educator:       { primary: "oklch(0.55 0.13 160)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 155)" },
+  "school-admin": { primary: "oklch(0.55 0.16 290)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 290)" },
+  "district-admin": { primary: "oklch(0.48 0.16 265)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 265)" },
+  partner:        { primary: "oklch(0.62 0.15 55)",  primaryFg: "oklch(0.18 0.04 250)",  accent: "oklch(0.92 0.06 55)" },
+  owner:          { primary: "oklch(0.42 0.05 250)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.90 0.02 250)" },
+};
+
 export function RolePreviewShell({
   role,
   extras,
@@ -70,9 +85,19 @@ export function RolePreviewShell({
 }) {
   const Icon = role.icon;
   const next = role.next ? DEMO_ROLES[role.next] : null;
+  const accent = DEMO_ROLE_ACCENTS[role.id];
+  const accentStyle = accent
+    ? ({
+        ["--primary" as string]: accent.primary,
+        ["--primary-foreground" as string]: accent.primaryFg,
+        ["--accent" as string]: accent.accent,
+      } as React.CSSProperties)
+    : undefined;
 
   return (
     <SiteShell>
+      <div data-role-accent={role.id} style={accentStyle}>
+
       <PageSection spacing="tight">
         <Breadcrumbs
           trail={[
