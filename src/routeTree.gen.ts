@@ -127,6 +127,7 @@ import { Route as AuthenticatedPartnersManageProfileRouteImport } from './routes
 import { Route as AuthenticatedPartnersManageOpportunitiesRouteImport } from './routes/_authenticated/partners-manage_.opportunities'
 import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage_.impact'
 import { Route as AuthenticatedPartnersManageDeadlinesRouteImport } from './routes/_authenticated/partners-manage_.deadlines'
+import { Route as AuthenticatedPartnerHistoryRouteImport } from './routes/_authenticated/partner.history'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
 import { Route as AuthenticatedOwnerTestingScriptsRouteImport } from './routes/_authenticated/owner.testing-scripts'
@@ -829,6 +830,12 @@ const AuthenticatedPartnersManageDeadlinesRoute =
     path: '/partners-manage/deadlines',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPartnerHistoryRoute =
+  AuthenticatedPartnerHistoryRouteImport.update({
+    id: '/partner/history',
+    path: '/partner/history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerWaitlistRoute =
   AuthenticatedOwnerWaitlistRouteImport.update({
     id: '/waitlist',
@@ -1467,6 +1474,7 @@ export interface FileRoutesByFullPath {
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/partner/history': typeof AuthenticatedPartnerHistoryRoute
   '/partners-manage/deadlines': typeof AuthenticatedPartnersManageDeadlinesRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/partners-manage/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -1665,6 +1673,7 @@ export interface FileRoutesByTo {
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/partner/history': typeof AuthenticatedPartnerHistoryRoute
   '/partners-manage/deadlines': typeof AuthenticatedPartnersManageDeadlinesRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/partners-manage/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -1867,6 +1876,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/_authenticated/partner/history': typeof AuthenticatedPartnerHistoryRoute
   '/_authenticated/partners-manage_/deadlines': typeof AuthenticatedPartnersManageDeadlinesRoute
   '/_authenticated/partners-manage_/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/_authenticated/partners-manage_/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -2069,6 +2079,7 @@ export interface FileRouteTypes {
     | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
+    | '/partner/history'
     | '/partners-manage/deadlines'
     | '/partners-manage/impact'
     | '/partners-manage/opportunities'
@@ -2267,6 +2278,7 @@ export interface FileRouteTypes {
     | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
+    | '/partner/history'
     | '/partners-manage/deadlines'
     | '/partners-manage/impact'
     | '/partners-manage/opportunities'
@@ -2468,6 +2480,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/testing-scripts'
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
+    | '/_authenticated/partner/history'
     | '/_authenticated/partners-manage_/deadlines'
     | '/_authenticated/partners-manage_/impact'
     | '/_authenticated/partners-manage_/opportunities'
@@ -3403,6 +3416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPartnersManageDeadlinesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/partner/history': {
+      id: '/_authenticated/partner/history'
+      path: '/partner/history'
+      fullPath: '/partner/history'
+      preLoaderRoute: typeof AuthenticatedPartnerHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/waitlist': {
       id: '/_authenticated/owner/waitlist'
       path: '/waitlist'
@@ -4206,6 +4226,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedHubsPartnerRoute: typeof AuthenticatedHubsPartnerRoute
   AuthenticatedHubsSchoolRoute: typeof AuthenticatedHubsSchoolRoute
   AuthenticatedHubsStudentRoute: typeof AuthenticatedHubsStudentRoute
+  AuthenticatedPartnerHistoryRoute: typeof AuthenticatedPartnerHistoryRoute
   AuthenticatedPartnersManageDeadlinesRoute: typeof AuthenticatedPartnersManageDeadlinesRoute
   AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
   AuthenticatedPartnersManageOpportunitiesRoute: typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -4298,6 +4319,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHubsPartnerRoute: AuthenticatedHubsPartnerRoute,
   AuthenticatedHubsSchoolRoute: AuthenticatedHubsSchoolRoute,
   AuthenticatedHubsStudentRoute: AuthenticatedHubsStudentRoute,
+  AuthenticatedPartnerHistoryRoute: AuthenticatedPartnerHistoryRoute,
   AuthenticatedPartnersManageDeadlinesRoute:
     AuthenticatedPartnersManageDeadlinesRoute,
   AuthenticatedPartnersManageImpactRoute:
