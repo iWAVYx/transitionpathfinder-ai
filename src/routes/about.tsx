@@ -337,19 +337,22 @@ function FounderMessage() {
         <div className="flex flex-col justify-center">
           <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
             <span className="h-px w-8 bg-[#1c1814]/30" />
-            Message from the founder
+            Why This Exists
           </div>
           <h2 className="font-serif text-[clamp(2rem,4.6vw,3.6rem)] font-light leading-[1.05]">
-            I built this from the chair I sat in —
-            <span className="italic"> between the family and the binder.</span>
+            Transition planning depends on the right people
+            <span className="italic"> having the right context at the right time.</span>
           </h2>
           <p className="mt-6 text-base text-[#1c1814]/80 sm:text-lg">
-            I'm a special educator from Connecticut. MBA, then MAT in Special Education, K–12.
-            New Haven Public Schools. Hamden. Student Teaching across grade bands. Every meeting,
-            the same gap — paperwork on the table, possibility just out of reach.
+            I saw how easily student voice, family knowledge, documents, goals, services,
+            and next steps become separated from one another. Families needed clarity.
+            Educators needed organization. Districts needed visibility. Partners needed a
+            clear way to connect opportunities to students. And students needed more than
+            compliance paperwork — they needed a plan they could see themselves in.
           </p>
           <p className="mt-4 text-base text-[#1c1814]/80 sm:text-lg">
-            Transition Forward is the thing I kept reaching for and never had.
+            Transition Forward grew from the belief that planning should be easier to
+            understand, easier to share, and easier to act on.
           </p>
           <div className="mt-10 flex items-end gap-5">
             <span className="font-serif text-3xl italic tracking-tight text-[#1c1814]/90">
