@@ -73,16 +73,16 @@ export function SchoolPageShell({
   children: (org: SchoolOrg, data: SchoolDashboard) => React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+    <div className="flex min-h-dvh flex-col overflow-x-clip bg-background text-foreground">
       <SiteHeader />
       <main
-        className="site-shell-main flex-1"
+        className="site-shell-main flex-1 overflow-x-clip"
         style={{ minHeight: "60vh" }}
         data-testid={ROLE_DASHBOARD_TEST_IDS.school_admin}
         data-auth-state="ready"
       >
         <RoleGuard path={path}>
-          <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
             <Breadcrumbs
               trail={[
                 { label: "Dashboard", to: "/dashboard" },
