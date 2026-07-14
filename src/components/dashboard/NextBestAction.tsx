@@ -59,7 +59,7 @@ export function NextBestAction({
     return (
       <section
         className={cn(
-          "rounded-3xl border bg-card p-5 shadow-soft sm:p-6",
+          "border-y border-border/70 bg-primary/[0.025] py-5 sm:py-6",
           className,
         )}
         aria-label="Next best step"
@@ -80,7 +80,7 @@ export function NextBestAction({
     return (
       <section
         className={cn(
-          "rounded-3xl border border-amber-200 bg-amber-50/60 p-5 shadow-soft sm:p-6 dark:bg-amber-950/20",
+          "border-y border-amber-200 bg-amber-50/60 py-5 sm:py-6 dark:bg-amber-950/20",
           className,
         )}
         aria-label="Next best step"
@@ -110,7 +110,7 @@ export function NextBestAction({
     return (
       <section
         className={cn(
-          "rounded-3xl border bg-card p-5 shadow-soft sm:p-6",
+          "border-y border-border/70 bg-primary/[0.025] py-5 sm:py-6",
           className,
         )}
         aria-label="Next best step"
@@ -153,7 +153,7 @@ export function NextBestAction({
   return (
     <div
       className={cn(
-        "rounded-3xl border p-5 shadow-soft sm:p-6",
+        "border-y py-5 sm:py-6",
         toneClasses,
         className,
       )}
@@ -163,7 +163,7 @@ export function NextBestAction({
       <div className="flex items-start gap-4">
         <div
           className={cn(
-            "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-background/80 shadow-soft",
+            "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-background/80",
             iconTone,
           )}
         >
@@ -189,7 +189,7 @@ export function NextBestAction({
               type="button"
               onClick={() => navigate({ to: action.ctaHref })}
               className={cn(
-                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-soft transition hover:shadow-lift",
+                "inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:opacity-90",
                 action.tone === "success"
                   ? "bg-emerald-600 text-white hover:bg-emerald-700"
                   : action.tone === "warning"

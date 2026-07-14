@@ -292,7 +292,7 @@ function PartnerManagePage() {
         {/* PartnerForward — Incentives & Support layer (not a duplicate dashboard) */}
         <Link
           to="/partnerforward/incentives"
-          className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 transition hover:border-primary/50 hover:bg-primary/10"
+          className="mt-6 flex items-center justify-between gap-4 border-y border-primary/30 bg-primary/5 py-4 transition hover:bg-primary/10 sm:px-3"
         >
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
@@ -333,7 +333,7 @@ function PartnerManagePage() {
             </div>
 
             {showForm && (
-              <section className="rounded-2xl border border-border/60 bg-card p-5">
+              <section className="border-y border-border/70 py-5">
                 <h2 className="font-display text-lg font-medium">Create Opportunity</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="sm:col-span-2">
@@ -437,7 +437,7 @@ function PartnerManagePage() {
               </section>
             )}
 
-            <section className="rounded-2xl border border-border/60 bg-card">
+            <section className="border-y border-border/70">
               <ul className="divide-y divide-border/40">
                 {ws.opportunities.length === 0 ? (
                   <li className="px-5 py-10 text-center text-sm text-muted-foreground">
@@ -578,7 +578,7 @@ function FirstRunSetup({
     state: "CT",
   });
   return (
-    <div className="mt-6 rounded-2xl border border-border/60 bg-card p-6">
+    <div className="mt-6 border-y border-border/70 py-6">
       <Briefcase className="h-7 w-7 text-primary" />
       <h1 className="mt-3 font-display text-2xl font-medium">Set up your partner workspace</h1>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -682,7 +682,7 @@ function ProfileEditor({ org, onSaved }: { org: PartnerOrg; onSaved: () => void 
   const [saving, setSaving] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-card p-5">
+    <div className="border-y border-border/70 py-5">
       <h2 className="font-display text-lg font-medium">Organization profile</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Families and educators see this information when browsing your opportunities.

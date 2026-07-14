@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
@@ -26,9 +27,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("district-strategy")!} hideSpokes>
-        <DistrictAdminOverviewGrid />
+        <WorkspaceZone>
+          <DistrictAdminOverviewGrid />
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="District Signals"
+          eyebrow="Operations"
           title="Compliance, Coverage & Trends"
           description="Aggregate rollups across schools — no student PII, just readiness and adoption."
           gap="tight"
@@ -73,7 +76,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Activity / Next Steps"
           title="Stage Journey"
           description="Where your district is on the transition strategy rollout."
           gap="tight"

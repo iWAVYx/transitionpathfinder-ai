@@ -24,7 +24,7 @@ export function StatGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-dashboard-sm sm:gap-dashboard-md lg:gap-dashboard-lg", GRID[cols], className)}>{children}</div>
+    <div className={cn("grid divide-y divide-border/60 border-y border-border/70 sm:divide-x sm:divide-y-0", GRID[cols], className)}>{children}</div>
   );
 }
 
@@ -58,7 +58,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex min-h-[4.5rem] flex-col justify-between rounded-2xl border bg-card p-3.5 shadow-soft",
+        "flex min-h-[4.5rem] flex-col justify-between px-2 py-3.5 sm:px-4",
         className,
       )}
     >

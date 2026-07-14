@@ -83,25 +83,25 @@ export function ReviewQueuesPanel({
         )}
       </div>
 
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid divide-y divide-border/60 border-y border-border/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
         {QUEUES.map((q) => {
           const n = counts?.[q.key] ?? 0;
           const isEmpty = n === 0;
           const Icon = q.icon;
           const cardClass =
-            "group flex h-full w-full flex-col justify-between rounded-2xl border bg-background p-4 text-left transition-colors hover:bg-muted " +
+            "group flex h-full w-full flex-col justify-between px-2 py-4 text-left transition-colors hover:bg-muted/40 sm:px-4 " +
             (n > 0 && q.tone === "warn"
-              ? "border-amber-300/60"
+              ? "bg-amber-500/5"
               : n > 0
-              ? "border-primary/40"
-              : "border-border");
+              ? "bg-primary/5"
+              : "");
           const iconClass =
             "flex h-8 w-8 flex-none items-center justify-center rounded-full " +
             (isEmpty
-              ? "bg-muted text-muted-foreground"
+              ? "text-muted-foreground"
               : q.tone === "warn"
-              ? "bg-amber-100 text-amber-700"
-              : "bg-primary/10 text-primary");
+              ? "text-amber-700"
+              : "text-primary");
           const inner = (
             <>
               <div className="flex items-start justify-between gap-2">

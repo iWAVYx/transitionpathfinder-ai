@@ -99,7 +99,7 @@ export function NextStepsTimeline({
   return (
     <section
       aria-labelledby="next-steps-timeline-title"
-      className="mt-6 rounded-3xl border bg-card p-6 shadow-soft sm:p-8"
+      className="mt-6 border-y border-border/70 py-5 sm:py-6"
       data-testid="next-steps-timeline"
     >
       <header className="border-b border-border/60 pb-4">
@@ -128,23 +128,23 @@ export function NextStepsTimeline({
       ) : (
 
 
-      <ol className="mt-6 grid gap-4 md:grid-cols-4">
+      <ol className="mt-5 divide-y divide-border/60 border-y border-border/60 md:grid md:grid-cols-4 md:divide-x md:divide-y-0">
         {ORDER.map((key, idx) => {
           const h = merged[key];
           const Icon = ICONS[key];
           return (
             <li
               key={key}
-              className="relative flex h-full flex-col rounded-2xl border bg-background p-4"
+              className="relative flex h-full flex-col px-2 py-4 md:px-4"
             >
               <span
                 aria-hidden
-                className="absolute -top-3 left-4 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground ring-4 ring-card"
+                className="absolute -top-3 left-4 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground ring-4 ring-background"
               >
                 {idx + 1}
               </span>
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                <span className="flex h-8 w-8 items-center justify-center text-primary">
                   <Icon className="h-4 w-4" aria-hidden />
                 </span>
                 <div className="min-w-0">

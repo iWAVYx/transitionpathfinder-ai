@@ -37,7 +37,7 @@ export function OwnerSectionsGrid() {
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
               {toTitleCase(g)}
             </h3>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid divide-y divide-border/60 border-y border-border/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3 xl:grid-cols-4">
               {items
                 .filter((n) => n.group === g)
                 .map((n) => {
@@ -48,9 +48,9 @@ export function OwnerSectionsGrid() {
                       type="button"
                       onClick={() => navigate({ to: n.to })}
                       aria-label={`Open ${n.label}`}
-                      className="group flex items-start gap-2.5 rounded-xl border border-border bg-background p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted"
+                      className="group flex items-start gap-2.5 px-2 py-3 text-left transition-colors hover:bg-muted/40 sm:px-3"
                     >
-                      <span className="mt-0.5 rounded-md bg-muted p-1.5 text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                      <span className="mt-0.5 text-muted-foreground transition-colors group-hover:text-primary">
                         <Icon className="h-4 w-4" />
                       </span>
                       <span className="min-w-0">

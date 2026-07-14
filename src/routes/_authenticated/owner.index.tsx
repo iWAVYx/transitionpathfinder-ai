@@ -90,7 +90,7 @@ export function OwnerDashboardPage() {
       ) : !metrics ? (
         <DashboardErrorFallback role="owner" />
       ) : (
-        <div className="space-y-6 sm:space-y-8 lg:space-y-10">
+        <div className="space-y-8 lg:space-y-11">
           <NextBestAction surface="admin" />
 
 
@@ -99,7 +99,7 @@ export function OwnerDashboardPage() {
 
 
           {/* Site status banner — pills wrap cleanly on mobile */}
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background p-3 sm:p-4">
+          <div className="flex flex-wrap items-center gap-2 border-y border-border/70 py-3 sm:px-2 sm:py-4">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Site Status
             </span>
@@ -146,19 +146,19 @@ export function OwnerDashboardPage() {
               <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Resource Library Health
               </h2>
-              <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
-                <Link to="/owner/resource-review" hash="needing-review" aria-label="Open the resources needing review queue" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
+              <div className="grid divide-y divide-border/60 border-y border-border/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                <Link to="/owner/resource-review" hash="needing-review" aria-label="Open the resources needing review queue" className="px-2 py-4 transition-colors hover:bg-muted/40 sm:px-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resources Needing Review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.resourcesNeedingReview}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Open Review Queue →</p>
                 </Link>
-                <div className="rounded-2xl border border-border bg-background p-4">
+                <div className="px-2 py-4 sm:px-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broken Links</p>
                   <p className={`mt-2 font-display text-2xl ${reviewCounts.brokenLinks > 0 ? "text-destructive" : ""}`}>{reviewCounts.brokenLinks}</p>
                   <p className="mt-1 text-[11px] text-muted-foreground">Included In Review Queue</p>
                 </div>
 
-                <Link to="/owner/resource-sources" className="rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted">
+                <Link to="/owner/resource-sources" className="px-2 py-4 transition-colors hover:bg-muted/40 sm:px-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Source Libraries To Review</p>
                   <p className="mt-2 font-display text-2xl">{reviewCounts.sourcesNeedingReview}</p>
                 </Link>
@@ -221,7 +221,7 @@ export function OwnerDashboardPage() {
                 Open Activity Log
               </Link>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-border bg-background">
+            <div className="border-y border-border/70">
               {metrics.recentActivity.length === 0 ? (
                 <p className="p-4 text-sm text-muted-foreground">No activity yet.</p>
               ) : (
@@ -316,7 +316,7 @@ function OwnerOperationsPreview({
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Operations Overview
       </h2>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid divide-y divide-border/60 border-y border-border/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
         {tiles.map((t) => (
           // Render as buttons that navigate on click instead of anchors so
           // that Admin Hub sidebar destinations (outside <main>) never
@@ -326,7 +326,7 @@ function OwnerOperationsPreview({
             key={t.label}
             onClick={() => navigate({ to: t.to })}
             aria-label={`Open ${t.label}`}
-            className="rounded-2xl border border-border bg-background p-4 text-left transition-colors hover:bg-muted"
+            className="px-2 py-4 text-left transition-colors hover:bg-muted/40 sm:px-4"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t.label}

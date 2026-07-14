@@ -65,8 +65,8 @@ function SchoolOverviewPage() {
             </Link>
           </StatGrid>
 
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-            <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:col-span-2 lg:p-6">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+            <div className="border-y border-border/70 py-5 lg:py-6">
               <h2 className="font-display text-lg sm:text-xl">{org.name}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {[org.type, org.city, org.state].filter(Boolean).join(" · ") || "No location on file"}
@@ -92,7 +92,7 @@ function SchoolOverviewPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:p-6">
+            <div className="border-y border-border/70 py-5 lg:py-6">
               <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                 <FolderOpen className="h-3.5 w-3.5" /> Recent Students
               </div>

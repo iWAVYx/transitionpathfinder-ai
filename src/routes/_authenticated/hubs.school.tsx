@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
@@ -26,9 +27,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("school-implementation")!} hideSpokes>
-        <SchoolAdminOverviewGrid />
+        <WorkspaceZone>
+          <SchoolAdminOverviewGrid />
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="Operational Signals"
+          eyebrow="Operations"
           title="Compliance, Team & Reports"
           description="Building-level readiness — jump straight to what needs attention."
           gap="tight"
@@ -73,7 +76,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Activity / Next Steps"
           title="Stage Journey"
           description="Where your building is on the implementation timeline."
           gap="tight"

@@ -66,10 +66,9 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
       className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pt-6 lg:px-8"
     >
 
-      {/* Command-center header — accent bar + identity + primary action. */}
-      <header className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.07] via-background to-accent/[0.06] shadow-sm">
-        <span className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-accent/60" aria-hidden />
-        <div className="grid gap-3 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      {/* Header Zone */}
+      <header className="border-b border-border/70 pb-5">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-primary">
               <Compass className="h-3 w-3" aria-hidden /> Role Workspace
@@ -81,7 +80,7 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
               <span className="font-medium text-foreground">{hub.who}</span>{" "}
               <span className="text-muted-foreground">{hub.problem}</span>
             </p>
-            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-background/70 px-2.5 py-0.5 text-[11px] text-foreground/80">
+            <p className="mt-2 inline-flex items-center gap-1.5 border-l border-primary/30 pl-2.5 text-[11px] text-foreground/80">
               <FileText className="h-3 w-3 text-primary" aria-hidden />
               {hub.pathwayConnection}
             </p>
@@ -89,7 +88,7 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
           <div className="flex lg:justify-end">
             <Link
               to={hub.nextAction.to}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:shadow-lift"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
             >
               {toTitleCase(hub.nextAction.label)}
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -97,13 +96,16 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
           </div>
         </div>
         {/* Compact overview strip — derived from the hub definition, no fabricated data. */}
-        <dl className="grid grid-cols-3 divide-x divide-primary/10 border-t border-primary/10 bg-background/40">
+      </header>
+
+      {/* Summary Zone */}
+      <dl className="mt-5 grid grid-cols-3 divide-x divide-border/70 border-y border-border/70">
           {[
             { label: "Feature Areas", value: hub.spokes.length },
             { label: "Feeds Pathway Report", value: hub.spokes.filter((s) => s.feedsReport).length },
             { label: "Related Hubs", value: hub.related.length },
           ].map((stat) => (
-            <div key={stat.label} className="px-3 py-2 sm:px-4 sm:py-2.5">
+            <div key={stat.label} className="px-3 py-2.5 sm:px-4">
               <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {stat.label}
               </dt>
@@ -113,12 +115,11 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
             </div>
           ))}
         </dl>
-      </header>
 
       {/* Role dashboard body. Clear separation between the approved Workspace
           section and the surrounding dashboard zones — larger vertical
           rhythm so sections read as distinct rather than one long stack. */}
-      <div className="mt-6 space-y-8 sm:mt-8 sm:space-y-10">{children}</div>
+      <div className="mt-6 space-y-10 sm:mt-8 sm:space-y-12">{children}</div>
 
 
       {/* Optional spokes — only for hubs without a polished OverviewGrid. */}

@@ -74,8 +74,8 @@ function DistrictOverviewPage() {
             />
           </StatGrid>
 
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-            <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:col-span-2 lg:p-6">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+            <div className="border-y border-border/70 py-5 lg:py-6">
               <h2 className="font-display text-lg sm:text-xl">{district.name}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {[district.city, district.state].filter(Boolean).join(", ") ||
@@ -108,7 +108,7 @@ function DistrictOverviewPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:p-6">
+            <div className="border-y border-border/70 py-5 lg:py-6">
               <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                 <TrendingUp className="h-3.5 w-3.5" /> Planning Adoption
               </div>
@@ -133,7 +133,7 @@ function DistrictOverviewPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-4 shadow-soft sm:p-5 lg:p-6">
+          <div className="border-y border-border/70 py-5 lg:py-6">
             <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
               <div className="min-w-0">
                 <h2 className="font-display text-lg sm:text-xl">Schools Needing Follow-Up</h2>
@@ -237,7 +237,7 @@ function StatusTile({
   hint?: string;
 }) {
   return (
-    <div className="rounded-xl border bg-background p-4">
+    <div className="border-y border-border/60 py-3">
       <div className="text-xs uppercase tracking-wider text-muted-foreground">
         {label}
       </div>

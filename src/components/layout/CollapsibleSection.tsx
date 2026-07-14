@@ -36,7 +36,7 @@ export function CollapsibleSection({
   return (
     <section
       className={cn(
-        "rounded-2xl border bg-card shadow-soft",
+        "border-y border-border/70",
         className,
       )}
     >
@@ -45,7 +45,7 @@ export function CollapsibleSection({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left",
+          "flex w-full items-center justify-between gap-3 py-3 text-left sm:px-2",
           // Hide the toggle at the always-open breakpoint and turn it into a static header.
           breakpointHide,
           "min-h-11",
@@ -70,7 +70,7 @@ export function CollapsibleSection({
         />
       </button>
       {/* Static header at always-open breakpoint */}
-      <div className={cn("hidden border-b px-5 py-4", breakpointShow)}>
+      <div className={cn("hidden border-b py-4 sm:px-2", breakpointShow)}>
         <div className="flex items-center gap-2">
           {icon}
           <h3 className="font-display text-base">{title}</h3>
@@ -84,7 +84,7 @@ export function CollapsibleSection({
           // On mobile: only render when open. At breakpoint: always shown.
           open ? "block" : "hidden",
           breakpointShow,
-          "px-4 pb-4 pt-2 sm:px-5 sm:pb-5",
+          "pb-4 pt-2 sm:px-2 sm:pb-5",
         )}
       >
         {children}

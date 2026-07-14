@@ -1,17 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RolePreviewShell } from "@/components/demo/role-preview/RolePreviewShell";
 import { getDemoRole } from "@/lib/demo/role-previews";
-import { IepTranslatorCard } from "@/components/dashboard/IepTranslatorCard";
-import { FamilyMeetingPrepCard } from "@/components/dashboard/FamilyMeetingPrepCard";
-import { AdvocacyResourcesCard } from "@/components/dashboard/AdvocacyResourcesCard";
 import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
-import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
-import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
-import { ProgressOverTimeCard } from "@/components/progress/ProgressOverTimeCard";
-import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
-import { TrustCenterCard } from "@/components/trust/TrustCenterCard";
-import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
-import { PriorityBriefing } from "@/components/role/PriorityBriefing";
 
 const role = getDemoRole("family");
 
@@ -27,30 +17,7 @@ export const Route = createFileRoute("/demo_/family")({
   component: () => (
     <RolePreviewShell
       role={role}
-      extras={
-        <>
-          <PriorityBriefing role="family" />
-          <RoleOnboardingChecklist role="family" />
-          <DocumentReadinessMeter />
-          {/* Same at-a-glance workspace shown on the signed-in family
-              dashboard — every tile has a Preview drawer with polished
-              loading / empty / error / permission / ready variants. */}
-          <ParentOverviewGrid isSample />
-          <CollaborationFlags
-            flags={[
-              { key: "parent_input" },
-              { key: "document_review" },
-              { key: "partner_match" },
-            ]}
-          />
-          <ProgressOverTimeCard studentName="Jordan" />
-          <DocumentSignalsCard />
-          <TrustCenterCard studentName="Jordan" />
-          <IepTranslatorCard isSample />
-          <FamilyMeetingPrepCard isSample />
-          <AdvocacyResourcesCard isSample />
-        </>
-      }
+      workspace={<ParentOverviewGrid isSample />}
     />
   ),
 });
