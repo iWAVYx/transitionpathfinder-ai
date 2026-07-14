@@ -58,7 +58,7 @@ export function CardGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-4 sm:gap-5 lg:gap-6 auto-rows-fr",
+        "grid grid-cols-1 gap-dashboard-sm sm:gap-dashboard-md lg:gap-dashboard-lg auto-rows-fr",
         smClass,
         lgClass,
         centerLastSm,
