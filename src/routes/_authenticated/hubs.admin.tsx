@@ -32,8 +32,6 @@ function HubPage() {
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Activity / Next Steps"
-        <DashboardSection
-          eyebrow="Activity / Next Steps"
           title="Platform Next Actions"
           description="Reviews, approvals, and platform health items that need admin attention."
           gap="tight"
