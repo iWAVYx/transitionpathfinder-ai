@@ -147,6 +147,7 @@ export function DashboardErrorFallback({
     <main
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       data-testid={copy.testId}
+      data-auth-state="ready"
       className="mx-auto flex min-h-[70vh] w-full max-w-3xl flex-col justify-center px-4 py-16 sm:px-6"
     >
       <p
