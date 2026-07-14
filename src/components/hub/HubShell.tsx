@@ -67,7 +67,7 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
       </header>
 
       {/* Role dashboard body (OverviewGrid + status cards + StageJourneyCard). */}
-      <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">{children}</div>
+      <div className="mt-8 space-y-dashboard-xl sm:mt-10">{children}</div>
 
       {/* Optional spokes — only for hubs without a polished OverviewGrid. */}
       {!hideSpokes && (
