@@ -4,7 +4,6 @@ import {
   Sparkles,
   Shield,
   CheckCircle2,
-  Target,
   FileText,
 } from "lucide-react";
 import type { DemoRolePreview } from "@/lib/demo/role-previews";
