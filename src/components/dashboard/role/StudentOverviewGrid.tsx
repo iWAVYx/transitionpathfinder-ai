@@ -139,6 +139,7 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
           <StudentTile
             key={tile.featureId}
             tile={tile}
+            isSample={isSample}
             onPreview={() => setOpenFeature(tile.featureId)}
           />
         ))}
