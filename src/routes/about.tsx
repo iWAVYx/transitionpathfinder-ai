@@ -104,18 +104,21 @@ function CinematicHero() {
       >
         <div className="mb-3 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-white/60 sm:mb-6">
           <span className="h-px w-8 bg-white/40" />
-          A founder story
+          About Transition Forward
           <span className="h-px w-8 bg-white/40" />
         </div>
         <h1 className="font-serif text-[clamp(2rem,9vw,10rem)] font-light leading-[0.95] tracking-tight">
-          <SplitReveal text="From paperwork" />
+          <SplitReveal text="A Clearer Way" />
           <span className="block italic text-white/80">
-            <SplitReveal text="to possibility." delay={0.25} />
+            <SplitReveal text="To Move Forward." delay={0.25} />
           </span>
         </h1>
         <p className="mt-5 max-w-xl text-base text-white/75 sm:mt-8 sm:text-lg">
-          The story of a special educator from Connecticut, and the platform built from
-          everything he kept seeing between the binder and the bus.
+          Transition Forward was built for the moments when planning for life after school
+          feels too important to be scattered across emails, PDFs, meetings, and memory. It
+          gives students, families, educators, schools, districts, and partners a shared
+          place to prepare, collaborate, and keep track of the steps that shape a student's
+          future.
         </p>
       </motion.div>
 
