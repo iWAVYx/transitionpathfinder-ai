@@ -231,9 +231,10 @@ export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean 
   );
 }
 
-function EducatorTile({ tile, onPreview }: { tile: Tile; onPreview: () => void }) {
+function EducatorTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
   const Icon = tile.icon;
   const detail = EDUCATOR_FEATURE_DETAILS[tile.featureId];
+  const ctaTo = isSample ? resolveDemoFeatureRoute("educator", tile.featureId) : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
       <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
