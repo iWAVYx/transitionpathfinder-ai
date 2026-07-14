@@ -183,6 +183,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
           <SchoolAdminTile
             key={tile.featureId}
             tile={tile}
+            isSample={isSample}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
