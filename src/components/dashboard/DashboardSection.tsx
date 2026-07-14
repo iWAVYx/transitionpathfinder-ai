@@ -1,10 +1,17 @@
 import type { ReactNode } from "react";
 
 /**
- * DashboardSection — lightweight grouping wrapper used outside the approved
- * Workspace section on each role hub. Renders a compact eyebrow + optional
- * title/description so stacked cards read as intentional dashboard zones
- * instead of a wall of tiles. Purely presentational — no data, no CTAs.
+ * DashboardSection — lightweight grouping wrapper used *outside* the
+ * approved Workspace section on each role hub.
+ *
+ * Design intent: this should read as a quiet "zone divider" — a small
+ * eyebrow + heading + hairline — not another card. Its children are
+ * usually cards themselves; wrapping them in a second card produced the
+ * card-in-card / stacked-box feel the dashboard redesign is trying to
+ * kill. Keep this component visually flat.
+ *
+ * Use `surface="card"` only when a real container is genuinely needed
+ * (rare — e.g. a group of loose rows that need a boundary).
  */
 export interface DashboardSectionProps {
   eyebrow: string;
@@ -14,14 +21,20 @@ export interface DashboardSectionProps {
   children: ReactNode;
   /** Optional slot rendered on the right of the header row (e.g. link). */
   action?: ReactNode;
-  /** Inner spacing between direct children (default: 5). */
+  /** Inner spacing between direct children (default: 4). */
   gap?: "tight" | "default" | "loose";
+  /**
+   * Visual weight of the section wrapper. Default is `flat` — a hairline
+   * header with no surrounding card, so child cards read cleanly. Use
+   * `card` only when the children are loose rows that need containment.
+   */
+  surface?: "flat" | "card";
 }
 
 const GAP_CLASS: Record<NonNullable<DashboardSectionProps["gap"]>, string> = {
   tight: "space-y-3",
-  default: "space-y-5",
-  loose: "space-y-8",
+  default: "space-y-4",
+  loose: "space-y-6",
 };
 
 export function DashboardSection({
@@ -30,25 +43,28 @@ export function DashboardSection({
   description,
   action,
   gap = "default",
+  surface = "flat",
   children,
 }: DashboardSectionProps) {
+  const wrapperClass =
+    surface === "card"
+      ? "rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5"
+      : "";
+
   return (
-    <section
-      aria-label={title ?? eyebrow}
-      className="rounded-2xl border border-border/40 bg-muted/20 p-4 shadow-[0_1px_0_0_hsl(var(--border)/0.5)] sm:p-5"
-    >
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-2 border-b border-border/40 pb-3">
+    <section aria-label={title ?? eyebrow} className={wrapperClass}>
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-2 border-b border-border/50 pb-2">
         <div className="min-w-0">
           <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-primary">
             {eyebrow}
           </p>
           {title ? (
-            <h2 className="mt-1 font-display text-base font-semibold tracking-tight text-foreground sm:text-lg">
+            <h2 className="mt-0.5 font-display text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
               {title}
             </h2>
           ) : null}
           {description ? (
-            <p className="mt-1 max-w-2xl text-[12.5px] leading-snug text-muted-foreground">
+            <p className="mt-0.5 max-w-2xl text-[12.5px] leading-snug text-muted-foreground">
               {description}
             </p>
           ) : null}
