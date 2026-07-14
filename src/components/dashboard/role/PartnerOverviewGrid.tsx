@@ -167,6 +167,7 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
           <PartnerTile
             key={tile.featureId}
             tile={tile}
+            isSample={isSample}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
