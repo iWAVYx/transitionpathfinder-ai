@@ -192,8 +192,8 @@ export function RolePreviewShell({
           workspace dashboard directly beneath the hero. Visually claimed
           as the primary work area so subsequent zones read as secondary. */}
       {workspaceContent ? (
-        <PageSection spacing="tight">
-          <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] py-5 sm:py-6">
+        <PageSection spacing="none">
+          <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] pt-0 pb-5 sm:pb-6">
             <div data-preserve-workspace-internals>{workspaceContent}</div>
           </section>
         </PageSection>
