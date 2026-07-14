@@ -72,6 +72,12 @@ function HubPage() {
                 description: "Board-ready reports and downloadable rollups.",
                 to: "/district/reports",
               },
+              {
+                icon: History,
+                title: "Records & Disclosure History",
+                description: "Per-student audit trail for compliance review and FERPA disclosure logging.",
+                to: "/district/history",
+              },
             ]}
           />
         </DashboardSection>
