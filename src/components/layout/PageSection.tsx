@@ -36,10 +36,10 @@ export function PageSection({
     spacing === "none"
       ? ""
       : spacing === "tight"
-        ? "py-6 sm:py-8"
+        ? "py-4 sm:py-6"
         : spacing === "loose"
           ? "py-14 sm:py-20"
-          : "py-10 sm:py-14";
+          : "py-8 sm:py-12";
   const Component = Tag as any;
   return (
     <Component
