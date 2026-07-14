@@ -25,6 +25,7 @@ import {
   SCHOOL_ADMIN_FEATURE_DETAILS,
   type SchoolAdminFeatureId,
 } from "@/lib/demo/school-admin/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: SchoolAdminFeatureId;
@@ -182,6 +183,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
           <SchoolAdminTile
             key={tile.featureId}
             tile={tile}
+            isSample={isSample}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
@@ -233,9 +235,10 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
   );
 }
 
-function SchoolAdminTile({ tile, onPreview }: { tile: Tile; onPreview: () => void }) {
+function SchoolAdminTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
   const Icon = tile.icon;
   const detail = SCHOOL_ADMIN_FEATURE_DETAILS[tile.featureId];
+  const ctaTo = isSample ? resolveDemoFeatureRoute("school-admin", tile.featureId) : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
       <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
@@ -274,7 +277,7 @@ function SchoolAdminTile({ tile, onPreview }: { tile: Tile; onPreview: () => voi
           <Eye className="h-3.5 w-3.5" aria-hidden /> Preview
         </button>
         <Link
-          to={tile.cta.to as string}
+          to={ctaTo}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
           {toTitleCase(tile.cta.label)}
