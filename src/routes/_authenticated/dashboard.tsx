@@ -1130,8 +1130,8 @@ function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-10 mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <QuickLink to="/pathway" icon={<Sparkles className="h-5 w-5" />} title="Pathway Tool" body="Generate or refresh the Pathway Report." />
+          <div className="mt-10 mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Pathway Tool QuickLink removed — duplicate of the Pathway Report Panel's Generate/Update report CTA above (both go to /pathway). */}
             <QuickLink to="/ppt-prep" icon={<ClipboardList className="h-5 w-5" />} title="PPT Prep" body="A calm one-page agenda and questions for the team." />
             <QuickLink to="/goals" icon={<Target className="h-5 w-5" />} title="Goals" body="Track progress across every domain over time." />
             {s.grade_band === "6-8" ? (
