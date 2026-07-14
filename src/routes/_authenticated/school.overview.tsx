@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { withRoleGuard } from "@/components/withRoleGuard";
 import { Users, GraduationCap, FileText, FolderOpen, Mail, ArrowRight, ShieldAlert } from "lucide-react";
 
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
@@ -15,11 +14,19 @@ import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
+// School Overview intentionally does NOT wrap the component in `withRoleGuard`
+// on top of `SchoolPageShell` — SchoolPageShell already renders the semantic
+// <main> and gates its inner content with <RoleGuard>. Double-wrapping caused
+// the outer guard's fallback <main> to swap with the shell's <main> during
+// the auth-check → allowed transition, which on the mobile viewport left
+// Playwright without a visible <main> to attach to. `beforeLoad` +
+// SchoolPageShell's inner RoleGuard already provide defense-in-depth on top
+// of RLS.
 export const Route = createFileRoute("/_authenticated/school/overview")({
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   errorComponent: dashboardErrorComponent("school_admin"),
-  component: withRoleGuard(["school_admin", "admin"], SchoolOverviewPage),
+  component: SchoolOverviewPage,
 });
 
 function SchoolOverviewPage() {
