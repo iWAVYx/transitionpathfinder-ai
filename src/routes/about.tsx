@@ -27,6 +27,10 @@ import {
   ClipboardList,
   ShieldCheck,
   NotebookPen,
+  Database,
+  Lock,
+  Eye,
+  Scale,
   type LucideIcon,
 } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
