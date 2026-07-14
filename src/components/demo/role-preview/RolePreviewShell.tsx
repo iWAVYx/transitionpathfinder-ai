@@ -301,20 +301,32 @@ function TripleCard({
   icon,
   title,
   items,
+  step,
 }: {
   icon: React.ReactNode;
   title: string;
   items: string[];
+  step?: string;
 }) {
   return (
-    <div className="flex h-full flex-col rounded-3xl border bg-card p-4 shadow-soft">
-      <div className="flex items-center gap-2 border-b border-border/60 pb-2">
-        <span className="text-primary">{icon}</span>
-        <h3 className="font-display text-base">{title}</h3>
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <div className="flex items-center justify-between gap-2 px-4 pt-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            {icon}
+          </span>
+          <h3 className="font-display text-[15px] tracking-tight">{title}</h3>
+        </div>
+        {step && (
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground ring-1 ring-border">
+            {step}
+          </span>
+        )}
       </div>
-      <ul className="mt-2.5 space-y-1.5">
+      <ul className="mt-2 space-y-1.5 px-4 pb-4">
         {items.map((i) => (
-          <li key={i} className="flex items-start gap-2 text-sm">
+          <li key={i} className="flex items-start gap-2 text-sm text-foreground/85">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
             <span>{i}</span>
           </li>
