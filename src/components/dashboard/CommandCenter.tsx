@@ -118,13 +118,6 @@ export function CommandZone({
 export function WorkspaceZone({ children }: { children: React.ReactNode }) {
   return (
     <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] py-5 sm:py-6">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-primary/15 pb-3">
-        <div>
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary">Workspace</p>
-          <h2 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">Your Role Dashboard</h2>
-        </div>
-        <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Primary work area</span>
-      </div>
       <div data-preserve-workspace-internals>{children}</div>
     </section>
   );
