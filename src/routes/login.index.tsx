@@ -1,11 +1,11 @@
-import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { Sparkles, ShieldCheck, HeartHandshake, Compass } from "lucide-react";
+import { Sparkles, ShieldCheck, HeartHandshake, Compass, ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
