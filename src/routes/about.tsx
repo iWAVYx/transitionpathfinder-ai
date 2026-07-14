@@ -1153,7 +1153,6 @@ function AboutPage() {
   // touch unused imports so they're tree-shaken cleanly without warning
   void collageImg;
   void studentCenter;
-  void studentPhoto;
 
   return (
     <SiteShell>
@@ -1161,8 +1160,11 @@ function AboutPage() {
         <CinematicHero />
         <PinnedStory />
         <FounderMessage />
+        <AheadBesideBehind />
         <JourneyPath />
+        <StudentCentered />
         <Transformation />
+        <EcosystemAndCare />
         <ClosingCTA />
       </article>
     </SiteShell>
