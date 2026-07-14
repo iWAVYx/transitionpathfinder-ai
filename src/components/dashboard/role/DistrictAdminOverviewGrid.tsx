@@ -23,6 +23,7 @@ import {
   DISTRICT_ADMIN_FEATURE_DETAILS,
   type DistrictAdminFeatureId,
 } from "@/lib/demo/district-admin/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: DistrictAdminFeatureId;
