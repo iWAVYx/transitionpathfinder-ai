@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
@@ -24,11 +25,14 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("student-planning")!} hideSpokes>
         <StudentOverviewGrid />
-        <div className="mt-8">
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where you are on the transition timeline and what comes next."
+        >
           <StageJourneyCard audience="student" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );
 }
-
