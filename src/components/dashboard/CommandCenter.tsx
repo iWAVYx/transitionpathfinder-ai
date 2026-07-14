@@ -82,7 +82,7 @@ export function CommandRows({ rows }: { rows: CommandRow[] }) {
         return (
           <li key={`${row.label}-${row.to ?? row.value ?? "row"}`}>
             {row.to ? (
-              <Link to={row.to} className="group flex min-h-12 items-center gap-2 py-2.5 transition hover:bg-muted/35 sm:px-2">
+              <Link to={row.to as never} className="group flex min-h-12 items-center gap-2 py-2.5 transition hover:bg-muted/35 sm:px-2">
                 {content}
               </Link>
             ) : (
@@ -111,6 +111,21 @@ export function CommandZone({
         <h2 className="mt-0.5 font-display text-base font-semibold tracking-tight">{title}</h2>
       </header>
       {children}
+    </section>
+  );
+}
+
+export function WorkspaceZone({ children }: { children: React.ReactNode }) {
+  return (
+    <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] py-5 sm:py-6">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-primary/15 pb-3">
+        <div>
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary">Workspace</p>
+          <h2 className="font-display text-lg tracking-tight">Your Role Dashboard</h2>
+        </div>
+        <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Primary work area</span>
+      </div>
+      <div data-preserve-workspace-internals>{children}</div>
     </section>
   );
 }
