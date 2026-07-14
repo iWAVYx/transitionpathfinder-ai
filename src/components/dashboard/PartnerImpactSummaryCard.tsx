@@ -60,7 +60,6 @@ export function PartnerImpactSummaryCard({ orgId }: { orgId: string }) {
           title="No Impact Recorded Yet"
           description="Post an opportunity and log participation after each session — cumulative events and student reach will populate here for your board and funders."
           primaryAction={{ label: "Post An Opportunity", to: "/opportunities" }}
-          secondaryAction={{ label: "Open Partner Report", to: "/partners-manage/impact" }}
           className="mt-3"
         />
       ) : (
