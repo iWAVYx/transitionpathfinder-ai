@@ -1,14 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RolePreviewShell } from "@/components/demo/role-preview/RolePreviewShell";
 import { getDemoRole } from "@/lib/demo/role-previews";
-import { EvidenceReviewCard } from "@/components/dashboard/EvidenceReviewCard";
-import { DataGapsCard } from "@/components/dashboard/DataGapsCard";
-import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
-import { EDUCATOR_NEXT_ACTIONS } from "@/lib/dashboard/educator-next-actions";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
-import { ReadinessHeatmap } from "@/components/dashboard/ReadinessHeatmap";
-import { RoleOnboardingChecklist } from "@/components/onboarding/RoleOnboardingChecklist";
-import { PriorityBriefing } from "@/components/role/PriorityBriefing";
 
 const role = getDemoRole("educator");
 
@@ -24,22 +17,7 @@ export const Route = createFileRoute("/demo_/educator")({
   component: () => (
     <RolePreviewShell
       role={role}
-      extras={
-        <>
-          <PriorityBriefing role="educator" />
-          <RoleOnboardingChecklist role="educator" />
-          <ReadinessHeatmap />
-          <EducatorOverviewGrid isSample />
-          <EvidenceReviewCard isSample />
-          <DataGapsCard isSample />
-          <NextStepsTimeline
-            data={EDUCATOR_NEXT_ACTIONS}
-            eyebrow="Educator 30 / 90 / 180 / 365-Day Plan"
-            title="Your Caseload Next Actions"
-            description="The educator-owned actions that keep every Pathway Report defensible and every PPT on schedule."
-          />
-        </>
-      }
+      workspace={<EducatorOverviewGrid isSample />}
     />
   ),
 });
