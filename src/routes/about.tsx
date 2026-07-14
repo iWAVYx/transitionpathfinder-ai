@@ -9,7 +9,26 @@ import {
   AnimatePresence,
   type MotionValue,
 } from "motion/react";
-import { ArrowRight, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  MapPin,
+  CalendarClock,
+  Handshake,
+  Presentation,
+  BookMarked,
+  Gauge,
+  LayoutDashboard,
+  Mic,
+  Users,
+  Target,
+  ListChecks,
+  FileText,
+  History,
+  ClipboardList,
+  ShieldCheck,
+  NotebookPen,
+  type LucideIcon,
+} from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
