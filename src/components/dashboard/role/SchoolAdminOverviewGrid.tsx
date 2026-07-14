@@ -25,6 +25,7 @@ import {
   SCHOOL_ADMIN_FEATURE_DETAILS,
   type SchoolAdminFeatureId,
 } from "@/lib/demo/school-admin/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: SchoolAdminFeatureId;
