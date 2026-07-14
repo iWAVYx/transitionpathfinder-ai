@@ -107,8 +107,8 @@ export function CommandZone({
   return (
     <section aria-label={title} className="space-y-3">
       <header className="border-b border-border/60 pb-2">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">{eyebrow}</p>
-        <h2 className="mt-0.5 font-display text-base font-semibold tracking-tight">{title}</h2>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">{eyebrow}</p>
+        <h2 className="mt-1 font-display text-lg font-semibold tracking-tight sm:text-xl">{title}</h2>
       </header>
       {children}
     </section>
@@ -121,7 +121,7 @@ export function WorkspaceZone({ children }: { children: React.ReactNode }) {
       <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-primary/15 pb-3">
         <div>
           <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary">Workspace</p>
-          <h2 className="font-display text-lg tracking-tight">Your Role Dashboard</h2>
+          <h2 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">Your Role Dashboard</h2>
         </div>
         <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Primary work area</span>
       </div>

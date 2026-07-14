@@ -74,16 +74,16 @@ export function DashboardSection({
     <section aria-label={title ?? eyebrow} className={wrapperClass}>
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2 border-b border-border/50 pb-2">
         <div className="min-w-0">
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
             {eyebrow}
           </p>
           {title ? (
-            <h2 className="mt-0.5 font-display text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
+            <h2 className="mt-1 font-display text-lg font-semibold tracking-tight text-foreground sm:text-xl">
               {title}
             </h2>
           ) : null}
           {description ? (
-            <p className="mt-0.5 max-w-2xl text-[12.5px] leading-snug text-muted-foreground">
+            <p className="mt-1 max-w-2xl text-sm leading-snug text-muted-foreground sm:text-base">
               {description}
             </p>
           ) : null}

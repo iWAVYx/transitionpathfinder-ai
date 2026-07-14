@@ -70,17 +70,17 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
       <header className="border-b border-border/70 pb-5">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               <Compass className="h-3 w-3" aria-hidden /> Role Workspace
             </p>
-            <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-[26px]">
+            <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
               {toTitleCase(hub.title)}
             </h1>
-            <p className="mt-1 max-w-3xl text-[13px] leading-snug text-foreground/80">
+            <p className="mt-2 max-w-3xl text-sm leading-snug text-foreground/80 sm:text-base">
               <span className="font-medium text-foreground">{hub.who}</span>{" "}
               <span className="text-muted-foreground">{hub.problem}</span>
             </p>
-            <p className="mt-2 inline-flex items-center gap-1.5 border-l border-primary/30 pl-2.5 text-[11px] text-foreground/80">
+            <p className="mt-3 inline-flex items-center gap-1.5 border-l border-primary/30 pl-2.5 text-xs text-foreground/80 sm:text-sm">
               <FileText className="h-3 w-3 text-primary" aria-hidden />
               {hub.pathwayConnection}
             </p>
