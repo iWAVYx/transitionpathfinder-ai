@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FileSearch, AlertTriangle, ListChecks, CalendarClock, Users2 } from "lucide-react";
+import { FileSearch, AlertTriangle, ListChecks, CalendarClock, Users2, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
