@@ -104,9 +104,8 @@ function DemoHub() {
             })}
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Platform Owner / Admin isn't shown here — it's internal operations, not a
-            customer-facing role. Signed-in admins can visit{" "}
-            <Link to="/owner/demo" className="underline">Admin Hub → Demo Mode</Link>.
+            Platform Owner / Admin isn't shown here — it's internal operations,
+            not a customer-facing role.
           </p>
         </section>
 
