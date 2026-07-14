@@ -24,6 +24,7 @@ import {
   PARTNER_FEATURE_DETAILS,
   type PartnerFeatureId,
 } from "@/lib/demo/partner/feature-details";
+import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
   featureId: PartnerFeatureId;
