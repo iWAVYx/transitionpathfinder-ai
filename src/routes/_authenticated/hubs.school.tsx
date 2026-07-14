@@ -32,6 +32,7 @@ function HubPage() {
           eyebrow="Operational Signals"
           title="Compliance, Evidence & Caseload"
           description="School-level rollups of Indicator 13 compliance, transition evidence, and caseload activity."
+          layout="grid-3"
         >
           <ComplianceOverviewCard isSample />
           <TransitionEvidenceCard isSample />
