@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
 import { getHub } from "@/lib/hubs/registry";
@@ -23,12 +24,20 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("platform-operations")!}>
-        <div className="mt-8">
+        <DashboardSection
+          eyebrow="Platform Readiness"
+          title="Launch Readiness Board"
+          description="Cross-role rollout, adoption, and support signals."
+        >
           <LaunchReadinessBoard />
-        </div>
-        <div className="mt-8">
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where the platform sits across the transition rollout lifecycle."
+        >
           <StageJourneyCard audience="admin" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );

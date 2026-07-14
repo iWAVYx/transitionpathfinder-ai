@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
 import { DistrictComplianceCard } from "@/components/dashboard/DistrictComplianceCard";
@@ -27,12 +28,22 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("district-strategy")!} hideSpokes>
         <DistrictAdminOverviewGrid />
-        <DistrictComplianceCard isSample />
-        <DistrictEvidenceCoverageCard isSample />
-        <DistrictTrendMetricsCard isSample />
-        <div className="mt-8">
+        <DashboardSection
+          eyebrow="District Signals"
+          title="Compliance, Coverage & Trends"
+          description="Aggregate rollups across schools — no student PII, just readiness and adoption signals."
+        >
+          <DistrictComplianceCard isSample />
+          <DistrictEvidenceCoverageCard isSample />
+          <DistrictTrendMetricsCard isSample />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where your district is on the transition strategy rollout."
+        >
           <StageJourneyCard audience="district_admin" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
 import { ComplianceOverviewCard } from "@/components/dashboard/ComplianceOverviewCard";
@@ -27,12 +28,22 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("school-implementation")!} hideSpokes>
         <SchoolAdminOverviewGrid />
-        <ComplianceOverviewCard isSample />
-        <TransitionEvidenceCard isSample />
-        <CaseloadRollupsCard isSample />
-        <div className="mt-8">
+        <DashboardSection
+          eyebrow="Operational Signals"
+          title="Compliance, Evidence & Caseload"
+          description="School-level rollups of Indicator 13 compliance, transition evidence, and caseload activity."
+        >
+          <ComplianceOverviewCard isSample />
+          <TransitionEvidenceCard isSample />
+          <CaseloadRollupsCard isSample />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where your building is on the transition implementation timeline."
+        >
           <StageJourneyCard audience="school_admin" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );

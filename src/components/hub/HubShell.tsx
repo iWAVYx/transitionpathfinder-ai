@@ -96,10 +96,30 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
             </Link>
           </div>
         </div>
+        {/* Compact overview strip — derived from the hub definition, no fabricated data. */}
+        <dl className="grid grid-cols-3 divide-x divide-primary/10 border-t border-primary/10 bg-background/40">
+          {[
+            { label: "Feature Areas", value: hub.spokes.length },
+            { label: "Feeds Pathway Report", value: hub.spokes.filter((s) => s.feedsReport).length },
+            { label: "Related Hubs", value: hub.related.length },
+          ].map((stat) => (
+            <div key={stat.label} className="px-3 py-2 sm:px-4 sm:py-2.5">
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {stat.label}
+              </dt>
+              <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-foreground">
+                {stat.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </header>
 
-      {/* Role dashboard body (OverviewGrid + status cards + StageJourneyCard). */}
-      <div className="mt-6 space-y-dashboard-lg sm:mt-8">{children}</div>
+      {/* Role dashboard body. Clear separation between the approved Workspace
+          section and the surrounding dashboard zones — larger vertical
+          rhythm so sections read as distinct rather than one long stack. */}
+      <div className="mt-6 space-y-8 sm:mt-8 sm:space-y-10">{children}</div>
+
 
       {/* Optional spokes — only for hubs without a polished OverviewGrid. */}
       {!hideSpokes && (
