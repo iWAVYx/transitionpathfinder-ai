@@ -82,6 +82,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
+            type="button"
+            aria-label="Try loading this page again"
             onClick={() => {
               router.invalidate();
               reset();
