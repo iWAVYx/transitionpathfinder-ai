@@ -32,6 +32,7 @@ function HubPage() {
           eyebrow="District Signals"
           title="Compliance, Coverage & Trends"
           description="Aggregate rollups across schools — no student PII, just readiness and adoption signals."
+          layout="grid-3"
         >
           <DistrictComplianceCard isSample />
           <DistrictEvidenceCoverageCard isSample />
