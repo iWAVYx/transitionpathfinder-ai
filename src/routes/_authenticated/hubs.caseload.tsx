@@ -33,6 +33,7 @@ function HubPage() {
           eyebrow="Caseload Signals"
           title="Evidence & Data Gaps"
           description="Priority reviews and missing inputs across your caseload."
+          layout="grid-2"
         >
           <EvidenceReviewCard isSample />
           <DataGapsCard isSample />
