@@ -32,16 +32,16 @@ const TONE: Record<NonNullable<DashboardRow["tone"]>, string> = {
 
 export function DashboardRowList({ rows }: { rows: DashboardRow[] }) {
   return (
-    <ul className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/60 bg-background/40">
+    <ul className="divide-y divide-border/60 border-y border-border/70">
       {rows.map((row) => {
         const Icon = row.icon;
         return (
           <li key={row.title}>
             <Link
               to={row.to}
-              className="group flex items-center gap-3 px-3 py-2.5 transition hover:bg-muted/50 sm:px-4 sm:py-3"
+              className="group flex items-center gap-3 py-2.5 transition hover:bg-muted/35 sm:px-2 sm:py-3"
             >
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/15">
+              <span className="grid h-8 w-8 shrink-0 place-items-center text-primary">
                 <Icon className="h-4 w-4" aria-hidden />
               </span>
               <span className="min-w-0 flex-1">

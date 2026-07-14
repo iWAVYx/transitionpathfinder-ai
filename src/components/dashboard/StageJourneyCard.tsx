@@ -61,7 +61,7 @@ export function StageJourneyCard({
       aria-label="Your transition journey"
       data-testid="stage-journey-card"
       className={cn(
-        "rounded-3xl border bg-card p-5 shadow-soft sm:p-6",
+        "border-y border-border/70 py-5 sm:py-6",
         className,
       )}
     >
@@ -134,7 +134,7 @@ function StageRow({
         <span
           aria-hidden
           className={cn(
-            "relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 text-[11px] font-semibold uppercase tracking-[0.16em]",
+            "relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border text-[11px] font-semibold uppercase tracking-[0.16em]",
             isDone && "border-primary bg-primary text-primary-foreground",
             isCurrent && "border-primary bg-background text-primary",
             !isDone && !isCurrent && "border-border bg-background text-muted-foreground",
