@@ -43,7 +43,7 @@ export function OpportunityStatusStats({ opps }: { opps: Opp[] }) {
           title="No Opportunities Yet"
           description="Draft an opportunity to describe the role, cadence, and eligibility. Submit for review to appear in family- and student-facing search."
           primaryAction={{ label: "Post An Opportunity", to: "/partners-manage" }}
-          secondaryAction={{ label: "Open Partner Report", to: "/partners-manage/impact" }}
+          secondaryAction={{ label: "Open Deadlines", to: "/partners-manage/deadlines" }}
           className="mt-3"
         />
       ) : (
