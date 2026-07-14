@@ -58,7 +58,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex min-h-[5.5rem] flex-col justify-between rounded-2xl border bg-card p-4 shadow-soft",
+        "flex min-h-[4.5rem] flex-col justify-between rounded-2xl border bg-card p-3.5 shadow-soft",
         className,
       )}
     >
@@ -66,8 +66,8 @@ export function StatCard({
         {icon}
         <span className="truncate">{label}</span>
       </div>
-      <div className="mt-2 flex items-baseline justify-between gap-2">
-        <p className={cn("font-display text-2xl sm:text-3xl", valueTone)}>{value}</p>
+      <div className="mt-1.5 flex items-baseline justify-between gap-2">
+        <p className={cn("font-display text-xl sm:text-2xl", valueTone)}>{value}</p>
         {hint ? (
           <p className="truncate text-[11px] text-muted-foreground">{hint}</p>
         ) : null}
