@@ -30,7 +30,8 @@ import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist"
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
 import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
-import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 type Props = {
@@ -286,8 +287,14 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           isSample
         />
 
-        {/* 30 / 90 / 180 / 365-day timeline */}
-        <NextStepsTimeline />
+        {/* Interactive Next Actions */}
+        <NextActionCard
+          actions={DEMO_NEXT_ACTIONS.student}
+          recentlyCompleted={DEMO_RECENTLY_COMPLETED.student}
+          historyRoute="/family/history"
+          suggestionLabel="Open Student Voice"
+          suggestionRoute="/student-voice"
+        />
 
         {/* Latest report */}
         <section className="mt-6 border-y border-border/70 py-5">

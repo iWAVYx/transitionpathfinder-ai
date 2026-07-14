@@ -8,8 +8,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
-import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
-import { PARTNER_OUTREACH_ACTIONS } from "@/lib/dashboard/partner-outreach-actions";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -85,15 +85,19 @@ function HubPage() {
         </DashboardSection>
         <DashboardSection
           eyebrow="Activity / Next Steps"
-          title="30 / 90 / 180 / 365-Day Outreach"
-          description="The outreach and delivery moves that keep opportunities filled."
+          title="Your Partner Next Actions"
+          description="Ranked by urgency — publish gaps, pending matches, and profile items surface first."
           gap="tight"
         >
-          <NextStepsTimeline
-            data={PARTNER_OUTREACH_ACTIONS}
-            eyebrow="Partner 30 / 90 / 180 / 365-Day Outreach"
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.partner}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.partner}
+            historyRoute="/partner/history"
             title="Your Partner Next Actions"
-            description="The outreach + delivery moves that keep opportunities filled, students supported, and outcomes reported."
+            eyebrow="What Needs Attention"
+            description="The outreach and delivery moves that keep opportunities filled and outcomes reported."
+            suggestionLabel="Manage Opportunities"
+            suggestionRoute="/partners-manage/opportunities"
           />
         </DashboardSection>
         <DashboardSection
