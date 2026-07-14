@@ -194,6 +194,7 @@ import { Route as AuthenticatedDistrictReadinessTrendsRouteImport } from './rout
 import { Route as AuthenticatedDistrictProgressRouteImport } from './routes/_authenticated/district.progress'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as AuthenticatedDistrictImplementationRouteImport } from './routes/_authenticated/district.implementation'
+import { Route as AuthenticatedDistrictHistoryRouteImport } from './routes/_authenticated/district.history'
 import { Route as AuthenticatedBridgeforwardVoiceRouteImport } from './routes/_authenticated/bridgeforward.voice'
 import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes/_authenticated/bridgeforward.snapshot'
 import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
@@ -1220,6 +1221,12 @@ const AuthenticatedDistrictImplementationRoute =
     path: '/district/implementation',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDistrictHistoryRoute =
+  AuthenticatedDistrictHistoryRouteImport.update({
+    id: '/district/history',
+    path: '/district/history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBridgeforwardVoiceRoute =
   AuthenticatedBridgeforwardVoiceRouteImport.update({
     id: '/bridgeforward/voice',
@@ -1392,6 +1399,7 @@ export interface FileRoutesByFullPath {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
@@ -1589,6 +1597,7 @@ export interface FileRoutesByTo {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
@@ -1790,6 +1799,7 @@ export interface FileRoutesById {
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/_authenticated/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/_authenticated/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/_authenticated/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/_authenticated/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/_authenticated/district/progress': typeof AuthenticatedDistrictProgressRoute
@@ -1991,6 +2001,7 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/district/history'
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
@@ -2188,6 +2199,7 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/district/history'
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
@@ -2388,6 +2400,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bridgeforward/intake'
     | '/_authenticated/bridgeforward/snapshot'
     | '/_authenticated/bridgeforward/voice'
+    | '/_authenticated/district/history'
     | '/_authenticated/district/implementation'
     | '/_authenticated/district/overview'
     | '/_authenticated/district/progress'
@@ -3859,6 +3872,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictImplementationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/district/history': {
+      id: '/_authenticated/district/history'
+      path: '/district/history'
+      fullPath: '/district/history'
+      preLoaderRoute: typeof AuthenticatedDistrictHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/bridgeforward/voice': {
       id: '/_authenticated/bridgeforward/voice'
       path: '/bridgeforward/voice'
@@ -4159,6 +4179,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
   AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
   AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
+  AuthenticatedDistrictHistoryRoute: typeof AuthenticatedDistrictHistoryRoute
   AuthenticatedDistrictImplementationRoute: typeof AuthenticatedDistrictImplementationRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictProgressRoute: typeof AuthenticatedDistrictProgressRoute
@@ -4245,6 +4266,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBridgeforwardSnapshotRoute:
     AuthenticatedBridgeforwardSnapshotRoute,
   AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
+  AuthenticatedDistrictHistoryRoute: AuthenticatedDistrictHistoryRoute,
   AuthenticatedDistrictImplementationRoute:
     AuthenticatedDistrictImplementationRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
