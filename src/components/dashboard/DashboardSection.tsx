@@ -55,12 +55,20 @@ export function DashboardSection({
   action,
   gap = "default",
   surface = "flat",
+  layout = "stack",
   children,
 }: DashboardSectionProps) {
   const wrapperClass =
     surface === "card"
       ? "rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5"
       : "";
+
+  const bodyClass =
+    layout === "grid-2"
+      ? `grid ${GRID_GAP[gap]} md:grid-cols-2`
+      : layout === "grid-3"
+        ? `grid ${GRID_GAP[gap]} md:grid-cols-2 lg:grid-cols-3`
+        : STACK_GAP[gap];
 
   return (
     <section aria-label={title ?? eyebrow} className={wrapperClass}>
@@ -82,7 +90,7 @@ export function DashboardSection({
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      <div className={GAP_CLASS[gap]}>{children}</div>
+      <div className={bodyClass}>{children}</div>
     </section>
   );
 }
