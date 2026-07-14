@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
 import { EvidenceReviewCard } from "@/components/dashboard/EvidenceReviewCard";
@@ -28,17 +29,33 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("caseload-planning")!} hideSpokes>
         <EducatorOverviewGrid />
-        <EvidenceReviewCard isSample />
-        <DataGapsCard isSample />
-        <NextStepsTimeline
-          data={EDUCATOR_NEXT_ACTIONS}
-          eyebrow="Educator 30 / 90 / 180 / 365-Day Plan"
-          title="Your Caseload Next Actions"
+        <DashboardSection
+          eyebrow="Caseload Signals"
+          title="Evidence & Data Gaps"
+          description="Priority reviews and missing inputs across your caseload."
+        >
+          <EvidenceReviewCard isSample />
+          <DataGapsCard isSample />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Next Actions"
+          title="30 / 90 / 180 / 365-Day Plan"
           description="The educator-owned actions that keep every Pathway Report defensible and every PPT on schedule."
-        />
-        <div className="mt-8">
+        >
+          <NextStepsTimeline
+            data={EDUCATOR_NEXT_ACTIONS}
+            eyebrow="Educator 30 / 90 / 180 / 365-Day Plan"
+            title="Your Caseload Next Actions"
+            description="The educator-owned actions that keep every Pathway Report defensible and every PPT on schedule."
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where your caseload is on the transition planning timeline."
+        >
           <StageJourneyCard audience="educator" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );
