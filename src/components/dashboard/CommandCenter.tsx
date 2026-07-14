@@ -117,7 +117,7 @@ export function CommandZone({
 
 export function WorkspaceZone({ children }: { children: React.ReactNode }) {
   return (
-    <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] py-5 sm:py-6">
+    <section aria-label="Workspace" className="border-y border-primary/25 bg-primary/[0.035] pt-0 pb-5 sm:pb-6">
       <div data-preserve-workspace-internals>{children}</div>
     </section>
   );
