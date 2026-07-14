@@ -31,6 +31,7 @@ import {
   Lock,
   Eye,
   Scale,
+  FileCheck,
   type LucideIcon,
 } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
