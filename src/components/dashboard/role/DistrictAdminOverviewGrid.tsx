@@ -216,7 +216,7 @@ function DistrictAdminTile({ tile, onPreview }: { tile: Tile; onPreview: () => v
         </div>
         <span aria-hidden />
         <span
-          className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ring-1 ${toneClass}`}
+          className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider leading-none ring-1 ${toneClass}`}
         >
           {tile.status}
         </span>
