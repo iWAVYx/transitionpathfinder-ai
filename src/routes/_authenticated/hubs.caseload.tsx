@@ -74,6 +74,12 @@ function HubPage() {
                 description: "Full student list with status, plan dates, and shared team members.",
                 to: "/caseload",
               },
+              {
+                icon: History,
+                title: "Records & Access History",
+                description: "Per-student audit trail of document access, uploads, sharing changes, and plan edits.",
+                to: "/educator/history",
+              },
             ]}
           />
         </DashboardSection>
