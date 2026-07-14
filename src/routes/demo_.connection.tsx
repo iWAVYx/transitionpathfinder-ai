@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DEMO_FEATURE_MAP, type DemoElementId } from "@/lib/demo/feature-map";
 import { SiteShell } from "@/components/site/SiteShell";
+import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import {
   PublicationPage,
   PublicationCallout,
@@ -31,6 +32,7 @@ function DemoConnectionPage() {
   const ids = Object.keys(DEMO_FEATURE_MAP) as DemoElementId[];
   return (
     <SiteShell>
+      <DemoRoleLens />
       <div className="demo-shell eh-issue">
         <PublicationPage
           kicker="Internal · Audit"

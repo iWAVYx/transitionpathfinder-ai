@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, Users, ClipboardList, FileText } from "lucide-rea
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
 
 export const Route = createFileRoute("/demo")({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/demo")({
 function DemoHub() {
   return (
     <SiteShell>
+      <DemoRoleLens />
       <div className="container max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 space-y-14 animate-route-in">
 
         {/* HERO */}
@@ -102,9 +104,8 @@ function DemoHub() {
             })}
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Platform Owner / Admin isn't shown here — it's internal operations, not a
-            customer-facing role. Signed-in admins can visit{" "}
-            <Link to="/owner/demo" className="underline">Admin Hub → Demo Mode</Link>.
+            Platform Owner / Admin isn't shown here — it's internal operations,
+            not a customer-facing role.
           </p>
         </section>
 
