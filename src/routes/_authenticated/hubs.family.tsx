@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FileText, Users2, BookOpen, ShieldCheck, HeartHandshake } from "lucide-react";
+import { FileText, Users2, BookOpen, ShieldCheck, HeartHandshake, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
@@ -73,6 +73,12 @@ function HubPage() {
                 title: "Advocacy Resources",
                 description: "Know-your-rights guides, peer networks, and adult-services intake.",
                 to: "/family/resources/recommended",
+              },
+              {
+                icon: History,
+                title: "Access & Activity History",
+                description: "See who viewed, downloaded, edited, or shared your student's plan and documents.",
+                to: "/family/history",
               },
             ]}
           />
