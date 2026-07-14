@@ -45,15 +45,15 @@ export function ToolPreviewCard({
   footer,
 }: ToolPreviewCardProps) {
   return (
-    <div className="group relative flex h-full min-h-[15rem] flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+    <div className="group relative flex h-full min-h-[13rem] flex-col rounded-2xl border border-border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="h-5 w-5" aria-hidden />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+          <Icon className="h-[18px] w-[18px]" aria-hidden />
         </div>
         <span aria-hidden />
         {status ? (
           <span
-            className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ring-1 ${TONE[tone]}`}
+            className={`inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-[11px] font-semibold uppercase tracking-wider leading-none ring-1 ${TONE[tone]}`}
           >
             {status}
           </span>
@@ -61,10 +61,10 @@ export function ToolPreviewCard({
           <span aria-hidden />
         )}
       </div>
-      <h3 className="mt-4 font-display text-lg font-medium tracking-tight">{toTitleCase(title)}</h3>
-      {summary && <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{summary}</p>}
+      <h3 className="mt-3 font-display text-base font-semibold tracking-tight sm:text-lg">{toTitleCase(title)}</h3>
+      {summary && <p className="mt-1 text-sm leading-snug text-muted-foreground">{summary}</p>}
       {bullets && bullets.length > 0 && (
-        <ul className="mt-4 space-y-1.5 text-sm">
+        <ul className="mt-3 space-y-1 text-sm">
           {bullets.slice(0, 3).map((b, i) => (
             <li key={i} className="flex items-baseline justify-between gap-3">
               <span className="text-muted-foreground">{toTitleCase(b.label)}</span>
@@ -76,8 +76,8 @@ export function ToolPreviewCard({
           ))}
         </ul>
       )}
-      {footer && <div className="mt-4">{footer}</div>}
-      <div className="mt-auto pt-5">
+      {footer && <div className="mt-3">{footer}</div>}
+      <div className="mt-auto pt-4">
         <Link
           to={cta.to as string}
           params={cta.params as never}
@@ -110,19 +110,19 @@ export function ToolPreviewSection({
   children: ReactNode;
 }) {
   return (
-    <section className="mt-10 sm:mt-12">
+    <section className="mt-8 sm:mt-10">
       {eyebrow && (
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           {toTitleCase(eyebrow)}
         </p>
       )}
-      <h2 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+      <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
         {toTitleCase(title)}
       </h2>
       {description && (
-        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{description}</p>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
       )}
-      <div className="mt-6 sm:mt-8">{children}</div>
+      <div className="mt-5 sm:mt-6">{children}</div>
     </section>
   );
 }

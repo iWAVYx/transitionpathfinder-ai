@@ -237,20 +237,20 @@ function SchoolAdminTile({ tile, onPreview }: { tile: Tile; onPreview: () => voi
   const Icon = tile.icon;
   const detail = SCHOOL_ADMIN_FEATURE_DETAILS[tile.featureId];
   return (
-    <div className="group relative flex h-full min-h-[17rem] flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
+    <div className="group relative flex h-full min-h-[14rem] flex-col rounded-2xl border border-border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="h-5 w-5" aria-hidden />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+          <Icon className="h-[18px] w-[18px]" aria-hidden />
         </div>
         <span aria-hidden />
         <Pill tone={tile.tone}>{tile.status}</Pill>
       </div>
-      <h3 className="mt-4 font-display text-lg font-medium tracking-tight">
+      <h3 className="mt-3 font-display text-base font-semibold tracking-tight sm:text-lg">
         {toTitleCase(tile.title)}
       </h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{tile.summary}</p>
+      <p className="mt-1 text-sm leading-snug text-muted-foreground">{tile.summary}</p>
       {tile.bullets && (
-        <ul className="mt-4 space-y-1.5 text-sm">
+        <ul className="mt-3 space-y-1 text-sm">
           {tile.bullets.map((b) => (
             <li key={b.label} className="flex items-baseline justify-between gap-3">
               <span className="text-muted-foreground">{toTitleCase(b.label)}</span>
@@ -259,10 +259,10 @@ function SchoolAdminTile({ tile, onPreview }: { tile: Tile; onPreview: () => voi
           ))}
         </ul>
       )}
-      <p className="mt-3 text-[11px] text-muted-foreground">
+      <p className="mt-2.5 text-[11px] text-muted-foreground">
         Preview shows: {detail.rows.length} items · {detail.connectsTo.length} connected tools
       </p>
-      <div className="mt-auto flex items-center justify-between gap-2 pt-5">
+      <div className="mt-auto flex items-center justify-between gap-2 pt-4">
         <button
           type="button"
           onClick={onPreview}

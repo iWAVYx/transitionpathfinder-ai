@@ -33,22 +33,22 @@ interface Props {
  */
 export function HubShell({ hub, children, hideSpokes = false }: Props) {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
       {/* Compact identity banner — one row, one heading. */}
-      <header className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-5 shadow-soft sm:p-6">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <header className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 shadow-soft sm:p-5">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
               <Compass className="h-3.5 w-3.5" aria-hidden /> Role Workspace
             </p>
-            <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
               {toTitleCase(hub.title)}
             </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/80">
+            <p className="mt-1.5 max-w-3xl text-sm leading-snug text-foreground/80">
               <span className="font-medium text-foreground">{hub.who}</span>{" "}
               <span className="text-muted-foreground">{hub.problem}</span>
             </p>
-            <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1 text-[11px] text-foreground/80">
+            <p className="mt-2.5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1 text-[11px] text-foreground/80">
               <FileText className="h-3 w-3 text-primary" aria-hidden />
               {hub.pathwayConnection}
             </p>
@@ -67,28 +67,28 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
       </header>
 
       {/* Role dashboard body (OverviewGrid + status cards + StageJourneyCard). */}
-      <div className="mt-8 space-y-dashboard-xl sm:mt-10">{children}</div>
+      <div className="mt-6 space-y-dashboard-lg sm:mt-8">{children}</div>
 
       {/* Optional spokes — only for hubs without a polished OverviewGrid. */}
       {!hideSpokes && (
-        <section className="mt-12">
+        <section className="mt-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
             What Belongs Here
           </p>
-          <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
             Tools, Resources &amp; Next Steps
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Each card is a real surface in the product. Everything feeds the Pathway Report.
           </p>
-          <div className="mt-6">
+          <div className="mt-5 sm:mt-6">
             <HubSpokeGrid spokes={hub.spokes} />
           </div>
         </section>
       )}
 
       {/* Related rail */}
-      <section className="mt-14">
+      <section className="mt-10">
         <RelatedLinksRail hub={hub} />
       </section>
     </div>
