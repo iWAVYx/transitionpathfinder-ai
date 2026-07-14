@@ -85,6 +85,20 @@ function HubPage() {
         </DashboardSection>
         <DashboardSection
           eyebrow="Activity / Next Steps"
+          title="Your School Next Actions"
+          description="What building leaders need to review, approve, or invite this week."
+          gap="tight"
+        >
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.school_admin}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.school_admin}
+            historyRoute="/school/history"
+            suggestionLabel="Open Readiness Trends"
+            suggestionRoute="/school/readiness-trends"
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where your building is on the implementation timeline."
           gap="tight"
