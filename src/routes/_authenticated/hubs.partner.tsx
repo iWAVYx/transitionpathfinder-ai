@@ -74,6 +74,12 @@ function HubPage() {
                 description: "Your public profile and downloadable materials for schools.",
                 to: "/partners-manage/profile",
               },
+              {
+                icon: History,
+                title: "Connection History",
+                description: "Record of students connected to your org, resources shared, and referrals.",
+                to: "/partner/history",
+              },
             ]}
           />
         </DashboardSection>
