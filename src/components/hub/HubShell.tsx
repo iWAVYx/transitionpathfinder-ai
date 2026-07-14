@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, FileText } from "lucide-react";
 
@@ -23,17 +23,49 @@ interface Props {
 }
 
 /**
+ * Per-role accent palette. Each entry overrides --primary and --accent
+ * inside the hub scope, so every `bg-primary/*`, `text-primary`,
+ * `border-primary/*` and gradient inside the tile primitives shifts to
+ * the role's color. Values are oklch to match the token system.
+ */
+const ROLE_ACCENTS: Record<
+  string,
+  { primary: string; primaryFg: string; accent: string; label: string }
+> = {
+  "student-planning":    { primary: "oklch(0.60 0.14 235)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.90 0.06 230)", label: "student" },
+  "family-planning":     { primary: "oklch(0.60 0.16 15)",  primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 20)",  label: "family" },
+  "caseload-planning":   { primary: "oklch(0.55 0.13 160)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 155)", label: "educator" },
+  "school-implementation":{primary: "oklch(0.55 0.16 290)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 290)", label: "school" },
+  "district-strategy":   { primary: "oklch(0.48 0.16 265)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.92 0.05 265)", label: "district" },
+  "partner-opportunity": { primary: "oklch(0.62 0.15 55)",  primaryFg: "oklch(0.18 0.04 250)",  accent: "oklch(0.92 0.06 55)",  label: "partner" },
+  "platform-operations": { primary: "oklch(0.42 0.05 250)", primaryFg: "oklch(0.99 0.005 220)", accent: "oklch(0.90 0.02 250)", label: "admin" },
+};
+
+/**
  * Shared role-dashboard shell. Renders ONE compact header (identity + next
  * best action + Pathway Report tie-in), then the role's polished dashboard
  * (children), then optional spokes for hubs that don't ship an OverviewGrid.
  *
- * This replaces the older two-block layout (large pillar header + separate
- * spokes grid) that was creating two competing "dashboard" sections per
- * role page.
+ * The outer wrapper scopes `--primary` and `--accent` to the role's color,
+ * so every downstream tile / pill / gradient / button using those tokens
+ * picks up the role tint automatically.
  */
 export function HubShell({ hub, children, hideSpokes = false }: Props) {
+  const accent = ROLE_ACCENTS[hub.id];
+  const style = accent
+    ? ({
+        ["--primary" as string]: accent.primary,
+        ["--primary-foreground" as string]: accent.primaryFg,
+        ["--accent" as string]: accent.accent,
+      } as CSSProperties)
+    : undefined;
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+    <div
+      data-role-accent={accent?.label ?? "default"}
+      style={style}
+      className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pt-6 lg:px-8"
+    >
+
       {/* Command-center header — accent bar + identity + primary action. */}
       <header className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.07] via-background to-accent/[0.06] shadow-sm">
         <span className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-accent/60" aria-hidden />
