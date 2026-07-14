@@ -175,6 +175,7 @@ import { Route as AuthenticatedHubsAdminRouteImport } from './routes/_authentica
 import { Route as AuthenticatedFormsSlugRouteImport } from './routes/_authenticated/forms.$slug'
 import { Route as AuthenticatedFamilyPrioritiesRouteImport } from './routes/_authenticated/family.priorities'
 import { Route as AuthenticatedFamilyInvitesRouteImport } from './routes/_authenticated/family.invites'
+import { Route as AuthenticatedFamilyHistoryRouteImport } from './routes/_authenticated/family.history'
 import { Route as AuthenticatedFamilyConsentRouteImport } from './routes/_authenticated/family.consent'
 import { Route as AuthenticatedFamilyActionItemsRouteImport } from './routes/_authenticated/family.action-items'
 import { Route as AuthenticatedEducatorReadinessGapsRouteImport } from './routes/_authenticated/educator.readiness-gaps'
@@ -1102,6 +1103,12 @@ const AuthenticatedFamilyInvitesRoute =
     path: '/family/invites',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFamilyHistoryRoute =
+  AuthenticatedFamilyHistoryRouteImport.update({
+    id: '/family/history',
+    path: '/family/history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFamilyConsentRoute =
   AuthenticatedFamilyConsentRouteImport.update({
     id: '/family/consent',
@@ -1379,6 +1386,7 @@ export interface FileRoutesByFullPath {
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/family/history': typeof AuthenticatedFamilyHistoryRoute
   '/family/invites': typeof AuthenticatedFamilyInvitesRoute
   '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -1572,6 +1580,7 @@ export interface FileRoutesByTo {
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/family/history': typeof AuthenticatedFamilyHistoryRoute
   '/family/invites': typeof AuthenticatedFamilyInvitesRoute
   '/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -1769,6 +1778,7 @@ export interface FileRoutesById {
   '/_authenticated/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
   '/_authenticated/family/action-items': typeof AuthenticatedFamilyActionItemsRoute
   '/_authenticated/family/consent': typeof AuthenticatedFamilyConsentRoute
+  '/_authenticated/family/history': typeof AuthenticatedFamilyHistoryRoute
   '/_authenticated/family/invites': typeof AuthenticatedFamilyInvitesRoute
   '/_authenticated/family/priorities': typeof AuthenticatedFamilyPrioritiesRoute
   '/_authenticated/forms/$slug': typeof AuthenticatedFormsSlugRoute
@@ -1966,6 +1976,7 @@ export interface FileRouteTypes {
     | '/educator/readiness-gaps'
     | '/family/action-items'
     | '/family/consent'
+    | '/family/history'
     | '/family/invites'
     | '/family/priorities'
     | '/forms/$slug'
@@ -2159,6 +2170,7 @@ export interface FileRouteTypes {
     | '/educator/readiness-gaps'
     | '/family/action-items'
     | '/family/consent'
+    | '/family/history'
     | '/family/invites'
     | '/family/priorities'
     | '/forms/$slug'
@@ -2355,6 +2367,7 @@ export interface FileRouteTypes {
     | '/_authenticated/educator/readiness-gaps'
     | '/_authenticated/family/action-items'
     | '/_authenticated/family/consent'
+    | '/_authenticated/family/history'
     | '/_authenticated/family/invites'
     | '/_authenticated/family/priorities'
     | '/_authenticated/forms/$slug'
@@ -3674,6 +3687,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFamilyInvitesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/family/history': {
+      id: '/_authenticated/family/history'
+      path: '/family/history'
+      fullPath: '/family/history'
+      preLoaderRoute: typeof AuthenticatedFamilyHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/family/consent': {
       id: '/_authenticated/family/consent'
       path: '/family/consent'
@@ -4094,6 +4114,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEducatorReadinessGapsRoute: typeof AuthenticatedEducatorReadinessGapsRoute
   AuthenticatedFamilyActionItemsRoute: typeof AuthenticatedFamilyActionItemsRoute
   AuthenticatedFamilyConsentRoute: typeof AuthenticatedFamilyConsentRoute
+  AuthenticatedFamilyHistoryRoute: typeof AuthenticatedFamilyHistoryRoute
   AuthenticatedFamilyInvitesRoute: typeof AuthenticatedFamilyInvitesRoute
   AuthenticatedFamilyPrioritiesRoute: typeof AuthenticatedFamilyPrioritiesRoute
   AuthenticatedHubsAdminRoute: typeof AuthenticatedHubsAdminRoute
@@ -4181,6 +4202,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedEducatorReadinessGapsRoute,
   AuthenticatedFamilyActionItemsRoute: AuthenticatedFamilyActionItemsRoute,
   AuthenticatedFamilyConsentRoute: AuthenticatedFamilyConsentRoute,
+  AuthenticatedFamilyHistoryRoute: AuthenticatedFamilyHistoryRoute,
   AuthenticatedFamilyInvitesRoute: AuthenticatedFamilyInvitesRoute,
   AuthenticatedFamilyPrioritiesRoute: AuthenticatedFamilyPrioritiesRoute,
   AuthenticatedHubsAdminRoute: AuthenticatedHubsAdminRoute,
