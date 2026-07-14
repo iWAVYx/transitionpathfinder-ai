@@ -1415,6 +1415,195 @@ function EcosystemAndCare() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  CT-aware FAQ — records, permissions, audit history                         */
+/* -------------------------------------------------------------------------- */
+
+type FAQEntry = {
+  icon: LucideIcon;
+  question: string;
+  answer: React.ReactNode;
+};
+
+const FAQ_ITEMS: FAQEntry[] = [
+  {
+    icon: Database,
+    question: "What records does TransitionForward keep?",
+    answer: (
+      <>
+        TransitionForward keeps the student-centered records that help a team
+        plan together: documents and evaluations, transition goals and progress
+        notes, meeting preparation and follow-up notes, student voice entries,
+        calendar events and deadlines, action items with owners, pathway
+        reports, partner opportunity records, and a history of who accessed or
+        changed what. Every record is tied to a specific student and is only
+        visible to users with permission to that student's record.
+      </>
+    ),
+  },
+  {
+    icon: FileCheck,
+    question: "Who owns the student data?",
+    answer: (
+      <>
+        The student and their family are the reason for the record. The school
+        district remains the custodian of the official education record it
+        creates and maintains. TransitionForward provides a workspace that
+        supports the district's recordkeeping; it does not take ownership of
+        the underlying education record or replace the district's official
+        systems.
+      </>
+    ),
+  },
+  {
+    icon: Eye,
+    question: "Who can see what inside the platform?",
+    answer: (
+      <>
+        Access is scoped by role and by student. A user can only see records
+        for students they are connected to through their role — family members
+        for their own student, educators and case managers for students on
+        their caseload, school and district staff for students in their
+        organization, and partners only when a specific student connection has
+        been approved. Row-level security and role-based policies enforce
+        these boundaries in the database itself.
+      </>
+    ),
+  },
+  {
+    icon: Lock,
+    question: "How do permissions and consent work?",
+    answer: (
+      <>
+        Families control sharing and consent for their student's workspace
+        record. They can invite or remove contributors, set what each role can
+        see, and revoke access at any time. Every permission grant, change, or
+        revocation is logged in the activity history so the story of who had
+        access — and when — stays clear.
+      </>
+    ),
+  },
+  {
+    icon: History,
+    question: "What does the activity history capture?",
+    answer: (
+      <>
+        The audit trail captures meaningful actions: document uploads, views,
+        and downloads; sharing invitations and revocations; goal and note
+        edits; meeting scheduling and updates; and report generation. It is
+        designed to help families, educators, and district staff understand
+        the record behind the plan, not to monitor every keystroke or
+        classroom conversation.
+      </>
+    ),
+  },
+  {
+    icon: Scale,
+    question: "Does TransitionForward replace our district's IEP system?",
+    answer: (
+      <>
+        No. TransitionForward is a collaborative workspace that supports
+        transition planning, recordkeeping, and team communication. It works
+        alongside your district's official IEP system and processes, not in
+        place of them. Districts remain responsible for their own IEP
+        documentation, compliance practices, and official records.
+      </>
+    ),
+  },
+  {
+    icon: ShieldCheck,
+    question: "Is TransitionForward legally compliant?",
+    answer: (
+      <>
+        TransitionForward is designed to support secure, role-based
+        recordkeeping and clear audit history, which are important practices in
+        special education transition planning. However, legal compliance is
+        specific to each district's policies, procedures, and obligations. We
+        do not claim that using TransitionForward guarantees compliance with
+        any federal, state, or district law or regulation. Districts retain
+        responsibility for their own compliance. Read more in our{" "}
+        <Link to="/privacy" className="underline underline-offset-4 hover:text-[#1c1814]">
+          Privacy Policy
+        </Link>{" "}
+        and{" "}
+        <Link to="/terms" className="underline underline-offset-4 hover:text-[#1c1814]">
+          Terms of Service
+        </Link>
+        .
+      </>
+    ),
+  },
+];
+
+function CTAwareFAQ() {
+  return (
+    <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
+      <div className="relative mx-auto max-w-[1100px] px-6 py-20 md:py-28">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="mb-5 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+            <span className="h-px w-8 bg-[#1c1814]/30" />
+            Trust, Records, And Transparency
+            <span className="h-px w-8 bg-[#1c1814]/30" />
+          </div>
+          <h2 className="font-serif text-[clamp(1.9rem,4.6vw,3.4rem)] font-light leading-[1.05]">
+            How The Record Is Kept,
+            <span className="italic"> And Who Holds The Key.</span>
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-[#1c1814]/80 sm:text-lg">
+            Transition planning depends on trust. Here is how we approach
+            recordkeeping, permissions, and audit history — with Connecticut
+            transition teams and families in mind.
+          </p>
+        </div>
+
+        <Accordion type="single" collapsible className="mt-14 md:mt-16">
+          {FAQ_ITEMS.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <AccordionItem
+                key={item.question}
+                value={`faq-${i}`}
+                className="border-[#1c1814]/10"
+              >
+                <AccordionTrigger className="py-5 text-left hover:no-underline">
+                  <span className="flex items-start gap-4">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1c1814]/8 text-[#1c1814]/80">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="font-serif text-lg font-light leading-snug sm:text-xl">
+                      {item.question}
+                    </span>
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pl-[52px]">
+                  <p className="max-w-3xl text-[15px] leading-relaxed text-[#1c1814]/80">
+                    {item.answer}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+
+        <div className="mx-auto mt-14 max-w-2xl text-center text-sm text-[#1c1814]/70 md:mt-16">
+          Have a question about security, privacy, or how we support districts?{" "}
+          <Link
+            to="/trust-and-safety"
+            className="underline underline-offset-4 hover:text-[#1c1814]"
+          >
+            Read our Trust & Safety overview
+          </Link>{" "}
+          or{" "}
+          <Link to="/contact" className="underline underline-offset-4 hover:text-[#1c1814]">
+            contact us
+          </Link>
+          .
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Closing cinematic CTA                                                      */
 /* -------------------------------------------------------------------------- */
 
