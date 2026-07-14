@@ -179,6 +179,7 @@ export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean 
           <EducatorTile
             key={tile.featureId}
             tile={tile}
+            isSample={isSample}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
