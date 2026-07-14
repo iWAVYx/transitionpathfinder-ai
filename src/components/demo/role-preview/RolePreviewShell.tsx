@@ -174,47 +174,72 @@ export function RolePreviewShell({
         </div>
       </PageSection>
 
-      {/* WORKSPACE DASHBOARD — same structure as the signed-in role dashboard. */}
-      {extras ? <PageSection spacing="tight">{extras}</PageSection> : null}
-
-      {/* VALUE STRIP */}
-      <PageSection spacing="tight">
-        <div className="rounded-2xl border bg-card shadow-soft">
-          <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Value</p>
-              <h2 className="font-display text-base">What This Role Gets</h2>
+      {/* WORKSPACE ZONE — anchored, tinted band that groups the approved
+          workspace dashboard directly beneath the hero. Visually claimed
+          as the primary work area so subsequent zones read as secondary. */}
+      {extras ? (
+        <PageSection spacing="tight">
+          <div className="relative rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/[0.06] via-background to-accent/[0.05] p-4 shadow-sm sm:p-6">
+            <span className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-primary via-primary/60 to-accent/60" aria-hidden />
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-2 border-b border-primary/15 pb-3">
+              <div>
+                <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary">
+                  Workspace
+                </p>
+                <h2 className="font-display text-lg tracking-tight">Your Role Dashboard</h2>
+              </div>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                Primary work area
+              </span>
             </div>
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              {role.valueBullets.length} outcomes
-            </span>
+            <div className="space-y-8">{extras}</div>
           </div>
-          <ul className="grid gap-0 divide-y divide-border/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {role.valueBullets.map((b) => (
-              <li key={b} className="flex items-start gap-2 p-4 text-sm">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span className="italic text-foreground/85">&ldquo;{b}&rdquo;</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </PageSection>
+        </PageSection>
+      ) : null}
 
-      {/* TOOLS · ACTIONS · OUTPUTS */}
+      {/* SECONDARY ZONE — value + under-the-hood combined into one quieter,
+          scannable panel instead of two stacked cards. */}
       <PageSection spacing="tight">
-        <div className="mb-4 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Under The Hood</p>
-            <h2 className="font-display text-lg">Tools, Actions, Outputs</h2>
-          </div>
-          <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:inline">
-            3-step flow
-          </span>
-        </div>
-        <div className="grid gap-3 lg:grid-cols-3">
-          <TripleCard step="01" icon={<Wrench className="h-4 w-4" />} title="Key Tools" items={role.tools} />
-          <TripleCard step="02" icon={<Target className="h-4 w-4" />} title="Actions" items={role.actions} />
-          <TripleCard step="03" icon={<FileText className="h-4 w-4" />} title="Outputs" items={role.outputs} />
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          {/* Under the hood — compact 3-column list */}
+          <section>
+            <header className="mb-3 flex items-baseline justify-between gap-3 border-b border-border/60 pb-2">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Under The Hood
+                </p>
+                <h2 className="font-display text-base tracking-tight">Tools · Actions · Outputs</h2>
+              </div>
+            </header>
+            <div className="grid gap-x-6 gap-y-4 sm:grid-cols-3">
+              <MiniList icon={<Wrench className="h-3.5 w-3.5" />} title="Tools" items={role.tools} />
+              <MiniList icon={<Target className="h-3.5 w-3.5" />} title="Actions" items={role.actions} />
+              <MiniList icon={<FileText className="h-3.5 w-3.5" />} title="Outputs" items={role.outputs} />
+            </div>
+          </section>
+
+          {/* Value bullets — quiet quoted list, no card wrapper */}
+          <section>
+            <header className="mb-3 flex items-baseline justify-between gap-3 border-b border-border/60 pb-2">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Value
+                </p>
+                <h2 className="font-display text-base tracking-tight">What This Role Gets</h2>
+              </div>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                {role.valueBullets.length}
+              </span>
+            </header>
+            <ul className="space-y-2">
+              {role.valueBullets.map((b) => (
+                <li key={b} className="flex items-start gap-2 text-[13px] leading-snug">
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span className="italic text-foreground/85">&ldquo;{b}&rdquo;</span>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </PageSection>
 
@@ -328,6 +353,42 @@ function TripleCard({
         {items.map((i) => (
           <li key={i} className="flex items-start gap-2 text-sm text-foreground/85">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
+            <span>{i}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * MiniList — flat, card-less column for the Under-the-Hood zone. Replaces
+ * TripleCard's card wrapper with a compact icon + title + bullet list so
+ * three columns sit visually quieter beneath the Workspace zone.
+ */
+function MiniList({
+  icon,
+  title,
+  items,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  items: string[];
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="mb-1.5 flex items-center gap-1.5">
+        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/15">
+          {icon}
+        </span>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/80">
+          {title}
+        </h3>
+      </div>
+      <ul className="space-y-1">
+        {items.map((i) => (
+          <li key={i} className="flex items-start gap-1.5 text-[12.5px] leading-snug text-foreground/85">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/70" />
             <span>{i}</span>
           </li>
         ))}
