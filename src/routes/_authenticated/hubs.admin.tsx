@@ -32,6 +32,22 @@ function HubPage() {
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Activity / Next Steps"
+        <DashboardSection
+          eyebrow="Activity / Next Steps"
+          title="Platform Next Actions"
+          description="Reviews, approvals, and platform health items that need admin attention."
+          gap="tight"
+        >
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.admin}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.admin}
+            historyRoute="/owner/activity"
+            suggestionLabel="Open Launch Readiness"
+            suggestionRoute="/hubs/admin"
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where the platform sits across the transition rollout lifecycle."
         >
