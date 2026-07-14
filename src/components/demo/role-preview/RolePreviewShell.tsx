@@ -111,55 +111,65 @@ export function RolePreviewShell({
         <RoleNavChips current={role.id} />
       </PageSection>
 
-      {/* HERO */}
+      {/* HERO — color-blocked command header */}
       <PageSection spacing="tight">
-        <div className="rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-hero p-4 shadow-soft sm:p-6">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <div className="relative overflow-hidden rounded-2xl border bg-card shadow-soft">
+          <div className="h-1.5 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" aria-hidden />
+          <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Icon className="h-[18px] w-[18px]" />
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                  <Icon className="h-5 w-5" />
                 </span>
-                <Badge variant="outline" className="border-primary text-primary">
+                <Badge variant="outline" className="border-primary/40 bg-primary/5 text-primary">
                   {toTitleCase(role.label)} · Demo
                 </Badge>
+                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground ring-1 ring-border">
+                  <Sparkles className="h-2.5 w-2.5" /> Sample
+                </span>
               </div>
-              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {toTitleCase(role.tagline)}
               </p>
-              <h1 className="mt-1.5 font-display text-2xl tracking-tight sm:text-3xl">
+              <h1 className="mt-1 font-display text-2xl leading-tight tracking-tight sm:text-3xl">
                 {toTitleCase(role.headline)}
               </h1>
-              <p className="mt-2.5 max-w-2xl text-sm leading-snug text-muted-foreground">
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 {role.intro}
               </p>
+
+              <dl className="mt-5 grid grid-cols-3 gap-2 border-t border-border/60 pt-4 sm:max-w-md">
+                <div>
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Tools</dt>
+                  <dd className="mt-0.5 font-display text-lg text-foreground">{role.tools.length}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Actions</dt>
+                  <dd className="mt-0.5 font-display text-lg text-foreground">{role.actions.length}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Outputs</dt>
+                  <dd className="mt-0.5 font-display text-lg text-foreground">{role.outputs.length}</dd>
+                </div>
+              </dl>
             </div>
 
-
-            <aside className="rounded-2xl border bg-background/80 p-4 text-sm shadow-soft">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Sample data only
-              </div>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Nothing here is a real student, caseload, or organization.
-                {role.sharedStudent
-                  ? " Student, Family, and Educator previews share one fictional student:"
-                  : " Everything shown is illustrative."}
-              </p>
-              {role.sharedStudent && (
-                <div className="mt-2.5 rounded-xl border bg-card p-2.5">
-                  <p className="font-semibold text-sm">{SHARED_DEMO_STUDENT.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade} ·{" "}
-                    {SHARED_DEMO_STUDENT.school}
-                  </p>
-                  <blockquote className="mt-1.5 border-l-2 border-primary/40 pl-2 text-xs italic text-foreground/80">
-                    &ldquo;{SHARED_DEMO_STUDENT.quote}&rdquo;
-                  </blockquote>
+            {role.sharedStudent && (
+              <aside className="rounded-xl border bg-muted/30 p-4 text-sm">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                  Shared demo student
                 </div>
-              )}
-            </aside>
+                <p className="mt-2 font-display text-base">{SHARED_DEMO_STUDENT.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{SHARED_DEMO_STUDENT.school}</p>
+                <blockquote className="mt-3 border-l-2 border-primary pl-2.5 text-xs italic text-foreground/80">
+                  &ldquo;{SHARED_DEMO_STUDENT.quote}&rdquo;
+                </blockquote>
+              </aside>
+            )}
           </div>
         </div>
       </PageSection>
@@ -167,26 +177,23 @@ export function RolePreviewShell({
       {/* WORKSPACE DASHBOARD — same structure as the signed-in role dashboard. */}
       {extras ? <PageSection spacing="tight">{extras}</PageSection> : null}
 
-
-
       {/* VALUE STRIP */}
       <PageSection spacing="tight">
-        <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6">
-          <SectionHeading
-            index="02"
-            eyebrow="Value"
-            title="What This Role Gets"
-            size="sm"
-            className="mb-4"
-          />
-          <ul className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border bg-card shadow-soft">
+          <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Value</p>
+              <h2 className="font-display text-base">What This Role Gets</h2>
+            </div>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              {role.valueBullets.length} outcomes
+            </span>
+          </div>
+          <ul className="grid gap-0 divide-y divide-border/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {role.valueBullets.map((b) => (
-              <li
-                key={b}
-                className="flex items-start gap-2 rounded-xl bg-background p-3 text-sm"
-              >
+              <li key={b} className="flex items-start gap-2 p-4 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span className="italic">&ldquo;{b}&rdquo;</span>
+                <span className="italic text-foreground/85">&ldquo;{b}&rdquo;</span>
               </li>
             ))}
           </ul>
@@ -195,28 +202,19 @@ export function RolePreviewShell({
 
       {/* TOOLS · ACTIONS · OUTPUTS */}
       <PageSection spacing="tight">
-        <SectionHeading
-          index="03"
-          eyebrow="Under the hood"
-          title="Tools, Actions, Outputs"
-          size="sm"
-        />
-        <div className="grid gap-4 lg:grid-cols-3">
-          <TripleCard
-            icon={<Wrench className="h-4 w-4" />}
-            title="Key Tools"
-            items={role.tools}
-          />
-          <TripleCard
-            icon={<Target className="h-4 w-4" />}
-            title="Actions This Role Can Take"
-            items={role.actions}
-          />
-          <TripleCard
-            icon={<FileText className="h-4 w-4" />}
-            title="Outputs They Receive"
-            items={role.outputs}
-          />
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Under The Hood</p>
+            <h2 className="font-display text-lg">Tools, Actions, Outputs</h2>
+          </div>
+          <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:inline">
+            3-step flow
+          </span>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <TripleCard step="01" icon={<Wrench className="h-4 w-4" />} title="Key Tools" items={role.tools} />
+          <TripleCard step="02" icon={<Target className="h-4 w-4" />} title="Actions" items={role.actions} />
+          <TripleCard step="03" icon={<FileText className="h-4 w-4" />} title="Outputs" items={role.outputs} />
         </div>
       </PageSection>
 
@@ -303,20 +301,32 @@ function TripleCard({
   icon,
   title,
   items,
+  step,
 }: {
   icon: React.ReactNode;
   title: string;
   items: string[];
+  step?: string;
 }) {
   return (
-    <div className="flex h-full flex-col rounded-3xl border bg-card p-4 shadow-soft">
-      <div className="flex items-center gap-2 border-b border-border/60 pb-2">
-        <span className="text-primary">{icon}</span>
-        <h3 className="font-display text-base">{title}</h3>
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <div className="flex items-center justify-between gap-2 px-4 pt-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            {icon}
+          </span>
+          <h3 className="font-display text-[15px] tracking-tight">{title}</h3>
+        </div>
+        {step && (
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground ring-1 ring-border">
+            {step}
+          </span>
+        )}
       </div>
-      <ul className="mt-2.5 space-y-1.5">
+      <ul className="mt-2 space-y-1.5 px-4 pb-4">
         {items.map((i) => (
-          <li key={i} className="flex items-start gap-2 text-sm">
+          <li key={i} className="flex items-start gap-2 text-sm text-foreground/85">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
             <span>{i}</span>
           </li>
