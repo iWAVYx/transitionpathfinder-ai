@@ -155,6 +155,7 @@ export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boo
           <DistrictAdminTile
             key={tile.featureId}
             tile={tile}
+            isSample={isSample}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
