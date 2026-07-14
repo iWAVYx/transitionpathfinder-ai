@@ -912,6 +912,327 @@ function AheadBesideBehind() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Interactive walkthrough — Ahead / Beside / Behind in the app               */
+/* -------------------------------------------------------------------------- */
+
+type StanceKey = "ahead" | "beside" | "behind";
+
+type WalkAction = {
+  icon: LucideIcon;
+  title: string;
+  body: string;
+  to: string;
+  cta: string;
+};
+
+type WalkStance = {
+  key: StanceKey;
+  kicker: string;
+  title: string;
+  lead: string;
+  accent: string;
+  actions: WalkAction[];
+};
+
+const WALKTHROUGH: WalkStance[] = [
+  {
+    key: "ahead",
+    kicker: "Ahead",
+    title: "Prepare The Path Before The Student Needs It",
+    lead:
+      "Get options, deadlines, materials, and readiness signals in place before the next meeting or transition step arrives.",
+    accent: "#ffd9a0",
+    actions: [
+      {
+        icon: BookMarked,
+        title: "Draft The Pathway Report",
+        body: "Assemble strengths, preferences, goals, and options into a report the family and team can actually use.",
+        to: "/pathway",
+        cta: "Open Pathway Report",
+      },
+      {
+        icon: Handshake,
+        title: "Line Up Partner Opportunities",
+        body: "Match students to community partner programs, jobs, and services before deadlines slip.",
+        to: "/opportunities",
+        cta: "Browse Opportunities",
+      },
+      {
+        icon: Presentation,
+        title: "Prep The Next Meeting",
+        body: "Build the agenda, gather materials, and stage talking points ahead of the PPT or IEP conversation.",
+        to: "/ppt-prep",
+        cta: "Open Meeting Prep",
+      },
+      {
+        icon: Gauge,
+        title: "Track Readiness Gaps Early",
+        body: "See which students are missing assessments, signatures, or planning steps before it becomes a scramble.",
+        to: "/educator/readiness-gaps",
+        cta: "View Readiness Gaps",
+      },
+    ],
+  },
+  {
+    key: "beside",
+    kicker: "Beside",
+    title: "Move Through The Plan Together",
+    lead:
+      "Work with the student, family, and team inside a shared workspace where goals, meetings, and next steps stay connected.",
+    accent: "#a8e6cf",
+    actions: [
+      {
+        icon: LayoutDashboard,
+        title: "Run The Transition Workspace",
+        body: "One place to see the student's stage, materials, contributors, and what needs attention this week.",
+        to: "/workspace",
+        cta: "Open Workspace",
+      },
+      {
+        icon: Mic,
+        title: "Capture Student Voice",
+        body: "Record preferences, interests, questions, and goals in the student's own words — and keep them visible.",
+        to: "/student-voice",
+        cta: "Open Student Voice",
+      },
+      {
+        icon: Users,
+        title: "Hold And Document Meetings",
+        body: "Schedule, take shared notes, and turn conversations into action items without a separate doc.",
+        to: "/meetings",
+        cta: "Open Meetings",
+      },
+      {
+        icon: Target,
+        title: "Set Measurable Goals",
+        body: "Write goals with the student, revise them as things change, and keep progress attached to the plan.",
+        to: "/goals",
+        cta: "Open Goals",
+      },
+      {
+        icon: ListChecks,
+        title: "Coordinate Action Items",
+        body: "Assign next steps with owners and due dates so nobody leaves the room unclear on what happens next.",
+        to: "/action-items",
+        cta: "Open Action Items",
+      },
+    ],
+  },
+  {
+    key: "behind",
+    kicker: "Behind",
+    title: "Preserve The Record Behind Every Decision",
+    lead:
+      "Keep uploads, notes, reports, and access history intact so the story of the student's plan is never lost.",
+    accent: "#b5d8ff",
+    actions: [
+      {
+        icon: FileText,
+        title: "Review Documents & Signatures",
+        body: "See every IEP, evaluation, and consent form in one place — versioned, searchable, and share-ready.",
+        to: "/documents",
+        cta: "Open Documents",
+      },
+      {
+        icon: History,
+        title: "See Access & Activity History",
+        body: "Know who viewed, uploaded, or shared what — a clear audit trail for families, districts, and partners.",
+        to: "/family/history",
+        cta: "Open Activity History",
+      },
+      {
+        icon: ClipboardList,
+        title: "Preserve Progress & Reports",
+        body: "Snapshot growth over time so future meetings and future teams inherit the full picture.",
+        to: "/reports",
+        cta: "Open Reports",
+      },
+      {
+        icon: ShieldCheck,
+        title: "Manage Consent & Sharing",
+        body: "Grant, revoke, and review permissions so the right people see the right parts of the record.",
+        to: "/family/consent",
+        cta: "Open Consent",
+      },
+      {
+        icon: NotebookPen,
+        title: "Keep Meeting Notes & Follow-Ups",
+        body: "Retain notes and decisions so nothing is re-litigated at the next meeting or the next transition.",
+        to: "/educator/notes",
+        cta: "Open Notes",
+      },
+    ],
+  },
+];
+
+function AheadBesideBehindWalkthrough() {
+  const [active, setActive] = useState<StanceKey>("ahead");
+  const stance = WALKTHROUGH.find((s) => s.key === active) ?? WALKTHROUGH[0];
+
+  return (
+    <section className="relative overflow-hidden bg-[#0b0a09] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(181,216,255,0.08),transparent_60%)]" />
+      <div className="relative mx-auto max-w-[1400px] px-4 py-20 sm:px-6 md:py-28">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+            Walk Through It
+          </div>
+          <h2 className="font-serif text-[clamp(1.9rem,5vw,4rem)] font-light leading-[1.05]">
+            What I Do In Each Mode.
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base text-white/70 sm:text-lg">
+            Pick a stance to see the actual work — and jump straight to the screen where
+            it lives.
+          </p>
+        </div>
+
+        {/* Tab switcher */}
+        <div
+          role="tablist"
+          aria-label="Ahead, Beside, Behind"
+          className="mx-auto mt-12 flex w-full max-w-2xl flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2 sm:flex-row"
+        >
+          {WALKTHROUGH.map((s) => {
+            const isActive = s.key === active;
+            return (
+              <button
+                key={s.key}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`walkthrough-panel-${s.key}`}
+                id={`walkthrough-tab-${s.key}`}
+                onClick={() => setActive(s.key)}
+                className={`relative flex-1 rounded-xl px-5 py-3 text-left transition-colors sm:text-center ${
+                  isActive ? "text-[#0b0a09]" : "text-white/70 hover:text-white"
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="walkthrough-pill"
+                    className="absolute inset-0 rounded-xl"
+                    style={{ backgroundColor: s.accent }}
+                    transition={{ type: "spring", stiffness: 280, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center justify-between gap-3 sm:justify-center">
+                  <span
+                    className="text-[10px] uppercase tracking-[0.4em]"
+                    style={{ opacity: isActive ? 0.7 : 0.55 }}
+                  >
+                    {s.kicker}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Panel */}
+        <div
+          role="tabpanel"
+          id={`walkthrough-panel-${stance.key}`}
+          aria-labelledby={`walkthrough-tab-${stance.key}`}
+          className="mt-10 md:mt-14"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={stance.key}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
+              className="grid gap-10 md:grid-cols-[5fr_7fr] md:gap-16"
+            >
+              <div className="md:sticky md:top-24 md:self-start">
+                <div
+                  className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.4em]"
+                  style={{ borderColor: `${stance.accent}55`, color: stance.accent }}
+                >
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: stance.accent }}
+                  />
+                  {stance.kicker}
+                </div>
+                <h3 className="font-serif text-[clamp(1.75rem,3.6vw,2.75rem)] font-light leading-[1.1]">
+                  {stance.title}
+                </h3>
+                <p className="mt-5 text-base text-white/70">{stance.lead}</p>
+                <div
+                  aria-hidden
+                  className="mt-8 h-px w-16"
+                  style={{ backgroundColor: stance.accent, opacity: 0.6 }}
+                />
+              </div>
+
+              <ol className="space-y-3">
+                {stance.actions.map((a, i) => {
+                  const Icon = a.icon;
+                  return (
+                    <motion.li
+                      key={a.title}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.4,
+                        delay: 0.05 + i * 0.06,
+                        ease: [0.22, 0.61, 0.36, 1],
+                      }}
+                    >
+                      <Link
+                        to={a.to}
+                        className="group relative flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-white/25 hover:bg-white/[0.06] sm:p-6"
+                      >
+                        <span
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                          style={{
+                            backgroundColor: `${stance.accent}22`,
+                            color: stance.accent,
+                          }}
+                        >
+                          <Icon className="h-5 w-5" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-3">
+                            <h4 className="font-serif text-lg font-light leading-tight text-white sm:text-xl">
+                              {a.title}
+                            </h4>
+                            <span
+                              className="hidden shrink-0 text-[10px] uppercase tracking-[0.3em] text-white/40 sm:inline"
+                            >
+                              0{i + 1}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm text-white/70 sm:text-[15px]">
+                            {a.body}
+                          </p>
+                          <div
+                            className="mt-4 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] transition-transform group-hover:translate-x-1"
+                            style={{ color: stance.accent }}
+                          >
+                            {a.cta}
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+              </ol>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <p className="mx-auto mt-14 max-w-2xl text-center text-xs text-white/45 md:mt-20">
+          Screens open inside the app. Sign in required — the student remains at the center
+          of everything you see.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Student-Centered — the reason the platform exists                          */
 /* -------------------------------------------------------------------------- */
 
