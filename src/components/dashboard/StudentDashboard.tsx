@@ -66,7 +66,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
             You're signed in as a student. To see your transition plan, a family member,
             educator, or case manager needs to add you as a collaborator on your plan.
           </p>
-          <div className="mt-8 rounded-3xl border bg-card p-6 shadow-soft">
+          <div className="mt-8 border-y border-border/70 py-5">
             <h2 className="font-display text-xl">Next Best Step</h2>
             <ol className="mt-3 list-inside list-decimal space-y-2 text-sm text-muted-foreground">
               <li>Ask a parent, guardian, or case manager to invite you using this account's email.</li>
@@ -176,7 +176,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* My goals */}
-          <section className="rounded-3xl border bg-card p-6 shadow-soft">
+          <section className="border-y border-border/70 py-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
@@ -195,7 +195,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
                 {snap.goals.slice(0, 5).map((g) => (
                   <li
                     key={g.id}
-                    className="flex items-start justify-between gap-3 rounded-xl border bg-background p-3"
+                    className="flex items-start justify-between gap-3 border-b border-border/60 py-3 last:border-b-0"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{g.title}</p>
@@ -213,7 +213,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
           </section>
 
           {/* My action items */}
-          <section className="rounded-3xl border bg-card p-6 shadow-soft">
+          <section className="border-y border-border/70 py-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ClipboardList className="h-5 w-5 text-primary" />
@@ -230,7 +230,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
                 {myActions.slice(0, 7).map((a) => (
                   <li
                     key={a.id}
-                    className="flex items-start gap-3 rounded-xl border bg-background p-3"
+                    className="flex items-start gap-3 border-b border-border/60 py-3 last:border-b-0"
                   >
                     <button
                       type="button"
@@ -290,7 +290,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
         <NextStepsTimeline />
 
         {/* Latest report */}
-        <section className="mt-6 rounded-3xl border bg-card p-6 shadow-soft">
+        <section className="mt-6 border-y border-border/70 py-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -336,7 +336,7 @@ function FactCard({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border bg-card p-4 shadow-soft">
+    <div className="border-y border-border/70 py-3">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {icon}
         {label}
@@ -425,7 +425,7 @@ function ExploreForStudent({
           <Link
             key={t.to}
             to={t.to}
-            className="group flex h-full flex-col rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+            className="group flex h-full flex-col border-y border-border/70 py-4 transition hover:bg-muted/30 sm:px-2"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
               {t.icon}

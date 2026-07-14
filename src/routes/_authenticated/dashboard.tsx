@@ -525,7 +525,7 @@ function DashboardPage() {
               type="button"
               onClick={handleSeed}
               disabled={seeding}
-              className="group rounded-3xl border-2 border-primary/40 bg-gradient-hero p-7 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60"
+              className="group border-y border-primary/40 bg-primary/[0.035] py-6 text-left transition hover:bg-primary/[0.055] disabled:opacity-60 sm:px-4"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft">
                 {seeding ? <Loader2 className="h-6 w-6 animate-spin" /> : <Sparkles className="h-6 w-6" />}
@@ -541,7 +541,7 @@ function DashboardPage() {
 
             <Link
               to="/students"
-              className="group rounded-3xl border bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              className="group border-y border-border/70 py-6 transition hover:bg-muted/35 sm:px-4"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
                 <Plus className="h-6 w-6" />
@@ -667,7 +667,7 @@ function DashboardPage() {
       {s && (
         <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Student Profile Card */}
-          <div className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6 lg:p-8">
+          <div className="border-y border-border/70 py-5 sm:py-6 lg:py-8">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
               <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 font-display text-xl font-medium text-primary ring-1 ring-primary/20 sm:h-16 sm:w-16 sm:text-2xl">
@@ -728,7 +728,7 @@ function DashboardPage() {
 
 
           {/* Pathway Report Panel */}
-          <div className="mt-6 rounded-3xl border bg-gradient-hero p-5 shadow-soft sm:p-6 lg:p-8">
+          <div className="mt-6 border-y border-primary/25 bg-primary/[0.035] py-5 sm:py-6 lg:py-8">
             <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
@@ -822,7 +822,7 @@ function DashboardPage() {
               {snap.documents.length === 0 ? (
                 <EmptyMini kind="documents" label="No documents yet. Upload the current IEP to get started." />
               ) : (
-                <ul className="divide-y rounded-xl border bg-background">
+                <ul className="divide-y divide-border/60 border-y border-border/70">
                   {snap.documents.slice(0, 6).map((d) => (
                     <li key={d.id} className="flex items-center justify-between gap-3 p-3">
                       <div className="min-w-0">
@@ -853,7 +853,7 @@ function DashboardPage() {
                   {snap.actionItems.slice(0, 7).map((a) => (
                     <li
                       key={a.id}
-                      className="flex items-start gap-3 rounded-xl border bg-background p-3"
+                      className="flex items-start gap-3 border-b border-border/60 py-3 last:border-b-0"
                     >
                       <button
                         onClick={() => toggleAction(a)}
@@ -999,7 +999,7 @@ function DashboardPage() {
                   {snap.recommendedResources.map((r) => (
                     <li
                       key={r.id}
-                      className="rounded-xl border bg-background p-3"
+                      className="border-b border-border/60 py-3 last:border-b-0"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -1049,7 +1049,7 @@ function DashboardPage() {
           </div>
 
           {/* Privacy & Consent */}
-          <div className="mt-6 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+          <div className="mt-6 border-y border-border/70 py-5 sm:py-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Shield className="h-5 w-5" />
@@ -1119,7 +1119,7 @@ function DashboardPage() {
               />
             </div>
 
-            <div className="mt-6 flex items-start gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/40 p-4">
+            <div className="mt-6 flex items-start gap-3 border-t border-dashed border-border/60 bg-muted/30 pt-4">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
               <p className="text-xs leading-relaxed text-muted-foreground">
                 TransitionForward's AI recommendations are supportive planning tools and do{" "}
@@ -1194,7 +1194,7 @@ function Panel({
   actionLabel?: string;
 }) {
   return (
-    <div className="rounded-3xl border bg-card p-6 shadow-soft">
+    <div className="border-y border-border/70 py-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -1264,7 +1264,7 @@ function ConsentRow({
   onGrant: () => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-2xl border bg-background p-4">
+    <div className="flex items-start justify-between gap-3 border-b border-border/60 py-3 last:border-b-0">
       <div className="min-w-0">
         <p className="text-sm font-semibold">{label}</p>
         <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
@@ -1298,7 +1298,7 @@ function QuickLink({
       to={to as never}
       hash="quick-link"
       aria-label={`Go to ${title}`}
-      className="group rounded-2xl border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+      className="group border-y border-border/70 py-4 transition hover:bg-muted/35 sm:px-3"
     >
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground">
         {icon}
@@ -1440,7 +1440,7 @@ function ReportSections({ content }: { content: unknown }) {
 
 function SectionCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur">
+    <div className="border-y border-border/60 py-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{label}</p>
       <div className="mt-2">{children}</div>
     </div>
