@@ -44,13 +44,13 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "A Connecticut special educator's story behind Transition Forward — from paperwork to possibility.",
+          "Transition Forward helps every stakeholder walk ahead of, beside, and behind the student as they move toward life after school.",
       },
       { property: "og:title", content: "About — Transition Forward CT" },
       {
         property: "og:description",
         content:
-          "From MBA to MAT, from New Haven to Hamden classrooms — the founder story behind Transition Forward CT.",
+          "A shared place for students, families, educators, districts, and partners to prepare, collaborate, and preserve the record of a student's path forward.",
       },
       { property: "og:image", content: heroImg },
       { property: "twitter:card", content: "summary_large_image" },
