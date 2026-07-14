@@ -6,6 +6,8 @@ import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
+import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
