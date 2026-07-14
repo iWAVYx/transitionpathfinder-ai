@@ -85,6 +85,20 @@ function HubPage() {
         </DashboardSection>
         <DashboardSection
           eyebrow="Activity / Next Steps"
+          title="Your District Next Actions"
+          description="Rollout, compliance, and approvals that need district-level attention."
+          gap="tight"
+        >
+          <NextActionCard
+            actions={DEMO_NEXT_ACTIONS.district_admin}
+            recentlyCompleted={DEMO_RECENTLY_COMPLETED.district_admin}
+            historyRoute="/district/history"
+            suggestionLabel="Open District Reports"
+            suggestionRoute="/district/reports"
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where your district is on the transition strategy rollout."
           gap="tight"
