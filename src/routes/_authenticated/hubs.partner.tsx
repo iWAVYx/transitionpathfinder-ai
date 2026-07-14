@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
 import { PartnerMatchesCard } from "@/components/dashboard/PartnerMatchesCard";
@@ -28,17 +29,33 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("partner-opportunity")!} hideSpokes>
         <PartnerOverviewGrid />
-        <PartnerMatchesCard isSample />
-        <StudentFitSummariesCard isSample />
-        <NextStepsTimeline
-          data={PARTNER_OUTREACH_ACTIONS}
-          eyebrow="Partner 30 / 90 / 180 / 365-Day Outreach"
-          title="Your Partner Next Actions"
-          description="The outreach + delivery moves that keep opportunities filled, students supported, and outcomes reported."
-        />
-        <div className="mt-8">
+        <DashboardSection
+          eyebrow="Opportunity Signals"
+          title="Matches & Student Fit"
+          description="Aggregate matches on your published opportunities and student-fit summaries — no PII."
+        >
+          <PartnerMatchesCard isSample />
+          <StudentFitSummariesCard isSample />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Next Actions"
+          title="30 / 90 / 180 / 365-Day Outreach"
+          description="The outreach and delivery moves that keep opportunities filled and outcomes reported."
+        >
+          <NextStepsTimeline
+            data={PARTNER_OUTREACH_ACTIONS}
+            eyebrow="Partner 30 / 90 / 180 / 365-Day Outreach"
+            title="Your Partner Next Actions"
+            description="The outreach + delivery moves that keep opportunities filled, students supported, and outcomes reported."
+          />
+        </DashboardSection>
+        <DashboardSection
+          eyebrow="Your Pathway"
+          title="Stage Journey"
+          description="Where your organization is on the PartnerForward journey."
+        >
           <StageJourneyCard audience="partner" />
-        </div>
+        </DashboardSection>
       </HubShell>
     </SiteShell>
   );
