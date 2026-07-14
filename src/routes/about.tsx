@@ -1304,27 +1304,68 @@ function StudentCentered() {
 /* -------------------------------------------------------------------------- */
 
 function EcosystemAndCare() {
+  const CT_PILLARS = [
+    {
+      icon: ShieldCheck,
+      title: "CT-Aware by Design",
+      body:
+        "Built around Connecticut's PPT and transition planning context — age of majority, transition assessments, and post-secondary goals — so the record matches what the process actually asks of a team.",
+    },
+    {
+      icon: FileCheck,
+      title: "Records That Travel",
+      body:
+        "Documents, notes, goals, meetings, and action items are organized around the student so the plan is not rebuilt from scratch every meeting.",
+    },
+    {
+      icon: Users,
+      title: "Team Around the Student",
+      body:
+        "Families, educators, districts, and partners each see the right level of detail so they can prepare ahead, walk beside, and follow up behind.",
+    },
+  ];
+
   return (
     <section className="relative overflow-hidden bg-[#0b0a09] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(168,230,207,0.08),transparent_55%)]" />
-      <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-28">
+      <div className="relative mx-auto max-w-[1300px] px-6 py-24 md:py-32">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] text-white/60">
+            <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
             Built With Care
           </div>
-          <h2 className="font-serif text-[clamp(1.9rem,4.4vw,3.4rem)] font-light leading-[1.05]">
-            Designed with awareness of what
-            <span className="italic"> transition planning actually requires.</span>
+          <h2 className="font-serif text-[clamp(2.2rem,5vw,4.5rem)] font-light leading-[1.05]">
+            Built for Connecticut transition planning,
+            <span className="italic"> not just any planning tool.</span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-base text-white/70 sm:text-lg">
-            Transition Forward is designed to support special education transition
-            planning, secure recordkeeping, role-based access, document handling, audit
-            history, and the need for clear evidence behind decisions and next steps. It
-            helps teams organize their work and makes planning easier to review — it does
-            not replace district legal obligations or official IEP systems.
+            Transition planning in Connecticut is more than a checklist. It is the work of
+            turning PPT conversations, transition assessments, and student voice into a coherent
+            path forward. TransitionForward keeps the record close to the student, the team
+            aligned, and the next steps clear — without replacing district legal obligations or
+            official IEP systems.
           </p>
-          <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/60">
+        </div>
+
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {CT_PILLARS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-sm transition-colors hover:bg-white/[0.05]"
+              >
+                <Icon className="mb-4 h-6 w-6 text-white/70" />
+                <h3 className="font-serif text-xl">{item.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-white/60">{item.body}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 text-center">
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/60">
             <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
             CT-Aware · Records-First · Student-Centered
           </div>
