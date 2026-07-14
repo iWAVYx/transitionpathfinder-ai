@@ -94,7 +94,7 @@ export function ToolPreviewCard({
 
 export function ToolPreviewGrid({ children }: { children: ReactNode }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
+    <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">{children}</div>
   );
 }
 
@@ -110,19 +110,19 @@ export function ToolPreviewSection({
   children: ReactNode;
 }) {
   return (
-    <section className="mt-10">
+    <section className="mt-10 sm:mt-12">
       {eyebrow && (
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           {toTitleCase(eyebrow)}
         </p>
       )}
-      <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+      <h2 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
         {toTitleCase(title)}
       </h2>
       {description && (
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{description}</p>
       )}
-      <div className="mt-6">{children}</div>
+      <div className="mt-6 sm:mt-8">{children}</div>
     </section>
   );
 }

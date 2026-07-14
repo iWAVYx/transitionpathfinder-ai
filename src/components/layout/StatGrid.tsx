@@ -24,7 +24,7 @@ export function StatGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-3 sm:gap-4", GRID[cols], className)}>{children}</div>
+    <div className={cn("grid gap-4 sm:gap-5 lg:gap-6", GRID[cols], className)}>{children}</div>
   );
 }
 
