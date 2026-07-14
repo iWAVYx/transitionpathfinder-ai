@@ -99,6 +99,7 @@ import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAdminSchoolRouteImport } from './routes/_authenticated/admin-school'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
 import { Route as AuthenticatedActionItemsRouteImport } from './routes/_authenticated/action-items'
 import { Route as DemoWorkspaceIndexRouteImport } from './routes/demo_.workspace.index'
 import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authenticated/workspace.index'
@@ -665,6 +666,11 @@ const AuthenticatedAdminSchoolRoute =
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedActivityRoute = AuthenticatedActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedActionItemsRoute =
@@ -1339,6 +1345,7 @@ export interface FileRoutesByFullPath {
   '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/action-items': typeof AuthenticatedActionItemsRoute
+  '/activity': typeof AuthenticatedActivityRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -1539,6 +1546,7 @@ export interface FileRoutesByTo {
   '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/action-items': typeof AuthenticatedActionItemsRoute
+  '/activity': typeof AuthenticatedActivityRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -1741,6 +1749,7 @@ export interface FileRoutesById {
   '/unsubscribe': typeof UnsubscribeRoute
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/action-items': typeof AuthenticatedActionItemsRoute
+  '/_authenticated/activity': typeof AuthenticatedActivityRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
@@ -1944,6 +1953,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/waitlist'
     | '/action-items'
+    | '/activity'
     | '/admin'
     | '/admin-school'
     | '/analytics'
@@ -2144,6 +2154,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/waitlist'
     | '/action-items'
+    | '/activity'
     | '/admin'
     | '/admin-school'
     | '/analytics'
@@ -2345,6 +2356,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/waitlist'
     | '/_authenticated/action-items'
+    | '/_authenticated/activity'
     | '/_authenticated/admin'
     | '/_authenticated/admin-school'
     | '/_authenticated/analytics'
@@ -3218,6 +3230,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/activity': {
+      id: '/_authenticated/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof AuthenticatedActivityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/action-items': {
@@ -4166,6 +4185,7 @@ const AuthenticatedStudentsRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedActionItemsRoute: typeof AuthenticatedActionItemsRoute
+  AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
@@ -4251,6 +4271,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedActionItemsRoute: AuthenticatedActionItemsRoute,
+  AuthenticatedActivityRoute: AuthenticatedActivityRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
