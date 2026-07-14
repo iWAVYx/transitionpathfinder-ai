@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
@@ -28,9 +29,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("caseload-planning")!} hideSpokes>
-        <EducatorOverviewGrid />
+        <WorkspaceZone>
+          <EducatorOverviewGrid />
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="Caseload Signals"
+          eyebrow="Operations"
           title="Priority Reviews & Gaps"
           description="What needs your attention across the caseload — click through for full detail."
           gap="tight"
@@ -75,7 +78,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Next Actions"
+          eyebrow="Activity / Next Steps"
           title="30 / 90 / 180 / 365-Day Plan"
           description="Educator-owned actions that keep every Pathway Report defensible."
           gap="tight"
@@ -88,7 +91,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where your caseload sits on the transition planning timeline."
           gap="tight"

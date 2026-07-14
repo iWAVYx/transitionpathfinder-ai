@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
@@ -24,9 +25,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("student-planning")!} hideSpokes>
-        <StudentOverviewGrid />
+        <WorkspaceZone>
+          <StudentOverviewGrid />
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Activity / Next Steps"
           title="Stage Journey"
           description="Where you are on the transition timeline and what comes next."
         >

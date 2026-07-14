@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
@@ -28,9 +29,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("partner-opportunity")!} hideSpokes>
-        <PartnerOverviewGrid />
+        <WorkspaceZone>
+          <PartnerOverviewGrid />
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="Opportunity Signals"
+          eyebrow="Operations"
           title="Matches, Fit & Impact"
           description="Aggregate signals on your published opportunities — no student PII."
           gap="tight"
@@ -75,7 +78,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Next Actions"
+          eyebrow="Activity / Next Steps"
           title="30 / 90 / 180 / 365-Day Outreach"
           description="The outreach and delivery moves that keep opportunities filled."
           gap="tight"
@@ -88,7 +91,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Progress Band"
           title="Stage Journey"
           description="Where your organization is on the PartnerForward journey."
           gap="tight"

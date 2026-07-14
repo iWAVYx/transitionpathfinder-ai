@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { ParentOverviewGrid } from "@/components/dashboard/role/ParentOverviewGrid";
 import { getHub } from "@/lib/hubs/registry";
@@ -26,9 +27,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("family-planning")!} hideSpokes>
-        <ParentOverviewGrid />
+        <WorkspaceZone>
+          <ParentOverviewGrid />
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="Family Toolkit"
+          eyebrow="Operations"
           title="Documents, Meetings & Advocacy"
           description="Jump into the tools that keep your student's plan moving."
           gap="tight"
@@ -75,7 +78,7 @@ function HubPage() {
           />
         </DashboardSection>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Activity / Next Steps"
           title="Stage Journey"
           description="Where your student sits on the transition timeline."
           gap="tight"

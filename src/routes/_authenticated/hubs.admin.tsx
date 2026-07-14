@@ -4,6 +4,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
+import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
@@ -24,15 +25,11 @@ function HubPage() {
   return (
     <SiteShell>
       <HubShell hub={getHub("platform-operations")!}>
-        <DashboardSection
-          eyebrow="Platform Readiness"
-          title="Launch Readiness Board"
-          description="Cross-role rollout, adoption, and support signals."
-        >
+        <WorkspaceZone>
           <LaunchReadinessBoard />
-        </DashboardSection>
+        </WorkspaceZone>
         <DashboardSection
-          eyebrow="Your Pathway"
+          eyebrow="Activity / Next Steps"
           title="Stage Journey"
           description="Where the platform sits across the transition rollout lifecycle."
         >
