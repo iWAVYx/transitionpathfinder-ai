@@ -74,6 +74,12 @@ function HubPage() {
                 description: "Know-your-rights guides, peer networks, and adult-services intake.",
                 to: "/family/resources/recommended",
               },
+              {
+                icon: History,
+                title: "Access & Activity History",
+                description: "See who viewed, downloaded, edited, or shared your student's plan and documents.",
+                to: "/family/history",
+              },
             ]}
           />
         </DashboardSection>
