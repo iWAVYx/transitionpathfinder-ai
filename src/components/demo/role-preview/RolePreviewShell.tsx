@@ -302,23 +302,6 @@ export function RolePreviewShell({
   );
 }
 
-function toolRowsFor(role: DemoRolePreview): CommandRow[] {
-  return role.toolPreviews.slice(0, 8).map((tool) => ({
-    icon: tool.icon,
-    label: tool.title,
-    detail: tool.summary,
-    status: tool.status,
-    to: tool.cta?.to,
-    tone:
-      tool.tone === "success"
-        ? "success"
-        : tool.tone === "warning"
-          ? "warn"
-          : tool.tone === "critical"
-            ? "risk"
-            : "neutral",
-  }));
-}
 
 /**
  * MiniList — flat, card-less column for the Under-the-Hood zone. Replaces
