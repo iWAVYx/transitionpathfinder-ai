@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
+import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { StudentFeatureDrawer } from "@/components/dashboard/student/StudentFeatureDrawer";
 import {
@@ -157,7 +158,6 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
 function StudentTile({ tile, onPreview }: { tile: Tile; onPreview: () => void }) {
   const Icon = tile.icon;
   const detail = STUDENT_FEATURE_DETAILS[tile.featureId];
-  const toneClass = TONE[tile.tone];
   return (
     <div className="group relative flex h-full min-h-[17rem] flex-col rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
@@ -165,11 +165,7 @@ function StudentTile({ tile, onPreview }: { tile: Tile; onPreview: () => void })
           <Icon className="h-5 w-5" aria-hidden />
         </div>
         <span aria-hidden />
-        <span
-          className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider leading-none ring-1 ${toneClass}`}
-        >
-          {tile.status}
-        </span>
+        <Pill tone={tile.tone}>{tile.status}</Pill>
       </div>
       <h3 className="mt-4 font-display text-lg font-medium tracking-tight">
         {toTitleCase(tile.title)}
@@ -211,13 +207,6 @@ function StudentTile({ tile, onPreview }: { tile: Tile; onPreview: () => void })
   );
 }
 
-const TONE: Record<Tile["tone"], string> = {
-  default: "bg-primary/10 text-primary ring-primary/20",
-  success: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/20 dark:text-emerald-300",
-  warning: "bg-amber-500/10 text-amber-700 ring-amber-500/20 dark:text-amber-300",
-  critical: "bg-destructive/10 text-destructive ring-destructive/20",
-  muted: "bg-muted text-muted-foreground ring-border",
-};
 
 // Keep the previously used Compass import referenced in case of future extension.
 void Compass;
