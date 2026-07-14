@@ -1304,91 +1304,10 @@ function StudentCentered() {
 /* -------------------------------------------------------------------------- */
 
 function EcosystemAndCare() {
-  const stakeholders = [
-    "Students",
-    "Families",
-    "Educators & Case Managers",
-    "School Administrators",
-    "District Administrators",
-    "Community Partners",
-  ];
-  const surfaces = [
-    "Transition Workspace",
-    "Pathway Report",
-    "Role Dashboards",
-    "Document Uploads",
-    "Meeting Preparation",
-    "Calendars",
-    "Partner Opportunities",
-    "Resources",
-    "Permissions & Recordkeeping",
-    "District & School Visibility",
-  ];
-
   return (
     <section className="relative overflow-hidden bg-[#0b0a09] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(168,230,207,0.08),transparent_55%)]" />
       <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-28">
-        {/* Collaboration */}
-        <div className="grid gap-12 md:grid-cols-[5fr_6fr] md:gap-20">
-          <div>
-            <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
-              A Shared Workspace
-            </div>
-            <h2 className="font-serif text-[clamp(1.9rem,4.4vw,3.4rem)] font-light leading-[1.05]">
-              Planning works best when information
-              <span className="italic"> does not live in separate places.</span>
-            </h2>
-          </div>
-          <div className="flex flex-col justify-end">
-            <p className="text-base text-white/75 sm:text-lg">
-              Transition Forward connects documents, meetings, notes, uploads, calendars,
-              resources, opportunities, role dashboards, and pathway reports so each
-              person can contribute from their role without losing the whole picture.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {stakeholders.map((s) => (
-                <span
-                  key={s}
-                  className="rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-[11px] uppercase tracking-[0.15em] text-white/75"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent md:my-24" />
-
-        {/* Ecosystem */}
-        <div className="grid gap-12 md:grid-cols-[5fr_6fr] md:gap-20">
-          <div>
-            <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
-              One Ecosystem
-            </div>
-            <h2 className="font-serif text-[clamp(1.9rem,4.4vw,3.4rem)] font-light leading-[1.05]">
-              Not a stack of features.
-              <span className="italic"> A shared path forward.</span>
-            </h2>
-            <p className="mt-6 text-base text-white/70">
-              Each surface exists to make the next step easier to prepare for, act on, and
-              remember.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-[15px] text-white/75 sm:grid-cols-2">
-            {surfaces.map((s) => (
-              <div key={s} className="flex items-start gap-3 border-l border-white/10 pl-4">
-                <span>{s}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent md:my-24" />
-
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
