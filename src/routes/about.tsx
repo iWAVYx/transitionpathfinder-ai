@@ -800,7 +800,7 @@ function ClosingCTA() {
           transition={{ duration: 0.8 }}
           className="mb-6 text-[10px] uppercase tracking-[0.4em] text-white/60"
         >
-          Continue the pathway
+          The Path Belongs to the Student
         </motion.div>
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -809,9 +809,21 @@ function ClosingCTA() {
           transition={{ duration: 1, delay: 0.1 }}
           className="font-serif text-[clamp(2.4rem,7vw,6rem)] font-light leading-[0.95]"
         >
-          The story keeps going.
-          <span className="mt-8 block italic text-white/75">Walk it with us.</span>
+          The Work Is Shared.
+          <span className="mt-8 block italic text-white/75">The Path Is Theirs.</span>
         </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-20%" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mt-8 max-w-2xl text-base text-white/70 sm:text-lg"
+        >
+          Transition Forward is built for the student preparing for what comes next, the
+          family trying to understand the process, the educator carrying the details, the
+          district trying to support many students well, and the partner ready to open a
+          door.
+        </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -822,7 +834,7 @@ function ClosingCTA() {
         >
           <Link to="/platform" className="sm:flex-1">
             <Button size="lg" className="inline-flex w-full items-center justify-center gap-2">
-              Explore Transition Forward <ArrowRight className="h-4 w-4" />
+              See How It Works <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
           <Link to="/waitlist" className="sm:flex-1">
