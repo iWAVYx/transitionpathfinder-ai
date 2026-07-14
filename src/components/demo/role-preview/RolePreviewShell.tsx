@@ -294,6 +294,7 @@ export function RolePreviewShell({
           </div>
         </PageSection>
       )}
+      </div>
     </SiteShell>
   );
 }
