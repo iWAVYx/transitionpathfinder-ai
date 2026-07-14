@@ -86,11 +86,36 @@ export const revokeSharingPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    // Read the row first so we can capture student_id + audience for the audit trail.
+    const { data: existing } = await supabase
+      .from("sharing_permissions")
+      .select(
+        "id, student_id, shared_with_user_id, shared_with_organization_id, access_level, shared_items",
+      )
+      .eq("id", data.id)
+      .maybeSingle();
+
     const { error } = await supabase
       .from("sharing_permissions")
       .delete()
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+
+    if (existing) {
+      await supabase.from("audit_log").insert({
+        actor_id: userId,
+        action: "sharing.revoke",
+        entity_type: "sharing_permission",
+        entity_id: existing.id,
+        student_id: existing.student_id,
+        metadata: {
+          access_level: existing.access_level,
+          shared_with_user_id: existing.shared_with_user_id,
+          shared_with_organization_id: existing.shared_with_organization_id,
+          shared_items: existing.shared_items,
+        },
+      });
+    }
     return { ok: true };
   });

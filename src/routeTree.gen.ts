@@ -107,6 +107,7 @@ import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/em
 import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace.$stage'
 import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authenticated/workspace.$stage'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
+import { Route as AuthenticatedStudentHistoryRouteImport } from './routes/_authenticated/student.history'
 import { Route as AuthenticatedSchoolTeamRouteImport } from './routes/_authenticated/school.team'
 import { Route as AuthenticatedSchoolSupportNeedsRouteImport } from './routes/_authenticated/school.support-needs'
 import { Route as AuthenticatedSchoolResourceUsageRouteImport } from './routes/_authenticated/school.resource-usage'
@@ -115,6 +116,7 @@ import { Route as AuthenticatedSchoolReadinessTrendsRouteImport } from './routes
 import { Route as AuthenticatedSchoolPlanningStatusRouteImport } from './routes/_authenticated/school.planning-status'
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
+import { Route as AuthenticatedSchoolHistoryRouteImport } from './routes/_authenticated/school.history'
 import { Route as AuthenticatedSchoolCalendarRouteImport } from './routes/_authenticated/school.calendar'
 import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authenticated/resources.saved'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
@@ -125,6 +127,7 @@ import { Route as AuthenticatedPartnersManageProfileRouteImport } from './routes
 import { Route as AuthenticatedPartnersManageOpportunitiesRouteImport } from './routes/_authenticated/partners-manage_.opportunities'
 import { Route as AuthenticatedPartnersManageImpactRouteImport } from './routes/_authenticated/partners-manage_.impact'
 import { Route as AuthenticatedPartnersManageDeadlinesRouteImport } from './routes/_authenticated/partners-manage_.deadlines'
+import { Route as AuthenticatedPartnerHistoryRouteImport } from './routes/_authenticated/partner.history'
 import { Route as AuthenticatedOwnerWaitlistRouteImport } from './routes/_authenticated/owner.waitlist'
 import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authenticated/owner.users'
 import { Route as AuthenticatedOwnerTestingScriptsRouteImport } from './routes/_authenticated/owner.testing-scripts'
@@ -181,6 +184,7 @@ import { Route as AuthenticatedFamilyActionItemsRouteImport } from './routes/_au
 import { Route as AuthenticatedEducatorReadinessGapsRouteImport } from './routes/_authenticated/educator.readiness-gaps'
 import { Route as AuthenticatedEducatorPendingInputRouteImport } from './routes/_authenticated/educator.pending-input'
 import { Route as AuthenticatedEducatorNotesRouteImport } from './routes/_authenticated/educator.notes'
+import { Route as AuthenticatedEducatorHistoryRouteImport } from './routes/_authenticated/educator.history'
 import { Route as AuthenticatedEducatorDocumentReviewRouteImport } from './routes/_authenticated/educator.document-review'
 import { Route as AuthenticatedEducatorActionItemsRouteImport } from './routes/_authenticated/educator.action-items'
 import { Route as AuthenticatedDistrictTeamRouteImport } from './routes/_authenticated/district.team'
@@ -191,6 +195,7 @@ import { Route as AuthenticatedDistrictReadinessTrendsRouteImport } from './rout
 import { Route as AuthenticatedDistrictProgressRouteImport } from './routes/_authenticated/district.progress'
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as AuthenticatedDistrictImplementationRouteImport } from './routes/_authenticated/district.implementation'
+import { Route as AuthenticatedDistrictHistoryRouteImport } from './routes/_authenticated/district.history'
 import { Route as AuthenticatedBridgeforwardVoiceRouteImport } from './routes/_authenticated/bridgeforward.voice'
 import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes/_authenticated/bridgeforward.snapshot'
 import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
@@ -706,6 +711,12 @@ const AuthenticatedStudentsStudentIdRoute =
     path: '/$studentId',
     getParentRoute: () => AuthenticatedStudentsRoute,
   } as any)
+const AuthenticatedStudentHistoryRoute =
+  AuthenticatedStudentHistoryRouteImport.update({
+    id: '/student/history',
+    path: '/student/history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSchoolTeamRoute = AuthenticatedSchoolTeamRouteImport.update({
   id: '/school/team',
   path: '/school/team',
@@ -751,6 +762,12 @@ const AuthenticatedSchoolImplementationRoute =
   AuthenticatedSchoolImplementationRouteImport.update({
     id: '/school/implementation',
     path: '/school/implementation',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolHistoryRoute =
+  AuthenticatedSchoolHistoryRouteImport.update({
+    id: '/school/history',
+    path: '/school/history',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSchoolCalendarRoute =
@@ -811,6 +828,12 @@ const AuthenticatedPartnersManageDeadlinesRoute =
   AuthenticatedPartnersManageDeadlinesRouteImport.update({
     id: '/partners-manage_/deadlines',
     path: '/partners-manage/deadlines',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPartnerHistoryRoute =
+  AuthenticatedPartnerHistoryRouteImport.update({
+    id: '/partner/history',
+    path: '/partner/history',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedOwnerWaitlistRoute =
@@ -1139,6 +1162,12 @@ const AuthenticatedEducatorNotesRoute =
     path: '/educator/notes',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedEducatorHistoryRoute =
+  AuthenticatedEducatorHistoryRouteImport.update({
+    id: '/educator/history',
+    path: '/educator/history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEducatorDocumentReviewRoute =
   AuthenticatedEducatorDocumentReviewRouteImport.update({
     id: '/educator/document-review',
@@ -1197,6 +1226,12 @@ const AuthenticatedDistrictImplementationRoute =
   AuthenticatedDistrictImplementationRouteImport.update({
     id: '/district/implementation',
     path: '/district/implementation',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDistrictHistoryRoute =
+  AuthenticatedDistrictHistoryRouteImport.update({
+    id: '/district/history',
+    path: '/district/history',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedBridgeforwardVoiceRoute =
@@ -1371,6 +1406,7 @@ export interface FileRoutesByFullPath {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
@@ -1381,6 +1417,7 @@ export interface FileRoutesByFullPath {
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
+  '/educator/history': typeof AuthenticatedEducatorHistoryRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
   '/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
@@ -1437,6 +1474,7 @@ export interface FileRoutesByFullPath {
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/partner/history': typeof AuthenticatedPartnerHistoryRoute
   '/partners-manage/deadlines': typeof AuthenticatedPartnersManageDeadlinesRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/partners-manage/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -1447,6 +1485,7 @@ export interface FileRoutesByFullPath {
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/calendar': typeof AuthenticatedSchoolCalendarRoute
+  '/school/history': typeof AuthenticatedSchoolHistoryRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1455,6 +1494,7 @@ export interface FileRoutesByFullPath {
   '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
+  '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -1565,6 +1605,7 @@ export interface FileRoutesByTo {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/district/progress': typeof AuthenticatedDistrictProgressRoute
@@ -1575,6 +1616,7 @@ export interface FileRoutesByTo {
   '/district/team': typeof AuthenticatedDistrictTeamRoute
   '/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
+  '/educator/history': typeof AuthenticatedEducatorHistoryRoute
   '/educator/notes': typeof AuthenticatedEducatorNotesRoute
   '/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
@@ -1631,6 +1673,7 @@ export interface FileRoutesByTo {
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/partner/history': typeof AuthenticatedPartnerHistoryRoute
   '/partners-manage/deadlines': typeof AuthenticatedPartnersManageDeadlinesRoute
   '/partners-manage/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/partners-manage/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -1641,6 +1684,7 @@ export interface FileRoutesByTo {
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/calendar': typeof AuthenticatedSchoolCalendarRoute
+  '/school/history': typeof AuthenticatedSchoolHistoryRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1649,6 +1693,7 @@ export interface FileRoutesByTo {
   '/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/school/team': typeof AuthenticatedSchoolTeamRoute
+  '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -1763,6 +1808,7 @@ export interface FileRoutesById {
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/_authenticated/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/_authenticated/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/_authenticated/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/_authenticated/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
   '/_authenticated/district/progress': typeof AuthenticatedDistrictProgressRoute
@@ -1773,6 +1819,7 @@ export interface FileRoutesById {
   '/_authenticated/district/team': typeof AuthenticatedDistrictTeamRoute
   '/_authenticated/educator/action-items': typeof AuthenticatedEducatorActionItemsRoute
   '/_authenticated/educator/document-review': typeof AuthenticatedEducatorDocumentReviewRoute
+  '/_authenticated/educator/history': typeof AuthenticatedEducatorHistoryRoute
   '/_authenticated/educator/notes': typeof AuthenticatedEducatorNotesRoute
   '/_authenticated/educator/pending-input': typeof AuthenticatedEducatorPendingInputRoute
   '/_authenticated/educator/readiness-gaps': typeof AuthenticatedEducatorReadinessGapsRoute
@@ -1829,6 +1876,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
   '/_authenticated/owner/users': typeof AuthenticatedOwnerUsersRoute
   '/_authenticated/owner/waitlist': typeof AuthenticatedOwnerWaitlistRoute
+  '/_authenticated/partner/history': typeof AuthenticatedPartnerHistoryRoute
   '/_authenticated/partners-manage_/deadlines': typeof AuthenticatedPartnersManageDeadlinesRoute
   '/_authenticated/partners-manage_/impact': typeof AuthenticatedPartnersManageImpactRoute
   '/_authenticated/partners-manage_/opportunities': typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -1839,6 +1887,7 @@ export interface FileRoutesById {
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/_authenticated/school/calendar': typeof AuthenticatedSchoolCalendarRoute
+  '/_authenticated/school/history': typeof AuthenticatedSchoolHistoryRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/_authenticated/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1847,6 +1896,7 @@ export interface FileRoutesById {
   '/_authenticated/school/resource-usage': typeof AuthenticatedSchoolResourceUsageRoute
   '/_authenticated/school/support-needs': typeof AuthenticatedSchoolSupportNeedsRoute
   '/_authenticated/school/team': typeof AuthenticatedSchoolTeamRoute
+  '/_authenticated/student/history': typeof AuthenticatedStudentHistoryRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/_authenticated/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
   '/demo_/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -1961,6 +2011,7 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/district/history'
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
@@ -1971,6 +2022,7 @@ export interface FileRouteTypes {
     | '/district/team'
     | '/educator/action-items'
     | '/educator/document-review'
+    | '/educator/history'
     | '/educator/notes'
     | '/educator/pending-input'
     | '/educator/readiness-gaps'
@@ -2027,6 +2079,7 @@ export interface FileRouteTypes {
     | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
+    | '/partner/history'
     | '/partners-manage/deadlines'
     | '/partners-manage/impact'
     | '/partners-manage/opportunities'
@@ -2037,6 +2090,7 @@ export interface FileRouteTypes {
     | '/reports/$reportId'
     | '/resources/saved'
     | '/school/calendar'
+    | '/school/history'
     | '/school/implementation'
     | '/school/overview'
     | '/school/planning-status'
@@ -2045,6 +2099,7 @@ export interface FileRouteTypes {
     | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
+    | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
     | '/demo/workspace/$stage'
@@ -2155,6 +2210,7 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/district/history'
     | '/district/implementation'
     | '/district/overview'
     | '/district/progress'
@@ -2165,6 +2221,7 @@ export interface FileRouteTypes {
     | '/district/team'
     | '/educator/action-items'
     | '/educator/document-review'
+    | '/educator/history'
     | '/educator/notes'
     | '/educator/pending-input'
     | '/educator/readiness-gaps'
@@ -2221,6 +2278,7 @@ export interface FileRouteTypes {
     | '/owner/testing-scripts'
     | '/owner/users'
     | '/owner/waitlist'
+    | '/partner/history'
     | '/partners-manage/deadlines'
     | '/partners-manage/impact'
     | '/partners-manage/opportunities'
@@ -2231,6 +2289,7 @@ export interface FileRouteTypes {
     | '/reports/$reportId'
     | '/resources/saved'
     | '/school/calendar'
+    | '/school/history'
     | '/school/implementation'
     | '/school/overview'
     | '/school/planning-status'
@@ -2239,6 +2298,7 @@ export interface FileRouteTypes {
     | '/school/resource-usage'
     | '/school/support-needs'
     | '/school/team'
+    | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
     | '/demo/workspace/$stage'
@@ -2352,6 +2412,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bridgeforward/intake'
     | '/_authenticated/bridgeforward/snapshot'
     | '/_authenticated/bridgeforward/voice'
+    | '/_authenticated/district/history'
     | '/_authenticated/district/implementation'
     | '/_authenticated/district/overview'
     | '/_authenticated/district/progress'
@@ -2362,6 +2423,7 @@ export interface FileRouteTypes {
     | '/_authenticated/district/team'
     | '/_authenticated/educator/action-items'
     | '/_authenticated/educator/document-review'
+    | '/_authenticated/educator/history'
     | '/_authenticated/educator/notes'
     | '/_authenticated/educator/pending-input'
     | '/_authenticated/educator/readiness-gaps'
@@ -2418,6 +2480,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/testing-scripts'
     | '/_authenticated/owner/users'
     | '/_authenticated/owner/waitlist'
+    | '/_authenticated/partner/history'
     | '/_authenticated/partners-manage_/deadlines'
     | '/_authenticated/partners-manage_/impact'
     | '/_authenticated/partners-manage_/opportunities'
@@ -2428,6 +2491,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/resources/saved'
     | '/_authenticated/school/calendar'
+    | '/_authenticated/school/history'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
     | '/_authenticated/school/planning-status'
@@ -2436,6 +2500,7 @@ export interface FileRouteTypes {
     | '/_authenticated/school/resource-usage'
     | '/_authenticated/school/support-needs'
     | '/_authenticated/school/team'
+    | '/_authenticated/student/history'
     | '/_authenticated/students/$studentId'
     | '/_authenticated/workspace/$stage'
     | '/demo_/workspace/$stage'
@@ -3211,6 +3276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsStudentIdRouteImport
       parentRoute: typeof AuthenticatedStudentsRoute
     }
+    '/_authenticated/student/history': {
+      id: '/_authenticated/student/history'
+      path: '/student/history'
+      fullPath: '/student/history'
+      preLoaderRoute: typeof AuthenticatedStudentHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/school/team': {
       id: '/_authenticated/school/team'
       path: '/school/team'
@@ -3265,6 +3337,13 @@ declare module '@tanstack/react-router' {
       path: '/school/implementation'
       fullPath: '/school/implementation'
       preLoaderRoute: typeof AuthenticatedSchoolImplementationRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/history': {
+      id: '/_authenticated/school/history'
+      path: '/school/history'
+      fullPath: '/school/history'
+      preLoaderRoute: typeof AuthenticatedSchoolHistoryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/school/calendar': {
@@ -3335,6 +3414,13 @@ declare module '@tanstack/react-router' {
       path: '/partners-manage/deadlines'
       fullPath: '/partners-manage/deadlines'
       preLoaderRoute: typeof AuthenticatedPartnersManageDeadlinesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/partner/history': {
+      id: '/_authenticated/partner/history'
+      path: '/partner/history'
+      fullPath: '/partner/history'
+      preLoaderRoute: typeof AuthenticatedPartnerHistoryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/owner/waitlist': {
@@ -3729,6 +3815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEducatorNotesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/educator/history': {
+      id: '/_authenticated/educator/history'
+      path: '/educator/history'
+      fullPath: '/educator/history'
+      preLoaderRoute: typeof AuthenticatedEducatorHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/educator/document-review': {
       id: '/_authenticated/educator/document-review'
       path: '/educator/document-review'
@@ -3797,6 +3890,13 @@ declare module '@tanstack/react-router' {
       path: '/district/implementation'
       fullPath: '/district/implementation'
       preLoaderRoute: typeof AuthenticatedDistrictImplementationRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/district/history': {
+      id: '/_authenticated/district/history'
+      path: '/district/history'
+      fullPath: '/district/history'
+      preLoaderRoute: typeof AuthenticatedDistrictHistoryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/bridgeforward/voice': {
@@ -4099,6 +4199,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
   AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
   AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
+  AuthenticatedDistrictHistoryRoute: typeof AuthenticatedDistrictHistoryRoute
   AuthenticatedDistrictImplementationRoute: typeof AuthenticatedDistrictImplementationRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
   AuthenticatedDistrictProgressRoute: typeof AuthenticatedDistrictProgressRoute
@@ -4109,6 +4210,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDistrictTeamRoute: typeof AuthenticatedDistrictTeamRoute
   AuthenticatedEducatorActionItemsRoute: typeof AuthenticatedEducatorActionItemsRoute
   AuthenticatedEducatorDocumentReviewRoute: typeof AuthenticatedEducatorDocumentReviewRoute
+  AuthenticatedEducatorHistoryRoute: typeof AuthenticatedEducatorHistoryRoute
   AuthenticatedEducatorNotesRoute: typeof AuthenticatedEducatorNotesRoute
   AuthenticatedEducatorPendingInputRoute: typeof AuthenticatedEducatorPendingInputRoute
   AuthenticatedEducatorReadinessGapsRoute: typeof AuthenticatedEducatorReadinessGapsRoute
@@ -4124,6 +4226,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedHubsPartnerRoute: typeof AuthenticatedHubsPartnerRoute
   AuthenticatedHubsSchoolRoute: typeof AuthenticatedHubsSchoolRoute
   AuthenticatedHubsStudentRoute: typeof AuthenticatedHubsStudentRoute
+  AuthenticatedPartnerHistoryRoute: typeof AuthenticatedPartnerHistoryRoute
   AuthenticatedPartnersManageDeadlinesRoute: typeof AuthenticatedPartnersManageDeadlinesRoute
   AuthenticatedPartnersManageImpactRoute: typeof AuthenticatedPartnersManageImpactRoute
   AuthenticatedPartnersManageOpportunitiesRoute: typeof AuthenticatedPartnersManageOpportunitiesRoute
@@ -4131,6 +4234,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPartnersManageResourcesRoute: typeof AuthenticatedPartnersManageResourcesRoute
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
   AuthenticatedSchoolCalendarRoute: typeof AuthenticatedSchoolCalendarRoute
+  AuthenticatedSchoolHistoryRoute: typeof AuthenticatedSchoolHistoryRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolPlanningStatusRoute: typeof AuthenticatedSchoolPlanningStatusRoute
@@ -4139,6 +4243,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolResourceUsageRoute: typeof AuthenticatedSchoolResourceUsageRoute
   AuthenticatedSchoolSupportNeedsRoute: typeof AuthenticatedSchoolSupportNeedsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
+  AuthenticatedStudentHistoryRoute: typeof AuthenticatedStudentHistoryRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
   AuthenticatedFamilyResourcesRecommendedRoute: typeof AuthenticatedFamilyResourcesRecommendedRoute
@@ -4182,6 +4287,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBridgeforwardSnapshotRoute:
     AuthenticatedBridgeforwardSnapshotRoute,
   AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
+  AuthenticatedDistrictHistoryRoute: AuthenticatedDistrictHistoryRoute,
   AuthenticatedDistrictImplementationRoute:
     AuthenticatedDistrictImplementationRoute,
   AuthenticatedDistrictOverviewRoute: AuthenticatedDistrictOverviewRoute,
@@ -4195,6 +4301,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEducatorActionItemsRoute: AuthenticatedEducatorActionItemsRoute,
   AuthenticatedEducatorDocumentReviewRoute:
     AuthenticatedEducatorDocumentReviewRoute,
+  AuthenticatedEducatorHistoryRoute: AuthenticatedEducatorHistoryRoute,
   AuthenticatedEducatorNotesRoute: AuthenticatedEducatorNotesRoute,
   AuthenticatedEducatorPendingInputRoute:
     AuthenticatedEducatorPendingInputRoute,
@@ -4212,6 +4319,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHubsPartnerRoute: AuthenticatedHubsPartnerRoute,
   AuthenticatedHubsSchoolRoute: AuthenticatedHubsSchoolRoute,
   AuthenticatedHubsStudentRoute: AuthenticatedHubsStudentRoute,
+  AuthenticatedPartnerHistoryRoute: AuthenticatedPartnerHistoryRoute,
   AuthenticatedPartnersManageDeadlinesRoute:
     AuthenticatedPartnersManageDeadlinesRoute,
   AuthenticatedPartnersManageImpactRoute:
@@ -4224,6 +4332,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedPartnersManageResourcesRoute,
   AuthenticatedResourcesSavedRoute: AuthenticatedResourcesSavedRoute,
   AuthenticatedSchoolCalendarRoute: AuthenticatedSchoolCalendarRoute,
+  AuthenticatedSchoolHistoryRoute: AuthenticatedSchoolHistoryRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
@@ -4235,6 +4344,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolResourceUsageRoute: AuthenticatedSchoolResourceUsageRoute,
   AuthenticatedSchoolSupportNeedsRoute: AuthenticatedSchoolSupportNeedsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
+  AuthenticatedStudentHistoryRoute: AuthenticatedStudentHistoryRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
   AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
   AuthenticatedFamilyResourcesRecommendedRoute:

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FileSearch, AlertTriangle, ListChecks, CalendarClock, Users2 } from "lucide-react";
+import { FileSearch, AlertTriangle, ListChecks, CalendarClock, Users2, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
@@ -73,6 +73,12 @@ function HubPage() {
                 title: "Caseload Roster",
                 description: "Full student list with status, plan dates, and shared team members.",
                 to: "/caseload",
+              },
+              {
+                icon: History,
+                title: "Records & Access History",
+                description: "Per-student audit trail of document access, uploads, sharing changes, and plan edits.",
+                to: "/educator/history",
               },
             ]}
           />

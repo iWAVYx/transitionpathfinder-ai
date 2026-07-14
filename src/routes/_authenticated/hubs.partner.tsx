@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Briefcase, Users, LineChart, CalendarClock, FileText } from "lucide-react";
+import { Briefcase, Users, LineChart, CalendarClock, FileText, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
@@ -73,6 +73,12 @@ function HubPage() {
                 title: "Partner Profile & Resources",
                 description: "Your public profile and downloadable materials for schools.",
                 to: "/partners-manage/profile",
+              },
+              {
+                icon: History,
+                title: "Connection History",
+                description: "Record of students connected to your org, resources shared, and referrals.",
+                to: "/partner/history",
               },
             ]}
           />

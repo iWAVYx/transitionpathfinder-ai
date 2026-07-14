@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldCheck, TrendingUp, School, ClipboardCheck, FileBarChart } from "lucide-react";
+import { ShieldCheck, TrendingUp, School, ClipboardCheck, FileBarChart, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
@@ -71,6 +71,12 @@ function HubPage() {
                 title: "District Reports",
                 description: "Board-ready reports and downloadable rollups.",
                 to: "/district/reports",
+              },
+              {
+                icon: History,
+                title: "Records & Disclosure History",
+                description: "Per-student audit trail for compliance review and FERPA disclosure logging.",
+                to: "/district/history",
               },
             ]}
           />
