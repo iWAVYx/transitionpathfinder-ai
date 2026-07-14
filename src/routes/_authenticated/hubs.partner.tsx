@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Briefcase, Users, LineChart, CalendarClock, FileText } from "lucide-react";
+import { Briefcase, Users, LineChart, CalendarClock, FileText, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
