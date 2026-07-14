@@ -5,7 +5,8 @@ import {
   type StageId,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
-import { SmartBackLink } from "@/components/site/SmartBackLink";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StageSpine } from "./StageSpine";
 import { StageHeader } from "./StageHeader";
