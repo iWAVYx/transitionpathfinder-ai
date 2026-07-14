@@ -116,6 +116,7 @@ import { Route as AuthenticatedSchoolReadinessTrendsRouteImport } from './routes
 import { Route as AuthenticatedSchoolPlanningStatusRouteImport } from './routes/_authenticated/school.planning-status'
 import { Route as AuthenticatedSchoolOverviewRouteImport } from './routes/_authenticated/school.overview'
 import { Route as AuthenticatedSchoolImplementationRouteImport } from './routes/_authenticated/school.implementation'
+import { Route as AuthenticatedSchoolHistoryRouteImport } from './routes/_authenticated/school.history'
 import { Route as AuthenticatedSchoolCalendarRouteImport } from './routes/_authenticated/school.calendar'
 import { Route as AuthenticatedResourcesSavedRouteImport } from './routes/_authenticated/resources.saved'
 import { Route as AuthenticatedReportsReportIdRouteImport } from './routes/_authenticated/reports.$reportId'
@@ -759,6 +760,12 @@ const AuthenticatedSchoolImplementationRoute =
   AuthenticatedSchoolImplementationRouteImport.update({
     id: '/school/implementation',
     path: '/school/implementation',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSchoolHistoryRoute =
+  AuthenticatedSchoolHistoryRouteImport.update({
+    id: '/school/history',
+    path: '/school/history',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSchoolCalendarRoute =
@@ -1462,6 +1469,7 @@ export interface FileRoutesByFullPath {
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/calendar': typeof AuthenticatedSchoolCalendarRoute
+  '/school/history': typeof AuthenticatedSchoolHistoryRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1658,6 +1666,7 @@ export interface FileRoutesByTo {
   '/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/school/calendar': typeof AuthenticatedSchoolCalendarRoute
+  '/school/history': typeof AuthenticatedSchoolHistoryRoute
   '/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -1858,6 +1867,7 @@ export interface FileRoutesById {
   '/_authenticated/reports/$reportId': typeof AuthenticatedReportsReportIdRoute
   '/_authenticated/resources/saved': typeof AuthenticatedResourcesSavedRoute
   '/_authenticated/school/calendar': typeof AuthenticatedSchoolCalendarRoute
+  '/_authenticated/school/history': typeof AuthenticatedSchoolHistoryRoute
   '/_authenticated/school/implementation': typeof AuthenticatedSchoolImplementationRoute
   '/_authenticated/school/overview': typeof AuthenticatedSchoolOverviewRoute
   '/_authenticated/school/planning-status': typeof AuthenticatedSchoolPlanningStatusRoute
@@ -2058,6 +2068,7 @@ export interface FileRouteTypes {
     | '/reports/$reportId'
     | '/resources/saved'
     | '/school/calendar'
+    | '/school/history'
     | '/school/implementation'
     | '/school/overview'
     | '/school/planning-status'
@@ -2254,6 +2265,7 @@ export interface FileRouteTypes {
     | '/reports/$reportId'
     | '/resources/saved'
     | '/school/calendar'
+    | '/school/history'
     | '/school/implementation'
     | '/school/overview'
     | '/school/planning-status'
@@ -2453,6 +2465,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports/$reportId'
     | '/_authenticated/resources/saved'
     | '/_authenticated/school/calendar'
+    | '/_authenticated/school/history'
     | '/_authenticated/school/implementation'
     | '/_authenticated/school/overview'
     | '/_authenticated/school/planning-status'
@@ -3298,6 +3311,13 @@ declare module '@tanstack/react-router' {
       path: '/school/implementation'
       fullPath: '/school/implementation'
       preLoaderRoute: typeof AuthenticatedSchoolImplementationRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/school/history': {
+      id: '/_authenticated/school/history'
+      path: '/school/history'
+      fullPath: '/school/history'
+      preLoaderRoute: typeof AuthenticatedSchoolHistoryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/school/calendar': {
@@ -4172,6 +4192,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPartnersManageResourcesRoute: typeof AuthenticatedPartnersManageResourcesRoute
   AuthenticatedResourcesSavedRoute: typeof AuthenticatedResourcesSavedRoute
   AuthenticatedSchoolCalendarRoute: typeof AuthenticatedSchoolCalendarRoute
+  AuthenticatedSchoolHistoryRoute: typeof AuthenticatedSchoolHistoryRoute
   AuthenticatedSchoolImplementationRoute: typeof AuthenticatedSchoolImplementationRoute
   AuthenticatedSchoolOverviewRoute: typeof AuthenticatedSchoolOverviewRoute
   AuthenticatedSchoolPlanningStatusRoute: typeof AuthenticatedSchoolPlanningStatusRoute
@@ -4267,6 +4288,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedPartnersManageResourcesRoute,
   AuthenticatedResourcesSavedRoute: AuthenticatedResourcesSavedRoute,
   AuthenticatedSchoolCalendarRoute: AuthenticatedSchoolCalendarRoute,
+  AuthenticatedSchoolHistoryRoute: AuthenticatedSchoolHistoryRoute,
   AuthenticatedSchoolImplementationRoute:
     AuthenticatedSchoolImplementationRoute,
   AuthenticatedSchoolOverviewRoute: AuthenticatedSchoolOverviewRoute,
