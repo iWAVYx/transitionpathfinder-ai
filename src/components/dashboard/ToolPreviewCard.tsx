@@ -94,7 +94,7 @@ export function ToolPreviewCard({
 
 export function ToolPreviewGrid({ children }: { children: ReactNode }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">{children}</div>
+    <div className="grid gap-dashboard-sm sm:grid-cols-2 sm:gap-dashboard-md lg:grid-cols-3 lg:gap-dashboard-lg">{children}</div>
   );
 }
 
