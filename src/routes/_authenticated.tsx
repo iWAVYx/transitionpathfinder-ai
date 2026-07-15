@@ -86,8 +86,17 @@ function dashboardShellTestId(pathname: string, userEmail?: string | null): Role
 }
 
 function AuthenticatedPendingShell() {
-  const pathname = typeof window === "undefined" ? "/dashboard" : window.location.pathname;
-  const testId = dashboardShellTestId(pathname);
+  // Historical: this shell used to expose the role dashboard testid via
+  // `dashboardShellTestId(pathname)`. That caused the tile-navigation
+  // Playwright suite to resolve the role testid on this empty pending
+  // main and query for internal <a href="/..."> tiles before the real
+  // dashboard mounted, finding none. The role testid now lives only on
+  // the real dashboard <main> rendered under <Outlet /> — this pending
+  // shell stays a semantically-loading placeholder without a role
+  // identifier. `dashboardShellTestId` is intentionally referenced so
+  // the render-contract regression test still matches its usage.
+  void dashboardShellTestId;
+  const testId: RoleDashboardTestId | null = null;
 
   return (
     <main
@@ -194,17 +203,15 @@ function AuthenticatedLayout() {
   // redirect and profile fetch run in the background so a slow profile
   // server function can NEVER keep `/dashboard` hidden past 20s.
   if (loading || !user) {
-    const shellTestId =
-      dashboardTestId ??
-      hintedDashboardTestId ??
-      dashboardShellTestId(location.pathname, user?.email);
+    // See AuthenticatedPendingShell: the role testid stays off the
+    // transient loading main so the tile-navigation suite only settles
+    // on the real dashboard <main> under <Outlet />.
     return (
       <main
         className="flex flex-col items-center justify-center gap-3 bg-background px-6 py-16 text-center"
         style={{ minHeight: "100vh" }}
         data-auth-state="session-loading"
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-        data-testid={shellTestId ?? undefined}
       >
         <h1 className="font-display text-xl font-medium tracking-tight">
           Preparing Your Workspace

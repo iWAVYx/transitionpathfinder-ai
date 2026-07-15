@@ -161,7 +161,6 @@ export function OwnerShell({
       <div className="flex min-h-dvh flex-col bg-background text-foreground">
         <main
           data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-          data-testid={ROLE_DASHBOARD_TEST_IDS.owner}
           data-auth-state={status === "checking" ? "checking" : "ready"}
           className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8"
         >
