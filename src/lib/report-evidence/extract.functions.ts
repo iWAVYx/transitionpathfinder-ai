@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
-import { createHash } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 import { REPORT_SECTIONS } from "./types";
@@ -50,7 +49,16 @@ export function snippetHash(
 ): string {
   const norm = snippet.trim().toLowerCase().replace(/\s+/g, " ");
   const key = `${section}|${sourceKind}|${sourceId ?? ""}|${norm}`;
-  return createHash("sha256").update(key).digest("hex").slice(0, 32);
+  // FNV-1a 64-bit (via two 32-bit lanes) — pure JS, deterministic, no node:crypto.
+  let h1 = 0x811c9dc5;
+  let h2 = 0x1b873593;
+  for (let i = 0; i < key.length; i++) {
+    const c = key.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+    h2 = Math.imul(h2 ^ c, 0x85ebca6b) >>> 0;
+  }
+  const hex = (n: number) => n.toString(16).padStart(8, "0");
+  return (hex(h1) + hex(h2) + hex(Math.imul(h1 ^ h2, 0xc2b2ae35) >>> 0) + hex(Math.imul(h1 + h2, 0x27d4eb2f) >>> 0)).slice(0, 32);
 }
 
 /** Drop empty / boilerplate / duplicate-in-batch snippets before insert. */
