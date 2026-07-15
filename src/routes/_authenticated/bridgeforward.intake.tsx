@@ -23,6 +23,7 @@ import {
   getBridgeforwardProfile,
   upsertBridgeforwardProfile,
 } from "@/lib/bridgeforward.functions";
+import { ExtractEvidenceButton } from "@/components/pathway/ExtractEvidenceButton";
 
 export const Route = createFileRoute("/_authenticated/bridgeforward/intake")({
   head: () => ({
