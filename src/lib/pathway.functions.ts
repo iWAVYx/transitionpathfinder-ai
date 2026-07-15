@@ -1004,6 +1004,25 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       throw new Error("We couldn't regenerate the report. Please try again.");
     }
 
+    // If summaries came back weak/generic, retry once with a stricter nudge.
+    if (isWeakSummary(v2.plain_language_summary) || isWeakSummary(v2.professional_summary)) {
+      try {
+        const retryPrompt = `${buildV2Prompt(ctx)}\n\nSTRICT RETRY: your previous plain_language_summary or professional_summary was empty, too short, or used banned filler. Write both again, grounded in the EVIDENCE and inputs above, at least 60 characters each, referencing at least one specific detail about this student.`;
+        const retry = await generateText({
+          model: gateway(REGEN_MODEL),
+          experimental_output: Output.object({ schema: PathwayReportV2 }),
+          prompt: retryPrompt,
+        });
+        const v2b = retry.experimental_output as z.infer<typeof PathwayReportV2>;
+        if (!isWeakSummary(v2b.plain_language_summary) && !isWeakSummary(v2b.professional_summary)) {
+          v2 = v2b;
+        }
+      } catch (err) {
+        console.warn("v2 regeneration weak-summary retry failed (using first pass)", err);
+      }
+    }
+
+
     // Merge deterministic gaps with any AI-suggested gaps (dedupe by topic).
     const determined = computeDeterministicGaps(inputs_used);
     const aiGaps = v2.missing_information_v2 ?? [];
