@@ -73,81 +73,73 @@ export function SchoolPageShell({
   children: (org: SchoolOrg, data: SchoolDashboard) => React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-clip bg-background text-foreground">
-      <SiteHeader />
-      <main
-        className="site-shell-main flex-1 overflow-x-clip"
-        style={{ minHeight: "60vh" }}
-        data-testid={ROLE_DASHBOARD_TEST_IDS.school_admin}
-        data-auth-state="ready"
-      >
-        <RoleGuard path={path}>
-          <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-            <Breadcrumbs
-              trail={[
-                { label: "Dashboard", to: "/dashboard" },
-                { label: "School Administration" },
-                { label: title },
-              ]}
-            />
+    <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.school_admin}>
+      <RoleGuard path={path}>
+        <section className="mx-auto w-full max-w-7xl overflow-x-clip px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          <Breadcrumbs
+            trail={[
+              { label: "Dashboard", to: "/dashboard" },
+              { label: "School Administration" },
+              { label: title },
+            ]}
+          />
 
-            <header className="mt-4 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                  School Administrator
-                </p>
-                <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">{title}</h1>
-                <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-              </div>
-              {data && data.orgs.length > 1 && (
-                <Select value={orgId} onValueChange={onSwitchOrg}>
-                  <SelectTrigger className="w-full sm:w-72">
-                    <SelectValue placeholder="Select organization" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {data.orgs.map((o) => (
-                      <SelectItem key={o.id} value={o.id}>
-                        <span className="inline-flex items-center gap-2">
-                          <Building2 className="h-3.5 w-3.5" /> {o.name}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </header>
-
-            <SchoolNav />
-
-            <div className="mt-6">
-              {loading && !data ? (
-                <div className="py-12 text-center">
-                  <h2 className="font-display text-xl font-medium tracking-tight">
-                    Loading School Administration Data
-                  </h2>
-                  <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                    Gathering connected staff, students, and transition planning
-                    activity for your school.
-                  </p>
-                  <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading School Workspace…</span>
-                  </div>
-                </div>
-              ) : !data?.is_school_admin || data.orgs.length === 0 ? (
-                <CreateSchoolCard onCreated={() => window.location.reload()} />
-              ) : (() => {
-                  const org = data.orgs.find((o) => o.id === orgId) ?? data.orgs[0];
-                  return children(org, data);
-                })()}
+          <header className="mt-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                School Administrator
+              </p>
+              <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">{title}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
             </div>
-          </section>
-        </RoleGuard>
-      </main>
-      <SiteFooter />
-    </div>
+            {data && data.orgs.length > 1 && (
+              <Select value={orgId} onValueChange={onSwitchOrg}>
+                <SelectTrigger className="w-full sm:w-72">
+                  <SelectValue placeholder="Select organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {data.orgs.map((o) => (
+                    <SelectItem key={o.id} value={o.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <Building2 className="h-3.5 w-3.5" /> {o.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </header>
+
+          <SchoolNav />
+
+          <div className="mt-6">
+            {loading && !data ? (
+              <div className="py-12 text-center">
+                <h2 className="font-display text-xl font-medium tracking-tight">
+                  Loading School Administration Data
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                  Gathering connected staff, students, and transition planning
+                  activity for your school.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading School Workspace…</span>
+                </div>
+              </div>
+            ) : !data?.is_school_admin || data.orgs.length === 0 ? (
+              <CreateSchoolCard onCreated={() => window.location.reload()} />
+            ) : (() => {
+                const org = data.orgs.find((o) => o.id === orgId) ?? data.orgs[0];
+                return children(org, data);
+              })()}
+          </div>
+        </section>
+      </RoleGuard>
+    </SiteShell>
   );
 }
+
 
 function CreateSchoolCard({ onCreated }: { onCreated: () => void }) {
   const create = useServerFn(createSchoolForAdmin);
