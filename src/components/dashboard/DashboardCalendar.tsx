@@ -567,6 +567,7 @@ export function DashboardCalendar({
                           onClick={() => handleComplete(ev)}
                           className="rounded-full px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                           title={ev.event_status === "completed" ? "Reopen" : "Mark complete"}
+                          aria-label={ev.event_status === "completed" ? `Reopen ${ev.title}` : `Mark ${ev.title} complete`}
                         >
                           {ev.event_status === "completed" ? "Reopen" : "Done"}
                         </button>
