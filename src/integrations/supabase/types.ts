@@ -1840,6 +1840,8 @@ export type Database = {
           reevaluation_date: string | null
           review_date: string | null
           review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
           school_year: string | null
           size_bytes: number | null
           source: string | null
@@ -1850,6 +1852,7 @@ export type Database = {
           updated_at: string
           uploaded_by: string
           uploaded_by_role: string | null
+          used_in_report_at: string | null
           visibility: string
         }
         Insert: {
@@ -1878,6 +1881,8 @@ export type Database = {
           reevaluation_date?: string | null
           review_date?: string | null
           review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           school_year?: string | null
           size_bytes?: number | null
           source?: string | null
@@ -1888,6 +1893,7 @@ export type Database = {
           updated_at?: string
           uploaded_by: string
           uploaded_by_role?: string | null
+          used_in_report_at?: string | null
           visibility?: string
         }
         Update: {
@@ -1916,6 +1922,8 @@ export type Database = {
           reevaluation_date?: string | null
           review_date?: string | null
           review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           school_year?: string | null
           size_bytes?: number | null
           source?: string | null
@@ -1926,6 +1934,7 @@ export type Database = {
           updated_at?: string
           uploaded_by?: string
           uploaded_by_role?: string | null
+          used_in_report_at?: string | null
           visibility?: string
         }
         Relationships: [
