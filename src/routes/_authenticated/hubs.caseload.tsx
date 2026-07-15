@@ -8,8 +8,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
-import { NextActionCard } from "@/components/next-actions/NextActionCard";
-import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
+import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
+
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -89,9 +89,7 @@ function HubPage() {
           description="Ranked by urgency — overdue and due-soon items surface first."
           gap="tight"
         >
-          <NextActionCard
-            actions={DEMO_NEXT_ACTIONS.educator}
-            recentlyCompleted={DEMO_RECENTLY_COMPLETED.educator}
+          <NextActionCardServer
             historyRoute="/educator/history"
             title="Your Caseload Next Actions"
             eyebrow="What Needs Attention"
