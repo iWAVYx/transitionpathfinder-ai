@@ -8,7 +8,7 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
-import { NextActionCard } from "@/components/next-actions/NextActionCard";
+import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
