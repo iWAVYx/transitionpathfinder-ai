@@ -722,7 +722,7 @@ function AddEventPopover({
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="default">
+        <Button type="button" size="sm" variant="default" aria-label="Add calendar event">
           <Plus className="mr-1.5 h-3.5 w-3.5" />
           Add event
         </Button>
