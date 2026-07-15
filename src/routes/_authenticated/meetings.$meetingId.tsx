@@ -13,6 +13,7 @@ import {
 } from "@/lib/meeting-templates.functions";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { ExtractEvidenceButton } from "@/components/pathway/ExtractEvidenceButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
