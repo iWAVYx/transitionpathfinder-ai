@@ -919,6 +919,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       savedPartnersRes,
       actionsRes,
       prepsRes,
+      evidenceRes,
     ] = await Promise.all([
       supabase.from("students").select("id, first_name, last_name, grade_band, interests, strengths, needs").eq("id", rep.student_id).maybeSingle(),
       rep.intake_id
@@ -935,6 +936,12 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       supabase.from("student_saved_partners").select("id, partner_id, opportunity_id").eq("student_id", rep.student_id).limit(40),
       supabase.from("action_items").select("id, title, status").eq("student_id", rep.student_id).limit(40),
       supabase.from("ppt_meeting_preps").select("id, created_at").eq("student_id", rep.student_id).order("created_at", { ascending: false }).limit(10),
+      supabase
+        .from("report_evidence_links")
+        .select("id, report_section, source_kind, source_id, source_label, note")
+        .eq("student_id", rep.student_id)
+        .order("created_at", { ascending: false })
+        .limit(200),
     ]);
 
     const student = studentRes.data as V2Ctx["student"] | null;
@@ -954,6 +961,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       saved_partners: ((savedPartnersRes.data as Array<{ id: string; partner_id: string | null; opportunity_id: string | null }> | null) ?? []),
       action_items: ((actionsRes.data as Array<{ id: string; title: string; status: string | null }> | null) ?? []),
       meeting_preps: ((prepsRes.data as Array<{ id: string; created_at: string }> | null) ?? []).map((p) => ({ ...p, topics: null })),
+      evidence: ((evidenceRes.data as EvidenceRow[] | null) ?? []),
     };
 
     // Build the deterministic input manifest BEFORE we ask the AI.
