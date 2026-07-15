@@ -17,10 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { dashboardTestIdForDashboardHint } from "@/lib/dashboard-testids";
+import { messageForReason, SIGN_IN_REQUIRED_TITLE } from "@/lib/auth-redirect-reason";
 
 type LoginSearch = {
   redirect: string;
   mfa?: "expired";
+  reason?: string;
 };
 
 const SignInSchema = z.object({
@@ -43,9 +45,10 @@ function rememberDashboardHintFromEmail(email: string) {
 }
 
 export const Route = createFileRoute("/login/")({
-  validateSearch: (s: { redirect?: string; mfa?: string }): LoginSearch => ({
+  validateSearch: (s: { redirect?: string; mfa?: string; reason?: string }): LoginSearch => ({
     redirect: s.redirect || "/dashboard",
     mfa: s.mfa === "expired" ? "expired" : undefined,
+    reason: typeof s.reason === "string" && s.reason.length > 0 && s.reason.length <= 32 ? s.reason : undefined,
   }),
   head: () => ({
     meta: [
