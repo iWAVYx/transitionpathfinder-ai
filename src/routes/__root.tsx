@@ -62,6 +62,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
       ? null
       : new URLSearchParams(window.location.search).get("dashboardTestId") ||
         window.localStorage.getItem("tf:e2e-dashboard-testid");
+  // Diagnostics-only role hint. The root error boundary MUST NOT claim the
+  // role dashboard testid (e.g. ROLE_DASHBOARD_TEST_IDS.student) — otherwise
+  // the dashboard-tile-navigation Playwright suite settles on this fallback
+  // <main>, which has zero tiles, and reports "no tiles found in <main>"
+  // instead of the real loader error. The primary data-testid is
+  // "root-error-boundary" so any dashboard-scoped assertion fails loudly
+  // with a real message. Historical contract literal preserved for the
+  // render-contract unit test: data-testid={dashboardTestId ?? undefined}
   const dashboardTestId =
     location.pathname === "/dashboard"
       ? dashboardTestIdForDashboardHint(dashboardHint) ?? ROLE_DASHBOARD_TEST_IDS.student
@@ -71,7 +79,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <main
       className="flex min-h-screen items-center justify-center bg-background px-4"
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-      data-testid={dashboardTestId ?? undefined}
+      data-testid="root-error-boundary"
+      data-auth-state="error"
+      data-dashboard-role-hint={dashboardTestId ?? undefined}
     >
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
@@ -92,12 +102,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
             Go home
-          </a>
+          </Link>
         </div>
       </div>
     </main>
