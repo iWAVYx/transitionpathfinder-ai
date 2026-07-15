@@ -136,7 +136,13 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
     };
   }, [user, loading, redirect, navigate]);
 
-  if (loading || user) {
+  // Only hide the sign-in form once we've positively resolved a signed-in
+  // user (the redirect useEffect above will bounce them). While `loading`
+  // is still true we render the form eagerly so /login is deterministic:
+  // HTTP 200 always means the sign-in form is in the DOM. This prevents an
+  // auth-bootstrap race from starving E2E readiness checks looking for
+  // data-testid="login-email".
+  if (user) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background px-4 text-foreground" data-auth-state="redirecting-signed-in">
         <p className="text-sm text-muted-foreground">Loading…</p>
