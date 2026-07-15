@@ -27,6 +27,7 @@ import {
   type SectionReviewState,
 } from "@/lib/extractions.functions";
 import { logDocumentView } from "@/lib/documents.functions";
+import { DocumentClassificationCard } from "@/components/documents/DocumentClassificationCard";
 
 export const Route = createFileRoute("/_authenticated/documents/$documentId/review")({
   component: withRoleGuard(["family", "educator", "admin"], ReviewPage),
