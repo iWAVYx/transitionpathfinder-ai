@@ -17,10 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { dashboardTestIdForDashboardHint } from "@/lib/dashboard-testids";
+import { messageForReason, SIGN_IN_REQUIRED_TITLE } from "@/lib/auth-redirect-reason";
 
 type LoginSearch = {
   redirect: string;
   mfa?: "expired";
+  reason?: string;
 };
 
 const SignInSchema = z.object({
@@ -43,9 +45,10 @@ function rememberDashboardHintFromEmail(email: string) {
 }
 
 export const Route = createFileRoute("/login/")({
-  validateSearch: (s: { redirect?: string; mfa?: string }): LoginSearch => ({
+  validateSearch: (s: { redirect?: string; mfa?: string; reason?: string }): LoginSearch => ({
     redirect: s.redirect || "/dashboard",
     mfa: s.mfa === "expired" ? "expired" : undefined,
+    reason: typeof s.reason === "string" && s.reason.length > 0 && s.reason.length <= 32 ? s.reason : undefined,
   }),
   head: () => ({
     meta: [
@@ -94,6 +97,17 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const signInRequiredMessage = messageForReason(search.reason);
+
+  // Surface the "sign in required" reason as a toast on mount so users who
+  // were bounced from a protected feature see WHY (not just an unexplained
+  // login screen). Also rendered inline as an accessible alert below.
+  useEffect(() => {
+    if (!signInRequiredMessage) return;
+    toast.message(SIGN_IN_REQUIRED_TITLE, { description: signInRequiredMessage });
+    // Only fire once per mount for a given reason.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signInRequiredMessage]);
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
@@ -210,6 +224,16 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
               </Link>
 
               <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")} className="mt-3">
+                {signInRequiredMessage && (
+                  <div
+                    className="mb-5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground"
+                    role="alert"
+                    data-testid="sign-in-required-banner"
+                  >
+                    <p className="font-semibold">{SIGN_IN_REQUIRED_TITLE}</p>
+                    <p className="text-muted-foreground">{signInRequiredMessage}</p>
+                  </div>
+                )}
                 {search.mfa === "expired" && (
                   <p className="mb-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
                     Your Two-Factor Verification expired. Please sign in again.
