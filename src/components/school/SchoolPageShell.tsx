@@ -3,8 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
 
-import { SiteHeader } from "@/components/site/SiteHeader";
-import { SiteFooter } from "@/components/site/SiteFooter";
+import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { RoleGuard } from "@/components/RoleGuard";
 import { SchoolNav } from "@/components/school/SchoolNav";
@@ -25,6 +24,7 @@ import {
   type SchoolOrg,
 } from "@/lib/school-admin.functions";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
+
 
 export function useSchoolDashboard() {
   const fetchDash = useServerFn(getSchoolDashboard);
