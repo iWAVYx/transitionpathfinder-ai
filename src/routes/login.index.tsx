@@ -224,6 +224,16 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
               </Link>
 
               <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")} className="mt-3">
+                {signInRequiredMessage && (
+                  <div
+                    className="mb-5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground"
+                    role="alert"
+                    data-testid="sign-in-required-banner"
+                  >
+                    <p className="font-semibold">{SIGN_IN_REQUIRED_TITLE}</p>
+                    <p className="text-muted-foreground">{signInRequiredMessage}</p>
+                  </div>
+                )}
                 {search.mfa === "expired" && (
                   <p className="mb-5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
                     Your Two-Factor Verification expired. Please sign in again.
