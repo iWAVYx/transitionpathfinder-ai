@@ -606,16 +606,15 @@ for (const role of ROLES) {
 
       let outcome = await waitForCanonicalLogin(page);
       let attempts = 1;
+      // One clean retry on the same page (reload the canonical route) if
+      // /login returned 200 but the form never showed. Absorbs transient
+      // hydration / bundle-load stalls without hiding a real regression:
+      // strict failure still fires after the retry.
       while (outcome.kind === "timeout" && attempts < 2) {
         console.log(
-          `[auth-setup ${role.key}] canonical /login timed out (status=${outcome.status} finalUrl=${outcome.finalUrl}); retrying with fresh page`,
+          `[auth-setup ${role.key}] canonical /login timed out (status=${outcome.status} finalUrl=${outcome.finalUrl}); retrying`,
         );
-        const freshContext = await browser.newContext({
-          baseURL: String(testInfo.project.use.baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000"),
-        });
-        const freshPage = await freshContext.newPage();
-        outcome = await waitForCanonicalLogin(freshPage);
-        await freshContext.close();
+        outcome = await waitForCanonicalLogin(page);
         attempts += 1;
       }
 
