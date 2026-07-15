@@ -97,6 +97,17 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const signInRequiredMessage = messageForReason(search.reason);
+
+  // Surface the "sign in required" reason as a toast on mount so users who
+  // were bounced from a protected feature see WHY (not just an unexplained
+  // login screen). Also rendered inline as an accessible alert below.
+  useEffect(() => {
+    if (!signInRequiredMessage) return;
+    toast.message(SIGN_IN_REQUIRED_TITLE, { description: signInRequiredMessage });
+    // Only fire once per mount for a given reason.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signInRequiredMessage]);
 
   // Post-auth gate. Runs for both password sign-in (where the form already
   // checks AAL) and OAuth returnees (Google), since the OAuth callback drops
