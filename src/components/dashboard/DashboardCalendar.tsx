@@ -378,9 +378,11 @@ export function DashboardCalendar({
             }}
           />
           <Button
+            type="button"
             variant="outline"
             size="sm"
             disabled={events.length === 0}
+            aria-label="Export calendar as .ics file"
             onClick={() => {
               downloadDashboardIcs(events.map(toIcsEvent), tz);
               toast.success("Calendar file downloaded.");
