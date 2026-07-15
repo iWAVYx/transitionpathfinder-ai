@@ -11,6 +11,13 @@ import {
   isV2,
   type InputsUsed,
 } from "./pathway-v2";
+import {
+  BANNED_SUMMARY_PHRASES,
+  formatEvidenceForPrompt,
+  isWeakSummary,
+  summarizeEvidenceUsed,
+  type EvidenceRow,
+} from "./pathway-evidence";
 
 
 const IntakeSchema = z.object({
@@ -777,6 +784,7 @@ type V2Ctx = {
   saved_partners: Array<{ id: string; partner_id: string | null; opportunity_id: string | null }>;
   action_items: Array<{ id: string; title: string; status: string | null }>;
   meeting_preps: Array<{ id: string; created_at: string; topics: unknown }>;
+  evidence: EvidenceRow[];
 };
 
 function buildV2Prompt(ctx: V2Ctx): string {
@@ -863,6 +871,11 @@ ${ctx.action_items.length === 0 ? "(none)" : ctx.action_items.map((a) => `- [id:
 MEETING PREP HISTORY (most recent first)
 ${ctx.meeting_preps.length === 0 ? "(none)" : ctx.meeting_preps.map((m) => `- [id:${m.id}] ${m.created_at} topics:${safe(m.topics)}`).join("\n")}
 
+EVIDENCE LINKS (previously mapped from documents, notes, and intake — prefer wording grounded in these)
+${formatEvidenceForPrompt(ctx.evidence)}
+
+Do NOT use these banned filler phrases in plain_language_summary or professional_summary: ${BANNED_SUMMARY_PHRASES.map((p) => `"${p}"`).join(", ")}. Every summary must be at least 60 characters, grounded in the inputs, and specific to this student.
+
 Return ONLY the v2 schema JSON.`;
 }
 
@@ -911,6 +924,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       savedPartnersRes,
       actionsRes,
       prepsRes,
+      evidenceRes,
     ] = await Promise.all([
       supabase.from("students").select("id, first_name, last_name, grade_band, interests, strengths, needs").eq("id", rep.student_id).maybeSingle(),
       rep.intake_id
@@ -927,6 +941,12 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       supabase.from("student_saved_partners").select("id, partner_id, opportunity_id").eq("student_id", rep.student_id).limit(40),
       supabase.from("action_items").select("id, title, status").eq("student_id", rep.student_id).limit(40),
       supabase.from("ppt_meeting_preps").select("id, created_at").eq("student_id", rep.student_id).order("created_at", { ascending: false }).limit(10),
+      supabase
+        .from("report_evidence_links")
+        .select("id, report_section, source_kind, source_id, source_label, note")
+        .eq("student_id", rep.student_id)
+        .order("created_at", { ascending: false })
+        .limit(200),
     ]);
 
     const student = studentRes.data as V2Ctx["student"] | null;
@@ -946,6 +966,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       saved_partners: ((savedPartnersRes.data as Array<{ id: string; partner_id: string | null; opportunity_id: string | null }> | null) ?? []),
       action_items: ((actionsRes.data as Array<{ id: string; title: string; status: string | null }> | null) ?? []),
       meeting_preps: ((prepsRes.data as Array<{ id: string; created_at: string }> | null) ?? []).map((p) => ({ ...p, topics: null })),
+      evidence: ((evidenceRes.data as EvidenceRow[] | null) ?? []),
     };
 
     // Build the deterministic input manifest BEFORE we ask the AI.
@@ -982,6 +1003,25 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       if (msg.includes("402")) throw new Error("AI usage limit reached. Please add credits to continue.");
       throw new Error("We couldn't regenerate the report. Please try again.");
     }
+
+    // If summaries came back weak/generic, retry once with a stricter nudge.
+    if (isWeakSummary(v2.plain_language_summary) || isWeakSummary(v2.professional_summary)) {
+      try {
+        const retryPrompt = `${buildV2Prompt(ctx)}\n\nSTRICT RETRY: your previous plain_language_summary or professional_summary was empty, too short, or used banned filler. Write both again, grounded in the EVIDENCE and inputs above, at least 60 characters each, referencing at least one specific detail about this student.`;
+        const retry = await generateText({
+          model: gateway(REGEN_MODEL),
+          experimental_output: Output.object({ schema: PathwayReportV2 }),
+          prompt: retryPrompt,
+        });
+        const v2b = retry.experimental_output as z.infer<typeof PathwayReportV2>;
+        if (!isWeakSummary(v2b.plain_language_summary) && !isWeakSummary(v2b.professional_summary)) {
+          v2 = v2b;
+        }
+      } catch (err) {
+        console.warn("v2 regeneration weak-summary retry failed (using first pass)", err);
+      }
+    }
+
 
     // Merge deterministic gaps with any AI-suggested gaps (dedupe by topic).
     const determined = computeDeterministicGaps(inputs_used);
@@ -1118,6 +1158,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       : undefined;
     const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
 
+    const evidence_used = summarizeEvidenceUsed(ctx.evidence);
+    const weak_summary_flag =
+      isWeakSummary(plain_language_summary) || isWeakSummary(professional_summary);
+
     const nextContent: Record<string, unknown> = {
       ...prevContent,
       ...v2,
@@ -1132,6 +1176,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       plain_language_summary,
       professional_summary,
       change_summary,
+      evidence_used,
+      weak_summary_flag,
     };
 
 
