@@ -218,6 +218,19 @@ function ReviewPage() {
 
         <DocumentClassificationCard documentId={documentId} />
 
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3">
+          <p className="text-xs text-muted-foreground max-w-md">
+            Push this document's parsed summary into the Pathway Report as
+            grounded evidence. Safe to run again — duplicates are skipped.
+          </p>
+          <ExtractEvidenceButton
+            mode="document"
+            documentId={documentId}
+            label="Extract evidence into report"
+          />
+        </div>
+
+
 
 
 
