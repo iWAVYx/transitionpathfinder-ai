@@ -40,8 +40,10 @@ import {
 } from "@/lib/students.functions";
 import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
 import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
+import { EvidenceUsedPanel } from "@/components/pathway/EvidenceUsedPanel";
 import { PathwayReportLayout } from "@/components/pathway/report/PathwayReportLayout";
 import { isV2 } from "@/lib/pathway-v2";
+import type { EvidenceUsedSummary } from "@/lib/pathway-evidence";
 
 const SearchSchema = z.object({
   welcome: z.coerce.number().optional(),
@@ -343,14 +345,27 @@ function ReportDetailPage() {
       )}
       </PathwayReportLayout>
 
-      {/* Regenerate CTA */}
-      <div className="no-print">
-        <RegenerateBanner
-          onRegenerate={handleRegenerate}
-          busy={regenBusy}
-          canRegenerate={!!state.studentId}
-        />
+      {/* Regenerate CTA + evidence-used side panel */}
+      <div className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
+        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+          <RegenerateBanner
+            onRegenerate={handleRegenerate}
+            busy={regenBusy}
+            canRegenerate={!!state.studentId}
+          />
+          <EvidenceUsedPanel
+            summary={
+              ((state.report as Record<string, unknown> | null)?.evidence_used as
+                | EvidenceUsedSummary
+                | undefined) ?? null
+            }
+            weakSummaryFlag={
+              !!(state.report as Record<string, unknown> | null)?.weak_summary_flag
+            }
+          />
+        </div>
       </div>
+
 
 
       {/* Link to student */}

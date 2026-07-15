@@ -23,6 +23,7 @@ import {
   getBridgeforwardProfile,
   upsertBridgeforwardProfile,
 } from "@/lib/bridgeforward.functions";
+import { ExtractEvidenceButton } from "@/components/pathway/ExtractEvidenceButton";
 
 export const Route = createFileRoute("/_authenticated/bridgeforward/intake")({
   head: () => ({
@@ -249,7 +250,29 @@ function IntakePage() {
               </div>
             ))}
 
-            <div className="flex justify-end pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-4">
+              {studentId ? (
+                <ExtractEvidenceButton
+                  mode="text"
+                  studentId={studentId}
+                  sourceKind="note"
+                  sourceLabel="BridgeForward intake answers"
+                  contextHint="Family/student intake answers for middle school transition planning."
+                  getText={() =>
+                    FIELDS.map((f) => {
+                      const v = form[f.key];
+                      return typeof v === "string" && v.trim()
+                        ? `${f.label}: ${v.trim()}`
+                        : null;
+                    })
+                      .filter(Boolean)
+                      .join("\n")
+                  }
+                  label="Extract evidence from these answers"
+                />
+              ) : (
+                <span />
+              )}
               <Button onClick={handleSave} disabled={saving}>
                 {saving ? (
                   <>
@@ -260,6 +283,7 @@ function IntakePage() {
                 )}
               </Button>
             </div>
+
           </div>
         )}
       </div>

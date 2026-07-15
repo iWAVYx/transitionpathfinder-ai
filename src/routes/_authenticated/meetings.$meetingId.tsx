@@ -13,6 +13,7 @@ import {
 } from "@/lib/meeting-templates.functions";
 
 import { SiteShell } from "@/components/site/SiteShell";
+import { ExtractEvidenceButton } from "@/components/pathway/ExtractEvidenceButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -539,8 +540,39 @@ function MeetingDetailPage() {
               </span>
             </label>
           </div>
+
+          {meeting.student_id && (
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3">
+              <p className="text-xs text-muted-foreground max-w-md">
+                Pull the meeting notes, decisions, and family/teacher context
+                into the Pathway Report as grounded evidence.
+              </p>
+              <ExtractEvidenceButton
+                mode="text"
+                studentId={meeting.student_id}
+                sourceKind="meeting"
+                sourceId={meeting.id}
+                sourceLabel={meeting.title ? `Meeting: ${meeting.title}` : "Meeting notes"}
+                contextHint="Team meeting for a student. Focus on decisions, family/teacher input, and follow-ups."
+                getText={() =>
+                  [
+                    meeting.summary,
+                    meeting.decisions,
+                    meeting.family_concerns,
+                    meeting.teacher_notes,
+                    meeting.student_voice,
+                    meeting.documents_to_update,
+                  ]
+                    .filter((s) => typeof s === "string" && s.trim().length > 0)
+                    .join("\n\n")
+                }
+                label="Extract evidence from meeting notes"
+              />
+            </div>
+          )}
         </div>
       </section>
+
 
       <style>{`
         @media print {
