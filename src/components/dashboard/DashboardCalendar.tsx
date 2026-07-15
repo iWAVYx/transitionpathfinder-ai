@@ -378,9 +378,11 @@ export function DashboardCalendar({
             }}
           />
           <Button
+            type="button"
             variant="outline"
             size="sm"
             disabled={events.length === 0}
+            aria-label="Export calendar as .ics file"
             onClick={() => {
               downloadDashboardIcs(events.map(toIcsEvent), tz);
               toast.success("Calendar file downloaded.");
@@ -565,6 +567,7 @@ export function DashboardCalendar({
                           onClick={() => handleComplete(ev)}
                           className="rounded-full px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
                           title={ev.event_status === "completed" ? "Reopen" : "Mark complete"}
+                          aria-label={ev.event_status === "completed" ? `Reopen ${ev.title}` : `Mark ${ev.title} complete`}
                         >
                           {ev.event_status === "completed" ? "Reopen" : "Done"}
                         </button>
@@ -720,7 +723,7 @@ function AddEventPopover({
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="default">
+        <Button type="button" size="sm" variant="default" aria-label="Add calendar event">
           <Plus className="mr-1.5 h-3.5 w-3.5" />
           Add event
         </Button>
