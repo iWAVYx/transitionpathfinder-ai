@@ -188,11 +188,6 @@ export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean 
         ))}
       </ToolPreviewGrid>
 
-      {isSample ? (
-        <ReportEvidencePanelDemo scopeLabel="Sample Caseload" />
-      ) : (
-        <ReportEvidencePanelServer scopeLabel="Your Caseload" />
-      )}
 
       <EducatorFeatureDrawer
         featureId={openFeature}
