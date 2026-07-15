@@ -225,6 +225,58 @@ async function deriveActionsFromState(
     });
   }
 
+  // Evidence gaps — for each accessible student, suggest attaching evidence
+  // for priority Pathway Report sections that currently have zero links.
+  try {
+    const { data: students } = await supabase
+      .from("students")
+      .select("id,first_name,last_name")
+      .limit(10);
+    const studentIds = (students ?? []).map(
+      (s: { id: string }) => s.id,
+    );
+    if (studentIds.length > 0) {
+      const { data: links } = await supabase
+        .from("report_evidence_links")
+        .select("student_id,report_section")
+        .in("student_id", studentIds);
+      const covered = new Map<string, Set<string>>();
+      for (const l of links ?? []) {
+        const set = covered.get(l.student_id) ?? new Set<string>();
+        set.add(l.report_section);
+        covered.set(l.student_id, set);
+      }
+      let emitted = 0;
+      for (const s of students ?? []) {
+        if (emitted >= 5) break;
+        const coveredSet = covered.get(s.id) ?? new Set<string>();
+        const missing = PRIORITY_EVIDENCE_SECTIONS.filter(
+          (sec) => !coveredSet.has(sec),
+        );
+        if (missing.length === 0) continue;
+        const first = missing[0];
+        const label = REPORT_SECTION_LABELS[first];
+        const name = [s.first_name, s.last_name].filter(Boolean).join(" ") || "Student";
+        out.push({
+          id: `derived:evidence:${s.id}:${first}`,
+          kind: "attach_evidence",
+          title: `Attach evidence for ${label}`,
+          reason: `${name}'s Pathway Report has no evidence linked to "${label}" yet — attach a document, note, or meeting to strengthen it.`,
+          ownerLabel: "You",
+          ctaLabel: "Open Report Evidence",
+          ctaRoute: `/reports`,
+          status: "needs_review",
+          urgency: missing.length >= 3 ? "due_soon" : "normal",
+          priority: 18 + emitted,
+          studentId: s.id,
+        });
+        emitted += 1;
+      }
+    }
+  } catch (e) {
+    console.error("evidence-gap derivation failed", e);
+  }
+
   return out;
 }
 
