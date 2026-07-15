@@ -54,9 +54,7 @@ function HubPage() {
           description="What needs your attention right now."
           gap="tight"
         >
-          <NextActionCard
-            actions={DEMO_NEXT_ACTIONS.student}
-            recentlyCompleted={DEMO_RECENTLY_COMPLETED.student}
+          <NextActionCardServer
             historyRoute="/student/history"
             suggestionLabel="Open Student Voice"
             suggestionRoute="/student-voice"
