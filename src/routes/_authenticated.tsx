@@ -5,6 +5,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getProfile } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { reasonForPath } from "@/lib/auth-redirect-reason";
+
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import {
   DASHBOARD_TESTID_CONTRACT_VERSION,
@@ -35,7 +37,7 @@ export const Route = createFileRoute("/_authenticated")({
     if (!data.session) {
       throw redirect({
         to: "/login",
-        search: { redirect: location.pathname },
+        search: { redirect: location.pathname, reason: reasonForPath(location.pathname) },
       });
     }
     // 2FA gate: if the user has a verified TOTP factor but hasn't completed
@@ -126,9 +128,10 @@ function AuthenticatedLayout() {
   // Client-side fallback: catch session expiry mid-session.
   useEffect(() => {
     if (!loading && !user) {
+      const path = typeof window !== "undefined" ? window.location.pathname : "/dashboard";
       navigate({
         to: "/login",
-        search: { redirect: typeof window !== "undefined" ? window.location.pathname : "/dashboard" },
+        search: { redirect: path, reason: reasonForPath(path) },
         replace: true,
       });
     }
