@@ -527,132 +527,129 @@ for (const role of ROLES) {
       }
 
 
-      // Route discovery: probe candidate auth routes and report which one
-      // actually serves the sign-in form (login-email testid). Stops at
-      // the first 200 page that has an email input — additional candidates
-      // only run if earlier ones failed, so the diagnostics dump is rooted
-      // at the page that actually matters (typically /login).
-      const candidates = ["/login", "/auth", "/signin", "/sign-in", "/account/login"];
+      // Canonical-login readiness. /login is the single source of truth for
+      // sign-in — never probe /auth, /signin, /sign-in, or /account/login
+      // just because /login rendered slowly. Do NOT inspect the DOM
+      // immediately after page.goto(): wait deterministically for one of
+      //   (a) data-testid="login-email" visible,
+      //   (b) redirect off /login (already-authenticated flow),
+      //   (c) explicit login error boundary visible,
+      // up to a bounded 15s per attempt. Retry once with a fresh page if
+      // /login returns 200 but the form never appeared.
+      const desiredSignInPath = role.key === "owner"
+        ? `/login?redirect=${encodeURIComponent(role.dashboard)}`
+        : "/login";
 
-      type Discovery = {
-        path: string;
-        attemptedUrl: string;
-        finalUrl: string;
-        status: number | null;
-        navError: string | null;
-        hasLoginEmail: boolean;
-        hasAnyEmailInput: boolean;
-        inputs: Array<{ id: string; name: string; type: string; testid: string | null; autocomplete: string | null }>;
-        missingTestId: boolean;
-        stopped: "found-canonical" | "found-email-no-testid" | null;
-      };
-      const discovery: Discovery[] = [];
-      const baseForJoin = configuredBaseUrl.startsWith("http") ? configuredBaseUrl : "http://localhost:3000";
-      for (const path of candidates) {
-        const attemptedUrl = new URL(path, baseForJoin).toString();
+      type ReadyOutcome =
+        | { kind: "form"; status: number | null; finalUrl: string }
+        | { kind: "already-authenticated"; status: number | null; finalUrl: string }
+        | { kind: "error-boundary"; status: number | null; finalUrl: string }
+        | { kind: "not-found"; status: number; finalUrl: string }
+        | { kind: "timeout"; status: number | null; finalUrl: string; inputs: unknown };
+
+      const waitForCanonicalLogin = async (target: Page): Promise<ReadyOutcome> => {
         let status: number | null = null;
-        let navError: string | null = null;
         try {
-          const resp = await page.goto(path, { waitUntil: "domcontentloaded", timeout: 20_000 });
+          const resp = await target.goto(desiredSignInPath, {
+            waitUntil: "domcontentloaded",
+            timeout: 20_000,
+          });
           status = resp?.status() ?? null;
         } catch (e) {
-          navError = (e as Error).message;
+          console.log(`[auth-setup ${role.key}] canonical /login goto threw: ${(e as Error).message}`);
         }
-        const finalUrl = page.url();
-        // Give client hydration a beat before checking visibility — the
-        // tab-based form renders after the bundle boots, and an immediate
-        // isVisible() can race React.
-        const emailLoc = page.getByTestId("login-email").first();
-        await emailLoc.waitFor({ state: "visible", timeout: 5_000 }).catch(() => {});
-        const hasLoginEmail = await emailLoc.isVisible().catch(() => false);
-        const hasAnyEmailInput = await page
-          .locator('input[type="email"], input[name="email" i], input[autocomplete="email"]')
-          .first()
-          .isVisible()
-          .catch(() => false);
-        const inputs = await page
-          .$$eval("input", (els) =>
-            els.map((e) => ({
-              id: (e as HTMLInputElement).id,
-              name: (e as HTMLInputElement).name,
-              type: (e as HTMLInputElement).type,
-              testid: e.getAttribute("data-testid"),
-              autocomplete: (e as HTMLInputElement).autocomplete,
+        if (status === 404) {
+          return { kind: "not-found", status, finalUrl: target.url() };
+        }
+
+        const emailLoc = target.getByTestId("login-email").first();
+        const errorLoc = target.getByTestId("login-error-boundary").first();
+        const outcome = await Promise.race<Promise<ReadyOutcome>>([
+          emailLoc
+            .waitFor({ state: "visible", timeout: 15_000 })
+            .then((): ReadyOutcome => ({ kind: "form", status, finalUrl: target.url() })),
+          target
+            .waitForURL(
+              (url) => {
+                const p = normalizePath(url.pathname);
+                return p !== "/login" && !p.startsWith("/login/");
+              },
+              { timeout: 15_000 },
+            )
+            .then((): ReadyOutcome => ({
+              kind: "already-authenticated",
+              status,
+              finalUrl: target.url(),
             })),
-          )
-          .catch(() => [] as Discovery["inputs"]);
-        const missingTestId = hasAnyEmailInput && !hasLoginEmail;
-        const stopped: Discovery["stopped"] = hasLoginEmail
-          ? "found-canonical"
-          : status === 200 && missingTestId
-            ? "found-email-no-testid"
-            : null;
-        discovery.push({
-          path, attemptedUrl, finalUrl, status, navError,
-          hasLoginEmail, hasAnyEmailInput, inputs, missingTestId, stopped,
+          errorLoc
+            .waitFor({ state: "visible", timeout: 15_000 })
+            .then((): ReadyOutcome => ({
+              kind: "error-boundary",
+              status,
+              finalUrl: target.url(),
+            })),
+        ]).catch(async () => {
+          const inputs = await target
+            .$$eval("input", (els) =>
+              els.map((e) => ({
+                id: (e as HTMLInputElement).id,
+                name: (e as HTMLInputElement).name,
+                type: (e as HTMLInputElement).type,
+                testid: e.getAttribute("data-testid"),
+              })),
+            )
+            .catch(() => []);
+          return { kind: "timeout" as const, status, finalUrl: target.url(), inputs };
         });
+        return outcome;
+      };
+
+      let outcome = await waitForCanonicalLogin(page);
+      let attempts = 1;
+      while (outcome.kind === "timeout" && attempts < 2) {
         console.log(
-          `[auth-setup ${role.key}] candidate ${path} → status=${status} finalUrl=${finalUrl} ` +
-            `hasLoginEmail=${hasLoginEmail} hasAnyEmailInput=${hasAnyEmailInput} ` +
-            `missingTestId=${missingTestId} inputs=${JSON.stringify(inputs)}`,
+          `[auth-setup ${role.key}] canonical /login timed out (status=${outcome.status} finalUrl=${outcome.finalUrl}); retrying with fresh page`,
         );
-        // Stop as soon as we either find the canonical form OR find a 200
-        // page with an email input but no test id — both are actionable;
-        // no point probing /auth, /signin, /account/login after that.
-        if (stopped) break;
+        const freshContext = await browser.newContext({
+          baseURL: String(testInfo.project.use.baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000"),
+        });
+        const freshPage = await freshContext.newPage();
+        outcome = await waitForCanonicalLogin(freshPage);
+        await freshContext.close();
+        attempts += 1;
       }
-      const report = JSON.stringify(discovery, null, 2);
-      console.log(`[auth-setup ${role.key}] route-discovery:\n${report}`);
-      await testInfo.attach(`${role.key}-route-discovery.json`, {
-        body: report,
-        contentType: "application/json",
-      });
 
-      const allChromeError = discovery.every((d) => d.finalUrl.startsWith("chrome-error://"));
-      if (allChromeError) {
-        await dumpDiagnostics("all-routes-chrome-error");
+      if (outcome.kind === "not-found") {
+        await dumpDiagnostics("login-route-not-found");
         throw new Error(
-          `Every candidate route resolved to chrome-error:// — the CI browser cannot reach ` +
-            `the base URL at all. configuredBaseURL=${configuredBaseUrl}. Check DNS, TLS, ` +
-            `and that the staging subdomain is connected to the deployed app.`,
+          `Canonical /login returned HTTP 404. The app does not expose a sign-in route at /login. ` +
+            `Restore /login or declare the correct canonical login route.`,
         );
       }
-
-      const missingTestIdHit = discovery.find((d) => d.stopped === "found-email-no-testid");
-      if (missingTestIdHit && !discovery.some((d) => d.hasLoginEmail)) {
-        await dumpDiagnostics("login-form-missing-testid");
+      if (outcome.kind === "error-boundary") {
+        await dumpDiagnostics("login-error-boundary");
         throw new Error(
-          `Sign-in form is rendered at ${missingTestIdHit.path} (status ${missingTestIdHit.status}, ` +
-            `final ${missingTestIdHit.finalUrl}) but does not expose data-testid="login-email". ` +
-            `Add data-testid="login-email" / "login-password" / "login-submit" to the email, password, ` +
-            `and submit elements (the deployed build may be older than the source). Observed inputs: ` +
-            `${JSON.stringify(missingTestIdHit.inputs)}.`,
+          `/login rendered its recoverable-error boundary (data-testid="login-error-boundary") at ${outcome.finalUrl}. ` +
+            `The sign-in form is unavailable — investigate the underlying error.`,
         );
       }
-
-      const canonical = discovery.find((d) => d.hasLoginEmail);
-      if (!canonical) {
-        const anyEmail = discovery.find((d) => d.hasAnyEmailInput);
-        await dumpDiagnostics("no-login-form-on-any-candidate");
+      if (outcome.kind === "timeout") {
+        await dumpDiagnostics("no-login-form-on-canonical");
         throw new Error(
-          `No candidate route exposed data-testid="login-email". ` +
-            `Closest match with an email input: ${anyEmail?.path ?? "none"} (final ${anyEmail?.finalUrl ?? "n/a"}). ` +
-            `Full discovery: ${report}`,
+          `Canonical /login returned status=${outcome.status} at ${outcome.finalUrl} but did not render ` +
+            `data-testid="login-email" within 15s after ${attempts} attempt(s). Observed inputs: ` +
+            `${JSON.stringify(outcome.inputs)}.`,
         );
       }
-      if (canonical.path !== "/login") {
-        console.warn(
-          `[auth-setup ${role.key}] sign-in form is served at ${canonical.path} (final ${canonical.finalUrl}), NOT /login. Update setup to use this route.`,
+      if (outcome.kind === "already-authenticated") {
+        console.log(
+          `[auth-setup ${role.key}] canonical /login redirected to ${outcome.finalUrl} (already authenticated)`,
+        );
+      } else {
+        console.log(
+          `[auth-setup ${role.key}] canonical /login form ready at ${outcome.finalUrl} (attempts=${attempts})`,
         );
       }
-
-      // Navigate to the discovered canonical route for the actual sign-in.
-      // Owner must complete aal2 against /admin so the saved state proves the
-      // platform-admin dashboard is reachable, not merely a generic dashboard.
-      const signInPath = role.key === "owner"
-        ? `${canonical.path}?redirect=${encodeURIComponent(role.dashboard)}`
-        : canonical.path;
-      await page.goto(signInPath, { waitUntil: "domcontentloaded" });
 
       // Ensure the Sign In tab is active (it's the default, but be explicit
       // in case a future change flips defaults).
