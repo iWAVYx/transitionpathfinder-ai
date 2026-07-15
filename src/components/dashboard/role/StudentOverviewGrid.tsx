@@ -145,11 +145,6 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
         ))}
       </ToolPreviewGrid>
 
-      {isSample ? (
-        <ReportEvidencePanelDemo scopeLabel="Sample Student" />
-      ) : (
-        <ReportEvidencePanelServer scopeLabel="Your Pathway Report" />
-      )}
 
       <StudentFeatureDrawer
         featureId={openFeature}
