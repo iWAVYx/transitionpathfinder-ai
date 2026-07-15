@@ -1158,6 +1158,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       : undefined;
     const change_summary = diffInputsForChangeSummary(prevInputs, inputs_used);
 
+    const evidence_used = summarizeEvidenceUsed(ctx.evidence);
+    const weak_summary_flag =
+      isWeakSummary(plain_language_summary) || isWeakSummary(professional_summary);
+
     const nextContent: Record<string, unknown> = {
       ...prevContent,
       ...v2,
@@ -1172,6 +1176,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       plain_language_summary,
       professional_summary,
       change_summary,
+      evidence_used,
+      weak_summary_flag,
     };
 
 
