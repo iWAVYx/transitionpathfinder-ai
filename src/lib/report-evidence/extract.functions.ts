@@ -138,7 +138,7 @@ export const extractEvidenceFromText = createServerFn({ method: "POST" })
     // Authorization: caller must be able to view+edit this student.
     const { data: canEdit, error: canErr } = await context.supabase.rpc(
       "can_edit_student",
-      { _student_id: data.student_id },
+      { _student_id: data.student_id, _user_id: context.userId },
     );
     if (canErr) {
       console.error("extractEvidenceFromText auth check failed", canErr);
