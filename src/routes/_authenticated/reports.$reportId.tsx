@@ -345,14 +345,27 @@ function ReportDetailPage() {
       )}
       </PathwayReportLayout>
 
-      {/* Regenerate CTA */}
-      <div className="no-print">
-        <RegenerateBanner
-          onRegenerate={handleRegenerate}
-          busy={regenBusy}
-          canRegenerate={!!state.studentId}
-        />
+      {/* Regenerate CTA + evidence-used side panel */}
+      <div className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
+        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+          <RegenerateBanner
+            onRegenerate={handleRegenerate}
+            busy={regenBusy}
+            canRegenerate={!!state.studentId}
+          />
+          <EvidenceUsedPanel
+            summary={
+              ((state.report as Record<string, unknown> | null)?.evidence_used as
+                | EvidenceUsedSummary
+                | undefined) ?? null
+            }
+            weakSummaryFlag={
+              !!(state.report as Record<string, unknown> | null)?.weak_summary_flag
+            }
+          />
+        </div>
       </div>
+
 
 
       {/* Link to student */}
