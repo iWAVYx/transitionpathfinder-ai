@@ -4873,6 +4873,7 @@ export type Database = {
           id: string
           note: string | null
           report_section: string
+          snippet_hash: string | null
           source_id: string | null
           source_kind: string
           source_label: string
@@ -4885,6 +4886,7 @@ export type Database = {
           id?: string
           note?: string | null
           report_section: string
+          snippet_hash?: string | null
           source_id?: string | null
           source_kind: string
           source_label: string
@@ -4897,6 +4899,7 @@ export type Database = {
           id?: string
           note?: string | null
           report_section?: string
+          snippet_hash?: string | null
           source_id?: string | null
           source_kind?: string
           source_label?: string
