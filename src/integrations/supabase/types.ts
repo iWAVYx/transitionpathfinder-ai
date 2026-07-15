@@ -4857,6 +4857,53 @@ export type Database = {
           },
         ]
       }
+      report_evidence_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string | null
+          report_section: string
+          source_id: string | null
+          source_kind: string
+          source_label: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          report_section: string
+          source_id?: string | null
+          source_kind: string
+          source_label: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          report_section?: string
+          source_id?: string | null
+          source_kind?: string
+          source_label?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_evidence_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resource_sources: {
         Row: {
           audience_focus: string[]
