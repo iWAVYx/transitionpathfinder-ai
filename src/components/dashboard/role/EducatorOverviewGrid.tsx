@@ -26,6 +26,8 @@ import {
   type EducatorFeatureId,
 } from "@/lib/demo/educator/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
+import { ReportEvidencePanelDemo } from "@/components/report-evidence/ReportEvidencePanelDemo";
+import { ReportEvidencePanelServer } from "@/components/report-evidence/ReportEvidencePanelServer";
 
 type Tile = {
   featureId: EducatorFeatureId;
