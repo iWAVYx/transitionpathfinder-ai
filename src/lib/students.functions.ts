@@ -279,6 +279,27 @@ export const createShareToken = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireFeatureEntitlement(supabase, userId, "family");
+
+    // Verify the caller owns or can access the referenced report before minting
+    // a share token. RLS also enforces this, but we surface a clear error.
+    const { data: report, error: reportErr } = await supabase
+      .from("pathway_reports")
+      .select("id, user_id, student_id")
+      .eq("id", data.report_id)
+      .maybeSingle();
+    if (reportErr || !report) throw new Error("Report not found.");
+    if (report.user_id !== userId) {
+      let allowed = false;
+      if (report.student_id) {
+        const { data: canAccess } = await supabase.rpc("can_access_student", {
+          _user_id: userId,
+          _student_id: report.student_id,
+        });
+        allowed = !!canAccess;
+      }
+      if (!allowed) throw new Error("You do not have access to this report.");
+    }
+
     const token = randomToken();
     const expires_at = data.expires_in_days
       ? new Date(Date.now() + data.expires_in_days * 86_400_000).toISOString()
