@@ -777,6 +777,7 @@ type V2Ctx = {
   saved_partners: Array<{ id: string; partner_id: string | null; opportunity_id: string | null }>;
   action_items: Array<{ id: string; title: string; status: string | null }>;
   meeting_preps: Array<{ id: string; created_at: string; topics: unknown }>;
+  evidence: EvidenceRow[];
 };
 
 function buildV2Prompt(ctx: V2Ctx): string {
