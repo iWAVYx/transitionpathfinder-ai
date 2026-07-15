@@ -40,8 +40,10 @@ import {
 } from "@/lib/students.functions";
 import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
 import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
+import { EvidenceUsedPanel } from "@/components/pathway/EvidenceUsedPanel";
 import { PathwayReportLayout } from "@/components/pathway/report/PathwayReportLayout";
 import { isV2 } from "@/lib/pathway-v2";
+import type { EvidenceUsedSummary } from "@/lib/pathway-evidence";
 
 const SearchSchema = z.object({
   welcome: z.coerce.number().optional(),
