@@ -6,6 +6,15 @@ import type {
   NextActionUrgency,
   ActivityEvent,
 } from "./types";
+import {
+  REPORT_SECTIONS,
+  REPORT_SECTION_LABELS,
+} from "@/lib/report-evidence/types";
+
+/** Report sections we most want covered by evidence before a report is defensible. */
+const PRIORITY_EVIDENCE_SECTIONS: ReadonlyArray<
+  (typeof REPORT_SECTIONS)[number]
+> = ["snapshot", "student_voice", "family_priorities", "documents", "readiness"];
 
 interface DbAction {
   id: string;
