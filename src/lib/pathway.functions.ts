@@ -871,6 +871,11 @@ ${ctx.action_items.length === 0 ? "(none)" : ctx.action_items.map((a) => `- [id:
 MEETING PREP HISTORY (most recent first)
 ${ctx.meeting_preps.length === 0 ? "(none)" : ctx.meeting_preps.map((m) => `- [id:${m.id}] ${m.created_at} topics:${safe(m.topics)}`).join("\n")}
 
+EVIDENCE LINKS (previously mapped from documents, notes, and intake — prefer wording grounded in these)
+${formatEvidenceForPrompt(ctx.evidence)}
+
+Do NOT use these banned filler phrases in plain_language_summary or professional_summary: ${BANNED_SUMMARY_PHRASES.map((p) => `"${p}"`).join(", ")}. Every summary must be at least 60 characters, grounded in the inputs, and specific to this student.
+
 Return ONLY the v2 schema JSON.`;
 }
 
