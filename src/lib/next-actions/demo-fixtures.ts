@@ -63,8 +63,10 @@ export const DEMO_NEXT_ACTIONS: Record<NextActionRole, NextAction[]> = {
       reason: "Two culinary programs match your interests and IEP supports.",
       ctaLabel: "See Opportunities",
       ctaRoute: "/demo/opportunities",
-      secondaryLabel: "Save For Later",
-      secondaryRoute: "/demo/opportunities",
+      // Intentionally no secondaryRoute — a duplicate href to the same
+      // destination created a duplicate-link regression on the student
+      // dashboard (dashboard-regression: "has no duplicate links in main
+      // content"). Saving-for-later happens on the opportunities page.
       priority: 40,
     }),
     mk({

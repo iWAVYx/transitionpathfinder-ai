@@ -291,7 +291,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
         <NextActionCard
           actions={DEMO_NEXT_ACTIONS.student}
           recentlyCompleted={DEMO_RECENTLY_COMPLETED.student}
-          historyRoute="/family/history"
+          historyRoute="/student/history"
           suggestionLabel="Open Student Voice"
           suggestionRoute="/student-voice"
         />
