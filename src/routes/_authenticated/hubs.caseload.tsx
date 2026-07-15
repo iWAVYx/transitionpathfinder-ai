@@ -89,9 +89,7 @@ function HubPage() {
           description="Ranked by urgency — overdue and due-soon items surface first."
           gap="tight"
         >
-          <NextActionCard
-            actions={DEMO_NEXT_ACTIONS.educator}
-            recentlyCompleted={DEMO_RECENTLY_COMPLETED.educator}
+          <NextActionCardServer
             historyRoute="/educator/history"
             title="Your Caseload Next Actions"
             eyebrow="What Needs Attention"
