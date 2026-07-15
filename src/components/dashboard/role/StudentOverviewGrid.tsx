@@ -22,6 +22,8 @@ import {
   type StudentFeatureId,
 } from "@/lib/demo/student/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
+import { ReportEvidencePanelDemo } from "@/components/report-evidence/ReportEvidencePanelDemo";
+import { ReportEvidencePanelServer } from "@/components/report-evidence/ReportEvidencePanelServer";
 
 type Tile = {
   featureId: StudentFeatureId;
@@ -144,6 +146,12 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
           />
         ))}
       </ToolPreviewGrid>
+
+      {isSample ? (
+        <ReportEvidencePanelDemo scopeLabel="Sample Student" />
+      ) : (
+        <ReportEvidencePanelServer scopeLabel="Your Pathway Report" />
+      )}
 
       <StudentFeatureDrawer
         featureId={openFeature}
