@@ -46,7 +46,8 @@ import {
 
 import { toTitleCase } from "@/lib/title-case";
 
-import { useRef, type MouseEvent as ReactMouseEvent } from "react";
+import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
