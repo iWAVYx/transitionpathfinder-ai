@@ -45,6 +45,7 @@ import {
 
 
 import { toTitleCase } from "@/lib/title-case";
+import { cn } from "@/lib/utils";
 
 import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
