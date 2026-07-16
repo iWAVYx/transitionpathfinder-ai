@@ -16,13 +16,13 @@ import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy & your child's records — TransitionForward" },
+      { title: "Privacy & Your Child's Records — TransitionForward" },
       {
         name: "description",
         content:
           "How TransitionForward stores IEPs, asks for consent, handles FERPA, and keeps every student's records yours.",
       },
-      { property: "og:title", content: "Privacy & your child's records — TransitionForward" },
+      { property: "og:title", content: "Privacy & Your Child's Records — TransitionForward" },
       {
         property: "og:description",
         content:
