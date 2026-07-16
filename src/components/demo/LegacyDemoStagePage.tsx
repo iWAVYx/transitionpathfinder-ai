@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
-import { PathwayReportDeepPreview } from "@/components/pathway/PathwayReportDeepPreview";
 import { getStage, type StageId, type WorkspaceStage } from "@/lib/workspace/stages";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
