@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
-import { PathwayReportDeepPreview } from "@/components/pathway/PathwayReportDeepPreview";
 import { getStage, type StageId, type WorkspaceStage } from "@/lib/workspace/stages";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 
@@ -43,7 +42,6 @@ export function LegacyDemoStagePage({
           expanded={expanded}
           onExpandChange={setExpanded}
         />
-        {stageId === "roadmap" && <PathwayReportDeepPreview />}
         <p className="mt-6 text-xs text-muted-foreground">
           You are viewing <code>{legacyPath}</code> — a legacy demo URL that
           renders the {stage.title} step of the Transition Workspace tour.
