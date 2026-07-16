@@ -196,23 +196,23 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         className="pointer-events-none absolute -bottom-4 -right-4 h-24 w-24 text-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/15"
         aria-hidden
       />
-      <div className="relative flex items-start justify-between">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
           <Icon className="h-5 w-5" />
         </div>
-        <div className="flex flex-wrap justify-end gap-1">
+        <div className="flex flex-wrap justify-end gap-1.5">
           {tags.map((t) => (
             <span
               key={t}
-              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tagStyles[t]}`}
+              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:text-[11px] ${tagStyles[t]}`}
             >
               {t}
             </span>
           ))}
         </div>
       </div>
-      <div className="relative mt-1.5 flex flex-col gap-0.5">
-        <h3 className="min-h-[3.5rem] font-display text-base font-bold leading-snug tracking-tight sm:text-xl">
+      <div className="relative mt-1.5 flex flex-col gap-0.5 text-center">
+        <h3 className="min-h-[3rem] font-display text-lg font-bold leading-snug tracking-tight sm:min-h-[3.5rem] sm:text-xl">
           {toTitleCase(title)}
         </h3>
         <p className="min-h-[4.8rem] text-xs leading-snug text-muted-foreground sm:text-sm sm:line-clamp-4">
