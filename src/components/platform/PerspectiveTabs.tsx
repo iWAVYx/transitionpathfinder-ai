@@ -55,8 +55,8 @@ const perspectives: Array<{
     label: "Student",
     who: "The Person Whose Life This Is",
     tagline: "Your Voice Comes First.",
-    url: "transitionforward.app/students/me",
-    previewLabel: "Student Voice Profile",
+    url: "transitionforward.app/demo/student",
+    previewLabel: "Student Preview",
     bullets: [
       "Tell your team what you are good at and what you love",
       "Say what you want life to look like after high school",
@@ -65,8 +65,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Jordan adds three things he is proud of, picks animal care as a direction he wants to try, and his teacher sees it before the next meeting.",
-    image: studentDashboardAsset.url,
-    imageAlt: "Student dashboard showing My Pathway Report, Student Voice, My Action Items, Meeting Prep, Upcoming Meetings, and Saved Resources cards.",
+    image: studentRolePage,
+    imageAlt: "Student role preview page showing the student command strip, pathway stage, student voice, action items, next meeting, and saved resources.",
   },
   {
     key: "educator",
