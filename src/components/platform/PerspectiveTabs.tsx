@@ -93,8 +93,8 @@ const perspectives: Array<{
     label: "Admin",
     who: "District And Program Leads",
     tagline: "Know What's Working, District Wide.",
-    url: "transitionforward.app/admin",
-    previewLabel: "Admin Console",
+    url: "transitionforward.app/demo/district-admin",
+    previewLabel: "District Admin Preview",
     bullets: [
       "Manage staff, families, and student access",
       "Approve and triage the waitlist",
@@ -103,8 +103,8 @@ const perspectives: Array<{
     ],
     scenario:
       "A program lead opens the admin console, approves five new family accounts from the waitlist, and assigns case managers to their students.",
-    image: adminDashboardAsset.url,
-    imageAlt: "Admin dashboard showing District Overview, Connected Schools, School-By-School Progress, Readiness Trend, Implementation Progress, and District Reports cards.",
+    image: adminRolePage,
+    imageAlt: "District admin role preview page showing the district command strip, connected schools, district readiness, school-by-school progress, and implementation status.",
   },
 ];
 
