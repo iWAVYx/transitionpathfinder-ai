@@ -9,10 +9,10 @@ import {
 import { cn } from "@/lib/utils";
 import { PerspectivePreview } from "./PerspectivePreview";
 
-import familyDashboardAsset from "@/assets/platform-family-dashboard.png.asset.json";
-import studentDashboardAsset from "@/assets/platform-student-dashboard.png.asset.json";
-import educatorDashboardAsset from "@/assets/platform-educator-dashboard.png.asset.json";
-import adminDashboardAsset from "@/assets/platform-admin-dashboard.png.asset.json";
+const familyRolePage = "/platform-role-family.png";
+const studentRolePage = "/platform-role-student.png";
+const educatorRolePage = "/platform-role-educator.png";
+const adminRolePage = "/platform-role-district-admin.png";
 
 import { toTitleCase } from "@/lib/title-case";
 type Key = "family" | "student" | "educator" | "admin";
@@ -36,8 +36,8 @@ const perspectives: Array<{
     label: "Family",
     who: "Parents And Caregivers",
     tagline: "You Walk In Prepared, Not Translated To.",
-    url: "transitionforward.app/dashboard",
-    previewLabel: "Family Dashboard",
+    url: "transitionforward.app/demo/family",
+    previewLabel: "Family Preview",
     bullets: [
       "See your child's Pathway Report in plain language",
       "Save hopes, concerns, and questions between PPT meetings",
@@ -46,8 +46,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Maria opens her dashboard Sunday night, reads the new Pathway Report Mr. Reyes shared, and types three questions she wants to bring to Thursday's PPT.",
-    image: familyDashboardAsset.url,
-    imageAlt: "Family dashboard showing Connected Student, Pathway Report, IEP & Documents, Meeting Prep, Calendar, and Family Action Items cards.",
+    image: familyRolePage,
+    imageAlt: "Family role preview page showing the parent/guardian command strip, connected student card, pathway report, IEP & documents, meeting prep, and family action items.",
   },
   {
     key: "student",
@@ -55,8 +55,8 @@ const perspectives: Array<{
     label: "Student",
     who: "The Person Whose Life This Is",
     tagline: "Your Voice Comes First.",
-    url: "transitionforward.app/students/me",
-    previewLabel: "Student Voice Profile",
+    url: "transitionforward.app/demo/student",
+    previewLabel: "Student Preview",
     bullets: [
       "Tell your team what you are good at and what you love",
       "Say what you want life to look like after high school",
@@ -65,8 +65,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Jordan adds three things he is proud of, picks animal care as a direction he wants to try, and his teacher sees it before the next meeting.",
-    image: studentDashboardAsset.url,
-    imageAlt: "Student dashboard showing My Pathway Report, Student Voice, My Action Items, Meeting Prep, Upcoming Meetings, and Saved Resources cards.",
+    image: studentRolePage,
+    imageAlt: "Student role preview page showing the student command strip, pathway stage, student voice, action items, next meeting, and saved resources.",
   },
   {
     key: "educator",
@@ -74,8 +74,8 @@ const perspectives: Array<{
     label: "Educator",
     who: "Teachers And Case Managers",
     tagline: "One Snapshot Per Student. Always Current.",
-    url: "transitionforward.app/students",
-    previewLabel: "Educator Roster",
+    url: "transitionforward.app/demo/educator",
+    previewLabel: "Educator Preview",
     bullets: [
       "See every student's progress in one roster",
       "Edit transition goals and track milestones",
@@ -84,8 +84,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Mr. Reyes opens his roster, sees Jordan moved from Explore to Prepare this week, and sends Maria an invite to review the updated plan.",
-    image: educatorDashboardAsset.url,
-    imageAlt: "Educator dashboard showing Caseload Snapshot, Student Readiness, Pending Educator Input, Pathway Reports, Meeting Prep, and Case Notes cards.",
+    image: educatorRolePage,
+    imageAlt: "Educator role preview page showing the case-manager command strip, caseload snapshot, readiness signals, pending educator input, pathway reports, and meeting prep.",
   },
   {
     key: "admin",
@@ -93,8 +93,8 @@ const perspectives: Array<{
     label: "Admin",
     who: "District And Program Leads",
     tagline: "Know What's Working, District Wide.",
-    url: "transitionforward.app/admin",
-    previewLabel: "Admin Console",
+    url: "transitionforward.app/demo/district-admin",
+    previewLabel: "District Admin Preview",
     bullets: [
       "Manage staff, families, and student access",
       "Approve and triage the waitlist",
@@ -103,8 +103,8 @@ const perspectives: Array<{
     ],
     scenario:
       "A program lead opens the admin console, approves five new family accounts from the waitlist, and assigns case managers to their students.",
-    image: adminDashboardAsset.url,
-    imageAlt: "Admin dashboard showing District Overview, Connected Schools, School-By-School Progress, Readiness Trend, Implementation Progress, and District Reports cards.",
+    image: adminRolePage,
+    imageAlt: "District admin role preview page showing the district command strip, connected schools, district readiness, school-by-school progress, and implementation status.",
   },
 ];
 
