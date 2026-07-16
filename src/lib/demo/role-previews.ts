@@ -838,9 +838,20 @@ export function getDemoRole(id: DemoRoleId): DemoRolePreview {
 
 export const SHARED_DEMO_STUDENT = {
   name: "Jordan Rivera",
+  full_name: "Jordan Rivera",
   pronouns: "they/them",
   grade: "11",
   school: "Hartford Regional High School",
+  age: 17,
+  case_manager: "Mr. Okafor",
+  disability_category: "Autism Spectrum Disorder · ADHD",
+  graduation_year: "Spring 2027",
+  interests: [
+    "Video game design",
+    "Animals (especially dogs)",
+    "Music production",
+    "Cooking with family",
+  ],
   quote:
     "I want to keep learning about computers and maybe work with animals too.",
 };

@@ -21,8 +21,8 @@ const platformHeroSrcSet = undefined as unknown as string;
 
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { Badge } from "@/components/ui/badge";
-import { DEMO_STUDENT } from "@/lib/demo-data";
-import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, PawPrint, Palette, Leaf } from "lucide-react";
+import { SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
+import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, PawPrint, Gamepad2, Music, ChefHat } from "lucide-react";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
 import {
   Parallax,
@@ -368,8 +368,8 @@ function PlatformPage() {
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               Walk through a complete planning experience using{" "}
-              <strong>{DEMO_STUDENT.full_name}</strong>, a fictional {DEMO_STUDENT.grade} student at{" "}
-              {DEMO_STUDENT.school}. No account, no setup.
+              <strong>{SHARED_DEMO_STUDENT.full_name}</strong>, a fictional {SHARED_DEMO_STUDENT.grade} student at{" "}
+              {SHARED_DEMO_STUDENT.school}. No account, no setup.
             </p>
           </div>
 
@@ -380,34 +380,36 @@ function PlatformPage() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                   Meet the demo student
                 </p>
-                <h3 className="mt-2 font-display text-3xl">{toTitleCase(DEMO_STUDENT.full_name)}</h3>
+                <h3 className="mt-2 font-display text-3xl">{toTitleCase(SHARED_DEMO_STUDENT.full_name)}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {DEMO_STUDENT.pronouns} · {DEMO_STUDENT.grade} · {DEMO_STUDENT.school}
+                  {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade} · {SHARED_DEMO_STUDENT.school}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {DEMO_STUDENT.disability_category} · Graduating {DEMO_STUDENT.graduation_year}
+                  {SHARED_DEMO_STUDENT.disability_category} · Graduating {SHARED_DEMO_STUDENT.graduation_year}
                 </p>
               </div>
               <Badge variant="outline" className="gap-1">
-                Case manager: {DEMO_STUDENT.case_manager}
+                Case manager: {SHARED_DEMO_STUDENT.case_manager}
               </Badge>
             </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <PawPrint className="h-4 w-4 text-primary" /> Animals & shelter work
+                <Gamepad2 className="h-4 w-4 text-primary" /> Video game design
               </div>
               <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <Palette className="h-4 w-4 text-primary" /> Drawing & illustration
+                <PawPrint className="h-4 w-4 text-primary" /> Animals (especially dogs)
               </div>
               <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <Leaf className="h-4 w-4 text-primary" /> Environmental clean-ups
+                <Music className="h-4 w-4 text-primary" /> Music production
+              </div>
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
+                <ChefHat className="h-4 w-4 text-primary" /> Cooking with family
               </div>
             </div>
             <p className="mt-6 rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm italic leading-relaxed text-foreground/80">
-              "I want to work somewhere with animals. Quiet is better. I want to learn how to ride
-              the bus by myself."
+              "{SHARED_DEMO_STUDENT.quote}"
               <span className="mt-2 block not-italic text-xs text-muted-foreground">
-                — In Maya's voice (from the intake)
+                — In Jordan's voice (from the intake)
               </span>
             </p>
           </div>
@@ -432,7 +434,7 @@ function PlatformPage() {
               step="3"
               icon={<HubIcon className="h-5 w-5" />}
               title="Student Hub"
-              body="The ongoing workspace where Maya's family, case manager, and team track goals and documents over time."
+              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time."
               to="/demo/student"
             />
           </div>
