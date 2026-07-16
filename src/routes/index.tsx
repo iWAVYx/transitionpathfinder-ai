@@ -1020,7 +1020,7 @@ function RoleCard({
       </span>
       <h3 className="mt-5 font-display text-lg font-medium leading-snug tracking-tight">{toTitleCase(label)}</h3>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
+      <span className="mt-5 flex items-center justify-center text-sm font-semibold text-primary sm:inline-flex sm:justify-start">
         {cta} <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
       </span>
     </Link>
