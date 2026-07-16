@@ -886,6 +886,21 @@ function ResourcesPage() {
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
               )}
+
+              {/* Expanded filter close toggle */}
+              {scrolled && filtersExpanded && (
+                <button
+                  type="button"
+                  onClick={() => setFiltersExpanded(false)}
+                  className="mt-1.5 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-muted/60 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
+                  aria-expanded={true}
+                  aria-label="Hide filters"
+                >
+                  <Tag className="h-3.5 w-3.5" />
+                  Hide filters
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           )}
         </div>
