@@ -204,8 +204,9 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
       className={cn(
-        "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3",
-        isMobile && "cursor-pointer"
+        "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft transition-all duration-300 hover:shadow-lift sm:justify-between sm:p-3",
+        isMobile && "cursor-pointer active:scale-[0.98]",
+        isMobile && expanded && "shadow-[0_4px_20px_-4px_hsl(var(--foreground)/0.08)]"
       )}
     >
       <div
