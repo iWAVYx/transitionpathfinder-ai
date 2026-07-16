@@ -299,7 +299,7 @@ function PartnersPage() {
                   <Magnetic>
                     <Link
                       to="/waitlist"
-                      className="inline-flex w-full items-center justify-center gap-2 bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
+                      className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
                     >
                       Join the pilot <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -307,7 +307,7 @@ function PartnersPage() {
                   <Magnetic>
                     <Link
                       to="/platform"
-                      className="inline-flex w-full items-center justify-center border border-foreground/20 bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
+                      className="inline-flex w-full items-center justify-center whitespace-nowrap border border-foreground/20 bg-background/90 px-7 py-3 text-sm font-semibold backdrop-blur hover:bg-background"
                     >
                       How matching works
                     </Link>
@@ -315,7 +315,7 @@ function PartnersPage() {
                   <Magnetic>
                     <Link
                       to="/partnerforward"
-                      className="inline-flex w-full items-center justify-center border border-primary/30 bg-primary/5 px-7 py-3 text-sm font-semibold text-primary hover:bg-primary/10"
+                      className="inline-flex w-full items-center justify-center whitespace-nowrap border border-primary/30 bg-primary/5 px-7 py-3 text-sm font-semibold text-primary hover:bg-primary/10"
                     >
                       PartnerForward
                     </Link>
