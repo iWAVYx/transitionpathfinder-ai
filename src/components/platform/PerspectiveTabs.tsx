@@ -74,8 +74,8 @@ const perspectives: Array<{
     label: "Educator",
     who: "Teachers And Case Managers",
     tagline: "One Snapshot Per Student. Always Current.",
-    url: "transitionforward.app/students",
-    previewLabel: "Educator Roster",
+    url: "transitionforward.app/demo/educator",
+    previewLabel: "Educator Preview",
     bullets: [
       "See every student's progress in one roster",
       "Edit transition goals and track milestones",
@@ -84,8 +84,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Mr. Reyes opens his roster, sees Jordan moved from Explore to Prepare this week, and sends Maria an invite to review the updated plan.",
-    image: educatorDashboardAsset.url,
-    imageAlt: "Educator dashboard showing Caseload Snapshot, Student Readiness, Pending Educator Input, Pathway Reports, Meeting Prep, and Case Notes cards.",
+    image: educatorRolePage,
+    imageAlt: "Educator role preview page showing the case-manager command strip, caseload snapshot, readiness signals, pending educator input, pathway reports, and meeting prep.",
   },
   {
     key: "admin",
