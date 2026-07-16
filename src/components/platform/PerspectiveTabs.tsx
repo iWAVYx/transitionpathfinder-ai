@@ -27,7 +27,8 @@ const perspectives: Array<{
   previewLabel: string;
   bullets: string[];
   scenario: string;
-  preview: () => ReactElement;
+  image: string;
+  imageAlt: string;
 }> = [
   {
     key: "family",
@@ -45,7 +46,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Maria opens her dashboard Sunday night, reads the new Pathway Report Mr. Reyes shared, and types three questions she wants to bring to Thursday's PPT.",
-    preview: FamilyPreview,
+    image: familyDashboardAsset.url,
+    imageAlt: "Family dashboard showing Connected Student, Pathway Report, IEP & Documents, Meeting Prep, Calendar, and Family Action Items cards.",
   },
   {
     key: "student",
@@ -63,7 +65,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Jordan adds three things he is proud of, picks animal care as a direction he wants to try, and his teacher sees it before the next meeting.",
-    preview: StudentPreview,
+    image: studentDashboardAsset.url,
+    imageAlt: "Student dashboard showing My Pathway Report, Student Voice, My Action Items, Meeting Prep, Upcoming Meetings, and Saved Resources cards.",
   },
   {
     key: "educator",
@@ -81,7 +84,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Mr. Reyes opens his roster, sees Jordan moved from Explore to Prepare this week, and sends Maria an invite to review the updated plan.",
-    preview: EducatorPreview,
+    image: educatorDashboardAsset.url,
+    imageAlt: "Educator dashboard showing Caseload Snapshot, Student Readiness, Pending Educator Input, Pathway Reports, Meeting Prep, and Case Notes cards.",
   },
   {
     key: "admin",
@@ -99,7 +103,8 @@ const perspectives: Array<{
     ],
     scenario:
       "A program lead opens the admin console, approves five new family accounts from the waitlist, and assigns case managers to their students.",
-    preview: AdminPreview,
+    image: adminDashboardAsset.url,
+    imageAlt: "Admin dashboard showing District Overview, Connected Schools, School-By-School Progress, Readiness Trend, Implementation Progress, and District Reports cards.",
   },
 ];
 
