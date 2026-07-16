@@ -36,8 +36,8 @@ const perspectives: Array<{
     label: "Family",
     who: "Parents And Caregivers",
     tagline: "You Walk In Prepared, Not Translated To.",
-    url: "transitionforward.app/dashboard",
-    previewLabel: "Family Dashboard",
+    url: "transitionforward.app/demo/family",
+    previewLabel: "Family Preview",
     bullets: [
       "See your child's Pathway Report in plain language",
       "Save hopes, concerns, and questions between PPT meetings",
@@ -46,8 +46,8 @@ const perspectives: Array<{
     ],
     scenario:
       "Maria opens her dashboard Sunday night, reads the new Pathway Report Mr. Reyes shared, and types three questions she wants to bring to Thursday's PPT.",
-    image: familyDashboardAsset.url,
-    imageAlt: "Family dashboard showing Connected Student, Pathway Report, IEP & Documents, Meeting Prep, Calendar, and Family Action Items cards.",
+    image: familyRolePage,
+    imageAlt: "Family role preview page showing the parent/guardian command strip, connected student card, pathway report, IEP & documents, meeting prep, and family action items.",
   },
   {
     key: "student",
