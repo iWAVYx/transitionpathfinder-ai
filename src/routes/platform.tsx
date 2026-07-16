@@ -182,7 +182,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         transformStyle: "preserve-3d",
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
-      className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-3 shadow-soft hover:shadow-lift"
+      className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:p-3"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -193,29 +193,29 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
       />
       {/* Oversized corner logo fills empty space */}
       <Icon
-        className="pointer-events-none absolute -bottom-4 -right-4 h-24 w-24 text-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/15"
+        className="pointer-events-none absolute -bottom-4 -right-4 h-16 w-16 text-primary/10 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/15 sm:h-24 sm:w-24"
         aria-hidden
       />
       <div className="relative flex items-start justify-between gap-2">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift">
-          <Icon className="h-5 w-5" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-sky text-primary-foreground shadow-lift sm:h-9 sm:w-9">
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
-        <div className="flex flex-wrap justify-end gap-1.5">
+        <div className="flex flex-wrap justify-end gap-1">
           {tags.map((t) => (
             <span
               key={t}
-              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:text-[11px] ${tagStyles[t]}`}
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:text-[11px] ${tagStyles[t]}`}
             >
               {t}
             </span>
           ))}
         </div>
       </div>
-      <div className="relative mt-1.5 flex flex-col gap-0.5 text-center">
-        <h3 className="min-h-[3rem] font-display text-lg font-bold leading-snug tracking-tight sm:min-h-[3.5rem] sm:text-xl">
+      <div className="relative mt-1 flex flex-col gap-0.5 text-center">
+        <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
           {toTitleCase(title)}
         </h3>
-        <p className="min-h-[4.8rem] text-xs leading-snug text-muted-foreground sm:text-sm sm:line-clamp-4">
+        <p className="line-clamp-3 min-h-[3rem] text-xs leading-snug text-muted-foreground sm:min-h-[4.8rem] sm:text-sm sm:line-clamp-4">
           {body}
         </p>
       </div>
