@@ -22,7 +22,7 @@ const platformHeroSrcSet = undefined as unknown as string;
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { Badge } from "@/components/ui/badge";
 import { SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
-import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, PawPrint, Gamepad2, Music, ChefHat } from "lucide-react";
+import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, PawPrint, Gamepad2, Music, ChefHat, ChevronDown } from "lucide-react";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
 import {
   Parallax,
@@ -45,8 +45,10 @@ import {
 
 
 import { toTitleCase } from "@/lib/title-case";
+import { cn } from "@/lib/utils";
 
-import { useRef, type MouseEvent as ReactMouseEvent } from "react";
+import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
@@ -150,6 +152,8 @@ type Feature = (typeof features)[number];
 
 function ToolCard({ icon: Icon, title, body, tags }: Feature) {
   const ref = useRef<HTMLElement | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleMove = (e: ReactMouseEvent<HTMLElement>) => {
     const el = ref.current;
@@ -172,17 +176,37 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
     el.style.setProperty("--ry", `0deg`);
   };
 
+  const toggle = () => setExpanded((v) => !v);
+
   return (
     <article
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
+      onClick={isMobile ? toggle : undefined}
+      role={isMobile ? "button" : undefined}
+      tabIndex={isMobile ? 0 : undefined}
+      aria-expanded={isMobile ? expanded : undefined}
+      aria-label={isMobile ? `${expanded ? "Collapse" : "Expand"} ${toTitleCase(title)} description` : undefined}
+      onKeyDown={
+        isMobile
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggle();
+              }
+            }
+          : undefined
+      }
       style={{
         transform: "perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))",
         transformStyle: "preserve-3d",
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
-      className="group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3"
+      className={cn(
+        "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3",
+        isMobile && "cursor-pointer"
+      )}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -215,9 +239,23 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight text-ellipsis sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
           {toTitleCase(title)}
         </h3>
-        <p className="line-clamp-3 min-h-[3rem] text-xs leading-snug text-muted-foreground sm:min-h-[4.8rem] sm:text-sm sm:line-clamp-4">
+        <p
+          className={cn(
+            "text-xs leading-snug text-muted-foreground sm:text-sm",
+            expanded ? "sm:line-clamp-4" : "line-clamp-3 min-h-[3rem] sm:line-clamp-4 sm:min-h-[4.8rem]"
+          )}
+        >
           {body}
         </p>
+      </div>
+      <div className="relative mt-2 flex items-center justify-center sm:hidden">
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 text-primary transition-transform duration-200",
+            expanded && "rotate-180"
+          )}
+          aria-hidden
+        />
       </div>
     </article>
   );
