@@ -393,13 +393,13 @@ function PlatformPage() {
               </Badge>
             </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm">
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
                 <PawPrint className="h-4 w-4 text-primary" /> Animals & shelter work
               </div>
-              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm">
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
                 <Palette className="h-4 w-4 text-primary" /> Drawing & illustration
               </div>
-              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm">
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
                 <Leaf className="h-4 w-4 text-primary" /> Environmental clean-ups
               </div>
             </div>
