@@ -84,7 +84,7 @@ const tiers: Tier[] = [
     id: "educator",
     name: "Educators & Case Managers",
     price: {
-      monthly: "$29",
+      monthly: "$29.99",
       yearly: "$199",
       note: {
         monthly: "Per month · per caseload",
