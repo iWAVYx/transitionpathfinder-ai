@@ -263,7 +263,7 @@ function PartnersPage() {
             <Star className="h-8 w-8" strokeWidth={1.2} />
           </FloatingShape>
 
-          <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-20 pb-16 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-28 lg:pb-24">
+          <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-12 pb-12 sm:px-6 sm:pt-16 sm:pb-16 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:px-8 lg:pt-28 lg:pb-24">
             <div>
               <Reveal>
                 <p className="inline-flex items-center gap-2 border-l-2 border-primary pl-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
