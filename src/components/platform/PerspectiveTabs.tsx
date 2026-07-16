@@ -111,7 +111,6 @@ const perspectives: Array<{
 export function PerspectiveTabs() {
   const [active, setActive] = useState<Key>("family");
   const current = perspectives.find((p) => p.key === active)!;
-  const Preview = current.preview;
 
   return (
     <div>
@@ -168,14 +167,19 @@ export function PerspectiveTabs() {
         </div>
 
         <PerspectivePreview label={current.previewLabel} url={current.url}>
-          <Preview />
+          <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+            <img
+              src={current.image}
+              alt={current.imageAlt}
+              className="h-full w-full object-cover object-top"
+              loading="lazy"
+            />
+          </div>
         </PerspectivePreview>
       </div>
     </div>
   );
 }
-
-/* ----------------------- previews ----------------------- */
 
 function FamilyPreview() {
   return (
