@@ -1,6 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
 import {
   Sparkles,
   Mic,
