@@ -1266,21 +1266,6 @@ function StudentCentered() {
             to help students understand their own path, participate in planning, and see
             their future as something they can move toward with support.
           </p>
-          <ul className="mt-8 grid grid-cols-1 gap-x-8 gap-y-3 text-[15px] text-[#1c1814]/75 sm:grid-cols-2">
-            {[
-              "Student voice and preferences",
-              "Interests and pathway options",
-              "Goals and next steps",
-              "Confidence and agency",
-              "Family and team support",
-              "A plan the student can read",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1c1814]/50" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
         </div>
         <div className="relative">
           <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5">
