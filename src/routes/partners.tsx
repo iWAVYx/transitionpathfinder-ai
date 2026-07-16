@@ -295,11 +295,11 @@ function PartnersPage() {
                 </p>
               </Reveal>
               <Reveal delay={420}>
-                <div className="mt-8 flex flex-row gap-3 [&>*]:min-w-0 [&>*]:flex-1">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-nowrap [&>*]:min-w-0 sm:[&>*]:flex-1">
                   <Magnetic>
                     <Link
                       to="/waitlist"
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-lift hover:shadow-soft sm:px-7 sm:text-sm"
                     >
                       Join the pilot <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -307,7 +307,7 @@ function PartnersPage() {
                   <Magnetic>
                     <Link
                       to="/platform"
-                      className="inline-flex h-12 w-full items-center justify-center whitespace-nowrap border border-foreground/20 bg-background/90 px-7 text-sm font-semibold backdrop-blur hover:bg-background"
+                      className="inline-flex h-12 w-full items-center justify-center whitespace-nowrap border border-foreground/20 bg-background/90 px-3 text-xs font-semibold backdrop-blur hover:bg-background sm:px-7 sm:text-sm"
                     >
                       How matching works
                     </Link>
@@ -315,7 +315,7 @@ function PartnersPage() {
                   <Magnetic>
                     <Link
                       to="/partnerforward"
-                      className="inline-flex h-12 w-full items-center justify-center whitespace-nowrap border border-primary/30 bg-primary/5 px-7 text-sm font-semibold text-primary hover:bg-primary/10"
+                      className="inline-flex h-12 w-full items-center justify-center whitespace-nowrap border border-primary/30 bg-primary/5 px-3 text-xs font-semibold text-primary hover:bg-primary/10 sm:px-7 sm:text-sm"
                     >
                       PartnerForward
                     </Link>
