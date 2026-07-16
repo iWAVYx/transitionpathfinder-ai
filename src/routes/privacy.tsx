@@ -11,6 +11,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
