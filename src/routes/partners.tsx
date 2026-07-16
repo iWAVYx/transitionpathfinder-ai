@@ -530,20 +530,6 @@ function PartnersPage() {
               employer, or a community organization — apply to the directory the pilot launches
               with. No fee, no exclusivity, no contracts during the pilot.
             </p>
-            <ul className="mt-6 flex flex-col items-center space-y-3 text-sm text-muted-foreground sm:items-start">
-              <li className="flex items-start justify-center gap-2 sm:justify-start">
-                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                A real person reviews every application within five school days.
-              </li>
-              <li className="flex items-start justify-center gap-2 sm:justify-start">
-                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                We'll co-write your listing in plain language — families won't decode jargon.
-              </li>
-              <li className="flex items-start justify-center gap-2 sm:justify-start">
-                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                You stay in control of how students reach you.
-              </li>
-            </ul>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
                 to="/about"
