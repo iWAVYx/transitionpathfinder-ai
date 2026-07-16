@@ -152,6 +152,8 @@ type Feature = (typeof features)[number];
 
 function ToolCard({ icon: Icon, title, body, tags }: Feature) {
   const ref = useRef<HTMLElement | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleMove = (e: ReactMouseEvent<HTMLElement>) => {
     const el = ref.current;
@@ -174,17 +176,23 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
     el.style.setProperty("--ry", `0deg`);
   };
 
+  const toggle = () => setExpanded((v) => !v);
+
   return (
     <article
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
+      onClick={isMobile ? toggle : undefined}
       style={{
         transform: "perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))",
         transformStyle: "preserve-3d",
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
-      className="group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3"
+      className={cn(
+        "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3",
+        isMobile && "cursor-pointer"
+      )}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -217,9 +225,23 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight text-ellipsis sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
           {toTitleCase(title)}
         </h3>
-        <p className="line-clamp-3 min-h-[3rem] text-xs leading-snug text-muted-foreground sm:min-h-[4.8rem] sm:text-sm sm:line-clamp-4">
+        <p
+          className={cn(
+            "text-xs leading-snug text-muted-foreground sm:text-sm",
+            expanded ? "sm:line-clamp-4" : "line-clamp-3 min-h-[3rem] sm:line-clamp-4 sm:min-h-[4.8rem]"
+          )}
+        >
           {body}
         </p>
+      </div>
+      <div className="relative mt-2 flex items-center justify-center sm:hidden">
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 text-primary transition-transform duration-200",
+            expanded && "rotate-180"
+          )}
+          aria-hidden
+        />
       </div>
     </article>
   );
