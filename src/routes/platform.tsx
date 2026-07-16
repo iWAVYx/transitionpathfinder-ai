@@ -212,7 +212,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         </div>
       </div>
       <div className="relative mt-1 flex flex-col gap-0.5 text-center">
-        <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
+        <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight text-ellipsis sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
           {toTitleCase(title)}
         </h3>
         <p className="line-clamp-3 min-h-[3rem] text-xs leading-snug text-muted-foreground sm:min-h-[4.8rem] sm:text-sm sm:line-clamp-4">
