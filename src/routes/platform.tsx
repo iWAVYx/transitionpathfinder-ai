@@ -434,7 +434,7 @@ function PlatformPage() {
               step="3"
               icon={<HubIcon className="h-5 w-5" />}
               title="Student Hub"
-              body="The ongoing workspace where Maya's family, case manager, and team track goals and documents over time."
+              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time."
               to="/demo/student"
             />
           </div>
