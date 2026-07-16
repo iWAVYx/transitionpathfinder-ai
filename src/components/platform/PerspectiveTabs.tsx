@@ -9,10 +9,10 @@ import {
 import { cn } from "@/lib/utils";
 import { PerspectivePreview } from "./PerspectivePreview";
 
-import familyDashboardAsset from "@/assets/platform-family-dashboard.png.asset.json";
-import studentDashboardAsset from "@/assets/platform-student-dashboard.png.asset.json";
-import educatorDashboardAsset from "@/assets/platform-educator-dashboard.png.asset.json";
-import adminDashboardAsset from "@/assets/platform-admin-dashboard.png.asset.json";
+const familyRolePage = "/platform-role-family.png";
+const studentRolePage = "/platform-role-student.png";
+const educatorRolePage = "/platform-role-educator.png";
+const adminRolePage = "/platform-role-district-admin.png";
 
 import { toTitleCase } from "@/lib/title-case";
 type Key = "family" | "student" | "educator" | "admin";
