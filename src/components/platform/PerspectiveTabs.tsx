@@ -1,19 +1,18 @@
-import { useState, type ReactElement } from "react";
+import { useState } from "react";
 import {
   Heart,
   Mic,
   GraduationCap,
   ShieldCheck,
   Check,
-  CalendarClock,
-  Users,
-  FileText,
-  MapPin,
-  Inbox,
-  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PerspectivePreview } from "./PerspectivePreview";
+
+import familyDashboardAsset from "@/assets/platform-family-dashboard.png.asset.json";
+import studentDashboardAsset from "@/assets/platform-student-dashboard.png.asset.json";
+import educatorDashboardAsset from "@/assets/platform-educator-dashboard.png.asset.json";
+import adminDashboardAsset from "@/assets/platform-admin-dashboard.png.asset.json";
 
 import { toTitleCase } from "@/lib/title-case";
 type Key = "family" | "student" | "educator" | "admin";
