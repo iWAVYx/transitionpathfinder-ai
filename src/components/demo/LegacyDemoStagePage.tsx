@@ -42,7 +42,6 @@ export function LegacyDemoStagePage({
           expanded={expanded}
           onExpandChange={setExpanded}
         />
-        {stageId === "roadmap" && <PathwayReportDeepPreview />}
         <p className="mt-6 text-xs text-muted-foreground">
           You are viewing <code>{legacyPath}</code> — a legacy demo URL that
           renders the {stage.title} step of the Transition Workspace tour.
