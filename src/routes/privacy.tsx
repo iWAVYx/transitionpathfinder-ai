@@ -102,10 +102,10 @@ function PrivacyPage() {
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-14">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Privacy &amp; your child's records
+            Privacy &amp; Your Child's Records
           </p>
           <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
-            Your child's records are yours. Full stop.
+            Your Child's Records Are Yours. Full Stop.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             We built TransitionForward as parents and educators who would not hand our own
