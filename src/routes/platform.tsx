@@ -1,6 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
 import {
   Sparkles,
   Mic,
@@ -298,12 +297,6 @@ function PlatformPage() {
           </Reveal>
         </div>
       </section>
-
-      <PublicJourneyStrip
-        eyebrow="One Connected Workspace"
-        caption="Students, families, educators, and partners see the same nine-stage journey — filtered to what they own."
-        className="border-y border-border/40 bg-muted/20"
-      />
 
       {/* Voices band */}
       <section aria-label="Platform voices" className="border-y border-border/40 bg-muted/30 py-6">
