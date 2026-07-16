@@ -154,7 +154,7 @@ function PrivacyPage() {
           <dl className="mt-8 divide-y divide-border/70 border-y border-border/70">
             {ferpaPoints.map(({ label, body }) => (
               <div key={label} className="grid gap-3 py-6 md:grid-cols-[1fr_2fr] md:gap-8">
-                <dt className="font-display text-base font-semibold text-foreground">{toTitleCase(label)}</dt>
+                <dt className="font-display text-base font-semibold text-foreground">{label}</dt>
                 <dd className="text-sm leading-relaxed text-muted-foreground">{body}</dd>
               </div>
             ))}
