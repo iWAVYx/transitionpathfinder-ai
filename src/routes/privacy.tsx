@@ -70,27 +70,27 @@ const promises = [
 
 const ferpaPoints = [
   {
-    label: "Who owns the records?",
+    label: "Who Owns the Records?",
     body: "You do. Parents own a minor student's records; students 18+ own their own. We are a processor acting on your direction, not the owner of the data.",
   },
   {
-    label: "How does this work with FERPA?",
+    label: "How Does This Work with FERPA?",
     body: "When a district uses TransitionForward under a contract, we act as a school official with a legitimate educational interest, governed by a Data Privacy Agreement. When a family uses us directly, FERPA does not apply because the school is not disclosing — you are. You stay in control either way.",
   },
   {
-    label: "What about students under 13?",
+    label: "What About Students Under 13?",
     body: "Our pilot is for students grades 9–12 and post-secondary (ages 14–22). We do not knowingly create accounts for children under 13 and we do not target them with marketing.",
   },
   {
-    label: "Will my child's IEP end up in an AI training set?",
+    label: "Will My Child's IEP End Up in an AI Training Set?",
     body: "No. Our agreements with AI providers prohibit using customer content for training. We do not log or store the prompts beyond what is needed to render the Pathway Report back to you.",
   },
   {
-    label: "How long do you keep things?",
+    label: "How Long Do You Keep Things?",
     body: "Active records stay as long as your account is active. After deletion: 24 hours to remove from active systems, up to 30 days to clear backups. We retain anonymized usage counts (e.g., 'how many reports were generated this month') indefinitely.",
   },
   {
-    label: "Who do you share with?",
+    label: "Who Do You Share With?",
     body: "No one, except: (1) our hosting provider that runs the database under a signed processing agreement, (2) the AI provider that generates Pathway Reports, and (3) law enforcement only when legally required and only with notice to you whenever permitted.",
   },
 ];
