@@ -165,7 +165,7 @@ function PrivacyPage() {
       {/* Your rights */}
       <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          Your rights in one paragraph.
+          Your Rights in One Paragraph
         </h2>
         <p className="mt-5 text-base leading-relaxed text-muted-foreground">
           You can see every record we hold about your student, correct anything that's wrong,
