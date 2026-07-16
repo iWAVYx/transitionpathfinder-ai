@@ -122,7 +122,7 @@ function PrivacyPage() {
       {/* Six promises */}
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
         <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-          Our six promises
+          Our Six Promises
         </h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2">
           {promises.map(({ icon: Icon, title, body }) => (
