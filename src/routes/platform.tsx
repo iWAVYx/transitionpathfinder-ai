@@ -215,7 +215,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         <h3 className="min-h-[3.5rem] font-display text-base font-bold leading-snug tracking-tight sm:text-xl">
           {toTitleCase(title)}
         </h3>
-        <p className="min-h-[4.8rem] text-xs leading-snug text-muted-foreground line-clamp-4 sm:text-sm">
+        <p className="min-h-[4.8rem] text-xs leading-snug text-muted-foreground sm:text-sm sm:line-clamp-4">
           {body}
         </p>
       </div>
