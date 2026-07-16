@@ -12,7 +12,6 @@ import { useState } from "react";
 
 import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
-import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
@@ -204,9 +203,6 @@ function PricingPage() {
           <div className="mt-6 flex justify-center">
             <BillingToggle value={billing} onChange={setBilling} />
           </div>
-        </div>
-        <div className="mx-auto max-w-5xl px-4 pb-10 sm:px-6 lg:px-8">
-          <PublicJourneyStrip caption="Every plan below unlocks the same connected pathway — priced for the audience it serves." />
         </div>
       </section>
 
