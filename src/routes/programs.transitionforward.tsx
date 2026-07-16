@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
-import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
+
 import { photos, srcSetFor } from "@/lib/photos";
 import frameworkHeroAsset from "@/assets/framework-hero-graduation.png.asset.json";
 const frameworkHero = frameworkHeroAsset.url;
@@ -281,11 +281,6 @@ function FrameworkPage() {
         </div>
       </CursorField>
 
-      <PublicJourneyStrip
-        eyebrow="The TransitionForward Journey"
-        caption="Nine connected stages — from first snapshot to community connection — for every 15–22 student."
-        className="border-y border-border/40 bg-muted/20"
-      />
 
       {/* Marquee of grade promises */}
       <section aria-label="Promises" className="border-b border-border/40 bg-background/40 py-6 backdrop-blur-sm">
