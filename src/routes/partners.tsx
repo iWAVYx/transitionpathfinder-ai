@@ -295,7 +295,7 @@ function PartnersPage() {
                 </p>
               </Reveal>
               <Reveal delay={420}>
-                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="mt-8 grid grid-cols-1 gap-4 xl:grid-cols-3">
                   <Magnetic>
                     <Link
                       to="/waitlist"
