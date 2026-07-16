@@ -146,10 +146,10 @@ function PrivacyPage() {
       <section className="border-y border-border/60 bg-muted/30 py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Common questions
+            Common Questions
           </p>
           <h2 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            FERPA, AI, and the questions families actually ask.
+            FERPA, AI, and the Questions Families Actually Ask
           </h2>
           <dl className="mt-8 divide-y divide-border/70 border-y border-border/70">
             {ferpaPoints.map(({ label, body }) => (
