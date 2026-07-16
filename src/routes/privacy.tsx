@@ -134,7 +134,7 @@ function PrivacyPage() {
                 <Icon className="h-5 w-5" />
               </span>
               <h3 className="mt-4 font-display text-lg font-medium leading-snug">
-                {title}
+                {toTitleCase(title)}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </article>
