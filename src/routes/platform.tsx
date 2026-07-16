@@ -184,6 +184,20 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       onClick={isMobile ? toggle : undefined}
+      role={isMobile ? "button" : undefined}
+      tabIndex={isMobile ? 0 : undefined}
+      aria-expanded={isMobile ? expanded : undefined}
+      aria-label={isMobile ? `${expanded ? "Collapse" : "Expand"} ${toTitleCase(title)} description` : undefined}
+      onKeyDown={
+        isMobile
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggle();
+              }
+            }
+          : undefined
+      }
       style={{
         transform: "perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))",
         transformStyle: "preserve-3d",
