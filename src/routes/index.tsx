@@ -961,7 +961,7 @@ function HomePage() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <div className="flex flex-col flex-wrap items-center gap-x-3 gap-y-1 text-center sm:flex-row sm:items-baseline sm:text-left">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary ring-1 ring-primary/20">
                   <ShieldCheck className="h-3 w-3" aria-hidden /> Privacy &amp; trust
                 </span>
