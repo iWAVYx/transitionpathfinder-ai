@@ -204,8 +204,9 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
       className={cn(
-        "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3",
-        isMobile && "cursor-pointer"
+        "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft transition-all duration-300 hover:shadow-lift sm:justify-between sm:p-3",
+        isMobile && "cursor-pointer active:scale-[0.98]",
+        isMobile && expanded && "shadow-[0_4px_20px_-4px_hsl(var(--foreground)/0.08)]"
       )}
     >
       <div
@@ -239,19 +240,26 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight text-ellipsis sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
           {toTitleCase(title)}
         </h3>
-        <p
+        <div
           className={cn(
-            "text-xs leading-snug text-muted-foreground sm:text-sm",
-            expanded ? "sm:line-clamp-4" : "line-clamp-3 min-h-[3rem] sm:line-clamp-4 sm:min-h-[4.8rem]"
+            "overflow-hidden transition-[max-height] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] sm:max-h-[40rem] sm:transition-none",
+            expanded ? "max-h-[40rem]" : "max-h-[3.5rem]"
           )}
         >
-          {body}
-        </p>
+          <p
+            className={cn(
+              "text-xs leading-snug text-muted-foreground sm:text-sm",
+              expanded ? "sm:line-clamp-4" : "line-clamp-3 sm:line-clamp-4"
+            )}
+          >
+            {body}
+          </p>
+        </div>
       </div>
       <div className="relative mt-2 flex items-center justify-center sm:hidden">
         <ChevronDown
           className={cn(
-            "h-4 w-4 text-primary transition-transform duration-200",
+            "h-4 w-4 text-primary transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
             expanded && "rotate-180"
           )}
           aria-hidden
