@@ -182,7 +182,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         transformStyle: "preserve-3d",
         transition: "transform 200ms ease-out, box-shadow 200ms ease-out",
       }}
-      className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:p-3"
+      className="group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft hover:shadow-lift sm:justify-between sm:p-3"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
