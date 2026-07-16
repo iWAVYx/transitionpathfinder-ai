@@ -844,7 +844,7 @@ export const SHARED_DEMO_STUDENT = {
   school: "Hartford Regional High School",
   age: 17,
   case_manager: "Mr. Okafor",
-  disability_category: "Autism Spectrum (primary) · ADHD (secondary)",
+  disability_category: "Autism Spectrum Disorder · ADHD",
   graduation_year: "Spring 2027",
   interests: [
     "Video game design",
