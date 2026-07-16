@@ -21,8 +21,8 @@ const platformHeroSrcSet = undefined as unknown as string;
 
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
 import { Badge } from "@/components/ui/badge";
-import { DEMO_STUDENT } from "@/lib/demo-data";
-import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, PawPrint, Palette, Leaf } from "lucide-react";
+import { SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
+import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, PawPrint, Gamepad2, Music, ChefHat } from "lucide-react";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
 import {
   Parallax,
