@@ -38,32 +38,32 @@ export const Route = createFileRoute("/privacy")({
 const promises = [
   {
     icon: Lock,
-    title: "Your records are encrypted and scoped to your account.",
+    title: "Your Records Are Encrypted and Scoped to Your Account",
     body: "IEPs, evaluation reports, intake answers, and Pathway Reports are stored encrypted at rest and in transit. Only people you explicitly invite to a student's circle can see them. We do not share, sell, or rent any data — ever.",
   },
   {
     icon: Sparkles,
-    title: "AI suggestions never train outside models.",
+    title: "AI Suggestions Never Train Outside Models",
     body: "When you generate a Pathway Report, your student's information is sent to our AI provider strictly to produce that report. It is never used to train, fine-tune, or improve any model — ours or anyone else's. The provider processes it and discards it.",
   },
   {
     icon: UserCheck,
-    title: "You decide who sees what.",
+    title: "You Decide Who Sees What",
     body: "Families control which educators, mentors, or family members get access to a student's hub. Educators see only the students assigned to their caseload. Students 18+ can manage their own access. Every invite is logged.",
   },
   {
     icon: Trash2,
-    title: "Delete anything, any time.",
+    title: "Delete Anything, Any Time",
     body: "You can delete a single document, an entire student profile, or your whole account from your settings. Deletion is real — your records are removed from active systems within 24 hours and from backups within 30 days.",
   },
   {
     icon: School,
-    title: "We are not your school's system of record.",
+    title: "We Are Not Your School's System of Record",
     body: "TransitionForward is a planning tool, not a replacement for CT SEDS or your district's IEP platform. Nothing here changes the legal IEP. We complement the system you already have — we do not absorb it.",
   },
   {
     icon: Database,
-    title: "We collect the minimum we need.",
+    title: "We Collect the Minimum We Need",
     body: "Only the information you choose to enter, plus the bare technical data needed to keep your account secure (login timestamps, IP for fraud prevention). No advertising trackers. No third-party analytics that personally identify you.",
   },
 ];
