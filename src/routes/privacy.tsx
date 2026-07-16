@@ -181,14 +181,14 @@ function PrivacyPage() {
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
           >
             <HelpCircle className="h-4 w-4" />
-            Ask a privacy question
+            Ask a Privacy Question
           </Link>
           <Link
             to="/waitlist"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted"
           >
             <FileText className="h-4 w-4" />
-            Join the pilot
+            Join the Pilot
           </Link>
         </div>
 
