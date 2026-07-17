@@ -1390,7 +1390,7 @@ function AboutPage() {
         <AheadBesideBehindWalkthrough />
         <JourneyPath />
         <StudentCentered />
-        <Transformation />
+        
         <EcosystemAndCare />
         <CTAwareFAQ />
         <ClosingCTA />
