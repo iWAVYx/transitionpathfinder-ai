@@ -77,7 +77,7 @@ import stickerLifeskills from "@/assets/sticker-lifeskills.png";
 import stickerProgress from "@/assets/sticker-progress.png";
 import doodlePlane from "@/assets/doodle-plane.png";
 import familyDashboardShot from "@/assets/family-dashboard-screenshot.png.asset.json";
-import pathwayReportShot from "@/assets/pathway-report-current.png.asset.json";
+
 import {
   Parallax,
   ParallaxImage,
@@ -522,7 +522,7 @@ function HomePage() {
         <div className="mb-4 grid items-stretch gap-3 md:grid-cols-5">
           <FeatureShot
             className="md:col-span-3"
-            image={pathwayReportShot.url}
+            image="/pathway-report-current.png"
             label="The Pathway Report"
             alt="Pathway Report preview for Jordan Rivera showing chapter navigation and the student voice quote"
             caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
