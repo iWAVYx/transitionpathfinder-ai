@@ -528,6 +528,7 @@ function HomePage() {
             caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
             aspect="aspect-[16/10]"
             objectPosition="center"
+            imageClassName="translate-x-[2%] scale-[1.02] md:translate-x-[5%] md:scale-[1.05]"
           />
           <FeatureShot
             className="md:col-span-2"
