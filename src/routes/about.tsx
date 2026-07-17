@@ -7,7 +7,6 @@ import {
   useReducedMotion,
   useSpring,
   AnimatePresence,
-  type MotionValue,
 } from "motion/react";
 import {
   ArrowRight,
@@ -34,7 +33,7 @@ import {
   FileCheck,
   type LucideIcon,
 } from "lucide-react";
-import { toTitleCase } from "@/lib/title-case";
+
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,13 +53,13 @@ import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
 import familyImg from "@/assets/families-hero-v2.jpg";
 import patternImg from "@/assets/about-chapter-03-pattern.png.asset.json";
 import pathwayImg from "@/assets/pathway-hero.jpg";
-import dashboardImg from "@/assets/dashboard-hero.jpg";
+
 import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
-import stickyNotesBgAsset from "@/assets/sticky-notes-bg.png.asset.json";
+
 import binderImgAsset from "@/assets/about-chapter-01-binder.png.asset.json";
 import buildImgAsset from "@/assets/about-chapter-04-build.png.asset.json";
 const ctaImg = ctaImgAsset.url;
-const stickyNotesBg = stickyNotesBgAsset.url;
+
 const binderImg = binderImgAsset.url;
 import sunriseImg from "@/assets/framework-bg-sunrise.jpg";
 import topoImg from "@/assets/framework-bg-topo.jpg";
@@ -542,264 +541,6 @@ function JourneyPath() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Transformation — scattered → pathway                                       */
-/* -------------------------------------------------------------------------- */
-
-const FRAGMENTS = [
-  { label: toTitleCase("IEP paperwork"), rot: -9, x: -0.77, y: -0.7, color: "#fff48a", pin: "#e23b3b" },
-  { label: toTitleCase("Student strengths"), rot: 6, x: 0, y: -0.7, color: "#ffb3c1", pin: "#2b6cb0" },
-  { label: toTitleCase("Family priorities"), rot: -5, x: 0.77, y: -0.7, color: "#a8e6cf", pin: "#d97706" },
-  { label: toTitleCase("Educator input"), rot: 8, x: -0.77, y: 0.7, color: "#b5d8ff", pin: "#7c3aed" },
-  { label: toTitleCase("Resources"), rot: -7, x: 0, y: 0.7, color: "#ffd59e", pin: "#0f766e" },
-  { label: toTitleCase("Action items"), rot: 6, x: 0.77, y: 0.7, color: "#e0bbff", pin: "#be185d" },
-];
-
-const BASE_CARD_W = 580;
-const BASE_CARD_H = 470;
-const GROUP_Y_OFFSET = 80; // shift note cluster down so heading stays legible above it
-const MOBILE_BREAKPOINT = 480;
-
-// Fixed tiled positions for the mobile cluster (overlapping, minimal blank space).
-const MOBILE_NOTES: Array<{ left?: number; right?: number; top: number; rot: number }> = [
-  { left: 0.05, top: 0.08, rot: -3 },
-  { right: 0.05, top: 0.08, rot: 4 },
-  { left: 0.05, top: 0.38, rot: -2 },
-  { right: 0.05, top: 0.38, rot: 2 },
-  { left: 0.05, top: 0.68, rot: -1 },
-  { right: 0.05, top: 0.68, rot: 3 },
-];
-
-function useScatterLayout(containerRef: React.RefObject<HTMLElement | null>) {
-  const [layout, setLayout] = useState({
-    scale: 1,
-    isMobile: false,
-    width: 0,
-    height: 0,
-  });
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-      const isMobile = w < MOBILE_BREAKPOINT;
-      const padX = 12;
-      const padY = 16;
-      const halfW = w / 2;
-      const halfH = h / 2;
-
-      let scale: number;
-      if (isMobile) {
-        // Tiled overlapping 2x3 cluster: cards fill the width with intentional overlap.
-        const maxReachX = BASE_CARD_W * 0.45 + BASE_CARD_W / 2;
-        const maxReachY = BASE_CARD_H * 0.34 + BASE_CARD_H / 2;
-        const scaleX = (halfW - padX) / maxReachX;
-        const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
-        scale = Math.max(0.32, Math.min(0.52, scaleX, scaleY));
-      } else {
-        const maxReachX = BASE_CARD_W * (0.77 + 0.5);
-        const maxReachY = BASE_CARD_H * (0.7 + 0.5);
-        const scaleX = (halfW - padX) / maxReachX;
-        const scaleY = (halfH - padY - Math.abs(GROUP_Y_OFFSET)) / maxReachY;
-        scale = Math.max(0.18, Math.min(1.1, scaleX, scaleY));
-      }
-
-      setLayout({
-        scale: Number.isFinite(scale) ? scale : 0.5,
-        isMobile,
-        width: w,
-        height: h,
-      });
-    };
-
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [containerRef]);
-  return layout;
-}
-
-
-function FragmentCard({
-  fragment,
-  index,
-  progress,
-  reduce,
-  containerRef,
-}: {
-  fragment: (typeof FRAGMENTS)[number];
-  index: number;
-  progress: MotionValue<number>;
-  reduce: boolean;
-  containerRef: React.RefObject<HTMLElement | null>;
-}) {
-  const { scale: scatterScale, isMobile, width: containerW, height: containerH } =
-    useScatterLayout(containerRef);
-
-  // Fragments stay scattered longer while the headline reads, then converge
-  // through the middle of the pin, then dim as the Pathway Report takes the stage.
-  const p = useTransform(progress, [0.25, 0.55], [0, 1]);
-
-  const startX = useMemo(() => {
-    if (reduce) return 0;
-    if (isMobile && containerW > 0) {
-      const m = MOBILE_NOTES[index];
-      const cardW = BASE_CARD_W * scatterScale;
-      if (m.left != null) {
-        return (m.left * containerW + cardW / 2) - containerW / 2;
-      }
-      return (containerW - (m.right ?? 0) * containerW - cardW / 2) - containerW / 2;
-    }
-    return fragment.x * scatterScale * BASE_CARD_W;
-  }, [reduce, isMobile, containerW, scatterScale, fragment, index]);
-
-  const startY = useMemo(() => {
-    if (reduce) return 0;
-    if (isMobile && containerH > 0) {
-      const m = MOBILE_NOTES[index];
-      const cardH = BASE_CARD_H * scatterScale;
-      return (m.top * containerH + cardH / 2) - containerH / 2 + GROUP_Y_OFFSET;
-    }
-    return fragment.y * scatterScale * BASE_CARD_H + GROUP_Y_OFFSET;
-  }, [reduce, isMobile, containerH, scatterScale, fragment, index]);
-
-  const startRot = useMemo(() => {
-    if (reduce) return 0;
-    if (isMobile) return MOBILE_NOTES[index].rot;
-    return fragment.rot * Math.min(scatterScale * 1.4, 1);
-  }, [reduce, isMobile, scatterScale, fragment, index]);
-
-  const x = useTransform(p, (latest) => startX * (1 - latest));
-  const y = useTransform(p, (latest) => startY * (1 - latest));
-  const rot = useTransform(p, (latest) => startRot * (1 - latest));
-  const opacity = useTransform(p, [0, 0.75, 1], [1, 1, 0.12]);
-
-  // Pin falls out, staggered per card, once the notes have settled.
-  const fallStart = 0.65 + index * 0.03;
-  const fallEnd = fallStart + 0.18;
-  const pinY = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : 480 * scatterScale]);
-  const pinRot = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 220 : -240)]);
-  const pinX = useTransform(progress, [fallStart, fallEnd], [0, reduce ? 0 : (index % 2 === 0 ? 28 : -34)]);
-  const pinOpacity = useTransform(progress, [fallStart, fallEnd - 0.02, fallEnd], [1, 1, 0]);
-
-  // Subtle 3D tilt — reduced on smaller screens
-  const tiltScale = Math.min(scatterScale * 1.5, 1);
-  const tiltX = (index % 2 === 0 ? 1 : -1) * 6 * tiltScale;
-  const tiltY = (index % 3 === 0 ? -1 : 1) * 8 * tiltScale;
-
-  const width = BASE_CARD_W * scatterScale;
-  const height = BASE_CARD_H * scatterScale;
-  const fontSize = Math.max(16, 51 * scatterScale);
-
-  return (
-    <motion.div
-      style={{
-        x,
-        y,
-        rotate: rot,
-        rotateX: tiltX,
-        rotateY: tiltY,
-        opacity,
-        width,
-        height,
-        backgroundColor: fragment.color,
-        transformPerspective: 1000,
-        transformStyle: "preserve-3d",
-        boxShadow:
-          "0 18px 24px -8px rgba(0,0,0,0.30), 0 4px 8px -2px rgba(0,0,0,0.18), inset 0 -10px 16px -12px rgba(0,0,0,0.18)",
-      }}
-      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center px-4 py-4 text-center font-hand font-semibold leading-snug text-[#1c1814]/85"
-    >
-      <span style={{ fontSize }} className="relative z-10">
-        {fragment.label}
-      </span>
-      {/* Pushpin — sits above the note, falls out on scroll */}
-      <motion.span
-        aria-hidden="true"
-        style={{
-          x: pinX,
-          y: pinY,
-          rotate: pinRot,
-          opacity: pinOpacity,
-          backgroundColor: fragment.pin,
-          width: Math.max(10, 27 * scatterScale),
-          height: Math.max(10, 27 * scatterScale),
-        }}
-        className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full shadow-[inset_-1.5px_-1.5px_2px_rgba(0,0,0,0.35),inset_1.5px_1.5px_2px_rgba(255,255,255,0.55),0_3px_4px_rgba(0,0,0,0.35)]"
-      />
-    </motion.div>
-  );
-}
-
-
-
-function Transformation() {
-  const ref = useRef<HTMLElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-
-  const rawOpacity = useTransform(scrollYProgress, [0.55, 0.70, 0.92, 1], [0, 1, 1, 0.85]);
-  const rawScale = useTransform(scrollYProgress, [0.55, 0.92], [0.55, 1.45]);
-  const opacity = useSpring(rawOpacity, { stiffness: 80, damping: 20, mass: 0.8 });
-  const scale = useSpring(rawScale, { stiffness: 60, damping: 15, mass: 0.8 });
-
-  return (
-    <section
-      ref={ref}
-      className={`relative text-[#1c1814] ${reduce ? "h-auto" : "h-[130vh] md:h-[190vh]"}`}
-    >
-      <div className="sticky top-0 flex h-[100svh] min-h-[100svh] w-full items-center overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${stickyNotesBg})` }}
-        />
-        <div aria-hidden className="absolute inset-0 bg-[#f4ede3]/40" />
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[32%] bg-gradient-to-b from-[#f4ede3]/98 via-[#f4ede3]/85 to-[#f4ede3]/30" />
-        <div className="relative z-30 mx-auto flex h-full w-full flex-col px-4 sm:px-6">
-          <div className="relative z-30 mx-auto mt-8 w-full max-w-2xl shrink-0 px-4 pt-5 pb-4 text-center sm:mt-12 sm:pt-6 sm:pb-5">
-            <div className="mb-2 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
-              The Transformation
-            </div>
-            <h2 className="font-serif text-[clamp(1.25rem,2.4vw,2rem)] font-light leading-[1.2] text-balance">
-              Scattered documents <span className="italic">become</span> a clear pathway.
-            </h2>
-          </div>
-
-
-          <div
-            ref={containerRef}
-            className="relative min-h-0 flex-1 w-full pb-3 sm:pb-5"
-          >
-
-            {FRAGMENTS.map((f, i) => (
-              <FragmentCard key={i} fragment={f} index={i} progress={scrollYProgress} reduce={!!reduce} containerRef={containerRef} />
-            ))}
-            <motion.div
-              style={{ opacity, scale }}
-              className="absolute left-1/2 top-1/2 w-[min(560px,92%)] -translate-x-1/2 -translate-y-1/2"
-            >
-              <div className="overflow-hidden rounded-2xl border border-[#1c1814]/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
-                <img src={dashboardImg} alt="The Pathway Report" className="aspect-[16/10] w-full object-cover" />
-                <div className="flex items-center justify-between border-t border-[#1c1814]/10 px-5 py-3 text-[10px] uppercase tracking-[0.3em] text-[#1c1814]/70">
-                  <span>Pathway Report</span>
-                  <span>Ready</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Ahead · Beside · Behind — signature framework                              */
@@ -1649,7 +1390,7 @@ function AboutPage() {
         <AheadBesideBehindWalkthrough />
         <JourneyPath />
         <StudentCentered />
-        <Transformation />
+        
         <EcosystemAndCare />
         <CTAwareFAQ />
         <ClosingCTA />
