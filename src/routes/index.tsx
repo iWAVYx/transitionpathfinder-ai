@@ -528,6 +528,7 @@ function HomePage() {
             caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
             aspect="aspect-[16/10]"
             objectPosition="center"
+            imageClassName="translate-x-[2%] scale-[1.02] md:translate-x-[5%] md:scale-[1.05]"
           />
           <FeatureShot
             className="md:col-span-2"
@@ -1598,6 +1599,7 @@ function FeatureShot({
   className = "",
   aspect = "aspect-[16/10]",
   objectPosition = "center",
+  imageClassName = "",
 }: {
   image: string;
   srcSet?: string;
@@ -1610,6 +1612,7 @@ function FeatureShot({
   /** CSS object-position. Lets the photo's focal point stay in frame
    *  across breakpoints as the aspect-ratio crop tightens/loosens. */
   objectPosition?: string;
+  imageClassName?: string;
 }) {
   return (
     <figure
@@ -1624,7 +1627,7 @@ function FeatureShot({
           loading="lazy"
           decoding="async"
           style={{ objectPosition }}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className={`absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 ${imageClassName}`}
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
