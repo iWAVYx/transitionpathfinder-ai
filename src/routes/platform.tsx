@@ -428,14 +428,14 @@ function PlatformPage() {
                 </p>
                 <h3 className="mt-2 font-display text-3xl">{toTitleCase(SHARED_DEMO_STUDENT.full_name)}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade} · {SHARED_DEMO_STUDENT.school}
+                  {toTitleCase(SHARED_DEMO_STUDENT.pronouns)} · Grade {SHARED_DEMO_STUDENT.grade} · {SHARED_DEMO_STUDENT.school}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {SHARED_DEMO_STUDENT.disability_category} · Graduating {SHARED_DEMO_STUDENT.graduation_year}
                 </p>
               </div>
               <Badge variant="outline" className="gap-1">
-                Case manager: {SHARED_DEMO_STUDENT.case_manager}
+                Case Manager: {SHARED_DEMO_STUDENT.case_manager}
               </Badge>
             </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
