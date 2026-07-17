@@ -94,37 +94,37 @@ const features: Array<{
   {
     icon: Mic,
     title: "Student Voice Profile",
-    body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.",
+    body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.\n\n",
     tags: ["Student", "Family"],
   },
   {
     icon: Users,
     title: "Family Voice",
-    body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.",
+    body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.\n\n",
     tags: ["Family", "Educator"],
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
-    body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.",
+    body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.\n\n",
     tags: ["Family"],
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
-    body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.",
+    body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.\n\n",
     tags: ["Educator", "Family"],
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
-    body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.",
+    body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.\n\n",
     tags: ["Educator", "Family"],
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
-    body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.",
+    body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.\n\n",
     tags: ["Family", "Educator", "Student"],
   },
   {
