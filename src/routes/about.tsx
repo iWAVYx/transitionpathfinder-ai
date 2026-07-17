@@ -542,126 +542,6 @@ function JourneyPath() {
 }
 
 
-/* -------------------------------------------------------------------------- */
-/*  Ahead · Beside · Behind — signature framework                              */
-/* -------------------------------------------------------------------------- */
-
-const STANCES = [
-  {
-    kicker: "Ahead",
-    title: "Preparing The Path",
-    body:
-      "Support planning before the next meeting, deadline, opportunity, or transition step arrives — resources, pathway options, documents, calendars, partner opportunities, and readiness signals ready when the student needs them.",
-    accent: "#ffd9a0",
-    glyph: (
-      <svg viewBox="0 0 80 80" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <circle cx="40" cy="40" r="6" />
-        <path d="M40 34 L40 12" />
-        <path d="M32 20 L40 12 L48 20" />
-        <path d="M20 60 Q40 48 60 60" opacity="0.5" />
-      </svg>
-    ),
-  },
-  {
-    kicker: "Beside",
-    title: "Moving Together",
-    body:
-      "Bring students, families, educators, case managers, schools, districts, and partners into a shared workspace where goals, preferences, documents, meetings, and next steps stay connected — role by role, without losing the whole picture.",
-    accent: "#a8e6cf",
-    glyph: (
-      <svg viewBox="0 0 80 80" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <circle cx="40" cy="40" r="6" />
-        <circle cx="18" cy="40" r="4" />
-        <circle cx="62" cy="40" r="4" />
-        <path d="M22 40 L34 40" />
-        <path d="M46 40 L58 40" />
-        <path d="M14 58 Q40 48 66 58" opacity="0.5" />
-      </svg>
-    ),
-  },
-  {
-    kicker: "Behind",
-    title: "Keeping The Record",
-    body:
-      "Preserve the decisions, uploads, reports, notes, progress, permissions, and evidence that help everyone understand what happened, why it mattered, and what comes next — so nothing important gets lost between transitions.",
-    accent: "#b5d8ff",
-    glyph: (
-      <svg viewBox="0 0 80 80" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <circle cx="40" cy="40" r="6" />
-        <path d="M40 46 L40 68" />
-        <path d="M32 60 L40 68 L48 60" />
-        <rect x="24" y="14" width="32" height="18" rx="2" opacity="0.6" />
-        <path d="M30 22 L50 22" opacity="0.6" />
-      </svg>
-    ),
-  },
-];
-
-function AheadBesideBehind() {
-  return (
-    <section className="relative overflow-hidden bg-[#0b0a09] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,220,160,0.10),transparent_60%)]" />
-      <div className="relative mx-auto max-w-[1400px] px-4 py-20 sm:px-6 md:py-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
-            The Framework
-          </div>
-          <h2 className="font-serif text-[clamp(2rem,6vw,5rem)] font-light leading-[1.02]">
-            Ahead,{" "}
-            <span className="italic text-white/80">Beside,</span>{" "}
-            Behind.
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-white/70 sm:text-lg">
-            Transition Forward helps every stakeholder walk ahead of, beside, and behind
-            the student as they move toward life after school. Three stances. One shared
-            path.
-          </p>
-        </div>
-
-        <div className="mt-16 grid gap-6 md:mt-20 md:grid-cols-3 md:gap-8">
-          {STANCES.map((s, i) => (
-            <motion.article
-              key={s.kicker}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-15%" }}
-              transition={{ duration: 0.8, delay: i * 0.12, ease: [0.22, 0.61, 0.36, 1] }}
-              className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm md:p-10"
-            >
-              <div
-                aria-hidden
-                className="absolute inset-x-0 top-0 h-px"
-                style={{ background: `linear-gradient(to right, transparent, ${s.accent}, transparent)` }}
-              />
-              <div style={{ color: s.accent }} className="mb-6">
-                {s.glyph}
-              </div>
-              <div className="text-[10px] uppercase tracking-[0.45em]" style={{ color: s.accent }}>
-                {s.kicker}
-              </div>
-              <h3 className="mt-3 font-serif text-3xl font-light leading-tight md:text-4xl">
-                {s.title}
-              </h3>
-              <p className="mt-5 text-[15px] leading-relaxed text-white/70">
-                {s.body}
-              </p>
-              <div
-                aria-hidden
-                className="mt-8 h-px w-12"
-                style={{ background: s.accent, opacity: 0.6 }}
-              />
-            </motion.article>
-          ))}
-        </div>
-
-        <div className="mx-auto mt-16 max-w-2xl text-center text-sm italic text-white/55 md:mt-20">
-          The student remains at the center. Every stance exists to help them move forward
-          with more clarity than they had yesterday.
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Interactive walkthrough — Ahead / Beside / Behind in the app               */
@@ -1385,9 +1265,9 @@ function AboutPage() {
         <CinematicHero />
         <PinnedStory />
         <FounderMessage />
-        <AheadBesideBehind />
         <AheadBesideBehindWalkthrough />
         <JourneyPath />
+
         <StudentCentered />
         
         <EcosystemAndCare />
