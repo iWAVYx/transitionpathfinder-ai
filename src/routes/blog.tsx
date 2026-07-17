@@ -26,13 +26,13 @@ export const Route = createFileRoute("/blog")({
       {
         name: "description",
         content:
-          "News, stories, and updates from TransitionForward on transition planning, postsecondary support, and Connecticut families.",
+          "News, Stories, and Updates from TransitionForward on transition planning, postsecondary support, and Connecticut families.",
       },
       { property: "og:title", content: "Blog | TransitionForward" },
       {
         property: "og:description",
         content:
-          "News, stories, and updates from TransitionForward on transition planning and postsecondary support.",
+          "News, Stories, and Updates from TransitionForward on transition planning and postsecondary support.",
       },
       { name: "twitter:card", content: "summary" },
     ],
@@ -80,7 +80,7 @@ function BlogIndexPage() {
             From the Blog
           </Badge>
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            News, stories, and updates
+            News, Stories, and Updates
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             Field notes from TransitionForward on transition planning, postsecondary
