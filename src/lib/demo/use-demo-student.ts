@@ -22,7 +22,7 @@ export function useDemoStudent(): {
   setProfile: (id: DemoProfileId) => void;
 } {
   const navigate = useNavigate();
-  const search = useRouterState({ select: (s) => s.location.search }) as
+  const search = useRouterState({ select: (s) => s.location.search }) as unknown as
     | Record<string, unknown>
     | undefined;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
