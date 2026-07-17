@@ -830,11 +830,10 @@ function AheadBesideBehindWalkthrough() {
             Walk Through It
           </div>
           <h2 className="font-serif text-[clamp(1.9rem,5vw,4rem)] font-light leading-[1.05]">
-            What I Do In Each Mode.
+            Ahead, Beside, Behind.
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-white/70 sm:text-lg">
-            Pick a stance to see the actual work — and jump straight to the screen where
-            it lives.
+          <p className="mx-auto mt-5 max-w-2xl whitespace-pre-wrap text-base text-white/70 sm:text-lg">
+            {"Transition Forward helps every stakeholder walk ahead of, beside, and behind the student as they move toward life after school. Three stances. One shared path.\n\n\nPick a stance to see the actual work — and jump straight to the screen where it lives."}
           </p>
         </div>
 
