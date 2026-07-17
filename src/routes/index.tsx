@@ -524,6 +524,7 @@ function HomePage() {
             className="md:col-span-3"
             image={pathwayReportShot.url}
             label="The Pathway Report"
+            alt="Pathway Report preview for Jordan Rivera showing chapter navigation and the student voice quote"
             caption="The signature deliverable — career direction, life-skills focus, family questions, and a 30-day plan in one personalized document."
             aspect="aspect-[16/10]"
           />
