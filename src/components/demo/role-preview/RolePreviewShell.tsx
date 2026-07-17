@@ -69,10 +69,14 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
             </Link>
           );
         })}
+        <div className="ml-auto">
+          <StudentSwitcher compact />
+        </div>
       </div>
     </nav>
   );
 }
+
 
 /**
  * Per-role accent palette — mirrors the signed-in HubShell accents so a
