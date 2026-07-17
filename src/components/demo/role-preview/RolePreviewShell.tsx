@@ -15,6 +15,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
+import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { toTitleCase } from "@/lib/title-case";
 import {
   CommandMetricStrip,
@@ -69,10 +70,14 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
             </Link>
           );
         })}
+        <div className="ml-auto">
+          <StudentSwitcher compact />
+        </div>
       </div>
     </nav>
   );
 }
+
 
 /**
  * Per-role accent palette — mirrors the signed-in HubShell accents so a
