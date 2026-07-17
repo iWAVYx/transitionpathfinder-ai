@@ -76,7 +76,7 @@ import stickerCareer from "@/assets/sticker-career.png";
 import stickerLifeskills from "@/assets/sticker-lifeskills.png";
 import stickerProgress from "@/assets/sticker-progress.png";
 import doodlePlane from "@/assets/doodle-plane.png";
-import dashboardShot from "@/assets/dashboard-screenshot.png.asset.json";
+import familyDashboardShot from "@/assets/family-dashboard-screenshot.png.asset.json";
 import pathwayReportShot from "@/assets/pathway-report-screenshot.png.asset.json";
 import {
   Parallax,
@@ -529,10 +529,12 @@ function HomePage() {
           />
           <FeatureShot
             className="md:col-span-2"
-            image={dashboardShot.url}
+            image={familyDashboardShot.url}
             label="Your dashboard"
+            alt="Family dashboard view showing Jordan Rivera's plan overview"
             caption="A calm hub for what's next — reports, goals, and meeting prep."
             aspect="aspect-[16/10]"
+            objectPosition="top"
           />
         </div>
 
