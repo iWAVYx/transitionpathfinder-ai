@@ -94,37 +94,37 @@ const features: Array<{
   {
     icon: Mic,
     title: "Student Voice Profile",
-    body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.",
+    body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.\n\n",
     tags: ["Student", "Family"],
   },
   {
     icon: Users,
     title: "Family Voice",
-    body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.",
+    body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.\n\n",
     tags: ["Family", "Educator"],
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
-    body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.",
+    body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.\n\n",
     tags: ["Family"],
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
-    body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.",
+    body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.\n\n",
     tags: ["Educator", "Family"],
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
-    body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.",
+    body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.\n\n",
     tags: ["Educator", "Family"],
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
-    body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.",
+    body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.\n\n",
     tags: ["Family", "Educator", "Student"],
   },
   {
@@ -428,14 +428,14 @@ function PlatformPage() {
                 </p>
                 <h3 className="mt-2 font-display text-3xl">{toTitleCase(SHARED_DEMO_STUDENT.full_name)}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade} · {SHARED_DEMO_STUDENT.school}
+                  {toTitleCase(SHARED_DEMO_STUDENT.pronouns)} · Grade {SHARED_DEMO_STUDENT.grade} · {SHARED_DEMO_STUDENT.school}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {SHARED_DEMO_STUDENT.disability_category} · Graduating {SHARED_DEMO_STUDENT.graduation_year}
                 </p>
               </div>
               <Badge variant="outline" className="gap-1">
-                Case manager: {SHARED_DEMO_STUDENT.case_manager}
+                Case Manager: {SHARED_DEMO_STUDENT.case_manager}
               </Badge>
             </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -473,14 +473,14 @@ function PlatformPage() {
               step="2"
               icon={<FileText className="h-5 w-5" />}
               title="Pathway Report"
-              body="The full report families and educators receive — pathways, IEP translation, PPT prep, and a 30-day plan."
+              body="The full report families and educators receive — pathways, IEP translation, PPT prep, and a 30-day plan.\n\n"
               to="/demo/report"
             />
             <DemoStep
               step="3"
               icon={<HubIcon className="h-5 w-5" />}
               title="Student Hub"
-              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time."
+              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time.\n\n"
               to="/demo/student"
             />
           </div>
