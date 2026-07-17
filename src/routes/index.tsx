@@ -535,7 +535,6 @@ function HomePage() {
             alt="Family dashboard view showing Jordan Rivera's plan overview"
             caption="A calm hub for what's next — reports, goals, and meeting prep."
             aspect="aspect-[16/10]"
-            objectPosition="top"
           />
         </div>
 
