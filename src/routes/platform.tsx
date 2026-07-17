@@ -473,14 +473,14 @@ function PlatformPage() {
               step="2"
               icon={<FileText className="h-5 w-5" />}
               title="Pathway Report"
-              body="The full report families and educators receive — pathways, IEP translation, PPT prep, and a 30-day plan.\n\u00a0"
+              body="The full report families and educators receive — pathways, IEP translation, PPT prep, and a 30/60/90/365 day plan to keep goals moving forward."
               to="/demo/report"
             />
             <DemoStep
               step="3"
               icon={<HubIcon className="h-5 w-5" />}
               title="Student Hub"
-              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time.\n\u00a0"
+              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time to offer support and guidance."
               to="/demo/student"
             />
           </div>
