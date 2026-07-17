@@ -1265,9 +1265,9 @@ function AboutPage() {
         <CinematicHero />
         <PinnedStory />
         <FounderMessage />
-        <AheadBesideBehind />
         <AheadBesideBehindWalkthrough />
         <JourneyPath />
+
         <StudentCentered />
         
         <EcosystemAndCare />
