@@ -839,7 +839,7 @@ export function getDemoRole(id: DemoRoleId): DemoRolePreview {
 export const SHARED_DEMO_STUDENT = {
   name: "Jordan Rivera",
   full_name: "Jordan Rivera",
-  pronouns: "they/them",
+  pronouns: "They/Them",
   grade: "11",
   school: "Hartford Regional High School",
   age: 17,
