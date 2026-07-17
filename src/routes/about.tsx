@@ -855,7 +855,7 @@ function AheadBesideBehindWalkthrough() {
         </div>
 
         <p className="mx-auto mt-14 max-w-2xl text-center text-xs text-white/45 md:mt-20">
-          Screens open inside the app. Sign in required — the student remains at the center
+          Screens open in an interactive demo with sample data — the student remains at the center
           of everything you see.
         </p>
       </div>
