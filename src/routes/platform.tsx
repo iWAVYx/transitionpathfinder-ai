@@ -88,7 +88,7 @@ const features: Array<{
   {
     icon: Sparkles,
     title: "The Pathway Builder",
-    body: "Share strengths, interests, and goals. Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, family questions, and a 30 day plan.",
+    body: "Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, and a 30 day plan.",
     tags: ["Family", "Student", "Educator"],
   },
   {
@@ -130,13 +130,13 @@ const features: Array<{
   {
     icon: MapPin,
     title: "Resource And Opportunity Match",
-    body: "Connecticut aware matches: community colleges, technical high schools, BRS, job training, and internships, tuned to interest, location, and grade.",
+    body: "Community colleges, technical high schools, BRS, job training, and internships, tuned to interest, location, and grade.",
     tags: ["Family", "Student"],
   },
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
-    body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews and approves.",
+    body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews/approves.",
     tags: ["Educator", "Admin"],
   },
 ];
