@@ -7,7 +7,6 @@ import {
   useReducedMotion,
   useSpring,
   AnimatePresence,
-  type MotionValue,
 } from "motion/react";
 import {
   ArrowRight,
@@ -34,7 +33,7 @@ import {
   FileCheck,
   type LucideIcon,
 } from "lucide-react";
-import { toTitleCase } from "@/lib/title-case";
+
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,13 +53,13 @@ import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
 import familyImg from "@/assets/families-hero-v2.jpg";
 import patternImg from "@/assets/about-chapter-03-pattern.png.asset.json";
 import pathwayImg from "@/assets/pathway-hero.jpg";
-import dashboardImg from "@/assets/dashboard-hero.jpg";
+
 import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
-import stickyNotesBgAsset from "@/assets/sticky-notes-bg.png.asset.json";
+
 import binderImgAsset from "@/assets/about-chapter-01-binder.png.asset.json";
 import buildImgAsset from "@/assets/about-chapter-04-build.png.asset.json";
 const ctaImg = ctaImgAsset.url;
-const stickyNotesBg = stickyNotesBgAsset.url;
+
 const binderImg = binderImgAsset.url;
 import sunriseImg from "@/assets/framework-bg-sunrise.jpg";
 import topoImg from "@/assets/framework-bg-topo.jpg";
