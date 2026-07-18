@@ -16,10 +16,7 @@ export const Route = createFileRoute("/demo_/district-admin")({
     ],
   }),
   component: () => (
-    <RolePreviewShell
-      role={role}
-      workspace={<DistrictAdminOverviewGrid isSample />}
-      afterWorkspace={<RosterMatchBoard framing="district" />}
-    />
+    <RolePreviewShell role={role} workspace={<DistrictAdminOverviewGrid isSample />} />
   ),
+
 });
