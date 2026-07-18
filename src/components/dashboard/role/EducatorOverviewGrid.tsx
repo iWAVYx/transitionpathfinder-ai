@@ -23,9 +23,10 @@ import {
   type EducatorFeatureState,
 } from "@/components/dashboard/educator/EducatorFeatureDrawer";
 import {
-  EDUCATOR_FEATURE_DETAILS,
+  getEducatorFeatureDetails,
   type EducatorFeatureId,
 } from "@/lib/demo/educator/feature-details";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
