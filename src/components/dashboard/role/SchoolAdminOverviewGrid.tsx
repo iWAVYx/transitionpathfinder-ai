@@ -17,6 +17,7 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
+import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import {
   SchoolAdminFeatureDrawer,
   type SchoolAdminFeatureState,
@@ -200,6 +201,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
             }}
           />
         ))}
+        <PartnerNetworkTile role="school_admin" />
       </ToolPreviewGrid>
 
       <SchoolAdminFeatureDrawer
