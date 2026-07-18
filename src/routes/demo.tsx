@@ -1,15 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, Users, ClipboardList, FileText, Network, ShieldCheck } from "lucide-react";
+import { ArrowRight, Sparkles, Users, ClipboardList, FileText } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
-import { useDemoStudent } from "@/lib/demo/use-demo-student";
-import { DEMO_PROFILE_ORDER, DEMO_PROFILES } from "@/lib/demo/demo-profiles";
-import { matchOpportunities } from "@/lib/demo/opportunity-matcher";
 
 import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
+
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
