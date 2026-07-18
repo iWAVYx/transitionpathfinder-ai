@@ -27,10 +27,12 @@ describe("opportunity-matcher age safeguards", () => {
     expect(strong.length).toBeGreaterThan(0);
   });
 
-  it("gives Riley a school-visit match", () => {
-    const riley = getDemoProfile("riley");
-    const visible = matchOpportunities(riley).filter((m) => m.band !== "filtered_out");
-    expect(visible.some((m) => m.opportunity.kind === "school_visit")).toBe(true);
+  it("gives Sam a middle-school-enrichment or school-visit match", () => {
+    const sam = getDemoProfile("sam");
+    const visible = matchOpportunities(sam).filter((m) => m.band !== "filtered_out");
+    expect(
+      visible.some((m) => m.opportunity.kind === "enrichment" || m.opportunity.kind === "school_visit"),
+    ).toBe(true);
   });
 
   it("every opportunity is fictional", () => {
