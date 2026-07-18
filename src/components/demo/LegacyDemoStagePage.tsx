@@ -29,9 +29,7 @@ export function LegacyDemoStagePage({
   const { profile } = useDemoStudent();
 
   const hrefFor = (s: WorkspaceStage) => `/demo/workspace/${s.id}`;
-  const disallowed = stage.disallowedThemes?.filter((t) =>
-    profile.stage.disallowedThemes.includes(t),
-  );
+  const disallowed = profile.stage.disallowedThemes;
 
   return (
     <SiteShell>
