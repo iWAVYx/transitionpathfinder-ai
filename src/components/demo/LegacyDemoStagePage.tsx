@@ -47,8 +47,13 @@ export function LegacyDemoStagePage({
   const disallowed = profile.stage.disallowedThemes;
 
   const handleRoleSelect = (next: DemoRoleId) => {
-    if (isWorkspaceRole(next)) return;
-    navigate({ to: `${DEMO_ROLES[next].path}?student=${encodeURIComponent(profile.id)}` });
+    if (isWorkspaceRoleId(next)) return;
+    const dest = resolveDemoRoleDestination({
+      currentPath: `/demo/workspace/${stageId}`,
+      targetRole: next,
+      studentId: profile.id,
+    });
+    navigate({ to: dest.to, search: dest.search });
   };
 
   return (
