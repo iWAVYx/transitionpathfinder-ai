@@ -24,6 +24,7 @@ import {
 import { Parallax, Reveal, Marquee } from "@/components/effects/ScrollEffects";
 import { PartnerApplyForm } from "@/components/site/PartnerApplyForm";
 import { toTitleCase } from "@/lib/title-case";
+import { PartnerCohortFit } from "@/components/marketing/PartnerCohortFit";
 
 export const Route = createFileRoute("/partners")({
   head: () => ({
