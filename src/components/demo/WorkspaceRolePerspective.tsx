@@ -15,7 +15,7 @@ type Perspective = {
 const BASE: Record<"student" | "family" | "educator", Omit<Perspective, "priorities" | "actions" | "contribution">> = {
   student: {
     eyebrow: "Student View",
-    focus: "Your voice, your choices, your next step.",
+    focus: "\n",
     icon: Eye,
     accent: "text-sky-700 bg-sky-50 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-200 dark:ring-sky-900",
   },
