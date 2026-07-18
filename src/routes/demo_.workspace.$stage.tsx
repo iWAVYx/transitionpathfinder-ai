@@ -133,7 +133,7 @@ function DemoWorkspaceStagePage() {
         eyebrow="Transition Workspace · Public Demo"
         eyebrowAside={profileBanner}
         backTo={backTargetFromWorkspace(search)}
-        className="gap-4 py-4 lg:py-5"
+        className="gap-3 py-3 lg:py-4"
       >
         <WorkspaceRolePerspective role={viewRole} stageId={stageId} />
         <StageBody
