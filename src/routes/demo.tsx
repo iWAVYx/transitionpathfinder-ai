@@ -40,7 +40,7 @@ function DemoHub() {
         {/* HERO */}
         <section className="rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-10">
           <Badge variant="outline" className="border-primary text-primary">
-            <Sparkles className="mr-1 h-3 w-3" /> Sample data only
+            <Sparkles className="mr-1 h-3 w-3" /> Sample Data Only
           </Badge>
           <h1 className="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
             One transition plan. Every role, one shared story.
