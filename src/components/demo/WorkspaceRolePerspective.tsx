@@ -52,57 +52,45 @@ const STAGE_LENS: Partial<Record<StageId, Record<"student" | "family" | "educato
       contribution: "Educator Evidence",
     },
   },
-  intake: {
-    student: {
-      priorities: ["Interests & strengths", "Preferences", "What supports feel right"],
-      actions: ["Answer in your words", "Skip anything sensitive", "Review your responses"],
-      contribution: "Student Voice",
-    },
-    family: {
-      priorities: ["Daily-life observations", "History & continuity", "Questions to raise"],
-      actions: ["Add a family observation", "Attach relevant history", "Draft a question"],
-      contribution: "Family Input",
-    },
-    educator: {
-      priorities: ["Assessment coverage", "Documented needs", "Team recommendations"],
-      actions: ["Upload assessment", "Confirm documented needs", "Assign a follow-up"],
-      contribution: "Educator Evidence",
-    },
-  },
   voice: {
     student: { priorities: ["Say it your way", "Choose what to share", "Keep it private if you want"], actions: ["Record voice", "Type reflection", "Mark private"], contribution: "Student Voice" },
     family: { priorities: ["Reinforce, don't replace", "Note context, not answers", "Flag concerns respectfully"], actions: ["Add supporting note", "Flag a concern"], contribution: "Family Input" },
     educator: { priorities: ["Prompt without leading", "Capture themes", "Link to goals"], actions: ["Add facilitation note", "Tag a theme"], contribution: "Educator Evidence" },
   },
-  documents: {
+  family: {
+    student: { priorities: ["What I want family to know", "Where I want privacy"], actions: ["Share a note with family", "Mark something private"], contribution: "Student Voice" },
+    family: { priorities: ["Daily-life observations", "History & continuity", "Questions to raise"], actions: ["Add a family observation", "Attach relevant history", "Draft a question"], contribution: "Family Input" },
+    educator: { priorities: ["Family context on file", "Cultural & linguistic fit"], actions: ["Log family meeting", "Request an interpreter"], contribution: "Educator Evidence" },
+  },
+  school: {
+    student: { priorities: ["What's working at school", "What I want to change"], actions: ["Add a school reflection"], contribution: "Student Voice" },
+    family: { priorities: ["School communication", "Attendance & scheduling"], actions: ["Message the team", "Confirm schedule"], contribution: "Family Input" },
+    educator: { priorities: ["Assessment coverage", "Documented needs", "Team recommendations"], actions: ["Upload assessment", "Confirm documented needs", "Assign a follow-up"], contribution: "Educator Evidence" },
+  },
+  evidence: {
     student: { priorities: ["See what's on file", "Understand what it means"], actions: ["Read the plain-language summary"], contribution: "Student Voice" },
     family: { priorities: ["Confirm accuracy", "Ask about anything unclear"], actions: ["Flag a document question", "Request a copy"], contribution: "Family Input" },
     educator: { priorities: ["Verify current records", "Redact PII as needed", "Cite evidence"], actions: ["Upload document", "Verify record", "Redact & share"], contribution: "Uploaded Document" },
   },
-  plan: {
-    student: { priorities: ["Goals that feel like mine", "Small next steps"], actions: ["Approve a goal", "Suggest an edit"], contribution: "Student Voice" },
+  ready: {
+    student: { priorities: ["Am I ready?", "What I still want help with"], actions: ["Confirm readiness", "Ask for support"], contribution: "Student Voice" },
     family: { priorities: ["Home support alignment", "Deadlines & handoffs"], actions: ["Confirm home support", "Add a deadline"], contribution: "Family Input" },
-    educator: { priorities: ["Measurable goals", "Assigned responsibilities", "Progress monitoring"], actions: ["Draft a goal", "Assign a responsibility", "Schedule progress check"], contribution: "Educator Evidence" },
-  },
-  opportunities: {
-    student: { priorities: ["Programs I'd try", "What fits my week"], actions: ["Save an opportunity", "Ask a question about one"], contribution: "Student Voice" },
-    family: { priorities: ["Logistics that work", "Cost & transportation", "Safety"], actions: ["Ask about transportation", "Flag a logistics conflict"], contribution: "Family Input" },
-    educator: { priorities: ["Match evidence", "Provider capacity", "Continuity of supports"], actions: ["Recommend a program", "Confirm eligibility"], contribution: "Engine Recommendation" },
-  },
-  connection: {
-    student: { priorities: ["Who I'll meet", "What to expect"], actions: ["Confirm attendance"], contribution: "Student Voice" },
-    family: { priorities: ["Introductions & consent", "Scheduling"], actions: ["Approve introduction", "Confirm consent"], contribution: "Family Input" },
-    educator: { priorities: ["Partner readiness", "Handoff notes"], actions: ["Send handoff packet", "Log intro meeting"], contribution: "Educator Evidence" },
-  },
-  meeting: {
-    student: { priorities: ["Say what matters", "Ask questions"], actions: ["Add an agenda item", "Note a question"], contribution: "Student Voice" },
-    family: { priorities: ["Family concerns", "Follow-ups"], actions: ["Add a family agenda item", "Log follow-up"], contribution: "Family Input" },
-    educator: { priorities: ["Agenda coverage", "Decisions & assignments", "Minutes"], actions: ["Publish agenda", "Assign action item", "Save minutes"], contribution: "Educator Evidence" },
+    educator: { priorities: ["Readiness rubric", "Assigned responsibilities", "Progress monitoring"], actions: ["Score readiness", "Assign a responsibility", "Schedule progress check"], contribution: "Educator Evidence" },
   },
   roadmap: {
     student: { priorities: ["My story in plain language", "What I'll try next"], actions: ["Share with someone I trust"], contribution: "Student Voice" },
     family: { priorities: ["Report summary you can use", "Family checklist"], actions: ["Download family summary"], contribution: "Family Input" },
     educator: { priorities: ["Full evidence trail", "Team recommendations", "Version history"], actions: ["Export report", "Approve current version"], contribution: "Verified Record" },
+  },
+  action: {
+    student: { priorities: ["Small next steps", "What I saved"], actions: ["Save an opportunity", "Ask a question about one"], contribution: "Student Voice" },
+    family: { priorities: ["Logistics that work", "Cost & transportation", "Safety"], actions: ["Ask about transportation", "Flag a logistics conflict"], contribution: "Family Input" },
+    educator: { priorities: ["Match evidence", "Provider capacity", "Continuity of supports"], actions: ["Recommend a program", "Confirm eligibility"], contribution: "Engine Recommendation" },
+  },
+  connect: {
+    student: { priorities: ["Who I'll meet", "What to expect"], actions: ["Confirm attendance"], contribution: "Student Voice" },
+    family: { priorities: ["Introductions & consent", "Scheduling"], actions: ["Approve introduction", "Confirm consent"], contribution: "Family Input" },
+    educator: { priorities: ["Partner readiness", "Handoff notes"], actions: ["Send handoff packet", "Log intro meeting"], contribution: "Educator Evidence" },
   },
 };
 
