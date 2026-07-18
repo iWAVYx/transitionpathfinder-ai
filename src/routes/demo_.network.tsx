@@ -74,10 +74,10 @@ function PartnerNetworkPage() {
 
   return (
     <SiteShell>
-      <PageSection tone="muted" size="sm">
+      <PageSection tone="muted" size="default">
         <Breadcrumbs
-          items={[
-            { label: "Demo", href: "/demo" },
+          trail={[
+            { label: "Demo", to: "/demo" },
             { label: "Partner Network" },
           ]}
         />
@@ -100,7 +100,7 @@ function PartnerNetworkPage() {
         </div>
       </PageSection>
 
-      <PageSection size="md">
+      <PageSection size="default">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
           <ShieldCheck className="h-3 w-3" />
           Age-Safeguards Active For {profile.shortName}
