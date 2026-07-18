@@ -98,12 +98,15 @@ export function RolePreviewShell({
   role,
   workspace,
   extras,
+  afterWorkspace,
 }: {
   role: DemoRolePreview;
   /** Approved role Workspace internals. This block may move, but its children are not redesigned here. */
   workspace?: React.ReactNode;
   /** Back-compat: older routes passed workspace content as extras. */
   extras?: React.ReactNode;
+  /** Optional block rendered directly beneath the Workspace zone. */
+  afterWorkspace?: React.ReactNode;
 }) {
   const Icon = role.icon;
   const next = role.next ? DEMO_ROLES[role.next] : null;
