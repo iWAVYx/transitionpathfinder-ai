@@ -113,15 +113,13 @@ function DemoWorkspaceStagePage() {
     profile.product === "transitionforward" ? "TransitionForward" : "BridgeForward";
 
   const profileBanner = (
-    <div className="flex flex-wrap items-center gap-3 px-1 py-1">
-      <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-          Viewing As
-        </p>
-        <p className="text-sm font-semibold text-foreground">
-          {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
-        </p>
-      </div>
+    <div className="flex items-center gap-2">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+        Viewing As
+      </p>
+      <p className="text-sm font-semibold text-foreground">
+        {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
+      </p>
       <StudentSwitcher className="scale-110" />
     </div>
   );
