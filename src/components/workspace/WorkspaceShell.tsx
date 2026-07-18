@@ -30,6 +30,8 @@ export interface WorkspaceShellProps {
   hrefFor: (stage: WorkspaceStage) => string;
   /** Editorial kicker rendered above the stage header (e.g., "Transition Workspace · Demo"). */
   eyebrow?: string;
+  /** Optional element rendered opposite the eyebrow, above the stage timeline. */
+  eyebrowAside?: ReactNode;
   /** Optional filter (e.g., audience-restricted list). */
   visibleStages?: readonly WorkspaceStage[];
   /** When provided, renders a context-aware Back link above the stage progress. */
