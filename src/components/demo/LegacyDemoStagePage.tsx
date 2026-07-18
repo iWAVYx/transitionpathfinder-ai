@@ -50,7 +50,7 @@ export function LegacyDemoStagePage({
               {profile.product === "transitionforward" ? "TransitionForward" : "BridgeForward"}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {profile.narrative.oneLiner}
+              {profile.tagline}
             </p>
           </div>
           <StudentSwitcher />
