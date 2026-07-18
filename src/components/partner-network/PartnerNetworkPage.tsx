@@ -234,7 +234,7 @@ function SchoolView() {
     <div className="space-y-6">
       <section className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
         <h2 className="font-display text-xl font-semibold tracking-tight">
-          Partner Coverage · {school.label}
+          Partner Coverage · {school.displayName}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Active community partners referenced from your school's students and staff.
@@ -258,7 +258,7 @@ function DistrictView() {
     <div className="space-y-6">
       <section className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
         <h2 className="font-display text-xl font-semibold tracking-tight">
-          District Partner Network · {district.label}
+          District Partner Network · {district.displayName}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Verification status and referral coverage across every school in the district.
