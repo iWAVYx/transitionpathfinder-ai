@@ -45,10 +45,10 @@ function DemoHub() {
             One transition plan. Every role, one shared story.
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-            TransitionForward turns student voice, family priorities, educator insight, and
-            IEP evidence into a single Pathway Report — the shareable deliverable your team
-            brings to the next PPT. Walk the nine-stage Workspace Tour, or preview a role
-            dashboard below.
+            Explore three student journeys across BridgeForward and TransitionForward —
+            a Grade 7 middle-schooler, a Grade 9 early-planner, and a Grade 11
+            postsecondary-bound student. Switch students and roles to see how the plan
+            changes with age, goals, evidence, and support needs.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button asChild size="lg">

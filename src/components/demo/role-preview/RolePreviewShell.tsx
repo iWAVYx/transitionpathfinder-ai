@@ -8,7 +8,6 @@ import type { DemoRolePreview } from "@/lib/demo/role-previews";
 import {
   DEMO_ROLES,
   DEMO_ROLE_ORDER,
-  SHARED_DEMO_STUDENT,
 } from "@/lib/demo/role-previews";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -25,6 +24,13 @@ import { NextActionCard } from "@/components/next-actions/NextActionCard";
 import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
 import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import {
+  headlineForProfile,
+  introForProfile,
+  sharedStudentFromProfile,
+  tilesForProfile,
+} from "@/lib/demo/profile-shell";
 
 function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
   switch (id) {
@@ -120,6 +126,12 @@ export function RolePreviewShell({
       } as React.CSSProperties)
     : undefined;
 
+  const { profile } = useDemoStudent();
+  const sharedStudent = sharedStudentFromProfile(profile);
+  const tiles = tilesForProfile(role, profile);
+  const headline = headlineForProfile(role, profile);
+  const intro = introForProfile(role, profile);
+
   return (
     <SiteShell>
       <div data-role-accent={role.id} style={accentStyle}>
@@ -157,10 +169,10 @@ export function RolePreviewShell({
                 {toTitleCase(role.tagline)}
               </p>
               <h1 className="mt-1 font-display text-3xl leading-tight tracking-tight sm:text-4xl">
-                {toTitleCase(role.headline)}
+                {toTitleCase(headline)}
               </h1>
               <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                {role.intro}
+                {intro}
               </p>
             </div>
 
@@ -168,15 +180,15 @@ export function RolePreviewShell({
               <aside className="border-l border-border/70 pl-4 text-sm">
                 <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   <Sparkles className="h-3 w-3 text-primary" />
-                  Shared demo student
+                  Selected demo student
                 </div>
-                <p className="mt-2 font-display text-base">{SHARED_DEMO_STUDENT.name}</p>
+                <p className="mt-2 font-display text-base">{sharedStudent.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade}
+                  {sharedStudent.pronouns} · Grade {sharedStudent.grade}
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{SHARED_DEMO_STUDENT.school}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{sharedStudent.school}</p>
                 <blockquote className="mt-3 border-l-2 border-primary pl-2.5 text-xs italic text-foreground/80">
-                  &ldquo;{SHARED_DEMO_STUDENT.quote}&rdquo;
+                  &ldquo;{sharedStudent.quote}&rdquo;
                 </blockquote>
               </aside>
             )}
@@ -187,7 +199,7 @@ export function RolePreviewShell({
       {/* Summary Zone */}
       <PageSection spacing="tight">
         <CommandMetricStrip
-          items={role.dashboardTiles.map((tile) => ({
+          items={tiles.map((tile) => ({
             label: tile.label,
             value: tile.value,
             hint: tile.hint,
@@ -195,6 +207,7 @@ export function RolePreviewShell({
           }))}
         />
       </PageSection>
+
 
       {/* WORKSPACE ZONE — anchored, tinted band that groups the approved
           workspace dashboard directly beneath the hero. Visually claimed
