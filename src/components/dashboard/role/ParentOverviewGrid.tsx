@@ -186,7 +186,7 @@ export function ParentOverviewGrid({ isSample = false }: { isSample?: boolean } 
             }}
           />
         ))}
-        <PartnerNetworkTile role="family" isSample={isSample} />
+        <PartnerNetworkTile role="family" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
       </ToolPreviewGrid>
 
       <ParentFeatureDrawer

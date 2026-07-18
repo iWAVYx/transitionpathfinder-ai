@@ -201,7 +201,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
             }}
           />
         ))}
-        <PartnerNetworkTile role="school_admin" isSample={isSample} />
+        <PartnerNetworkTile role="school_admin" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
       </ToolPreviewGrid>
 
       <SchoolAdminFeatureDrawer
