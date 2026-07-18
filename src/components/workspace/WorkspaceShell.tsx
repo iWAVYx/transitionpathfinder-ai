@@ -43,6 +43,7 @@ export function WorkspaceShell({
   activeStageId,
   hrefFor,
   eyebrow,
+  eyebrowAside,
   visibleStages,
   backTo,
   children,
