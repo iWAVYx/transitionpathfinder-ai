@@ -1,16 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegacyDemoStagePage } from "@/components/demo/LegacyDemoStagePage";
+import { OpportunityMatches } from "@/components/demo/OpportunityMatches";
 
 // Legacy /demo/opportunities URL alias — renders the "connect" Transition
-// Workspace stage inline while keeping this URL. Do NOT redirect to
-// /demo/workspace/* — external links, bookmarks, and tests depend on
-// this URL staying stable.
+// Workspace stage inline plus the explainable partner-match preview
+// scoped to the active demo profile.
 export const Route = createFileRoute("/demo_/opportunities")({
   head: () => ({
     meta: [
-      { title: "Demo — TransitionForward" },
-      { name: "description", content: "Public sample workspace step. Sample data only." },
+      { title: "Demo — Opportunity Matches" },
+      { name: "description", content: "Explainable partner-opportunity matching for the active demo profile. Sample data only." },
     ],
   }),
-  component: () => <LegacyDemoStagePage stageId="connect" legacyPath="/demo/opportunities" />,
+  component: () => (
+    <LegacyDemoStagePage
+      stageId="connect"
+      legacyPath="/demo/opportunities"
+      afterStage={<OpportunityMatches />}
+    />
+  ),
 });
