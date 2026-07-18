@@ -7,6 +7,7 @@ import {
   type ReportBlock,
 } from "@/lib/demo/pathway-engine";
 import type { DemoProfile } from "@/lib/demo/demo-profiles";
+import { OpportunityMatches } from "@/components/demo/OpportunityMatches";
 
 const CATEGORY_LABEL: Record<PathwayOption["category"], string> = {
   education: "Education",
@@ -35,6 +36,7 @@ export function PathwayReport({ profile }: { profile: DemoProfile }) {
       <ReportHeader report={report} profile={profile} />
       <ReportBlocks blocks={report.blocks} />
       <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
+      <OpportunityMatches compact limit={3} />
       <RevisitFooter report={report} profile={profile} />
     </section>
   );
