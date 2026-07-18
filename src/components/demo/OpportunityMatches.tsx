@@ -37,11 +37,12 @@ const KIND_LABEL: Record<string, string> = {
  * viewers can see WHY the matcher hid it (age band, product track, or
  * disallowed theme).
  */
-export function OpportunityMatches() {
+export function OpportunityMatches({ compact = false, limit }: { compact?: boolean; limit?: number } = {}) {
   const { profile } = useDemoStudent();
   const matches = useMemo(() => matchOpportunities(profile), [profile]);
 
-  const visible = matches.filter((m) => m.band !== "filtered_out");
+  const visibleAll = matches.filter((m) => m.band !== "filtered_out");
+  const visible = typeof limit === "number" ? visibleAll.slice(0, limit) : visibleAll;
   const hidden = matches.filter((m) => m.band === "filtered_out");
 
   return (
@@ -99,7 +100,7 @@ export function OpportunityMatches() {
               </div>
             )}
 
-            {m.gapReasons.length > 0 && (
+            {!compact && m.gapReasons.length > 0 && (
               <div className="mt-3">
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   What To Watch
@@ -118,7 +119,7 @@ export function OpportunityMatches() {
         ))}
       </ul>
 
-      {hidden.length > 0 && (
+      {!compact && hidden.length > 0 && (
         <details className="mt-4 rounded-xl border border-dashed border-border bg-muted/30 p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground">
             {hidden.length} Opportunities Hidden By Age-Safeguards
