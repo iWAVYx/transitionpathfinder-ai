@@ -36,6 +36,16 @@ import {
   sharedStudentFromProfile,
   tilesForProfile,
 } from "@/lib/demo/profile-shell";
+import {
+  useDemoSchool,
+  useDemoDistrict,
+  useDemoPartnerPlan,
+} from "@/lib/demo/use-role-context";
+import {
+  schoolTilesFor,
+  districtTilesFor,
+  partnerTilesFor,
+} from "@/lib/demo/role-contexts";
 
 function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
   switch (id) {
