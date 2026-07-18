@@ -69,7 +69,7 @@ export function WorkspaceShell({
           to={backTo.to}
           onClick={() => setIsExiting(true)}
           className={cn(
-            "inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+            "inline-flex items-center gap-1.5 self-start rounded-full px-3 py-0.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
           )}
         >
           <ArrowLeft className="h-4 w-4" />
