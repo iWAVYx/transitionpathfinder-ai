@@ -5,8 +5,9 @@ import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { PathwayReport } from "@/components/demo/PathwayReport";
 import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
-import { DEMO_ROLES, type DemoRoleId } from "@/lib/demo/role-previews";
-import { isWorkspaceRole, useDemoRoleView } from "@/lib/demo/use-demo-role-view";
+import { type DemoRoleId } from "@/lib/demo/role-previews";
+import { useDemoRoleView } from "@/lib/demo/use-demo-role-view";
+import { resolveDemoRoleDestination } from "@/lib/demo/role-routing";
 
 export const Route = createFileRoute("/demo_/report")({
   head: () => ({
@@ -28,8 +29,12 @@ function DemoReportPage() {
   const { role: viewRole } = useDemoRoleView();
 
   const handleRoleSelect = (next: DemoRoleId) => {
-    if (isWorkspaceRole(next)) return;
-    navigate({ to: `${DEMO_ROLES[next].path}?student=${encodeURIComponent(profile.id)}` });
+    const dest = resolveDemoRoleDestination({
+      currentPath: "/demo/report",
+      targetRole: next,
+      studentId: profile.id,
+    });
+    navigate({ to: dest.to, search: dest.search });
   };
 
   return (
