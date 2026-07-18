@@ -26,8 +26,9 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
-  PARTNER_FEATURE_DETAILS,
+  getPartnerFeatureDetails,
   type PartnerFeatureId,
+  type PartnerPlanKey,
   type FeatureRow,
 } from "@/lib/demo/partner/feature-details";
 
@@ -50,6 +51,7 @@ export function PartnerFeatureDrawer({
   isSample = false,
   state = "ready",
   onRetry,
+  planId = "free",
 }: {
   featureId: PartnerFeatureId | null;
   icon?: LucideIcon;
@@ -57,8 +59,9 @@ export function PartnerFeatureDrawer({
   isSample?: boolean;
   state?: PartnerFeatureState;
   onRetry?: () => void;
+  planId?: PartnerPlanKey;
 }) {
-  const detail = featureId ? PARTNER_FEATURE_DETAILS[featureId] : null;
+  const detail = featureId ? getPartnerFeatureDetails(planId)[featureId] : null;
   const Icon = icon;
 
   return (
