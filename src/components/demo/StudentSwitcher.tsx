@@ -56,26 +56,26 @@ export function StudentSwitcher({
         aria-label={`Demo student: ${profile.displayName}. Change student.`}
         className={`inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 font-semibold text-foreground shadow-sm transition-colors hover:border-primary hover:bg-primary/10 ${
           size === "lg"
-            ? "px-4 py-2 text-sm"
+            ? "px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
             : "px-3 py-1.5 text-xs"
         }`}
       >
-        <span aria-hidden className={`leading-none ${size === "lg" ? "text-lg" : "text-base"}`}>
+        <span aria-hidden className={`leading-none ${size === "lg" ? "text-base sm:text-lg" : "text-base"}`}>
           {profile.emoji}
         </span>
         <span className="flex flex-col items-start leading-tight">
-          <span className={`font-medium uppercase tracking-wider text-muted-foreground ${size === "lg" ? "text-[11px]" : "text-[10px]"}`}>
+          <span className={`font-medium uppercase tracking-wider text-muted-foreground ${size === "lg" ? "text-[10px] sm:text-[11px]" : "text-[10px]"}`}>
             Demo student
           </span>
-          <span className={`font-semibold text-foreground ${size === "lg" ? "text-sm" : "text-xs"}`}>
+          <span className={`font-semibold text-foreground ${size === "lg" ? "text-xs sm:text-sm" : "text-xs"}`}>
             {compact ? profile.shortName : profile.displayName}
-            <span className={`ml-1.5 hidden font-normal text-muted-foreground sm:inline ${size === "lg" ? "text-[11px]" : "text-[10px]"}`}>
+            <span className={`ml-1.5 hidden font-normal text-muted-foreground sm:inline ${size === "lg" ? "text-[10px] sm:text-[11px]" : "text-[10px]"}`}>
               · {profile.demographics.gradeLabel}
             </span>
           </span>
         </span>
         <ChevronDown
-          className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""} ${size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"}`}
+          className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""} ${size === "lg" ? "h-3.5 w-3.5 sm:h-4 sm:w-4" : "h-3.5 w-3.5"}`}
         />
       </button>
 
