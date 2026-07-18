@@ -81,7 +81,9 @@ export function LegacyDemoStagePage({
           expandInPlace
           expanded={expanded}
           onExpandChange={setExpanded}
+          profile={profile}
         />
+
         {disallowed && disallowed.length > 0 && (
           <p className="mt-4 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">Age-aware:</span> content

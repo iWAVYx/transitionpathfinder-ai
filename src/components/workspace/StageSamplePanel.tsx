@@ -42,7 +42,10 @@ export interface StageSamplePanelProps {
   /** Controlled expansion state; when provided with onExpandChange, panel is controlled. */
   expanded?: boolean;
   onExpandChange?: (next: boolean) => void;
+  /** Active demo profile; when set, sample content is token-substituted. */
+  profile?: import("@/lib/demo/demo-profiles").DemoProfile;
 }
+
 
 const TONE_STYLES: Record<StageSampleTone, string> = {
   default: "bg-primary/10 text-primary ring-primary/20",
@@ -69,9 +72,11 @@ export function StageSamplePanel({
   defaultExpanded = false,
   expanded: controlledExpanded,
   onExpandChange,
+  profile,
 }: StageSamplePanelProps) {
-  const sample = getStageSample(stage.id);
-  const detail = expandInPlace ? getStageDetail(stage.id) : null;
+  const sample = getStageSample(stage.id, profile);
+  const detail = expandInPlace ? getStageDetail(stage.id, profile) : null;
+
   const isControlled =
     controlledExpanded !== undefined && onExpandChange !== undefined;
   const [uncontrolledExpanded, setUncontrolledExpanded] = useState(defaultExpanded);

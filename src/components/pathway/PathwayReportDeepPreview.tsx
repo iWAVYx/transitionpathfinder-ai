@@ -150,12 +150,17 @@ const PILL_ACTIVE =
   "border border-primary bg-primary text-primary-foreground shadow-sm";
 
 
-export function PathwayReportDeepPreview() {
+export function PathwayReportDeepPreview({
+  profile,
+}: {
+  profile?: import("@/lib/demo/demo-profiles").DemoProfile;
+} = {}) {
   const [audience, setAudience] = useState<Audience>("family");
   const { user, loading: authLoading } = useAuth();
   const isSignedIn = !!user;
   const [status, setStatus] = useState<string>("");
-  const detail = getStageDetail("roadmap");
+  const detail = getStageDetail("roadmap", profile);
+
   const groups = detail?.groups ?? [];
 
   const byTitle = useMemo(() => {
