@@ -1264,8 +1264,8 @@ function AboutPage() {
       <article className="bg-[#0b0a09]">
         <CinematicHero />
         <PinnedStory />
-        <FounderMessage />
         <AheadBesideBehindWalkthrough />
+        <FounderMessage />
         <JourneyPath />
 
         <StudentCentered />
