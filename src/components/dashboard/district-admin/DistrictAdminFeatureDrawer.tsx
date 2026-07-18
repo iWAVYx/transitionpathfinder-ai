@@ -157,7 +157,7 @@ export function DistrictAdminFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof DISTRICT_ADMIN_FEATURE_DETAILS)[DistrictAdminFeatureId];
+  detail: NonNullable<ReturnType<typeof getDistrictAdminFeatureDetails>[DistrictAdminFeatureId]>;
 }) {
   return (
     <>
