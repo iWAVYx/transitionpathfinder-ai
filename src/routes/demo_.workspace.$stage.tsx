@@ -120,7 +120,7 @@ function DemoWorkspaceStagePage() {
       <p className="text-sm font-semibold text-foreground">
         {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
       </p>
-      <StudentSwitcher className="scale-110" />
+      <StudentSwitcher size="lg" />
     </div>
   );
 
