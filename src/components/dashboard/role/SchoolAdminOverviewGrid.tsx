@@ -22,10 +22,12 @@ import {
   type SchoolAdminFeatureState,
 } from "@/components/dashboard/school-admin/SchoolAdminFeatureDrawer";
 import {
-  SCHOOL_ADMIN_FEATURE_DETAILS,
+  getSchoolAdminFeatureDetails,
+  SCHOOL_ADMIN_TILE_META_BY_SCHOOL,
   type SchoolAdminFeatureId,
 } from "@/lib/demo/school-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
+import { useDemoSchool } from "@/lib/demo/use-role-context";
 
 type Tile = {
   featureId: SchoolAdminFeatureId;
