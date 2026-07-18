@@ -154,8 +154,6 @@ function DemoHub() {
           </div>
         </section>
 
-        {/* END-TO-END TOUR — three profiles, pathway, matches, partner network */}
-        <EndToEndTour />
 
         {/* HOW IT WORKS */}
         <section id="workspace-tour">
