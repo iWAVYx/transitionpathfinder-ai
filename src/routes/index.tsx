@@ -730,8 +730,7 @@ function HomePage() {
       </section>
 
 
-      {/* DEMO COHORT — three fictional students → deep-link into pathway report */}
-      <DemoCohortStrip />
+
 
 
 
