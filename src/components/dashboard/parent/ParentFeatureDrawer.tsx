@@ -25,10 +25,12 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
-  PARENT_FEATURE_DETAILS,
+  getParentFeatureDetails,
   type ParentFeatureId,
+  type ParentFeatureDetail,
   type FeatureRow,
 } from "@/lib/demo/parent/feature-details";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 /**
  * The drawer supports every meaningful render state so a tile never falls
@@ -59,7 +61,8 @@ export function ParentFeatureDrawer({
   /** Called from the error state's Try Again button. */
   onRetry?: () => void;
 }) {
-  const detail = featureId ? PARENT_FEATURE_DETAILS[featureId] : null;
+  const { profileId } = useDemoStudent();
+  const detail = featureId ? getParentFeatureDetails(profileId)[featureId] : null;
   const Icon = icon;
 
   return (
@@ -160,7 +163,7 @@ export function ParentFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof PARENT_FEATURE_DETAILS)[ParentFeatureId];
+  detail: ParentFeatureDetail;
 }) {
   return (
     <>

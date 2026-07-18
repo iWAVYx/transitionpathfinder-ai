@@ -1,18 +1,22 @@
 /**
- * Static demo fixtures powering the Parent/Guardian dashboard feature
- * drawers and the /demo/family preview. Nothing here is real data.
- * Shared fictional student: Jordan Rivera.
+ * Family / Parent dashboard feature-detail templates.
  *
- * Each feature declares:
- *  - what it does, in one sentence
- *  - where its data comes from
- *  - the primary action a family can take
- *  - which other tools it connects to
- *  - illustrative stats and preview rows
- *
- * The drawer also renders polished loading / empty / error / permission
- * states based on the `state` prop passed in at render time.
+ * These are TEMPLATES — every profile-specific string (name, grade,
+ * school, primary interest, meeting date, partner match count, report
+ * version) is a `{token}` placeholder resolved at read time by
+ * `getParentFeatureDetails(profileId)`. Do NOT hardcode a student name
+ * or grade in this file — that reintroduces the leak this system fixes.
  */
+
+import {
+  DEFAULT_DEMO_PROFILE_ID,
+  getDemoProfile,
+  type DemoProfileId,
+} from "@/lib/demo/demo-profiles";
+import {
+  applyTokensDeep,
+  tokensForProfile,
+} from "@/lib/demo/student-tokens";
 
 export type ParentFeatureId =
   | "student-profile"
@@ -46,15 +50,11 @@ export type ParentFeatureDetail = {
   connectsTo: string[];
   rows: FeatureRow[];
   stats?: FeatureBullet[];
-  /**
-   * Text shown in the empty state when the family has no data yet.
-   * Every empty state also gets the primary action as its CTA.
-   */
   emptyHeadline: string;
   emptyBody: string;
 };
 
-export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail> = {
+const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
   "student-profile": {
     id: "student-profile",
     title: "Connected Student",
@@ -66,16 +66,16 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
     primaryAction: { label: "Open Student Profile", to: "/students" },
     connectsTo: ["Pathway Report", "Student Voice", "Sharing & Consent"],
     stats: [
-      { label: "Grade", value: "11" },
-      { label: "School", value: "Hartford Regional" },
+      { label: "Grade", value: "{gradeLabel}" },
+      { label: "School", value: "{school}" },
       { label: "Team members", value: "4" },
     ],
     rows: [
-      { primary: "Jordan Rivera", secondary: "Pronouns: they/them", meta: "Age 17", status: "ok" },
-      { primary: "Case manager: Ms. Patel", secondary: "Special education · lead", status: "ok" },
-      { primary: "Related services", secondary: "Speech · OT", status: "muted" },
-      { primary: "Strengths shared by Jordan", secondary: "Kind · organized · animals", status: "ok" },
-      { primary: "Current interests", secondary: "Vet tech · culinary · animation", status: "ok" },
+      { primary: "{studentDisplayName}", secondary: "Pronouns: {pronoun}/{possessive}", meta: "{gradeLabel}", status: "ok" },
+      { primary: "Case manager: {caseManager}", secondary: "Special education · lead", status: "ok" },
+      { primary: "Related services", secondary: "Support team on file", status: "muted" },
+      { primary: "Strengths shared by {studentShortName}", secondary: "From Student Voice", status: "ok" },
+      { primary: "Current interests", secondary: "{interestList}", status: "ok" },
     ],
     emptyHeadline: "No student connected yet.",
     emptyBody:
@@ -93,17 +93,16 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
     primaryAction: { label: "Open Family Report", to: "/pathway/family" },
     connectsTo: ["Documents", "Meeting Prep", "Action Items", "Recommended Resources"],
     stats: [
-      { label: "Version", value: "v4 · draft" },
-      { label: "Last updated", value: "3 days ago" },
+      { label: "Version", value: "{reportVersion}" },
+      { label: "Grade", value: "{gradeLabel}" },
       { label: "Sections", value: "5 of 7 complete" },
     ],
     rows: [
       { primary: "Snapshot & strengths", secondary: "Complete", status: "ok" },
       { primary: "Family priorities", secondary: "Complete", status: "ok" },
-      { primary: "Pathways after high school", secondary: "Draft ready", status: "ok" },
-      { primary: "Independent living plan", secondary: "Needs one more input", status: "warning" },
+      { primary: "{postSecondaryLabel}", secondary: "Draft ready · focus on {planningHorizon}", status: "ok" },
+      { primary: "Supports & self-advocacy", secondary: "Needs one more input", status: "warning" },
       { primary: "Action plan for the next 90 days", secondary: "Draft ready", status: "ok" },
-      { primary: "Adult services & handoffs", secondary: "Needs case manager input", status: "warning" },
     ],
     emptyHeadline: "The Pathway Report will appear once your team drafts it.",
     emptyBody:
@@ -126,10 +125,10 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       { label: "Shared with team", value: "3" },
     ],
     rows: [
-      { primary: "Current IEP (Aug 2026)", secondary: "PDF · shared with case manager", status: "ok" },
+      { primary: "Current IEP for {studentShortName}", secondary: "PDF · shared with {caseManager}", meta: "{gradeLabel}", status: "ok" },
       { primary: "Latest evaluation", secondary: "Awaiting upload", meta: "Family action", status: "warning" },
-      { primary: "Transition assessment", secondary: "PDF · shared by school", meta: "May 2026", status: "ok" },
-      { primary: "Family notes for the PPT", secondary: "Doc · private to family", status: "muted" },
+      { primary: "Transition assessment", secondary: "PDF · shared by school", meta: "This term", status: "ok" },
+      { primary: "Family notes for the meeting", secondary: "Doc · private to family", status: "muted" },
     ],
     emptyHeadline: "No documents on file yet.",
     emptyBody:
@@ -151,11 +150,10 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       { label: "Saved", value: "2" },
     ],
     rows: [
-      { primary: "Age-of-Majority Guide (family-friendly)", secondary: "Guide · 6 min read" },
-      { primary: "PPT Meeting Questions", secondary: "Template · 1 page" },
-      { primary: "Understanding Adult Services in CT", secondary: "Guide · 10 min read" },
-      { primary: "Travel Training Toolkit", secondary: "Toolkit · video + PDF" },
-      { primary: "Financial Aid & Waivers Explainer", secondary: "Guide · 8 min read" },
+      { primary: "{postSecondaryLabel} — family guide", secondary: "Guide · 6 min read" },
+      { primary: "Meeting Questions template", secondary: "Template · 1 page" },
+      { primary: "Family guide for {gradeLabel}", secondary: "Guide · 10 min read" },
+      { primary: "Interest-matched guide: {primaryInterest}", secondary: "Guide · interest-matched" },
       { primary: "Self-Advocacy Practice Cards", secondary: "Cards · 12 prompts" },
     ],
     emptyHeadline: "No matches yet — but that's about to change.",
@@ -179,15 +177,14 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       { label: "Completed (all time)", value: "18" },
     ],
     rows: [
-      { primary: "Upload the latest IEP", secondary: "Family · due Sep 12", status: "warning" },
-      { primary: "Bring 3 questions to the Sep 15 PPT", secondary: "Family · due Sep 14", status: "warning" },
-      { primary: "Confirm transportation for college tour", secondary: "Family · due Sep 20", status: "muted" },
-      { primary: "Share adult-services referral list", secondary: "Case manager · due Sep 18", status: "muted" },
-      { primary: "Practice travel-training route", secondary: "Student · in progress", status: "ok" },
+      { primary: "Upload the latest IEP for {studentShortName}", secondary: "Family · due before {nextMeetingDate}", status: "warning" },
+      { primary: "Bring 3 questions to the {nextMeetingDate} {nextMeetingLabel}", secondary: "Family · due day before", status: "warning" },
+      { primary: "Confirm transportation for a {primaryInterest} visit", secondary: "Family · upcoming", status: "muted" },
+      { primary: "Practice one self-advocacy line with {studentShortName}", secondary: "Student · in progress", status: "ok" },
     ],
     emptyHeadline: "No action items right now.",
     emptyBody:
-      "New tasks appear here after each PPT or when your team updates the Pathway Report.",
+      "New tasks appear here after each meeting or when your team updates the Pathway Report.",
   },
 
   calendar: {
@@ -195,7 +192,7 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
     title: "Calendar",
     eyebrow: "What's Next",
     summary:
-      "PPTs, IEP reviews, tours, and check-ins in one place, so nothing sneaks up on your family.",
+      "Meetings, IEP reviews, tours, and check-ins in one place, so nothing sneaks up on your family.",
     what: "See what's upcoming, add to your personal calendar, and jump into meeting prep.",
     dataSource: "Meetings scheduled by your team · deadlines from the Pathway Report",
     primaryAction: { label: "Open Calendar", to: "/calendar" },
@@ -205,40 +202,40 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       { label: "Next 30 days", value: "3" },
     ],
     rows: [
-      { primary: "PPT — annual review", secondary: "Sep 15 · 2:30 PM", meta: "Room 214", status: "warning" },
-      { primary: "College tour — Capital CC", secondary: "Oct 2 · morning", meta: "Family welcome", status: "muted" },
-      { primary: "Case manager check-in", secondary: "Oct 9 · 15 min", meta: "Virtual", status: "muted" },
+      { primary: "{nextMeetingLabel}", secondary: "{nextMeetingDate} · 2:30 PM", meta: "{school}", status: "warning" },
+      { primary: "Visit a {primaryInterest} program", secondary: "Coming month", meta: "Family welcome", status: "muted" },
+      { primary: "Case manager check-in with {caseManager}", secondary: "15 min · virtual", status: "muted" },
     ],
     emptyHeadline: "No meetings scheduled.",
     emptyBody:
-      "Once your team schedules the next PPT or check-in, it will appear here with prep prompts.",
+      "Once your team schedules the next meeting or check-in, it will appear here with prep prompts.",
   },
 
   "meeting-prep": {
     id: "meeting-prep",
     title: "Meeting Prep",
-    eyebrow: "Before The PPT",
+    eyebrow: "Before The Meeting",
     summary:
-      "Family-ready questions and an agenda you can bring to the next PPT / IEP meeting.",
+      "Family-ready questions and an agenda you can bring to the next IEP / PPT meeting.",
     what: "Add questions, review the agenda, and print a one-pager for the meeting.",
     dataSource: "Meeting template · Family Priorities · Pathway Report",
     primaryAction: { label: "Prep For Next Meeting", to: "/ppt-prep" },
     connectsTo: ["Calendar", "Pathway Report", "Family Priorities"],
     stats: [
-      { label: "Next meeting", value: "Sep 15" },
+      { label: "Next meeting", value: "{nextMeetingDate}" },
       { label: "Questions ready", value: "3" },
       { label: "Agenda items open", value: "2" },
     ],
     rows: [
-      { primary: "What supports move with Jordan after graduation?", secondary: "Question · family", status: "ok" },
-      { primary: "Can Jordan try a work-based learning placement this spring?", secondary: "Question · family", status: "ok" },
-      { primary: "Progress on independent living goals?", secondary: "Question · family", status: "ok" },
-      { primary: "Review employment goal progress", secondary: "Agenda item", status: "muted" },
+      { primary: "What supports move with {studentShortName} next year?", secondary: "Question · family", status: "ok" },
+      { primary: "Can {studentShortName} try more of {primaryInterest} this term?", secondary: "Question · family", status: "ok" },
+      { primary: "Progress on self-advocacy goals?", secondary: "Question · family", status: "ok" },
+      { primary: "Review {postSecondaryLabel}", secondary: "Agenda item", status: "muted" },
       { primary: "Update self-advocacy goal", secondary: "Agenda item · needs owner", status: "warning" },
     ],
     emptyHeadline: "No meeting prep started yet.",
     emptyBody:
-      "Start prep for your next PPT — add questions and a family agenda in under five minutes.",
+      "Start prep for your next meeting — add questions and a family agenda in under five minutes.",
   },
 
   consent: {
@@ -256,10 +253,10 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       { label: "Active links", value: "1" },
     ],
     rows: [
-      { primary: "Ms. Patel · case manager", secondary: "Editor · Hartford Regional", status: "ok" },
-      { primary: "Uncle Ray · advocate", secondary: "Viewer · added Aug 24", status: "ok" },
+      { primary: "{caseManager} · case manager", secondary: "Editor · {school}", status: "ok" },
+      { primary: "Family advocate", secondary: "Viewer · recently added", status: "ok" },
       { primary: "Family report link", secondary: "Anyone with the link · view only", meta: "Copy", status: "muted" },
-      { primary: "Previous case manager access", secondary: "Revoked Aug 1", status: "muted" },
+      { primary: "Previous case manager access", secondary: "Revoked", status: "muted" },
     ],
     emptyHeadline: "No one else has access yet.",
     emptyBody:
@@ -281,9 +278,9 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
       { label: "Pending", value: "1" },
     ],
     rows: [
-      { primary: "coach.ramirez@example.org", secondary: "Editor · sent Sep 5", meta: "Pending", status: "warning" },
-      { primary: "grandma.rivera@example.org", secondary: "Viewer · joined Aug 30", status: "ok" },
-      { primary: "advocate@familyfirstct.org", secondary: "Viewer · joined Aug 12", status: "ok" },
+      { primary: "coach@example.org", secondary: "Editor · sent recently", meta: "Pending", status: "warning" },
+      { primary: "grandparent@example.org", secondary: "Viewer · joined", status: "ok" },
+      { primary: "advocate@familyfirstct.org", secondary: "Viewer · joined", status: "ok" },
     ],
     emptyHeadline: "No teammates invited yet.",
     emptyBody:
@@ -302,20 +299,34 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
     connectsTo: ["Pathway Report", "Recommended Resources", "Action Items"],
     stats: [
       { label: "Verified partners", value: "7" },
-      { label: "Matches for Jordan", value: "5" },
+      { label: "Matches for {studentShortName}", value: "{partnerMatchCount}" },
       { label: "Application windows", value: "3" },
     ],
     rows: [
-      { primary: "Oakwood Animal Rescue · after-school internship", secondary: "Matches Jordan's animals interest", meta: "Grades 10–12", status: "ok" },
-      { primary: "Capital CC Applied Tech open house", secondary: "Age-appropriate · family welcome", meta: "Oct 12", status: "ok" },
-      { primary: "Youth Employment Services · summer track", secondary: "Applications open in Feb", meta: "Coming up", status: "muted" },
-      { primary: "Riverbend Culinary Arts club", secondary: "Weekly · verified partner", meta: "This term", status: "ok" },
+      { primary: "{primaryPartnerRow}", secondary: "{primaryPartnerNote}", meta: "{gradeShort}", status: "ok" },
+      { primary: "Interest match: {primaryInterest}", secondary: "Age-appropriate · family welcome", meta: "Coming up", status: "ok" },
+      { primary: "Interest match: {secondaryInterest}", secondary: "Age-eligible next cycle", meta: "Coming up", status: "muted" },
+      { primary: "Local option near {region}", secondary: "Weekly · verified partner", meta: "This term", status: "ok" },
     ],
     emptyHeadline: "No partners matched yet.",
     emptyBody:
       "Once your student's interests and age are on file, family-ready partner matches will land here.",
   },
 };
+
+export function getParentFeatureDetails(
+  profileId: DemoProfileId = DEFAULT_DEMO_PROFILE_ID,
+): Record<ParentFeatureId, ParentFeatureDetail> {
+  const tokens = tokensForProfile(getDemoProfile(profileId));
+  return applyTokensDeep(TEMPLATE, tokens);
+}
+
+/**
+ * Back-compat default (Jordan) for legacy call sites. New code MUST call
+ * `getParentFeatureDetails(profileId)`.
+ */
+export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail> =
+  getParentFeatureDetails(DEFAULT_DEMO_PROFILE_ID);
 
 export const PARENT_FEATURE_ORDER: ParentFeatureId[] = [
   "student-profile",

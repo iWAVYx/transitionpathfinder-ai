@@ -1,9 +1,25 @@
 /**
- * Static demo fixtures powering Student dashboard feature-detail drawers
- * and the /demo/student preview. Nothing here is real data. The signed-in
- * dashboard also uses these as the illustrative baseline whenever a live
- * value is not yet available for the tile preview footer.
+ * Student dashboard feature-detail templates.
+ *
+ * These are TEMPLATES — every profile-specific string (name, grade,
+ * school, primary interest, next-meeting date, partner match count,
+ * report version) is a `{token}` placeholder resolved at read time by
+ * `getStudentFeatureDetails(profileId)`. Do NOT hardcode a student name
+ * or grade in this file — that reintroduces the leak this system fixes.
+ *
+ * The signed-in Student dashboard also uses these as the illustrative
+ * baseline whenever a live value is not yet available.
  */
+
+import {
+  DEFAULT_DEMO_PROFILE_ID,
+  getDemoProfile,
+  type DemoProfileId,
+} from "@/lib/demo/demo-profiles";
+import {
+  applyTokensDeep,
+  tokensForProfile,
+} from "@/lib/demo/student-tokens";
 
 export type StudentFeatureId =
   | "pathway-report"
@@ -39,7 +55,7 @@ export type StudentFeatureDetail = {
   emptyBody: string;
 };
 
-export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDetail> = {
+const TEMPLATE: Record<StudentFeatureId, StudentFeatureDetail> = {
   "pathway-report": {
     id: "pathway-report",
     title: "My Pathway Report",
@@ -51,16 +67,16 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     primaryAction: { label: "Open My Report", to: "/pathway/student" },
     connectsTo: ["Student Voice", "Action Items", "Meeting Prep", "Recommended Resources"],
     stats: [
-      { label: "Version", value: "v4 · draft" },
-      { label: "Last updated", value: "3 days ago" },
+      { label: "Version", value: "{reportVersion}" },
+      { label: "Grade", value: "{gradeLabel}" },
       { label: "Sections complete", value: "5 of 7" },
     ],
     rows: [
-      { primary: "Employment readiness", secondary: "Emerging", meta: "2 goals · 1 gap", status: "warning" },
-      { primary: "Education & training", secondary: "Developing", meta: "3 goals", status: "ok" },
-      { primary: "Independent living", secondary: "Emerging", meta: "1 gap · travel training", status: "warning" },
-      { primary: "Self-advocacy", secondary: "Growing", meta: "Voice prompts complete", status: "ok" },
-      { primary: "Team & supports", secondary: "In place", meta: "Case manager · family", status: "ok" },
+      { primary: "{postSecondaryLabel}", secondary: "Focus: {planningHorizon}", meta: "{studentShortName}", status: "warning" },
+      { primary: "Interests on file", secondary: "{interestList}", meta: "From Student Voice", status: "ok" },
+      { primary: "School context", secondary: "{school}", meta: "{region}", status: "ok" },
+      { primary: "Self-advocacy", secondary: "Voice prompts complete", meta: "Growing", status: "ok" },
+      { primary: "Team & supports", secondary: "Case manager: {caseManager}", meta: "In place", status: "ok" },
     ],
     emptyHeadline: "Your report is being built.",
     emptyBody:
@@ -72,7 +88,7 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     title: "Student Voice",
     eyebrow: "Your Words",
     summary:
-      "Prompts that let you share strengths, interests, hopes, and worries in your own words. Your team reads these before the PPT.",
+      "Prompts that let you share strengths, interests, hopes, and worries in your own words. Your team reads these before the meeting.",
     what: "Answer short prompts. Your responses feed the Pathway Report and meeting prep.",
     dataSource: "You — anytime, from any device",
     primaryAction: { label: "Answer Prompts", to: "/student-voice" },
@@ -83,10 +99,10 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     ],
     rows: [
       { primary: "What are you good at?", secondary: "Answered", status: "ok" },
-      { primary: "What kind of job sounds interesting?", secondary: "Answered", status: "ok" },
-      { primary: "Where do you want to live after high school?", secondary: "Answered", status: "ok" },
+      { primary: "What are you into right now?", secondary: "Answered: {primaryInterest}", status: "ok" },
+      { primary: "What kind of school/program sounds interesting?", secondary: "Answered", status: "ok" },
       { primary: "What help do you want from your team?", secondary: "Answered", status: "ok" },
-      { primary: "What worries you about after school?", secondary: "Not yet", status: "warning" },
+      { primary: "What worries you about what's next?", secondary: "Not yet", status: "warning" },
       { primary: "What do you want to say at the meeting?", secondary: "Not yet", status: "warning" },
     ],
     emptyHeadline: "No prompts answered yet.",
@@ -110,10 +126,10 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { label: "Completed (all time)", value: "14" },
     ],
     rows: [
-      { primary: "Bring 3 questions to the Sep 15 PPT", secondary: "Due Sep 14", status: "warning" },
-      { primary: "Star one job you'd like to try", secondary: "Due Sep 12", status: "warning" },
-      { primary: "Tour Capital Community College", secondary: "Planned · Oct 2", status: "muted" },
-      { primary: "Practice travel-training route", secondary: "In progress", status: "ok" },
+      { primary: "Bring 3 questions to the {nextMeetingDate} {nextMeetingLabel}", secondary: "Due day before meeting", status: "warning" },
+      { primary: "Star one option that fits your {primaryInterest} interest", secondary: "Small step this week", status: "warning" },
+      { primary: "Explore one program with {caseManager}", secondary: "Planned", status: "muted" },
+      { primary: "Practice one self-advocacy line", secondary: "In progress", status: "ok" },
     ],
     emptyHeadline: "No action items yet.",
     emptyBody:
@@ -130,13 +146,16 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     dataSource: "Bookmarks from you, your family, and your case manager",
     primaryAction: { label: "Open Saved Resources", to: "/resources/saved" },
     connectsTo: ["Pathway Report", "Recommended Resources"],
-    stats: [{ label: "Saved", value: "5" }, { label: "Added this month", value: "2" }],
+    stats: [
+      { label: "Saved", value: "5" },
+      { label: "Added this month", value: "2" },
+    ],
     rows: [
-      { primary: "Age-of-Majority Guide (family-friendly)", secondary: "Guide · 6 min read" },
-      { primary: "First-Job Checklist", secondary: "Checklist · printable" },
-      { primary: "PPT Meeting Questions", secondary: "Template · 1 page" },
-      { primary: "Travel Training Toolkit", secondary: "Toolkit · video + PDF" },
-      { primary: "Self-Advocacy Practice Cards", secondary: "Cards · 12 prompts" },
+      { primary: "{postSecondaryLabel} — starter guide", secondary: "Guide · 6 min read" },
+      { primary: "Getting ready for your next meeting", secondary: "Checklist · printable" },
+      { primary: "Meeting Questions template", secondary: "Template · 1 page" },
+      { primary: "Self-advocacy practice cards", secondary: "Cards · 12 prompts" },
+      { primary: "Resource for {primaryInterest}", secondary: "Guide · interest-matched" },
     ],
     emptyHeadline: "Nothing saved yet.",
     emptyBody:
@@ -146,27 +165,27 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
   "meeting-prep": {
     id: "meeting-prep",
     title: "Meeting Prep",
-    eyebrow: "Before The PPT",
+    eyebrow: "Before The Meeting",
     summary:
-      "Walk into your PPT / IEP with the questions and goals you want on the table.",
+      "Walk into your next meeting with the questions and goals you want on the table.",
     what: "Add questions, review the agenda, and print a one-pager to bring with you.",
     dataSource: "Meeting template · Student Voice · your action items",
     primaryAction: { label: "Prep For My Next Meeting", to: "/ppt-prep" },
     connectsTo: ["Calendar", "Student Voice", "Pathway Report"],
     stats: [
-      { label: "Next meeting", value: "Sep 15" },
+      { label: "Next meeting", value: "{nextMeetingDate}" },
       { label: "Questions ready", value: "3" },
       { label: "Agenda items open", value: "2" },
     ],
     rows: [
-      { primary: "Can I try a work-based learning placement this spring?", secondary: "Question · yours", status: "ok" },
-      { primary: "What supports move with me after graduation?", secondary: "Question · yours", status: "ok" },
-      { primary: "Review employment goal progress", secondary: "Agenda item", status: "muted" },
+      { primary: "Can I try more of {primaryInterest} next term?", secondary: "Question · yours", status: "ok" },
+      { primary: "What supports move with me next year?", secondary: "Question · yours", status: "ok" },
+      { primary: "Review {postSecondaryLabel}", secondary: "Agenda item", status: "muted" },
       { primary: "Update self-advocacy goal", secondary: "Agenda item · needs owner", status: "warning" },
     ],
     emptyHeadline: "No meeting scheduled yet.",
     emptyBody:
-      "When your team sets a PPT or IEP date, prep tools will appear here.",
+      "When your team sets a meeting date, prep tools will appear here.",
   },
 
   calendar: {
@@ -174,7 +193,7 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     title: "Upcoming Meetings",
     eyebrow: "What's Next",
     summary:
-      "PPTs, IEP reviews, tours, and check-ins in one place, so nothing sneaks up on you.",
+      "Meetings, reviews, tours, and check-ins in one place, so nothing sneaks up on you.",
     what: "See what's coming up, add a meeting to your personal calendar, and jump into prep.",
     dataSource: "Meetings scheduled by your team · deadlines from your report",
     primaryAction: { label: "Open Calendar", to: "/calendar" },
@@ -184,13 +203,13 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { label: "Next 30 days", value: "3" },
     ],
     rows: [
-      { primary: "PPT — annual review", secondary: "Sep 15 · 2:30 PM", meta: "Hartford Regional · Room 214", status: "warning" },
-      { primary: "College tour — Capital CC", secondary: "Oct 2 · morning", meta: "Optional · family welcome", status: "muted" },
-      { primary: "Check-in with case manager", secondary: "Oct 9 · 15 min", meta: "Virtual", status: "muted" },
+      { primary: "{nextMeetingLabel}", secondary: "{nextMeetingDate} · 2:30 PM", meta: "{school}", status: "warning" },
+      { primary: "Explore a {primaryInterest} program", secondary: "Coming month", meta: "Optional · family welcome", status: "muted" },
+      { primary: "Check-in with {caseManager}", secondary: "15 min", meta: "Virtual", status: "muted" },
     ],
     emptyHeadline: "Nothing on the calendar.",
     emptyBody:
-      "PPTs, tours, and check-ins your team schedules will show up here.",
+      "Meetings, tours, and check-ins your team schedules will show up here.",
   },
 
   documents: {
@@ -208,9 +227,9 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
       { label: "New this month", value: "1" },
     ],
     rows: [
-      { primary: "Current IEP", secondary: "PDF · shared by Ms. Patel", meta: "Updated Aug 24", status: "ok" },
-      { primary: "Transition assessment summary", secondary: "PDF · shared by school", meta: "May 2026", status: "ok" },
-      { primary: "Family notes for the PPT", secondary: "Doc · shared by parent", meta: "Sep 3", status: "muted" },
+      { primary: "Current IEP", secondary: "PDF · shared by {caseManager}", meta: "{gradeLabel}", status: "ok" },
+      { primary: "Transition assessment summary", secondary: "PDF · shared by school", meta: "This term", status: "ok" },
+      { primary: "Family notes for the meeting", secondary: "Doc · shared by {familyLead}", meta: "Recent", status: "muted" },
       { primary: "Latest evaluation", secondary: "Awaiting upload", meta: "Ask your case manager", status: "warning" },
     ],
     emptyHeadline: "No documents shared with you yet.",
@@ -229,21 +248,36 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     primaryAction: { label: "Open Partner Network", to: "/partner-network" },
     connectsTo: ["Pathway Report", "Saved Resources", "Action Items"],
     stats: [
-      { label: "Age-eligible", value: "4" },
+      { label: "Age-eligible", value: "{partnerMatchCount}" },
       { label: "New this week", value: "2" },
       { label: "Coming up", value: "3" },
     ],
     rows: [
-      { primary: "Oakwood Animal Rescue · after-school internship", secondary: "Matches your interest in animals", meta: "Grades 10–12", status: "ok" },
-      { primary: "Capital CC Applied Tech open house", secondary: "Matches applied-tech interest", meta: "Oct 12", status: "ok" },
-      { primary: "Youth Employment Services · summer track", secondary: "Age-eligible next summer", meta: "Applies in Feb", status: "muted" },
-      { primary: "Riverbend Culinary Arts club", secondary: "Interest signal from Student Voice", meta: "Weekly", status: "ok" },
+      { primary: "{primaryPartnerRow}", secondary: "{primaryPartnerNote}", meta: "{gradeShort}", status: "ok" },
+      { primary: "Interest-based match: {primaryInterest}", secondary: "Explainable match on file", meta: "This term", status: "ok" },
+      { primary: "Interest-based match: {secondaryInterest}", secondary: "Age-eligible next cycle", meta: "Coming up", status: "muted" },
+      { primary: "Local option near {region}", secondary: "Verified partner", meta: "Weekly", status: "ok" },
     ],
     emptyHeadline: "No matches yet.",
     emptyBody:
       "Once your interests and age are on file, explainable partner matches will land here.",
   },
 };
+
+export function getStudentFeatureDetails(
+  profileId: DemoProfileId = DEFAULT_DEMO_PROFILE_ID,
+): Record<StudentFeatureId, StudentFeatureDetail> {
+  const tokens = tokensForProfile(getDemoProfile(profileId));
+  return applyTokensDeep(TEMPLATE, tokens);
+}
+
+/**
+ * Back-compat default (Jordan) for legacy call sites that have not yet been
+ * migrated to the profile-aware factory. New code MUST call
+ * `getStudentFeatureDetails(profileId)`.
+ */
+export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDetail> =
+  getStudentFeatureDetails(DEFAULT_DEMO_PROFILE_ID);
 
 export const STUDENT_FEATURE_ORDER: StudentFeatureId[] = [
   "pathway-report",

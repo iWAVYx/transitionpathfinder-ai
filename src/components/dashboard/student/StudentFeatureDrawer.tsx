@@ -25,10 +25,12 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
-  STUDENT_FEATURE_DETAILS,
+  getStudentFeatureDetails,
   type StudentFeatureId,
+  type StudentFeatureDetail,
   type FeatureRow,
 } from "@/lib/demo/student/feature-details";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 /**
  * Shared drawer for the Student dashboard. Mirrors the Parent / Educator /
@@ -56,7 +58,9 @@ export function StudentFeatureDrawer({
   state?: StudentFeatureState;
   onRetry?: () => void;
 }) {
-  const detail = featureId ? STUDENT_FEATURE_DETAILS[featureId] : null;
+  const { profileId } = useDemoStudent();
+  const details = getStudentFeatureDetails(profileId);
+  const detail = featureId ? details[featureId] : null;
   const Icon = icon;
 
   return (
@@ -151,7 +155,7 @@ export function StudentFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof STUDENT_FEATURE_DETAILS)[StudentFeatureId];
+  detail: StudentFeatureDetail;
 }) {
   return (
     <>
