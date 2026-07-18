@@ -303,17 +303,16 @@ function PlatformPage() {
               One Platform. Four Perspectives.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Transition planning has too many chairs at the table and not enough shared
-              language. TransitionForward gives families, students, educators, and admins their
-              own view of the same plan, so everyone is finally working from the same page.
+              See how TransitionForward adapts as students move from middle-school
+              discovery to high-school planning and postsecondary action — with families,
+              students, educators, and admins all working from the same page.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
-                to="/login"
-                search={{}}
+                to="/demo"
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
               >
-                Create A Pathway Report
+                Explore The Student Journeys
               </Link>
               <a
                 href="#perspectives"
