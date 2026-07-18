@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link } from "@tanstack/react-router";
+
 import { ArrowRight, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { DEMO_PROFILES, DEMO_PROFILE_ORDER, type DemoProfile } from "@/lib/demo/demo-profiles";
 import { matchOpportunities, type OpportunityMatch } from "@/lib/demo/opportunity-matcher";
@@ -131,13 +131,12 @@ export function RosterMatchBoard({ framing = "educator" }: { framing?: Framing }
                 <span>
                   {visible.length} shown · {hidden} filtered
                 </span>
-                <Link
-                  to="/demo/opportunities"
-                  search={{ student: profile.id }}
+                <a
+                  href={`/demo/opportunities?student=${profile.id}`}
                   className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
                 >
                   Open <ArrowRight className="h-3 w-3" />
-                </Link>
+                </a>
               </div>
             </li>
           );
