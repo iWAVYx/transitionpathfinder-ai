@@ -25,10 +25,10 @@ import {
   coerceRole,
 } from "@/lib/demo/nav";
 import {
-  isWorkspaceRole,
   rememberLastWorkspaceStage,
   useDemoRoleView,
 } from "@/lib/demo/use-demo-role-view";
+import { isWorkspaceRoleId, resolveDemoRoleDestination } from "@/lib/demo/role-routing";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 const STAGE_IDS = WORKSPACE_STAGES.map((s) => s.id) as [StageId, ...StageId[]];
