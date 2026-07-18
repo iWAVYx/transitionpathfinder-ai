@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { SiteShell } from "@/components/site/SiteShell";
-import { PageSection } from "@/components/layout/PageSection";
+
 import { Badge } from "@/components/ui/badge";
 import { PartnerNetworkPage } from "@/components/partner-network/PartnerNetworkPage";
 import type { RoleAudience } from "@/lib/role-policy";
