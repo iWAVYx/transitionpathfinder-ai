@@ -136,8 +136,8 @@ export function tilesForProfile(
         },
       ];
     default:
-      // school-admin / district-admin / partner do not share the profile
-      // aside; keep the existing static caseload / partner tiles.
+      // school-admin / district-admin / partner get their tiles from the
+      // role-context hooks in RolePreviewShell, not from this helper.
       return role.dashboardTiles;
   }
 }

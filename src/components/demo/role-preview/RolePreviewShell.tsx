@@ -14,7 +14,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
-import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
+import { RoleContextSelector } from "@/components/demo/RoleContextSelector";
 import { toTitleCase } from "@/lib/title-case";
 import {
   CommandMetricStrip,
@@ -36,6 +36,16 @@ import {
   sharedStudentFromProfile,
   tilesForProfile,
 } from "@/lib/demo/profile-shell";
+import {
+  useDemoSchool,
+  useDemoDistrict,
+  useDemoPartnerPlan,
+} from "@/lib/demo/use-role-context";
+import {
+  schoolTilesFor,
+  districtTilesFor,
+  partnerTilesFor,
+} from "@/lib/demo/role-contexts";
 
 function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
   switch (id) {
@@ -107,7 +117,7 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
           );
         })}
         <div className="ml-auto">
-          <StudentSwitcher compact />
+          <RoleContextSelector role={current} compact />
         </div>
       </div>
     </nav>
@@ -158,10 +168,35 @@ export function RolePreviewShell({
     : undefined;
 
   const { profile } = useDemoStudent();
+  const { school } = useDemoSchool();
+  const { district } = useDemoDistrict();
+  const { plan } = useDemoPartnerPlan();
   const sharedStudent = sharedStudentFromProfile(profile);
-  const tiles = tilesForProfile(role, profile);
-  const headline = headlineForProfile(role, profile);
-  const intro = introForProfile(role, profile);
+  const baseTiles = tilesForProfile(role, profile);
+  const tiles =
+    role.id === "school-admin"
+      ? schoolTilesFor(school)
+      : role.id === "district-admin"
+        ? districtTilesFor(district)
+        : role.id === "partner"
+          ? partnerTilesFor(plan)
+          : baseTiles;
+  const headline =
+    role.id === "school-admin"
+      ? `See What ${school.displayName} Would See.`
+      : role.id === "district-admin"
+        ? `See What ${district.displayName} Would See.`
+        : role.id === "partner"
+          ? `See The Partner Dashboard — ${plan.label}.`
+          : headlineForProfile(role, profile);
+  const intro =
+    role.id === "school-admin"
+      ? `${school.tagline}. ${school.activityHeadline}. Switch schools from the header to compare a comprehensive high school with a specialized program.`
+      : role.id === "district-admin"
+        ? `${district.tagline}. ${district.activityHeadline}. Switch districts from the header to compare a large regional network with a smaller local district.`
+        : role.id === "partner"
+          ? `${plan.tagline}. Toggle Free and Premium from the header to see how listing capabilities change. Premium never expands access to protected student data.`
+          : introForProfile(role, profile);
 
   return (
     <SiteShell>
