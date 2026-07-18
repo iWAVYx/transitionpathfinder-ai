@@ -2,10 +2,17 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Eye, Network } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
+import { resolveDemoFeatureRoute, type DemoRole } from "@/lib/demo/feature-routes";
 
 type Role = "student" | "family" | "educator" | "school_admin" | "district_admin" | "partner";
 
-const COPY: Record<Role, { status: string; tone: "default" | "success" | "warning" | "critical" | "muted"; summary: string; bullets: { label: string; value: string }[]; cta: string }> = {
+const COPY: Record<Role, {
+  status: string;
+  tone: "default" | "success" | "warning" | "critical" | "muted";
+  summary: string;
+  bullets: { label: string; value: string }[];
+  cta: string;
+}> = {
   student: {
     status: "4 matches",
     tone: "success",
@@ -68,30 +75,48 @@ const COPY: Record<Role, { status: string; tone: "default" | "success" | "warnin
   },
 };
 
+const ROLE_TO_DEMO: Record<Role, DemoRole> = {
+  student: "student",
+  family: "family",
+  educator: "educator",
+  school_admin: "school-admin",
+  district_admin: "district-admin",
+  partner: "partner",
+};
+
+const ROLE_TO_LIVE: Record<Role, string> = {
+  student: "/partner-network",
+  family: "/partner-network",
+  educator: "/partner-network",
+  school_admin: "/partner-network",
+  district_admin: "/partner-network",
+  partner: "/partner-network",
+};
+
 /**
  * Consolidated Partner Network entry point. Every role dashboard shows
- * exactly one Partner Network tile. Partners see de-identified data only —
- * no student names, IDs, or PII surface here.
- *
- * In sample/demo mode the tile routes to the isolated demo Partner Network
- * preview instead of the live signed-in route.
+ * exactly one Partner Network tile that follows the same feature-tile
+ * contract as every other tile: a Preview button opens the role's
+ * feature drawer with the "partner-network" featureId, and the CTA
+ * routes to the live page (or, in sample mode, to the shared demo
+ * feature page at /demo/feature/{role}/partner-network).
  */
-export function PartnerNetworkTile({ role, isSample = false }: { role: Role; isSample?: boolean }) {
+export function PartnerNetworkTile({
+  role,
+  isSample = false,
+  onPreview,
+}: {
+  role: Role;
+  isSample?: boolean;
+  onPreview?: () => void;
+}) {
   const copy = COPY[role];
-  const demoRoleParam: Record<Role, string> = {
-    student: "student",
-    family: "family",
-    educator: "educator",
-    school_admin: "school-admin",
-    district_admin: "district-admin",
-    partner: "partner",
-  };
-  const linkProps = isSample
-    ? ({ to: "/demo/partner-network", search: { role: demoRoleParam[role] } } as const)
-    : ({ to: "/partner-network" } as const);
+  const demoRole = ROLE_TO_DEMO[role];
+  const ctaTo = isSample
+    ? resolveDemoFeatureRoute(demoRole, "partner-network")
+    : ROLE_TO_LIVE[role];
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-
       <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
       <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -121,21 +146,31 @@ export function PartnerNetworkTile({ role, isSample = false }: { role: Role; isS
         Explainable matches · Verified partners
       </p>
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/60 bg-muted/20 px-3.5 py-2">
+        {onPreview ? (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+            aria-label="Preview Partner Network"
+          >
+            <Eye className="h-3.5 w-3.5" aria-hidden /> Preview
+          </button>
+        ) : (
+          <Link
+            to={ctaTo}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+          >
+            <Eye className="h-3.5 w-3.5" aria-hidden /> Preview
+          </Link>
+        )}
         <Link
-          {...linkProps}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
-        >
-          <Eye className="h-3.5 w-3.5" aria-hidden /> Preview
-        </Link>
-        <Link
-          {...linkProps}
+          to={ctaTo}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
-          Open Partner Network
+          {copy.cta}
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
         </Link>
       </div>
-
     </div>
   );
 }
