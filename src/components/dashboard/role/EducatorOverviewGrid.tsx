@@ -187,7 +187,7 @@ export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean 
             }}
           />
         ))}
-        <PartnerNetworkTile role="educator" />
+        <PartnerNetworkTile role="educator" isSample={isSample} />
       </ToolPreviewGrid>
 
 

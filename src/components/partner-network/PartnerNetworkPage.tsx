@@ -34,18 +34,28 @@ import { Pill } from "@/components/ui/pill";
  *  - school_admin / district_admin: coverage + verification view
  *  - partner: de-identified demand signal for their own listings (no student PII)
  */
-export function PartnerNetworkPage() {
+export function PartnerNetworkPage({
+  audienceOverride,
+  demo = false,
+}: {
+  audienceOverride?: RoleAudience;
+  demo?: boolean;
+} = {}) {
   const fetchRoles = useServerFn(getMyRoles);
-  const [audience, setAudience] = useState<RoleAudience | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [audience, setAudience] = useState<RoleAudience | null>(audienceOverride ?? null);
+  const [loading, setLoading] = useState(!audienceOverride);
 
   useEffect(() => {
+    if (audienceOverride) {
+      setAudience(audienceOverride);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     fetchRoles()
       .then(({ roles }) => {
         if (cancelled) return;
         const have = audiencesForRoles(roles);
-        // Priority order for choosing the primary view.
         const order: RoleAudience[] = [
           "student",
           "family",
@@ -64,49 +74,52 @@ export function PartnerNetworkPage() {
     return () => {
       cancelled = true;
     };
-  }, [fetchRoles]);
+  }, [fetchRoles, audienceOverride]);
 
-  return (
-    <SiteShell>
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-primary">
-            <Network className="h-4 w-4" aria-hidden />
-            Partner Network
-          </div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            The Right Community Partners, Matched And Explained
-          </h1>
-          <p className="max-w-3xl text-muted-foreground">
-            Vetted programs, internships, and services from partner organizations —
-            filtered by age, interests, and supports, with every match explained.
-            Student data stays on your side of the network.
-          </p>
-        </header>
+  const body =
+    loading || !audience ? (
+      <div className="rounded-xl border border-border/60 bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+        Loading your Partner Network view…
+      </div>
+    ) : audience === "student" ? (
+      <StudentFamilyView tone="student" />
+    ) : audience === "family" ? (
+      <StudentFamilyView tone="family" />
+    ) : audience === "educator" ? (
+      <EducatorView />
+    ) : audience === "school_admin" ? (
+      <SchoolView />
+    ) : audience === "district_admin" ? (
+      <DistrictView />
+    ) : audience === "partner" ? (
+      <PartnerView demo={demo} />
+    ) : (
+      <AdminView />
+    );
 
-        {loading || !audience ? (
-          <div className="rounded-xl border border-border/60 bg-muted/30 p-8 text-center text-sm text-muted-foreground">
-            Loading your Partner Network view…
-          </div>
-        ) : audience === "student" ? (
-          <StudentFamilyView tone="student" />
-        ) : audience === "family" ? (
-          <StudentFamilyView tone="family" />
-        ) : audience === "educator" ? (
-          <EducatorView />
-        ) : audience === "school_admin" ? (
-          <SchoolView />
-        ) : audience === "district_admin" ? (
-          <DistrictView />
-        ) : audience === "partner" ? (
-          <PartnerView />
-        ) : (
-          <AdminView />
-        )}
-      </main>
-    </SiteShell>
+  const inner = (
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="mb-8 flex flex-col gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-primary">
+          <Network className="h-4 w-4" aria-hidden />
+          Partner Network
+        </div>
+        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          The Right Community Partners, Matched And Explained
+        </h1>
+        <p className="max-w-3xl text-muted-foreground">
+          Vetted programs, internships, and services from partner organizations —
+          filtered by age, interests, and supports, with every match explained.
+          Student data stays on your side of the network.
+        </p>
+      </header>
+      {body}
+    </main>
   );
+
+  return demo ? inner : <SiteShell>{inner}</SiteShell>;
 }
+
 
 /* ---------- Student / Family ---------- */
 
@@ -277,7 +290,7 @@ function DistrictView() {
 
 /* ---------- Partner ---------- */
 
-function PartnerView() {
+function PartnerView({ demo = false }: { demo?: boolean } = {}) {
   const { plan } = useDemoPartnerPlan();
   return (
     <div className="space-y-6">
@@ -303,16 +316,19 @@ function PartnerView() {
         <p className="mt-4 text-sm text-muted-foreground">
           Most-viewed audience segment this month: <strong>Grade 11 · Interests in animals and applied tech</strong>.
         </p>
-        <Link
-          to="/partners-manage/opportunities"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          Manage My Opportunities
-        </Link>
+        {!demo && (
+          <Link
+            to="/partners-manage/opportunities"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Manage My Opportunities
+          </Link>
+        )}
       </section>
     </div>
   );
 }
+
 
 /* ---------- Admin ---------- */
 
