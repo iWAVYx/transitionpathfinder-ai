@@ -237,7 +237,13 @@ export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean 
 
 function EducatorTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
   const Icon = tile.icon;
-  const detail = EDUCATOR_FEATURE_DETAILS[tile.featureId];
+  const { profileId } = useDemoStudent();
+  const detail = getEducatorFeatureDetails(profileId)[tile.featureId];
+  const status = detail.stats?.[0]?.value ?? tile.status;
+  const bullets =
+    detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
+    tile.bullets ??
+    [];
   const ctaTo = isSample ? resolveDemoFeatureRoute("educator", tile.featureId) : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
@@ -251,12 +257,12 @@ function EducatorTile({ tile, onPreview, isSample = false }: { tile: Tile; onPre
             {toTitleCase(tile.title)}
           </h3>
         </div>
-        <Pill tone={tile.tone}>{tile.status}</Pill>
+        <Pill tone={tile.tone}>{status}</Pill>
       </div>
       <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
-      {tile.bullets && tile.bullets.length > 0 && (
+      {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
-          {tile.bullets.slice(0, 4).map((b) => (
+          {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
               <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
