@@ -1,21 +1,28 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
 import { getStage, type StageId, type WorkspaceStage } from "@/lib/workspace/stages";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
+import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import { DEMO_ROLES, type DemoRoleId } from "@/lib/demo/role-previews";
+import {
+  isWorkspaceRole,
+  rememberLastWorkspaceStage,
+  useDemoRoleView,
+} from "@/lib/demo/use-demo-role-view";
 
 /**
  * Shared renderer for the legacy /demo/* URL aliases (intake, voice,
  * documents, report, resources, opportunities, plan, meeting, calendar,
  * hub, next). Renders the Transition Workspace stage inline while keeping
- * the browser URL on the original /demo/<step> path — no redirect to
- * /demo/workspace/*.
+ * the browser URL on the original /demo/<step> path.
  *
- * These aliases are public and role-safe: they only render sample workspace
- * content and the DemoRoleLens tablist. They never link into protected
- * signed-in surfaces.
+ * Role switching: workspace roles (Student / Family / Educator) update
+ * the perspective in place; non-workspace roles route the visitor to
+ * their own demo dashboard, preserving the selected student.
  */
 export function LegacyDemoStagePage({
   stageId,
@@ -29,13 +36,24 @@ export function LegacyDemoStagePage({
   const stage = getStage(stageId);
   const [expanded, setExpanded] = useState(true);
   const { profile } = useDemoStudent();
+  const navigate = useNavigate();
+  const { role: viewRole } = useDemoRoleView();
+
+  useEffect(() => {
+    rememberLastWorkspaceStage(stageId);
+  }, [stageId]);
 
   const hrefFor = (s: WorkspaceStage) => `/demo/workspace/${s.id}`;
   const disallowed = profile.stage.disallowedThemes;
 
+  const handleRoleSelect = (next: DemoRoleId) => {
+    if (isWorkspaceRole(next)) return;
+    navigate({ to: `${DEMO_ROLES[next].path}?student=${encodeURIComponent(profile.id)}` });
+  };
+
   return (
     <SiteShell>
-      <DemoRoleLens />
+      <DemoRoleLens onSelectRole={handleRoleSelect} />
       <WorkspaceShell
         activeStageId={stageId}
         hrefFor={hrefFor}
@@ -57,6 +75,7 @@ export function LegacyDemoStagePage({
           </div>
           <StudentSwitcher />
         </div>
+        <WorkspaceRolePerspective role={viewRole} stageId={stageId} />
         <StageBody
           stage={stage}
           expandInPlace
@@ -79,3 +98,4 @@ export function LegacyDemoStagePage({
     </SiteShell>
   );
 }
+
