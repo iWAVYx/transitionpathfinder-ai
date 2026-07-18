@@ -163,7 +163,7 @@ export function PartnerFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof PARTNER_FEATURE_DETAILS)[PartnerFeatureId];
+  detail: NonNullable<ReturnType<typeof getPartnerFeatureDetails>[PartnerFeatureId]>;
 }) {
   return (
     <>
