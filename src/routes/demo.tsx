@@ -105,10 +105,6 @@ function DemoHub() {
               );
             })}
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Platform Owner / Admin isn't shown here — it's internal operations,
-            not a customer-facing role.
-          </p>
         </section>
 
         {/* SHARED STUDENT CALLOUT */}
