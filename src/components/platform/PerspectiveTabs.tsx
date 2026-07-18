@@ -139,7 +139,7 @@ export function PerspectiveTabs() {
       </div>
 
       <div className="mt-8 grid items-start gap-8 md:grid-cols-[1fr_1.15fr]">
-        <div>
+        <div className="text-left">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             {current.who}
           </p>
