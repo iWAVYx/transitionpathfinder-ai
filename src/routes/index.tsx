@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
+import { DemoCohortStrip } from "@/components/marketing/DemoCohortStrip";
 import { HeroCTAs } from "@/components/site/HeroCTAs";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
 import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
