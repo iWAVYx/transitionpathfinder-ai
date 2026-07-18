@@ -140,15 +140,11 @@ describe("resolveDemoRoleDestination — shared feature exception", () => {
   });
 
   it("Shared feature switching to unsupported role falls back to canonical dashboard", () => {
-    // owner has no `student-voice` — Student → owner-only feature would fall
-    // back. Use a slug we know only exists for some roles.
     const dest = resolveDemoRoleDestination({
-      currentPath: "/demo/feature/student/student-voice",
-      targetRole: "owner" as never,
+      currentPath: "/demo/feature/student/some-slug-that-does-not-exist",
+      targetRole: "partner",
     });
-    // owner is not in DEMO_ROLE_ORDER but resolver still safely defaults to
-    // canonical dashboard lookup — no crash, no workspace hijack.
-    expect(dest.to.startsWith("/demo/")).toBe(true);
+    expect(dest.to).toBe("/demo/partner");
     expect(dest.to).not.toMatch(/\/workspace\//);
   });
 });
