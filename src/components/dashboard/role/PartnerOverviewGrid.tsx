@@ -21,10 +21,12 @@ import {
   type PartnerFeatureState,
 } from "@/components/dashboard/partner/PartnerFeatureDrawer";
 import {
-  PARTNER_FEATURE_DETAILS,
+  getPartnerFeatureDetails,
+  PARTNER_TILE_META_BY_PLAN,
   type PartnerFeatureId,
 } from "@/lib/demo/partner/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
+import { useDemoPartnerPlan } from "@/lib/demo/use-role-context";
 
 type Tile = {
   featureId: PartnerFeatureId;
