@@ -102,11 +102,14 @@ function DemoWorkspaceStagePage() {
   };
 
   const handleRoleSelect = (next: DemoRoleId) => {
-    if (isWorkspaceRole(next)) return; // stay in place; content updates via viewRole
-    // Non-workspace roles: route to their dashboard, preserving the student.
-    const target = DEMO_ROLES[next].path;
-    const qs = search.student ? `?student=${encodeURIComponent(search.student)}` : "";
-    navigate({ to: `${target}${qs}` });
+    if (isWorkspaceRoleId(next)) return; // stay in place; content updates via viewRole
+    // Non-workspace roles exit the workspace → their canonical dashboard.
+    const dest = resolveDemoRoleDestination({
+      currentPath: `/demo/workspace/${stageId}`,
+      targetRole: next,
+      studentId: search.student ?? undefined,
+    });
+    navigate({ to: dest.to, search: dest.search });
   };
 
   const productLabel =
