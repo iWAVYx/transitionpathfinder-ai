@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
-import { PathwayReportDeepPreview } from "@/components/pathway/PathwayReportDeepPreview";
+
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
