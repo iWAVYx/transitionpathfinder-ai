@@ -126,6 +126,12 @@ export function RolePreviewShell({
       } as React.CSSProperties)
     : undefined;
 
+  const { profile } = useDemoStudent();
+  const sharedStudent = sharedStudentFromProfile(profile);
+  const tiles = tilesForProfile(role, profile);
+  const headline = headlineForProfile(role, profile);
+  const intro = introForProfile(role, profile);
+
   return (
     <SiteShell>
       <div data-role-accent={role.id} style={accentStyle}>
