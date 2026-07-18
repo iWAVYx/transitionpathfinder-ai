@@ -730,6 +730,10 @@ function HomePage() {
       </section>
 
 
+      {/* DEMO COHORT — three fictional students → deep-link into pathway report */}
+      <DemoCohortStrip />
+
+
 
       {/* RESOURCE HUB PREVIEW — creative library teaser */}
       <section className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
