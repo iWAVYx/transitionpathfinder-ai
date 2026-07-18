@@ -691,7 +691,7 @@ function JourneyRow({
           <h4 className="mt-1 font-display text-lg">{title}</h4>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary">
+        <span className="inline-flex shrink-0 items-center gap-1 self-center text-sm font-medium text-primary">
           Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </Link>
