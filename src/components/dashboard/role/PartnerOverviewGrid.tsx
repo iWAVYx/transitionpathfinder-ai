@@ -155,21 +155,29 @@ const TILES: Tile[] = [
 export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
   const [openFeature, setOpenFeature] = useState<PartnerFeatureId | null>(null);
   const [state, setState] = useState<PartnerFeatureState>("ready");
+  const { plan, planId } = useDemoPartnerPlan();
 
-  const activeTile = TILES.find((t) => t.featureId === openFeature);
+  const tileMeta = PARTNER_TILE_META_BY_PLAN[planId];
+  const tiles = TILES.map((t) => {
+    const m = tileMeta[t.featureId];
+    return m ? { ...t, status: m.status, tone: m.tone, bullets: m.bullets } : t;
+  });
+
+  const activeTile = tiles.find((t) => t.featureId === openFeature);
 
   return (
     <ToolPreviewSection
-      eyebrow="Your Partner Workspace"
+      eyebrow={`${plan.label} · Partner Workspace`}
       title="Publish Opportunities. Reach The Right Families."
       description="Manage your organization profile, keep opportunities current, and access PartnerForward supports. This workspace is fully partner-scoped — no student data appears here."
     >
       <ToolPreviewGrid>
-        {TILES.map((tile) => (
+        {tiles.map((tile) => (
           <PartnerTile
             key={tile.featureId}
             tile={tile}
             isSample={isSample}
+            planId={planId}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
@@ -183,6 +191,7 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
         icon={activeTile?.icon}
         isSample={isSample}
         state={state}
+        planId={planId}
         onRetry={() => {
           setState("loading");
           window.setTimeout(() => setState("ready"), 900);
@@ -232,9 +241,19 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
   );
 }
 
-function PartnerTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
+function PartnerTile({
+  tile,
+  onPreview,
+  isSample = false,
+  planId,
+}: {
+  tile: Tile;
+  onPreview: () => void;
+  isSample?: boolean;
+  planId: "free" | "premium";
+}) {
   const Icon = tile.icon;
-  const detail = PARTNER_FEATURE_DETAILS[tile.featureId];
+  const detail = getPartnerFeatureDetails(planId)[tile.featureId];
   const ctaTo = isSample ? resolveDemoFeatureRoute("partner", tile.featureId) : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
