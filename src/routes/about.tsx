@@ -346,7 +346,7 @@ function FounderMessage() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover opacity-10"
       />
-      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-16 md:grid-cols-[5fr_6fr] md:gap-20 md:py-20">
+      <div className="relative mx-auto grid max-w-[1300px] gap-10 px-6 py-12 md:grid-cols-[5fr_6fr] md:gap-16 md:py-16">
         <div className="relative">
           <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5">
             <motion.img
@@ -461,7 +461,7 @@ function JourneyPath() {
   });
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-16 text-white md:py-20">
+    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-12 text-white md:py-16">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
 
@@ -501,7 +501,7 @@ function JourneyPath() {
       </svg>
 
       <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
-        <div className="mx-auto mb-10 max-w-2xl text-center md:mx-0 md:mb-12 md:text-left">
+        <div className="mx-auto mb-8 max-w-2xl text-center md:mx-0 md:mb-10 md:text-left">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
           </div>
@@ -511,7 +511,7 @@ function JourneyPath() {
         </div>
 
         <div className="relative">
-          <ol className="space-y-12 md:space-y-20">
+          <ol className="space-y-8 md:space-y-12">
             {JOURNEY.map((j, i) => (
               <motion.li
                 key={i}
@@ -704,7 +704,7 @@ function AheadBesideBehindWalkthrough() {
   return (
     <section className="relative overflow-hidden bg-[#0b0a09] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(181,216,255,0.08),transparent_60%)]" />
-      <div className="relative mx-auto max-w-[1400px] px-4 py-20 sm:px-6 md:py-28">
+      <div className="relative mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
             Walk Through It
@@ -721,7 +721,7 @@ function AheadBesideBehindWalkthrough() {
         <div
           role="tablist"
           aria-label="Ahead, Beside, Behind"
-          className="mx-auto mt-12 flex w-full max-w-2xl flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2 sm:flex-row"
+          className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2 sm:flex-row"
         >
           {WALKTHROUGH.map((s) => {
             const isActive = s.key === active;
@@ -763,7 +763,7 @@ function AheadBesideBehindWalkthrough() {
           role="tabpanel"
           id={`walkthrough-panel-${stance.key}`}
           aria-labelledby={`walkthrough-tab-${stance.key}`}
-          className="mt-10 md:mt-14"
+          className="mt-8 md:mt-12"
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -772,7 +772,7 @@ function AheadBesideBehindWalkthrough() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
-              className="grid gap-10 md:grid-cols-[5fr_7fr] md:gap-16"
+              className="grid gap-8 md:grid-cols-[5fr_7fr] md:gap-12"
             >
               <div className="md:sticky md:top-24 md:self-start">
                 <div
@@ -854,7 +854,7 @@ function AheadBesideBehindWalkthrough() {
           </AnimatePresence>
         </div>
 
-        <p className="mx-auto mt-14 max-w-2xl text-center text-xs text-white/45 md:mt-20">
+        <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-white/45 md:mt-14">
           Screens open in an interactive demo with sample data — the student remains at the center
           of everything you see.
         </p>
@@ -870,7 +870,7 @@ function AheadBesideBehindWalkthrough() {
 function StudentCentered() {
   return (
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
-      <div className="relative mx-auto grid max-w-[1300px] gap-12 px-6 py-20 md:grid-cols-[6fr_5fr] md:gap-20 md:py-28">
+      <div className="relative mx-auto grid max-w-[1300px] gap-10 px-6 py-16 md:grid-cols-[6fr_5fr] md:gap-16 md:py-20">
         <div className="flex flex-col justify-center">
           <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
             <span className="h-px w-8 bg-[#1c1814]/30" />
@@ -933,7 +933,7 @@ function EcosystemAndCare() {
   return (
     <section className="relative overflow-hidden bg-[#0b0a09] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(168,230,207,0.08),transparent_55%)]" />
-      <div className="relative mx-auto max-w-[1300px] px-6 py-24 md:py-32">
+      <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] text-white/60">
@@ -1103,7 +1103,7 @@ const FAQ_ITEMS: FAQEntry[] = [
 function CTAwareFAQ() {
   return (
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
-      <div className="relative mx-auto max-w-[1100px] px-6 py-20 md:py-28">
+      <div className="relative mx-auto max-w-[1100px] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-5 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
             <span className="h-px w-8 bg-[#1c1814]/30" />
@@ -1190,7 +1190,7 @@ function ClosingCTA() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/55 to-[#0b0a09]" />
       </motion.div>
 
-      <div className="relative mx-auto flex min-h-[70svh] max-w-[1300px] flex-col items-center justify-center px-6 py-16 text-center md:py-20">
+      <div className="relative mx-auto flex min-h-[60svh] max-w-[1300px] flex-col items-center justify-center px-6 py-16 text-center md:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
