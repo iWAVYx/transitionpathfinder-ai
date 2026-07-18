@@ -678,11 +678,11 @@ function JourneyRow({
   search?: Record<string, string>;
 }) {
   return (
-    <li>
+    <li className="py-6 first:pt-0 last:pb-0">
       <Link
         to={to}
         search={search}
-        className="group flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+        className="group flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
       >
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
