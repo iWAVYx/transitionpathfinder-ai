@@ -3,6 +3,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
 import { getStage, type StageId, type WorkspaceStage } from "@/lib/workspace/stages";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
+import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 /**
  * Shared renderer for the legacy /demo/* URL aliases (intake, voice,
