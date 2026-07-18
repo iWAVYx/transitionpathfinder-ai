@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
 import { getStage, type StageId, type WorkspaceStage } from "@/lib/workspace/stages";
@@ -20,9 +20,11 @@ import { useDemoStudent } from "@/lib/demo/use-demo-student";
 export function LegacyDemoStagePage({
   stageId,
   legacyPath,
+  afterStage,
 }: {
   stageId: StageId;
   legacyPath: string;
+  afterStage?: ReactNode;
 }) {
   const stage = getStage(stageId);
   const [expanded, setExpanded] = useState(true);
@@ -68,6 +70,7 @@ export function LegacyDemoStagePage({
             {disallowed.map((t) => t.replace(/_/g, " ")).join(", ")}.
           </p>
         )}
+        {afterStage}
         <p className="mt-6 text-xs text-muted-foreground">
           You are viewing <code>{legacyPath}</code> — a legacy demo URL that
           renders the {stage.title} step of the Transition Workspace tour.
