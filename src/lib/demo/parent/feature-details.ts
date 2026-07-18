@@ -289,6 +289,32 @@ export const PARENT_FEATURE_DETAILS: Record<ParentFeatureId, ParentFeatureDetail
     emptyBody:
       "Invite a case manager or advocate — they'll be able to help you plan and prep for meetings.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Community Partners",
+    summary:
+      "Vetted community partners with age-appropriate opportunities and family-ready details — every match is explained.",
+    what: "Preview matched programs for your student, see why each fits, and open the full Partner Network.",
+    dataSource: "Verified partner directory · student interests · age · supports",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Pathway Report", "Recommended Resources", "Action Items"],
+    stats: [
+      { label: "Verified partners", value: "7" },
+      { label: "Matches for Jordan", value: "5" },
+      { label: "Application windows", value: "3" },
+    ],
+    rows: [
+      { primary: "Oakwood Animal Rescue · after-school internship", secondary: "Matches Jordan's animals interest", meta: "Grades 10–12", status: "ok" },
+      { primary: "Capital CC Applied Tech open house", secondary: "Age-appropriate · family welcome", meta: "Oct 12", status: "ok" },
+      { primary: "Youth Employment Services · summer track", secondary: "Applications open in Feb", meta: "Coming up", status: "muted" },
+      { primary: "Riverbend Culinary Arts club", secondary: "Weekly · verified partner", meta: "This term", status: "ok" },
+    ],
+    emptyHeadline: "No partners matched yet.",
+    emptyBody:
+      "Once your student's interests and age are on file, family-ready partner matches will land here.",
+  },
 };
 
 export const PARENT_FEATURE_ORDER: ParentFeatureId[] = [
