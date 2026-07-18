@@ -144,7 +144,7 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
             onPreview={() => setOpenFeature(tile.featureId)}
           />
         ))}
-        <PartnerNetworkTile role="student" />
+        <PartnerNetworkTile role="student" isSample={isSample} />
       </ToolPreviewGrid>
 
 

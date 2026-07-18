@@ -185,7 +185,7 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
             }}
           />
         ))}
-        <PartnerNetworkTile role="partner" />
+        <PartnerNetworkTile role="partner" isSample={isSample} />
       </ToolPreviewGrid>
 
       <PartnerFeatureDrawer
