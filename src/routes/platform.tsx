@@ -533,8 +533,7 @@ function PlatformPage() {
         </div>
       </section>
 
-      {/* PARTNER NETWORK — explainable matcher preview with StudentSwitcher */}
-      <PlatformMatchesPreview />
+
 
       {/* Layered diagram */}
       <section className="relative overflow-hidden py-14">
