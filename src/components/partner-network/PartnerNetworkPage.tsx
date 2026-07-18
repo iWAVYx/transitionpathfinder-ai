@@ -37,9 +37,11 @@ import { Pill } from "@/components/ui/pill";
 export function PartnerNetworkPage({
   audienceOverride,
   demo = false,
+  bare = false,
 }: {
   audienceOverride?: RoleAudience;
   demo?: boolean;
+  bare?: boolean;
 } = {}) {
   const fetchRoles = useServerFn(getMyRoles);
   const [audience, setAudience] = useState<RoleAudience | null>(audienceOverride ?? null);
@@ -117,6 +119,7 @@ export function PartnerNetworkPage({
     </main>
   );
 
+  if (bare) return <div className="space-y-8">{body}</div>;
   return demo ? inner : <SiteShell>{inner}</SiteShell>;
 }
 

@@ -15,6 +15,8 @@ import { DistrictTrendMetricsCard } from "@/components/dashboard/DistrictTrendMe
 // PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
 // it's intentionally omitted from the rich-module map below.
 import { PartnerMatchesCard } from "@/components/dashboard/PartnerMatchesCard";
+import { PartnerNetworkPage } from "@/components/partner-network/PartnerNetworkPage";
+import type { RoleAudience } from "@/lib/role-policy";
 import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
 import { StudentFitSummariesCard } from "@/components/dashboard/StudentFitSummariesCard";
 import { NextStepsTimeline } from "@/components/dashboard/NextStepsTimeline";
@@ -207,6 +209,12 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
     case "partner:active-opportunities":
       return <PartnerMatchesCard isSample />;
     default: {
+      // Partner Network shares one rich module across every applicable role.
+      if (slug === "partner-network") {
+        const audience = mapDemoRoleToAudience(role);
+        if (!audience) return null;
+        return <PartnerNetworkPage audienceOverride={audience} demo bare />;
+      }
       // Calendar features share one rich module across every role.
       if (slug === "calendar") {
         const calRole = mapRoleForCalendar(role);
@@ -231,6 +239,19 @@ function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
 function mapRoleForCalendar(role: DemoRole): SampleCalendarRole {
   // DemoRole and SampleCalendarRole share the same string set today.
   return role as SampleCalendarRole;
+}
+
+function mapDemoRoleToAudience(role: DemoRole): RoleAudience | null {
+  switch (role) {
+    case "student": return "student";
+    case "family": return "family";
+    case "educator": return "educator";
+    case "school-admin": return "school_admin";
+    case "district-admin": return "district_admin";
+    case "partner": return "partner";
+    case "owner": return "admin";
+    default: return null;
+  }
 }
 
 function eyebrowForRole(role: SampleCalendarRole): string {

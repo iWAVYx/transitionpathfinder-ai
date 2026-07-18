@@ -16,7 +16,8 @@ export type DistrictAdminFeatureId =
   | "readiness-trend"
   | "implementation"
   | "district-reports"
-  | "service-gaps";
+  | "service-gaps"
+  | "partner-network";
 
 export type FeatureBullet = { label: string; value?: string; hint?: string };
 
@@ -237,6 +238,32 @@ const REGIONAL: Record<DistrictAdminFeatureId, DistrictAdminFeatureDetail> = {
     emptyBody:
       "Gaps surface as aggregate readiness deficits, unmet family requests, and unused resources accumulate.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Community Partners",
+    summary:
+      "District-wide partner coverage — verification status, referral flow, and gaps across 22 connected schools.",
+    what: "See which partners serve which regions, verify status, and open the full Partner Network.",
+    dataSource: "Verified partner directory · school-level MOUs · aggregate referral flow",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["School Progress", "Service Gaps", "Readiness Trend"],
+    stats: [
+      { label: "Total partners", value: "28" },
+      { label: "Verified", value: "24" },
+      { label: "Coverage gaps", value: "3" },
+    ],
+    rows: [
+      { primary: "Oakwood Animal Rescue · 3-county footprint", secondary: "12 students placed across 4 schools", meta: "Verified", status: "ok" },
+      { primary: "Capital CC · dual enrollment", secondary: "18 juniors enrolled district-wide", meta: "Verified", status: "ok" },
+      { primary: "Youth Employment Services · regional", secondary: "Serves 8 schools", meta: "MOU active", status: "ok" },
+      { primary: "Coverage gap · independent-living in northern schools", secondary: "3 schools without verified partner", meta: "Recruit", status: "critical" },
+    ],
+    emptyHeadline: "No partner coverage yet.",
+    emptyBody:
+      "As schools onboard partners and MOUs post, network coverage will show up here.",
+  },
 };
 
 /* ─────────── LOCAL: Millbrook Public (8 schools) ─────────── */
@@ -430,6 +457,32 @@ const LOCAL: Record<DistrictAdminFeatureId, DistrictAdminFeatureDetail> = {
     emptyBody:
       "Gaps surface as aggregate readiness deficits, unmet family requests, and unused resources accumulate.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Community Partners",
+    summary:
+      "Local-district partner coverage across 8 schools — MOUs, referrals, and shared specialist coordination.",
+    what: "See which partners serve which Millbrook schools and open the full Partner Network.",
+    dataSource: "Verified partner directory · MOU status · shared specialist roster",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["School Progress", "Service Gaps", "Readiness Trend"],
+    stats: [
+      { label: "Total partners", value: "11" },
+      { label: "Verified", value: "10" },
+      { label: "Coverage gaps", value: "1" },
+    ],
+    rows: [
+      { primary: "Millbrook Public Library · workforce readiness", secondary: "All 8 schools referring", meta: "Verified", status: "ok" },
+      { primary: "Regional CTE center · applied pathways", secondary: "4 schools enrolled", meta: "Verified", status: "ok" },
+      { primary: "Local BRS office · pre-employment", secondary: "Shared across district", meta: "MOU active", status: "ok" },
+      { primary: "Coverage gap · assistive-tech vendor", secondary: "1 school without verified partner", meta: "Recruit", status: "warning" },
+    ],
+    emptyHeadline: "No partner coverage yet.",
+    emptyBody:
+      "As Millbrook schools onboard partners and MOUs post, network coverage will show up here.",
+  },
 };
 
 /* ─────────── Exports ─────────── */
@@ -474,7 +527,7 @@ export type DistrictTileMeta = {
 
 export const DISTRICT_ADMIN_TILE_META_BY_DISTRICT: Record<
   DistrictProfileKey,
-  Record<DistrictAdminFeatureId, DistrictTileMeta>
+  Partial<Record<DistrictAdminFeatureId, DistrictTileMeta>>
 > = {
   "regional-network": {
     "district-overview": {

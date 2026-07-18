@@ -24,7 +24,8 @@ export type EducatorFeatureId =
   | "case-notes"
   | "action-items"
   | "calendar"
-  | "documents";
+  | "documents"
+  | "partner-network";
 
 export type FeatureBullet = { label: string; value?: string; hint?: string };
 
@@ -283,6 +284,32 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
     emptyHeadline: "No documents to review.",
     emptyBody:
       "New family and school uploads will appear here for quick review and tagging.",
+  },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Referral-Ready Partners",
+    summary:
+      "Vetted community partners you can refer caseload students to — explainable matches by interest, age, and supports.",
+    what: "Preview referral-ready matches for the active demo student, then open the full Partner Network to refer.",
+    dataSource: "Verified partner directory · caseload profiles · Pathway Report signals",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Caseload Snapshot", "Pathway Reports", "Meeting Prep"],
+    stats: [
+      { label: "Verified partners", value: "7" },
+      { label: "Awaiting referral", value: "2" },
+      { label: "Relevant to caseload", value: "6" },
+    ],
+    rows: [
+      { primary: "Jordan Rivera → Oakwood Animal Rescue", secondary: "Interest match · age-eligible", meta: "Refer", status: "warning" },
+      { primary: "Maya Chen → Capital CC Applied Tech", secondary: "Postsecondary pathway match", meta: "Refer", status: "warning" },
+      { primary: "Aiden Brooks → Youth Employment Services", secondary: "Eligible next summer", meta: "Coming up", status: "muted" },
+      { primary: "Caseload culinary interest cohort", secondary: "3 students · Riverbend Culinary", meta: "Group referral", status: "ok" },
+    ],
+    emptyHeadline: "No caseload matches yet.",
+    emptyBody:
+      "Once caseload interests and ages are on file, referral-ready partners will appear here.",
   },
 };
 

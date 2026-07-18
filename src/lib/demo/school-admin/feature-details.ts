@@ -25,7 +25,8 @@ export type SchoolAdminFeatureId =
   | "resource-usage"
   | "calendar"
   | "support-needs"
-  | "implementation";
+  | "implementation"
+  | "partner-network";
 
 export type FeatureBullet = { label: string; value?: string; hint?: string };
 
@@ -298,6 +299,32 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     emptyBody:
       "Milestones appear as your school kicks off onboarding, staff activation, and student connection.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Community Partners",
+    summary:
+      "Community partners active with Riverbend — coverage across pathways, programs, and referral flow.",
+    what: "See which partners cover which pathways at Riverbend and open the full Partner Network.",
+    dataSource: "Verified partner directory · school referrals · MOU status",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Report Completion", "Readiness Trends", "Implementation Progress"],
+    stats: [
+      { label: "Active partners", value: "12" },
+      { label: "Active MOUs", value: "5" },
+      { label: "Coverage gaps", value: "2" },
+    ],
+    rows: [
+      { primary: "Oakwood Animal Rescue · vocational strand", secondary: "MOU active · 6 students placed", meta: "Verified", status: "ok" },
+      { primary: "Capital CC Applied Tech · dual enrollment", secondary: "3 juniors enrolled this term", meta: "Verified", status: "ok" },
+      { primary: "Youth Employment Services · summer track", secondary: "12 students eligible", meta: "MOU renews Oct", status: "warning" },
+      { primary: "Coverage gap · independent-living support", secondary: "No verified partner in service area", meta: "Recruit", status: "critical" },
+    ],
+    emptyHeadline: "No partner coverage yet.",
+    emptyBody:
+      "As Riverbend refers students and MOUs post, coverage will show up here.",
+  },
 };
 
 /* ─────────── SPECIALIZED: Northgate Center ─────────── */
@@ -545,6 +572,32 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     emptyBody:
       "Milestones appear as your program kicks off onboarding, team activation, and student connection.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Community Partners",
+    summary:
+      "Specialized-program partners active with Northgate — CBI sites, adult-services partners, and post-exit connections.",
+    what: "See which agencies and community sites serve Northgate students and open the full Partner Network.",
+    dataSource: "Verified partner directory · CBI placements · adult-services roster",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Support Needs", "Implementation Progress", "Readiness Trends"],
+    stats: [
+      { label: "Active partners", value: "8" },
+      { label: "CBI sites", value: "4" },
+      { label: "Coverage gaps", value: "1" },
+    ],
+    rows: [
+      { primary: "Riverbend Culinary Arts · weekly CBI", secondary: "6 students placed", meta: "Verified", status: "ok" },
+      { primary: "DDS regional office · adult-services intake", secondary: "Confirmed for exit cohort", meta: "MOU active", status: "ok" },
+      { primary: "BRS · pre-employment services", secondary: "4 students enrolled", meta: "Verified", status: "ok" },
+      { primary: "Coverage gap · assistive-tech vendor", secondary: "Sourcing partner in service area", meta: "Recruit", status: "warning" },
+    ],
+    emptyHeadline: "No partner coverage yet.",
+    emptyBody:
+      "As Northgate places students at CBI sites and connects adult-services partners, coverage will show up here.",
+  },
 };
 
 /* ─────────── Exports ─────────── */
@@ -591,7 +644,7 @@ export type SchoolTileMeta = {
 
 export const SCHOOL_ADMIN_TILE_META_BY_SCHOOL: Record<
   SchoolProfileKey,
-  Record<SchoolAdminFeatureId, SchoolTileMeta>
+  Partial<Record<SchoolAdminFeatureId, SchoolTileMeta>>
 > = {
   comprehensive: {
     "school-overview": {

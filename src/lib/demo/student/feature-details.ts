@@ -12,7 +12,8 @@ export type StudentFeatureId =
   | "saved-resources"
   | "meeting-prep"
   | "calendar"
-  | "documents";
+  | "documents"
+  | "partner-network";
 
 export type FeatureBullet = { label: string; value?: string; hint?: string };
 
@@ -215,6 +216,32 @@ export const STUDENT_FEATURE_DETAILS: Record<StudentFeatureId, StudentFeatureDet
     emptyHeadline: "No documents shared with you yet.",
     emptyBody:
       "When your family or case manager shares your IEP or an evaluation, it will appear here.",
+  },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "Community Partners",
+    summary:
+      "Programs, internships, and clubs that match your interests, age, and supports — each match is explained.",
+    what: "Preview age-eligible opportunities with a plain-English reason for each match, then open the full Partner Network.",
+    dataSource: "Verified partner directory · your interests · age · supports",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Pathway Report", "Saved Resources", "Action Items"],
+    stats: [
+      { label: "Age-eligible", value: "4" },
+      { label: "New this week", value: "2" },
+      { label: "Coming up", value: "3" },
+    ],
+    rows: [
+      { primary: "Oakwood Animal Rescue · after-school internship", secondary: "Matches your interest in animals", meta: "Grades 10–12", status: "ok" },
+      { primary: "Capital CC Applied Tech open house", secondary: "Matches applied-tech interest", meta: "Oct 12", status: "ok" },
+      { primary: "Youth Employment Services · summer track", secondary: "Age-eligible next summer", meta: "Applies in Feb", status: "muted" },
+      { primary: "Riverbend Culinary Arts club", secondary: "Interest signal from Student Voice", meta: "Weekly", status: "ok" },
+    ],
+    emptyHeadline: "No matches yet.",
+    emptyBody:
+      "Once your interests and age are on file, explainable partner matches will land here.",
   },
 };
 

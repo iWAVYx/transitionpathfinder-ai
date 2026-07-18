@@ -23,7 +23,8 @@ export type PartnerFeatureId =
   | "application-windows"
   | "opportunity-management"
   | "incentives"
-  | "partner-resources";
+  | "partner-resources"
+  | "partner-network";
 
 export type FeatureBullet = { label: string; value?: string; hint?: string };
 
@@ -233,6 +234,32 @@ const FREE: Record<PartnerFeatureId, PartnerFeatureDetail> = {
     emptyBody:
       "The partner library is still being seeded. Check back soon or request a specific guide.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "De-identified Demand",
+    summary:
+      "How families and educators are discovering your opportunities. No student PII — aggregate demand signal only.",
+    what: "Preview aggregate views and referral starts for your listings, then open the full Partner Network.",
+    dataSource: "Aggregate views · anonymous referral starts · listing metadata",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Active Opportunities", "Application Windows", "Partner Profile"],
+    stats: [
+      { label: "Views (30d)", value: "142" },
+      { label: "Referrals started", value: "9" },
+      { label: "Active listings", value: "2 of 3" },
+    ],
+    rows: [
+      { primary: "Most-viewed segment · Grade 11", secondary: "Interest in animals and applied tech", meta: "Aggregate", status: "ok" },
+      { primary: "Referrals started this month", secondary: "9 anonymous families / educators", meta: "No PII", status: "ok" },
+      { primary: "Free-tier listing cap", secondary: "2 of 3 slots used", meta: "Upgrade for more", status: "warning" },
+      { primary: "Featured placement", secondary: "Not available on Free", meta: "Premium only", status: "muted" },
+    ],
+    emptyHeadline: "No demand signal yet.",
+    emptyBody:
+      "Once your listings are live, aggregate views and referral starts will appear here — never student PII.",
+  },
 };
 
 /* ─────────── PREMIUM tier ─────────── */
@@ -430,6 +457,32 @@ const PREMIUM: Record<PartnerFeatureId, PartnerFeatureDetail> = {
     emptyBody:
       "The partner library is still being seeded. Check back soon or request a specific guide.",
   },
+
+  "partner-network": {
+    id: "partner-network",
+    title: "Partner Network",
+    eyebrow: "De-identified Demand",
+    summary:
+      "Advanced demand signal for your featured listings — aggregate views, segments, and referral starts. Never student PII.",
+    what: "Preview featured-tier analytics for your listings, then open the full Partner Network.",
+    dataSource: "Aggregate views · anonymous referral starts · segment analytics",
+    primaryAction: { label: "Open Partner Network", to: "/partner-network" },
+    connectsTo: ["Active Opportunities", "Application Windows", "Partner Profile"],
+    stats: [
+      { label: "Views (30d)", value: "1,284" },
+      { label: "Referrals started", value: "62" },
+      { label: "Featured listings", value: "2" },
+    ],
+    rows: [
+      { primary: "Featured segment · Grades 10–12", secondary: "Applied-tech + animals interests", meta: "Trending", status: "ok" },
+      { primary: "Referrals started this month", secondary: "62 anonymous families / educators", meta: "No PII", status: "ok" },
+      { primary: "Segment breakdown", secondary: "Family 41% · Educator 38% · Student 21%", meta: "Aggregate", status: "ok" },
+      { primary: "Search-rank position", secondary: "Featured placement · top of category", meta: "Premium", status: "ok" },
+    ],
+    emptyHeadline: "No demand signal yet.",
+    emptyBody:
+      "Once your featured listings are live, aggregate views and referral starts will appear here — never student PII.",
+  },
 };
 
 /* ─────────── Exports ─────────── */
@@ -471,7 +524,7 @@ export type PartnerTileMeta = {
 
 export const PARTNER_TILE_META_BY_PLAN: Record<
   PartnerPlanKey,
-  Record<PartnerFeatureId, PartnerTileMeta>
+  Partial<Record<PartnerFeatureId, PartnerTileMeta>>
 > = {
   free: {
     "partner-profile": {

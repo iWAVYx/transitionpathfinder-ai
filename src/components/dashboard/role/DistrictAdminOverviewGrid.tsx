@@ -173,7 +173,7 @@ export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boo
             }}
           />
         ))}
-        <PartnerNetworkTile role="district_admin" isSample={isSample} />
+        <PartnerNetworkTile role="district_admin" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
       </ToolPreviewGrid>
 
       <DistrictAdminFeatureDrawer
