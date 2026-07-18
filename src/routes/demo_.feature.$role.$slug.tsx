@@ -29,6 +29,24 @@ import {
   isDemoRole,
   type DemoRole,
 } from "@/lib/demo/feature-routes";
+import {
+  getSchoolAdminFeatureDetails,
+  type SchoolAdminFeatureId,
+} from "@/lib/demo/school-admin/feature-details";
+import {
+  getDistrictAdminFeatureDetails,
+  type DistrictAdminFeatureId,
+} from "@/lib/demo/district-admin/feature-details";
+import {
+  getPartnerFeatureDetails,
+  type PartnerFeatureId,
+} from "@/lib/demo/partner/feature-details";
+import {
+  useDemoSchool,
+  useDemoDistrict,
+  useDemoPartnerPlan,
+} from "@/lib/demo/use-role-context";
+
 
 
 /**
