@@ -24,7 +24,7 @@ import {
 import { Parallax, Reveal, Marquee } from "@/components/effects/ScrollEffects";
 import { PartnerApplyForm } from "@/components/site/PartnerApplyForm";
 import { toTitleCase } from "@/lib/title-case";
-import { PartnerCohortFit } from "@/components/marketing/PartnerCohortFit";
+
 
 export const Route = createFileRoute("/partners")({
   head: () => ({
@@ -477,8 +477,7 @@ function PartnersPage() {
         </div>
       </section>
 
-      {/* COHORT FIT — real matcher across Jordan, Riley, Sam */}
-      <PartnerCohortFit />
+
 
       {/* PartnerForward — incentive & support layer (not a second directory) */}
       <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">

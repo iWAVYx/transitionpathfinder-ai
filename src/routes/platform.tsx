@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import { PlatformMatchesPreview } from "@/components/marketing/PlatformMatchesPreview";
+
 import {
   Sparkles,
   Mic,
@@ -533,8 +533,7 @@ function PlatformPage() {
         </div>
       </section>
 
-      {/* PARTNER NETWORK — explainable matcher preview with StudentSwitcher */}
-      <PlatformMatchesPreview />
+
 
       {/* Layered diagram */}
       <section className="relative overflow-hidden py-14">
