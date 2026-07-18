@@ -15,9 +15,11 @@ const PRODUCT_LABEL: Record<string, string> = {
 export function StudentSwitcher({
   className = "",
   compact = false,
+  size = "default",
 }: {
   className?: string;
   compact?: boolean;
+  size?: "default" | "lg";
 }) {
   const { profile, profileId, setProfile } = useDemoStudent();
   const [open, setOpen] = useState(false);
