@@ -116,42 +116,61 @@ function DemoHub() {
           <div className="mb-4 flex items-baseline gap-3">
             <span className="font-mono text-xs font-semibold tracking-widest text-primary">02</span>
             <div className="h-px flex-1 bg-border" />
-            <h2 className="font-display text-xl">Follow one student across three roles</h2>
+            <h2 className="font-display text-xl">Follow three students across three roles</h2>
           </div>
-          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-            <div>
-              <p className="text-muted-foreground">
-                Student, Family, and Educator previews share one fictional student — {" "}
-                <strong>{SHARED_DEMO_STUDENT.name}</strong>, {SHARED_DEMO_STUDENT.pronouns},
-                Grade {SHARED_DEMO_STUDENT.grade} at {SHARED_DEMO_STUDENT.school}. Walk through
-                intake, student voice, family priorities, educator input, the Pathway Report,
-                and 30 / 60 / 90 next steps to see how the three roles contribute to the same
-                plan.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
-                    <ClipboardList className="mr-1.5 h-4 w-4" /> Walk the Workspace Tour
-                  </Link>
-                </Button>
-                <Button asChild size="sm" variant="outline">
-                  <Link
-                    to="/demo/workspace/$stage"
-                    params={{ stage: "roadmap" }}
-                    search={{ expand: true }}
-                  >
-                    <FileText className="mr-1.5 h-4 w-4" /> Read the Pathway Report
-                  </Link>
-                </Button>
-              </div>
+          <div className="space-y-6">
+            <p className="text-muted-foreground">
+              Student, Family, and Educator previews share a fictional cohort of three
+              students — a Grade 7 middle-schooler on BridgeForward, a Grade 9 early
+              planner, and a Grade 11 postsecondary-bound student on TransitionForward.
+              Switch students from the header on any role preview to see how intake,
+              student voice, family priorities, educator input, the Pathway Report, and
+              30 / 60 / 90 next steps change with age and goals.
+            </p>
 
+            <div className="grid gap-4 sm:grid-cols-3">
+              {DEMO_PROFILE_ORDER.map((id) => {
+                const p = DEMO_PROFILES[id];
+                return (
+                  <div
+                    key={id}
+                    className="rounded-2xl border bg-background/60 p-4"
+                  >
+                    <p className="font-display text-lg">{p.displayName}</p>
+                    <p className="mt-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+                      {p.demographics.gradeLabel} ·{" "}
+                      {p.product === "bridgeforward" ? "BridgeForward" : "TransitionForward"}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {p.demographics.schoolPlaceholder}
+                    </p>
+                    <blockquote className="mt-3 border-l-2 border-primary/40 pl-3 text-sm italic text-foreground/80">
+                      "{p.voice[0]?.answer ?? ""}"
+                      <span className="mt-1 block text-xs not-italic text-muted-foreground">
+                        — {p.shortName}, in their own words
+                      </span>
+                    </blockquote>
+                  </div>
+                );
+              })}
             </div>
-            <blockquote className="rounded-2xl border-l-4 border-primary/40 bg-background/70 p-4 text-sm italic text-foreground/80">
-              "{SHARED_DEMO_STUDENT.quote}"
-              <span className="mt-2 block text-xs not-italic text-muted-foreground">
-                — {SHARED_DEMO_STUDENT.name.split(" ")[0]}, in their own words
-              </span>
-            </blockquote>
+
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="sm" variant="outline">
+                <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
+                  <ClipboardList className="mr-1.5 h-4 w-4" /> Walk the Workspace Tour
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link
+                  to="/demo/workspace/$stage"
+                  params={{ stage: "roadmap" }}
+                  search={{ expand: true }}
+                >
+                  <FileText className="mr-1.5 h-4 w-4" /> Read the Pathway Report
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
 
