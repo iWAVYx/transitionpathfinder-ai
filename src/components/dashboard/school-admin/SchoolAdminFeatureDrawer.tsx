@@ -161,7 +161,7 @@ export function SchoolAdminFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof SCHOOL_ADMIN_FEATURE_DETAILS)[SchoolAdminFeatureId];
+  detail: NonNullable<ReturnType<typeof getSchoolAdminFeatureDetails>[SchoolAdminFeatureId]>;
 }) {
   return (
     <>
