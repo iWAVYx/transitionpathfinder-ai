@@ -940,7 +940,7 @@ function EcosystemAndCare() {
   return (
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
       <ScrollPathBackground targetRef={ref} />
-      <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-24">
+      <div className="relative z-10 mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] text-white/60">
