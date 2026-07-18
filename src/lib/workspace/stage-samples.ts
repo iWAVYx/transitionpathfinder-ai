@@ -1092,7 +1092,98 @@ export const STAGE_SAMPLE_DETAILS: Record<StageId, StageDetailScreen> = {
   },
 };
 
-export function getStageDetail(id: StageId): StageDetailScreen {
-  return STAGE_SAMPLE_DETAILS[id];
+export function getStageDetail(
+  id: StageId,
+  profile?: import("@/lib/demo/demo-profiles").DemoProfile,
+): StageDetailScreen {
+  const raw = STAGE_SAMPLE_DETAILS[id];
+  return profile ? applyProfileToStageDetail(raw, profile) : raw;
 }
+
+/* ------------------------------------------------------------------ */
+/* Profile token substitution                                          */
+/* Keeps existing narrative structure but replaces the identity /      */
+/* direction / interest literals so switching demo profiles updates    */
+/* what the visitor actually sees in the sample screens.               */
+/* ------------------------------------------------------------------ */
+
+type ProfileForTokens = import("@/lib/demo/demo-profiles").DemoProfile;
+
+function tokensFor(profile: ProfileForTokens): [RegExp, string][] {
+  const pronouns = profile.demographics.pronouns.replace(/\//g, " / ");
+  const interests = profile.learning.interests.slice(0, 2).join(", ");
+  const direction =
+    profile.product === "bridgeforward"
+      ? "High-School Choice + Enrichment"
+      : profile.demographics.gradeNumber >= 11
+        ? "College + Work"
+        : "Early HS Planning + Exploration";
+  const bandLabel = profile.product === "bridgeforward" ? "BridgeForward" : "Transition";
+  // Order matters: replace long strings first so shorter tokens don't clip them.
+  return [
+    [/Jordan Rivera/g, profile.displayName],
+    [/Riverbend High/g, profile.demographics.schoolPlaceholder],
+    [/Transition \(11\)/g, `${bandLabel} (${profile.demographics.gradeNumber})`],
+    [/Grade 11/g, profile.demographics.gradeLabel],
+    [/Age 17/g, `Age ${profile.demographics.age}`],
+    [/they \/ them/g, pronouns],
+    [/College \+ Work/g, direction],
+    [/Design, Coding/g, interests],
+    // Word-boundary Jordan → shortName last so it doesn't touch "Jordan Rivera".
+    [/\bJordan\b/g, profile.shortName],
+  ];
+}
+
+function substitute(input: string, tokens: [RegExp, string][]): string {
+  let out = input;
+  for (const [pattern, replacement] of tokens) out = out.replace(pattern, replacement);
+  return out;
+}
+
+function applyProfileToStageSample(
+  screen: StageSampleScreen,
+  profile: ProfileForTokens,
+): StageSampleScreen {
+  const tokens = tokensFor(profile);
+  return {
+    ...screen,
+    title: substitute(screen.title, tokens),
+    description: substitute(screen.description, tokens),
+    reportLink: substitute(screen.reportLink, tokens),
+    cards: screen.cards.map((c) => ({
+      ...c,
+      title: substitute(c.title, tokens),
+      summary: c.summary ? substitute(c.summary, tokens) : c.summary,
+      status: c.status ? substitute(c.status, tokens) : c.status,
+      bullets: c.bullets?.map((b) => ({
+        ...b,
+        label: substitute(b.label, tokens),
+        value: b.value ? substitute(b.value, tokens) : b.value,
+        hint: b.hint ? substitute(b.hint, tokens) : b.hint,
+      })),
+    })),
+  };
+}
+
+function applyProfileToStageDetail(
+  screen: StageDetailScreen,
+  profile: ProfileForTokens,
+): StageDetailScreen {
+  const tokens = tokensFor(profile);
+  return {
+    ...screen,
+    intro: substitute(screen.intro, tokens),
+    disclaimer: screen.disclaimer ? substitute(screen.disclaimer, tokens) : screen.disclaimer,
+    groups: screen.groups.map((g) => ({
+      ...g,
+      title: substitute(g.title, tokens),
+      description: g.description ? substitute(g.description, tokens) : g.description,
+      items: g.items.map((it) => ({
+        label: substitute(it.label, tokens),
+        note: it.note ? substitute(it.note, tokens) : it.note,
+      })),
+    })),
+  };
+}
+
 
