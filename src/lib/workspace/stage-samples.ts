@@ -494,9 +494,14 @@ export const STAGE_SAMPLE_SCREENS: Record<StageId, StageSampleScreen> = {
   },
 };
 
-export function getStageSample(id: StageId): StageSampleScreen {
-  return STAGE_SAMPLE_SCREENS[id];
+export function getStageSample(
+  id: StageId,
+  profile?: import("@/lib/demo/demo-profiles").DemoProfile,
+): StageSampleScreen {
+  const raw = STAGE_SAMPLE_SCREENS[id];
+  return profile ? applyProfileToStageSample(raw, profile) : raw;
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Expanded detail — content that used to live on the separate        */
