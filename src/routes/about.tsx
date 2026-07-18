@@ -460,11 +460,12 @@ function ScrollPathBackground({ targetRef }: { targetRef: React.RefObject<HTMLEl
   });
 
   return (
-    <>
+    <div className="pointer-events-none absolute inset-0 z-0">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
+      {/* Darker overlay so the path reads as ambient texture behind text */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/70 to-[#0b0a09]" />
       <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full opacity-40 sm:opacity-60"
         viewBox="0 0 1000 1500"
         preserveAspectRatio="none"
         aria-hidden
@@ -472,8 +473,8 @@ function ScrollPathBackground({ targetRef }: { targetRef: React.RefObject<HTMLEl
         <path
           d={SQUIGGLE_D}
           fill="none"
-          stroke="rgba(255,255,255,0.12)"
-          strokeWidth="2"
+          stroke="rgba(255,255,255,0.08)"
+          strokeWidth="1.5"
           strokeDasharray="4 8"
           vectorEffect="non-scaling-stroke"
         />
@@ -481,19 +482,19 @@ function ScrollPathBackground({ targetRef }: { targetRef: React.RefObject<HTMLEl
           ref={pathRef}
           d={SQUIGGLE_D}
           fill="none"
-          stroke="rgba(255,220,160,0.85)"
-          strokeWidth="2.5"
+          stroke="rgba(255,220,160,0.5)"
+          strokeWidth="1.75"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
           style={{ pathLength }}
         />
         <motion.g style={{ x: arrowX, y: arrowY, rotate: arrowR }}>
-          <circle r="14" fill="rgba(255,220,160,0.18)" />
-          <circle r="6" fill="#ffd9a0" />
-          <path d="M 2 -7 L 16 0 L 2 7 Z" fill="#ffd9a0" />
+          <circle r="10" fill="rgba(255,220,160,0.14)" />
+          <circle r="4" fill="#ffd9a0" />
+          <path d="M 1 -5 L 11 0 L 1 5 Z" fill="#ffd9a0" />
         </motion.g>
       </svg>
-    </>
+    </div>
   );
 }
 
@@ -504,7 +505,7 @@ function JourneyPath() {
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-12 text-white md:py-16">
       <ScrollPathBackground targetRef={ref} />
 
-      <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6">
         <div className="mx-auto mb-8 max-w-2xl text-center md:mx-0 md:mb-10 md:text-left">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
@@ -709,7 +710,7 @@ function AheadBesideBehindWalkthrough() {
   return (
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
       <ScrollPathBackground targetRef={ref} />
-      <div className="relative mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             Walk Through It
@@ -939,7 +940,7 @@ function EcosystemAndCare() {
   return (
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
       <ScrollPathBackground targetRef={ref} />
-      <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-24">
+      <div className="relative z-10 mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] text-white/60">
