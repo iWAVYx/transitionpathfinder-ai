@@ -8,7 +8,6 @@ import type { DemoRolePreview } from "@/lib/demo/role-previews";
 import {
   DEMO_ROLES,
   DEMO_ROLE_ORDER,
-  SHARED_DEMO_STUDENT,
 } from "@/lib/demo/role-previews";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -25,6 +24,13 @@ import { NextActionCard } from "@/components/next-actions/NextActionCard";
 import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
 import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import {
+  headlineForProfile,
+  introForProfile,
+  sharedStudentFromProfile,
+  tilesForProfile,
+} from "@/lib/demo/profile-shell";
 
 function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
   switch (id) {
