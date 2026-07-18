@@ -130,9 +130,6 @@ export function WorkspaceRolePerspective({
           <p className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ${base.accent}`}>
             {base.eyebrow}
           </p>
-          <p className="mt-1.5 text-sm leading-snug text-foreground">
-            {base.focus}
-          </p>
         </div>
       </div>
       {(priorities.length > 0 || actions.length > 0) && (
