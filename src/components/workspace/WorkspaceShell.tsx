@@ -73,14 +73,14 @@ export function WorkspaceShell({
         </Link>
       ) : null}
       {(eyebrow || eyebrowAside) ? (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           {eyebrow ? (
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
               {eyebrow}
             </p>
           ) : null}
           {eyebrowAside ? (
-            <div className="sm:max-w-[60%]">{eyebrowAside}</div>
+            <div className="sm:max-w-[65%]">{eyebrowAside}</div>
           ) : null}
         </div>
       ) : null}
