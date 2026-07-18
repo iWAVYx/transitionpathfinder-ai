@@ -391,7 +391,11 @@ function PlatformPage() {
 
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Pick a role to see the screens, the tools, and a short day in the life.
+            Pick a role to see the same student's pathway through Student, Family, or
+            Educator eyes. Student view centers voice, interests, and next steps.
+            Family view centers context, logistics, and upcoming decisions. Educator
+            view centers evidence, planning, and coordination — all contributing to
+            one connected pathway report.
           </p>
         </div>
         <PerspectiveTabs />
