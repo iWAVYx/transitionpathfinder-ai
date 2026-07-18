@@ -290,7 +290,7 @@ function DistrictView() {
 
 /* ---------- Partner ---------- */
 
-function PartnerView() {
+function PartnerView({ demo = false }: { demo?: boolean } = {}) {
   const { plan } = useDemoPartnerPlan();
   return (
     <div className="space-y-6">
@@ -316,16 +316,19 @@ function PartnerView() {
         <p className="mt-4 text-sm text-muted-foreground">
           Most-viewed audience segment this month: <strong>Grade 11 · Interests in animals and applied tech</strong>.
         </p>
-        <Link
-          to="/partners-manage/opportunities"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          Manage My Opportunities
-        </Link>
+        {!demo && (
+          <Link
+            to="/partners-manage/opportunities"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Manage My Opportunities
+          </Link>
+        )}
       </section>
     </div>
   );
 }
+
 
 /* ---------- Admin ---------- */
 
