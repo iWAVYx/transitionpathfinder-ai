@@ -82,6 +82,7 @@ import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
 import { Route as AuthenticatedPartnersManageRouteImport } from './routes/_authenticated/partners-manage'
+import { Route as AuthenticatedPartnerNetworkRouteImport } from './routes/_authenticated/partner-network'
 import { Route as AuthenticatedOwnerRouteImport } from './routes/_authenticated/owner'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -579,6 +580,12 @@ const AuthenticatedPartnersManageRoute =
   AuthenticatedPartnersManageRouteImport.update({
     id: '/partners-manage',
     path: '/partners-manage',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPartnerNetworkRoute =
+  AuthenticatedPartnerNetworkRouteImport.update({
+    id: '/partner-network',
+    path: '/partner-network',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedOwnerRoute = AuthenticatedOwnerRouteImport.update({
@@ -1370,6 +1377,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/partner-network': typeof AuthenticatedPartnerNetworkRoute
   '/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/pathway': typeof AuthenticatedPathwayRouteWithChildren
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
@@ -1571,6 +1579,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
+  '/partner-network': typeof AuthenticatedPartnerNetworkRoute
   '/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/pathway': typeof AuthenticatedPathwayRouteWithChildren
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
@@ -1776,6 +1785,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/_authenticated/partner-network': typeof AuthenticatedPartnerNetworkRoute
   '/_authenticated/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/_authenticated/pathway': typeof AuthenticatedPathwayRouteWithChildren
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
@@ -1981,6 +1991,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/opportunities'
     | '/owner'
+    | '/partner-network'
     | '/partners-manage'
     | '/pathway'
     | '/ppt-prep'
@@ -2182,6 +2193,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/onboarding'
     | '/opportunities'
+    | '/partner-network'
     | '/partners-manage'
     | '/pathway'
     | '/ppt-prep'
@@ -2386,6 +2398,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/opportunities'
     | '/_authenticated/owner'
+    | '/_authenticated/partner-network'
     | '/_authenticated/partners-manage'
     | '/_authenticated/pathway'
     | '/_authenticated/ppt-prep'
@@ -3124,6 +3137,13 @@ declare module '@tanstack/react-router' {
       path: '/partners-manage'
       fullPath: '/partners-manage'
       preLoaderRoute: typeof AuthenticatedPartnersManageRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/partner-network': {
+      id: '/_authenticated/partner-network'
+      path: '/partner-network'
+      fullPath: '/partner-network'
+      preLoaderRoute: typeof AuthenticatedPartnerNetworkRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/owner': {
@@ -4224,6 +4244,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
+  AuthenticatedPartnerNetworkRoute: typeof AuthenticatedPartnerNetworkRoute
   AuthenticatedPartnersManageRoute: typeof AuthenticatedPartnersManageRoute
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRouteWithChildren
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
@@ -4310,6 +4331,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
+  AuthenticatedPartnerNetworkRoute: AuthenticatedPartnerNetworkRoute,
   AuthenticatedPartnersManageRoute: AuthenticatedPartnersManageRoute,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRouteWithChildren,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
