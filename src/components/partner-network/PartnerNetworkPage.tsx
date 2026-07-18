@@ -119,6 +119,7 @@ export function PartnerNetworkPage({
     </main>
   );
 
+  if (bare) return <div className="space-y-8">{body}</div>;
   return demo ? inner : <SiteShell>{inner}</SiteShell>;
 }
 
