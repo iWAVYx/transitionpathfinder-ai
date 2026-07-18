@@ -5,7 +5,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { DEMO_ROLES, DEMO_ROLE_ORDER, SHARED_DEMO_STUDENT } from "@/lib/demo/role-previews";
+import { DEMO_ROLES, DEMO_ROLE_ORDER } from "@/lib/demo/role-previews";
+import { DEMO_PROFILES, DEMO_PROFILE_ORDER } from "@/lib/demo/demo-profiles";
 
 
 export const Route = createFileRoute("/demo")({
