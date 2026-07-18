@@ -56,6 +56,7 @@ import { Route as DemoSchoolAdminRouteImport } from './routes/demo_.school-admin
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
 import { Route as DemoReportRouteImport } from './routes/demo_.report'
 import { Route as DemoPlanRouteImport } from './routes/demo_.plan'
+import { Route as DemoPartnerNetworkRouteImport } from './routes/demo_.partner-network'
 import { Route as DemoPartnerRouteImport } from './routes/demo_.partner'
 import { Route as DemoOwnerRouteImport } from './routes/demo_.owner'
 import { Route as DemoOpportunitiesRouteImport } from './routes/demo_.opportunities'
@@ -447,6 +448,11 @@ const DemoReportRoute = DemoReportRouteImport.update({
 const DemoPlanRoute = DemoPlanRouteImport.update({
   id: '/demo_/plan',
   path: '/demo/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoPartnerNetworkRoute = DemoPartnerNetworkRouteImport.update({
+  id: '/demo_/partner-network',
+  path: '/demo/partner-network',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoPartnerRoute = DemoPartnerRouteImport.update({
@@ -1404,6 +1410,7 @@ export interface FileRoutesByFullPath {
   '/demo/opportunities': typeof DemoOpportunitiesRoute
   '/demo/owner': typeof DemoOwnerRoute
   '/demo/partner': typeof DemoPartnerRoute
+  '/demo/partner-network': typeof DemoPartnerNetworkRoute
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
@@ -1606,6 +1613,7 @@ export interface FileRoutesByTo {
   '/demo/opportunities': typeof DemoOpportunitiesRoute
   '/demo/owner': typeof DemoOwnerRoute
   '/demo/partner': typeof DemoPartnerRoute
+  '/demo/partner-network': typeof DemoPartnerNetworkRoute
   '/demo/plan': typeof DemoPlanRoute
   '/demo/report': typeof DemoReportRoute
   '/demo/resources': typeof DemoResourcesRoute
@@ -1812,6 +1820,7 @@ export interface FileRoutesById {
   '/demo_/opportunities': typeof DemoOpportunitiesRoute
   '/demo_/owner': typeof DemoOwnerRoute
   '/demo_/partner': typeof DemoPartnerRoute
+  '/demo_/partner-network': typeof DemoPartnerNetworkRoute
   '/demo_/plan': typeof DemoPlanRoute
   '/demo_/report': typeof DemoReportRoute
   '/demo_/resources': typeof DemoResourcesRoute
@@ -2018,6 +2027,7 @@ export interface FileRouteTypes {
     | '/demo/opportunities'
     | '/demo/owner'
     | '/demo/partner'
+    | '/demo/partner-network'
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
@@ -2220,6 +2230,7 @@ export interface FileRouteTypes {
     | '/demo/opportunities'
     | '/demo/owner'
     | '/demo/partner'
+    | '/demo/partner-network'
     | '/demo/plan'
     | '/demo/report'
     | '/demo/resources'
@@ -2425,6 +2436,7 @@ export interface FileRouteTypes {
     | '/demo_/opportunities'
     | '/demo_/owner'
     | '/demo_/partner'
+    | '/demo_/partner-network'
     | '/demo_/plan'
     | '/demo_/report'
     | '/demo_/resources'
@@ -2599,6 +2611,7 @@ export interface RootRouteChildren {
   DemoOpportunitiesRoute: typeof DemoOpportunitiesRoute
   DemoOwnerRoute: typeof DemoOwnerRoute
   DemoPartnerRoute: typeof DemoPartnerRoute
+  DemoPartnerNetworkRoute: typeof DemoPartnerNetworkRoute
   DemoPlanRoute: typeof DemoPlanRoute
   DemoReportRoute: typeof DemoReportRoute
   DemoResourcesRoute: typeof DemoResourcesRoute
@@ -2955,6 +2968,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/plan'
       fullPath: '/demo/plan'
       preLoaderRoute: typeof DemoPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/partner-network': {
+      id: '/demo_/partner-network'
+      path: '/demo/partner-network'
+      fullPath: '/demo/partner-network'
+      preLoaderRoute: typeof DemoPartnerNetworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/partner': {
@@ -4496,6 +4516,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoOpportunitiesRoute: DemoOpportunitiesRoute,
   DemoOwnerRoute: DemoOwnerRoute,
   DemoPartnerRoute: DemoPartnerRoute,
+  DemoPartnerNetworkRoute: DemoPartnerNetworkRoute,
   DemoPlanRoute: DemoPlanRoute,
   DemoReportRoute: DemoReportRoute,
   DemoResourcesRoute: DemoResourcesRoute,

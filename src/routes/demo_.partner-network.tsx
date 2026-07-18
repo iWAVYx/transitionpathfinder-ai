@@ -67,7 +67,7 @@ function DemoPartnerNetworkRoute() {
   const activeId = role ?? "family";
   return (
     <SiteShell>
-      <PageSection tone="muted" className="border-b border-border/60">
+      <div className="border-b border-border/60 bg-muted/30">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="uppercase tracking-wide">
