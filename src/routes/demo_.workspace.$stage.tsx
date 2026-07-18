@@ -25,10 +25,10 @@ import {
   coerceRole,
 } from "@/lib/demo/nav";
 import {
-  isWorkspaceRole,
   rememberLastWorkspaceStage,
   useDemoRoleView,
 } from "@/lib/demo/use-demo-role-view";
+import { isWorkspaceRoleId, resolveDemoRoleDestination } from "@/lib/demo/role-routing";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 const STAGE_IDS = WORKSPACE_STAGES.map((s) => s.id) as [StageId, ...StageId[]];
@@ -102,11 +102,14 @@ function DemoWorkspaceStagePage() {
   };
 
   const handleRoleSelect = (next: DemoRoleId) => {
-    if (isWorkspaceRole(next)) return; // stay in place; content updates via viewRole
-    // Non-workspace roles: route to their dashboard, preserving the student.
-    const target = DEMO_ROLES[next].path;
-    const qs = search.student ? `?student=${encodeURIComponent(search.student)}` : "";
-    navigate({ to: `${target}${qs}` });
+    if (isWorkspaceRoleId(next)) return; // stay in place; content updates via viewRole
+    // Non-workspace roles exit the workspace → their canonical dashboard.
+    const dest = resolveDemoRoleDestination({
+      currentPath: `/demo/workspace/${stageId}`,
+      targetRole: next,
+      studentId: search.student ?? undefined,
+    });
+    navigate({ to: dest.to, search: dest.search });
   };
 
   const productLabel =

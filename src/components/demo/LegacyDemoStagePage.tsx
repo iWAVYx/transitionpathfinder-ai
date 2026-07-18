@@ -7,12 +7,12 @@ import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
-import { DEMO_ROLES, type DemoRoleId } from "@/lib/demo/role-previews";
+import { type DemoRoleId } from "@/lib/demo/role-previews";
 import {
-  isWorkspaceRole,
   rememberLastWorkspaceStage,
   useDemoRoleView,
 } from "@/lib/demo/use-demo-role-view";
+import { isWorkspaceRoleId, resolveDemoRoleDestination } from "@/lib/demo/role-routing";
 
 /**
  * Shared renderer for the legacy /demo/* URL aliases (intake, voice,
@@ -47,8 +47,13 @@ export function LegacyDemoStagePage({
   const disallowed = profile.stage.disallowedThemes;
 
   const handleRoleSelect = (next: DemoRoleId) => {
-    if (isWorkspaceRole(next)) return;
-    navigate({ to: `${DEMO_ROLES[next].path}?student=${encodeURIComponent(profile.id)}` });
+    if (isWorkspaceRoleId(next)) return;
+    const dest = resolveDemoRoleDestination({
+      currentPath: `/demo/workspace/${stageId}`,
+      targetRole: next,
+      studentId: profile.id,
+    });
+    navigate({ to: dest.to, search: dest.search });
   };
 
   return (

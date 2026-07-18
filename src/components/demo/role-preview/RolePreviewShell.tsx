@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ArrowRight,
   Sparkles,
@@ -25,11 +25,11 @@ import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
 import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import { useDemoRoleView } from "@/lib/demo/use-demo-role-view";
 import {
-  isWorkspaceRole,
-  readLastWorkspaceStage,
-  useDemoRoleView,
-} from "@/lib/demo/use-demo-role-view";
+  resolveDemoRoleDestination,
+  toHref,
+} from "@/lib/demo/role-routing";
 import {
   headlineForProfile,
   introForProfile,
@@ -63,29 +63,28 @@ function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
  * can hop between role previews without going back to the hub.
+ *
+ * Uses the centralized `resolveDemoRoleDestination` resolver so every
+ * switch lands on the correct canonical dashboard (or, when currently
+ * inside the Transition Workspace, preserves the stage for workspace
+ * roles only). No stale "last workspace stage" is ever consulted here.
  */
 export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
   const navigate = useNavigate();
   const { setRole } = useDemoRoleView();
-  const currentIsWorkspaceRole = isWorkspaceRole(current);
+  const currentPath = useRouterState({ select: (s) => s.location.pathname });
 
   const { profile } = useDemoStudent();
-  const studentQs = `?student=${encodeURIComponent(profile.id)}`;
 
-  const handleClick = (id: DemoRoleId, defaultPath: string) => (e: React.MouseEvent) => {
+  const handleClick = (id: DemoRoleId) => (e: React.MouseEvent) => {
+    e.preventDefault();
     setRole(id);
-    // If leaving a non-workspace role page for a workspace role AND we have
-    // a remembered workspace stage, return the visitor to that stage
-    // (preserving the selected student) instead of the role dashboard.
-    if (!currentIsWorkspaceRole && isWorkspaceRole(id)) {
-      const stage = readLastWorkspaceStage();
-      if (stage) {
-        e.preventDefault();
-        navigate({ to: `/demo/workspace/${stage}${studentQs}` });
-      }
-    }
-    // Otherwise let the <Link> perform its default navigation to defaultPath.
-    void defaultPath;
+    const dest = resolveDemoRoleDestination({
+      currentPath,
+      targetRole: id,
+      studentId: profile.id,
+    });
+    navigate({ to: dest.to, search: dest.search });
   };
 
   return (
@@ -100,11 +99,16 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
         {DEMO_ROLE_ORDER.map((id) => {
           const role = DEMO_ROLES[id];
           const active = id === current;
+          const dest = resolveDemoRoleDestination({
+            currentPath,
+            targetRole: id,
+            studentId: profile.id,
+          });
           return (
             <Link
               key={id}
-              to={role.path}
-              onClick={handleClick(id, role.path)}
+              to={toHref(dest)}
+              onClick={handleClick(id)}
               className={
                 active
                   ? "rounded-full border border-primary bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
