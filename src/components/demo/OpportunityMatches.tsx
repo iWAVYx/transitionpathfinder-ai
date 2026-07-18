@@ -100,7 +100,7 @@ export function OpportunityMatches({ compact = false, limit }: { compact?: boole
               </div>
             )}
 
-            {m.gapReasons.length > 0 && (
+            {!compact && m.gapReasons.length > 0 && (
               <div className="mt-3">
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   What To Watch
