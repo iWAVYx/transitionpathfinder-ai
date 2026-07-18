@@ -107,7 +107,7 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
           );
         })}
         <div className="ml-auto">
-          <StudentSwitcher compact />
+          <RoleContextSelector role={current} compact />
         </div>
       </div>
     </nav>
