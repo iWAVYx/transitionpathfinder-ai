@@ -710,7 +710,7 @@ function AheadBesideBehindWalkthrough() {
   return (
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
       <ScrollPathBackground targetRef={ref} />
-      <div className="relative mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             Walk Through It
