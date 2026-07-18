@@ -1,63 +1,104 @@
 
-## Why a plan first
+## Goal
 
-This correction requires touching sample data used by ~15 demo surfaces (workspace stages, intake, voice, documents, plan, meeting, calendar, opportunities, next actions, Pathway Report, activity). Today the workspace, calendar, opportunities, and stage samples are hard-coded to Jordan and do NOT consume the selected profile at all — switching the header changes the tiles but leaves the underlying sample data unchanged. Doing this correctly is ~10 files of nontrivial edits, so I want to confirm scope before touching all of it.
+Right now the School / District / Partner-plan selectors only swap the four top-tier overview tiles and the page headline. The dashboard grids (`SchoolAdminOverviewGrid`, `DistrictAdminOverviewGrid`, `PartnerOverviewGrid`), the feature-drawer detail tables (`school-admin/feature-details.ts`, etc.), and the `PremiumPartnerToolkitTile` still hold hardcoded values. This plan makes every one of those values come from a single per-context data bundle.
 
-## Scope this delivers
+## Scope
 
-### 1. Centralized per-profile bundle
-Extend `src/lib/demo/demo-profiles.ts` with a new `sample` field on every `DemoProfile`:
+**In scope**
+- New centralized bundles: `schoolDemoProfiles`, `districtDemoProfiles`, `partnerDemoPlans`.
+- Rewire the three overview grids and all feature-drawer detail rows to read from the active bundle.
+- Rewire `PremiumPartnerToolkitTile` state from the Partner plan bundle.
+- Per-context session state (already have `useProfileSession` — extend key space to include `school:*`, `district:*`, `plan:*`).
+- Derived-metric helpers so completion %, totals, and roster counts agree with underlying rows.
+- Fingerprint tests: sequential switch (A → B → A) asserts no residual values.
 
-```
-sample: {
-  intake,          // completion state + category answers
-  familyInput,     // priorities, concerns, logistics
-  educatorInput,   // observations, planning gaps
-  documents,       // fictional filenames + extraction chips (age-appropriate)
-  assessments,     // scores + observations
-  opportunities,   // 3–5 opportunities with age/grade-appropriate eligibility
-  matches,         // explainable match reasons keyed to that profile's interests
-  calendar,        // profile-specific events (school visits for Sam, PPT for Riley, agency intake for Jordan)
-  nextActions,     // 30/60/90 tasks derived from that profile's goals
-  activity,        // recent-activity feed
-  report: { id, version, executiveSummary, snapshotSentence },
-  workspaceProgress // per-stage completion %
+**Out of scope**
+- No structural / layout changes to any dashboard.
+- No new tiles other than the already-authorized Premium Partner Toolkit tile.
+- No changes to Student, Family, Educator profile logic.
+- No dedicated per-context feature pages beyond what already exists (the drawer detail rows already cover the "feature preview" surface).
+
+## Data bundle shape
+
+```text
+schoolDemoProfiles[id] = {
+  identity:   { name, type, gradeBands, enrollment, iepCaseload }
+  staff:      { caseManagers[], educators[], unassignedCaseload }
+  reports:    { complete[], inProgress[], missing[] }         // rows -> totals
+  planning:   { byStage: {…}, readyForPPT, behind }
+  readiness:  { onTrack, needsSupport, byDomain: {…} }
+  resources:  { opens, uniqueResources, recommendedUnopened }
+  calendar:   events[]
+  supportNeeds: items[]
+  implementation: { staffActive, studentsConnected, milestones[] }
+  activity:   items[]
+  nextActions: items[]
+}
+
+districtDemoProfiles[id] = {
+  identity, schoolsRoster[], coordinators[], enrollmentByBand,
+  iepPopulation, completionByReport, serviceGaps[],
+  partnerCoverage[], opportunityAvailability[], trendsSeries[],
+  alerts[], activity[], nextActions[]
+}
+
+partnerDemoPlans[id] = {
+  identity (shared org — never changes),
+  entitlements[], postings[], visibility, engagement,
+  analytics: { basic | advanced }, matchInsights[],
+  teamAccess[], referral, toolkitTileState
 }
 ```
 
-Jordan keeps his existing narrative; Sam and Riley get age-appropriate content (no adult employment for Sam, no rights-transfer for Riley, no HS-choice for Jordan).
+All numeric tiles derive from these arrays (e.g. `completionPct = complete.length / (complete+inProgress+missing).length`).
 
-### 2. Consuming surfaces
-Rewire these to read the selected profile's `sample.*`:
+## Files to add / change
 
-- `src/lib/workspace/stage-samples.ts` → export a `getStageSample(stageId, profile)` and update `StageBody` consumers to pass the profile. Replaces hard-coded "Jordan Rivera" / "Age 17" / "Something Jordan enjoys" strings.
-- `src/routes/demo_.workspace.$stage.tsx` → pass `profile` into `StageBody`.
-- `src/routes/demo_.opportunities.tsx` and `OpportunityMatches` → source from `profile.sample.opportunities` + `profile.sample.matches`.
-- `src/routes/demo_.calendar.tsx` → merge `profile.sample.calendar` on top of the generic template.
-- `src/routes/demo_.intake.tsx`, `demo_.voice.tsx`, `demo_.documents.tsx`, `demo_.plan.tsx`, `demo_.meeting.tsx`, `demo_.next.tsx`, `demo_.report.tsx` → each reads `useDemoStudent().profile.sample.*` and renders profile-specific content.
-- `src/components/pathway/PathwayReportDeepPreview.tsx` → accepts a profile prop; snapshot sentence, evidence chips, and recommendations come from that profile's bundle.
+**Add**
+- `src/lib/demo/school-admin/sample-bundles.ts`
+- `src/lib/demo/district-admin/sample-bundles.ts`
+- `src/lib/demo/partner/sample-bundles.ts`
+- `src/lib/demo/derive.ts` (small helpers)
+- `tests/unit/context-sample-fingerprint.test.ts`
 
-### 3. Per-profile session state
-Add `src/lib/demo/use-profile-session.ts`: a `sessionStorage`-backed store keyed by `profileId` for demo-only edits (intake toggles, saved opportunities, action-item checks). Switching profiles preserves each profile's independent state and restores it on return. Existing `useDemoMeetingEdits` migrates onto this store.
+**Change**
+- `src/lib/demo/role-contexts.ts` — re-export bundle-derived tiles instead of hardcoded numbers.
+- `src/lib/demo/school-admin/feature-details.ts` — replace inline rows with `getSchoolAdminFeatureDetails(schoolId)`.
+- `src/lib/demo/district-admin/feature-details.ts` — same treatment.
+- `src/lib/demo/partner/feature-details.ts` — same treatment, keyed by plan.
+- `src/components/dashboard/role/SchoolAdminOverviewGrid.tsx` — read active school via `useDemoSchool`; derive `TILES` from bundle.
+- `src/components/dashboard/role/DistrictAdminOverviewGrid.tsx` — same, via `useDemoDistrict`.
+- `src/components/dashboard/role/PartnerOverviewGrid.tsx` — same, via `useDemoPartnerPlan`.
+- `src/components/demo/PremiumPartnerToolkitTile.tsx` — already plan-aware; wire remaining copy to bundle.
+- `src/components/dashboard/school-admin/SchoolAdminFeatureDrawer.tsx` (+ district / partner drawers) — accept bundle-derived detail via props/hook.
+- `src/lib/demo/use-profile-session.ts` — namespace keys by context id (`school:<id>:…`, `district:<id>:…`, `plan:<id>:…`) so completed actions don't bleed across contexts.
 
-### 4. Empty states, not fallbacks
-Where a profile intentionally has no data (e.g. Sam has no adult employment opportunities), render the profile-appropriate empty state ("No Postsecondary Application Started Yet") instead of Jordan's content.
+## Switching behavior
 
-### 5. Transition safety
-`useDemoStudent().setProfile()` gets a small unmount/remount key so the previous student's content does not flash under the new name during navigation.
+- The three `useDemo{School,District,PartnerPlan}` hooks already persist selection. Selection change re-renders grids via bundle read; route + tab preserved because we only swap data, not URLs.
+- Per-context session keys ensure completed tasks / filters don't leak.
+- Empty datasets render existing "empty state" treatment (already exists in the drawer's `empty` variant).
 
-### 6. Tests
-`tests/unit/demo-profile-sample-fingerprints.test.ts` — asserts that each profile bundle contains a unique fingerprint token (e.g. Sam includes "arts magnet tour", Riley includes "robotics club", Jordan includes "veterinary clinic") and that no bundle contains another profile's fingerprint.
+## Testing
 
-## Technical notes
+`tests/unit/context-sample-fingerprint.test.ts`:
+- Snapshot every tile value, drawer detail row set, and toolkit tile state for each of the 6 contexts.
+- Assert `comprehensive ≠ specialized`, `regional-network ≠ local-district`, `free ≠ premium` across every field.
+- Sequential switch A→B→A returns identical snapshot to first A (no drift).
+- `local-district.schoolsRoster.length ≤ 10`.
+- Derived totals: `reports.complete.length + inProgress.length + missing.length === totalReports` for every school and district.
+- Premium bundle never contains PII fields (`iep`, `diagnosis`, `familyContact`, `unconsentedName`).
 
-- No schema, RLS, or authenticated product changes. Signed-in product continues to enforce real permissions.
-- No new dashboard cards, no numbered sections, no new nav.
-- Layout counts (`tilesForProfile` invariants) stay green.
-- Existing tests (`tests/unit/demo-profile-switch.test.ts`, `tests/unit/pathway-engine.test.ts`, `tests/unit/demo-feature-map.test.ts`, `tests/rls-pii-access.test.mjs`) stay green.
+Existing suites (`demo-role-contexts`, `demo-profile-sample-fingerprint`, `dashboard-static`, `demo-profile-switch`) must remain green.
 
-## What I'd like to confirm before I start
+## Non-goals / guardrails
 
-1. **Depth per surface**: is the plan above the right cut, or do you want richer content per profile (e.g. 8–10 documents per student instead of 3)?
-2. **Legacy `demo-extras.ts` (`maya`/`jordan` keys)**: keep as-is for signed-in `_authenticated/demo-mode`, or fold into the new profile bundle?
-3. **`PathwayReportDeepPreview`**: swap all sections per profile, or keep the fixed structure and only swap snapshot + evidence + recommendations?
+- No changes to Student / Family / Educator code paths.
+- No dashboard layout or card-count changes; Partner keeps exactly one Premium Partner Toolkit tile.
+- No borrowing across contexts as a fallback — missing → empty state.
+- No new routes.
+
+## Estimated size
+
+~11 files changed, 4 new files, ~1,200–1,600 net LOC (mostly sample data). No schema, no server changes.

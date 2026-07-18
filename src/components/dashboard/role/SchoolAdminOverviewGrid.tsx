@@ -22,10 +22,12 @@ import {
   type SchoolAdminFeatureState,
 } from "@/components/dashboard/school-admin/SchoolAdminFeatureDrawer";
 import {
-  SCHOOL_ADMIN_FEATURE_DETAILS,
+  getSchoolAdminFeatureDetails,
+  SCHOOL_ADMIN_TILE_META_BY_SCHOOL,
   type SchoolAdminFeatureId,
 } from "@/lib/demo/school-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
+import { useDemoSchool } from "@/lib/demo/use-role-context";
 
 type Tile = {
   featureId: SchoolAdminFeatureId;
@@ -169,21 +171,29 @@ const TILES: Tile[] = [
 export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
   const [openFeature, setOpenFeature] = useState<SchoolAdminFeatureId | null>(null);
   const [state, setState] = useState<SchoolAdminFeatureState>("ready");
+  const { school, schoolId } = useDemoSchool();
 
-  const activeTile = TILES.find((t) => t.featureId === openFeature);
+  const tileMeta = SCHOOL_ADMIN_TILE_META_BY_SCHOOL[schoolId];
+  const tiles = TILES.map((t) => {
+    const m = tileMeta[t.featureId];
+    return m ? { ...t, status: m.status, tone: m.tone, bullets: m.bullets } : t;
+  });
+
+  const activeTile = tiles.find((t) => t.featureId === openFeature);
 
   return (
     <ToolPreviewSection
-      eyebrow="Your School Workspace"
+      eyebrow={`${school.shortName} · School Workspace`}
       title="School-Level Implementation, In One View"
       description="Preview any tool inline. Every card explains what it does, what feeds it, and the next step you can take today. Aggregate only — no private student records surfaced here."
     >
       <ToolPreviewGrid>
-        {TILES.map((tile) => (
+        {tiles.map((tile) => (
           <SchoolAdminTile
             key={tile.featureId}
             tile={tile}
             isSample={isSample}
+            schoolId={schoolId}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
@@ -197,6 +207,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
         icon={activeTile?.icon}
         isSample={isSample}
         state={state}
+        schoolId={schoolId}
         onRetry={() => {
           setState("loading");
           window.setTimeout(() => setState("ready"), 900);
@@ -235,9 +246,19 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
   );
 }
 
-function SchoolAdminTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
+function SchoolAdminTile({
+  tile,
+  onPreview,
+  isSample = false,
+  schoolId,
+}: {
+  tile: Tile;
+  onPreview: () => void;
+  isSample?: boolean;
+  schoolId: "comprehensive" | "specialized";
+}) {
   const Icon = tile.icon;
-  const detail = SCHOOL_ADMIN_FEATURE_DETAILS[tile.featureId];
+  const detail = getSchoolAdminFeatureDetails(schoolId)[tile.featureId];
   const ctaTo = isSample ? resolveDemoFeatureRoute("school-admin", tile.featureId) : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">

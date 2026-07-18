@@ -25,8 +25,9 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
-  DISTRICT_ADMIN_FEATURE_DETAILS,
+  getDistrictAdminFeatureDetails,
   type DistrictAdminFeatureId,
+  type DistrictProfileKey,
   type FeatureRow,
 } from "@/lib/demo/district-admin/feature-details";
 
@@ -49,6 +50,7 @@ export function DistrictAdminFeatureDrawer({
   isSample = false,
   state = "ready",
   onRetry,
+  districtId = "regional-network",
 }: {
   featureId: DistrictAdminFeatureId | null;
   icon?: LucideIcon;
@@ -56,8 +58,9 @@ export function DistrictAdminFeatureDrawer({
   isSample?: boolean;
   state?: DistrictAdminFeatureState;
   onRetry?: () => void;
+  districtId?: DistrictProfileKey;
 }) {
-  const detail = featureId ? DISTRICT_ADMIN_FEATURE_DETAILS[featureId] : null;
+  const detail = featureId ? getDistrictAdminFeatureDetails(districtId)[featureId] : null;
   const Icon = icon;
 
   return (
@@ -154,7 +157,7 @@ export function DistrictAdminFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof DISTRICT_ADMIN_FEATURE_DETAILS)[DistrictAdminFeatureId];
+  detail: NonNullable<ReturnType<typeof getDistrictAdminFeatureDetails>[DistrictAdminFeatureId]>;
 }) {
   return (
     <>
