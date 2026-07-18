@@ -524,7 +524,7 @@ export type PartnerTileMeta = {
 
 export const PARTNER_TILE_META_BY_PLAN: Record<
   PartnerPlanKey,
-  Record<PartnerFeatureId, PartnerTileMeta>
+  Partial<Record<PartnerFeatureId, PartnerTileMeta>>
 > = {
   free: {
     "partner-profile": {

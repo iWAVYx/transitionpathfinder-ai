@@ -527,7 +527,7 @@ export type DistrictTileMeta = {
 
 export const DISTRICT_ADMIN_TILE_META_BY_DISTRICT: Record<
   DistrictProfileKey,
-  Record<DistrictAdminFeatureId, DistrictTileMeta>
+  Partial<Record<DistrictAdminFeatureId, DistrictTileMeta>>
 > = {
   "regional-network": {
     "district-overview": {

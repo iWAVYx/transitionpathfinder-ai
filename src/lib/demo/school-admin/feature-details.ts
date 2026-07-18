@@ -644,7 +644,7 @@ export type SchoolTileMeta = {
 
 export const SCHOOL_ADMIN_TILE_META_BY_SCHOOL: Record<
   SchoolProfileKey,
-  Record<SchoolAdminFeatureId, SchoolTileMeta>
+  Partial<Record<SchoolAdminFeatureId, SchoolTileMeta>>
 > = {
   comprehensive: {
     "school-overview": {
