@@ -364,7 +364,7 @@ function FounderMessage() {
           </div>
         </div>
         <div className="flex flex-col justify-center">
-          <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             Why This Exists
           </div>
@@ -372,18 +372,18 @@ function FounderMessage() {
             Transition planning depends on the right people
             <span className="italic"> having the right context at the right time.</span>
           </h2>
-          <p className="mt-6 text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mt-5 text-base text-[#1c1814]/80 sm:text-lg">
             I saw how easily student voice, family knowledge, documents, goals, services,
             and next steps become separated from one another. Families needed clarity.
             Educators needed organization. Districts needed visibility. Partners needed a
             clear way to connect opportunities to students. And students needed more than
             compliance paperwork — they needed a plan they could see themselves in.
           </p>
-          <p className="mt-4 text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mt-3 text-base text-[#1c1814]/80 sm:text-lg">
             Transition Forward grew from the belief that planning should be easier to
             understand, easier to share, and easier to act on.
           </p>
-          <div className="mt-10 flex items-end gap-5">
+          <div className="mt-8 flex items-end gap-5">
             <span className="font-serif text-3xl italic tracking-tight text-[#1c1814]/90">
               — The Founder
             </span>
@@ -706,14 +706,14 @@ function AheadBesideBehindWalkthrough() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(181,216,255,0.08),transparent_60%)]" />
       <div className="relative mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 text-[10px] uppercase tracking-[0.4em] text-white/50">
+          <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             Walk Through It
           </div>
           <h2 className="font-serif text-[clamp(1.9rem,5vw,4rem)] font-light leading-[1.05]">
             Ahead, Beside, Behind.
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl whitespace-pre-wrap text-base text-white/70 sm:text-lg">
-            {"Transition Forward helps every stakeholder walk ahead of, beside, and behind the student as they move toward life after school. Three stances. One shared path.\n\n\nPick a stance to see the actual work — and jump straight to the screen where it lives."}
+          <p className="mx-auto mt-4 max-w-2xl whitespace-pre-wrap text-base text-white/70 sm:text-lg">
+            {"Transition Forward helps every stakeholder walk ahead of, beside, and behind the student as they move toward life after school. Three stances. One shared path.\n\nPick a stance to see the actual work — and jump straight to the screen where it lives."}
           </p>
         </div>
 
@@ -788,7 +788,7 @@ function AheadBesideBehindWalkthrough() {
                 <h3 className="font-serif text-[clamp(1.75rem,3.6vw,2.75rem)] font-light leading-[1.1]">
                   {stance.title}
                 </h3>
-                <p className="mt-5 text-base text-white/70">{stance.lead}</p>
+                <p className="mt-4 text-base text-white/70">{stance.lead}</p>
                 <div
                   aria-hidden
                   className="mt-8 h-px w-16"
@@ -872,7 +872,7 @@ function StudentCentered() {
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
       <div className="relative mx-auto grid max-w-[1300px] gap-10 px-6 py-16 md:grid-cols-[6fr_5fr] md:gap-16 md:py-20">
         <div className="flex flex-col justify-center">
-          <div className="mb-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             The Student At The Center
           </div>
@@ -880,7 +880,7 @@ function StudentCentered() {
             The student is not a profile in a system.
             <span className="italic"> They are the reason for it.</span>
           </h2>
-          <p className="mt-6 text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mt-5 text-base text-[#1c1814]/80 sm:text-lg">
             Their strengths, preferences, interests, goals, questions, and next steps
             should shape the plan — not the other way around. Transition Forward is built
             to help students understand their own path, participate in planning, and see
@@ -936,7 +936,7 @@ function EcosystemAndCare() {
       <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] text-white/60">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] text-white/60">
             <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
             Built With Care
           </div>
@@ -944,7 +944,7 @@ function EcosystemAndCare() {
             Built for Connecticut transition planning,
             <span className="italic"> not just any planning tool.</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-white/70 sm:text-lg">
+          <p className="mx-auto mt-5 max-w-2xl text-base text-white/70 sm:text-lg">
             Transition planning in Connecticut is more than a checklist. It is the work of
             turning PPT conversations, transition assessments, and student voice into a coherent
             path forward. TransitionForward keeps the record close to the student, the team
@@ -953,7 +953,7 @@ function EcosystemAndCare() {
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {CT_PILLARS.map((item) => {
             const Icon = item.icon;
             return (
@@ -961,15 +961,15 @@ function EcosystemAndCare() {
                 key={item.title}
                 className="rounded-2xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-sm transition-colors hover:bg-white/[0.05]"
               >
-                <Icon className="mb-4 h-6 w-6 text-white/70" />
+                <Icon className="mb-3 h-6 w-6 text-white/70" />
                 <h3 className="font-serif text-xl">{item.title}</h3>
-                <p className="mt-3 text-[15px] leading-relaxed text-white/60">{item.body}</p>
+                <p className="mt-2 text-[15px] leading-relaxed text-white/60">{item.body}</p>
               </div>
             );
           })}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-10 text-center">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/60">
             <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
             CT-Aware · Records-First · Student-Centered
@@ -1105,7 +1105,7 @@ function CTAwareFAQ() {
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
       <div className="relative mx-auto max-w-[1100px] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             Trust, Records, And Transparency
             <span className="h-px w-8 bg-[#1c1814]/30" />
@@ -1114,14 +1114,14 @@ function CTAwareFAQ() {
             How The Record Is Kept,
             <span className="italic"> And Who Holds The Key.</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mx-auto mt-5 max-w-2xl text-base text-[#1c1814]/80 sm:text-lg">
             Transition planning depends on trust. Here is how we approach
             recordkeeping, permissions, and audit history — with Connecticut
             transition teams and families in mind.
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="mt-14 md:mt-16">
+        <Accordion type="single" collapsible className="mt-10 md:mt-12">
           {FAQ_ITEMS.map((item, i) => {
             const Icon = item.icon;
             return (
@@ -1150,7 +1150,7 @@ function CTAwareFAQ() {
           })}
         </Accordion>
 
-        <div className="mx-auto mt-14 max-w-2xl text-center text-sm text-[#1c1814]/70 md:mt-16">
+        <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#1c1814]/70 md:mt-12">
           Have a question about security, privacy, or how we support districts?{" "}
           <Link
             to="/trust-and-safety"
