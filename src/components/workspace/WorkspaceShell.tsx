@@ -72,10 +72,17 @@ export function WorkspaceShell({
           {backTo.label ?? "Back"}
         </Link>
       ) : null}
-      {eyebrow ? (
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
-          {eyebrow}
-        </p>
+      {(eyebrow || eyebrowAside) ? (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          {eyebrow ? (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
+              {eyebrow}
+            </p>
+          ) : null}
+          {eyebrowAside ? (
+            <div className="sm:max-w-[60%]">{eyebrowAside}</div>
+          ) : null}
+        </div>
       ) : null}
       <StageProgress activeStageId={activeStageId} />
 
