@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Sparkles,
@@ -26,6 +26,11 @@ import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import {
+  isWorkspaceRole,
+  readLastWorkspaceStage,
+  useDemoRoleView,
+} from "@/lib/demo/use-demo-role-view";
+import {
   headlineForProfile,
   introForProfile,
   sharedStudentFromProfile,
@@ -44,11 +49,35 @@ function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
 }
 
 
+
 /**
  * Sticky role selector — appears on every /demo/<role> page so a visitor
  * can hop between role previews without going back to the hub.
  */
 export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
+  const navigate = useNavigate();
+  const { setRole } = useDemoRoleView();
+  const currentIsWorkspaceRole = isWorkspaceRole(current);
+
+  const { profile } = useDemoStudent();
+  const studentQs = `?student=${encodeURIComponent(profile.id)}`;
+
+  const handleClick = (id: DemoRoleId, defaultPath: string) => (e: React.MouseEvent) => {
+    setRole(id);
+    // If leaving a non-workspace role page for a workspace role AND we have
+    // a remembered workspace stage, return the visitor to that stage
+    // (preserving the selected student) instead of the role dashboard.
+    if (!currentIsWorkspaceRole && isWorkspaceRole(id)) {
+      const stage = readLastWorkspaceStage();
+      if (stage) {
+        e.preventDefault();
+        navigate({ to: `/demo/workspace/${stage}${studentQs}` });
+      }
+    }
+    // Otherwise let the <Link> perform its default navigation to defaultPath.
+    void defaultPath;
+  };
+
   return (
     <nav
       aria-label="Preview by role"
@@ -65,6 +94,7 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
             <Link
               key={id}
               to={role.path}
+              onClick={handleClick(id, role.path)}
               className={
                 active
                   ? "rounded-full border border-primary bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
@@ -83,6 +113,7 @@ export function RoleNavChips({ current }: { current: DemoRolePreview["id"] }) {
     </nav>
   );
 }
+
 
 
 /**

@@ -1,9 +1,13 @@
+import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
 import { PathwayReportDeepPreview } from "@/components/pathway/PathwayReportDeepPreview";
+import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
+import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
+import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import {
   WORKSPACE_STAGES,
   getStage,
@@ -11,6 +15,7 @@ import {
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
 import {
+  DEMO_ROLES,
   DEMO_ROLE_ORDER,
   type DemoRoleId,
 } from "@/lib/demo/role-previews";
@@ -19,6 +24,12 @@ import {
   coerceExpand,
   coerceRole,
 } from "@/lib/demo/nav";
+import {
+  isWorkspaceRole,
+  rememberLastWorkspaceStage,
+  useDemoRoleView,
+} from "@/lib/demo/use-demo-role-view";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 const STAGE_IDS = WORKSPACE_STAGES.map((s) => s.id) as [StageId, ...StageId[]];
 const stageParam = z.enum(STAGE_IDS);
@@ -27,21 +38,14 @@ const ROLE_IDS = DEMO_ROLE_ORDER as [DemoRoleId, ...DemoRoleId[]];
 
 const searchSchema = z
   .object({
-    /**
-     * Auto-expand the stage's full-sample panel. Kept as a plain boolean
-     * that round-trips so `<Link search={{ expand: true }}>` and browser
-     * back both work naturally.
-     */
     expand: z.unknown().optional(),
-    /**
-     * Which role preview the visitor came from. Used to route "Back"
-     * back to that role preview instead of the generic Demo Overview.
-     */
     role: z.unknown().optional(),
+    student: z.unknown().optional(),
   })
   .transform((raw) => ({
     expand: coerceExpand(raw.expand) || undefined,
     role: coerceRole(raw.role),
+    student: typeof raw.student === "string" ? raw.student : undefined,
   }));
 
 export const Route = createFileRoute("/demo_/workspace/$stage")({
@@ -68,10 +72,19 @@ function DemoWorkspaceStagePage() {
   const stage = getStage(stageId);
   const navigate = useNavigate();
   const expanded = search.expand === true;
+  const { profile } = useDemoStudent();
+  const { role: viewRole } = useDemoRoleView();
+
+  // Remember the current stage so non-workspace role dashboards can send
+  // the visitor back to where they were when they return to a workspace role.
+  useEffect(() => {
+    rememberLastWorkspaceStage(stageId);
+  }, [stageId]);
 
   const hrefFor = (s: WorkspaceStage) => {
     const params = new URLSearchParams();
     if (search.role) params.set("role", search.role);
+    if (search.student) params.set("student", search.student);
     const qs = params.toString();
     return `/demo/workspace/${s.id}${qs ? `?${qs}` : ""}`;
   };
@@ -88,14 +101,39 @@ function DemoWorkspaceStagePage() {
     });
   };
 
+  const handleRoleSelect = (next: DemoRoleId) => {
+    if (isWorkspaceRole(next)) return; // stay in place; content updates via viewRole
+    // Non-workspace roles: route to their dashboard, preserving the student.
+    const target = DEMO_ROLES[next].path;
+    const qs = search.student ? `?student=${encodeURIComponent(search.student)}` : "";
+    navigate({ to: `${target}${qs}` });
+  };
+
+  const productLabel =
+    profile.product === "transitionforward" ? "TransitionForward" : "BridgeForward";
+
   return (
     <SiteShell>
+      <DemoRoleLens onSelectRole={handleRoleSelect} />
       <WorkspaceShell
         activeStageId={stageId}
         hrefFor={hrefFor}
         eyebrow="Transition Workspace · Public Demo"
         backTo={backTargetFromWorkspace(search)}
       >
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              Viewing As
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-foreground">
+              {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{profile.tagline}</p>
+          </div>
+          <StudentSwitcher />
+        </div>
+        <WorkspaceRolePerspective role={viewRole} stageId={stageId} />
         <StageBody
           stage={stage}
           expandInPlace

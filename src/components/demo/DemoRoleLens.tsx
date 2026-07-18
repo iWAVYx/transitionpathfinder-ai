@@ -1,46 +1,27 @@
-import { useEffect, useState } from "react";
 import { DEMO_ROLES, DEMO_ROLE_ORDER, type DemoRoleId } from "@/lib/demo/role-previews";
-
-const STORAGE_KEY = "demo-role-view";
-
-function readStored(): DemoRoleId {
-  if (typeof window === "undefined") return "student";
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (raw && (DEMO_ROLE_ORDER as string[]).includes(raw)) {
-      return raw as DemoRoleId;
-    }
-  } catch {
-    /* ignore */
-  }
-  return "student";
-}
+import { useDemoRoleView } from "@/lib/demo/use-demo-role-view";
 
 /**
- * Accessible role-view lens rendered at the top of /demo and every legacy
- * /demo/* page. Persists the visitor's selected role preview in
- * sessionStorage so it survives step navigation. Purely a client-side
- * lens — never navigates to protected signed-in routes.
+ * Accessible role-view lens rendered on demo surfaces so the visitor can
+ * flip between the six demo role perspectives. State is shared via
+ * `useDemoRoleView` (sessionStorage + broadcast), so every lens instance
+ * — dashboard, workspace, and legacy step pages — stays in sync.
  *
- * Accessible name: "Demo role view" (matches signed-in and signed-out
- * demo tests that look up the tablist by /demo role view/i).
+ * `onSelectRole` lets a host page intercept selection (for example, to
+ * navigate out of the Transition Workspace when the visitor chooses a
+ * non-workspace role, or to route back into the workspace when they pick
+ * one of the workspace roles). The lens still persists the choice.
  */
-export function DemoRoleLens() {
-  const [role, setRole] = useState<DemoRoleId>("student");
-  const [hydrated, setHydrated] = useState(false);
+export function DemoRoleLens({
+  onSelectRole,
+}: {
+  onSelectRole?: (id: DemoRoleId) => void;
+} = {}) {
+  const { role, setRole, hydrated } = useDemoRoleView();
 
-  useEffect(() => {
-    setRole(readStored());
-    setHydrated(true);
-  }, []);
-
-  function selectRole(next: DemoRoleId) {
+  function handleSelect(next: DemoRoleId) {
     setRole(next);
-    try {
-      window.sessionStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      /* ignore */
-    }
+    onSelectRole?.(next);
   }
 
   return (
@@ -63,7 +44,7 @@ export function DemoRoleLens() {
               role="tab"
               aria-selected={selected}
               tabIndex={selected ? 0 : -1}
-              onClick={() => selectRole(id)}
+              onClick={() => handleSelect(id)}
               className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
                 selected
                   ? "border-primary bg-primary text-primary-foreground"

@@ -1,14 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { PathwayReport } from "@/components/demo/PathwayReport";
+import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import { DEMO_ROLES, type DemoRoleId } from "@/lib/demo/role-previews";
+import { isWorkspaceRole, useDemoRoleView } from "@/lib/demo/use-demo-role-view";
 
-// Legacy /demo/report URL — now renders the age-aware Pathway Report
-// generated from the actively selected fictional demo profile. The URL
-// stays stable (external links / tests depend on it); switching the
-// student in the header re-renders the report instantly.
 export const Route = createFileRoute("/demo_/report")({
   head: () => ({
     meta: [
@@ -25,9 +24,17 @@ export const Route = createFileRoute("/demo_/report")({
 
 function DemoReportPage() {
   const { profile } = useDemoStudent();
+  const navigate = useNavigate();
+  const { role: viewRole } = useDemoRoleView();
+
+  const handleRoleSelect = (next: DemoRoleId) => {
+    if (isWorkspaceRole(next)) return;
+    navigate({ to: `${DEMO_ROLES[next].path}?student=${encodeURIComponent(profile.id)}` });
+  };
+
   return (
     <SiteShell>
-      <DemoRoleLens />
+      <DemoRoleLens onSelectRole={handleRoleSelect} />
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -45,8 +52,10 @@ function DemoReportPage() {
           </div>
           <StudentSwitcher />
         </div>
+        <WorkspaceRolePerspective role={viewRole} stageId="roadmap" />
         <PathwayReport profile={profile} />
       </div>
     </SiteShell>
   );
 }
+
