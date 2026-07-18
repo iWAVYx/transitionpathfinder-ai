@@ -92,10 +92,34 @@ export const Route = createFileRoute("/demo_/feature/$role/$slug")({
 
 function DemoFeaturePage() {
   const { role, slug } = Route.useLoaderData();
-  const detail = getDemoFeature(role as DemoRole, slug)!;
-  const richModule = renderRichModule(role as DemoRole, slug);
-  return <DemoFeatureShell role={role as DemoRole} detail={detail} richModule={richModule} />;
+  const demoRole = role as DemoRole;
+  const detail = useContextualDetail(demoRole, slug) ?? getDemoFeature(demoRole, slug)!;
+  const richModule = renderRichModule(demoRole, slug);
+  return <DemoFeatureShell role={demoRole} detail={detail} richModule={richModule} />;
 }
+
+/**
+ * Resolves the feature detail against the active demo context so the
+ * dedicated feature page reflects the currently selected School / District
+ * profile or Partner listing plan. Falls back to the static registry
+ * (used for roles without a context selector).
+ */
+function useContextualDetail(role: DemoRole, slug: string) {
+  const { schoolId } = useDemoSchool();
+  const { districtId } = useDemoDistrict();
+  const { planId } = useDemoPartnerPlan();
+  if (role === "school-admin") {
+    return getSchoolAdminFeatureDetails(schoolId)[slug as SchoolAdminFeatureId] ?? null;
+  }
+  if (role === "district-admin") {
+    return getDistrictAdminFeatureDetails(districtId)[slug as DistrictAdminFeatureId] ?? null;
+  }
+  if (role === "partner") {
+    return getPartnerFeatureDetails(planId)[slug as PartnerFeatureId] ?? null;
+  }
+  return null;
+}
+
 
 function renderRichModule(role: DemoRole, slug: string): React.ReactNode {
   const key = `${role}:${slug}`;
