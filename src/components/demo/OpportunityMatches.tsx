@@ -37,11 +37,12 @@ const KIND_LABEL: Record<string, string> = {
  * viewers can see WHY the matcher hid it (age band, product track, or
  * disallowed theme).
  */
-export function OpportunityMatches() {
+export function OpportunityMatches({ compact = false, limit }: { compact?: boolean; limit?: number } = {}) {
   const { profile } = useDemoStudent();
   const matches = useMemo(() => matchOpportunities(profile), [profile]);
 
-  const visible = matches.filter((m) => m.band !== "filtered_out");
+  const visibleAll = matches.filter((m) => m.band !== "filtered_out");
+  const visible = typeof limit === "number" ? visibleAll.slice(0, limit) : visibleAll;
   const hidden = matches.filter((m) => m.band === "filtered_out");
 
   return (
