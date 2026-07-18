@@ -122,7 +122,7 @@ function DemoWorkspaceStagePage() {
           {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
         </p>
       </div>
-      <StudentSwitcher className="scale-105" />
+      <StudentSwitcher className="scale-110" />
     </div>
   );
 
