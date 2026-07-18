@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ArrowRight,
   Sparkles,
@@ -25,11 +25,11 @@ import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
 import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import { useDemoRoleView } from "@/lib/demo/use-demo-role-view";
 import {
-  isWorkspaceRole,
-  readLastWorkspaceStage,
-  useDemoRoleView,
-} from "@/lib/demo/use-demo-role-view";
+  resolveDemoRoleDestination,
+  toHref,
+} from "@/lib/demo/role-routing";
 import {
   headlineForProfile,
   introForProfile,
