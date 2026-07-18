@@ -74,7 +74,7 @@ function PartnerNetworkPage() {
 
   return (
     <SiteShell>
-      <PageSection tone="muted" size="default">
+      <PageSection size="default">
         <Breadcrumbs
           trail={[
             { label: "Demo", to: "/demo" },
