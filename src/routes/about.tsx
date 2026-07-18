@@ -703,7 +703,8 @@ function AheadBesideBehindWalkthrough() {
 
   return (
     <section className="relative overflow-hidden bg-[#0b0a09] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(181,216,255,0.08),transparent_60%)]" />
+      <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
       <div className="relative mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
@@ -932,7 +933,8 @@ function EcosystemAndCare() {
 
   return (
     <section className="relative overflow-hidden bg-[#0b0a09] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(168,230,207,0.08),transparent_55%)]" />
+      <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
       <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
