@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { StageBody, WorkspaceShell } from "@/components/workspace";
 import { getStage, type StageId, type WorkspaceStage } from "@/lib/workspace/stages";
