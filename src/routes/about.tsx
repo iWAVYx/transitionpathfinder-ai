@@ -914,6 +914,7 @@ function StudentCentered() {
 /* -------------------------------------------------------------------------- */
 
 function EcosystemAndCare() {
+  const ref = useRef<HTMLElement>(null);
   const CT_PILLARS = [
     {
       icon: ShieldCheck,
@@ -936,9 +937,8 @@ function EcosystemAndCare() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-[#0b0a09] text-white">
-      <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
+    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
+      <ScrollPathBackground targetRef={ref} />
       <div className="relative mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
         <div className="mx-auto max-w-3xl text-center">
