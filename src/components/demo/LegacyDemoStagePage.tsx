@@ -7,12 +7,12 @@ import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
-import { DEMO_ROLES, type DemoRoleId } from "@/lib/demo/role-previews";
+import { type DemoRoleId } from "@/lib/demo/role-previews";
 import {
-  isWorkspaceRole,
   rememberLastWorkspaceStage,
   useDemoRoleView,
 } from "@/lib/demo/use-demo-role-view";
+import { isWorkspaceRoleId, resolveDemoRoleDestination } from "@/lib/demo/role-routing";
 
 /**
  * Shared renderer for the legacy /demo/* URL aliases (intake, voice,
