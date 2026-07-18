@@ -207,6 +207,11 @@ export function RolePreviewShell({
         </PageSection>
       ) : null}
 
+      {afterWorkspace ? (
+        <PageSection spacing="tight">{afterWorkspace}</PageSection>
+      ) : null}
+
+
       {/* Interactive Next Actions — replaces the old static Actions/Outputs
           list so every role preview shows the same live NextActionCard the
           signed-in dashboards render, seeded with role-specific demo fixtures. */}
