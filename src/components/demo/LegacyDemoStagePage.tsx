@@ -20,9 +20,11 @@ import { useDemoStudent } from "@/lib/demo/use-demo-student";
 export function LegacyDemoStagePage({
   stageId,
   legacyPath,
+  afterStage,
 }: {
   stageId: StageId;
   legacyPath: string;
+  afterStage?: React.ReactNode;
 }) {
   const stage = getStage(stageId);
   const [expanded, setExpanded] = useState(true);
