@@ -14,7 +14,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/layout/PageSection";
-import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
+import { RoleContextSelector } from "@/components/demo/RoleContextSelector";
 import { toTitleCase } from "@/lib/title-case";
 import {
   CommandMetricStrip,
