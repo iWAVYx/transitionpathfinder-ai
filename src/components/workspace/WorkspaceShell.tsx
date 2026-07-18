@@ -30,6 +30,8 @@ export interface WorkspaceShellProps {
   hrefFor: (stage: WorkspaceStage) => string;
   /** Editorial kicker rendered above the stage header (e.g., "Transition Workspace · Demo"). */
   eyebrow?: string;
+  /** Optional element rendered opposite the eyebrow, above the stage timeline. */
+  eyebrowAside?: ReactNode;
   /** Optional filter (e.g., audience-restricted list). */
   visibleStages?: readonly WorkspaceStage[];
   /** When provided, renders a context-aware Back link above the stage progress. */
@@ -41,6 +43,7 @@ export function WorkspaceShell({
   activeStageId,
   hrefFor,
   eyebrow,
+  eyebrowAside,
   visibleStages,
   backTo,
   children,
@@ -69,10 +72,17 @@ export function WorkspaceShell({
           {backTo.label ?? "Back"}
         </Link>
       ) : null}
-      {eyebrow ? (
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
-          {eyebrow}
-        </p>
+      {(eyebrow || eyebrowAside) ? (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          {eyebrow ? (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
+              {eyebrow}
+            </p>
+          ) : null}
+          {eyebrowAside ? (
+            <div className="sm:max-w-[60%]">{eyebrowAside}</div>
+          ) : null}
+        </div>
       ) : null}
       <StageProgress activeStageId={activeStageId} />
 

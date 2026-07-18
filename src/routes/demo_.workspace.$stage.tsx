@@ -112,6 +112,21 @@ function DemoWorkspaceStagePage() {
   const productLabel =
     profile.product === "transitionforward" ? "TransitionForward" : "BridgeForward";
 
+  const profileBanner = (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3">
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          Viewing As
+        </p>
+        <p className="mt-0.5 text-sm font-semibold text-foreground">
+          {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{profile.tagline}</p>
+      </div>
+      <StudentSwitcher />
+    </div>
+  );
+
   return (
     <SiteShell>
       <DemoRoleLens onSelectRole={handleRoleSelect} />
@@ -119,20 +134,9 @@ function DemoWorkspaceStagePage() {
         activeStageId={stageId}
         hrefFor={hrefFor}
         eyebrow="Transition Workspace · Public Demo"
+        eyebrowAside={profileBanner}
         backTo={backTargetFromWorkspace(search)}
       >
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              Viewing As
-            </p>
-            <p className="mt-0.5 text-sm font-semibold text-foreground">
-              {profile.shortName} · {profile.demographics.gradeLabel} · {productLabel}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{profile.tagline}</p>
-          </div>
-          <StudentSwitcher />
-        </div>
         <WorkspaceRolePerspective role={viewRole} stageId={stageId} />
         <StageBody
           stage={stage}
@@ -142,7 +146,6 @@ function DemoWorkspaceStagePage() {
           profile={profile}
         />
         {stageId === "roadmap" && <PathwayReportDeepPreview profile={profile} />}
-
       </WorkspaceShell>
     </SiteShell>
   );
