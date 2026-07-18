@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Sparkles,
@@ -26,6 +26,11 @@ import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import {
+  isWorkspaceRole,
+  readLastWorkspaceStage,
+  useDemoRoleView,
+} from "@/lib/demo/use-demo-role-view";
+import {
   headlineForProfile,
   introForProfile,
   sharedStudentFromProfile,
@@ -42,6 +47,7 @@ function demoRoleToNextActionRole(id: DemoRoleId): NextActionRole {
       return id as NextActionRole;
   }
 }
+
 
 
 /**
