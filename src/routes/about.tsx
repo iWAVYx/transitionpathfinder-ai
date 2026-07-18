@@ -505,7 +505,7 @@ function JourneyPath() {
     <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-12 text-white md:py-16">
       <ScrollPathBackground targetRef={ref} />
 
-      <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6">
         <div className="mx-auto mb-8 max-w-2xl text-center md:mx-0 md:mb-10 md:text-left">
           <div className="mb-4 text-[10px] uppercase tracking-[0.4em] text-white/50">
             The Journey
