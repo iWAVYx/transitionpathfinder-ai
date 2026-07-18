@@ -25,8 +25,9 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
-  SCHOOL_ADMIN_FEATURE_DETAILS,
+  getSchoolAdminFeatureDetails,
   type SchoolAdminFeatureId,
+  type SchoolProfileKey,
   type FeatureRow,
 } from "@/lib/demo/school-admin/feature-details";
 
@@ -49,6 +50,7 @@ export function SchoolAdminFeatureDrawer({
   isSample = false,
   state = "ready",
   onRetry,
+  schoolId = "comprehensive",
 }: {
   featureId: SchoolAdminFeatureId | null;
   icon?: LucideIcon;
@@ -56,8 +58,9 @@ export function SchoolAdminFeatureDrawer({
   isSample?: boolean;
   state?: SchoolAdminFeatureState;
   onRetry?: () => void;
+  schoolId?: SchoolProfileKey;
 }) {
-  const detail = featureId ? SCHOOL_ADMIN_FEATURE_DETAILS[featureId] : null;
+  const detail = featureId ? getSchoolAdminFeatureDetails(schoolId)[featureId] : null;
   const Icon = icon;
 
   return (
