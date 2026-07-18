@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { RolePreviewShell } from "@/components/demo/role-preview/RolePreviewShell";
 import { getDemoRole } from "@/lib/demo/role-previews";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
+import { PremiumPartnerToolkitTile } from "@/components/demo/PremiumPartnerToolkitTile";
 
 const role = getDemoRole("partner");
 
@@ -15,7 +16,11 @@ export const Route = createFileRoute("/demo_/partner")({
     ],
   }),
   component: () => (
-    <RolePreviewShell role={role} workspace={<PartnerOverviewGrid isSample />} />
+    <RolePreviewShell
+      role={role}
+      workspace={<PartnerOverviewGrid isSample />}
+      afterWorkspace={<PremiumPartnerToolkitTile />}
+    />
   ),
-
 });
+
