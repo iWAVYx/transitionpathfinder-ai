@@ -36,6 +36,8 @@ export interface WorkspaceShellProps {
   visibleStages?: readonly WorkspaceStage[];
   /** When provided, renders a context-aware Back link above the stage progress. */
   backTo?: { to: string; label?: string };
+  /** Optional className for the root container. */
+  className?: string;
   children: ReactNode;
 }
 
@@ -46,6 +48,7 @@ export function WorkspaceShell({
   eyebrowAside,
   visibleStages,
   backTo,
+  className,
   children,
 }: WorkspaceShellProps) {
   const [isExiting, setIsExiting] = useState(false);
@@ -55,6 +58,7 @@ export function WorkspaceShell({
     <div
       className={cn(
         "mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-14",
+        className,
         isExiting && "animate-route-out"
       )}
       data-testid="workspace-shell"
@@ -65,7 +69,7 @@ export function WorkspaceShell({
           to={backTo.to}
           onClick={() => setIsExiting(true)}
           className={cn(
-            "inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+            "inline-flex items-center gap-1.5 self-start rounded-full px-2 py-0 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
           )}
         >
           <ArrowLeft className="h-4 w-4" />
