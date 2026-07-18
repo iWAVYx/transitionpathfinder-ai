@@ -23,7 +23,8 @@ export type ParentFeatureId =
   | "calendar"
   | "meeting-prep"
   | "consent"
-  | "invite-team";
+  | "invite-team"
+  | "partner-network";
 
 export type FeatureBullet = { label: string; value?: string; hint?: string };
 
