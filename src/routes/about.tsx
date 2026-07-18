@@ -424,12 +424,11 @@ const JOURNEY = [
 const SQUIGGLE_D =
   "M -40 60 C 200 20, 320 220, 540 180 S 880 60, 1040 200 S 820 460, 560 440 S 160 520, 80 720 S 380 900, 640 860 S 980 980, 880 1180 S 420 1280, 240 1140 S -80 1320, 60 1480";
 
-function JourneyPath() {
-  const ref = useRef<HTMLElement>(null);
+function ScrollPathBackground({ targetRef }: { targetRef: React.RefObject<HTMLElement | null> }) {
   const pathRef = useRef<SVGPathElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: targetRef,
     offset: ["start end", "end start"],
   });
   const progress = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
@@ -461,18 +460,15 @@ function JourneyPath() {
   });
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-12 text-white md:py-16">
+    <>
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/70 via-[#0b0a09]/40 to-[#0b0a09]" />
-
-      {/* Full-background squiggly pathway with a traveling arrow. */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"
         viewBox="0 0 1000 1500"
         preserveAspectRatio="none"
         aria-hidden
       >
-        {/* faint full trail */}
         <path
           d={SQUIGGLE_D}
           fill="none"
@@ -481,7 +477,6 @@ function JourneyPath() {
           strokeDasharray="4 8"
           vectorEffect="non-scaling-stroke"
         />
-        {/* progress trail drawn by scroll */}
         <motion.path
           ref={pathRef}
           d={SQUIGGLE_D}
@@ -492,13 +487,22 @@ function JourneyPath() {
           vectorEffect="non-scaling-stroke"
           style={{ pathLength }}
         />
-        {/* traveling arrow head */}
         <motion.g style={{ x: arrowX, y: arrowY, rotate: arrowR }}>
           <circle r="14" fill="rgba(255,220,160,0.18)" />
           <circle r="6" fill="#ffd9a0" />
           <path d="M 2 -7 L 16 0 L 2 7 Z" fill="#ffd9a0" />
         </motion.g>
       </svg>
+    </>
+  );
+}
+
+function JourneyPath() {
+  const ref = useRef<HTMLElement>(null);
+
+  return (
+    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-12 text-white md:py-16">
+      <ScrollPathBackground targetRef={ref} />
 
       <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
         <div className="mx-auto mb-8 max-w-2xl text-center md:mx-0 md:mb-10 md:text-left">
