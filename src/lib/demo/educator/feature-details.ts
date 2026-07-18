@@ -1,19 +1,25 @@
 /**
- * Static demo fixtures powering the Educator / Case Manager dashboard
- * feature drawers and the /demo/educator preview. Nothing here is real
- * data. Shared fictional caseload includes Jordan Rivera (G11), Maya
- * Chen (G12), Aiden Brooks (G10), and 5 others.
+ * Educator / Case Manager dashboard feature-detail templates.
  *
- * Each feature declares:
- *  - what it does, in one sentence
- *  - where its data comes from
- *  - the primary action an educator can take
- *  - which other tools it connects to
- *  - illustrative stats and preview rows
+ * These are TEMPLATES — profile-specific strings (featured student name,
+ * grade, next meeting date, primary interest) are `{token}` placeholders
+ * resolved at read time by `getEducatorFeatureDetails(profileId)`.
  *
- * The shared drawer renders polished loading / empty / error / permission
- * / ready states based on the `state` prop passed in at render time.
+ * Educator is a caseload view, so most rows describe other students who
+ * always appear regardless of the selected demo profile. Rows about the
+ * currently-selected featured student use tokens so switching the demo
+ * profile updates the "featured student" thread throughout.
  */
+
+import {
+  DEFAULT_DEMO_PROFILE_ID,
+  getDemoProfile,
+  type DemoProfileId,
+} from "@/lib/demo/demo-profiles";
+import {
+  applyTokensDeep,
+  tokensForProfile,
+} from "@/lib/demo/student-tokens";
 
 export type EducatorFeatureId =
   | "caseload"
@@ -51,24 +57,24 @@ export type EducatorFeatureDetail = {
   emptyBody: string;
 };
 
-export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeatureDetail> = {
+const TEMPLATE: Record<EducatorFeatureId, EducatorFeatureDetail> = {
   caseload: {
     id: "caseload",
     title: "Caseload Snapshot",
     eyebrow: "Your Students",
     summary:
       "Every student on your caseload — grade, readiness, and the next action they need from you.",
-    what: "Open a student's profile, sort by readiness or next PPT, and jump straight to their Pathway Report.",
+    what: "Open a student's profile, sort by readiness or next meeting, and jump straight to their Pathway Report.",
     dataSource: "Roster from your school · role-based access · Pathway Report signals",
     primaryAction: { label: "Open Caseload", to: "/caseload" },
     connectsTo: ["Student Readiness", "Pathway Reports", "Meeting Prep"],
     stats: [
       { label: "Students", value: "8" },
-      { label: "Next PPT ≤14d", value: "3" },
+      { label: "Next meeting ≤14d", value: "3" },
       { label: "Flagged", value: "2" },
     ],
     rows: [
-      { primary: "Jordan Rivera · G11", secondary: "PPT Sep 15 · draft ready", meta: "Ms. Patel", status: "warning" },
+      { primary: "{studentDisplayName} · {gradeShort}", secondary: "{nextMeetingLabel} {nextMeetingDate} · draft ready", meta: "{caseManager}", status: "warning" },
       { primary: "Maya Chen · G12", secondary: "Transition plan overdue", meta: "You", status: "critical" },
       { primary: "Aiden Brooks · G10", secondary: "Baseline complete", status: "ok" },
       { primary: "Sam Ortega · G12", secondary: "Adult services referral pending", status: "warning" },
@@ -95,10 +101,10 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Critical", value: "1" },
     ],
     rows: [
-      { primary: "Employment domain", secondary: "3 students below benchmark", status: "warning" },
+      { primary: "{postSecondaryLabel} focus", secondary: "{studentShortName} · {planningHorizon}", status: "warning" },
       { primary: "Independent living", secondary: "1 student critical · Maya C.", status: "critical" },
-      { primary: "Self-advocacy", secondary: "Growth trend across G11 cohort", status: "ok" },
-      { primary: "Post-secondary education", secondary: "All students have a plan", status: "ok" },
+      { primary: "Self-advocacy", secondary: "Growth trend across caseload", status: "ok" },
+      { primary: "Employment domain", secondary: "3 students below benchmark", status: "warning" },
     ],
     emptyHeadline: "No readiness data yet.",
     emptyBody:
@@ -121,10 +127,10 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Due this week", value: "2" },
     ],
     rows: [
-      { primary: "Jordan R. · Adult services handoff", secondary: "Due Sep 12", status: "warning" },
-      { primary: "Maya C. · Transition assessment summary", secondary: "Overdue Sep 3", status: "critical" },
-      { primary: "Aiden B. · Employment goal narrative", secondary: "Due Sep 18", status: "muted" },
-      { primary: "Sam O. · Independent living notes", secondary: "Due Sep 20", status: "muted" },
+      { primary: "{studentShortName} · {postSecondaryLabel} narrative", secondary: "Due before {nextMeetingDate}", status: "warning" },
+      { primary: "Maya C. · Transition assessment summary", secondary: "Overdue", status: "critical" },
+      { primary: "Aiden B. · Employment goal narrative", secondary: "Due this month", status: "muted" },
+      { primary: "Sam O. · Independent living notes", secondary: "Due this month", status: "muted" },
     ],
     emptyHeadline: "You're all caught up.",
     emptyBody:
@@ -147,7 +153,7 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Needs input", value: "1" },
     ],
     rows: [
-      { primary: "Jordan Rivera · v4 draft", secondary: "5 of 7 sections complete", status: "ok" },
+      { primary: "{studentDisplayName} · {reportVersion}", secondary: "5 of 7 sections complete", status: "ok" },
       { primary: "Maya Chen · v2 draft", secondary: "Blocked on transition assessment", status: "warning" },
       { primary: "Aiden Brooks · v1 published", secondary: "Family view shared", status: "ok" },
       { primary: "Sam Ortega · v3 draft", secondary: "Pending adult services", status: "warning" },
@@ -161,26 +167,26 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
   "meeting-prep": {
     id: "meeting-prep",
     title: "Meeting Prep",
-    eyebrow: "Before The PPT",
+    eyebrow: "Before The Meeting",
     summary:
-      "PPT prep templates and question sets tailored to each student on your caseload.",
+      "Meeting prep templates and question sets tailored to each student on your caseload.",
     what: "Open a prep pack, customize the agenda, and share it with family before the meeting.",
     dataSource: "Meeting template · Pathway Report · Family Priorities",
     primaryAction: { label: "Prep For Meetings", to: "/ppt-prep" },
     connectsTo: ["Calendar", "Pathway Reports", "Case Notes"],
     stats: [
-      { label: "Next meeting", value: "Sep 15" },
+      { label: "Next meeting", value: "{nextMeetingDate}" },
       { label: "Prep packs open", value: "3" },
       { label: "Shared with family", value: "1" },
     ],
     rows: [
-      { primary: "Jordan Rivera · PPT annual review", secondary: "Sep 15 · agenda ready", status: "ok" },
-      { primary: "Maya Chen · IEP amendment", secondary: "Sep 22 · needs prep", status: "warning" },
-      { primary: "Aiden Brooks · transition check-in", secondary: "Oct 4 · scheduled", status: "muted" },
+      { primary: "{studentDisplayName} · {nextMeetingLabel}", secondary: "{nextMeetingDate} · agenda ready", status: "ok" },
+      { primary: "Maya Chen · IEP amendment", secondary: "Next week · needs prep", status: "warning" },
+      { primary: "Aiden Brooks · transition check-in", secondary: "Next month · scheduled", status: "muted" },
     ],
     emptyHeadline: "No meetings need prep right now.",
     emptyBody:
-      "As soon as a PPT or IEP meeting is scheduled, a prep pack will appear here with a starter agenda.",
+      "As soon as a meeting is scheduled, a prep pack will appear here with a starter agenda.",
   },
 
   "case-notes": {
@@ -199,10 +205,10 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Shared", value: "7" },
     ],
     rows: [
-      { primary: "Jordan R. — mentioned interest in vet tech", secondary: "Sep 8 · shared with team", status: "ok" },
-      { primary: "Maya C. — transportation barrier for tours", secondary: "Sep 7 · private", status: "muted" },
-      { primary: "Aiden B. — WBL placement request", secondary: "Sep 5 · shared with family", status: "ok" },
-      { primary: "Sam O. — DDS referral discussion", secondary: "Sep 3 · shared with case team", status: "ok" },
+      { primary: "{studentShortName} — mentioned interest in {primaryInterest}", secondary: "Recent · shared with team", status: "ok" },
+      { primary: "Maya C. — transportation barrier for tours", secondary: "Recent · private", status: "muted" },
+      { primary: "Aiden B. — WBL placement request", secondary: "Recent · shared with family", status: "ok" },
+      { primary: "Sam O. — DDS referral discussion", secondary: "Recent · shared with case team", status: "ok" },
     ],
     emptyHeadline: "No case notes yet.",
     emptyBody:
@@ -225,10 +231,10 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Overdue", value: "1" },
     ],
     rows: [
-      { primary: "Send adult services referral · Sam O.", secondary: "You · due Sep 18", status: "warning" },
-      { primary: "Confirm PPT room · Jordan R.", secondary: "You · due Sep 12", status: "warning" },
+      { primary: "Confirm meeting room · {studentShortName}", secondary: "You · due before {nextMeetingDate}", status: "warning" },
+      { primary: "Send adult services referral · Sam O.", secondary: "You · due this month", status: "warning" },
       { primary: "Upload transition assessment · Maya C.", secondary: "Family · overdue", status: "critical" },
-      { primary: "Draft employment narrative · Aiden B.", secondary: "You · due Sep 20", status: "muted" },
+      { primary: "Draft employment narrative · Aiden B.", secondary: "You · due this month", status: "muted" },
     ],
     emptyHeadline: "No open action items.",
     emptyBody:
@@ -240,7 +246,7 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
     title: "Calendar",
     eyebrow: "What's Next",
     summary:
-      "PPTs, IEP reviews, and check-ins across your caseload — in one place.",
+      "Meetings, IEP reviews, and check-ins across your caseload — in one place.",
     what: "See what's this week, jump into prep, and sync to your school calendar.",
     dataSource: "Meetings you schedule · deadlines from Pathway Reports",
     primaryAction: { label: "Open Calendar", to: "/calendar" },
@@ -250,10 +256,10 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Next 30 days", value: "7" },
     ],
     rows: [
-      { primary: "PPT · Jordan Rivera", secondary: "Sep 15 · 2:30 PM · Room 214", status: "warning" },
-      { primary: "IEP amendment · Maya Chen", secondary: "Sep 22 · 9:00 AM", status: "muted" },
-      { primary: "Transition check-in · Aiden Brooks", secondary: "Oct 4 · virtual", status: "muted" },
-      { primary: "Caseload sync w/ Ms. Patel", secondary: "Oct 6 · 30 min", status: "muted" },
+      { primary: "{nextMeetingLabel} · {studentDisplayName}", secondary: "{nextMeetingDate} · 2:30 PM", status: "warning" },
+      { primary: "IEP amendment · Maya Chen", secondary: "Next month · 9:00 AM", status: "muted" },
+      { primary: "Transition check-in · Aiden Brooks", secondary: "Next month · virtual", status: "muted" },
+      { primary: "Caseload sync with {caseManager}", secondary: "Next month · 30 min", status: "muted" },
     ],
     emptyHeadline: "Nothing scheduled yet.",
     emptyBody:
@@ -276,7 +282,7 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
       { label: "Awaiting family", value: "1" },
     ],
     rows: [
-      { primary: "Jordan R. — current IEP (Aug 2026)", secondary: "PDF · shared", status: "ok" },
+      { primary: "{studentShortName} — current IEP", secondary: "PDF · shared", meta: "{gradeLabel}", status: "ok" },
       { primary: "Maya C. — transition assessment", secondary: "Awaiting upload", status: "warning" },
       { primary: "Aiden B. — WBL placement letter", secondary: "PDF · new", status: "ok" },
       { primary: "Sam O. — DDS eligibility letter", secondary: "PDF · needs review", status: "warning" },
@@ -299,19 +305,33 @@ export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeature
     stats: [
       { label: "Verified partners", value: "7" },
       { label: "Awaiting referral", value: "2" },
-      { label: "Relevant to caseload", value: "6" },
+      { label: "Matches for {studentShortName}", value: "{partnerMatchCount}" },
     ],
     rows: [
-      { primary: "Jordan Rivera → Oakwood Animal Rescue", secondary: "Interest match · age-eligible", meta: "Refer", status: "warning" },
+      { primary: "{studentDisplayName} → {primaryPartnerRow}", secondary: "{primaryPartnerNote}", meta: "Refer", status: "warning" },
       { primary: "Maya Chen → Capital CC Applied Tech", secondary: "Postsecondary pathway match", meta: "Refer", status: "warning" },
       { primary: "Aiden Brooks → Youth Employment Services", secondary: "Eligible next summer", meta: "Coming up", status: "muted" },
-      { primary: "Caseload culinary interest cohort", secondary: "3 students · Riverbend Culinary", meta: "Group referral", status: "ok" },
+      { primary: "Caseload interest cluster", secondary: "3 students · shared cohort match", meta: "Group referral", status: "ok" },
     ],
     emptyHeadline: "No caseload matches yet.",
     emptyBody:
       "Once caseload interests and ages are on file, referral-ready partners will appear here.",
   },
 };
+
+export function getEducatorFeatureDetails(
+  profileId: DemoProfileId = DEFAULT_DEMO_PROFILE_ID,
+): Record<EducatorFeatureId, EducatorFeatureDetail> {
+  const tokens = tokensForProfile(getDemoProfile(profileId));
+  return applyTokensDeep(TEMPLATE, tokens);
+}
+
+/**
+ * Back-compat default (Jordan) for legacy call sites. New code MUST call
+ * `getEducatorFeatureDetails(profileId)`.
+ */
+export const EDUCATOR_FEATURE_DETAILS: Record<EducatorFeatureId, EducatorFeatureDetail> =
+  getEducatorFeatureDetails(DEFAULT_DEMO_PROFILE_ID);
 
 export const EDUCATOR_FEATURE_ORDER: EducatorFeatureId[] = [
   "caseload",

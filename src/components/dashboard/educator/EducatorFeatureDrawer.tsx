@@ -25,10 +25,12 @@ import { Button } from "@/components/ui/button";
 import { toTitleCase } from "@/lib/title-case";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
-  EDUCATOR_FEATURE_DETAILS,
+  getEducatorFeatureDetails,
   type EducatorFeatureId,
+  type EducatorFeatureDetail,
   type FeatureRow,
 } from "@/lib/demo/educator/feature-details";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 /**
  * Shared drawer for the Educator / Case Manager dashboard. Mirrors the
@@ -52,7 +54,8 @@ export function EducatorFeatureDrawer({
   state?: EducatorFeatureState;
   onRetry?: () => void;
 }) {
-  const detail = featureId ? EDUCATOR_FEATURE_DETAILS[featureId] : null;
+  const { profileId } = useDemoStudent();
+  const detail = featureId ? getEducatorFeatureDetails(profileId)[featureId] : null;
   const Icon = icon;
 
   return (
@@ -153,7 +156,7 @@ export function EducatorFeatureDrawer({
 function ReadyBody({
   detail,
 }: {
-  detail: (typeof EDUCATOR_FEATURE_DETAILS)[EducatorFeatureId];
+  detail: EducatorFeatureDetail;
 }) {
   return (
     <>

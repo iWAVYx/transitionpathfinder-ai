@@ -1,96 +1,73 @@
-# Partner Network — Signed-In, Role-Aware Product Feature
+## Goal
 
-## Scope
+One source of truth for demo sample data. Every dashboard tile preview and every dedicated feature page reads from the same resolver keyed on `{ role, contextType, contextId, featureId }`. No layout, routing, or design changes.
 
-Consolidate all Opportunity/Directory/Matches/Referrals surfaces into ONE "Partner Network" tile per applicable role dashboard (Student, Family, Educator/Case Manager, School Admin, District Admin, Partner). Owner gets no tile — moderation lives in the existing Admin Hub. Each tile opens a role-aware protected page that respects the active demo context (student profile / school / district / partner plan).
+## Scope inventory (audit first)
 
-## Tile Consolidation Audit (per role)
+I'll produce a written inventory table before touching code, covering every demo feature we render today:
 
-Before adding, remove/merge these existing tiles into the single Partner Network tile:
+- Student / Family / Educator features (student-scoped): Transition Workspace, Pathway Report, Intake, Student Voice, Documents, Assessments, Calendar, Next Actions, Opportunities, Partner Network, Matches, Saved Items, Applications/Referrals, Reports, Activity.
+- School Admin features (school-scoped): Enrollment, IEP Caseload, Staff, Caseload Distribution, Students, Reports, Implementation, Service Coverage, Partners, Opportunities, Activity, Alerts, Next Actions, Charts.
+- District Admin features (district-scoped): School Roster, Enrollment, IEP Population, Staffing, Coordinators, Reports, Implementation, Provider Coverage, Opportunities, Regional Gaps, Activity, Alerts, Charts.
+- Partner features (plan-scoped): Listing Status, Posting Allowance, Opportunities, Analytics, Match Insights, Team, Connections, Referrals, Scheduling, Premium Toolkit.
+- Owner features: existing tiles (kept read-only against a fixed context — owner has no context selector).
 
-- **Student**: `opportunities`, `matches`, `partner-directory` → **Partner Network**
-- **Family**: `opportunities`, `matches`, `directory` → **Partner Network**
-- **Educator**: `opportunity-recommendations`, `referrals`, `partner-directory` → **Partner Network**
-- **School Admin**: `partner-relationships`, `community-partners`, `opportunity-engagement` → **Partner Network**
-- **District Admin**: `regional-providers`, `district-partnerships`, `opportunity-coverage` → **Partner Network**
-- **Partner**: keep `Partner Profile`, `Active Opportunities`, `Submitted Programs`, `Application Windows`, `Opportunity Management`, `Partner Resources`, `PartnerForward Incentives`, and the existing `Premium Partner Toolkit` tile. Add ONE new **Partner Network** tile (external-facing view of listings/matches/connections). Do NOT duplicate management surfaces.
-- **Owner**: NO tile. Moderation, verification, source quality, stale listings, disputes, access controls live under existing Admin Hub sub-nav.
-
-Exact final list will be produced by reading each `*OverviewGrid.tsx` first — plan reflects intent; consolidation stays true to what actually exists.
+For each row: current data source (fixture, hook, hardcoded), preview component path, full-page component path, detail component path, gaps.
 
 ## Architecture
 
-### Route
-`src/routes/_authenticated/partner-network.tsx` — single protected route that renders role-aware content via `useAuth()` role + `useDemoRoleContext()`. Deep-link params: `?role=<role>&tab=<matches|saved|referrals|coverage|listings>`.
+1. **`activeDemoContext`** — single hook `useActiveDemoContext(role)` in `src/lib/demo/active-context.ts`, wrapping the existing `useRoleContext` external store plus `useDemoStudent` (student journey) so it returns:
+   ```
+   { role, contextType: "student" | "school" | "district" | "partnerPlan" | "owner", contextId }
+   ```
+2. **`getDemoFeatureData({ featureId, role, contextType, contextId })`** — pure resolver in `src/lib/demo/feature-data.ts`. Dispatches to per-feature builders that receive the resolved profile/context object and return a typed dataset. Deterministic, no I/O.
+3. **Per-feature builders** — one file per feature under `src/lib/demo/feature-data/<featureId>.ts`. Each returns the union of records used by both preview and full page (preview = projection). Existing per-role `feature-details.ts` narrative content is folded in so title/summary/next-step also switch by context.
+4. **Consumers** — every tile preview, drawer, feature page, and detail page calls `getDemoFeatureData(...)` (via a thin `useDemoFeatureData(featureId)` hook that reads `activeDemoContext`). Static fixture imports and `array[0]` / `defaultDemoStudent` / `defaultSchool` / `defaultDistrict` / `defaultPartnerPlan` fallbacks get deleted.
 
-### Signed-out guard
-Existing `_authenticated/route.tsx` already handles the sign-in-required redirect with intended-destination preservation. No new route logic needed.
+## Execution steps
 
-### Role-aware content components (one per role)
-```
-src/components/partner-network/
-  PartnerNetworkPage.tsx           # role dispatcher
-  StudentPartnerNetwork.tsx        # matches, saved, next steps
-  FamilyPartnerNetwork.tsx         # per-authorized-child matches
-  EducatorPartnerNetwork.tsx       # per-caseload student recs + referrals
-  SchoolAdminPartnerNetwork.tsx    # relationships, coverage, gaps
-  DistrictAdminPartnerNetwork.tsx  # regional providers, aggregate
-  PartnerPartnerNetwork.tsx        # listings, engagement, connections (Free/Premium)
-  shared/
-    ExplainableMatchCard.tsx       # Why / Consider / Eligibility / Next Step / Source / Verified
-    OpportunityCard.tsx
-    ContextBanner.tsx              # reads active demo context
-```
+1. Land the inventory table in `docs/demo-feature-data-audit.md` (evidence artifact).
+2. Add `active-context.ts` + `feature-data.ts` skeleton with typed dispatch and no-op builders that delegate to existing per-role detail maps, so nothing breaks.
+3. Migrate features in this order (each = tile preview + full page + detail, with tests):
+   1. Partner Network (already close — becomes the reference implementation).
+   2. Student-scoped features: Pathway Report, Opportunities, Matches, Documents, Assessments, Calendar, Next Actions, Intake, Student Voice, Reports, Activity, Applications/Referrals, Saved Items, Transition Workspace.
+   3. School Admin features.
+   4. District Admin features.
+   5. Partner plan features.
+5. Delete now-unused fixtures / `defaultX` fallbacks. Rip out per-component `useState(initialFromProps)` where it caused staleness; replace with derived reads.
+6. Route search state: ensure detail routes carry only the record id; profile/context comes from `activeDemoContext`. When record id is not present in the active context's dataset, render the profile-specific empty state (no fallback).
 
-### Explainable matching engine
-`src/lib/partner-network/matching.ts` — pure function `matchOpportunities(profile, opportunities)`:
-- Hard-filter: grade/age eligibility, location, cost cap, accessibility requirements.
-- Rank by: interest/cluster overlap, stage fit, schedule, transportation, delivery mode.
-- Never use disability as negative factor.
-- Return `{ tier: 'strong'|'good'|'worth-exploring', reasons, considerations, eligibilityToConfirm, nextStep, source, verifiedAt }`.
+## Tests (evidence)
 
-### Demo data
-`src/lib/demo/partner-network/`
-- `organizations.ts` — fictional orgs keyed by district/school where relevant.
-- `opportunities.ts` — keyed by grade band + cluster.
-- `matches.ts` — derived per active student profile via engine.
-- `partner-listings.ts` — Free vs Premium bundles for the partner org.
-- `school-relationships.ts`, `district-coverage.ts` — per-context bundles.
+New Vitest suite `tests/unit/demo-feature-data-propagation.test.ts`:
 
-Everything reads through `useProfileSession`/`useDemoSchool`/`useDemoDistrict`/`useDemoPartnerPlan` — same stores that drive the rest of the demo (bug fix from previous slice is preserved).
+- For every `(role, featureId, contextId)` triple, snapshot at least three fingerprints (record id, headline metric, primary record title).
+- Assert Profile-A fingerprints disappear and Profile-B fingerprints appear after `setActiveContext(B)`.
+- Assert preview projection ⊆ full-page dataset (same ids).
 
-### Dashboard tile
-New shared `PartnerNetworkTile` component slotted into each `*OverviewGrid.tsx` Workspace section. Uses same tile primitive (`ToolPreviewCard` / existing card shape) so visuals, spacing, hover, responsive layout are unchanged.
+New Playwright suite `tests/e2e/demo-context-switch.spec.ts`:
 
-### RLS & live data
-No live tables are read by the demo. This slice adds no real Partner Network mutations. If/when live tables come online, existing `partner_opportunities` policies (org-scoped) and `student_relationships` gates cover the reads; server-side authorization goes through `requireSupabaseAuth` server fns.
+- Per feature: open preview → open full page → capture fingerprints → switch context → assert new fingerprints, no stale flash → refresh → assert persistence → back to dashboard → assert context preserved.
 
-## PartnerForward vs Partner Network
+Existing suites kept green: `demo-nav`, `demo-feature-map`, `demo-feature-details-audit`, `demo-role-contexts`, `dashboard-tile-destinations`, `partner-network`, `pathway-engine`, `opportunity-matcher`, `demo-profile-sample-fingerprint`.
 
-Keep separate. PartnerForward tile stays (incentives/funding). Partner Network is the new management/discovery tile. Copy on both tiles clarifies the distinction.
+## Deliverables (evidence report)
 
-## Testing
+At the end I'll return:
 
-- `tests/unit/partner-network-tile-consolidation.test.ts` — exactly one Partner Network tile per role dashboard; no duplicate directory/matches/opportunities tiles remain; owner has none.
-- `tests/unit/partner-network-context-switch.test.ts` — swapping student/school/district/partner-plan changes tile summary AND page content fingerprint.
-- `tests/unit/partner-network-matching.test.ts` — hard filters exclude ineligible; disability never lowers rank; explanations include all required fields.
-- `tests/e2e/partner-network.signedin.spec.ts` — role tile → correct page; deep link + refresh + back preserve context; partner never sees IEP/diagnosis fields; tab-aware URL sync.
-- `tests/e2e/partner-network-signed-out.spec.ts` — protected route redirects to login with intended destination; returns after auth; public Partners marketing page still reachable.
+- The audit table (inventory).
+- List of removed static reads (file + line).
+- Path to the new resolver + list of per-feature builders.
+- Before/after fingerprints per context per feature.
+- Preview vs full-page consistency table.
+- Test totals (unit + Playwright).
 
 ## Non-goals
 
-- No new public hub.
-- No new owner dashboard.
-- No PartnerForward changes beyond copy disambiguation if needed.
-- No visual redesign of dashboards.
-- No live-data mutations from the demo.
+- No UI, layout, tile, routing, or copy changes beyond what falls out of context substitution.
+- No new profiles/contexts/plans.
+- No changes to signed-in production data paths.
 
-## Deliverables
+## Size warning
 
-1. Tile audit + consolidation across 6 role dashboards.
-2. Single protected route + 7 role components + shared match/opportunity primitives.
-3. Explainable matching engine + per-role demo bundles wired to existing context stores.
-4. Free/Premium partner variance in tile + page.
-5. Owner Admin Hub sub-nav entries for moderation/verification/stale/disputes/access (no dashboard).
-6. Unit + e2e tests above, plus regression run.
-7. Completion report with the 8 requested sections.
+This touches ~40+ feature surfaces across 7 roles and rewrites the data layer under them. Expect this to land as a single large change; I'll keep every step behind existing tests so nothing regresses mid-migration. Confirm to proceed and I'll start with the inventory + skeleton in the next turn.

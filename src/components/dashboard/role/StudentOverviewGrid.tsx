@@ -19,9 +19,10 @@ import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { StudentFeatureDrawer } from "@/components/dashboard/student/StudentFeatureDrawer";
 import {
-  STUDENT_FEATURE_DETAILS,
+  getStudentFeatureDetails,
   type StudentFeatureId,
 } from "@/lib/demo/student/feature-details";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
 type Tile = {
@@ -128,6 +129,8 @@ const TILES: Tile[] = [
 export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
   const [openFeature, setOpenFeature] = useState<StudentFeatureId | null>(null);
   const activeIcon = TILES.find((t) => t.featureId === openFeature)?.icon;
+  const { profileId } = useDemoStudent();
+  const details = getStudentFeatureDetails(profileId);
 
   return (
     <ToolPreviewSection
@@ -140,6 +143,7 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
           <StudentTile
             key={tile.featureId}
             tile={tile}
+            detail={details[tile.featureId]}
             isSample={isSample}
             onPreview={() => setOpenFeature(tile.featureId)}
           />
@@ -160,9 +164,25 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
   );
 }
 
-function StudentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
+function StudentTile({
+  tile,
+  detail,
+  onPreview,
+  isSample = false,
+}: {
+  tile: Tile;
+  detail: ReturnType<typeof getStudentFeatureDetails>[StudentFeatureId];
+  onPreview: () => void;
+  isSample?: boolean;
+}) {
   const Icon = tile.icon;
-  const detail = STUDENT_FEATURE_DETAILS[tile.featureId];
+  // Derive tile-facing metrics from the profile-specific detail so
+  // switching the demo profile updates status + bullets everywhere.
+  const status = detail.stats?.[0]?.value ?? tile.status;
+  const bullets =
+    detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
+    tile.bullets ??
+    [];
   const ctaTo = isSample ? resolveDemoFeatureRoute("student", tile.featureId) : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
@@ -176,12 +196,12 @@ function StudentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPrev
             {toTitleCase(tile.title)}
           </h3>
         </div>
-        <Pill tone={tile.tone}>{tile.status}</Pill>
+        <Pill tone={tile.tone}>{status}</Pill>
       </div>
       <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
-      {tile.bullets && tile.bullets.length > 0 && (
+      {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
-          {tile.bullets.slice(0, 4).map((b) => (
+          {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
               <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
