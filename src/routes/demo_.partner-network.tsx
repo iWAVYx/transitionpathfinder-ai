@@ -117,7 +117,7 @@ function DemoPartnerNetworkRoute() {
             student data, referrals, or partner accounts are touched.
           </p>
         </div>
-      </PageSection>
+      </div>
       <PartnerNetworkPage audienceOverride={audience} demo />
     </SiteShell>
   );
