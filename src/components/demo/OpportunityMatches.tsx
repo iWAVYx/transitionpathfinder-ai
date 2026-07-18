@@ -119,7 +119,7 @@ export function OpportunityMatches({ compact = false, limit }: { compact?: boole
         ))}
       </ul>
 
-      {hidden.length > 0 && (
+      {!compact && hidden.length > 0 && (
         <details className="mt-4 rounded-xl border border-dashed border-border bg-muted/30 p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground">
             {hidden.length} Opportunities Hidden By Age-Safeguards
