@@ -664,6 +664,41 @@ function DemoStep({
   );
 }
 
+function JourneyRow({
+  badge,
+  title,
+  body,
+  to,
+  search,
+}: {
+  badge: string;
+  title: string;
+  body: string;
+  to: string;
+  search?: Record<string, string>;
+}) {
+  return (
+    <li>
+      <Link
+        to={to}
+        search={search}
+        className="group flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+      >
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            {badge}
+          </p>
+          <h4 className="mt-1 font-display text-lg">{title}</h4>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+        </div>
+        <span className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary">
+          Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </Link>
+    </li>
+  );
+}
+
 
 
 
