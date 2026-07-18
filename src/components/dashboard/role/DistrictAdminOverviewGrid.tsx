@@ -20,10 +20,12 @@ import {
   type DistrictAdminFeatureState,
 } from "@/components/dashboard/district-admin/DistrictAdminFeatureDrawer";
 import {
-  DISTRICT_ADMIN_FEATURE_DETAILS,
+  getDistrictAdminFeatureDetails,
+  DISTRICT_ADMIN_TILE_META_BY_DISTRICT,
   type DistrictAdminFeatureId,
 } from "@/lib/demo/district-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
+import { useDemoDistrict } from "@/lib/demo/use-role-context";
 
 type Tile = {
   featureId: DistrictAdminFeatureId;
