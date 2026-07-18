@@ -60,6 +60,7 @@ import { Route as DemoPartnerRouteImport } from './routes/demo_.partner'
 import { Route as DemoOwnerRouteImport } from './routes/demo_.owner'
 import { Route as DemoOpportunitiesRouteImport } from './routes/demo_.opportunities'
 import { Route as DemoNextRouteImport } from './routes/demo_.next'
+import { Route as DemoNetworkRouteImport } from './routes/demo_.network'
 import { Route as DemoMeetingRouteImport } from './routes/demo_.meeting'
 import { Route as DemoIntakeRouteImport } from './routes/demo_.intake'
 import { Route as DemoHubRouteImport } from './routes/demo_.hub'
@@ -465,6 +466,11 @@ const DemoOpportunitiesRoute = DemoOpportunitiesRouteImport.update({
 const DemoNextRoute = DemoNextRouteImport.update({
   id: '/demo_/next',
   path: '/demo/next',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoNetworkRoute = DemoNetworkRouteImport.update({
+  id: '/demo_/network',
+  path: '/demo/network',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoMeetingRoute = DemoMeetingRouteImport.update({
@@ -1385,6 +1391,7 @@ export interface FileRoutesByFullPath {
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
+  '/demo/network': typeof DemoNetworkRoute
   '/demo/next': typeof DemoNextRoute
   '/demo/opportunities': typeof DemoOpportunitiesRoute
   '/demo/owner': typeof DemoOwnerRoute
@@ -1585,6 +1592,7 @@ export interface FileRoutesByTo {
   '/demo/hub': typeof DemoHubRoute
   '/demo/intake': typeof DemoIntakeRoute
   '/demo/meeting': typeof DemoMeetingRoute
+  '/demo/network': typeof DemoNetworkRoute
   '/demo/next': typeof DemoNextRoute
   '/demo/opportunities': typeof DemoOpportunitiesRoute
   '/demo/owner': typeof DemoOwnerRoute
@@ -1789,6 +1797,7 @@ export interface FileRoutesById {
   '/demo_/hub': typeof DemoHubRoute
   '/demo_/intake': typeof DemoIntakeRoute
   '/demo_/meeting': typeof DemoMeetingRoute
+  '/demo_/network': typeof DemoNetworkRoute
   '/demo_/next': typeof DemoNextRoute
   '/demo_/opportunities': typeof DemoOpportunitiesRoute
   '/demo_/owner': typeof DemoOwnerRoute
@@ -1993,6 +2002,7 @@ export interface FileRouteTypes {
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
+    | '/demo/network'
     | '/demo/next'
     | '/demo/opportunities'
     | '/demo/owner'
@@ -2193,6 +2203,7 @@ export interface FileRouteTypes {
     | '/demo/hub'
     | '/demo/intake'
     | '/demo/meeting'
+    | '/demo/network'
     | '/demo/next'
     | '/demo/opportunities'
     | '/demo/owner'
@@ -2396,6 +2407,7 @@ export interface FileRouteTypes {
     | '/demo_/hub'
     | '/demo_/intake'
     | '/demo_/meeting'
+    | '/demo_/network'
     | '/demo_/next'
     | '/demo_/opportunities'
     | '/demo_/owner'
@@ -2569,6 +2581,7 @@ export interface RootRouteChildren {
   DemoHubRoute: typeof DemoHubRoute
   DemoIntakeRoute: typeof DemoIntakeRoute
   DemoMeetingRoute: typeof DemoMeetingRoute
+  DemoNetworkRoute: typeof DemoNetworkRoute
   DemoNextRoute: typeof DemoNextRoute
   DemoOpportunitiesRoute: typeof DemoOpportunitiesRoute
   DemoOwnerRoute: typeof DemoOwnerRoute
@@ -2957,6 +2970,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/next'
       fullPath: '/demo/next'
       preLoaderRoute: typeof DemoNextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/network': {
+      id: '/demo_/network'
+      path: '/demo/network'
+      fullPath: '/demo/network'
+      preLoaderRoute: typeof DemoNetworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/meeting': {
@@ -4449,6 +4469,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoHubRoute: DemoHubRoute,
   DemoIntakeRoute: DemoIntakeRoute,
   DemoMeetingRoute: DemoMeetingRoute,
+  DemoNetworkRoute: DemoNetworkRoute,
   DemoNextRoute: DemoNextRoute,
   DemoOpportunitiesRoute: DemoOpportunitiesRoute,
   DemoOwnerRoute: DemoOwnerRoute,
