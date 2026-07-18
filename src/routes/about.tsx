@@ -267,7 +267,7 @@ function PinnedStory() {
   }
 
   return (
-    <section ref={ref} className="relative bg-[#0b0a09] text-white" style={{ height: "250vh" }}>
+    <section ref={ref} className="relative bg-[#0b0a09] text-white" style={{ height: "200vh" }}>
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
         {/* Background image crossfade */}
         <div className="absolute inset-0">
