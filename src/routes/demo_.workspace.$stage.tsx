@@ -146,7 +146,7 @@ function DemoWorkspaceStagePage() {
           onExpandChange={setExpanded}
           profile={profile}
         />
-        {stageId === "roadmap" && <PathwayReportDeepPreview profile={profile} />}
+        
       </WorkspaceShell>
     </SiteShell>
   );
