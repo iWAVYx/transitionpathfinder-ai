@@ -19,6 +19,7 @@ export const Route = createFileRoute("/demo_/student")({
     <RolePreviewShell
       role={role}
       workspace={<StudentOverviewGrid isSample />}
+      afterWorkspace={<OpportunityMatches compact limit={3} />}
     />
   ),
 });
