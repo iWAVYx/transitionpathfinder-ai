@@ -410,58 +410,54 @@ function PlatformPage() {
                 <Sparkles className="h-3 w-3" /> Live demo
               </Badge>
               <Badge variant="outline" className="gap-1">
-                <ShieldCheck className="h-3 w-3" /> Fictional student · no real data
+                <ShieldCheck className="h-3 w-3" /> Three fictional students · no real data
               </Badge>
             </div>
             <h2 className="mt-4 font-display text-4xl font-medium tracking-tight sm:text-5xl">
               See Exactly How It Works.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              Walk through a complete planning experience using{" "}
-              <strong>{SHARED_DEMO_STUDENT.full_name}</strong>, a fictional {SHARED_DEMO_STUDENT.grade} student at{" "}
-              {SHARED_DEMO_STUDENT.school}. No account, no setup.
+              Choose from three fictional student journeys, then switch roles to see
+              how students, families, and educators contribute to one connected pathway.
+              No account, no setup.
             </p>
           </div>
 
-          {/* Student card */}
+          {/* Three fictional student journeys — one container, editorial rows */}
           <div className="rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                  Meet the demo student
-                </p>
-                <h3 className="mt-2 font-display text-3xl">{toTitleCase(SHARED_DEMO_STUDENT.full_name)}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {toTitleCase(SHARED_DEMO_STUDENT.pronouns)} · Grade {SHARED_DEMO_STUDENT.grade} · {SHARED_DEMO_STUDENT.school}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {SHARED_DEMO_STUDENT.disability_category} · Graduating {SHARED_DEMO_STUDENT.graduation_year}
-                </p>
-              </div>
-              <Badge variant="outline" className="gap-1">
-                Case Manager: {SHARED_DEMO_STUDENT.case_manager}
-              </Badge>
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <Gamepad2 className="h-4 w-4 text-primary" /> Video game design
-              </div>
-              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <PawPrint className="h-4 w-4 text-primary" /> Animals (especially dogs)
-              </div>
-              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <Music className="h-4 w-4 text-primary" /> Music production
-              </div>
-              <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm sm:justify-start">
-                <ChefHat className="h-4 w-4 text-primary" /> Cooking with family
-              </div>
-            </div>
-            <p className="mt-6 rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm italic leading-relaxed text-foreground/80">
-              "{SHARED_DEMO_STUDENT.quote}"
-              <span className="mt-2 block not-italic text-xs text-muted-foreground">
-                — In Jordan's voice (from the intake)
-              </span>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              Meet The Student Journeys
             </p>
+            <h3 className="mt-2 font-display text-2xl sm:text-3xl">
+              Three Fictional Students, One Adaptive Pathway.
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Each journey shows how the platform's focus changes with age, grade,
+              and where a student is in transition planning.
+            </p>
+            <ul className="mt-6 divide-y divide-border/60">
+              <JourneyRow
+                badge="Grade 7 — BridgeForward"
+                title="Sam Alvarez"
+                body="High-school discovery, learning-environment fit, enrichment, confidence, and readiness."
+                to="/demo"
+                search={{ student: "sam" }}
+              />
+              <JourneyRow
+                badge="Grade 9 — Early TransitionForward"
+                title="Riley Chen"
+                body="Course direction, initial transition planning, self-advocacy, career exploration, and a multi-year roadmap."
+                to="/demo"
+                search={{ student: "riley" }}
+              />
+              <JourneyRow
+                badge="Advanced TransitionForward"
+                title="Jordan Rivera · Grade 11"
+                body="Education, training, employment, agency connections, applications, and next steps after high school."
+                to="/demo"
+                search={{ student: "jordan" }}
+              />
+            </ul>
           </div>
 
           {/* Demo steps */}
@@ -469,22 +465,22 @@ function PlatformPage() {
             <DemoStep
               step="1"
               icon={<ClipboardIcon className="h-5 w-5" />}
-              title="Sample intake"
-              body="The guided transition-planning interview the family completed — strengths, interests, concerns, and student voice."
+              title="Sample Intake"
+              body="The guided transition-planning interview a family completed — strengths, interests, concerns, and student voice for the selected journey."
               to="/demo/intake"
             />
             <DemoStep
               step="2"
               icon={<FileText className="h-5 w-5" />}
               title="Pathway Report"
-              body="The full report families and educators receive — pathways, IEP translation, PPT prep, and a 30/60/90/365 day plan to keep goals moving forward."
+              body="One evidence-informed report per selected student. Switch journeys to see how it changes by age, goals, and next steps."
               to="/demo/report"
             />
             <DemoStep
               step="3"
               icon={<HubIcon className="h-5 w-5" />}
               title="Student Hub"
-              body="The ongoing workspace where Jordan's family, case manager, and team track goals and documents over time to offer support and guidance."
+              body="The ongoing workspace where the family, case manager, and team track goals and documents over time."
               to="/demo/student"
             />
           </div>
@@ -494,7 +490,7 @@ function PlatformPage() {
               to="/demo"
               className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
             >
-              Open the full demo <ArrowRight className="ml-1 h-4 w-4" />
+              Open The Full Demo <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
         </div>
