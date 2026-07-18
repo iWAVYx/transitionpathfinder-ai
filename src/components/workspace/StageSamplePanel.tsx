@@ -72,9 +72,11 @@ export function StageSamplePanel({
   defaultExpanded = false,
   expanded: controlledExpanded,
   onExpandChange,
+  profile,
 }: StageSamplePanelProps) {
-  const sample = getStageSample(stage.id);
-  const detail = expandInPlace ? getStageDetail(stage.id) : null;
+  const sample = getStageSample(stage.id, profile);
+  const detail = expandInPlace ? getStageDetail(stage.id, profile) : null;
+
   const isControlled =
     controlledExpanded !== undefined && onExpandChange !== undefined;
   const [uncontrolledExpanded, setUncontrolledExpanded] = useState(defaultExpanded);
