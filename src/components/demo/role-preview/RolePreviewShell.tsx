@@ -169,10 +169,10 @@ export function RolePreviewShell({
                 {toTitleCase(role.tagline)}
               </p>
               <h1 className="mt-1 font-display text-3xl leading-tight tracking-tight sm:text-4xl">
-                {toTitleCase(role.headline)}
+                {toTitleCase(headline)}
               </h1>
               <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                {role.intro}
+                {intro}
               </p>
             </div>
 
@@ -180,15 +180,15 @@ export function RolePreviewShell({
               <aside className="border-l border-border/70 pl-4 text-sm">
                 <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   <Sparkles className="h-3 w-3 text-primary" />
-                  Shared demo student
+                  Selected demo student
                 </div>
-                <p className="mt-2 font-display text-base">{SHARED_DEMO_STUDENT.name}</p>
+                <p className="mt-2 font-display text-base">{sharedStudent.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {SHARED_DEMO_STUDENT.pronouns} · Grade {SHARED_DEMO_STUDENT.grade}
+                  {sharedStudent.pronouns} · Grade {sharedStudent.grade}
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{SHARED_DEMO_STUDENT.school}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{sharedStudent.school}</p>
                 <blockquote className="mt-3 border-l-2 border-primary pl-2.5 text-xs italic text-foreground/80">
-                  &ldquo;{SHARED_DEMO_STUDENT.quote}&rdquo;
+                  &ldquo;{sharedStudent.quote}&rdquo;
                 </blockquote>
               </aside>
             )}
@@ -199,7 +199,7 @@ export function RolePreviewShell({
       {/* Summary Zone */}
       <PageSection spacing="tight">
         <CommandMetricStrip
-          items={role.dashboardTiles.map((tile) => ({
+          items={tiles.map((tile) => ({
             label: tile.label,
             value: tile.value,
             hint: tile.hint,
@@ -207,6 +207,7 @@ export function RolePreviewShell({
           }))}
         />
       </PageSection>
+
 
       {/* WORKSPACE ZONE — anchored, tinted band that groups the approved
           workspace dashboard directly beneath the hero. Visually claimed
