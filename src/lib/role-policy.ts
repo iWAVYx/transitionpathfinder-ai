@@ -73,6 +73,7 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/ppt-prep": ["family", "educator", "admin"],
   "/meetings": ["family", "educator", "admin"],
   "/calendar": ["family", "educator", "student", "admin"],
+  "/partner-network": ["student", "family", "educator", "school_admin", "district_admin", "partner", "admin"],
 
   "/meeting-templates": ["educator", "admin"],
   "/insights": ["educator", "school_admin", "district_admin", "admin"],

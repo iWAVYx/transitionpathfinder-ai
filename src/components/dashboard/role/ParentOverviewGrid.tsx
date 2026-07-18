@@ -17,6 +17,7 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
+import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import {
   ParentFeatureDrawer,
   type ParentFeatureState,
@@ -185,6 +186,7 @@ export function ParentOverviewGrid({ isSample = false }: { isSample?: boolean } 
             }}
           />
         ))}
+        <PartnerNetworkTile role="family" />
       </ToolPreviewGrid>
 
       <ParentFeatureDrawer

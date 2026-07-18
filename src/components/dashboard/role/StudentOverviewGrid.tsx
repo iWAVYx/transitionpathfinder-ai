@@ -16,6 +16,7 @@ import {
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
+import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { StudentFeatureDrawer } from "@/components/dashboard/student/StudentFeatureDrawer";
 import {
   STUDENT_FEATURE_DETAILS,
@@ -143,6 +144,7 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
             onPreview={() => setOpenFeature(tile.featureId)}
           />
         ))}
+        <PartnerNetworkTile role="student" />
       </ToolPreviewGrid>
 
 

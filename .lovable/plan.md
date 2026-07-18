@@ -1,104 +1,96 @@
-
-## Goal
-
-Right now the School / District / Partner-plan selectors only swap the four top-tier overview tiles and the page headline. The dashboard grids (`SchoolAdminOverviewGrid`, `DistrictAdminOverviewGrid`, `PartnerOverviewGrid`), the feature-drawer detail tables (`school-admin/feature-details.ts`, etc.), and the `PremiumPartnerToolkitTile` still hold hardcoded values. This plan makes every one of those values come from a single per-context data bundle.
+# Partner Network — Signed-In, Role-Aware Product Feature
 
 ## Scope
 
-**In scope**
-- New centralized bundles: `schoolDemoProfiles`, `districtDemoProfiles`, `partnerDemoPlans`.
-- Rewire the three overview grids and all feature-drawer detail rows to read from the active bundle.
-- Rewire `PremiumPartnerToolkitTile` state from the Partner plan bundle.
-- Per-context session state (already have `useProfileSession` — extend key space to include `school:*`, `district:*`, `plan:*`).
-- Derived-metric helpers so completion %, totals, and roster counts agree with underlying rows.
-- Fingerprint tests: sequential switch (A → B → A) asserts no residual values.
+Consolidate all Opportunity/Directory/Matches/Referrals surfaces into ONE "Partner Network" tile per applicable role dashboard (Student, Family, Educator/Case Manager, School Admin, District Admin, Partner). Owner gets no tile — moderation lives in the existing Admin Hub. Each tile opens a role-aware protected page that respects the active demo context (student profile / school / district / partner plan).
 
-**Out of scope**
-- No structural / layout changes to any dashboard.
-- No new tiles other than the already-authorized Premium Partner Toolkit tile.
-- No changes to Student, Family, Educator profile logic.
-- No dedicated per-context feature pages beyond what already exists (the drawer detail rows already cover the "feature preview" surface).
+## Tile Consolidation Audit (per role)
 
-## Data bundle shape
+Before adding, remove/merge these existing tiles into the single Partner Network tile:
 
-```text
-schoolDemoProfiles[id] = {
-  identity:   { name, type, gradeBands, enrollment, iepCaseload }
-  staff:      { caseManagers[], educators[], unassignedCaseload }
-  reports:    { complete[], inProgress[], missing[] }         // rows -> totals
-  planning:   { byStage: {…}, readyForPPT, behind }
-  readiness:  { onTrack, needsSupport, byDomain: {…} }
-  resources:  { opens, uniqueResources, recommendedUnopened }
-  calendar:   events[]
-  supportNeeds: items[]
-  implementation: { staffActive, studentsConnected, milestones[] }
-  activity:   items[]
-  nextActions: items[]
-}
+- **Student**: `opportunities`, `matches`, `partner-directory` → **Partner Network**
+- **Family**: `opportunities`, `matches`, `directory` → **Partner Network**
+- **Educator**: `opportunity-recommendations`, `referrals`, `partner-directory` → **Partner Network**
+- **School Admin**: `partner-relationships`, `community-partners`, `opportunity-engagement` → **Partner Network**
+- **District Admin**: `regional-providers`, `district-partnerships`, `opportunity-coverage` → **Partner Network**
+- **Partner**: keep `Partner Profile`, `Active Opportunities`, `Submitted Programs`, `Application Windows`, `Opportunity Management`, `Partner Resources`, `PartnerForward Incentives`, and the existing `Premium Partner Toolkit` tile. Add ONE new **Partner Network** tile (external-facing view of listings/matches/connections). Do NOT duplicate management surfaces.
+- **Owner**: NO tile. Moderation, verification, source quality, stale listings, disputes, access controls live under existing Admin Hub sub-nav.
 
-districtDemoProfiles[id] = {
-  identity, schoolsRoster[], coordinators[], enrollmentByBand,
-  iepPopulation, completionByReport, serviceGaps[],
-  partnerCoverage[], opportunityAvailability[], trendsSeries[],
-  alerts[], activity[], nextActions[]
-}
+Exact final list will be produced by reading each `*OverviewGrid.tsx` first — plan reflects intent; consolidation stays true to what actually exists.
 
-partnerDemoPlans[id] = {
-  identity (shared org — never changes),
-  entitlements[], postings[], visibility, engagement,
-  analytics: { basic | advanced }, matchInsights[],
-  teamAccess[], referral, toolkitTileState
-}
+## Architecture
+
+### Route
+`src/routes/_authenticated/partner-network.tsx` — single protected route that renders role-aware content via `useAuth()` role + `useDemoRoleContext()`. Deep-link params: `?role=<role>&tab=<matches|saved|referrals|coverage|listings>`.
+
+### Signed-out guard
+Existing `_authenticated/route.tsx` already handles the sign-in-required redirect with intended-destination preservation. No new route logic needed.
+
+### Role-aware content components (one per role)
+```
+src/components/partner-network/
+  PartnerNetworkPage.tsx           # role dispatcher
+  StudentPartnerNetwork.tsx        # matches, saved, next steps
+  FamilyPartnerNetwork.tsx         # per-authorized-child matches
+  EducatorPartnerNetwork.tsx       # per-caseload student recs + referrals
+  SchoolAdminPartnerNetwork.tsx    # relationships, coverage, gaps
+  DistrictAdminPartnerNetwork.tsx  # regional providers, aggregate
+  PartnerPartnerNetwork.tsx        # listings, engagement, connections (Free/Premium)
+  shared/
+    ExplainableMatchCard.tsx       # Why / Consider / Eligibility / Next Step / Source / Verified
+    OpportunityCard.tsx
+    ContextBanner.tsx              # reads active demo context
 ```
 
-All numeric tiles derive from these arrays (e.g. `completionPct = complete.length / (complete+inProgress+missing).length`).
+### Explainable matching engine
+`src/lib/partner-network/matching.ts` — pure function `matchOpportunities(profile, opportunities)`:
+- Hard-filter: grade/age eligibility, location, cost cap, accessibility requirements.
+- Rank by: interest/cluster overlap, stage fit, schedule, transportation, delivery mode.
+- Never use disability as negative factor.
+- Return `{ tier: 'strong'|'good'|'worth-exploring', reasons, considerations, eligibilityToConfirm, nextStep, source, verifiedAt }`.
 
-## Files to add / change
+### Demo data
+`src/lib/demo/partner-network/`
+- `organizations.ts` — fictional orgs keyed by district/school where relevant.
+- `opportunities.ts` — keyed by grade band + cluster.
+- `matches.ts` — derived per active student profile via engine.
+- `partner-listings.ts` — Free vs Premium bundles for the partner org.
+- `school-relationships.ts`, `district-coverage.ts` — per-context bundles.
 
-**Add**
-- `src/lib/demo/school-admin/sample-bundles.ts`
-- `src/lib/demo/district-admin/sample-bundles.ts`
-- `src/lib/demo/partner/sample-bundles.ts`
-- `src/lib/demo/derive.ts` (small helpers)
-- `tests/unit/context-sample-fingerprint.test.ts`
+Everything reads through `useProfileSession`/`useDemoSchool`/`useDemoDistrict`/`useDemoPartnerPlan` — same stores that drive the rest of the demo (bug fix from previous slice is preserved).
 
-**Change**
-- `src/lib/demo/role-contexts.ts` — re-export bundle-derived tiles instead of hardcoded numbers.
-- `src/lib/demo/school-admin/feature-details.ts` — replace inline rows with `getSchoolAdminFeatureDetails(schoolId)`.
-- `src/lib/demo/district-admin/feature-details.ts` — same treatment.
-- `src/lib/demo/partner/feature-details.ts` — same treatment, keyed by plan.
-- `src/components/dashboard/role/SchoolAdminOverviewGrid.tsx` — read active school via `useDemoSchool`; derive `TILES` from bundle.
-- `src/components/dashboard/role/DistrictAdminOverviewGrid.tsx` — same, via `useDemoDistrict`.
-- `src/components/dashboard/role/PartnerOverviewGrid.tsx` — same, via `useDemoPartnerPlan`.
-- `src/components/demo/PremiumPartnerToolkitTile.tsx` — already plan-aware; wire remaining copy to bundle.
-- `src/components/dashboard/school-admin/SchoolAdminFeatureDrawer.tsx` (+ district / partner drawers) — accept bundle-derived detail via props/hook.
-- `src/lib/demo/use-profile-session.ts` — namespace keys by context id (`school:<id>:…`, `district:<id>:…`, `plan:<id>:…`) so completed actions don't bleed across contexts.
+### Dashboard tile
+New shared `PartnerNetworkTile` component slotted into each `*OverviewGrid.tsx` Workspace section. Uses same tile primitive (`ToolPreviewCard` / existing card shape) so visuals, spacing, hover, responsive layout are unchanged.
 
-## Switching behavior
+### RLS & live data
+No live tables are read by the demo. This slice adds no real Partner Network mutations. If/when live tables come online, existing `partner_opportunities` policies (org-scoped) and `student_relationships` gates cover the reads; server-side authorization goes through `requireSupabaseAuth` server fns.
 
-- The three `useDemo{School,District,PartnerPlan}` hooks already persist selection. Selection change re-renders grids via bundle read; route + tab preserved because we only swap data, not URLs.
-- Per-context session keys ensure completed tasks / filters don't leak.
-- Empty datasets render existing "empty state" treatment (already exists in the drawer's `empty` variant).
+## PartnerForward vs Partner Network
+
+Keep separate. PartnerForward tile stays (incentives/funding). Partner Network is the new management/discovery tile. Copy on both tiles clarifies the distinction.
 
 ## Testing
 
-`tests/unit/context-sample-fingerprint.test.ts`:
-- Snapshot every tile value, drawer detail row set, and toolkit tile state for each of the 6 contexts.
-- Assert `comprehensive ≠ specialized`, `regional-network ≠ local-district`, `free ≠ premium` across every field.
-- Sequential switch A→B→A returns identical snapshot to first A (no drift).
-- `local-district.schoolsRoster.length ≤ 10`.
-- Derived totals: `reports.complete.length + inProgress.length + missing.length === totalReports` for every school and district.
-- Premium bundle never contains PII fields (`iep`, `diagnosis`, `familyContact`, `unconsentedName`).
+- `tests/unit/partner-network-tile-consolidation.test.ts` — exactly one Partner Network tile per role dashboard; no duplicate directory/matches/opportunities tiles remain; owner has none.
+- `tests/unit/partner-network-context-switch.test.ts` — swapping student/school/district/partner-plan changes tile summary AND page content fingerprint.
+- `tests/unit/partner-network-matching.test.ts` — hard filters exclude ineligible; disability never lowers rank; explanations include all required fields.
+- `tests/e2e/partner-network.signedin.spec.ts` — role tile → correct page; deep link + refresh + back preserve context; partner never sees IEP/diagnosis fields; tab-aware URL sync.
+- `tests/e2e/partner-network-signed-out.spec.ts` — protected route redirects to login with intended destination; returns after auth; public Partners marketing page still reachable.
 
-Existing suites (`demo-role-contexts`, `demo-profile-sample-fingerprint`, `dashboard-static`, `demo-profile-switch`) must remain green.
+## Non-goals
 
-## Non-goals / guardrails
+- No new public hub.
+- No new owner dashboard.
+- No PartnerForward changes beyond copy disambiguation if needed.
+- No visual redesign of dashboards.
+- No live-data mutations from the demo.
 
-- No changes to Student / Family / Educator code paths.
-- No dashboard layout or card-count changes; Partner keeps exactly one Premium Partner Toolkit tile.
-- No borrowing across contexts as a fallback — missing → empty state.
-- No new routes.
+## Deliverables
 
-## Estimated size
-
-~11 files changed, 4 new files, ~1,200–1,600 net LOC (mostly sample data). No schema, no server changes.
+1. Tile audit + consolidation across 6 role dashboards.
+2. Single protected route + 7 role components + shared match/opportunity primitives.
+3. Explainable matching engine + per-role demo bundles wired to existing context stores.
+4. Free/Premium partner variance in tile + page.
+5. Owner Admin Hub sub-nav entries for moderation/verification/stale/disputes/access (no dashboard).
+6. Unit + e2e tests above, plus regression run.
+7. Completion report with the 8 requested sections.
