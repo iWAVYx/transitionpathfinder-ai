@@ -24,7 +24,7 @@ export function LegacyDemoStagePage({
 }: {
   stageId: StageId;
   legacyPath: string;
-  afterStage?: React.ReactNode;
+  afterStage?: ReactNode;
 }) {
   const stage = getStage(stageId);
   const [expanded, setExpanded] = useState(true);
