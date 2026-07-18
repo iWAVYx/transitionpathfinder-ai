@@ -477,6 +477,9 @@ function PartnersPage() {
         </div>
       </section>
 
+      {/* COHORT FIT — real matcher across Jordan, Riley, Sam */}
+      <PartnerCohortFit />
+
       {/* PartnerForward — incentive & support layer (not a second directory) */}
       <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-10 lg:p-12">
