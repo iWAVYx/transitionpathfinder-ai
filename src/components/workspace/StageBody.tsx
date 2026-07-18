@@ -28,6 +28,7 @@ export function StageBody({
   defaultExpanded = false,
   expanded,
   onExpandChange,
+  profile,
   children,
 }: {
   stage: WorkspaceStage;
@@ -40,6 +41,8 @@ export function StageBody({
   /** Controlled expansion (opt-in). When provided together with onExpandChange, the sample panel becomes controlled. */
   expanded?: boolean;
   onExpandChange?: (next: boolean) => void;
+  /** Active demo profile; drives sample token substitution. */
+  profile?: import("@/lib/demo/demo-profiles").DemoProfile;
   children?: ReactNode;
 }) {
   const showWorkSurface = !expandInPlace && !!workSurfaceHref;
@@ -59,7 +62,9 @@ export function StageBody({
         defaultExpanded={defaultExpanded}
         expanded={expanded}
         onExpandChange={onExpandChange}
+        profile={profile}
       />
+
 
 
       <StageRoleValueStrip stageId={stage.id} />
