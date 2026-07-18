@@ -1,69 +1,63 @@
 
-## Audit result (what is already in place vs. what still needs work)
+## Why a plan first
 
-The previous turn already built the foundation and removed the "2.5" section, the extra dashboard cards, `RosterMatchBoard`, `DemoCohortStrip`, `PlatformMatchesPreview`, `PartnerCohortFit`, and redirected `/demo/network` → `/demo/opportunities`. It also mounted a compact `StudentSwitcher` inside the existing `RoleNavChips` header (not a new card/section/tile — same header row as the role chips).
+This correction requires touching sample data used by ~15 demo surfaces (workspace stages, intake, voice, documents, plan, meeting, calendar, opportunities, next actions, Pathway Report, activity). Today the workspace, calendar, opportunities, and stage samples are hard-coded to Jordan and do NOT consume the selected profile at all — switching the header changes the tiles but leaves the underlying sample data unchanged. Doing this correctly is ~10 files of nontrivial edits, so I want to confirm scope before touching all of it.
 
-What is NOT yet wired to `useDemoStudent()` and must be:
+## Scope this delivers
 
-- `src/lib/demo/role-previews.ts` – `dashboardTiles`, `toolPreviews`, `tools`, `actions`, `outputs`, `dashboardTitle`, `headline`, and `intro` are static Jordan strings.
-- `RolePreviewShell` header aside – renders `SHARED_DEMO_STUDENT` instead of the selected profile.
-- `src/components/dashboard/StudentPathwaySections.tsx` and other components consumed inside per-role overview grids (`StudentOverviewGrid`, `FamilyOverviewGrid`, `EducatorOverviewGrid`, `SchoolAdminOverviewGrid`, `DistrictAdminOverviewGrid`, `PartnerOverviewGrid`).
-- `src/routes/demo_.workspace.$stage.tsx` and each legacy `/demo/<stage>` route (intake, voice, plan, next, resources, meeting, calendar, documents, hub, opportunities already partially wired) – must pull profile-specific content.
-- `PathwayReport` in `src/components/demo/PathwayReport.tsx` already reads the profile via the engine — verify `/demo/report`, `/demo/workspace/roadmap`, Student/Family/Educator report lenses all pass through the same report id/version for the same profile.
+### 1. Centralized per-profile bundle
+Extend `src/lib/demo/demo-profiles.ts` with a new `sample` field on every `DemoProfile`:
 
-Nothing here changes dashboard layout, card counts, workspace grid, or the report design.
+```
+sample: {
+  intake,          // completion state + category answers
+  familyInput,     // priorities, concerns, logistics
+  educatorInput,   // observations, planning gaps
+  documents,       // fictional filenames + extraction chips (age-appropriate)
+  assessments,     // scores + observations
+  opportunities,   // 3–5 opportunities with age/grade-appropriate eligibility
+  matches,         // explainable match reasons keyed to that profile's interests
+  calendar,        // profile-specific events (school visits for Sam, PPT for Riley, agency intake for Jordan)
+  nextActions,     // 30/60/90 tasks derived from that profile's goals
+  activity,        // recent-activity feed
+  report: { id, version, executiveSummary, snapshotSentence },
+  workspaceProgress // per-stage completion %
+}
+```
 
-## Phased plan
+Jordan keeps his existing narrative; Sam and Riley get age-appropriate content (no adult employment for Sam, no rights-transfer for Riley, no HS-choice for Jordan).
 
-### Phase 1 — Centralized profile is the single source of truth
-- Keep `useDemoStudent()` as the only reader/writer.
-- Convert `SHARED_DEMO_STUDENT` in `RolePreviewShell`'s header aside to derive from the selected profile (name, pronouns, grade, school placeholder, one voice quote). No layout change.
-- Add a tiny helper `getRoleTilesForProfile(role, profile)` in `role-previews.ts` that returns the same 4 tiles the role always shows, but with values computed from the selected profile (pathway stage, voice progress, evidence count, next milestone). Same tile count, same labels, values swap.
-- Same helper pattern for `dashboardTitle`, `headline`, `intro`, and `toolPreviews` bullet values.
+### 2. Consuming surfaces
+Rewire these to read the selected profile's `sample.*`:
 
-### Phase 2 — Route/component wiring (no UI redesign)
-- `demo_.student.tsx`, `demo_.family.tsx`, `demo_.educator.tsx`, `demo_.school-admin.tsx`, `demo_.district-admin.tsx`, `demo_.partner.tsx`: pass `profile` from `useDemoStudent()` into `RolePreviewShell` and the existing OverviewGrid components via a new optional `profile` prop; grids render existing cards with profile-derived text.
-- Legacy demo stage routes (`demo_.intake`, `demo_.voice`, `demo_.plan`, `demo_.next`, `demo_.hub`, `demo_.workspace.$stage`, `demo_.calendar`, `demo_.documents`, `demo_.meeting`, `demo_.connection`, `demo_.report`): swap any static `DEMO_STUDENT` reads for the selected profile's equivalent fields. `demo-fixture.ts` stays as a fallback shape only.
-- Confirm URL `?student=` persists across role and stage links (already true via `useDemoStudent`), and that browser Back/Forward retain both `role` and `student` params.
+- `src/lib/workspace/stage-samples.ts` → export a `getStageSample(stageId, profile)` and update `StageBody` consumers to pass the profile. Replaces hard-coded "Jordan Rivera" / "Age 17" / "Something Jordan enjoys" strings.
+- `src/routes/demo_.workspace.$stage.tsx` → pass `profile` into `StageBody`.
+- `src/routes/demo_.opportunities.tsx` and `OpportunityMatches` → source from `profile.sample.opportunities` + `profile.sample.matches`.
+- `src/routes/demo_.calendar.tsx` → merge `profile.sample.calendar` on top of the generic template.
+- `src/routes/demo_.intake.tsx`, `demo_.voice.tsx`, `demo_.documents.tsx`, `demo_.plan.tsx`, `demo_.meeting.tsx`, `demo_.next.tsx`, `demo_.report.tsx` → each reads `useDemoStudent().profile.sample.*` and renders profile-specific content.
+- `src/components/pathway/PathwayReportDeepPreview.tsx` → accepts a profile prop; snapshot sentence, evidence chips, and recommendations come from that profile's bundle.
 
-### Phase 3 — Age-aware content differentiation
-- `pathway-engine.ts` already emits materially different pathway themes per `stage.emphasizedThemes` / `disallowedThemes`. Verify that:
-  - Sam (G7) never surfaces adult employment / agency referrals / rights transfer in the Pathway Report, Next Actions, or Opportunities.
-  - Riley (G9) surfaces early exploration + course direction rather than postsecondary applications.
-  - Jordan (G11) keeps the current advanced content.
-- `opportunity-matcher.ts` filters opportunities by profile — already scoped, add explicit assertion tests.
+### 3. Per-profile session state
+Add `src/lib/demo/use-profile-session.ts`: a `sessionStorage`-backed store keyed by `profileId` for demo-only edits (intake toggles, saved opportunities, action-item checks). Switching profiles preserves each profile's independent state and restores it on return. Existing `useDemoMeetingEdits` migrates onto this store.
 
-### Phase 4 — Permissions unchanged
-- Confirm Workspace-authorized roles (student, family, educator) still open the Workspace; School/District Admin and Partner keep their existing boundary card and do NOT get a Workspace link injected. Verified against `RolePreviewShell` and `boundary` config.
-- No new Owner dashboard; existing Admin Hub is untouched.
+### 4. Empty states, not fallbacks
+Where a profile intentionally has no data (e.g. Sam has no adult employment opportunities), render the profile-appropriate empty state ("No Postsecondary Application Started Yet") instead of Jordan's content.
 
-### Phase 5 — Website / demo hub copy
-- Update `src/routes/demo.tsx` hero copy and one paragraph in `src/routes/platform.tsx` to mention three student journeys and the switcher. No new sections, no new cards, no new profile gallery.
-- BridgeForward demo links open with `?student=sam`; TransitionForward demo links open with `?student=jordan` (default) or `?student=riley` where appropriate. Same routes, just deep links.
+### 5. Transition safety
+`useDemoStudent().setProfile()` gets a small unmount/remount key so the previous student's content does not flash under the new name during navigation.
 
-### Phase 6 — Tests
-Run and, where needed, extend:
-- `tests/unit/demo-nav.test.ts`
-- `tests/unit/demo-feature-map.test.ts`
-- `tests/unit/demo-feature-details-audit.test.ts`
-- `tests/unit/demo-report-fixtures.test.ts`
-- `tests/unit/dashboard-static.test.ts`
-- `tests/unit/dashboard-tile-destinations.test.ts`
-- `tests/unit/pathway-engine.test.ts`
-- `tests/unit/opportunity-matcher.test.ts`
-- Add a new `tests/unit/demo-profile-switch.test.ts` that asserts, for each `(role, profile)` combination, the shell renders the correct profile name and grade, the correct pathway stage themes, and no disallowed themes.
-- Confirm role-guard, permission-regression, and dashboard-regression suites still pass unchanged.
+### 6. Tests
+`tests/unit/demo-profile-sample-fingerprints.test.ts` — asserts that each profile bundle contains a unique fingerprint token (e.g. Sam includes "arts magnet tour", Riley includes "robotics club", Jordan includes "veterinary clinic") and that no bundle contains another profile's fingerprint.
 
-### Deliverables report format
-On completion, respond with:
-- A requirement → status → file → test table covering every acceptance bullet in the prompt.
-- The redundant UI removed (already done in the previous turn).
-- The centralized state module (`useDemoStudent` + `demo-profiles.ts`).
-- The three profile ids (`jordan`, `riley`, `sam`) and their focus labels.
-- Which existing cards were enhanced (Pathway, Opportunities, Next Actions, Header aside, Dashboard tiles) — no new cards added.
-- Explicit confirmation that dashboard card count and grid layout are unchanged.
-- Pass/fail for every test suite listed above.
+## Technical notes
 
-## Notes on scope
+- No schema, RLS, or authenticated product changes. Signed-in product continues to enforce real permissions.
+- No new dashboard cards, no numbered sections, no new nav.
+- Layout counts (`tilesForProfile` invariants) stay green.
+- Existing tests (`tests/unit/demo-profile-switch.test.ts`, `tests/unit/pathway-engine.test.ts`, `tests/unit/demo-feature-map.test.ts`, `tests/rls-pii-access.test.mjs`) stay green.
 
-This is a wiring + fixture pass across ~20 files. It does not redesign any surface. If you want, I can execute Phases 1-3 now (core wiring + content differentiation) and then Phases 4-6 in a follow-up turn, or attempt all six in one turn accepting a higher risk of a test needing a follow-up patch. Confirm which you'd prefer and I'll proceed.
+## What I'd like to confirm before I start
+
+1. **Depth per surface**: is the plan above the right cut, or do you want richer content per profile (e.g. 8–10 documents per student instead of 3)?
+2. **Legacy `demo-extras.ts` (`maya`/`jordan` keys)**: keep as-is for signed-in `_authenticated/demo-mode`, or fold into the new profile bundle?
+3. **`PathwayReportDeepPreview`**: swap all sections per profile, or keep the fixed structure and only swap snapshot + evidence + recommendations?
