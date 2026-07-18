@@ -19,7 +19,6 @@ export const Route = createFileRoute("/demo_/family")({
     <RolePreviewShell
       role={role}
       workspace={<ParentOverviewGrid isSample />}
-      afterWorkspace={<OpportunityMatches compact limit={3} />}
     />
   ),
 });
