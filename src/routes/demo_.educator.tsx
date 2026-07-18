@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { RolePreviewShell } from "@/components/demo/role-preview/RolePreviewShell";
 import { getDemoRole } from "@/lib/demo/role-previews";
 import { EducatorOverviewGrid } from "@/components/dashboard/role/EducatorOverviewGrid";
+import { RosterMatchBoard } from "@/components/demo/RosterMatchBoard";
 
 const role = getDemoRole("educator");
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/demo_/educator")({
     <RolePreviewShell
       role={role}
       workspace={<EducatorOverviewGrid isSample />}
+      afterWorkspace={<RosterMatchBoard framing="educator" />}
     />
   ),
 });
