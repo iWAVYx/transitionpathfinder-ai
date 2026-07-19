@@ -264,6 +264,23 @@ export const applyAcceptedExtraction = createServerFn({ method: "POST" })
       .eq("id", row.id);
     if (finErr) throw new Error("Could not finalize the review.");
 
+    // Slice B4: emit one evidence_item for this confirmed extraction (flagged).
+    // Idempotent: partial unique index on (student_id, source_kind, source_id).
+    await emitEvidenceForConfirmedExtraction({
+      supabase,
+      userId,
+      extractionId: row.id,
+      studentId: row.student_id,
+      documentId: null,
+      verificationState: "human_confirmed",
+      payload: {
+        applied_student_fields: Object.keys(studentPatch),
+        applied_transition_fields: Object.keys(tp),
+      },
+    });
+
+
+
     await supabase.from("audit_log").insert({
       actor_id: userId,
       action: "document.extraction.applied",
