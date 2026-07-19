@@ -76,3 +76,17 @@ Next: **Slice B2** — idempotent backfill from `report_evidence_links` + `docum
 - **Rollback**: `DELETE FROM evidence_items WHERE kind IN ('document_extraction','report_reference') AND source_id IS NOT NULL;` then `DROP INDEX evidence_items_source_unique;`. No source tables were touched.
 
 Next: **Slice B3** — build the read-side views (`student_evidence_v1`, `recommendation_provenance_v1`) with RLS-friendly definitions and cover them with an evidence-graph unit test that seeds a student, inserts an evidence item + edge, and asserts the view returns them under a signed-in student-team member and hides them from an unrelated user.
+
+### Slice B3 — Evidence Graph Read Views
+- **New views** (both `WITH (security_invoker = on)`, so RLS on `evidence_items` / `evidence_edges` applies to the caller):
+  - `public.student_evidence_v1` — one row per evidence item with a lateral rollup of attached edge count + distinct relations.
+  - `public.recommendation_provenance_v1` — one row per evidence edge whose `to_type = 'pathway_recommendation'`, joined back to the source evidence item's student, kind, confidence, verification, and payload.
+- **GRANTs**: `SELECT` to `authenticated`; no `anon` grant.
+- **Test coverage** — `tests/evidence-graph-views.test.mjs`:
+  - Owner (parent) who seeds a student + evidence item + edge sees the row in both views with `edge_count = 1` and `relation = 'supports'`.
+  - Unrelated signed-in parent (fresh sign-up) sees zero rows filtered by the same `evidence_id`.
+  - Anon (no session) sees zero rows in both views.
+- **Linter delta**: 0 new warnings (views inherit invoker-side RLS; no new SECURITY DEFINER surface).
+- **Rollback**: `DROP VIEW public.recommendation_provenance_v1; DROP VIEW public.student_evidence_v1;` — safe, no downstream readers wired yet.
+
+Next: **Slice B4** — introduce the first evidence writer (document-extraction ingestion path) behind a feature flag, emitting one `evidence_item` per confirmed extraction and one `evidence_edge` per report reference, with a writer-idempotency test.
