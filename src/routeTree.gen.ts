@@ -161,6 +161,7 @@ import { Route as AuthenticatedOwnerHealthRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOwnerFeedbackRouteImport } from './routes/_authenticated/owner.feedback'
 import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authenticated/owner.faqs'
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
+import { Route as AuthenticatedOwnerDocumentPipelineRouteImport } from './routes/_authenticated/owner.document-pipeline'
 import { Route as AuthenticatedOwnerDemoRouteImport } from './routes/_authenticated/owner.demo'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
@@ -1031,6 +1032,12 @@ const AuthenticatedOwnerEmailsRoute =
     path: '/emails',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerDocumentPipelineRoute =
+  AuthenticatedOwnerDocumentPipelineRouteImport.update({
+    id: '/document-pipeline',
+    path: '/document-pipeline',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerDemoRoute = AuthenticatedOwnerDemoRouteImport.update({
   id: '/demo',
   path: '/demo',
@@ -1474,6 +1481,7 @@ export interface FileRoutesByFullPath {
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/demo': typeof AuthenticatedOwnerDemoRoute
+  '/owner/document-pipeline': typeof AuthenticatedOwnerDocumentPipelineRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/feedback': typeof AuthenticatedOwnerFeedbackRoute
@@ -1677,6 +1685,7 @@ export interface FileRoutesByTo {
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
   '/owner/demo': typeof AuthenticatedOwnerDemoRoute
+  '/owner/document-pipeline': typeof AuthenticatedOwnerDocumentPipelineRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/owner/feedback': typeof AuthenticatedOwnerFeedbackRoute
@@ -1884,6 +1893,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
   '/_authenticated/owner/demo': typeof AuthenticatedOwnerDemoRoute
+  '/_authenticated/owner/document-pipeline': typeof AuthenticatedOwnerDocumentPipelineRoute
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
   '/_authenticated/owner/faqs': typeof AuthenticatedOwnerFaqsRoute
   '/_authenticated/owner/feedback': typeof AuthenticatedOwnerFeedbackRoute
@@ -2091,6 +2101,7 @@ export interface FileRouteTypes {
     | '/owner/contacts'
     | '/owner/content'
     | '/owner/demo'
+    | '/owner/document-pipeline'
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/feedback'
@@ -2294,6 +2305,7 @@ export interface FileRouteTypes {
     | '/owner/contacts'
     | '/owner/content'
     | '/owner/demo'
+    | '/owner/document-pipeline'
     | '/owner/emails'
     | '/owner/faqs'
     | '/owner/feedback'
@@ -2500,6 +2512,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
     | '/_authenticated/owner/demo'
+    | '/_authenticated/owner/document-pipeline'
     | '/_authenticated/owner/emails'
     | '/_authenticated/owner/faqs'
     | '/_authenticated/owner/feedback'
@@ -3705,6 +3718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerEmailsRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/document-pipeline': {
+      id: '/_authenticated/owner/document-pipeline'
+      path: '/document-pipeline'
+      fullPath: '/owner/document-pipeline'
+      preLoaderRoute: typeof AuthenticatedOwnerDocumentPipelineRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/demo': {
       id: '/_authenticated/owner/demo'
       path: '/demo'
@@ -4122,6 +4142,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
   AuthenticatedOwnerDemoRoute: typeof AuthenticatedOwnerDemoRoute
+  AuthenticatedOwnerDocumentPipelineRoute: typeof AuthenticatedOwnerDocumentPipelineRoute
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
   AuthenticatedOwnerFaqsRoute: typeof AuthenticatedOwnerFaqsRoute
   AuthenticatedOwnerFeedbackRoute: typeof AuthenticatedOwnerFeedbackRoute
@@ -4166,6 +4187,8 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
   AuthenticatedOwnerDemoRoute: AuthenticatedOwnerDemoRoute,
+  AuthenticatedOwnerDocumentPipelineRoute:
+    AuthenticatedOwnerDocumentPipelineRoute,
   AuthenticatedOwnerEmailsRoute: AuthenticatedOwnerEmailsRoute,
   AuthenticatedOwnerFaqsRoute: AuthenticatedOwnerFaqsRoute,
   AuthenticatedOwnerFeedbackRoute: AuthenticatedOwnerFeedbackRoute,
