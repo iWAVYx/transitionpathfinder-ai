@@ -137,6 +137,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "action_items_pathway_report_id_fkey"
+            columns: ["pathway_report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
+          },
+          {
             foreignKeyName: "action_items_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -1228,6 +1235,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pathway_reports"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_related_pathway_report_id_fkey"
+            columns: ["related_pathway_report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
           },
           {
             foreignKeyName: "calendar_events_student_id_fkey"
@@ -2429,6 +2443,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pathway_reports"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_statuses_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
           },
         ]
       }
@@ -4547,6 +4568,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pathway_recommendations_pathway_report_id_fkey"
+            columns: ["pathway_report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
+          },
+          {
             foreignKeyName: "pathway_recommendations_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -4590,6 +4618,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pathway_reports"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pathway_report_versions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
           },
         ]
       }
@@ -4841,6 +4876,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pathway_reports"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppt_meeting_preps_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
           },
         ]
       }
@@ -5398,6 +5440,13 @@ export type Database = {
             referencedRelation: "pathway_reports"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "share_tokens_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
+          },
         ]
       }
       sharing_permissions: {
@@ -5726,6 +5775,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "student_opportunity_matches_pathway_report_id_fkey"
+            columns: ["pathway_report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
+          },
+          {
             foreignKeyName: "student_opportunity_matches_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -5870,6 +5926,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pathway_reports"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_resource_recommendations_pathway_report_id_fkey"
+            columns: ["pathway_report_id"]
+            isOneToOne: false
+            referencedRelation: "report_provenance_coverage_v1"
+            referencedColumns: ["report_id"]
           },
           {
             foreignKeyName: "student_resource_recommendations_resource_id_fkey"
@@ -6777,6 +6840,23 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "evidence_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_provenance_coverage_v1: {
+        Row: {
+          evidence_edge_count: number | null
+          has_coverage: boolean | null
+          report_id: string | null
+          student_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pathway_reports_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
