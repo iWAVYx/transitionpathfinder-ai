@@ -175,3 +175,15 @@ Next: **Slice C3** — writer path that computes real SHA-256 on upload and shor
 - **Rollback**: remove the `content_hash` field from the zod schema, the pre-insert lookup block, and the `content_hash` field on the insert payload. No data migration needed.
 
 Next: **Slice C4** — pipeline-run breadcrumb writes (`document_pipeline_runs` rows for `hash`/`extract`/`verify` stages) so we can observe retries + latency without changing the user-visible upload flow.
+
+### Slice C4 — Pipeline-run breadcrumbs on upload
+- **Helper**: `src/lib/document-pipeline.server.ts` exposes `recordPipelineRun(input)` and `newCorrelationId()`. All inserts go through `supabaseAdmin` (dynamic import) because `document_pipeline_runs` RLS is admin-only. Every call is best-effort — errors are logged and swallowed so observability never blocks the primary flow. `.server.ts` naming keeps it out of client bundles.
+- **`registerDocument` wiring** (`src/lib/documents.functions.ts`): mints one correlation id per upload attempt and emits:
+  - `upload` → `skipped` on a C3 dedupe hit (payload records `reason: "dedupe_hit"`), returning the existing row.
+  - `upload` → `succeeded` after the `documents` insert lands, with `latency_ms` derived from wall-clock deltas and payload capturing `doc_type`, `visibility`, `actor_role`, `size_bytes`, `mime_type`.
+  - `hash` → `succeeded` when the caller supplied a SHA-256, else `skipped` with `reason: "no_hash_provided"`.
+  - `extract` → `pending` after enqueuing the `document_summary` `ai_jobs` row, or `failed` with `error_code: "ai_jobs_enqueue_failed"` when the enqueue errored.
+- **Non-goals**: no UI, no admin dashboard reads, no changes to the AI worker (it will start reporting `extract` / `verify` / `publish` transitions in a later slice). No new secrets, no new columns, no schema changes.
+- **Rollback**: delete `src/lib/document-pipeline.server.ts` and remove the `recordPipelineRun` call sites plus the correlation-id block from `registerDocument`. Existing rows can stay — they're diagnostic-only.
+
+Next: **Slice C5** — extend breadcrumb writes to the AI worker path so `extract`/`verify` transitions land with real `model_version`/`prompt_version`/latency, still under the same correlation id.
