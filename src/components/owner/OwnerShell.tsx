@@ -101,6 +101,7 @@ export const OWNER_NAV: NavItem[] = [
   { to: "/owner/emails", label: "Email delivery", icon: Mail, group: "System Health" },
   { to: "/owner/broadcasts", label: "Broadcasts", icon: Megaphone, group: "System Health" },
   { to: "/owner/iep-audit", label: "Document access audit", icon: Shield, group: "System Health" },
+  { to: "/owner/document-pipeline", label: "Document pipeline", icon: Activity, group: "System Health" },
 
   // Settings
   { to: "/owner/settings", label: "Site settings", icon: Settings, group: "Settings" },
