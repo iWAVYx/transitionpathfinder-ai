@@ -21,6 +21,7 @@ export type PipelineStage =
   | "upload"
   | "sniff"
   | "hash"
+  | "sanitize"
   | "extract"
   | "verify"
   | "publish";

@@ -218,4 +218,18 @@ Next: **Slice C7** — surface pipeline-run breadcrumbs to platform admins (read
 - **Non-goals**: no writes, no re-drive/replay controls, no deep link to the document detail page yet, no charting. This is a read-only ops surface for the breadcrumbs shipped in C4–C6.
 - **Rollback**: delete `src/routes/_authenticated/owner.document-pipeline.tsx`, delete `src/lib/owner/document-pipeline-runs.functions.ts`, and remove the nav entry from `OwnerShell.tsx`. No schema changes.
 
+### Slice C8 — Prompt-injection sanitizer + hardened extract prompt
+- **Migration** `slice_c8_pipeline_sanitize_stage` — widens the `document_pipeline_runs.stage` CHECK constraint to include a new `sanitize` value alongside the existing `upload | sniff | hash | extract | verify | publish` set. Additive; no data migration.
+- **Pure sanitizer** `src/lib/document-sanitize.ts` — exports `sanitizeUntrustedText`, `sanitizeInputSource`, `wrapUntrustedBlock`, `UNTRUSTED_OPEN` / `UNTRUSTED_CLOSE`, `UNTRUSTED_SYSTEM_SUFFIX`, and `REDACTION_TOKEN`. Walks JSON-shaped values, redacts 14 OWASP-LLM01 shapes (ignore/disregard/forget-previous, override/new instructions, role hijack, act-as, reveal-prompt, `system:` role markers, ChatML `<|im_start|>` tokens, ` ```system ` fences, `<script>` / `<iframe>` blocks, inline `on*=` handlers) with a visible `[REDACTED_INJECTION]` token, aggregates matched pattern ids, and caps each string leaf at 200 kB. Pure & isomorphic — no I/O.
+- **Edge-function wiring** `supabase/functions/ai-job-processor/index.ts` — inline copy of the sanitizer (Deno bundle can't reach `src/`) plus new `processJob` behavior for `document_summary` jobs:
+  - Runs `sanitizeInputSource(job.input_source)` before assembling the user prompt.
+  - Wraps the serialized payload in `<UNTRUSTED_DOCUMENT_TEXT>…</UNTRUSTED_DOCUMENT_TEXT>`.
+  - Appends `UNTRUSTED_SYSTEM_SUFFIX` to the system prompt so the model treats the fenced block as inert data and refuses to follow instructions inside it.
+  - Emits a `sanitize → succeeded` breadcrumb (prompt_version `sanitize-v1`, latency, and a payload of `{ strings_scanned, redactions, patterns, truncated_strings }`) before the existing `extract → running` row.
+  Non-document jobs are unchanged — they still send the legacy JSON prompt.
+- **Test** `tests/document-sanitize.test.mjs` — 9 unit tests covering benign passthrough, ignore-previous + reveal-prompt neutralization, ChatML/role-hijack stripping, `<script>` + `onload=` removal, nested-object walking with aggregate report, oversize truncation, fence wrapper, hardened suffix contents, and non-string leaf preservation. `node --test` passes 9/9.
+- **Non-goals**: no new client UI, no admin-view changes (breadcrumb already visible in `/owner/document-pipeline` from C7), no promotion-to-evidence gating (that lands in a later C slice), no schema changes beyond the CHECK widen. Existing pipeline flow is unchanged for non-`document_summary` job types.
+- **Rollback**: (1) revert `processJob` in `supabase/functions/ai-job-processor/index.ts` to restore `const systemPrompt = systemPromptFor(job.job_type);` + `const userPrompt = JSON.stringify(job.input_source ?? {}, null, 2);` and remove the inline `sanitizeInputSource` block; (2) delete `src/lib/document-sanitize.ts` and `tests/document-sanitize.test.mjs`; (3) run a follow-up migration to shrink the CHECK constraint back to the original six stages after any `sanitize` rows are archived.
+
+
 

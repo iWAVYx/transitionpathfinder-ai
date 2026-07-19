@@ -1,0 +1,2 @@
+ALTER TABLE public.document_pipeline_runs DROP CONSTRAINT IF EXISTS document_pipeline_runs_stage_check;
+ALTER TABLE public.document_pipeline_runs ADD CONSTRAINT document_pipeline_runs_stage_check CHECK (stage IN ('upload','sniff','hash','sanitize','extract','verify','publish'));
