@@ -11,7 +11,7 @@
  * (rather than importing supabase) keeps this module test-only and lets
  * the eventual server function decide which client to use.
  */
-import { RecProvenance, type RecProvenance as RecProvenanceT } from "./pathway-recommendation-v1";
+import { RecProvenance, type RecProvenance as RecProvenanceT } from "./pathway-recommendation-v1.ts";
 
 export type EngineChannel = "shadow" | "canary" | "production" | "retired";
 
