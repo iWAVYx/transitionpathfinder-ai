@@ -2086,6 +2086,111 @@ export type Database = {
         }
         Relationships: []
       }
+      evidence_edges: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_id: string
+          from_type: string
+          id: string
+          relation: string
+          to_id: string
+          to_type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_id: string
+          from_type: string
+          id?: string
+          relation: string
+          to_id: string
+          to_type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_id?: string
+          from_type?: string
+          id?: string
+          relation?: string
+          to_id?: string
+          to_type?: string
+        }
+        Relationships: []
+      }
+      evidence_items: {
+        Row: {
+          confidence: number | null
+          contributor_id: string | null
+          created_at: string
+          extraction_id: string | null
+          id: string
+          kind: string
+          occurred_at: string | null
+          payload: Json
+          permission_scope: string
+          source_id: string | null
+          source_kind: string
+          student_id: string
+          subject_id: string | null
+          subject_type: string | null
+          updated_at: string
+          verification_state: string
+        }
+        Insert: {
+          confidence?: number | null
+          contributor_id?: string | null
+          created_at?: string
+          extraction_id?: string | null
+          id?: string
+          kind: string
+          occurred_at?: string | null
+          payload?: Json
+          permission_scope?: string
+          source_id?: string | null
+          source_kind: string
+          student_id: string
+          subject_id?: string | null
+          subject_type?: string | null
+          updated_at?: string
+          verification_state?: string
+        }
+        Update: {
+          confidence?: number | null
+          contributor_id?: string | null
+          created_at?: string
+          extraction_id?: string | null
+          id?: string
+          kind?: string
+          occurred_at?: string | null
+          payload?: Json
+          permission_scope?: string
+          source_id?: string | null
+          source_kind?: string
+          student_id?: string
+          subject_id?: string | null
+          subject_type?: string | null
+          updated_at?: string
+          verification_state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_items_extraction_id_fkey"
+            columns: ["extraction_id"]
+            isOneToOne: false
+            referencedRelation: "document_extractions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faqs: {
         Row: {
           answer: string
