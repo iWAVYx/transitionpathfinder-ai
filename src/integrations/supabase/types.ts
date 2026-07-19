@@ -4529,6 +4529,60 @@ export type Database = {
           },
         ]
       }
+      pathway_knowledge_sources: {
+        Row: {
+          checksum: string | null
+          created_at: string
+          created_by: string | null
+          fetched_at: string | null
+          id: string
+          jurisdiction: string | null
+          kind: string
+          metadata: Json
+          publisher: string | null
+          retired_at: string | null
+          slug: string
+          source_url: string | null
+          title: string
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          checksum?: string | null
+          created_at?: string
+          created_by?: string | null
+          fetched_at?: string | null
+          id?: string
+          jurisdiction?: string | null
+          kind?: string
+          metadata?: Json
+          publisher?: string | null
+          retired_at?: string | null
+          slug: string
+          source_url?: string | null
+          title: string
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          checksum?: string | null
+          created_at?: string
+          created_by?: string | null
+          fetched_at?: string | null
+          id?: string
+          jurisdiction?: string | null
+          kind?: string
+          metadata?: Json
+          publisher?: string | null
+          retired_at?: string | null
+          slug?: string
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
       pathway_progress: {
         Row: {
           completed: boolean
@@ -4718,6 +4772,7 @@ export type Database = {
           career_matches: Json | null
           content: Json
           created_at: string
+          engine_channel: string | null
           executive_summary: string | null
           family_action_plan: Json | null
           human_review_status: string
@@ -4726,16 +4781,20 @@ export type Database = {
           inputs_stale_at: string | null
           intake_id: string
           is_demo: boolean
+          knowledge_snapshot: Json | null
           meeting_prep_summary: Json | null
           missing_information: Json | null
           model: string
+          model_version: string | null
           opportunity_matches: Json | null
           postsecondary_goal_summary: string | null
+          prompt_version: string | null
           readiness_scorecard_summary: Json | null
           recommended_pathways: Json | null
           report_status: string
           resource_recommendations: Json | null
           review_date: string | null
+          rules_version: string | null
           strengths_needs_analysis: Json | null
           student_id: string | null
           student_snapshot: Json | null
@@ -4748,6 +4807,7 @@ export type Database = {
           career_matches?: Json | null
           content: Json
           created_at?: string
+          engine_channel?: string | null
           executive_summary?: string | null
           family_action_plan?: Json | null
           human_review_status?: string
@@ -4756,16 +4816,20 @@ export type Database = {
           inputs_stale_at?: string | null
           intake_id: string
           is_demo?: boolean
+          knowledge_snapshot?: Json | null
           meeting_prep_summary?: Json | null
           missing_information?: Json | null
           model: string
+          model_version?: string | null
           opportunity_matches?: Json | null
           postsecondary_goal_summary?: string | null
+          prompt_version?: string | null
           readiness_scorecard_summary?: Json | null
           recommended_pathways?: Json | null
           report_status?: string
           resource_recommendations?: Json | null
           review_date?: string | null
+          rules_version?: string | null
           strengths_needs_analysis?: Json | null
           student_id?: string | null
           student_snapshot?: Json | null
@@ -4778,6 +4842,7 @@ export type Database = {
           career_matches?: Json | null
           content?: Json
           created_at?: string
+          engine_channel?: string | null
           executive_summary?: string | null
           family_action_plan?: Json | null
           human_review_status?: string
@@ -4786,16 +4851,20 @@ export type Database = {
           inputs_stale_at?: string | null
           intake_id?: string
           is_demo?: boolean
+          knowledge_snapshot?: Json | null
           meeting_prep_summary?: Json | null
           missing_information?: Json | null
           model?: string
+          model_version?: string | null
           opportunity_matches?: Json | null
           postsecondary_goal_summary?: string | null
+          prompt_version?: string | null
           readiness_scorecard_summary?: Json | null
           recommended_pathways?: Json | null
           report_status?: string
           resource_recommendations?: Json | null
           review_date?: string | null
+          rules_version?: string | null
           strengths_needs_analysis?: Json | null
           student_id?: string | null
           student_snapshot?: Json | null
@@ -4819,6 +4888,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pathway_rules_versions: {
+        Row: {
+          checksum: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          effective_at: string
+          engine_channel: string
+          id: string
+          retired_at: string | null
+          ruleset: Json
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          checksum?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          effective_at?: string
+          engine_channel?: string
+          id?: string
+          retired_at?: string | null
+          ruleset?: Json
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          checksum?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          effective_at?: string
+          engine_channel?: string
+          id?: string
+          retired_at?: string | null
+          ruleset?: Json
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
       }
       pilot_outreach_contacts: {
         Row: {

@@ -251,5 +251,19 @@ Workstream C acceptance status:
 - ✅ Prompt-injection sanitizer + hardened extract prompt + `sanitize` breadcrumb (C8).
 - ✅ Verification gate: extractions only enter `evidence_items` when `verification_state IN ('auto_high','human_confirmed')` (C9).
 
-Workstream C closed. Next up per the sequencing diagram: **Workstream D — Age & Stage Rules Engine + Structured Generation** (or Workstream J's eval corpus, whichever you'd like to open first).
+## Workstream D — Age & Stage Rules Engine + Structured Generation
+
+### Slice D1 — Dormant rules & knowledge-source registry + report provenance stamps
+- **New tables** (additive, no readers/writers wired yet):
+  - `public.pathway_rules_versions` — versioned ruleset registry: `version` (unique text tag like `v2026.07.19-shadow`), `effective_at`, `retired_at`, `engine_channel` (`shadow|canary|production|retired`, default `shadow`), `description`, `checksum`, `ruleset jsonb`, audit columns. Ships every rules revision without touching production traffic.
+  - `public.pathway_knowledge_sources` — citation registry for IDEA / CSDE guidance, research papers, framework docs the engine grounds on: `slug` (unique), `title`, `publisher`, `source_url`, `jurisdiction`, `kind` (`guidance|regulation|research|framework|curriculum|dataset|other`), `version`, `checksum`, `fetched_at`, `retired_at`, `metadata jsonb`.
+- **Provenance stamps on `public.pathway_reports`** (all nullable, additive): `rules_version`, `prompt_version`, `model_version`, `knowledge_snapshot jsonb`, `engine_channel`. Existing rows and writers unaffected; every future engine invocation gets a line back to the exact rules/prompt/model/knowledge snapshot that produced it.
+- **RLS**: both new tables admin-only (`has_role(auth.uid(),'admin')`) for SELECT and ALL. `service_role` writes via `GRANT ALL`. No parent/educator/partner path — the registry is engine-operator surface. `pathway_reports` policies unchanged (new columns inherit the existing per-student RLS).
+- **Indexes**: `(engine_channel, effective_at DESC)` on rules versions for "current production" lookups; `(kind, retired_at)` on knowledge sources for "active guidance in jurisdiction X" scans.
+- **Trigger**: shared `set_pathway_registry_updated_at()` (`SET search_path = public`) fires `BEFORE UPDATE` on both registry tables.
+- **Linter delta**: 0 new warnings (all 50 reported warnings pre-date Workstream D — SECURITY DEFINER + extension-in-public on legacy helpers).
+- **Rollback**: `ALTER TABLE public.pathway_reports DROP COLUMN engine_channel, DROP COLUMN knowledge_snapshot, DROP COLUMN model_version, DROP COLUMN prompt_version, DROP COLUMN rules_version;` then `DROP TABLE public.pathway_knowledge_sources; DROP TABLE public.pathway_rules_versions; DROP FUNCTION public.set_pathway_registry_updated_at();` — safe, no readers reference any of them.
+
+Next: **Slice D2** — Zod `RecommendationV1` contract + engine helper that validates every recommendation against it *before* narrative generation, plus a unit test proving invalid recommendations are rejected (not silently rewritten). Structured-output enforcement is prerequisite to D3's refusal path and D4's report-stamp write path.
+
 
