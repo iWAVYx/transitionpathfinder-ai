@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractFromIep, type IepExtract } from "./iep-extract.functions";
+import { emitEvidenceForConfirmedExtraction } from "./evidence-writers.functions";
 
 /** Section keys we surface in the review UI, mapped to IepExtract fields. */
 export const EXTRACTION_SECTION_KEYS = [
