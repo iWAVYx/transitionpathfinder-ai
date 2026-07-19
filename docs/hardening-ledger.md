@@ -135,7 +135,20 @@ Next: **Slice B4** — introduce the first evidence writer (document-extraction 
   - ✅ Coverage query returns for every `pathway_reports` row the caller can see (0 when no edges yet, ≥1 once evidence is linked) — establishes the observable metric for "every recommendation resolves ≥1 evidence item" as writer coverage rolls forward.
 - **Rollback**: `DROP VIEW public.report_provenance_coverage_v1;` and remove the `getReportProvenanceCoverage` server fn — no data change to undo. Legacy `report_evidence_links` remains the fallback reader as documented in the Workstream B plan.
 
-Workstream B closed. Ready to open Workstream C (Document Intelligence Pipeline) on approval.
+Workstream B closed.
+
+## Workstream C — Document Intelligence Pipeline
+
+### Slice C1 — Dormant pipeline run-log schema
+- **New table**: `public.document_pipeline_runs` — additive, no readers or writers wired yet. Columns: `document_id` FK → `documents(id) ON DELETE CASCADE`, `student_id` FK → `students(id) ON DELETE SET NULL`, `correlation_id UUID` (retry grouping), `attempt INT DEFAULT 1`, `stage` (`upload|sniff|hash|extract|verify|publish`), `status` (`pending|running|succeeded|failed|quarantined|skipped`), `engine_version`, `model_version`, `prompt_version`, `error_code`, `error_message`, `latency_ms`, `cost_cents`, `payload jsonb DEFAULT '{}'`, `started_at`, `finished_at`, timestamps.
+- **Indexes**: `document_id`, `student_id`, `correlation_id`, `(stage,status)`, `created_at DESC` — sized for retry lookup + admin dashboards later.
+- **RLS**: platform admins (`has_role(auth.uid(),'admin')`) only for SELECT and ALL. `service_role` writes via `GRANT ALL`. No parent/educator/partner path into pipeline internals — intentionally private.
+- **Trigger**: dedicated `set_document_pipeline_runs_updated_at()` (`SET search_path = public`) — didn't reuse a generic project helper because none existed and this stays scoped to the table.
+- **Linter delta**: 0 new warnings; all 50 reported warnings pre-date Workstream C (SECURITY DEFINER + extension-in-public on legacy helpers).
+- **Rollback**: `DROP TABLE public.document_pipeline_runs; DROP FUNCTION public.set_document_pipeline_runs_updated_at();` — safe, no readers reference the table.
+
+Next: **Slice C2** — content-hash column on `documents` + idempotent backfill so future upload runs can detect duplicates without touching the pipeline path yet.
+
 
 
 
