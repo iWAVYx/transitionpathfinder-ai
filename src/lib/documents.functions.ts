@@ -152,9 +152,10 @@ export const registerDocument = createServerFn({ method: "POST" })
           action: "upload_dedupe_hit",
           metadata: { content_hash: data.content_hash.toLowerCase(), incoming_title: data.title },
         });
-        return { document: existing as DocumentRow, deduped: true as const };
+        return existing as DocumentRow;
       }
     }
+
 
     const { data: row, error } = await supabase
       .from("documents")
