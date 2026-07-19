@@ -224,6 +224,13 @@ export const archiveDocument = createServerFn({ method: "POST" })
       .maybeSingle();
     if (readErr || !row) throw new Error("Document not found or access denied.");
 
+    await assertAuthorized(
+      { supabase, userId, action: "edit", resourceType: "student", resourceId: row.student_id },
+      data.restore
+        ? "You don't have permission to restore this document."
+        : "You don't have permission to archive this document.",
+    );
+
     const patch = data.restore
       ? { archived_at: null, archived_by: null, archive_reason: null }
       : { archived_at: new Date().toISOString(), archived_by: userId, archive_reason: data.reason ?? null };
