@@ -211,3 +211,11 @@ Next: **Slice C6** — file magic-byte sniff + MIME/size allowlist on the upload
 
 Next: **Slice C7** — surface pipeline-run breadcrumbs to platform admins (read-only ops view over `document_pipeline_runs`) so quarantines and failed extracts become visible without a DB console.
 
+### Slice C7 — Admin ops view over `document_pipeline_runs`
+- **Server fn**: `listDocumentPipelineRuns` in `src/lib/owner/document-pipeline-runs.functions.ts` — `requireSupabaseAuth`, gated by `is_platform_admin`, filters by `stage | status | correlation_id | document_id` and a rolling `window_hours` (24 / 72 / 168 / 720). Returns up to 200 rows plus an unfiltered summary (`total`, `by_stage`, `by_status`, `quarantined`, `failed`, `window_hours`). RLS on `document_pipeline_runs` already restricts SELECT to admins; the explicit gate exists so non-admins get a clean error rather than a silent empty list.
+- **Route**: `/owner/document-pipeline` (`src/routes/_authenticated/owner.document-pipeline.tsx`) rendered inside `OwnerShell`. Summary tiles across the top, stage/status/window filters, and a correlation-id-grouped list where each group expands into a per-stage table (stage, status, attempt, latency, error code/message, timestamp). Uses the standard status chips (succeeded=emerald, failed=red, quarantined=amber, skipped=muted).
+- **Nav**: added under the "System Health" group in `OwnerShell.tsx` next to the existing document access audit link.
+- **Non-goals**: no writes, no re-drive/replay controls, no deep link to the document detail page yet, no charting. This is a read-only ops surface for the breadcrumbs shipped in C4–C6.
+- **Rollback**: delete `src/routes/_authenticated/owner.document-pipeline.tsx`, delete `src/lib/owner/document-pipeline-runs.functions.ts`, and remove the nav entry from `OwnerShell.tsx`. No schema changes.
+
+
