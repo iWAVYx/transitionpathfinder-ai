@@ -88,7 +88,7 @@ async function callLovableAI(systemPrompt: string, user: string) {
 // Slice C5 — Best-effort worker-side pipeline breadcrumb writer.
 // Mirrors src/lib/document-pipeline.server.ts. Any error is swallowed so
 // the primary job flow is never blocked by observability writes.
-type PipelineStage = "upload" | "sniff" | "hash" | "extract" | "verify" | "publish";
+type PipelineStage = "upload" | "sniff" | "hash" | "sanitize" | "extract" | "verify" | "publish";
 type PipelineStatus = "pending" | "running" | "succeeded" | "failed" | "quarantined" | "skipped";
 async function recordPipelineRun(
   supabase: ReturnType<typeof createClient>,
