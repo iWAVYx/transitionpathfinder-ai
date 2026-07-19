@@ -26,6 +26,7 @@ const DISTRICT_B = "11111111-1111-1111-1111-1111111111bb";
 
 const DISTRICT_A_ADMIN = "qa.districtadmin@transitionforward.test";
 const PARTNER_USER = "qa.partner@transitionforward.test";
+const PARENT_USER = "qa.parent@transitionforward.test";
 
 function client() {
   return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
