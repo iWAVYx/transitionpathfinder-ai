@@ -64,3 +64,15 @@ Workstream A closed. Ready to open Workstream B (Transition Evidence Graph) on a
 - **Rollback**: `DROP TABLE public.evidence_edges; DROP TABLE public.evidence_items;` — safe because no readers reference them.
 
 Next: **Slice B2** — idempotent backfill from `report_evidence_links` + `document_extractions` into `evidence_items` / `evidence_edges` behind a `EVIDENCE_GRAPH_BACKFILL` feature flag, with an idempotency test.
+
+### Slice B2 — Idempotent evidence graph backfill
+- **Uniqueness for re-runnability**: partial unique index `evidence_items_source_unique (student_id, source_kind, source_id) WHERE source_id IS NOT NULL`. Every backfill statement uses `ON CONFLICT ... DO NOTHING` against this key.
+- **Backfilled from**:
+  - `document_extractions` → `evidence_items` with `kind='document_extraction'`, `subject_type='document'`, `subject_id=document_id`, `verification_state` derived from review status (`human_confirmed` / `auto_high` / `unverified`), and `extraction_id` back-linked.
+  - `report_evidence_links` → `evidence_items` with `kind='report_reference'`, preserving the link's `source_kind/source_id` and stashing `report_section`, `source_label`, `note`, `snippet_hash`, `link_id` in `payload` (edge to `pathway_report` deferred: `report_evidence_links` has no `report_id` column).
+- **Idempotency proof in-migration**: after the initial insert, both statements are re-run inside a `DO $$` block and `RAISE EXCEPTION` fires if the row count changes. The migration succeeded, which is the proof.
+- **Current backfill volume**: 0 rows in this environment (`document_extractions` and `report_evidence_links` currently have no student-linked rows). The guard still ran; it protects future re-runs once data lands.
+- **Linter delta**: 0 new warnings.
+- **Rollback**: `DELETE FROM evidence_items WHERE kind IN ('document_extraction','report_reference') AND source_id IS NOT NULL;` then `DROP INDEX evidence_items_source_unique;`. No source tables were touched.
+
+Next: **Slice B3** — build the read-side views (`student_evidence_v1`, `recommendation_provenance_v1`) with RLS-friendly definitions and cover them with an evidence-graph unit test that seeds a student, inserts an evidence item + edge, and asserts the view returns them under a signed-in student-team member and hides them from an unrelated user.
