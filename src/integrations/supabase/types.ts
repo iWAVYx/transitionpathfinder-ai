@@ -3394,6 +3394,45 @@ export type Database = {
           },
         ]
       }
+      org_access_audit: {
+        Row: {
+          action: string
+          actor_id: string
+          context: Json
+          created_at: string
+          decision: string
+          id: string
+          organization_id: string | null
+          reason: string | null
+          resource_id: string | null
+          resource_type: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          context?: Json
+          created_at?: string
+          decision: string
+          id?: string
+          organization_id?: string | null
+          reason?: string | null
+          resource_id?: string | null
+          resource_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          context?: Json
+          created_at?: string
+          decision?: string
+          id?: string
+          organization_id?: string | null
+          reason?: string | null
+          resource_id?: string | null
+          resource_type?: string
+        }
+        Relationships: []
+      }
       organization_memberships: {
         Row: {
           created_at: string
@@ -6623,6 +6662,15 @@ export type Database = {
         }[]
       }
       audience_for_role: { Args: { _role: string }; Returns: string }
+      authorize: {
+        Args: {
+          _action: string
+          _resource_id?: string
+          _resource_type: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       can_access_student: {
         Args: { _student_id: string; _user_id: string }
         Returns: boolean
@@ -6663,6 +6711,14 @@ export type Database = {
           plan_type: string
           status: string
           via_district: boolean
+        }[]
+      }
+      effective_org_access: {
+        Args: { _user_id: string }
+        Returns: {
+          organization_id: string
+          role_within_org: string
+          via: string
         }[]
       }
       email_queue_dispatch: { Args: never; Returns: undefined }
@@ -6731,6 +6787,10 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      partner_tier_allows: {
+        Args: { _capability: string; _user_id: string }
+        Returns: boolean
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
