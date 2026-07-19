@@ -563,7 +563,13 @@ export const linkReportToStudent = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    if (data.student_id) {
+      await assertAuthorized(
+        { supabase, userId, action: "edit", resourceType: "student", resourceId: data.student_id },
+        "You don't have permission to link a report to this student.",
+      );
+    }
     const { error } = await supabase
       .from("pathway_reports")
       .update({ student_id: data.student_id })
