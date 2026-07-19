@@ -111,6 +111,14 @@ Next: **Slice B4** — introduce the first evidence writer (document-extraction 
 - **First provenance consumer server fn**: `getReportProvenance({ report_id })` in `src/lib/pathway.functions.ts` — reads through the `recommendation_provenance_v1` view via `readRecommendationProvenance`. RLS-honoring: returns `[]` silently when the caller can't see the underlying evidence.
 - **Rollback**: unset `EVIDENCE_GRAPH_WRITES` (default). To remove entirely, delete `linkReportProvenance`, revert the `linkReportToStudent` call, and remove `getReportProvenance` — no schema change.
 
-Next: **Slice B7** — begin promoting the shadow-mode writers to production by flipping `EVIDENCE_GRAPH_WRITES=true` in preview, plus add a live smoke test that link → getReportProvenance returns the expected rows for the QA parent.
+### Slice B7 — Promote writers to preview + live smoke
+- **Flag flipped**: `EVIDENCE_GRAPH_WRITES=true` set in the preview environment. `emitEvidenceForConfirmedExtraction`, `emitRecommendationEvidenceEdge`, and `linkReportProvenance` now perform real upserts (still idempotent via the partial unique index on `evidence_items` and the (from,to,relation) unique key on `evidence_edges`).
+- **Live smoke**: `tests/evidence-report-link-smoke.test.mjs` — signs in as QA parent, seeds a student + `evidence_items` row + real `pathway_reports` row, mirrors the `linkReportProvenance` upsert (twice, to prove idempotency), and asserts:
+  - Owner sees exactly one row in `recommendation_provenance_v1` for that report id, with the right `evidence_id` and `relation='supports'`.
+  - Anon sees zero rows.
+  - Unrelated signed-in parent (fresh sign-up) sees zero rows.
+- **Rollback**: unset `EVIDENCE_GRAPH_WRITES` to return every writer to shadow-mode no-op; no schema change to undo. Existing evidence rows remain readable through the RLS-honoring views.
+
+
 
 
