@@ -47,3 +47,20 @@ Requirement → code/migration/test evidence per slice.
 - **Rollback**: tests only — deleting the new `test(...)` blocks reverts A5.
 
 Workstream A closed. Ready to open Workstream B (Transition Evidence Graph) on approval.
+
+## Workstream B — Transition Evidence Graph
+
+### Slice B1 — Dormant evidence graph schema
+- **New tables** (additive, no reads/writes wired yet):
+  - `public.evidence_items` — student-scoped evidence rows with `kind`, `subject_type/id`, `source_kind/id`, `contributor_id`, `occurred_at`, `confidence` (0..1), `verification_state`, `permission_scope`, `payload jsonb`, `extraction_id` FK → `document_extractions`.
+  - `public.evidence_edges` — polymorphic edges (`from_type/from_id → to_type/to_id`, `relation`) with a uniqueness key preventing duplicate edges. Only `from_type='evidence_item'` is admitted by RLS at this slice; other from-sides will unlock as writers land.
+- **RLS**:
+  - `evidence_items` visible via `can_access_student`; mutable via `can_edit_student`.
+  - `evidence_edges` SELECT / INSERT / DELETE derived from the linked evidence item's student access; no UPDATE (edges are immutable once written — replace via delete+insert).
+- **GRANTs**: `authenticated` gets standard CRUD; `service_role` gets ALL. No `anon` access.
+- **Indexes**: `student_id`, `kind`, `(subject_type, subject_id)`, `(source_kind, source_id)` on items; `(from_type, from_id)`, `(to_type, to_id)`, `relation` on edges.
+- **Trigger**: `set_updated_at()` on `evidence_items`.
+- **Linter delta**: 0 new warnings from this migration; all 50 reported warnings pre-date Workstream B (SECURITY DEFINER + extension-in-public on legacy helpers).
+- **Rollback**: `DROP TABLE public.evidence_edges; DROP TABLE public.evidence_items;` — safe because no readers reference them.
+
+Next: **Slice B2** — idempotent backfill from `report_evidence_links` + `document_extractions` into `evidence_items` / `evidence_edges` behind a `EVIDENCE_GRAPH_BACKFILL` feature flag, with an idempotency test.
