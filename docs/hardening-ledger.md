@@ -154,3 +154,13 @@ Next: **Slice C2** — content-hash column on `documents` + idempotent backfill 
 
 
 
+### Slice C2 — Content-hash column on `documents` + idempotent backfill
+- **Schema change**: `ALTER TABLE public.documents ADD COLUMN IF NOT EXISTS content_hash TEXT` (nullable). Column comment documents intent: SHA-256 hex of raw bytes, populated lazily by future pipeline runs.
+- **Index**: `documents_student_content_hash_idx ON (student_id, content_hash) WHERE content_hash IS NOT NULL` — non-unique, partial. Duplicates *within* a student are the dedupe target; the same bytes uploaded by two different students are not.
+- **Backfill**: idempotent update — for every row with a non-empty `storage_path` and no `content_hash`, set `content_hash = encode(digest('storage_path:' || storage_path, 'sha256'), 'hex')`. Deterministic placeholder; re-running the migration is a no-op. Real byte-level hashes will overwrite as the pipeline reprocesses each document.
+- **No RLS / grant changes**: `documents` policies already cover the new column.
+- **No readers/writers wired**: pipeline consumers land in later slices; C2 is schema + backfill only.
+- **Linter delta**: 0 new warnings from this migration (existing 50 warnings pre-date Workstream C).
+- **Rollback**: `DROP INDEX IF EXISTS public.documents_student_content_hash_idx; ALTER TABLE public.documents DROP COLUMN IF EXISTS content_hash;` — no dependent code to unwind.
+
+Next: **Slice C3** — writer path that computes real SHA-256 on upload and short-circuits duplicate re-processing via the new index.
