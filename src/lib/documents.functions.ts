@@ -240,6 +240,81 @@ export const registerDocument = createServerFn({ method: "POST" })
         : { reason: "no_hash_provided" },
     });
 
+    // Slice C6 — magic-byte sniff + size/type allowlist. Download a small
+    // prefix of the freshly-uploaded object and confirm it matches the
+    // declared mime_type against a strict allowlist. Rejections quarantine
+    // the row (review_status='rejected' + archived) and skip AI extract.
+    const { sniffUploadedDocument, MAX_UPLOAD_BYTES } = await import("./document-sniff.server");
+    const sniff = await sniffUploadedDocument({
+      storage_path: data.storage_path,
+      declared_mime: data.mime_type ?? null,
+      declared_size: data.size_bytes ?? null,
+    });
+
+    if (!sniff.ok) {
+      // Quarantine: reject the row and mark it archived with an audit reason.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("documents")
+        .update({
+          review_status: "rejected",
+          archived_at: new Date().toISOString(),
+          archived_by: userId,
+          archive_reason: `auto-quarantined: ${sniff.error_code}`,
+        })
+        .eq("id", row.id);
+
+      await recordPipelineRun({
+        document_id: row.id,
+        student_id: data.student_id,
+        correlation_id: correlationId,
+        stage: "sniff",
+        status: "quarantined",
+        error_code: sniff.error_code,
+        error_message: sniff.error_message,
+        payload: {
+          declared_mime: data.mime_type ?? null,
+          detected_kind: sniff.detected_kind,
+          declared_size: data.size_bytes ?? null,
+          max_bytes: MAX_UPLOAD_BYTES,
+        },
+      });
+      await recordPipelineRun({
+        document_id: row.id,
+        student_id: data.student_id,
+        correlation_id: correlationId,
+        stage: "extract",
+        status: "skipped",
+        error_code: "quarantined",
+        payload: { reason: sniff.error_code },
+      });
+
+      await supabase.from("document_access_log").insert({
+        document_id: row.id,
+        student_id: data.student_id,
+        actor_id: userId,
+        actor_role: uploaderRole,
+        action: "upload_quarantined",
+        metadata: { error_code: sniff.error_code, declared_mime: data.mime_type ?? null },
+      });
+
+      return { ...row, review_status: "rejected", archived_at: new Date().toISOString() } as DocumentRow;
+    }
+
+    // Sniff passed — record breadcrumb before enqueuing extract.
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: data.student_id,
+      correlation_id: correlationId,
+      stage: "sniff",
+      status: "succeeded",
+      payload: {
+        declared_mime: data.mime_type ?? null,
+        detected_kind: sniff.detected_kind,
+        declared_size: data.size_bytes ?? null,
+      },
+    });
+
     // Enqueue an AI document summary job (best-effort; don't fail upload if it errors).
     const { error: jobErr } = await supabase.from("ai_jobs").insert({
       student_id: data.student_id,
@@ -267,6 +342,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       error_message: jobErr?.message ?? null,
       payload: { job_type: "document_summary" },
     });
+
 
     // Audit log (best-effort)
     await supabase.from("audit_log").insert({

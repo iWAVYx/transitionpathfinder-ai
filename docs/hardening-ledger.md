@@ -200,3 +200,14 @@ Next: **Slice C5** — extend breadcrumb writes to the AI worker path so `extrac
 - **Rollback**: remove the inline `recordPipelineRun` helper and the four `recordPipelineRun(...)` calls in `processJob`; revert the extract-call try/catch back to a straight `await`. Existing breadcrumb rows are diagnostic-only.
 
 Next: **Slice C6** — file magic-byte sniff + MIME/size allowlist on the upload path, emitting `sniff` breadcrumbs and quarantining rejects before they reach extract.
+
+### Slice C6 — Upload sniff + type/size allowlist + pre-extract quarantine
+- **Helper**: `src/lib/document-sniff.server.ts` exports `sniffUploadedDocument({ storage_path, declared_mime, declared_size })` and `MAX_UPLOAD_BYTES` (25 MB). Downloads the first 32 bytes of the freshly-uploaded object via `supabaseAdmin.storage.from("student-documents")`, detects the kind by magic bytes (`pdf`, `png`, `jpeg`, `zip_office`, `cfbf_office`, `text`, `unknown`), and confirms it against a strict MIME allowlist (PDF, PNG/JPEG, DOCX/XLSX/PPTX, legacy DOC/XLS/PPT, plain text / CSV / markdown). Returns a discriminated result with error codes `oversize | empty_file | download_failed | unsupported_type | mime_mismatch`.
+- **`registerDocument` wiring** (`src/lib/documents.functions.ts`): after the row insert (and its `upload`/`hash` breadcrumbs) but before enqueuing the AI extract job:
+  - On **reject** — the row is quarantined via `supabaseAdmin`: `review_status='rejected'`, `archived_at=now()`, `archived_by=caller`, `archive_reason='auto-quarantined: <error_code>'`. No `ai_jobs` row is enqueued. Emits `sniff → quarantined` (with `error_code`, detected kind, declared mime/size, max bytes) and `extract → skipped` with `error_code: "quarantined"`. Also writes `document_access_log` with `action: "upload_quarantined"`. The doc row is returned with the updated status so the UI can surface the quarantine state.
+  - On **accept** — emits `sniff → succeeded` (payload records detected kind + declared mime/size), then proceeds with the existing enqueue path and its `extract → pending|failed` breadcrumb.
+- **Non-goals**: no client-side changes, no new grants, no schema changes, no user-visible copy changes. The 25 MB cap and allowlist reflect current uploader defaults; loosening either is a config-only follow-up.
+- **Rollback**: delete `src/lib/document-sniff.server.ts` and remove the sniff block (lines gated by `sniffUploadedDocument`) from `registerDocument`. The original enqueue path is retained verbatim inside the acceptance branch, so removing the outer `if (!sniff.ok)` restores pre-C6 behavior. Existing quarantined rows can be restored manually by clearing `archived_at` / `review_status`.
+
+Next: **Slice C7** — surface pipeline-run breadcrumbs to platform admins (read-only ops view over `document_pipeline_runs`) so quarantines and failed extracts become visible without a DB console.
+
