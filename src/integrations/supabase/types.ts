@@ -6757,7 +6757,71 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      recommendation_provenance_v1: {
+        Row: {
+          confidence: number | null
+          edge_created_at: string | null
+          edge_created_by: string | null
+          edge_id: string | null
+          evidence_id: string | null
+          evidence_kind: string | null
+          evidence_payload: Json | null
+          occurred_at: string | null
+          recommendation_id: string | null
+          relation: string | null
+          source_id: string | null
+          source_kind: string | null
+          student_id: string | null
+          verification_state: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_evidence_v1: {
+        Row: {
+          confidence: number | null
+          contributor_id: string | null
+          created_at: string | null
+          edge_count: number | null
+          evidence_id: string | null
+          extraction_id: string | null
+          kind: string | null
+          occurred_at: string | null
+          payload: Json | null
+          permission_scope: string | null
+          relations: string[] | null
+          source_id: string | null
+          source_kind: string | null
+          student_id: string | null
+          subject_id: string | null
+          subject_type: string | null
+          updated_at: string | null
+          verification_state: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_items_extraction_id_fkey"
+            columns: ["extraction_id"]
+            isOneToOne: false
+            referencedRelation: "document_extractions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_invitation_by_token: {
