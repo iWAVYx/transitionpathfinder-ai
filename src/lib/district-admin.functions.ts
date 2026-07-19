@@ -523,6 +523,10 @@ export const removeSchoolFromDistrict = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAuthorized(
+      { supabase, userId, action: "manage", resourceType: "organization", resourceId: data.district_id },
+      "Not authorized for this district.",
+    );
     if (!(await ensureDistrictAdmin(supabase, userId, data.district_id))) {
       throw new Error("Not authorized.");
     }
