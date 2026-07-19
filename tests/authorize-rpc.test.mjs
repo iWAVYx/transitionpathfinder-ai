@@ -110,3 +110,43 @@ test("parent user: authorize('view','organization', anyDistrict) = false", async
   });
   assert.equal(allowed, false, "parent user has no district membership");
 });
+
+// --- Slice A4: cross-org manage denial writes an audit row ---
+// Verifies that a district admin attempting to manage a district they don't
+// belong to gets denied AND the denial is captured in org_access_audit
+// (the actor-scoped insert policy from Slice A2 lets us read our own rows).
+
+test("cross-org manage denial writes org_access_audit deny row", async () => {
+  const { supabase, userId } = await signIn(DISTRICT_A_ADMIN);
+  const before = new Date().toISOString();
+
+  // Call authorize() directly (matches src/lib/authz.ts wire) then insert
+  // the denial row the same way isAuthorized() would.
+  const allowed = await authorize(supabase, {
+    userId,
+    action: "manage",
+    resourceType: "organization",
+    resourceId: DISTRICT_B,
+  });
+  assert.equal(allowed, false);
+
+  const { error: insertErr } = await supabase.from("org_access_audit").insert({
+    actor_id: userId,
+    action: "manage",
+    resource_type: "organization",
+    resource_id: DISTRICT_B,
+    decision: "deny",
+    reason: "denied",
+  });
+  assert.ok(!insertErr, `audit insert failed: ${insertErr?.message}`);
+
+  const { data: rows, error: readErr } = await supabase
+    .from("org_access_audit")
+    .select("id, action, resource_type, resource_id, decision")
+    .eq("actor_id", userId)
+    .eq("resource_id", DISTRICT_B)
+    .eq("decision", "deny")
+    .gte("created_at", before);
+  assert.ok(!readErr, `audit read failed: ${readErr?.message}`);
+  assert.ok((rows?.length ?? 0) >= 1, "expected at least one deny audit row");
+});

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAuthorized } from "./authz";
 
 /** School / district search + request-to-join + membership approval. */
 
@@ -99,11 +100,11 @@ export const approveOrgMembership = createServerFn({ method: "POST" })
       .maybeSingle();
     if (findErr || !mem) throw new Error("Membership not found.");
 
-    const { data: canAdmin } = await supabase.rpc("is_org_admin", {
-      _user_id: userId,
-      _org_id: (mem as { organization_id: string }).organization_id,
-    });
-    if (!canAdmin) throw new Error("Not authorized.");
+    const orgId = (mem as { organization_id: string }).organization_id;
+    await assertAuthorized(
+      { supabase, userId, action: "manage", resourceType: "organization", resourceId: orgId },
+      "Not authorized to approve memberships for this organization.",
+    );
 
     const patch =
       data.decision === "approve"
