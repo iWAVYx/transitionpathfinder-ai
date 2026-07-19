@@ -578,7 +578,31 @@ export const linkReportToStudent = createServerFn({ method: "POST" })
       console.error("linkReportToStudent failed", error);
       throw new Error("Could not link this report.");
     }
+    // Slice B6: shadow-mode provenance emission (no-op unless EVIDENCE_GRAPH_WRITES=true).
+    if (data.student_id) {
+      const { linkReportProvenance } = await import("./evidence-writers.functions");
+      await linkReportProvenance({
+        supabase,
+        userId,
+        studentId: data.student_id,
+        reportId: data.report_id,
+      });
+    }
     return { ok: true };
+  });
+
+/**
+ * Slice B6 — First provenance consumer server fn. Reads through
+ * recommendation_provenance_v1 (RLS-honoring); returns [] silently when the
+ * caller can't see the referenced evidence.
+ */
+export const getReportProvenance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { readRecommendationProvenance } = await import("./evidence-writers.functions");
+    const rows = await readRecommendationProvenance(context.supabase, data.report_id);
+    return { rows };
   });
 
 export const deleteReport = createServerFn({ method: "POST" })
