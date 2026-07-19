@@ -128,7 +128,7 @@ export type RecommendationBatchV1 = z.infer<typeof RecommendationBatchV1>;
 
 export type SchemaGateResult =
   | { ok: true; value: RecommendationV1 }
-  | { ok: false; error_code: "schema_invalid"; issues: z.core.$ZodIssue[] };
+  | { ok: false; error_code: "schema_invalid"; issues: z.ZodIssue[] };
 
 export function parseRecommendationV1(input: unknown): SchemaGateResult {
   const parsed = RecommendationV1.safeParse(input);
@@ -138,7 +138,7 @@ export function parseRecommendationV1(input: unknown): SchemaGateResult {
 
 export type SchemaGateBatchResult =
   | { ok: true; value: RecommendationV1[] }
-  | { ok: false; error_code: "schema_invalid"; issues: z.core.$ZodIssue[] };
+  | { ok: false; error_code: "schema_invalid"; issues: z.ZodIssue[] };
 
 export function parseRecommendationBatchV1(input: unknown): SchemaGateBatchResult {
   const parsed = RecommendationBatchV1.safeParse(input);
