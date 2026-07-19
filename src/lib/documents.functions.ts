@@ -384,6 +384,11 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
       throw new Error("Document not found.");
     }
 
+    await assertAuthorized(
+      { supabase, userId, action: "view", resourceType: "document", resourceId: row.id },
+      "You don't have permission to view this document.",
+    );
+
     const { data: signed, error: signErr } = await supabase.storage
       .from("student-documents")
       .createSignedUrl(row.storage_path, 300);
