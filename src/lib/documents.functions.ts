@@ -128,6 +128,13 @@ export const registerDocument = createServerFn({ method: "POST" })
       throw new Error("Please confirm you are authorized to upload this document before continuing.");
     }
 
+    // Slice C4 — pipeline breadcrumbs share a correlation id across every
+    // stage row emitted for this upload attempt (best-effort, admin-only RLS
+    // means we route through supabaseAdmin inside the helper).
+    const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
+    const correlationId = newCorrelationId();
+    const uploadStartedAt = new Date().toISOString();
+
     // Slice C3 — short-circuit duplicate uploads by content hash within a student.
     // Index: documents_student_content_hash_idx (student_id, content_hash) WHERE content_hash IS NOT NULL.
     // If the caller provided a real SHA-256 and we already have a live (non-deleted)
@@ -151,6 +158,16 @@ export const registerDocument = createServerFn({ method: "POST" })
           actor_role: uploaderRole,
           action: "upload_dedupe_hit",
           metadata: { content_hash: data.content_hash.toLowerCase(), incoming_title: data.title },
+        });
+        // Breadcrumb: upload skipped because bytes already exist for this student.
+        await recordPipelineRun({
+          document_id: existing.id,
+          student_id: data.student_id,
+          correlation_id: correlationId,
+          stage: "upload",
+          status: "skipped",
+          started_at: uploadStartedAt,
+          payload: { reason: "dedupe_hit", incoming_title: data.title, actor_role: uploaderRole },
         });
         return existing as DocumentRow;
       }
@@ -190,6 +207,38 @@ export const registerDocument = createServerFn({ method: "POST" })
       throw new Error("Could not save document record.");
     }
 
+    // Breadcrumb: upload row created.
+    const uploadFinishedAt = new Date().toISOString();
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: data.student_id,
+      correlation_id: correlationId,
+      stage: "upload",
+      status: "succeeded",
+      started_at: uploadStartedAt,
+      finished_at: uploadFinishedAt,
+      latency_ms: Date.parse(uploadFinishedAt) - Date.parse(uploadStartedAt),
+      payload: {
+        doc_type: data.doc_type,
+        visibility: data.visibility,
+        actor_role: uploaderRole,
+        size_bytes: data.size_bytes ?? null,
+        mime_type: data.mime_type ?? null,
+      },
+    });
+
+    // Breadcrumb: hash stage — succeeded when caller supplied a SHA-256,
+    // skipped when they didn't (C3 backfill placeholder still lives on the row).
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: data.student_id,
+      correlation_id: correlationId,
+      stage: "hash",
+      status: data.content_hash ? "succeeded" : "skipped",
+      payload: data.content_hash
+        ? { algorithm: "sha256", source: "client" }
+        : { reason: "no_hash_provided" },
+    });
 
     // Enqueue an AI document summary job (best-effort; don't fail upload if it errors).
     const { error: jobErr } = await supabase.from("ai_jobs").insert({
@@ -205,6 +254,19 @@ export const registerDocument = createServerFn({ method: "POST" })
       },
     });
     if (jobErr) console.error("ai_jobs enqueue failed", jobErr);
+
+    // Breadcrumb: extract stage is pending until the AI worker picks it up.
+    // On enqueue failure, mark it failed so operators can spot the drop.
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: data.student_id,
+      correlation_id: correlationId,
+      stage: "extract",
+      status: jobErr ? "failed" : "pending",
+      error_code: jobErr ? "ai_jobs_enqueue_failed" : null,
+      error_message: jobErr?.message ?? null,
+      payload: { job_type: "document_summary" },
+    });
 
     // Audit log (best-effort)
     await supabase.from("audit_log").insert({
