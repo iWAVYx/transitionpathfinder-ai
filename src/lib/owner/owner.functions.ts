@@ -1212,7 +1212,7 @@ export const getReviewQueueCounts = createServerFn({ method: "GET" })
 
     const safeCount = async (
       table: string,
-      apply: (q: ReturnType<typeof supabase.from> extends infer T ? T : never) => unknown,
+      apply: (q: any) => unknown,
     ): Promise<number> => {
       try {
         // @ts-expect-error dynamic table name is intentional for review-queue rollup
