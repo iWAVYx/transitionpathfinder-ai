@@ -105,5 +105,12 @@ Next: **Slice B4** — introduce the first evidence writer (document-extraction 
 - **Idempotency + provenance test**: `tests/evidence-edge-writer.test.mjs` — signs in as the QA parent, seeds a student + evidence item, upserts the same edge three times and asserts exactly one row survives; then reads `recommendation_provenance_v1` and confirms the owner sees exactly one row while an unrelated signed-in parent sees zero.
 - **Rollback**: unset `EVIDENCE_GRAPH_WRITES`. To remove entirely, delete `emitRecommendationEvidenceEdge` and `readRecommendationProvenance` from `src/lib/evidence-writers.functions.ts` — no schema change to undo.
 
-Next: **Slice B6** — begin wiring the recommendation edge writer into the pathway-generation path (still shadow-mode) so real recommendations start producing provenance rows, then expose one read in a non-visual server fn for downstream consumers.
+### Slice B6 — Provenance emission at report-link time + first consumer server fn
+- **New helper** in `src/lib/evidence-writers.functions.ts`: `linkReportProvenance()` — on report ↔ student link, upserts one `evidence_edges` row per existing `evidence_items` for that student, targeting the report id as the recommendation surrogate. Idempotent via the (from,to,relation) unique key. Flag-gated by `EVIDENCE_GRAPH_WRITES`; default off = no-op.
+- **Wired into**: `linkReportToStudent` in `src/lib/pathway.functions.ts` — runs after the successful `pathway_reports` update, dynamic-imported so writer isn't reached until link time. Non-fatal on failure (existing link is preserved).
+- **First provenance consumer server fn**: `getReportProvenance({ report_id })` in `src/lib/pathway.functions.ts` — reads through the `recommendation_provenance_v1` view via `readRecommendationProvenance`. RLS-honoring: returns `[]` silently when the caller can't see the underlying evidence.
+- **Rollback**: unset `EVIDENCE_GRAPH_WRITES` (default). To remove entirely, delete `linkReportProvenance`, revert the `linkReportToStudent` call, and remove `getReportProvenance` — no schema change.
+
+Next: **Slice B7** — begin promoting the shadow-mode writers to production by flipping `EVIDENCE_GRAPH_WRITES=true` in preview, plus add a live smoke test that link → getReportProvenance returns the expected rows for the QA parent.
+
 
