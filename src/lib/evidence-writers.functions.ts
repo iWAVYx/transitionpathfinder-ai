@@ -71,3 +71,71 @@ export async function emitEvidenceForConfirmedExtraction(
   }
   return { ok: true, evidenceId: data?.id ?? null };
 }
+
+// -----------------------------------------------------------------------------
+// Slice B5 — Second writer: evidence_item → pathway_recommendation edge.
+//
+// Idempotent via the unique index
+// evidence_edges_from_type_from_id_to_type_to_id_relation_key on
+// (from_type, from_id, to_type, to_id, relation). Runs under the caller's
+// authenticated supabase client so evidence_edges RLS applies (visibility
+// derives from the linked evidence_item).
+// -----------------------------------------------------------------------------
+
+export type EmitRecommendationEdgeArgs = {
+  supabase: SupabaseClient;
+  userId: string;
+  evidenceItemId: string;
+  recommendationId: string;
+  relation?: "supports" | "contradicts" | "informs";
+  weight?: number;
+};
+
+export async function emitRecommendationEvidenceEdge(
+  args: EmitRecommendationEdgeArgs,
+): Promise<{ ok: boolean; skipped?: boolean; edgeId?: string | null }> {
+  if (!evidenceWritesEnabled()) return { ok: true, skipped: true };
+
+  const row = {
+    from_type: "evidence_item",
+    from_id: args.evidenceItemId,
+    to_type: "pathway_recommendation",
+    to_id: args.recommendationId,
+    relation: args.relation ?? "supports",
+    weight: args.weight ?? 1,
+    created_by: args.userId,
+  };
+
+  const { data, error } = await (args.supabase.from("evidence_edges") as any)
+    .upsert(row, {
+      onConflict: "from_type,from_id,to_type,to_id,relation",
+      ignoreDuplicates: true,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.warn("emitRecommendationEvidenceEdge upsert failed", error);
+    return { ok: false };
+  }
+  return { ok: true, edgeId: data?.id ?? null };
+}
+
+/**
+ * Consumer read: fetch provenance rows for a given pathway_recommendation via
+ * the RLS-honoring `recommendation_provenance_v1` view. Returns [] when the
+ * caller has no access (RLS filters silently).
+ */
+export async function readRecommendationProvenance(
+  supabase: SupabaseClient,
+  recommendationId: string,
+): Promise<Array<{ edge_id: string; evidence_id: string; relation: string }>> {
+  const { data, error } = await (supabase.from("recommendation_provenance_v1") as any)
+    .select("edge_id, evidence_id, relation")
+    .eq("recommendation_id", recommendationId);
+  if (error) {
+    console.warn("readRecommendationProvenance failed", error);
+    return [];
+  }
+  return (data ?? []) as Array<{ edge_id: string; evidence_id: string; relation: string }>;
+}
