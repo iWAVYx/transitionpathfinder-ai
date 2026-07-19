@@ -119,6 +119,25 @@ Next: **Slice B4** — introduce the first evidence writer (document-extraction 
   - Unrelated signed-in parent (fresh sign-up) sees zero rows.
 - **Rollback**: unset `EVIDENCE_GRAPH_WRITES` to return every writer to shadow-mode no-op; no schema change to undo. Existing evidence rows remain readable through the RLS-honoring views.
 
+### Slice B8 — Provenance coverage view + acceptance close-out
+- **New view**: `public.report_provenance_coverage_v1` (`security_invoker = on`) — one row per `pathway_reports` row the caller can see, lateral-joined against `evidence_edges` where `to_type = 'pathway_recommendation' AND to_id = pr.id AND from_type = 'evidence_item'`. Exposes `report_id`, `student_id`, `evidence_edge_count`, and `has_coverage`. Edge visibility flows from the source evidence item's student access, so counts silently exclude edges the caller can't see. `SELECT` granted to `authenticated` only.
+- **New consumer server fn**: `getReportProvenanceCoverage({ report_id })` in `src/lib/pathway.functions.ts` — reads the view and returns `{ evidence_edge_count, has_coverage }`. Returns `{ 0, false }` silently on RLS-hidden reports or read errors.
+- **Coverage smoke test**: `tests/evidence-report-provenance-coverage.test.mjs` — signs in as QA parent, seeds a student + evidence item + `pathway_reports` row, asserts:
+  - Pre-edge: owner sees a coverage row with `evidence_edge_count = 0`, `has_coverage = false`.
+  - Post-edge (upserted twice for idempotency): owner sees `evidence_edge_count = 1`, `has_coverage = true`.
+  - Unrelated signed-in parent sees zero coverage rows for the report id.
+  - Anon sees zero coverage rows.
+- **Workstream B acceptance status**:
+  - ✅ `evidence_items` + `evidence_edges` schema with RLS shipped (B1) and idempotency-keyed for re-runs (B2).
+  - ✅ Read views `student_evidence_v1` + `recommendation_provenance_v1` (B3) plus coverage view `report_provenance_coverage_v1` (B8), all `security_invoker` so RLS applies to the caller.
+  - ✅ Writers: `emitEvidenceForConfirmedExtraction` (B4), `emitRecommendationEvidenceEdge` (B5), `linkReportProvenance` (B6) — all idempotent, all gated by `EVIDENCE_GRAPH_WRITES`, flipped on in preview (B7).
+  - ✅ Consumer server fns: `getReportProvenance` (B6) and `getReportProvenanceCoverage` (B8) reading through the RLS-honoring views.
+  - ✅ Coverage query returns for every `pathway_reports` row the caller can see (0 when no edges yet, ≥1 once evidence is linked) — establishes the observable metric for "every recommendation resolves ≥1 evidence item" as writer coverage rolls forward.
+- **Rollback**: `DROP VIEW public.report_provenance_coverage_v1;` and remove the `getReportProvenanceCoverage` server fn — no data change to undo. Legacy `report_evidence_links` remains the fallback reader as documented in the Workstream B plan.
+
+Workstream B closed. Ready to open Workstream C (Document Intelligence Pipeline) on approval.
+
+
 
 
 

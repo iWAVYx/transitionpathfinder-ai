@@ -605,6 +605,33 @@ export const getReportProvenance = createServerFn({ method: "POST" })
     return { rows };
   });
 
+/**
+ * Slice B8 — Provenance coverage consumer. Reads through the RLS-honoring
+ * `report_provenance_coverage_v1` view and returns { evidence_edge_count,
+ * has_coverage } for a given report. Silently returns
+ * { evidence_edge_count: 0, has_coverage: false } when the caller cannot see
+ * the report or any of its underlying evidence edges.
+ */
+export const getReportProvenanceCoverage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await (context.supabase
+      .from("report_provenance_coverage_v1") as any)
+      .select("evidence_edge_count, has_coverage")
+      .eq("report_id", data.report_id)
+      .maybeSingle();
+    if (error) {
+      console.warn("getReportProvenanceCoverage failed", error);
+      return { evidence_edge_count: 0, has_coverage: false };
+    }
+    return {
+      evidence_edge_count: (row?.evidence_edge_count as number) ?? 0,
+      has_coverage: Boolean(row?.has_coverage),
+    };
+  });
+
+
 export const deleteReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
