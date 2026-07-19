@@ -164,3 +164,14 @@ Next: **Slice C2** — content-hash column on `documents` + idempotent backfill 
 - **Rollback**: `DROP INDEX IF EXISTS public.documents_student_content_hash_idx; ALTER TABLE public.documents DROP COLUMN IF EXISTS content_hash;` — no dependent code to unwind.
 
 Next: **Slice C3** — writer path that computes real SHA-256 on upload and short-circuits duplicate re-processing via the new index.
+
+### Slice C3 — Content-hash upload short-circuit
+- **Server fn**: `registerDocument` (in `src/lib/documents.functions.ts`) now accepts an optional `content_hash` (SHA-256 hex, validated by `/^[a-f0-9]{64}$/i`).
+- **Short-circuit path**: before insert, when a hash is supplied, look up the newest live (`deleted_at IS NULL`) document for the same `student_id` with matching `content_hash`. On hit, we skip the second `documents.insert`, skip re-enqueuing an `ai_jobs` `document_summary` job, log an `upload_dedupe_hit` row to `document_access_log` (audit signal), and return the existing `DocumentRow` — return shape unchanged so callers don't break.
+- **Insert path**: when no dedupe hit (or no hash provided), the new row is written with `content_hash = <hash lowercased>` (or NULL). Real SHA-256 values start replacing the C2 storage-path placeholders here.
+- **Uses**: `documents_student_content_hash_idx (student_id, content_hash) WHERE content_hash IS NOT NULL` — the partial index shipped in C2.
+- **Test**: `tests/document-content-hash-dedupe.test.mjs` — signed-in owner seeds a student + document with a real SHA-256, asserts the same-student lookup returns the original row, and asserts a *different* student with the same bytes does not collide (per-student scope).
+- **Non-goals**: no computation of hashes on the server (the pipeline / uploader is the source of bytes). Callers that don't pass `content_hash` see the pre-C3 behavior unchanged.
+- **Rollback**: remove the `content_hash` field from the zod schema, the pre-insert lookup block, and the `content_hash` field on the insert payload. No data migration needed.
+
+Next: **Slice C4** — pipeline-run breadcrumb writes (`document_pipeline_runs` rows for `hash`/`extract`/`verify` stages) so we can observe retries + latency without changing the user-visible upload flow.
