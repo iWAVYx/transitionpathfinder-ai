@@ -98,4 +98,12 @@ Next: **Slice B4** — introduce the first evidence writer (document-extraction 
 - **Idempotency test**: `tests/evidence-writer-idempotency.test.mjs` — signs in as the QA parent, seeds a student, runs the same upsert three times, asserts exactly one `evidence_items` row survives under RLS. Locks in the partial-unique-index contract that the writer relies on.
 - **Rollback**: unset `EVIDENCE_GRAPH_WRITES` (default). To remove entirely, delete the `emitEvidenceForConfirmedExtraction` call in `applyAcceptedExtraction` and the helper file — no schema change to undo.
 
-Next: **Slice B5** — second writer (report reference → `evidence_edges` linking `evidence_item → pathway_recommendation`) plus consumer read via `recommendation_provenance_v1` in one non-visual code path.
+### Slice B5 — Second writer (recommendation edge) + first provenance consumer
+- **New helper** in `src/lib/evidence-writers.functions.ts`: `emitRecommendationEvidenceEdge()` upserts one `evidence_edges` row from `evidence_item → pathway_recommendation` using the unique index `evidence_edges_from_type_from_id_to_type_to_id_relation_key` on `(from_type, from_id, to_type, to_id, relation)` with `ignoreDuplicates: true`. Runs under the caller's authenticated supabase client; edge RLS derives visibility from the source evidence item.
+- **Feature flag**: `EVIDENCE_GRAPH_WRITES` (server-only, shared with B4). Off → helper returns `{ ok: true, skipped: true }` and writes nothing.
+- **First consumer read**: `readRecommendationProvenance(supabase, recommendationId)` — reads through the `recommendation_provenance_v1` view (RLS-honoring `security_invoker`), returning `[]` silently when the caller has no access.
+- **Idempotency + provenance test**: `tests/evidence-edge-writer.test.mjs` — signs in as the QA parent, seeds a student + evidence item, upserts the same edge three times and asserts exactly one row survives; then reads `recommendation_provenance_v1` and confirms the owner sees exactly one row while an unrelated signed-in parent sees zero.
+- **Rollback**: unset `EVIDENCE_GRAPH_WRITES`. To remove entirely, delete `emitRecommendationEvidenceEdge` and `readRecommendationProvenance` from `src/lib/evidence-writers.functions.ts` — no schema change to undo.
+
+Next: **Slice B6** — begin wiring the recommendation edge writer into the pathway-generation path (still shadow-mode) so real recommendations start producing provenance rows, then expose one read in a non-visual server fn for downstream consumers.
+
