@@ -267,3 +267,17 @@ Workstream C acceptance status:
 Next: **Slice D2** — Zod `RecommendationV1` contract + engine helper that validates every recommendation against it *before* narrative generation, plus a unit test proving invalid recommendations are rejected (not silently rewritten). Structured-output enforcement is prerequisite to D3's refusal path and D4's report-stamp write path.
 
 
+
+### Slice D2 — RecommendationV1 contract + schema-first generation gate
+- **Pure module** `src/lib/pathway-recommendation-v1.ts` — isomorphic (no supabase / no react / no server imports). Exports:
+  - `RecommendationV1` Zod schema. Every field is required (`schema_version=1`, `id`, `pillar`, `age_band`, `title`, `summary`, `why`, `next_action`, `owner_role`, `timeframe`, `confidence`, `discuss_at_next_meeting`, `sources[≥1]`, `provenance`) so a partial or hallucinated rec cannot silently pass. `provenance` mirrors the D1 columns (`rules_version`, `prompt_version`, `model_version`, `engine_channel`, `knowledge_ref[]`).
+  - `RecommendationBatchV1` — array of recs with a uniqueness refinement on `id`.
+  - `parseRecommendationV1` / `parseRecommendationBatchV1` — schema-first gates returning `{ ok, value } | { ok:false, error_code:"schema_invalid", issues }`. Callers MUST NOT downgrade a failed parse to a partial rec.
+  - `assessEvidenceSufficiency(signals)` — deterministic check that every kind in `MIN_EVIDENCE_FOR_PILLAR` (`profile`, `student_voice`) is present with count > 0. Returns `{ sufficient:false, missing, reason }` otherwise.
+  - `buildAssessmentRefusal(input)` — builds a valid `RecommendationV1` on the `assessment` pillar whose `next_action` is "collect the missing signals and regenerate". Belt-and-suspenders: the refusal object is re-parsed through the schema before return, so the refusal path cannot bypass the gate.
+- **Tests** `tests/recommendation-v1-gate.test.mjs` — 9/9 pass under `node --experimental-strip-types --test`. Covers accept-happy-path, short-title reject, empty-sources reject, unknown-pillar reject, duplicate-id batch reject, unique-id batch accept, sufficiency-fail flags missing signals, sufficiency-pass with full min set, and refusal-rec passes the gate.
+- **Dormant**: no writer/reader consumes this yet. The real engine will wire `parseRecommendationBatchV1` in front of the narrative stage in a later slice; the refusal helper will short-circuit sparse-evidence pillars before any AI call.
+- **Non-goals**: no changes to `src/lib/pathway.functions.ts`, `src/lib/pathway-v2.ts`, `src/lib/demo/pathway-engine.ts`, or the AI worker. No schema/migration changes (D1 already added the provenance columns). No UI.
+- **Rollback**: delete `src/lib/pathway-recommendation-v1.ts` and `tests/recommendation-v1-gate.test.mjs`. Nothing else imports either file.
+
+Next: **Slice D3** — seed one production `pathway_rules_versions` row (channel=`shadow`) + a small set of `pathway_knowledge_sources` (IDEA 2004, CSDE Secondary Transition guidance) so future engine runs have a real ruleset/knowledge snapshot to stamp on reports.
