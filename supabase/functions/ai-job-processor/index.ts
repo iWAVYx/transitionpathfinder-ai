@@ -204,10 +204,10 @@ async function recordPipelineRun(
 }
 
 async function processJob(supabase: ReturnType<typeof createClient>, job: Job) {
-  const systemPrompt = systemPromptFor(job.job_type);
-  const userPrompt = JSON.stringify(job.input_source ?? {}, null, 2);
+  let systemPrompt = systemPromptFor(job.job_type);
   const MODEL_VERSION = "google/gemini-3-flash-preview";
   const PROMPT_VERSION = "v1";
+  const SANITIZE_VERSION = "sanitize-v1";
 
   // Slice C5 — worker-side breadcrumbs, only for document_summary jobs
   // where the enqueue included a document_id (upload/hash/extract-pending
@@ -215,6 +215,40 @@ async function processJob(supabase: ReturnType<typeof createClient>, job: Job) {
   const docId = job.job_type === "document_summary"
     ? (job.input_source?.document_id as string | undefined)
     : undefined;
+
+  // Slice C8 — sanitize untrusted document text embedded in input_source
+  // before it ever reaches the AI gateway, wrap the payload in an
+  // UNTRUSTED_DOCUMENT_TEXT fence, and append a hardened refuse-to-follow
+  // suffix to the system prompt. Applied to document_summary jobs where
+  // the payload originates from user-uploaded documents; other job types
+  // fall through to the legacy prompt shape.
+  let userPrompt: string;
+  if (job.job_type === "document_summary") {
+    const sanitizeStartedAt = Date.now();
+    const { value, report } = sanitizeInputSource(job.input_source ?? {});
+    userPrompt = `${UNTRUSTED_OPEN}\n${JSON.stringify(value, null, 2)}\n${UNTRUSTED_CLOSE}`;
+    systemPrompt = `${systemPrompt}${UNTRUSTED_SYSTEM_SUFFIX}`;
+    if (docId) {
+      await recordPipelineRun(supabase, {
+        document_id: docId,
+        student_id: job.student_id,
+        stage: "sanitize",
+        status: "succeeded",
+        attempt: job.attempts + 1,
+        model_version: MODEL_VERSION,
+        prompt_version: SANITIZE_VERSION,
+        latency_ms: Date.now() - sanitizeStartedAt,
+        payload: {
+          strings_scanned: report.strings_scanned,
+          redactions: report.redactions,
+          patterns: report.patterns,
+          truncated_strings: report.truncated_strings,
+        },
+      });
+    }
+  } else {
+    userPrompt = JSON.stringify(job.input_source ?? {}, null, 2);
+  }
 
   if (docId) {
     await recordPipelineRun(supabase, {
@@ -227,6 +261,7 @@ async function processJob(supabase: ReturnType<typeof createClient>, job: Job) {
       prompt_version: PROMPT_VERSION,
     });
   }
+
 
   const extractStartedAt = Date.now();
   let result: Record<string, unknown>;
