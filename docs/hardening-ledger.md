@@ -90,3 +90,12 @@ Next: **Slice B3** — build the read-side views (`student_evidence_v1`, `recomm
 - **Rollback**: `DROP VIEW public.recommendation_provenance_v1; DROP VIEW public.student_evidence_v1;` — safe, no downstream readers wired yet.
 
 Next: **Slice B4** — introduce the first evidence writer (document-extraction ingestion path) behind a feature flag, emitting one `evidence_item` per confirmed extraction and one `evidence_edge` per report reference, with a writer-idempotency test.
+
+### Slice B4 — First evidence writer (document extraction)
+- **New helper**: `src/lib/evidence-writers.functions.ts` — `emitEvidenceForConfirmedExtraction()` upserts one `evidence_items` row per confirmed extraction using the partial unique index `(student_id, source_kind, source_id)` with `ignoreDuplicates: true`. Runs under the caller's authenticated supabase client, so RLS on `evidence_items` still applies.
+- **Feature flag**: `EVIDENCE_GRAPH_WRITES` (server-only). Off → helper returns `{ ok: true, skipped: true }` and writes nothing; existing code paths unchanged. Shadow-mode by default.
+- **Wired into**: `applyAcceptedExtraction` in `src/lib/extractions.functions.ts` — after the extraction is marked `complete` and before the audit_log insert. Emits `kind='document_extraction'`, `verification_state='human_confirmed'`, `payload` = the applied field names. Non-fatal on failure (logged, not thrown), so a writer error can never regress an already-successful extraction apply.
+- **Idempotency test**: `tests/evidence-writer-idempotency.test.mjs` — signs in as the QA parent, seeds a student, runs the same upsert three times, asserts exactly one `evidence_items` row survives under RLS. Locks in the partial-unique-index contract that the writer relies on.
+- **Rollback**: unset `EVIDENCE_GRAPH_WRITES` (default). To remove entirely, delete the `emitEvidenceForConfirmedExtraction` call in `applyAcceptedExtraction` and the helper file — no schema change to undo.
+
+Next: **Slice B5** — second writer (report reference → `evidence_edges` linking `evidence_item → pathway_recommendation`) plus consumer read via `recommendation_provenance_v1` in one non-visual code path.

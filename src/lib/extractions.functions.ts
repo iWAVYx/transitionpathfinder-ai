@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractFromIep, type IepExtract } from "./iep-extract.functions";
+import { emitEvidenceForConfirmedExtraction } from "./evidence-writers.functions";
 
 /** Section keys we surface in the review UI, mapped to IepExtract fields. */
 export const EXTRACTION_SECTION_KEYS = [
@@ -198,7 +199,7 @@ export const applyAcceptedExtraction = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("document_extractions")
-      .select("id, student_id, sections")
+      .select("id, student_id, document_id, sections")
       .eq("id", data.extraction_id)
       .maybeSingle();
     if (error || !row) throw new Error("Extraction not found.");
@@ -262,6 +263,23 @@ export const applyAcceptedExtraction = createServerFn({ method: "POST" })
       })
       .eq("id", row.id);
     if (finErr) throw new Error("Could not finalize the review.");
+
+    // Slice B4: emit one evidence_item for this confirmed extraction (flagged).
+    // Idempotent: partial unique index on (student_id, source_kind, source_id).
+    await emitEvidenceForConfirmedExtraction({
+      supabase,
+      userId,
+      extractionId: row.id,
+      studentId: row.student_id,
+      documentId: (row as { document_id?: string | null }).document_id ?? null,
+      verificationState: "human_confirmed",
+      payload: {
+        applied_student_fields: Object.keys(studentPatch),
+        applied_transition_fields: Object.keys(tp),
+      },
+    });
+
+
 
     await supabase.from("audit_log").insert({
       actor_id: userId,
