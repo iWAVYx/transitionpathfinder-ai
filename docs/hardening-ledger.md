@@ -231,5 +231,25 @@ Next: **Slice C7** — surface pipeline-run breadcrumbs to platform admins (read
 - **Non-goals**: no new client UI, no admin-view changes (breadcrumb already visible in `/owner/document-pipeline` from C7), no promotion-to-evidence gating (that lands in a later C slice), no schema changes beyond the CHECK widen. Existing pipeline flow is unchanged for non-`document_summary` job types.
 - **Rollback**: (1) revert `processJob` in `supabase/functions/ai-job-processor/index.ts` to restore `const systemPrompt = systemPromptFor(job.job_type);` + `const userPrompt = JSON.stringify(job.input_source ?? {}, null, 2);` and remove the inline `sanitizeInputSource` block; (2) delete `src/lib/document-sanitize.ts` and `tests/document-sanitize.test.mjs`; (3) run a follow-up migration to shrink the CHECK constraint back to the original six stages after any `sanitize` rows are archived.
 
+### Slice C9 — Verification gate on evidence promotion
+- **Writer gate** `src/lib/evidence-writers.functions.ts`:
+  - New exported constant `PROMOTABLE_VERIFICATION_STATES = ['human_confirmed','auto_high']` and pure helper `isEvidencePromotable(state)` — the single source of truth for "is this extraction trustworthy enough to enter the evidence graph?".
+  - `emitEvidenceForConfirmedExtraction` now short-circuits before any DB call when the effective `verification_state` is not promotable, returning `{ ok: true, skipped: true, reason: 'verification_state:<state>' }`. The flag-off path returns `reason: 'flag_off'` so operators can distinguish shadow-mode from a real refusal. When admitted, the row now writes the actual computed state (not a silent fallback to `human_confirmed`).
+  - Type widened: `verificationState` now accepts the full domain (`human_confirmed | auto_high | auto_low | unverified | disputed`) so callers can pass the classifier's raw output and let the gate decide, instead of pre-filtering upstream.
+- **Test** `tests/evidence-verification-gate.test.mjs` — pure `node --test` suite (4/4 passing):
+  - Locks the promotable set to exactly `{human_confirmed, auto_high}`.
+  - Asserts `isEvidencePromotable` accepts trusted states and rejects `auto_low | unverified | disputed | '' | null | undefined | 42`.
+  - Uses an "exploding" supabase stub whose `.from()` throws — proving the gate short-circuits *before* any query is dispatched for both the flag-off path and the non-promotable-state path. Any regression that removes the early return would surface as a thrown error, not a silent DB write.
+- **Non-goals**: no schema change, no admin UI, no worker changes. The AI worker in C5 already emits `verify → succeeded` breadcrumbs; wiring the worker to promote auto-classified extractions once it stamps `verification_state='auto_high'` is a follow-up slice — for now every promotion path funnels through `applyAcceptedExtraction` (human-confirmed) and is now provably gated.
+- **Rollback**: revert the guard block (`if (!isEvidencePromotable(state)) return ...`) and restore the previous `verification_state: args.verificationState ?? 'human_confirmed'` line; delete `tests/evidence-verification-gate.test.mjs`. No data migration needed — the gate never wrote anything it shouldn't have.
 
+Workstream C acceptance status:
+- ✅ Pipeline run-log schema (C1) + admin ops view (C7).
+- ✅ Content-hash dedupe on upload (C2, C3) with breadcrumbs (C4).
+- ✅ Worker extract/verify breadcrumbs (C5).
+- ✅ Upload magic-byte sniff + MIME/size allowlist + quarantine (C6).
+- ✅ Prompt-injection sanitizer + hardened extract prompt + `sanitize` breadcrumb (C8).
+- ✅ Verification gate: extractions only enter `evidence_items` when `verification_state IN ('auto_high','human_confirmed')` (C9).
+
+Workstream C closed. Next up per the sequencing diagram: **Workstream D — Age & Stage Rules Engine + Structured Generation** (or Workstream J's eval corpus, whichever you'd like to open first).
 

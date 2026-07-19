@@ -14,13 +14,40 @@ export function evidenceWritesEnabled(): boolean {
   return process.env.EVIDENCE_GRAPH_WRITES === "true";
 }
 
+export type EvidenceVerificationState =
+  | "human_confirmed"
+  | "auto_high"
+  | "auto_low"
+  | "unverified"
+  | "disputed";
+
+/**
+ * Slice C9 — Verification gate. An extraction is only allowed to become an
+ * `evidence_items` row when the reviewer/auto-classifier has raised its
+ * verification_state to one of the trusted values. Everything else must
+ * remain shadow-only until a human confirms or the classifier upgrades it.
+ */
+export const PROMOTABLE_VERIFICATION_STATES: readonly EvidenceVerificationState[] = [
+  "human_confirmed",
+  "auto_high",
+] as const;
+
+export function isEvidencePromotable(
+  state: EvidenceVerificationState | string | null | undefined,
+): boolean {
+  return (
+    typeof state === "string" &&
+    (PROMOTABLE_VERIFICATION_STATES as readonly string[]).includes(state)
+  );
+}
+
 export type EmitConfirmedExtractionArgs = {
   supabase: SupabaseClient;
   userId: string;
   extractionId: string;
   studentId: string;
   documentId: string | null;
-  verificationState?: "human_confirmed" | "auto_high" | "unverified";
+  verificationState?: EvidenceVerificationState;
   payload?: Record<string, unknown>;
 };
 
@@ -28,12 +55,20 @@ export type EmitConfirmedExtractionArgs = {
  * Insert (or no-op) one evidence_item row for a confirmed extraction.
  * Safe to call repeatedly — the partial unique index dedupes on
  * (student_id, source_kind='document_extraction', source_id=extractionId).
- * Returns { skipped: true } when the flag is off.
+ * Returns { skipped: true } when the flag is off or when the extraction has
+ * not yet reached a promotable verification_state (Slice C9 gate).
  */
 export async function emitEvidenceForConfirmedExtraction(
   args: EmitConfirmedExtractionArgs,
-): Promise<{ ok: boolean; skipped?: boolean; evidenceId?: string | null }> {
-  if (!evidenceWritesEnabled()) return { ok: true, skipped: true };
+): Promise<{ ok: boolean; skipped?: boolean; reason?: string; evidenceId?: string | null }> {
+  if (!evidenceWritesEnabled()) return { ok: true, skipped: true, reason: "flag_off" };
+
+  const state = args.verificationState ?? "human_confirmed";
+  if (!isEvidencePromotable(state)) {
+    return { ok: true, skipped: true, reason: `verification_state:${state}` };
+  }
+
+
 
   const row = {
     student_id: args.studentId,
@@ -44,7 +79,7 @@ export async function emitEvidenceForConfirmedExtraction(
     source_id: args.extractionId,
     contributor_id: args.userId,
     occurred_at: new Date().toISOString(),
-    verification_state: args.verificationState ?? "human_confirmed",
+    verification_state: state,
     permission_scope: "student_team",
     payload: args.payload ?? {},
     extraction_id: args.extractionId,
