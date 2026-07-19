@@ -1758,6 +1758,87 @@ export type Database = {
           },
         ]
       }
+      document_pipeline_runs: {
+        Row: {
+          attempt: number
+          correlation_id: string
+          cost_cents: number | null
+          created_at: string
+          document_id: string
+          engine_version: string | null
+          error_code: string | null
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          latency_ms: number | null
+          model_version: string | null
+          payload: Json
+          prompt_version: string | null
+          stage: string
+          started_at: string | null
+          status: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempt?: number
+          correlation_id?: string
+          cost_cents?: number | null
+          created_at?: string
+          document_id: string
+          engine_version?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          latency_ms?: number | null
+          model_version?: string | null
+          payload?: Json
+          prompt_version?: string | null
+          stage: string
+          started_at?: string | null
+          status: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempt?: number
+          correlation_id?: string
+          cost_cents?: number | null
+          created_at?: string
+          document_id?: string
+          engine_version?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          latency_ms?: number | null
+          model_version?: string | null
+          payload?: Json
+          prompt_version?: string | null
+          stage?: string
+          started_at?: string | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_pipeline_runs_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_pipeline_runs_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_summaries: {
         Row: {
           ai_model_used: string | null
