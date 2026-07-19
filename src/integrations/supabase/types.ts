@@ -1916,6 +1916,7 @@ export type Database = {
           archived_by: string | null
           consent_acknowledged_at: string | null
           consent_required: boolean
+          content_hash: string | null
           created_at: string
           delete_reason: string | null
           deleted_at: string | null
@@ -1957,6 +1958,7 @@ export type Database = {
           archived_by?: string | null
           consent_acknowledged_at?: string | null
           consent_required?: boolean
+          content_hash?: string | null
           created_at?: string
           delete_reason?: string | null
           deleted_at?: string | null
@@ -1998,6 +2000,7 @@ export type Database = {
           archived_by?: string | null
           consent_acknowledged_at?: string | null
           consent_required?: boolean
+          content_hash?: string | null
           created_at?: string
           delete_reason?: string | null
           deleted_at?: string | null
