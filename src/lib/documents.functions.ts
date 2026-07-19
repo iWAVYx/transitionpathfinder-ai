@@ -87,8 +87,10 @@ export const registerDocument = createServerFn({ method: "POST" })
       notes: z.string().trim().max(2000).optional(),
       source: z.string().trim().max(200).optional(),
       consent_acknowledged: z.boolean().default(false),
+      content_hash: z.string().trim().regex(/^[a-f0-9]{64}$/i).optional(),
     }).parse(i),
   )
+
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
