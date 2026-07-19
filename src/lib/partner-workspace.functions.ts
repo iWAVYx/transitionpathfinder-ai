@@ -137,6 +137,10 @@ export const createOpportunity = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireFeatureEntitlement(supabase, userId, "partner");
+    await assertAuthorized(
+      { supabase, userId, action: "publish_opportunity", resourceType: "partner_capability" },
+      "Your partner tier doesn't allow publishing opportunities.",
+    );
     const { data: row, error } = await supabase
       .from("partner_opportunities")
       .insert({ ...data, status: "draft" })
