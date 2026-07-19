@@ -271,7 +271,7 @@ export const applyAcceptedExtraction = createServerFn({ method: "POST" })
       userId,
       extractionId: row.id,
       studentId: row.student_id,
-      documentId: null,
+      documentId: (row as { document_id?: string | null }).document_id ?? null,
       verificationState: "human_confirmed",
       payload: {
         applied_student_fields: Object.keys(studentPatch),
