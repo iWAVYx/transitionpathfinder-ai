@@ -34,7 +34,7 @@ export interface PipelineRunRow {
   error_message: string | null;
   latency_ms: number | null;
   cost_cents: number | null;
-  payload: Record<string, unknown> | null;
+  payload: Json;
   started_at: string | null;
   finished_at: string | null;
   created_at: string;
