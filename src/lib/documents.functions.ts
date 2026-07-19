@@ -128,6 +128,34 @@ export const registerDocument = createServerFn({ method: "POST" })
       throw new Error("Please confirm you are authorized to upload this document before continuing.");
     }
 
+    // Slice C3 — short-circuit duplicate uploads by content hash within a student.
+    // Index: documents_student_content_hash_idx (student_id, content_hash) WHERE content_hash IS NOT NULL.
+    // If the caller provided a real SHA-256 and we already have a live (non-deleted)
+    // document for this student with the same bytes, return that row instead of
+    // creating a second record + a second AI summary job.
+    if (data.content_hash) {
+      const { data: existing } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("student_id", data.student_id)
+        .eq("content_hash", data.content_hash.toLowerCase())
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existing) {
+        await supabase.from("document_access_log").insert({
+          document_id: existing.id,
+          student_id: data.student_id,
+          actor_id: userId,
+          actor_role: uploaderRole,
+          action: "upload_dedupe_hit",
+          metadata: { content_hash: data.content_hash.toLowerCase(), incoming_title: data.title },
+        });
+        return { document: existing as DocumentRow, deduped: true as const };
+      }
+    }
+
     const { data: row, error } = await supabase
       .from("documents")
       .insert({
@@ -152,6 +180,7 @@ export const registerDocument = createServerFn({ method: "POST" })
         notes: data.notes ?? null,
         source: data.source ?? null,
         consent_acknowledged_at: data.consent_acknowledged ? new Date().toISOString() : null,
+        content_hash: data.content_hash ? data.content_hash.toLowerCase() : null,
       })
       .select("*")
       .single();
@@ -159,6 +188,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       console.error("registerDocument failed", error);
       throw new Error("Could not save document record.");
     }
+
 
     // Enqueue an AI document summary job (best-effort; don't fail upload if it errors).
     const { error: jobErr } = await supabase.from("ai_jobs").insert({
