@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { assertAuthorized } from "./authz";
 
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
