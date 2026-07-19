@@ -199,7 +199,7 @@ export const applyAcceptedExtraction = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("document_extractions")
-      .select("id, student_id, sections")
+      .select("id, student_id, document_id, sections")
       .eq("id", data.extraction_id)
       .maybeSingle();
     if (error || !row) throw new Error("Extraction not found.");
