@@ -293,3 +293,13 @@ Next: **Slice D3** — seed one production `pathway_rules_versions` row (channel
 - **Linter**: the migration produced no new warnings; the 50 pre-existing warnings (extension-in-public + SECURITY DEFINER function inventory) are unrelated to this slice.
 
 Next: **Slice D4** — dormant `PathwayEngineInvocation` server-side helper (`src/lib/pathway-engine-invocation.server.ts`) that resolves the current shadow ruleset + knowledge snapshot, builds a `RecProvenance` object, and returns it to callers so the eventual writer only has to call one function to get the correct provenance stamp. Still no user-visible change; still no writer wired.
+
+### Slice D4 — PathwayEngineInvocation provenance resolver (dormant)
+- **Helper** `src/lib/pathway-engine-invocation.ts` — pure, isomorphic (no supabase / react / server imports). Exports:
+  - `resolvePathwayEngineInvocation({ rulesRow, knowledgeRows, promptVersion, modelVersion, channelOverride?, maxKnowledgeRefs? })` — takes a snapshot of the D1 registries + caller identifiers, filters retired knowledge rows, formats `knowledge_ref` as `<slug>@<version>` (bare slug when version is null), caps the list at 20, and re-parses through the D2 `RecProvenance` Zod schema so the resolver can never emit a shape a downstream `RecommendationV1` gate would reject.
+  - `knowledgeRefFor(row)` — deterministic slug/version formatter.
+  - `provenanceToReportColumns(provenance)` — maps validated provenance into the additive `pathway_reports` columns from Slice D1 (`rules_version`, `prompt_version`, `model_version`, `engine_channel`, `knowledge_snapshot: { knowledge_ref }`).
+  - Discriminated result: `{ok:true, provenance, knowledge_dropped}` or `{ok:false, error_code, message}` with codes `no_active_rules | rules_retired | invalid_channel | provenance_invalid` — never throws.
+- **Test** `tests/pathway-engine-invocation.test.mjs` (9/9 passing under `node --test`) — locks the happy path (shadow ruleset + IDEA/CSDE seeds from D3), retired-knowledge exclusion, missing/retired ruleset refusals, invalid-channel refusal, `channelOverride` precedence, 20-ref cap with reported drop count, `knowledgeRefFor` formatting, and the `provenanceToReportColumns` mapping shape.
+- **Non-goals**: no supabase client, no server function, no writer, no route, no user-visible copy. Registry loaders and the engine call site land in later Workstream D slices; this slice only proves the transform is correct and schema-valid in isolation.
+- **Rollback**: delete `src/lib/pathway-engine-invocation.ts` and `tests/pathway-engine-invocation.test.mjs`. No schema changes, no other files touched.
