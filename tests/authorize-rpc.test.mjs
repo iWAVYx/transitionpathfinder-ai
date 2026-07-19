@@ -26,6 +26,7 @@ const DISTRICT_B = "11111111-1111-1111-1111-1111111111bb";
 
 const DISTRICT_A_ADMIN = "qa.districtadmin@transitionforward.test";
 const PARTNER_USER = "qa.partner@transitionforward.test";
+const PARENT_USER = "qa.parent@transitionforward.test";
 
 function client() {
   return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -82,4 +83,30 @@ test("partner user: authorize('publish_opportunity','partner_capability') = true
     resourceType: "partner_capability",
   });
   assert.equal(allowed, true, "publish_opportunity is baseline true for any partner");
+});
+
+// --- Slice A3: entitlement / capability boundary ---
+// A parent user has no partner entitlement, so partner_capability actions
+// must be denied even at the free-tier baseline. Mirrors the waitlist
+// boundary: signed-in ≠ entitled for a given resource type.
+
+test("parent user: authorize('publish_opportunity','partner_capability') = false", async () => {
+  const { supabase, userId } = await signIn(PARENT_USER);
+  const allowed = await authorize(supabase, {
+    userId,
+    action: "publish_opportunity",
+    resourceType: "partner_capability",
+  });
+  assert.equal(allowed, false, "parent user must not have partner publish capability");
+});
+
+test("parent user: authorize('view','organization', anyDistrict) = false", async () => {
+  const { supabase, userId } = await signIn(PARENT_USER);
+  const allowed = await authorize(supabase, {
+    userId,
+    action: "view",
+    resourceType: "organization",
+    resourceId: DISTRICT_A,
+  });
+  assert.equal(allowed, false, "parent user has no district membership");
 });

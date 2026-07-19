@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { assertAuthorized } from "./authz";
 
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
@@ -223,6 +224,13 @@ export const archiveDocument = createServerFn({ method: "POST" })
       .maybeSingle();
     if (readErr || !row) throw new Error("Document not found or access denied.");
 
+    await assertAuthorized(
+      { supabase, userId, action: "edit", resourceType: "student", resourceId: row.student_id },
+      data.restore
+        ? "You don't have permission to restore this document."
+        : "You don't have permission to archive this document.",
+    );
+
     const patch = data.restore
       ? { archived_at: null, archived_by: null, archive_reason: null }
       : { archived_at: new Date().toISOString(), archived_by: userId, archive_reason: data.reason ?? null };
@@ -375,6 +383,11 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
       }
       throw new Error("Document not found.");
     }
+
+    await assertAuthorized(
+      { supabase, userId, action: "view", resourceType: "document", resourceId: row.id },
+      "You don't have permission to view this document.",
+    );
 
     const { data: signed, error: signErr } = await supabase.storage
       .from("student-documents")
