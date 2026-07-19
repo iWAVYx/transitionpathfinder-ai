@@ -163,7 +163,11 @@ export const updateOpportunity = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertAuthorized(
+      { supabase, userId, action: "publish_opportunity", resourceType: "partner_capability" },
+      "Your partner tier doesn't allow editing opportunities.",
+    );
     const { id, ...patch } = data;
     const { error } = await supabase.from("partner_opportunities").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
