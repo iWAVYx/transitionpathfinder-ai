@@ -85,11 +85,133 @@ async function callLovableAI(systemPrompt: string, user: string) {
   }
 }
 
+// Slice C5 — Best-effort worker-side pipeline breadcrumb writer.
+// Mirrors src/lib/document-pipeline.server.ts. Any error is swallowed so
+// the primary job flow is never blocked by observability writes.
+type PipelineStage = "upload" | "sniff" | "hash" | "extract" | "verify" | "publish";
+type PipelineStatus = "pending" | "running" | "succeeded" | "failed" | "quarantined" | "skipped";
+async function recordPipelineRun(
+  supabase: ReturnType<typeof createClient>,
+  input: {
+    document_id: string;
+    student_id?: string | null;
+    stage: PipelineStage;
+    status: PipelineStatus;
+    correlation_id?: string;
+    attempt?: number;
+    model_version?: string | null;
+    prompt_version?: string | null;
+    error_code?: string | null;
+    error_message?: string | null;
+    latency_ms?: number | null;
+    payload?: Record<string, unknown>;
+    started_at?: string | null;
+    finished_at?: string | null;
+  },
+) {
+  try {
+    const nowIso = new Date().toISOString();
+    const terminal = input.status === "succeeded" || input.status === "failed"
+      || input.status === "skipped" || input.status === "quarantined";
+    const { error } = await supabase.from("document_pipeline_runs").insert({
+      document_id: input.document_id,
+      student_id: input.student_id ?? null,
+      correlation_id: input.correlation_id,
+      attempt: input.attempt ?? 1,
+      stage: input.stage,
+      status: input.status,
+      model_version: input.model_version ?? null,
+      prompt_version: input.prompt_version ?? null,
+      error_code: input.error_code ?? null,
+      error_message: input.error_message ?? null,
+      latency_ms: input.latency_ms ?? null,
+      payload: input.payload ?? {},
+      started_at: input.started_at ?? (input.status === "running" ? nowIso : null),
+      finished_at: input.finished_at ?? (terminal ? nowIso : null),
+    });
+    if (error) console.warn("[pipeline] insert failed", input.stage, input.status, error.message);
+  } catch (err) {
+    console.warn("[pipeline] threw", input.stage, input.status, err instanceof Error ? err.message : String(err));
+  }
+}
+
 async function processJob(supabase: ReturnType<typeof createClient>, job: Job) {
   const systemPrompt = systemPromptFor(job.job_type);
   const userPrompt = JSON.stringify(job.input_source ?? {}, null, 2);
+  const MODEL_VERSION = "google/gemini-3-flash-preview";
+  const PROMPT_VERSION = "v1";
 
-  const result = await callLovableAI(systemPrompt, userPrompt);
+  // Slice C5 — worker-side breadcrumbs, only for document_summary jobs
+  // where the enqueue included a document_id (upload/hash/extract-pending
+  // breadcrumbs already exist from the upload path).
+  const docId = job.job_type === "document_summary"
+    ? (job.input_source?.document_id as string | undefined)
+    : undefined;
+
+  if (docId) {
+    await recordPipelineRun(supabase, {
+      document_id: docId,
+      student_id: job.student_id,
+      stage: "extract",
+      status: "running",
+      attempt: job.attempts + 1,
+      model_version: MODEL_VERSION,
+      prompt_version: PROMPT_VERSION,
+    });
+  }
+
+  const extractStartedAt = Date.now();
+  let result: Record<string, unknown>;
+  try {
+    result = await callLovableAI(systemPrompt, userPrompt);
+  } catch (err) {
+    if (docId) {
+      await recordPipelineRun(supabase, {
+        document_id: docId,
+        student_id: job.student_id,
+        stage: "extract",
+        status: "failed",
+        attempt: job.attempts + 1,
+        model_version: MODEL_VERSION,
+        prompt_version: PROMPT_VERSION,
+        error_code: "ai_gateway_error",
+        error_message: err instanceof Error ? err.message : String(err),
+        latency_ms: Date.now() - extractStartedAt,
+      });
+    }
+    throw err;
+  }
+  const extractLatency = Date.now() - extractStartedAt;
+
+  if (docId) {
+    await recordPipelineRun(supabase, {
+      document_id: docId,
+      student_id: job.student_id,
+      stage: "extract",
+      status: "succeeded",
+      attempt: job.attempts + 1,
+      model_version: MODEL_VERSION,
+      prompt_version: PROMPT_VERSION,
+      latency_ms: extractLatency,
+      payload: { has_raw_fallback: "raw" in result },
+    });
+
+    // Verify stage: shadow-mode check that the AI returned structured JSON
+    // instead of a raw string blob. We never quarantine or drop the row —
+    // downstream review still gates promotion to evidence.
+    const verifyOk = !("raw" in result);
+    await recordPipelineRun(supabase, {
+      document_id: docId,
+      student_id: job.student_id,
+      stage: "verify",
+      status: verifyOk ? "succeeded" : "skipped",
+      attempt: job.attempts + 1,
+      model_version: MODEL_VERSION,
+      prompt_version: PROMPT_VERSION,
+      error_code: verifyOk ? null : "non_json_response",
+      payload: { checks: ["json_shape"] },
+    });
+  }
 
   await supabase
     .from("ai_jobs")

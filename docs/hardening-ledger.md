@@ -187,3 +187,16 @@ Next: **Slice C4** — pipeline-run breadcrumb writes (`document_pipeline_runs` 
 - **Rollback**: delete `src/lib/document-pipeline.server.ts` and remove the `recordPipelineRun` call sites plus the correlation-id block from `registerDocument`. Existing rows can stay — they're diagnostic-only.
 
 Next: **Slice C5** — extend breadcrumb writes to the AI worker path so `extract`/`verify` transitions land with real `model_version`/`prompt_version`/latency, still under the same correlation id.
+
+### Slice C5 — Worker-side extract/verify breadcrumbs
+- **Edge function** (`supabase/functions/ai-job-processor/index.ts`): added an inline best-effort `recordPipelineRun` helper (mirrors `src/lib/document-pipeline.server.ts`; Deno can't reuse the Node module) that writes to `document_pipeline_runs` via the existing service-role `supabase` client. Errors are logged and swallowed.
+- **Wiring in `processJob`**: only runs for `document_summary` jobs where `input_source.document_id` is present (matches what `registerDocument` enqueues in C4). Emits:
+  - `extract` → `running` when the job is claimed (attempt = `job.attempts + 1`, `model_version = "google/gemini-3-flash-preview"`, `prompt_version = "v1"`).
+  - `extract` → `failed` with `error_code: "ai_gateway_error"` + `latency_ms` when `callLovableAI` throws; original error is re-thrown so existing retry/backoff behavior in the outer handler is unchanged.
+  - `extract` → `succeeded` with real `latency_ms` and `payload.has_raw_fallback` after the AI call resolves.
+  - `verify` → `succeeded` when the AI returned a parsed JSON object, else `skipped` with `error_code: "non_json_response"` (shadow-mode only — the row is still handed to reviewers; we never quarantine yet).
+- **Correlation**: the worker doesn't yet share the upload-side correlation id (no column on `ai_jobs` today). Rows still group by `(document_id, attempt, stage)` so operators can join manually. Threading a real correlation id end-to-end is a later slice.
+- **No user-visible change**: job completion, feed_events, notifications, and retry logic are untouched. No schema changes, no new secrets, no new grants.
+- **Rollback**: remove the inline `recordPipelineRun` helper and the four `recordPipelineRun(...)` calls in `processJob`; revert the extract-call try/catch back to a straight `await`. Existing breadcrumb rows are diagnostic-only.
+
+Next: **Slice C6** — file magic-byte sniff + MIME/size allowlist on the upload path, emitting `sniff` breadcrumbs and quarantining rejects before they reach extract.
