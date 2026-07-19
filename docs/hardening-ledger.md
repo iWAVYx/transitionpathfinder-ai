@@ -27,3 +27,10 @@ Requirement → code/migration/test evidence per slice.
   - Parent user is denied `publish_opportunity` on `partner_capability` (no partner entitlement).
   - Parent user is denied `view` on `organization` (no district membership).
 - **Rollback**: helper is additive; removing the two `assertAuthorized` calls restores prior behavior. RLS still enforces on its own.
+
+### Slice A4 — Org/district mutation sweep + cross-org denial audit
+- **`authorize()` layered on org mutations** (all keep existing gates as belt-and-suspenders):
+  - `approveOrgMembership` — replaced ad-hoc `is_org_admin` RPC with `assertAuthorized('manage','organization', orgId)`.
+  - `addSchoolToDistrict`, `removeSchoolFromDistrict`, `inviteDistrictTeammate` in `src/lib/district-admin.functions.ts` — `assertAuthorized('manage','organization', district_id)` before the existing `ensureDistrictAdmin` gate.
+- **Cross-org denial audit test** added to `tests/authorize-rpc.test.mjs`: district A admin gets `authorize('manage','organization', DISTRICT_B) = false` and can read back the corresponding `org_access_audit` deny row under RLS.
+- **Rollback**: remove the added `assertAuthorized` lines; original `ensureDistrictAdmin` / `is_org_admin` checks remain in place.
