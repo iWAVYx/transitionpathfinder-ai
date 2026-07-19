@@ -150,3 +150,57 @@ test("cross-org manage denial writes org_access_audit deny row", async () => {
   assert.ok(!readErr, `audit read failed: ${readErr?.message}`);
   assert.ok((rows?.length ?? 0) >= 1, "expected at least one deny audit row");
 });
+
+// --- Slice A5: Workstream A wrap-up ---
+// Waitlist-vs-entitled boundary: a signed-in user without any active
+// access_entitlements row must get user_has_feature = false for every
+// feature flag. Signed-in ≠ entitled.
+
+test("waitlist boundary: parent user has no entitlement features", async () => {
+  const { supabase, userId } = await signIn(PARENT_USER);
+  for (const feature of ["family_access", "student_access", "partner_access", "any"]) {
+    const { data, error } = await supabase.rpc("user_has_feature", {
+      _user_id: userId,
+      _feature: feature,
+    });
+    assert.ok(!error, `user_has_feature(${feature}) failed: ${error?.message}`);
+    assert.equal(data, false, `parent (waitlist) must not have ${feature}`);
+  }
+});
+
+// Role-guard matrix wrap-up: enumerate (actor, action, resourceType, resourceId)
+// tuples and assert authorize() returns the expected decision. This is the
+// single source of truth for Workstream A boundary semantics; any regression
+// in helper functions or RLS will flip a row here.
+
+test("role-guard matrix: cross-tenant + capability decisions", async () => {
+  const cases = [
+    // District A admin
+    { as: DISTRICT_A_ADMIN, action: "view",   type: "organization",       id: DISTRICT_A, expect: true  },
+    { as: DISTRICT_A_ADMIN, action: "manage", type: "organization",       id: DISTRICT_A, expect: true  },
+    { as: DISTRICT_A_ADMIN, action: "view",   type: "organization",       id: DISTRICT_B, expect: false },
+    { as: DISTRICT_A_ADMIN, action: "manage", type: "organization",       id: DISTRICT_B, expect: false },
+    { as: DISTRICT_A_ADMIN, action: "publish_opportunity", type: "partner_capability", id: null, expect: false },
+    // Partner
+    { as: PARTNER_USER,     action: "publish_opportunity", type: "partner_capability", id: null, expect: true  },
+    { as: PARTNER_USER,     action: "view",   type: "organization",       id: DISTRICT_A, expect: false },
+    // Parent (waitlist)
+    { as: PARENT_USER,      action: "view",   type: "organization",       id: DISTRICT_A, expect: false },
+    { as: PARENT_USER,      action: "publish_opportunity", type: "partner_capability", id: null, expect: false },
+  ];
+
+  for (const c of cases) {
+    const { supabase, userId } = await signIn(c.as);
+    const allowed = await authorize(supabase, {
+      userId,
+      action: c.action,
+      resourceType: c.type,
+      resourceId: c.id,
+    });
+    assert.equal(
+      allowed,
+      c.expect,
+      `matrix: ${c.as} ${c.action} ${c.type}(${c.id ?? "-"}) expected ${c.expect} got ${allowed}`,
+    );
+  }
+});
