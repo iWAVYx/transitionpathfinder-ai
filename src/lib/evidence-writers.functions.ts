@@ -79,7 +79,7 @@ export async function emitEvidenceForConfirmedExtraction(
     source_id: args.extractionId,
     contributor_id: args.userId,
     occurred_at: new Date().toISOString(),
-    verification_state: args.verificationState ?? "human_confirmed",
+    verification_state: state,
     permission_scope: "student_team",
     payload: args.payload ?? {},
     extraction_id: args.extractionId,
