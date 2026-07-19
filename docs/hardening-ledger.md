@@ -281,3 +281,15 @@ Next: **Slice D2** — Zod `RecommendationV1` contract + engine helper that vali
 - **Rollback**: delete `src/lib/pathway-recommendation-v1.ts` and `tests/recommendation-v1-gate.test.mjs`. Nothing else imports either file.
 
 Next: **Slice D3** — seed one production `pathway_rules_versions` row (channel=`shadow`) + a small set of `pathway_knowledge_sources` (IDEA 2004, CSDE Secondary Transition guidance) so future engine runs have a real ruleset/knowledge snapshot to stamp on reports.
+
+### Slice D3 — Seed shadow-channel ruleset + IDEA/CSDE knowledge sources
+- **Migration**: seeds one `pathway_rules_versions` row (`version='rules@2026.07.19-shadow'`, `engine_channel='shadow'`) whose `ruleset` jsonb encodes the age bands (MS 11-14, EHS 14-16, LHS 16-18, Post-18 18-22), the `min_evidence_for_pillar=['profile','student_voice']` gate, the four production pillars plus the `assessment` refusal pillar, allowed timeframes, and confidence levels. Matches the D2 `RecommendationV1` shape exactly so a future writer can stamp this `rules_version` on `pathway_reports` rows without translation.
+- **Knowledge sources**: seeds four `pathway_knowledge_sources` rows — `idea-2004-part-b-secondary-transition` (federal IDEA regs), `csde-secondary-transition-guide-2024` (CT state manual), `ct-rights-transfer-age-18` (age-of-majority notice), `wioa-pre-ets-2014` (Pre-ETS employment grounding). Each row carries `publisher`, `source_url`, `jurisdiction`, `kind`, `version`, `checksum`, `fetched_at`, and a jsonb `metadata.covers[]` list so the engine can pick the right citation per pillar.
+- **Idempotent**: both inserts use `ON CONFLICT DO NOTHING` on natural unique keys (`version` / `slug`); re-running the migration is a no-op.
+- **Access**: unchanged from D1 — both registries remain admin-only via existing RLS. No new grants.
+- **Dormant**: nothing reads these rows yet. D2's `RecommendationV1.provenance.knowledge_ref[]` will populate with these slugs when the real engine wires up.
+- **Non-goals**: no engine changes, no writer changes, no UI, no new admin surface. `pathway_reports.rules_version` / `knowledge_snapshot` remain unset on existing rows.
+- **Rollback**: `DELETE FROM public.pathway_rules_versions WHERE version='rules@2026.07.19-shadow';` and `DELETE FROM public.pathway_knowledge_sources WHERE slug IN ('idea-2004-part-b-secondary-transition','csde-secondary-transition-guide-2024','ct-rights-transfer-age-18','wioa-pre-ets-2014');`. Neither row is referenced by any writer.
+- **Linter**: the migration produced no new warnings; the 50 pre-existing warnings (extension-in-public + SECURITY DEFINER function inventory) are unrelated to this slice.
+
+Next: **Slice D4** — dormant `PathwayEngineInvocation` server-side helper (`src/lib/pathway-engine-invocation.server.ts`) that resolves the current shadow ruleset + knowledge snapshot, builds a `RecProvenance` object, and returns it to callers so the eventual writer only has to call one function to get the correct provenance stamp. Still no user-visible change; still no writer wired.
