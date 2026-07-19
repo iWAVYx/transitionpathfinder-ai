@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAuthorized } from "./authz";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { requireFeatureEntitlement } from "./entitlement-guard";
 import {
@@ -562,7 +563,13 @@ export const linkReportToStudent = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    if (data.student_id) {
+      await assertAuthorized(
+        { supabase, userId, action: "edit", resourceType: "student", resourceId: data.student_id },
+        "You don't have permission to link a report to this student.",
+      );
+    }
     const { error } = await supabase
       .from("pathway_reports")
       .update({ student_id: data.student_id })

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAuthorized } from "./authz";
 import { requireFeatureEntitlement } from "./entitlement-guard";
 
 export type PartnerOrg = {
@@ -136,6 +137,10 @@ export const createOpportunity = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireFeatureEntitlement(supabase, userId, "partner");
+    await assertAuthorized(
+      { supabase, userId, action: "publish_opportunity", resourceType: "partner_capability" },
+      "Your partner tier doesn't allow publishing opportunities.",
+    );
     const { data: row, error } = await supabase
       .from("partner_opportunities")
       .insert({ ...data, status: "draft" })
@@ -158,7 +163,11 @@ export const updateOpportunity = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertAuthorized(
+      { supabase, userId, action: "publish_opportunity", resourceType: "partner_capability" },
+      "Your partner tier doesn't allow editing opportunities.",
+    );
     const { id, ...patch } = data;
     const { error } = await supabase.from("partner_opportunities").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
