@@ -34,3 +34,16 @@ Requirement → code/migration/test evidence per slice.
   - `addSchoolToDistrict`, `removeSchoolFromDistrict`, `inviteDistrictTeammate` in `src/lib/district-admin.functions.ts` — `assertAuthorized('manage','organization', district_id)` before the existing `ensureDistrictAdmin` gate.
 - **Cross-org denial audit test** added to `tests/authorize-rpc.test.mjs`: district A admin gets `authorize('manage','organization', DISTRICT_B) = false` and can read back the corresponding `org_access_audit` deny row under RLS.
 - **Rollback**: remove the added `assertAuthorized` lines; original `ensureDistrictAdmin` / `is_org_admin` checks remain in place.
+
+### Slice A5 — Workstream A wrap-up (waitlist boundary + matrix)
+- **Waitlist-vs-entitled boundary test** in `tests/authorize-rpc.test.mjs`: asserts `user_has_feature()` returns `false` for `family_access | student_access | partner_access | any` on a signed-in parent with no `access_entitlements` row. Locks in "signed-in ≠ entitled".
+- **Role-guard matrix wrap-up test**: enumerates (actor × action × resource) tuples across district admin, partner, parent and asserts `authorize()` decisions; becomes the regression fence for any future helper/RLS change in Workstream A.
+- **No schema change**: Slice A5 is test-only; all helpers (`authorize`, `user_has_feature`, `effective_org_access`, `partner_tier_allows`) already shipped in A1–A4.
+- **Workstream A acceptance status**:
+  - ✅ Central `authorize()` shipped and wired into high-risk mutations (report link, document view/archive, opportunity create/update, org membership approval, district school+teammate mutations).
+  - ✅ `effective_org_access` + `partner_tier_allows` in place; district→school cascade covered.
+  - ✅ `org_access_audit` table + RLS + actor-self insert policy; deny writes verified under RLS.
+  - ✅ Waitlist boundary + cross-tenant matrix locked in tests.
+- **Rollback**: tests only — deleting the new `test(...)` blocks reverts A5.
+
+Workstream A closed. Ready to open Workstream B (Transition Evidence Graph) on approval.
