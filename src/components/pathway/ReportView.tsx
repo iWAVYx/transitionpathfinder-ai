@@ -360,12 +360,11 @@ export function ReportView({
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const v = params.get("view") ?? params.get("audience");
-    if (v === "student" || v === "family" || v === "educator") setAudienceState(v);
-  }, []);
+  // Audience initial value already resolved by resolveReportAudience above
+  // (URL param wins over initialAudience). No post-mount URL sync needed —
+  // the resolver reads window.location.search inside a useMemo before first
+  // render, so refresh preserves ?view=… without a second setState pass.
+
 
   const heading = useMemo(
     () =>
