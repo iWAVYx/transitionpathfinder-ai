@@ -14,7 +14,9 @@ import {
   Plus,
   ShieldCheck,
   XCircle,
+  Activity,
 } from "lucide-react";
+import { HealthTab } from "@/components/admin/health/HealthTab";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -211,6 +213,11 @@ function OperatorConsolePage() {
                       <Inbox className="mr-1.5 h-3.5 w-3.5" /> License Requests
                     </TabsTrigger>
                   )}
+                  {isPlatformAdmin && (
+                    <TabsTrigger value="health">
+                      <Activity className="mr-1.5 h-3.5 w-3.5" /> Health
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="codes">
@@ -225,6 +232,11 @@ function OperatorConsolePage() {
                 {isPlatformAdmin && (
                   <TabsContent value="requests">
                     <LicenseRequestsPanel />
+                  </TabsContent>
+                )}
+                {isPlatformAdmin && (
+                  <TabsContent value="health">
+                    <HealthTab />
                   </TabsContent>
                 )}
               </Tabs>

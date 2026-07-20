@@ -214,6 +214,8 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as DemoFeatureRoleSlugRouteImport } from './routes/demo_.feature.$role.$slug'
+import { Route as ApiPublicHooksObsEventsPurgeRouteImport } from './routes/api/public/hooks/obs-events-purge'
+import { Route as ApiPublicHooksObsAlertCheckRouteImport } from './routes/api/public/hooks/obs-alert-check'
 import { Route as AuthenticatedFamilyResourcesRecommendedRouteImport } from './routes/_authenticated/family.resources.recommended'
 import { Route as AuthenticatedDocumentsDocumentIdReviewRouteImport } from './routes/_authenticated/documents.$documentId.review'
 
@@ -1341,6 +1343,18 @@ const DemoFeatureRoleSlugRoute = DemoFeatureRoleSlugRouteImport.update({
   path: '/demo/feature/$role/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksObsEventsPurgeRoute =
+  ApiPublicHooksObsEventsPurgeRouteImport.update({
+    id: '/api/public/hooks/obs-events-purge',
+    path: '/api/public/hooks/obs-events-purge',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksObsAlertCheckRoute =
+  ApiPublicHooksObsAlertCheckRouteImport.update({
+    id: '/api/public/hooks/obs-alert-check',
+    path: '/api/public/hooks/obs-alert-check',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedFamilyResourcesRecommendedRoute =
   AuthenticatedFamilyResourcesRecommendedRouteImport.update({
     id: '/family/resources/recommended',
@@ -1555,6 +1569,8 @@ export interface FileRoutesByFullPath {
   '/demo/workspace/': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
+  '/api/public/hooks/obs-alert-check': typeof ApiPublicHooksObsAlertCheckRoute
+  '/api/public/hooks/obs-events-purge': typeof ApiPublicHooksObsEventsPurgeRoute
   '/demo/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1761,6 +1777,8 @@ export interface FileRoutesByTo {
   '/demo/workspace': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
+  '/api/public/hooks/obs-alert-check': typeof ApiPublicHooksObsAlertCheckRoute
+  '/api/public/hooks/obs-events-purge': typeof ApiPublicHooksObsEventsPurgeRoute
   '/demo/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1971,6 +1989,8 @@ export interface FileRoutesById {
   '/demo_/workspace/': typeof DemoWorkspaceIndexRoute
   '/_authenticated/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
   '/_authenticated/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
+  '/api/public/hooks/obs-alert-check': typeof ApiPublicHooksObsAlertCheckRoute
+  '/api/public/hooks/obs-events-purge': typeof ApiPublicHooksObsEventsPurgeRoute
   '/demo_/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -2181,6 +2201,8 @@ export interface FileRouteTypes {
     | '/demo/workspace/'
     | '/documents/$documentId/review'
     | '/family/resources/recommended'
+    | '/api/public/hooks/obs-alert-check'
+    | '/api/public/hooks/obs-events-purge'
     | '/demo/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -2387,6 +2409,8 @@ export interface FileRouteTypes {
     | '/demo/workspace'
     | '/documents/$documentId/review'
     | '/family/resources/recommended'
+    | '/api/public/hooks/obs-alert-check'
+    | '/api/public/hooks/obs-events-purge'
     | '/demo/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -2596,6 +2620,8 @@ export interface FileRouteTypes {
     | '/demo_/workspace/'
     | '/_authenticated/documents/$documentId/review'
     | '/_authenticated/family/resources/recommended'
+    | '/api/public/hooks/obs-alert-check'
+    | '/api/public/hooks/obs-events-purge'
     | '/demo_/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -2669,6 +2695,8 @@ export interface RootRouteChildren {
   DemoWorkspaceStageRoute: typeof DemoWorkspaceStageRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   DemoWorkspaceIndexRoute: typeof DemoWorkspaceIndexRoute
+  ApiPublicHooksObsAlertCheckRoute: typeof ApiPublicHooksObsAlertCheckRoute
+  ApiPublicHooksObsEventsPurgeRoute: typeof ApiPublicHooksObsEventsPurgeRoute
   DemoFeatureRoleSlugRoute: typeof DemoFeatureRoleSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -4114,6 +4142,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoFeatureRoleSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/obs-events-purge': {
+      id: '/api/public/hooks/obs-events-purge'
+      path: '/api/public/hooks/obs-events-purge'
+      fullPath: '/api/public/hooks/obs-events-purge'
+      preLoaderRoute: typeof ApiPublicHooksObsEventsPurgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/obs-alert-check': {
+      id: '/api/public/hooks/obs-alert-check'
+      path: '/api/public/hooks/obs-alert-check'
+      fullPath: '/api/public/hooks/obs-alert-check'
+      preLoaderRoute: typeof ApiPublicHooksObsAlertCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/family/resources/recommended': {
       id: '/_authenticated/family/resources/recommended'
       path: '/family/resources/recommended'
@@ -4610,6 +4652,8 @@ const rootRouteChildren: RootRouteChildren = {
   DemoWorkspaceStageRoute: DemoWorkspaceStageRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   DemoWorkspaceIndexRoute: DemoWorkspaceIndexRoute,
+  ApiPublicHooksObsAlertCheckRoute: ApiPublicHooksObsAlertCheckRoute,
+  ApiPublicHooksObsEventsPurgeRoute: ApiPublicHooksObsEventsPurgeRoute,
   DemoFeatureRoleSlugRoute: DemoFeatureRoleSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

@@ -1,76 +1,103 @@
-# Partner Network Activation — Full Program
+# Observability & SLOs — Full Platform
 
-Close every gap in the Partner Network by shipping four coordinated workstreams and proving each with a test.
+Ship end-to-end observability across every server function and cron path, expose it as a Health tab inside the existing `/admin/orgs` operator console, and alert platform admins by email when error budgets burn or infrastructure degrades.
 
-## Workstream A — End-to-End Proof Pass
-Prove the full partner journey works and fix whatever breaks along the way.
+## What Ships
 
-Flow under test:
-```text
-Partner signs up → creates partner org → drafts opportunity → submits for review
-   → admin approves → student pathway matcher surfaces it → student saves match
-   → tracks lifecycle (saved → contacted → applied → completed)
-```
+### 1. Structured Logging
+- New `obs_events` append-only table: `id`, `ts`, `trace_id`, `span_id`, `parent_span_id`, `user_id`, `route`, `server_fn`, `severity` (`debug|info|warn|error|fatal`), `status` (`ok|error|timeout|rejected`), `duration_ms`, `attributes jsonb`, `error jsonb`.
+- `logEvent()` helper in `src/lib/obs/log.ts` — writes with `supabaseAdmin` (fire-and-forget, batched every 250ms via async queue).
+- Wrap `requireSupabaseAuth` middleware to auto-emit a span per server function with duration + status.
+- Auto-instrument pathway-report writer (`writePathwayReport`), shadow-diff orchestrator, email queue processor, and access-code redemption.
+- Retention: 30-day rolling window via nightly `pg_cron` job.
 
-Deliverables:
-- `tests/e2e/partner-network-journey.signedin.spec.ts` covering the full 8-step flow across partner + student + admin actors.
-- Bug list captured inline in `docs/release-readiness-ledger.md` under a new **Partner-Proof-A** entry; each defect fixed in the same slice.
-- Contract test `tests/partner-opportunity-lifecycle.test.mjs` for the `student_opportunity_matches.status` transitions.
+### 2. Request Tracing
+- Client attaches `x-trace-id` (uuid) on every server-fn call via existing `functionMiddleware`.
+- Server middleware reads the header (or mints one) and threads `trace_id` + generated `span_id` through `AsyncLocalStorage`.
+- Child spans (DB writes, gateway calls) inherit parent via context; each recorded row references `parent_span_id`.
 
-## Workstream B — Explainable-Match Hardening
-Audit `matchPartnersForStudent` and upgrade the "why matched" surface.
+### 3. SLOs & Error Budgets
+- New `obs_slos` table: per-server-fn targets (default: availability 99.5%, p95 latency 800ms, 30-day window).
+- Nightly rollup materialized view `obs_slo_status` — computes success rate, p50/p95/p99 latency, burn rate (fast: 1h, slow: 6h), remaining budget.
+- Fast burn (>14.4x) or slow burn (>6x) → alert.
 
-Deliverables:
-- Extend `PartnerMatch` DTO with `explanation: { reasons: string[]; evidenceIds: string[]; confidence: 'low'|'medium'|'high'; conflicts: string[] }`.
-- Zod contract `partnerMatchExplanationSchema` in `src/lib/partner-match-explanation.ts` + unit test `tests/partner-match-explanation.test.mjs`.
-- Upgrade `src/components/students/RecommendedPartnersPanel.tsx` and `src/components/pathway/ReportPartnerSuggestions.tsx` to render:
-  - Confidence band chip (color + label)
-  - Reasons as bulleted list with evidence-item deep links
-  - Conflicts section when non-empty (yellow surface)
-- Server-side: `matchPartnersForStudent` populates `explanation` from existing evidence graph joins.
+### 4. Health Dashboard (Health tab in `/admin/orgs`)
+Platform-admin-only tab exposing:
+- **SLO cards** — per server fn: availability, p95 latency, burn rate chip (green/amber/red), 30-day sparkline.
+- **Recent errors** — last 50 error/fatal events with expandable attributes/stacktrace, trace-id copy button.
+- **Trace explorer** — paste a `trace_id` → waterfall of spans with duration bars.
+- **Infrastructure** — DLQ depth (auth_emails, transactional_emails), email throughput (last 24h from `email_send_log`), pathway-report shadow-diff mismatch rate, cron job health (`process-email-queue` presence + last run).
+- **Filters** — time range (1h/24h/7d/30d), server-fn selector, severity.
 
-## Workstream C — Tier Gating Enforcement UI
-Surface free-vs-premium caps on partner opportunity workspace.
-
-Deliverables:
-- New server fn `getPartnerTierUsage` returning `{ tier, publishedCount, cap, capabilities: {...} }` from `partner_tier_allows` + count query.
-- `src/components/partners/TierUsageMeter.tsx` — usage bar + "X of Y opportunities published" + upgrade CTA.
-- Wire into `src/routes/_authenticated/partners-manage_.opportunities.tsx`:
-  - Show meter at top.
-  - Disable "Publish" button and show upgrade dialog at cap for free tier (cap = 3).
-  - Show "Featured placement" toggle only when `capabilities.featured_placement`.
-- Server-side enforcement: `submitOpportunityForReview` rejects with `TIER_CAP_REACHED` when free-tier cap exceeded (defense in depth).
-- Contract test `tests/partner-tier-gating.test.mjs`.
-
-## Workstream D — Defect Sweep
-Address defects discovered during A, plus a proactive audit of the 20+ existing partner routes.
-
-Deliverables:
-- Route health check script `tests/partner-routes-crawl.spec.ts` visits every `/partner*` and `/partners*` public + `_authenticated` route, asserts no console errors, no empty `<main>`, and required landmarks.
-- Fix any 404s, blank states, broken CTAs discovered.
-
-## Rollup Verification
-- Full contract unit sweep: existing 28 tests + 4 new files must all pass.
-- Playwright signed-in specs (A + D) documented as CI-gated per prior program pattern.
-- Update `docs/release-readiness-ledger.md` with Partner-Proof A–D entries and rollup summary.
-- Update `mem://index.md` if any new Core rule emerges (expected: none).
+### 5. Email Alerting
+- New `obs_alert_state` table: last-fired-at per rule (dedupe within cooldown).
+- `/api/public/hooks/obs-alert-check` server route, runs every 5min via `pg_cron` → checks: fast burn, slow burn, DLQ >50 messages, cron job missing while queue non-empty, error rate >5% over 15min.
+- On trigger, enqueues transactional email to every `admin_roles` platform_owner/admin using existing email queue.
+- Email templates: `obs_slo_burn`, `obs_dlq_backlog`, `obs_cron_missing`, `obs_error_spike`.
 
 ## Technical Details
-- All new server fns use `requireSupabaseAuth` + partner/admin role check via existing `partner_tier_allows` / `is_platform_admin`.
-- No new tables — reuses `partner_organizations`, `partner_opportunities`, `student_opportunity_matches`, `evidence_items`, `access_entitlements`.
-- Cap constants centralized in `src/lib/partner-tier-config.ts` (`FREE_TIER_OPPORTUNITY_CAP = 3`).
-- Explanation confidence bands: `low <0.4`, `medium 0.4–0.75`, `high >0.75` on existing match score.
-- No UI framework changes; existing shadcn components only.
 
-## Out of Scope (deferred, called out to user)
-- Partner Premium billing wiring (pricing decision pending).
-- Partner analytics dashboard.
-- Public partner directory SEO overhaul.
-- Bulk opportunity CSV import.
+### Schema (migration)
+```sql
+CREATE TABLE public.obs_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  ts timestamptz NOT NULL DEFAULT now(),
+  trace_id uuid NOT NULL,
+  span_id uuid NOT NULL,
+  parent_span_id uuid,
+  user_id uuid,
+  route text,
+  server_fn text,
+  severity text NOT NULL,
+  status text NOT NULL,
+  duration_ms integer,
+  attributes jsonb DEFAULT '{}'::jsonb,
+  error jsonb
+);
+CREATE INDEX obs_events_ts_idx ON obs_events (ts DESC);
+CREATE INDEX obs_events_trace_idx ON obs_events (trace_id);
+CREATE INDEX obs_events_fn_status_idx ON obs_events (server_fn, status, ts DESC);
+GRANT SELECT ON obs_events TO authenticated;
+GRANT ALL ON obs_events TO service_role;
+ALTER TABLE obs_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "platform admins read obs_events"
+  ON obs_events FOR SELECT TO authenticated
+  USING (public.is_platform_admin(auth.uid()));
 
-## Execution Order
-1. Workstream C (smallest, unblocks A step 3 cap testing)
-2. Workstream B (data contract needed by A step 6 assertions)
-3. Workstream A (uses B + C)
-4. Workstream D (crawl catches leftovers)
-5. Rollup + ledger
+CREATE TABLE public.obs_slos (
+  server_fn text PRIMARY KEY,
+  availability_target numeric NOT NULL DEFAULT 0.995,
+  latency_p95_ms integer NOT NULL DEFAULT 800,
+  window_days integer NOT NULL DEFAULT 30,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE public.obs_alert_state (
+  rule_key text PRIMARY KEY,
+  last_fired_at timestamptz,
+  cooldown_minutes integer NOT NULL DEFAULT 60
+);
+```
+Add matching GRANTs + admin-only RLS on both.
+
+### Files
+- `src/lib/obs/log.ts` — batching writer, `withSpan()` wrapper.
+- `src/lib/obs/tracing.ts` — AsyncLocalStorage context.
+- `src/integrations/supabase/auth-middleware.ts` — extend to emit a span (append-only; do not rewrite).
+- `src/lib/obs/slo.functions.ts` — `getSloStatus`, `listRecentErrors`, `getTrace`, `getInfrastructureHealth`.
+- `src/lib/obs/alerts.ts` — rule definitions + evaluator.
+- `src/routes/api/public/hooks/obs-alert-check.ts` — cron entry (verified via `apikey` header per schedule-jobs guidance).
+- `src/routes/_authenticated/admin.orgs.tsx` — add `<TabsTrigger value="health">` guarded on `isPlatformAdmin`.
+- `src/components/admin/health/*` — `SloCards`, `RecentErrorsTable`, `TraceExplorer`, `InfrastructurePanel`.
+- Email templates via `email_domain--scaffold_transactional_email` for the four alert types.
+
+### Verification
+- Contract tests: SLO math, burn-rate calc, alert dedupe cooldown, RLS (non-admin blocked from `obs_events`).
+- E2E: `tests/e2e/admin-health-tab.signedin.spec.ts` renders SLO cards, filters by time range, opens trace waterfall.
+- Manually trigger a fake burn via seeded `obs_events` and confirm one email lands in `email_send_log`.
+- Update `docs/release-readiness-ledger.md` with W-Obs entry.
+
+## Out of Scope
+- Third-party APM (Datadog, Sentry) — pure in-app.
+- Per-user request tracing exposed to end users.
+- In-app banner alerts (email only per your pick).
