@@ -10,13 +10,32 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * these server functions are the only supported client entry point.
  */
 
+export type DraftPayload =
+  | null
+  | string
+  | number
+  | boolean
+  | { [key: string]: DraftPayload }
+  | DraftPayload[];
+
 export type StudentWorkflowDraft = {
   id: string;
   task_key: string;
-  payload: unknown;
+  payload: DraftPayload;
   return_to: string | null;
   updated_at: string;
 };
+
+const draftPayloadSchema: z.ZodType<DraftPayload> = z.lazy(() =>
+  z.union([
+    z.null(),
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(draftPayloadSchema),
+    z.record(z.string(), draftPayloadSchema),
+  ]),
+);
 
 const TASK_KEY = z
   .string()
