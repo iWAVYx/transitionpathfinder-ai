@@ -36,6 +36,7 @@ import { RightsStatusCard } from "@/components/students/RightsStatusCard";
 import { CtTransitionPrompts } from "@/components/students/CtTransitionPrompts";
 import { AuditTrailPanel } from "@/components/students/AuditTrailPanel";
 import { PathwayReportCard } from "@/components/students/PathwayReportCard";
+import { CounselorNotesPanel } from "@/components/students/CounselorNotesPanel";
 import { getStudent, listGoals, canEditStudent, type Student, type Goal } from "@/lib/students.functions";
 import {
   listDocuments,
@@ -404,6 +405,10 @@ function StudentDetailPage() {
 
         <div className="mt-6">
           <CollaboratorsPanel studentId={studentId} />
+        </div>
+
+        <div className="mt-6">
+          <CounselorNotesPanel studentId={studentId} />
         </div>
 
         <AuditTrailPanel studentId={studentId} />
