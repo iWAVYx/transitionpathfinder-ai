@@ -16,7 +16,7 @@
  */
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { createLovableAiGatewayProvider } from "./ai-gateway.server.ts";
 import {
   RecConfidence,
   RecOwnerRole,
