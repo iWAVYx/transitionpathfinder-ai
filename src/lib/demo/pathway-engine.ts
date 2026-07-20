@@ -575,10 +575,62 @@ function ownerLabel(o: NextStep["owner"]): string {
         : "Shared";
 }
 
+function reviewByMonthsFor(timeframe: NextStep["timeframe"]): number {
+  return timeframe === "this_month" ? 1 : timeframe === "this_semester" ? 4 : 9;
+}
+
+function resolveAgeBand(profile: DemoProfile): GeneratedReport["ageBand"] {
+  // CT CSDE: transition services begin in the first IEP in effect when
+  // the student turns 14. Route by age first, grade as tiebreaker.
+  const { age, gradeNumber } = profile.demographics;
+  if (age >= 16 || gradeNumber >= 11) return "grade_11_12";
+  if (age >= 14 || gradeNumber >= 9) return "grade_9_10";
+  return "grade_7_8";
+}
+
+function deriveAlternatives(profile: DemoProfile): AlternativePathway[] {
+  const g = profile.demographics.gradeNumber;
+  if (g <= 8) {
+    return [
+      { id: "alt-stay-home-hs", title: "Stay at the assigned neighborhood high school with targeted supports", whenToConsider: "If tours reveal that a smaller in-district cohort with the right adult is a better fit than switching buildings." },
+    ];
+  }
+  if (g <= 10) {
+    return [
+      { id: "alt-ct-tech-hs", title: "Apply to a CT Technical High School program next admissions cycle", whenToConsider: "If the CTE explorations show a strong pull toward a specific trade cohort." },
+    ];
+  }
+  return [
+    { id: "alt-gap-year-wbl", title: "Structured gap year focused on paid work-based learning with agency support", whenToConsider: "If postsecondary program visits show timing or fit concerns and paid WBL momentum is strong." },
+    { id: "alt-part-time-cc", title: "Start community college part-time while continuing IEP transition supports until 22", whenToConsider: "If the family wants a lower-stakes on-ramp with continued case management." },
+  ];
+}
+
+function deriveConflicts(profile: DemoProfile): PathwayConflict[] {
+  // Only surface conflicts the demo evidence actually implies.
+  const g = profile.demographics.gradeNumber;
+  if (g >= 11) {
+    return [
+      {
+        id: "conf-agency-timing",
+        summary: "Family prefers to wait on the vocational rehab intake; team recommends starting now so supports are in place before rights transfer.",
+        resolutionOwner: "shared",
+      },
+    ];
+  }
+  return [];
+}
+
 export function generatePathwayReport(profile: DemoProfile): GeneratedReport {
   const pathwayOptions = selectPathwayOptions(profile);
   const blocks = buildBlocks(profile);
-  const nextSteps = deriveNextSteps(profile);
+  const rawSteps = deriveNextSteps(profile);
+  const nextSteps: EnrichedNextStep[] = rawSteps.map((s) => ({
+    ...s,
+    reviewByMonths: s.reviewByMonths ?? reviewByMonthsFor(s.timeframe),
+  }));
+  const ageBand = resolveAgeBand(profile);
+  const ctTransitionEligible = profile.demographics.age >= 14;
 
   return {
     profileId: profile.id,
@@ -587,12 +639,17 @@ export function generatePathwayReport(profile: DemoProfile): GeneratedReport {
     focus: profile.stage.focusHeadline,
     horizonMonths: profile.stage.horizonMonths,
     revisitCadenceMonths: profile.stage.revisitCadenceMonths,
+    ageBand,
+    ctTransitionEligible,
     pathwayOptions,
     blocks,
     nextSteps,
+    alternativePathways: deriveAlternatives(profile),
+    conflicts: deriveConflicts(profile),
     disallowedThemesApplied: profile.stage.disallowedThemes,
   };
 }
+
 
 // Exported for tests
 export const _internals = {
