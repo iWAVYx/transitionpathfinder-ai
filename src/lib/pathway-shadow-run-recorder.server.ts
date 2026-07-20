@@ -15,6 +15,7 @@
  */
 import type { PreviewPathwayReportDiffResult } from "./pathway-report-diff.server.ts";
 import type { EngineChannel } from "./pathway-engine-invocation.ts";
+import type { PathwayReportDiff } from "./pathway-report-diff.ts";
 
 /* ---------- structural writer contract ---------- */
 
