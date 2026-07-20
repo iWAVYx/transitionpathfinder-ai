@@ -419,7 +419,7 @@ function HomePage() {
         </FloatingShape>
         <Squiggle className="absolute inset-x-0 bottom-6 mx-auto h-5 w-80 text-primary/30" />
         <TextScrollFill
-          className="font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
+          className="text-center font-display text-3xl font-medium leading-tight tracking-tight sm:text-5xl"
           text="From the IEP on the kitchen table to the first job after graduation — every student deserves a plan that reads like their life, not paperwork."
         />
       </section>
