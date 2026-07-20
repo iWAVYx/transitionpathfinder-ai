@@ -130,3 +130,37 @@ Signed off `docs/a11y/manual-verification-2026-07.md`: automated tag set include
 - Live shell-Playwright dry-run of the signed-in spec skipped: managed
   session for this project is `LOVABLE_BROWSER_AUTH_STATUS=signed_out`.
   Spec runs in CI where `auth-roles.setup.ts` mints the storageState.
+
+## Proof-7 — Counselor-scope live proof (2026-07-20)
+
+- Extended `tests/counselor-scope-rls.test.mjs` with a third actor:
+  `platform_admin`. The existing spec proved contributor can read /
+  owner cannot read; the new assertion proves audit visibility:
+  `admin_roles.role = 'platform_admin'` sees the `counselor_scope`
+  evidence row through the same SELECT policy branch
+  (`public.is_platform_admin(auth.uid())`). Cleanup extended to remove
+  the admin role row and delete the third auth user.
+- Live psql matrix attempted (contributor / peer educator / platform
+  admin) but blocked by `evidence_items.contributor_id_fkey` →
+  `auth.users`; that FK requires real auth users, which the sandbox
+  psql role can't mint. The mjs regression uses
+  `admin.auth.admin.createUser` for exactly this reason and is the
+  authoritative live path.
+- Code-reading verification of the three policies in
+  `supabase/migrations/20260720150905_…_.sql`
+  (`evidence_items view/insert/update scoped by permission_scope`)
+  confirms the SELECT branch reads
+  `permission_scope IS DISTINCT FROM 'counselor_scope'
+   OR contributor_id = auth.uid()
+   OR public.is_platform_admin(auth.uid())`
+  — matching the three-actor matrix the extended spec now enforces.
+- UI-level Playwright proof deferred: no shipped surface renders
+  `counselor_scope` evidence rows yet (`evidence-writers.functions.ts`
+  writes `student_team` scope; no read component filters on
+  `counselor_scope`). When the counselor UI ships, add a signed-in
+  Playwright check driving the same three actors through it. Ticket
+  parked with this note.
+- `professional_focus` remains descriptive-only: existing
+  `tests/unit/professional-focus.test.ts` still enforces no `src/`
+  code branches on the value, and the second mjs test still enforces
+  the CHECK constraint rejects unknown focus labels.
