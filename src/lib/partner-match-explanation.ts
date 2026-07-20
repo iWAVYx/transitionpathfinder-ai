@@ -6,7 +6,7 @@ import {
   confidenceBand,
   normalizePartnerMatchScore,
   type ConfidenceBand,
-} from "./partner-tier-config";
+} from "./partner-tier-config.ts";
 
 export const partnerMatchExplanationSchema = z.object({
   reasons: z.array(z.string().min(1).max(240)).max(10),
