@@ -164,3 +164,19 @@ Signed off `docs/a11y/manual-verification-2026-07.md`: automated tag set include
   `tests/unit/professional-focus.test.ts` still enforces no `src/`
   code branches on the value, and the second mjs test still enforces
   the CHECK constraint rejects unknown focus labels.
+
+## Rollup Verification — P1–P7 (2026-07-20)
+
+Ran the full contract-unit sweep against the current tree:
+`report-default-role-precedence` (6), `report-depth-contract` (4),
+`role-doors-registry` (4), `professional-focus` (5),
+`student-workflow-task-keys` (4), `pathway-engine` (5) —
+**28/28 passing, 0 skipped**. Live-DB mjs specs
+(`license-provisioning-rls`, `access-code-redemption`,
+`counselor-scope-rls`) and signed-in Playwright specs
+(`role-doors-crawl`, `demo-report-depth`, `student-navigation-contract`,
+`access-code-redemption`) remain gated on the CI service-role +
+storageState matrix as documented per-proof; sandbox has
+`LOVABLE_BROWSER_AUTH_STATUS=signed_out` so they skip cleanly here.
+All seven proof slices closed with either passing local evidence or an
+explicit CI-gated handoff — release-readiness program complete.
