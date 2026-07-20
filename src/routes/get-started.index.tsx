@@ -98,10 +98,6 @@ function GetStartedPage() {
             })}
           </ul>
 
-          <p className="mx-auto mt-10 max-w-xl text-center text-xs leading-relaxed text-muted-foreground">
-            Platform Owner accounts are created internally and cannot be
-            requested through this page.
-          </p>
         </div>
       </section>
     </SiteShell>
