@@ -136,7 +136,7 @@ type AdminLike = {
 
 function buildRegistryClient(admin: AdminLike): RegistryClient {
   return {
-    from: (table) => admin.from(table),
+    from: (table: string) => admin.from(table),
     fromKnowledge: () => ({
       select: (columns: string) => ({
         is: async (
