@@ -102,12 +102,22 @@ export type WritePathwayReportResult =
     }
   | {
       ok: false;
-      error_code:
-        | LoadInvocationResult extends { ok: false; error_code: infer C } ? C : never
-        | Extract<RunPathwayEngineResult, { ok: false }>["error_code"]
-        | "write_failed";
+      error_code: WriteErrorCode;
       message: string;
     };
+
+export type WriteErrorCode =
+  | "rules_query_failed"
+  | "knowledge_query_failed"
+  | "no_active_rules"
+  | "rules_retired"
+  | "invalid_channel"
+  | "provenance_invalid"
+  | "duplicate_pillar"
+  | "generator_threw"
+  | "schema_invalid"
+  | "batch_invalid"
+  | "write_failed";
 
 /* ---------- writer ---------- */
 
