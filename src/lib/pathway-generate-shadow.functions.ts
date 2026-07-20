@@ -91,7 +91,7 @@ export const generatePathwayReportShadow = createServerFn({ method: "POST" })
       // Prove admin via the user-scoped client (never via supabaseAdmin).
       const { data: isAdmin, error: roleErr } = await context.supabase.rpc(
         "has_role",
-        { _user_id: context.userId, _role: "platform_admin" },
+        { _user_id: context.userId, _role: "admin" },
       );
       if (roleErr || !isAdmin) {
         return {
