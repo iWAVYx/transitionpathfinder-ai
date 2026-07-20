@@ -106,6 +106,25 @@ test("counselor-scope evidence rows are hidden from other team members", { skip:
     .eq("id", ev.id);
   assert.equal(selfView?.length, 1);
 
+  // Platform admin CAN see the counselor_scope row (audit path).
+  const platformAdmin = await makeUser("padmin");
+  const { error: roleErr } = await admin
+    .from("admin_roles")
+    .insert({ user_id: platformAdmin.uid, role: "platform_admin" });
+  assert.equal(roleErr, null, roleErr?.message);
+  // Re-sign so the JWT reflects any downstream claim materialization.
+  const { data: adminView } = await platformAdmin.client
+    .from("evidence_items")
+    .select("id, permission_scope")
+    .eq("id", ev.id);
+  assert.equal(
+    adminView?.length,
+    1,
+    "platform_admin must see counselor_scope rows for audit",
+  );
+
+
+
   // Owner cannot escalate an existing default-scope row into counselor_scope
   // with a different contributor_id.
   const { data: normal } = await owner.client
@@ -130,8 +149,10 @@ test("counselor-scope evidence rows are hidden from other team members", { skip:
   await admin.from("evidence_items").delete().eq("student_id", student.id);
   await admin.from("student_collaborators").delete().eq("student_id", student.id);
   await admin.from("students").delete().eq("id", student.id);
+  await admin.from("admin_roles").delete().eq("user_id", platformAdmin.uid);
   await admin.auth.admin.deleteUser(owner.uid);
   await admin.auth.admin.deleteUser(counselor.uid);
+  await admin.auth.admin.deleteUser(platformAdmin.uid);
 });
 
 test("profiles.professional_focus rejects unknown values", { skip: SKIP }, async () => {
