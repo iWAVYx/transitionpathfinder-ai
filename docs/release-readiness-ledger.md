@@ -56,3 +56,28 @@ Residual axe findings (documented, not remediated in this slice):
 - `color-contrast` — `text-primary` on `bg-background` and animated `color-mix(…, transparent)` ScrollFill text on `/`, `/pricing`, `/help`. Token-level; changing `--primary` is a design decision outside this pass. Tracked in the manual-verification known-gaps table.
 
 Signed off `docs/a11y/manual-verification-2026-07.md`: automated tag set includes `wcag22a` + `wcag22aa`; manual pass performed 2026-07-20 (Lovable agent). Skip link + target-size fixes verified against the live preview post-edit.
+
+## Proof-5 — Student navigation contract live loop (2026-07-20)
+
+- New spec `tests/e2e/student-navigation-contract.signedin.spec.ts`
+  drives the signed-in student loop end-to-end:
+  1. `/hubs/student` renders with no drafts → Resume region absent,
+     Next-Best-Step fallback CTA present (loop cannot dead-end).
+  2. Seed a `student_workflow_drafts` row for the signed-in student via
+     Supabase REST using the access token pulled from the Playwright
+     storageState (RLS applies as the same user).
+  3. Reload `/hubs/student` → "Resume Where You Left Off" region
+     renders with a Continue link whose `href` equals the task's
+     canonical `return_to` (`/student-voice` for `student.voice`).
+  4. Click Continue → student lands on `/student-voice`, `<main>`
+     renders real content (no `page not found`, `route not found`, or
+     `not authorized` markers), no `/login` bounce.
+  5. `afterAll` deletes the seeded draft row.
+- Auto-skips when the student storageState from
+  `auth-roles.setup.ts` is missing OR the Supabase publishable key is
+  not exported, so fork PRs without the secret matrix stay green.
+- Live shell-Playwright dry-run against this sandbox skipped: the
+  managed session for this project is `signed_out`
+  (`LOVABLE_BROWSER_AUTH_STATUS=signed_out`), so no student bearer is
+  available to seed a draft. Spec runs in CI where the seeded student
+  storageState is minted by `auth-roles.setup.ts`.
