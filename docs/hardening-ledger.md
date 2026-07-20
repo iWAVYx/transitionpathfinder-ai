@@ -351,3 +351,16 @@ Next: **Slice D8** — dormant TanStack `createServerFn` (`generatePathwayReport
 - **Rollback**: delete `src/lib/pathway-preview-shadow.functions.ts` and `tests/pathway-report-preview.test.mjs`, then revert the `previewPathwayReport` addition in `src/lib/pathway-report-writer.server.ts`. Nothing else imports either symbol.
 
 Next: **Slice D10** — dormant shadow-vs-current diff helper that takes a `pathway_reports.id`, runs `previewPathwayReport`, and returns a structured `{added, removed, changed}` diff against the report's current recommendations so operators can review shadow drift before enabling writes.
+
+### Slice D10 — Pathway shadow-vs-current diff (DORMANT)
+- **Module** `src/lib/pathway-report-diff.ts` — pure, isomorphic (no supabase, no react, no server imports). Exports `diffPathwayReport(current, shadow)` that compares the provenance columns (`rules_version`, `prompt_version`, `model_version`, `engine_channel`), the `knowledge_snapshot.knowledge_ref` set, and the `recommendations` batch between the row currently persisted in `pathway_reports` and the payload a shadow run *would* stamp (typically `columns` from Slice D9's `previewPathwayReport`).
+  - Provenance fields: per-field `{ changed, current, shadow }`; nulls compare equal to nulls, unequal to strings.
+  - `knowledge_ref`: set-diff into `added` / `removed` / `unchanged`, sorted for stable output.
+  - Recommendations: keyed by `id` → `added` / `removed` / `changed` (with dotted `changed_fields` paths from a stable deep-diff, e.g. `provenance.knowledge_ref`) / `unchanged_count`; order-insensitive.
+  - `identical: true` iff every provenance field, the knowledge set, and the full recommendation batch match.
+- **Test** `tests/pathway-report-diff.test.mjs` — 7/7 pass under `node --experimental-strip-types --test`: identical snapshots, provenance field change, knowledge_ref set add/remove, rec added/removed/changed classification, nested `provenance.knowledge_ref` dotted path, null-vs-null vs null-vs-value semantics, and order-insensitive rec equality.
+- **Dormant**: no route, server function, edge function, writer, or UI imports this yet. Ship-safe by construction — no side effects, no client.
+- **Non-goals**: no schema change, no `pathway_reports` write, no admin surface. Wiring the diff into an operator inspection endpoint (comparing D9 preview vs the live row via `supabaseAdmin`) is the next slice.
+- **Rollback**: delete `src/lib/pathway-report-diff.ts` and `tests/pathway-report-diff.test.mjs`. Nothing else imports either file.
+
+Next: **Slice D11** — dormant admin-only server function that (1) loads the current `pathway_reports` row via `supabaseAdmin`, (2) calls `previewPathwayReport` (D9), (3) returns `diffPathwayReport(current, shadow)` (D10) — behind an admin `has_role` check and off-by-default flag, so operators can inspect drift without any write path being live.
