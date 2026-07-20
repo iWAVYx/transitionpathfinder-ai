@@ -267,7 +267,7 @@ function PricingPage() {
                 We will never let cost block a family from the core planning tools their
                 student needs to leave high school with a real plan. Families included through a licensed school or district access TransitionForward at no extra cost. If cost is
                 a barrier — for a family, a teacher, or a small program —
-                email <a className="text-primary underline-offset-2 hover:underline" href="mailto:hello@transitionforwardct.com">hello@transitionforwardct.com</a>.
+                email <a className="font-medium text-primary underline underline-offset-2" href="mailto:hello@transitionforwardct.com">hello@transitionforwardct.com</a>.
               </p>
             </div>
           </div>

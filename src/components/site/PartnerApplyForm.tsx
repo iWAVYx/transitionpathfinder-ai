@@ -176,7 +176,7 @@ export function PartnerApplyForm() {
             defaultValue="community-org"
             onValueChange={(v) => form.setValue("org_type", v as FormValues["org_type"])}
           >
-            <SelectTrigger>
+            <SelectTrigger aria-label="Organization Type">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -193,7 +193,7 @@ export function PartnerApplyForm() {
             defaultValue="yes"
             onValueChange={(v) => form.setValue("serves_iep", v as FormValues["serves_iep"])}
           >
-            <SelectTrigger>
+            <SelectTrigger aria-label="Do you currently serve students with IEPs?">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

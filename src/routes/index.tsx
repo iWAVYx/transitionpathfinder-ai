@@ -1214,10 +1214,16 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
                 type="button"
                 onClick={() => scrollToStep(i)}
                 aria-label={`Jump to ${item.title}`}
-                className={`h-2.5 rounded-full transition-all duration-500 hover:bg-primary/70 ${
-                  i === active ? "w-10 bg-primary" : "w-2.5 bg-border"
-                }`}
-              />
+                aria-current={i === active ? "step" : undefined}
+                className="group inline-flex min-h-6 min-w-6 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`h-2.5 rounded-full transition-all duration-500 group-hover:bg-primary/70 ${
+                    i === active ? "w-10 bg-primary" : "w-2.5 bg-border"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </div>
@@ -1241,14 +1247,20 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
                   type="button"
                   onClick={() => scrollToStep(i)}
                   aria-label={`Jump to ${item.title}`}
+                  aria-current={isActive ? "step" : undefined}
                   title={item.title}
-                  className={`group absolute flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 ${
-                    isActive
-                      ? "scale-150 bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_25%,transparent)]"
-                      : "bg-primary/40 hover:scale-125 hover:bg-primary"
-                  }`}
+                  className="group absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   style={{ left, top }}
-                />
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                      isActive
+                        ? "scale-150 bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_25%,transparent)]"
+                        : "bg-primary/40 group-hover:scale-125 group-hover:bg-primary"
+                    }`}
+                  />
+                </button>
               );
             })}
           </div>
