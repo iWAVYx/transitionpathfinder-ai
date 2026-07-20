@@ -65,7 +65,11 @@ describe("professional_focus contract", () => {
     const ALLOWLIST = new Set<string>([
       "src/lib/profile/professional-focus.ts",
     ]);
-    const CONDITIONAL_PATTERNS = PROFESSIONAL_FOCUS_VALUES.map((v) => [
+    // `case_manager` collides with the app_role name used across role
+    // policy code; exclude it from the substring audit and rely on the
+    // type-guard + label tests above to catch drift.
+    const AUDITED = PROFESSIONAL_FOCUS_VALUES.filter((v) => v !== "case_manager");
+    const CONDITIONAL_PATTERNS = AUDITED.map((v) => [
       new RegExp(`===\\s*['"\`]${v}['"\`]`),
       new RegExp(`!==\\s*['"\`]${v}['"\`]`),
       new RegExp(`case\\s+['"\`]${v}['"\`]`),
