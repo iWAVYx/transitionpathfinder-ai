@@ -176,7 +176,7 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
             <CardTitle className="text-base">{b.heading}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-foreground/85">
-            <p>{b.body}</p>
+            {b.body && <p>{b.body}</p>}
             {b.bullets && b.bullets.length > 0 && (
               <ul className="list-disc space-y-1.5 pl-5">
                 {b.bullets.map((bl, i) => (
@@ -184,12 +184,131 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
                 ))}
               </ul>
             )}
+            {b.missing && (
+              <div
+                data-demo-report-missing={b.section}
+                className="rounded-md border border-dashed border-amber-400/60 bg-amber-50/60 p-3 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100"
+              >
+                <p className="font-semibold uppercase tracking-wide">
+                  Missing / Uncertain
+                </p>
+                <p className="mt-1">{b.missing.reason}</p>
+                {b.missing.needed.length > 0 && (
+                  <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
+                    {b.missing.needed.map((n, i) => (
+                      <li key={i}>{n}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
     </div>
   );
 }
+
+function NextStepsList({ steps }: { steps: EnrichedNextStep[] }) {
+  if (steps.length === 0) return null;
+  return (
+    <section aria-label="Recommended next steps" className="space-y-3">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-lg font-semibold text-foreground">Next Steps</h2>
+        <p className="text-xs text-muted-foreground">
+          {steps.length} recommendation{steps.length === 1 ? "" : "s"} · review-by
+          included
+        </p>
+      </div>
+      <ul className="grid gap-3 md:grid-cols-2">
+        {steps.map((s) => (
+          <li
+            key={s.id}
+            data-demo-next-step={s.id}
+            className="rounded-lg border border-border bg-card p-4 shadow-sm"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm font-semibold text-foreground">{s.title}</p>
+              <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-wider">
+                Review in {s.reviewByMonths} mo
+              </Badge>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {TIMEFRAME_LABEL[s.timeframe]} · Owner: {OWNER_LABEL[s.owner]}
+            </p>
+            <p className="mt-2 text-sm text-foreground/85">{s.detail}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function AlternativePathways({ items }: { items: AlternativePathway[] }) {
+  if (items.length === 0) return null;
+  return (
+    <section aria-label="Alternative pathways" className="space-y-3">
+      <h2 className="text-lg font-semibold text-foreground">Alternative Pathways</h2>
+      <ul className="grid gap-3 md:grid-cols-2">
+        {items.map((a) => (
+          <li
+            key={a.id}
+            data-demo-alt-pathway={a.id}
+            className="rounded-lg border border-border bg-muted/40 p-4"
+          >
+            <p className="text-sm font-semibold text-foreground">{a.title}</p>
+            <p className="mt-1 text-sm text-foreground/80">
+              <span className="font-semibold text-foreground/70">When to consider:</span>{" "}
+              {a.whenToConsider}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function ConflictsList({
+  items,
+  shortName,
+}: {
+  items: PathwayConflict[];
+  shortName: string;
+}) {
+  if (items.length === 0) {
+    return (
+      <aside
+        className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-xs text-muted-foreground"
+        aria-label="Conflicts and disagreements"
+        data-demo-report-conflicts="none"
+      >
+        No conflicts flagged in {shortName}'s current evidence. If the family, student,
+        or team disagrees with a recommendation, log it at the next PPT so the record stays
+        honest.
+      </aside>
+    );
+  }
+  return (
+    <section aria-label="Conflicts and disagreements" className="space-y-3">
+      <h2 className="text-lg font-semibold text-foreground">Conflicts To Resolve</h2>
+      <ul className="space-y-2">
+        {items.map((c) => (
+          <li
+            key={c.id}
+            data-demo-conflict={c.id}
+            className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-foreground/85"
+          >
+            <p>{c.summary}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+              Resolution owner · {OWNER_LABEL[c.resolutionOwner]}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 
 function PathwayOptions({
   options,
