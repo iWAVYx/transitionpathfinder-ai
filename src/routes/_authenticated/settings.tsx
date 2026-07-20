@@ -249,6 +249,216 @@ function SettingsPage() {
           </dl>
         </div>
 
+        {/* Profile */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Profile</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            How you show up to your team. Your role, organization, and student assignments are
+            managed separately.
+          </p>
+          {!profileDraft ? (
+            <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="first_name">First name</Label>
+                <Input
+                  id="first_name"
+                  value={profileDraft.first_name}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, first_name: e.target.value })}
+                  maxLength={80}
+                />
+              </div>
+              <div>
+                <Label htmlFor="last_name">Last name</Label>
+                <Input
+                  id="last_name"
+                  value={profileDraft.last_name}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, last_name: e.target.value })}
+                  maxLength={80}
+                />
+              </div>
+              <div>
+                <Label htmlFor="preferred_name">Preferred name</Label>
+                <Input
+                  id="preferred_name"
+                  value={profileDraft.preferred_name}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, preferred_name: e.target.value })}
+                  placeholder="What we'll call you"
+                  maxLength={80}
+                />
+              </div>
+              <div>
+                <Label htmlFor="pronouns">Pronouns (optional)</Label>
+                <Input
+                  id="pronouns"
+                  value={profileDraft.pronouns}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, pronouns: e.target.value })}
+                  placeholder="e.g. she/her, they/them"
+                  maxLength={40}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="title">Title (optional)</Label>
+                <Input
+                  id="title"
+                  value={profileDraft.title}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, title: e.target.value })}
+                  placeholder="e.g. Transition Coordinator"
+                  maxLength={120}
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Phone (optional)</Label>
+                <Input
+                  id="phone"
+                  value={profileDraft.phone}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, phone: e.target.value })}
+                  placeholder="+1 555 555 5555"
+                  maxLength={32}
+                />
+              </div>
+              <div>
+                <Label>Role</Label>
+                <div className="mt-2 rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                  {profile?.primary_role ?? "Not set"}
+                  <span className="ml-2 text-xs">(managed by your organization)</span>
+                </div>
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="bio">About you (optional)</Label>
+                <Textarea
+                  id="bio"
+                  value={profileDraft.bio}
+                  onChange={(e) => setProfileDraft({ ...profileDraft, bio: e.target.value })}
+                  placeholder="A short note for your team."
+                  maxLength={500}
+                  rows={3}
+                />
+              </div>
+              <div className="sm:col-span-2 flex justify-end">
+                <Button onClick={submitProfile} disabled={savingProfile}>
+                  {savingProfile ? "Saving…" : "Save Profile"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Accessibility */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Accessibility className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Accessibility</h2>
+          </div>
+          {userPrefs === null ? (
+            <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-border">
+              <li className="flex items-start justify-between gap-4 py-4">
+                <div>
+                  <p className="text-sm font-medium">Reduce Motion</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Turn off page transitions and animated backgrounds.
+                  </p>
+                </div>
+                <Switch
+                  checked={userPrefs.reduced_motion}
+                  onCheckedChange={(v) => toggleAccessibility("reduced_motion", v)}
+                />
+              </li>
+              <li className="flex items-start justify-between gap-4 py-4">
+                <div>
+                  <p className="text-sm font-medium">High Contrast</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Boost contrast for text and controls.
+                  </p>
+                </div>
+                <Switch
+                  checked={userPrefs.high_contrast}
+                  onCheckedChange={(v) => toggleAccessibility("high_contrast", v)}
+                />
+              </li>
+              <li className="flex items-start justify-between gap-4 py-4">
+                <div>
+                  <p className="text-sm font-medium">Dyslexia-Friendly Font</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Use a font tuned for easier reading.
+                  </p>
+                </div>
+                <Switch
+                  checked={userPrefs.dyslexia_friendly}
+                  onCheckedChange={(v) => toggleAccessibility("dyslexia_friendly", v)}
+                />
+              </li>
+            </ul>
+          )}
+        </div>
+
+        {/* Quiet hours */}
+        <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Moon className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg">Quiet Hours</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Pause notifications overnight. Instant alerts wait until quiet hours end.
+          </p>
+          {prefs === null ? (
+            <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="qh-start">Start</Label>
+                <Input
+                  id="qh-start"
+                  type="time"
+                  defaultValue={prefs.quiet_hours_start ?? ""}
+                  onBlur={(e) =>
+                    submitQuietHours(
+                      e.target.value,
+                      prefs.quiet_hours_end ?? "",
+                      prefs.quiet_hours_tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="qh-end">End</Label>
+                <Input
+                  id="qh-end"
+                  type="time"
+                  defaultValue={prefs.quiet_hours_end ?? ""}
+                  onBlur={(e) =>
+                    submitQuietHours(
+                      prefs.quiet_hours_start ?? "",
+                      e.target.value,
+                      prefs.quiet_hours_tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="qh-tz">Time zone</Label>
+                <Input
+                  id="qh-tz"
+                  defaultValue={prefs.quiet_hours_tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  onBlur={(e) =>
+                    submitQuietHours(
+                      prefs.quiet_hours_start ?? "",
+                      prefs.quiet_hours_end ?? "",
+                      e.target.value,
+                    )
+                  }
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Notifications */}
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex items-center gap-2">
