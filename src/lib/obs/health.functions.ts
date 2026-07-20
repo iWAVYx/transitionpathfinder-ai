@@ -37,7 +37,7 @@ export type ObsEventRow = {
   error: { message?: string; name?: string; stack?: string } | null;
 };
 
-async function assertPlatformAdmin(ctx: { supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }> }; userId: string }) {
+async function assertPlatformAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("is_platform_admin", { _user_id: ctx.userId });
   if (error) throw new Error("Authorization check failed");
   if (!data) throw new Error("Forbidden");
@@ -56,7 +56,7 @@ export const getSloStatus = createServerFn({ method: "GET" })
       _window_hours: data.window_hours,
     });
     if (error) throw new Error(error.message);
-    return { rows: (rows ?? []) as SloRow[], window_hours: data.window_hours };
+    return { rows: (rows ?? []) as unknown as SloRow[], window_hours: data.window_hours };
   });
 
 // -------- Recent errors --------
@@ -101,7 +101,7 @@ export const getTrace = createServerFn({ method: "GET" })
       .eq("trace_id", data.trace_id)
       .order("ts", { ascending: true });
     if (error) throw new Error(error.message);
-    return { rows: (rows ?? []) as ObsEventRow[] };
+    return { rows: (rows ?? []) as unknown as ObsEventRow[] };
   });
 
 // -------- Infrastructure health --------
