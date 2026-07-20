@@ -14,7 +14,7 @@ import { ROLE_DOOR_SLUGS, ROLE_DOORS } from "@/lib/routing/role-doors";
  * request org license, begin Partner Free/Premium). Platform Owner
  * accounts are provisioned internally and are not shown here.
  */
-export const Route = createFileRoute("/get-started")({
+export const Route = createFileRoute("/get-started/")({
   head: () => ({
     meta: [
       { title: "Get Started — TransitionForward" },

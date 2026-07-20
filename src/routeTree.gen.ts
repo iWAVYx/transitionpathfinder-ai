@@ -26,7 +26,6 @@ import { Route as PartnerInterestRouteImport } from './routes/partner-interest'
 import { Route as PartnerDirectoryRouteImport } from './routes/partner-directory'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HelpRouteImport } from './routes/help'
-import { Route as GetStartedRouteImport } from './routes/get-started'
 import { Route as FrameworkRouteImport } from './routes/framework'
 import { Route as FamiliesRouteImport } from './routes/families'
 import { Route as EducatorsRouteImport } from './routes/educators'
@@ -38,6 +37,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginIndexRouteImport } from './routes/login.index'
+import { Route as GetStartedIndexRouteImport } from './routes/get-started.index'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as ProgramsTransitionforwardRouteImport } from './routes/programs.transitionforward'
 import { Route as PathwaysPathwayIdRouteImport } from './routes/pathways.$pathwayId'
@@ -301,11 +301,6 @@ const HelpRoute = HelpRouteImport.update({
   path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GetStartedRoute = GetStartedRouteImport.update({
-  id: '/get-started',
-  path: '/get-started',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FrameworkRoute = FrameworkRouteImport.update({
   id: '/framework',
   path: '/framework',
@@ -359,6 +354,11 @@ const LoginIndexRoute = LoginIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LoginRoute,
+} as any)
+const GetStartedIndexRoute = GetStartedIndexRouteImport.update({
+  id: '/get-started/',
+  path: '/get-started/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ShareTokenRoute = ShareTokenRouteImport.update({
   id: '/share/$token',
@@ -1358,7 +1358,6 @@ export interface FileRoutesByFullPath {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
-  '/get-started': typeof GetStartedRouteWithChildren
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
@@ -1443,6 +1442,7 @@ export interface FileRoutesByFullPath {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
+  '/get-started/': typeof GetStartedIndexRoute
   '/login/': typeof LoginIndexRoute
   '/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -1565,7 +1565,6 @@ export interface FileRoutesByTo {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
-  '/get-started': typeof GetStartedRouteWithChildren
   '/help': typeof HelpRoute
   '/partner-directory': typeof PartnerDirectoryRoute
   '/partner-interest': typeof PartnerInterestRoute
@@ -1648,6 +1647,7 @@ export interface FileRoutesByTo {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
+  '/get-started': typeof GetStartedIndexRoute
   '/login': typeof LoginIndexRoute
   '/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -1772,7 +1772,6 @@ export interface FileRoutesById {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
-  '/get-started': typeof GetStartedRouteWithChildren
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
@@ -1857,6 +1856,7 @@ export interface FileRoutesById {
   '/pathways/$pathwayId': typeof PathwaysPathwayIdRoute
   '/programs/transitionforward': typeof ProgramsTransitionforwardRoute
   '/share/$token': typeof ShareTokenRoute
+  '/get-started/': typeof GetStartedIndexRoute
   '/login/': typeof LoginIndexRoute
   '/_authenticated/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/_authenticated/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -1981,7 +1981,6 @@ export interface FileRouteTypes {
     | '/educators'
     | '/families'
     | '/framework'
-    | '/get-started'
     | '/help'
     | '/login'
     | '/partner-directory'
@@ -2066,6 +2065,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
     | '/share/$token'
+    | '/get-started/'
     | '/login/'
     | '/bridgeforward/explore'
     | '/bridgeforward/fit-finder'
@@ -2188,7 +2188,6 @@ export interface FileRouteTypes {
     | '/educators'
     | '/families'
     | '/framework'
-    | '/get-started'
     | '/help'
     | '/partner-directory'
     | '/partner-interest'
@@ -2271,6 +2270,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
     | '/share/$token'
+    | '/get-started'
     | '/login'
     | '/bridgeforward/explore'
     | '/bridgeforward/fit-finder'
@@ -2394,7 +2394,6 @@ export interface FileRouteTypes {
     | '/educators'
     | '/families'
     | '/framework'
-    | '/get-started'
     | '/help'
     | '/login'
     | '/partner-directory'
@@ -2479,6 +2478,7 @@ export interface FileRouteTypes {
     | '/pathways/$pathwayId'
     | '/programs/transitionforward'
     | '/share/$token'
+    | '/get-started/'
     | '/login/'
     | '/_authenticated/bridgeforward/explore'
     | '/_authenticated/bridgeforward/fit-finder'
@@ -2603,7 +2603,6 @@ export interface RootRouteChildren {
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
-  GetStartedRoute: typeof GetStartedRouteWithChildren
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRouteWithChildren
   PartnerDirectoryRoute: typeof PartnerDirectoryRoute
@@ -2653,6 +2652,7 @@ export interface RootRouteChildren {
   PathwaysPathwayIdRoute: typeof PathwaysPathwayIdRoute
   ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
   ShareTokenRoute: typeof ShareTokenRoute
+  GetStartedIndexRoute: typeof GetStartedIndexRoute
   DemoWorkspaceStageRoute: typeof DemoWorkspaceStageRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   DemoWorkspaceIndexRoute: typeof DemoWorkspaceIndexRoute
@@ -2785,13 +2785,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/get-started': {
-      id: '/get-started'
-      path: '/get-started'
-      fullPath: '/get-started'
-      preLoaderRoute: typeof GetStartedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/framework': {
       id: '/framework'
       path: '/framework'
@@ -2868,6 +2861,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login/'
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof LoginRoute
+    }
+    '/get-started/': {
+      id: '/get-started/'
+      path: '/get-started'
+      fullPath: '/get-started/'
+      preLoaderRoute: typeof GetStartedIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/share/$token': {
       id: '/share/$token'
@@ -4490,18 +4490,6 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
-interface GetStartedRouteChildren {
-  GetStartedRoleRoute: typeof GetStartedRoleRoute
-}
-
-const GetStartedRouteChildren: GetStartedRouteChildren = {
-  GetStartedRoleRoute: GetStartedRoleRoute,
-}
-
-const GetStartedRouteWithChildren = GetStartedRoute._addFileChildren(
-  GetStartedRouteChildren,
-)
-
 interface LoginRouteChildren {
   Login2faRoute: typeof Login2faRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -4537,7 +4525,6 @@ const rootRouteChildren: RootRouteChildren = {
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
-  GetStartedRoute: GetStartedRouteWithChildren,
   HelpRoute: HelpRoute,
   LoginRoute: LoginRouteWithChildren,
   PartnerDirectoryRoute: PartnerDirectoryRoute,
@@ -4587,6 +4574,7 @@ const rootRouteChildren: RootRouteChildren = {
   PathwaysPathwayIdRoute: PathwaysPathwayIdRoute,
   ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
   ShareTokenRoute: ShareTokenRoute,
+  GetStartedIndexRoute: GetStartedIndexRoute,
   DemoWorkspaceStageRoute: DemoWorkspaceStageRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   DemoWorkspaceIndexRoute: DemoWorkspaceIndexRoute,
@@ -4600,3 +4588,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
