@@ -73,27 +73,41 @@ function RoleDoorPage() {
             className="mt-10 grid gap-4 sm:grid-cols-2"
             aria-label={`Ways to get started as ${door.label}`}
           >
-            {door.actions.map((action) => (
-              <li key={action.key}>
-                <Link
-                  to={action.to}
-                  search={action.search ?? {}}
-                  className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-                  data-testid={`role-door-action-${action.key}`}
+            {door.actions.map((action, index) => {
+              const isLastOdd =
+                index === door.actions.length - 1 &&
+                door.actions.length % 2 === 1;
+              return (
+                <li
+                  key={action.key}
+                  className={
+                    isLastOdd
+                      ? "sm:col-span-2 sm:flex sm:justify-center"
+                      : undefined
+                  }
                 >
-                  <h2 className="font-display text-lg font-medium">
-                    {action.label}
-                  </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {action.description}
-                  </p>
-                  <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                    Continue{" "}
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </Link>
-              </li>
-            ))}
+                  <Link
+                    to={action.to}
+                    search={action.search ?? {}}
+                    className={`group flex h-full flex-col rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${
+                      isLastOdd ? "w-full sm:max-w-[calc(50%-0.5rem)]" : ""
+                    }`}
+                    data-testid={`role-door-action-${action.key}`}
+                  >
+                    <h2 className="font-display text-lg font-medium">
+                      {action.label}
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {action.description}
+                    </p>
+                    <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                      Continue{" "}
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <p className="mx-auto mt-10 max-w-xl text-center text-xs leading-relaxed text-muted-foreground">
