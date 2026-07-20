@@ -93,10 +93,11 @@ export type WritePathwayReportResult =
       reportId: string;
       recommendationCount: number;
       knowledge_dropped: number;
-      per_pillar: Extract<
-        RunPathwayEngineResult,
-        { ok: true; status: "produced" }
-      >["per_pillar"];
+      per_pillar: Array<{
+        pillar: PillarInput["pillar"];
+        outcome: "refused" | "generated";
+        count: number;
+      }>;
     }
   | {
       ok: false;
