@@ -70,7 +70,9 @@ function ReportDetailPage() {
   const linkStudent = useServerFn(linkReportToStudent);
   const regenerate = useServerFn(regeneratePathwayReport);
   const navigate = useNavigate();
-  const audience: V2Audience = search.audience ?? "family";
+  // Workstream 1: default to Student View when no explicit audience is in
+  // the URL (rule 3). See src/lib/report-role-precedence.ts.
+  const audience: V2Audience = search.audience ?? "student";
   const [regenBusy, setRegenBusy] = useState(false);
 
   const [state, setState] = useState<
