@@ -144,16 +144,7 @@ export async function writePathwayReport(
     maxKnowledgeRefs: input.maxKnowledgeRefs,
   });
   if (!loaded.ok) {
-    return {
-      ok: false,
-      error_code: loaded.error_code as WritePathwayReportResult extends {
-        ok: false;
-        error_code: infer C;
-      }
-        ? C
-        : never,
-      message: loaded.message,
-    };
+    return { ok: false, error_code: loaded.error_code, message: loaded.message };
   }
 
   // 2. Engine — runs sufficiency check + schema gate per pillar.
@@ -166,27 +157,13 @@ export async function writePathwayReport(
     generate: input.generate,
   });
   if (!engine.ok) {
-    return {
-      ok: false,
-      error_code: engine.error_code as WritePathwayReportResult extends {
-        ok: false;
-        error_code: infer C;
-      }
-        ? C
-        : never,
-      message: engine.message,
-    };
+    return { ok: false, error_code: engine.error_code, message: engine.message };
   }
   // `status: "disabled"` cannot happen here — we passed `enabled: true`.
   if (engine.status !== "produced") {
     return {
       ok: false,
-      error_code: "batch_invalid" as WritePathwayReportResult extends {
-        ok: false;
-        error_code: infer C;
-      }
-        ? C
-        : never,
+      error_code: "batch_invalid",
       message: `unexpected engine status: ${engine.status}`,
     };
   }
@@ -198,16 +175,7 @@ export async function writePathwayReport(
   };
   const { error } = await input.writerClient.updateReport(input.reportId, columns);
   if (error) {
-    return {
-      ok: false,
-      error_code: "write_failed" as WritePathwayReportResult extends {
-        ok: false;
-        error_code: infer C;
-      }
-        ? C
-        : never,
-      message: error.message,
-    };
+    return { ok: false, error_code: "write_failed", message: error.message };
   }
 
   return {
