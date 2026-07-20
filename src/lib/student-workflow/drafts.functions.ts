@@ -90,7 +90,7 @@ export const saveStudentWorkflowDraft = createServerFn({ method: "POST" })
     z
       .object({
         taskKey: TASK_KEY,
-        payload: z.unknown(),
+        payload: draftPayloadSchema,
         returnTo: z.string().max(512).optional(),
       })
       .parse(i),
