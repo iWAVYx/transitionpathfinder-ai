@@ -62,9 +62,18 @@ export type NextStep = {
   detail: string;
   owner: "family" | "student" | "school_team" | "shared";
   timeframe: "this_month" | "this_semester" | "this_year";
-  /** Per-rec review-by horizon in months from generation. Required per spec. */
+  /**
+   * Per-rec review-by horizon in months from generation. Optional in raw
+   * definitions — the engine backfills it from `timeframe` when absent
+   * so every emitted step ships with an explicit revisit date.
+   */
+  reviewByMonths?: number;
+};
+
+export type EnrichedNextStep = Omit<NextStep, "reviewByMonths"> & {
   reviewByMonths: number;
 };
+
 
 export type AlternativePathway = {
   id: string;
