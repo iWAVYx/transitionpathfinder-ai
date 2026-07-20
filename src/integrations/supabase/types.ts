@@ -4931,6 +4931,69 @@ export type Database = {
         }
         Relationships: []
       }
+      pathway_shadow_run_log: {
+        Row: {
+          actor_id: string | null
+          added_count: number
+          changed_count: number
+          channel: string
+          created_at: string
+          diff: Json
+          id: string
+          identical: boolean
+          knowledge_added: string[]
+          knowledge_removed: string[]
+          model_version: string
+          prompt_version: string
+          provenance_changed: string[]
+          removed_count: number
+          report_id: string
+          rules_version: string
+          run_at: string
+          unchanged_count: number
+        }
+        Insert: {
+          actor_id?: string | null
+          added_count?: number
+          changed_count?: number
+          channel: string
+          created_at?: string
+          diff: Json
+          id?: string
+          identical: boolean
+          knowledge_added?: string[]
+          knowledge_removed?: string[]
+          model_version: string
+          prompt_version: string
+          provenance_changed?: string[]
+          removed_count?: number
+          report_id: string
+          rules_version: string
+          run_at?: string
+          unchanged_count?: number
+        }
+        Update: {
+          actor_id?: string | null
+          added_count?: number
+          changed_count?: number
+          channel?: string
+          created_at?: string
+          diff?: Json
+          id?: string
+          identical?: boolean
+          knowledge_added?: string[]
+          knowledge_removed?: string[]
+          model_version?: string
+          prompt_version?: string
+          provenance_changed?: string[]
+          removed_count?: number
+          report_id?: string
+          rules_version?: string
+          run_at?: string
+          unchanged_count?: number
+        }
+        Relationships: []
+      }
       pilot_outreach_contacts: {
         Row: {
           contact_name: string
