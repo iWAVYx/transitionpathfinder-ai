@@ -765,7 +765,7 @@ function HomePage() {
               </Link>
               <span className="flex items-center justify-center gap-2 rounded-full border border-border/60 bg-card px-4 py-2 text-xs font-medium text-muted-foreground sm:inline-flex sm:justify-start">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                Specialist-reviewed
+                Specialist-Reviewed
               </span>
             </div>
 
