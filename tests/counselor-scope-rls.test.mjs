@@ -149,8 +149,10 @@ test("counselor-scope evidence rows are hidden from other team members", { skip:
   await admin.from("evidence_items").delete().eq("student_id", student.id);
   await admin.from("student_collaborators").delete().eq("student_id", student.id);
   await admin.from("students").delete().eq("id", student.id);
+  await admin.from("admin_roles").delete().eq("user_id", platformAdmin.uid);
   await admin.auth.admin.deleteUser(owner.uid);
   await admin.auth.admin.deleteUser(counselor.uid);
+  await admin.auth.admin.deleteUser(platformAdmin.uid);
 });
 
 test("profiles.professional_focus rejects unknown values", { skip: SKIP }, async () => {
