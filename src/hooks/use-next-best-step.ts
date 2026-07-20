@@ -57,8 +57,9 @@ export function useNextBestStep(): {
     let cancelled = false;
     setLoading(true);
     loadDrafts({ data: { limit: 1 } })
-      .then(({ drafts }) => {
+      .then((result) => {
         if (cancelled) return;
+        const drafts = (result as { drafts: StudentWorkflowDraft[] }).drafts;
         const draft = drafts[0] ?? null;
         if (!draft) {
           setStep(FALLBACK);
