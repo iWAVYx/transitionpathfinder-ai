@@ -220,7 +220,7 @@ function RecentErrorsTable({ windowHours }: { windowHours: number }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {rows.map((r: ObsEventRow) => (
                 <>
                   <tr key={r.id} className="border-t hover:bg-muted/20 cursor-pointer" onClick={() => setExpanded(expanded === r.id ? null : r.id)}>
                     <td className="px-3 py-2 whitespace-nowrap text-xs text-muted-foreground">{new Date(r.ts).toLocaleString()}</td>
@@ -322,7 +322,7 @@ function TraceExplorer() {
       {rows && rows.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No spans found for that trace.</p>}
       {rows && rows.length > 0 && (
         <div className="mt-4 space-y-1">
-          {rows.map((r) => {
+          {rows.map((r: ObsEventRow) => {
             const pct = totalMs > 0 && r.duration_ms ? Math.max(2, (r.duration_ms / totalMs) * 100) : 2;
             return (
               <div key={r.id} className="rounded border p-2">

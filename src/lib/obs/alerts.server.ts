@@ -57,10 +57,16 @@ async function slowBurnRule() {
 }
 
 async function dlqBacklogRule() {
-  // DLQ backlog on either email queue > 50 msgs.
-  const auth = await supabaseAdmin.rpc("read_email_batch", { queue_name: "auth_emails_dlq", batch_size: 1, vt: 1 }).catch(() => null);
-  const tx = await supabaseAdmin.rpc("read_email_batch", { queue_name: "transactional_emails_dlq", batch_size: 1, vt: 1 }).catch(() => null);
-  const anyDlq = (auth?.data && Array.isArray(auth.data) && auth.data.length > 0) || (tx?.data && Array.isArray(tx.data) && tx.data.length > 0);
+  // DLQ backlog on either email queue > 0 msgs.
+  let anyDlq = false;
+  try {
+    const auth = await (supabaseAdmin as any).rpc("read_email_batch", { queue_name: "auth_emails_dlq", batch_size: 1, vt: 1 });
+    if (auth?.data && Array.isArray(auth.data) && auth.data.length > 0) anyDlq = true;
+  } catch { /* queue may not exist */ }
+  try {
+    const tx = await (supabaseAdmin as any).rpc("read_email_batch", { queue_name: "transactional_emails_dlq", batch_size: 1, vt: 1 });
+    if (tx?.data && Array.isArray(tx.data) && tx.data.length > 0) anyDlq = true;
+  } catch { /* queue may not exist */ }
   if (!anyDlq) return { fired: false };
   return {
     fired: true,
@@ -89,9 +95,8 @@ async function inCooldown(key: string): Promise<{ inCooldown: boolean; cooldown_
 }
 
 async function markFired(key: string, payload: Record<string, unknown>, cooldown_minutes: number) {
-  await supabaseAdmin
-    .from("obs_alert_state")
-    .upsert({ rule_key: key, last_fired_at: new Date().toISOString(), last_payload: payload, cooldown_minutes });
+  await (supabaseAdmin.from("obs_alert_state") as any)
+    .upsert({ rule_key: key, last_fired_at: new Date().toISOString(), last_payload: payload as any, cooldown_minutes });
 }
 
 async function fetchAdminEmails(): Promise<string[]> {

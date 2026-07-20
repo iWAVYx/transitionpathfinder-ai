@@ -1,9 +1,6 @@
 /**
  * Observability log writer — server-only.
- *
- * Batched, fire-and-forget append to public.obs_events using service role.
- * Never throws to the caller; log failures are logged to console and dropped.
- * Filename ends in `.server.ts` so it can never be pulled into a client bundle.
+ * Batched, fire-and-forget append to public.obs_events.
  */
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -33,23 +30,21 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function flushNow(): Promise<void> {
   if (buffer.length === 0) return;
-  const rows = buffer.splice(0, buffer.length);
+  const rows = buffer.splice(0, buffer.length).map((r) => ({
+    trace_id: r.trace_id,
+    span_id: r.span_id,
+    parent_span_id: r.parent_span_id ?? null,
+    user_id: r.user_id ?? null,
+    route: r.route ?? null,
+    server_fn: r.server_fn ?? null,
+    severity: r.severity,
+    status: r.status,
+    duration_ms: r.duration_ms ?? null,
+    attributes: (r.attributes ?? {}) as unknown as any,
+    error: (r.error ?? null) as unknown as any,
+  }));
   try {
-    const { error } = await supabaseAdmin.from("obs_events").insert(
-      rows.map((r) => ({
-        trace_id: r.trace_id,
-        span_id: r.span_id,
-        parent_span_id: r.parent_span_id ?? null,
-        user_id: r.user_id ?? null,
-        route: r.route ?? null,
-        server_fn: r.server_fn ?? null,
-        severity: r.severity,
-        status: r.status,
-        duration_ms: r.duration_ms ?? null,
-        attributes: r.attributes ?? {},
-        error: r.error ?? null,
-      })),
-    );
+    const { error } = await (supabaseAdmin.from("obs_events") as any).insert(rows);
     if (error) console.warn("[obs] flush failed:", error.message);
   } catch (e) {
     console.warn("[obs] flush threw:", e);
@@ -64,21 +59,16 @@ function scheduleFlush() {
   }, FLUSH_INTERVAL_MS);
 }
 
-/** Enqueue an observability event. Never throws. */
 export function logObsEvent(evt: ObsEventInput): void {
   try {
     buffer.push(evt);
-    if (buffer.length >= BATCH_SIZE) {
-      void flushNow();
-    } else {
-      scheduleFlush();
-    }
+    if (buffer.length >= BATCH_SIZE) void flushNow();
+    else scheduleFlush();
   } catch (e) {
     console.warn("[obs] enqueue threw:", e);
   }
 }
 
-/** Explicit flush — useful in tests and at request end. */
 export async function flushObsEvents(): Promise<void> {
   if (flushTimer) {
     clearTimeout(flushTimer);
