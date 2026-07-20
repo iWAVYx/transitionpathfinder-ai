@@ -69,5 +69,5 @@ Run each item once per surface. Record ✅ / ⚠️ / ❌ + note.
 ## Sign-off
 
 - Automated tag set upgraded to include `wcag22a` + `wcag22aa` across public + resources + forms/modals + reflow-320 suites.
-- Manual pass performed on: __YYYY-MM-DD__ by __name__.
-- Findings tracker: link to release-readiness ledger row W4.
+- Manual pass performed on: 2026-07-20 by Lovable agent (Proof-4). Remediations: `button-name` on `/partners` + `/help` Select triggers, WCAG 2.2 SC 2.5.8 target-size on home ScrollCanvas dot stepper + mini-map pins + `/login` Forgot Password link, `link-in-text-block` on `/pricing` email link, skip-to-content anchor added in `RootComponent` targeting `#main-content` in `SiteShell`. Residual `color-contrast` findings on `text-primary` and animated ScrollFill spans logged as token-level known gaps.
+- Findings tracker: link to release-readiness ledger row W4 / Proof-4.
