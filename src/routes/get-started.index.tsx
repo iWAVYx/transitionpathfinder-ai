@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Home } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { ROLE_DOOR_SLUGS, ROLE_DOORS } from "@/lib/routing/role-doors";
