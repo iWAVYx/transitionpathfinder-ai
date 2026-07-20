@@ -94,19 +94,20 @@ function RoleDoorPage() {
                     }`}
                     data-testid={`role-door-action-${action.key}`}
                   >
-                  <h2 className="font-display text-lg font-medium">
-                    {action.label}
-                  </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {action.description}
-                  </p>
-                  <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                    Continue{" "}
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </Link>
-              </li>
-            ))}
+                    <h2 className="font-display text-lg font-medium">
+                      {action.label}
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {action.description}
+                    </p>
+                    <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                      Continue{" "}
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <p className="mx-auto mt-10 max-w-xl text-center text-xs leading-relaxed text-muted-foreground">
