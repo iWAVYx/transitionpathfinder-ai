@@ -207,6 +207,7 @@ import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes
 import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
 import { Route as AuthenticatedBridgeforwardFitFinderRouteImport } from './routes/_authenticated/bridgeforward.fit-finder'
 import { Route as AuthenticatedBridgeforwardExploreRouteImport } from './routes/_authenticated/bridgeforward.explore'
+import { Route as AuthenticatedAdminOrgsRouteImport } from './routes/_authenticated/admin.orgs'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -1302,6 +1303,11 @@ const AuthenticatedBridgeforwardExploreRoute =
     path: '/bridgeforward/explore',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAdminOrgsRoute = AuthenticatedAdminOrgsRouteImport.update({
+  id: '/orgs',
+  path: '/orgs',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -1377,7 +1383,7 @@ export interface FileRoutesByFullPath {
   '/waitlist': typeof WaitlistRoute
   '/action-items': typeof AuthenticatedActionItemsRoute
   '/activity': typeof AuthenticatedActivityRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/calendar': typeof AuthenticatedCalendarRoute
@@ -1444,6 +1450,7 @@ export interface FileRoutesByFullPath {
   '/share/$token': typeof ShareTokenRoute
   '/get-started/': typeof GetStartedIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/admin/orgs': typeof AuthenticatedAdminOrgsRoute
   '/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
@@ -1583,7 +1590,7 @@ export interface FileRoutesByTo {
   '/waitlist': typeof WaitlistRoute
   '/action-items': typeof AuthenticatedActionItemsRoute
   '/activity': typeof AuthenticatedActivityRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/calendar': typeof AuthenticatedCalendarRoute
@@ -1649,6 +1656,7 @@ export interface FileRoutesByTo {
   '/share/$token': typeof ShareTokenRoute
   '/get-started': typeof GetStartedIndexRoute
   '/login': typeof LoginIndexRoute
+  '/admin/orgs': typeof AuthenticatedAdminOrgsRoute
   '/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
@@ -1791,7 +1799,7 @@ export interface FileRoutesById {
   '/waitlist': typeof WaitlistRoute
   '/_authenticated/action-items': typeof AuthenticatedActionItemsRoute
   '/_authenticated/activity': typeof AuthenticatedActivityRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin-school': typeof AuthenticatedAdminSchoolRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
@@ -1858,6 +1866,7 @@ export interface FileRoutesById {
   '/share/$token': typeof ShareTokenRoute
   '/get-started/': typeof GetStartedIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/_authenticated/admin/orgs': typeof AuthenticatedAdminOrgsRoute
   '/_authenticated/bridgeforward/explore': typeof AuthenticatedBridgeforwardExploreRoute
   '/_authenticated/bridgeforward/fit-finder': typeof AuthenticatedBridgeforwardFitFinderRoute
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
@@ -2067,6 +2076,7 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/get-started/'
     | '/login/'
+    | '/admin/orgs'
     | '/bridgeforward/explore'
     | '/bridgeforward/fit-finder'
     | '/bridgeforward/intake'
@@ -2272,6 +2282,7 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/get-started'
     | '/login'
+    | '/admin/orgs'
     | '/bridgeforward/explore'
     | '/bridgeforward/fit-finder'
     | '/bridgeforward/intake'
@@ -2480,6 +2491,7 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/get-started/'
     | '/login/'
+    | '/_authenticated/admin/orgs'
     | '/_authenticated/bridgeforward/explore'
     | '/_authenticated/bridgeforward/fit-finder'
     | '/_authenticated/bridgeforward/intake'
@@ -4053,6 +4065,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBridgeforwardExploreRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/orgs': {
+      id: '/_authenticated/admin/orgs'
+      path: '/orgs'
+      fullPath: '/admin/orgs'
+      preLoaderRoute: typeof AuthenticatedAdminOrgsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -4111,6 +4130,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminOrgsRoute: typeof AuthenticatedAdminOrgsRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminOrgsRoute: AuthenticatedAdminOrgsRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedDocumentsRouteChildren {
   AuthenticatedDocumentsDocumentIdReviewRoute: typeof AuthenticatedDocumentsDocumentIdReviewRoute
@@ -4289,7 +4319,7 @@ const AuthenticatedStudentsRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedActionItemsRoute: typeof AuthenticatedActionItemsRoute
   AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAdminSchoolRoute: typeof AuthenticatedAdminSchoolRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
@@ -4376,7 +4406,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedActionItemsRoute: AuthenticatedActionItemsRoute,
   AuthenticatedActivityRoute: AuthenticatedActivityRoute,
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAdminSchoolRoute: AuthenticatedAdminSchoolRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
