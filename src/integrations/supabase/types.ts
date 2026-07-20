@@ -7537,6 +7537,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      redeem_access_code: { Args: { _code: string }; Returns: Json }
       resolve_admin_invitation: {
         Args: { _token: string }
         Returns: {

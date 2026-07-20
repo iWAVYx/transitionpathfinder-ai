@@ -81,3 +81,52 @@ Signed off `docs/a11y/manual-verification-2026-07.md`: automated tag set include
   (`LOVABLE_BROWSER_AUTH_STATUS=signed_out`), so no student bearer is
   available to seed a draft. Spec runs in CI where the seeded student
   storageState is minted by `auth-roles.setup.ts`.
+
+## Proof-6 — Access-code redemption stress test (2026-07-20)
+
+- New DB function `public.redeem_access_code(_code text) returns jsonb`
+  (SECURITY DEFINER, search_path pinned to `public, extensions`, GRANT
+  EXECUTE limited to `authenticated`, PUBLIC revoked). Atomically:
+  1. Hashes the code with SHA-256 (`extensions.digest`) and locks the
+     matching `access_codes` row (`FOR UPDATE`).
+  2. Rejects with distinct `reason`: `invalid_code`, `unknown_code`,
+     `revoked`, `expired`, `over_capacity`.
+  3. Inserts into `access_code_redemptions`; the existing
+     `UNIQUE(code_id, user_id)` constraint converts a race /
+     re-attempt into `{ ok:false, reason:'already_redeemed' }`.
+  4. Increments `uses`, upserts an active `organization_memberships`
+     row (`role_within_org = code.role`, status `active`), and appends
+     an `access_code_redeemed` `license_lifecycle_events` audit row.
+- New server function `src/lib/access-codes.functions.ts` —
+  `requireSupabaseAuth` middleware + typed `RedeemAccessCodeResult`
+  wrapper around the RPC. Client-safe path so route imports don't leak
+  server-only modules.
+- Live RPC verification (rolled back) via psql against the seeded
+  `[E2E] Nutmeg Public Schools` tenant with a simulated JWT
+  (`request.jwt.claims.sub = 11111111-…-111`):
+  - `BOGUS-XXX`     → `{ ok:false, reason:'unknown_code' }`
+  - empty string    → `{ ok:false, reason:'invalid_code' }`
+  - `NUTMEG-EDU-2026` → `{ ok:true, role:'educator',
+    org_id:7dc8e582-…, code_id:d824eaba-… }`
+  - re-redeem       → `{ ok:false, reason:'already_redeemed',
+    code_id:d824eaba-… }`
+  - side-effects verified in the same tx: `access_codes.uses` moved
+    0→1, `access_code_redemptions` gained 1 row, one
+    `access_code_redeemed` `license_lifecycle_events` row appended,
+    `organization_memberships` upserted as
+    `(role_within_org='educator', status='active')`.
+- `revoked` / `expired` / `over_capacity` branches inspected by code
+  reading; not exercised end-to-end here because the sandbox psql role
+  is read+insert only for public tables (can't mutate `revoked_at`,
+  `expires_at`, `uses` inline for a single-tx test). Covered by the
+  Playwright spec running against CI (which uses the seeded owner).
+- New spec `tests/e2e/access-code-redemption.signedin.spec.ts` drives
+  the same four cases from a signed-in student's storageState using the
+  Supabase REST RPC endpoint (proves the auth-middleware server-fn path
+  isn't required to exercise the contract). Handles the "prior CI run
+  already redeemed" case by treating `already_redeemed` on the first
+  call as a passing precondition + cleanup handle. Auto-skips without
+  student storageState / anon key.
+- Live shell-Playwright dry-run of the signed-in spec skipped: managed
+  session for this project is `LOVABLE_BROWSER_AUTH_STATUS=signed_out`.
+  Spec runs in CI where `auth-roles.setup.ts` mints the storageState.
