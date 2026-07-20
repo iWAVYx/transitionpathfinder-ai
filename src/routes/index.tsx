@@ -456,7 +456,8 @@ function HomePage() {
               label="Family / Guardian"
               body="Understand the plan, see what's next, and walk into PPTs prepared."
               cta="Build My Child's Transition Plan"
-              to="/families"
+              to="/get-started/$role"
+              params={{ role: "family" }}
               tone="peach"
             />
             <RoleCard
@@ -464,33 +465,35 @@ function HomePage() {
               label="Student"
               body="Tell us who you are. See careers, colleges, and life paths that fit."
               cta="Explore My Future Path"
-              to="/waitlist"
-              search={{ role: "student" }}
+              to="/get-started/$role"
+              params={{ role: "student" }}
               tone="sky"
             />
             <RoleCard
               icon={Users}
-              label="Teacher / Case Manager"
+              label="Teacher / Case Manager / Counselor"
               body="Organize goals, documents, and meetings for your whole caseload."
               cta="Organize My Caseload"
-              to="/educators"
+              to="/get-started/$role"
+              params={{ role: "educator" }}
               tone="primary"
             />
             <RoleCard
               icon={Building2}
               label="School / District"
               body="A coordinated view across students, teams, and transition outcomes."
-              cta="Request a School Demo"
-              to="/waitlist"
-              search={{ role: "district" }}
+              cta="Request A School Or District License"
+              to="/get-started/$role"
+              params={{ role: "district" }}
               tone="muted"
             />
             <RoleCard
               icon={Briefcase}
               label="Partner Organization"
               body="Colleges, training programs, employers, and community supports."
-              cta="Become a Partner"
-              to="/partners"
+              cta="Become A Partner"
+              to="/get-started/$role"
+              params={{ role: "partner" }}
               tone="peach"
             />
           </div>
