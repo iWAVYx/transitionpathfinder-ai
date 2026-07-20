@@ -42,7 +42,15 @@ for (const vp of VIEWPORTS) {
       const results = await new AxeBuilder({ page })
         .include(STICKY_SELECTORS[0])
         .include(STICKY_SELECTORS[1])
-        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"])
+        .withTags([
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22a",
+          "wcag22aa",
+          "best-practice",
+        ])
         .analyze();
 
       // Surface every violation in the failure message for easy triage.
