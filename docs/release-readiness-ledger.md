@@ -210,3 +210,65 @@ explicit CI-gated handoff — release-readiness program complete.
 - **Closes** Proof-7's deferred UI-level Playwright ticket — a shipped
   surface now renders `counselor_scope` evidence, so the RLS matrix is
   exercised end-to-end from the browser.
+
+## Partner Network Activation — Full program (2026-07-20)
+
+Four workstreams shipped together, closing the gap between the
+already-built Partner backend/UI surface and a proven end-to-end
+partner-to-student explainable-match flow.
+
+**Workstream C — Tier gating enforcement UI (shipped first for
+defense-in-depth):**
+- `src/lib/partner-tier-config.ts` — single source of truth:
+  `FREE_TIER_OPPORTUNITY_CAP=3`, `derivePartnerTier`, `confidenceBand`,
+  `normalizePartnerMatchScore`.
+- `src/lib/partner-tier-usage.functions.ts` — `getPartnerTierUsage`
+  server fn: resolves `partner_tier_allows(...,
+  'publish_unlimited_opportunities')`, counts published +
+  pending-review opportunities, returns `{ tier, cap, used, atCap,
+  remaining }`.
+- `src/components/partners/TierUsageMeter.tsx` — progress bar +
+  upgrade CTA at cap; Partner Premium shows the unlimited state.
+- `src/routes/_authenticated/partners-manage_.opportunities.tsx` —
+  mounts the meter (data-testid `partner-tier-meter`) and gates
+  "Submit for review" with `disabled={usage.atCap}` + tooltip.
+- `src/lib/partner-workspace.functions.ts` — server-side belt: throws
+  `TIER_CAP_REACHED` on any transition to `pending_review` /
+  `approved` past the cap, even if the UI is bypassed.
+
+**Workstream B — Explainable-match hardening:**
+- `src/lib/partner-match-explanation.ts` — Zod
+  `partnerMatchExplanationSchema` (versioned, `confidence`, `reasons`,
+  `evidenceIds`, `conflicts`) + `buildMatchExplanation` helper that
+  dedupes reasons, buckets confidence via `confidenceBand`, and
+  emits an age-out-of-range conflict when the student age falls
+  outside a partner's declared range.
+- `src/lib/partner-matching.functions.ts` — `PartnerMatch` now
+  carries `explanation`, populated for every match. Age conflicts
+  detected inline.
+- UI upgraded to render the explanation payload:
+  `src/components/students/RecommendedPartnersPanel.tsx` gains a
+  `ConfidenceChip` + bullet-list "Why this is recommended" + amber
+  "Verify before sharing" conflicts block;
+  `src/components/pathway/ReportPartnerSuggestions.tsx` gets the
+  same confidence chip + reasons list + conflicts warning inside
+  the pathway report.
+
+**Workstream A — End-to-end journey proof:**
+- `tests/e2e/partner-network-journey.signedin.spec.ts` — 8-step
+  walk across four actors (partner drafts + submits → admin
+  approves → student sees explainable match + saves → educator
+  advances lifecycle saved→contacted→applied). Uses the shared
+  storageState matrix + `shared-student-id.txt`. Auto-skips in
+  the sandbox (`LOVABLE_BROWSER_AUTH_STATUS=signed_out`).
+
+**Workstream D — Public partner-routes crawl:**
+- `tests/e2e/partner-routes-crawl.spec.ts` — hits every public
+  partner-facing route, asserts HTTP<400, non-empty `<main>`, at
+  least one heading, and zero console errors (ignoring known
+  third-party noise). Signed-out; runs everywhere.
+
+**Contract tests:** `partner-tier-gating` (7),
+`partner-match-explanation` (11), `partner-opportunity-lifecycle` (8)
+— **26/26 passing**. Signed-in Playwright specs are CI-gated behind
+the storageState matrix as documented. Program complete.

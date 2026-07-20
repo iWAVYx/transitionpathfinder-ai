@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, Loader2, MapPin, ShieldCheck, Star } from "lucide-react";
+import { ExternalLink, Loader2, MapPin, ShieldCheck, Star, AlertTriangle } from "lucide-react";
 import {
   matchPartnersForStudent,
   type PartnerMatch,
 } from "@/lib/partner-matching.functions";
+import { confidenceBandLabel } from "@/lib/partner-match-explanation";
 
 /**
  * Renders a dynamic Partner Suggestions section inside the Pathway Report.
@@ -97,15 +98,37 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
           )}
 
           {m.reasons.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {m.reasons.slice(0, 3).map((why, i) => (
+            <div className="mt-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span
-                  key={i}
-                  className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                    m.explanation.confidence === "high"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                      : m.explanation.confidence === "medium"
+                        ? "border-sky-200 bg-sky-50 text-sky-800"
+                        : "border-border bg-muted text-muted-foreground"
+                  }`}
+                  title={`Match confidence: ${m.explanation.confidence}`}
                 >
-                  {why}
+                  {confidenceBandLabel(m.explanation.confidence)}
                 </span>
-              ))}
+              </div>
+              <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[12px] text-foreground/85">
+                {m.explanation.reasons.slice(0, 4).map((why, i) => (
+                  <li key={i}>{why}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {m.explanation.conflicts.length > 0 && (
+            <div className="mt-2 flex gap-2 rounded-md border border-amber-200 bg-amber-50/70 p-2">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-700" aria-hidden />
+              <ul className="list-disc space-y-0.5 pl-4 text-[11px] text-amber-900">
+                {m.explanation.conflicts.slice(0, 3).map((c, i) => (
+                  <li key={i}>{c}</li>
+                ))}
+              </ul>
             </div>
           )}
 
