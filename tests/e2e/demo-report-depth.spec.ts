@@ -65,8 +65,11 @@ test.describe("demo Pathway Report — depth contract", () => {
         }, audience);
         await page.reload({ waitUntil: "domcontentloaded" });
 
+        // Wait for useDemoRoleView hydration to swap the audience frame
+        // before running depth assertions — avoids a "still on student"
+        // race on slow CI runners.
         const report = page.locator(`[data-demo-report-audience="${audience}"]`);
-        await expect(report).toBeVisible();
+        await expect(report).toBeVisible({ timeout: 10_000 });
 
         await assertDepth(page, p.minSteps, p.minAlt);
       });
