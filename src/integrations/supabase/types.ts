@@ -3736,6 +3736,108 @@ export type Database = {
           },
         ]
       }
+      obs_alert_state: {
+        Row: {
+          cooldown_minutes: number
+          last_fired_at: string | null
+          last_payload: Json | null
+          rule_key: string
+          updated_at: string
+        }
+        Insert: {
+          cooldown_minutes?: number
+          last_fired_at?: string | null
+          last_payload?: Json | null
+          rule_key: string
+          updated_at?: string
+        }
+        Update: {
+          cooldown_minutes?: number
+          last_fired_at?: string | null
+          last_payload?: Json | null
+          rule_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      obs_events: {
+        Row: {
+          attributes: Json
+          duration_ms: number | null
+          error: Json | null
+          id: string
+          parent_span_id: string | null
+          route: string | null
+          server_fn: string | null
+          severity: string
+          span_id: string
+          status: string
+          trace_id: string
+          ts: string
+          user_id: string | null
+        }
+        Insert: {
+          attributes?: Json
+          duration_ms?: number | null
+          error?: Json | null
+          id?: string
+          parent_span_id?: string | null
+          route?: string | null
+          server_fn?: string | null
+          severity: string
+          span_id: string
+          status: string
+          trace_id: string
+          ts?: string
+          user_id?: string | null
+        }
+        Update: {
+          attributes?: Json
+          duration_ms?: number | null
+          error?: Json | null
+          id?: string
+          parent_span_id?: string | null
+          route?: string | null
+          server_fn?: string | null
+          severity?: string
+          span_id?: string
+          status?: string
+          trace_id?: string
+          ts?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      obs_slos: {
+        Row: {
+          availability_target: number
+          created_at: string
+          enabled: boolean
+          latency_p95_ms: number
+          server_fn: string
+          updated_at: string
+          window_days: number
+        }
+        Insert: {
+          availability_target?: number
+          created_at?: string
+          enabled?: boolean
+          latency_p95_ms?: number
+          server_fn: string
+          updated_at?: string
+          window_days?: number
+        }
+        Update: {
+          availability_target?: number
+          created_at?: string
+          enabled?: boolean
+          latency_p95_ms?: number
+          server_fn?: string
+          updated_at?: string
+          window_days?: number
+        }
+        Relationships: []
+      }
       org_access_audit: {
         Row: {
           action: string
@@ -7524,6 +7626,21 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      obs_events_purge_expired: { Args: never; Returns: number }
+      obs_slo_status: {
+        Args: { _window_hours?: number }
+        Returns: {
+          availability: number
+          availability_target: number
+          error_count: number
+          latency_p95_target: number
+          p50_ms: number
+          p95_ms: number
+          p99_ms: number
+          server_fn: string
+          total_count: number
+        }[]
       }
       partner_tier_allows: {
         Args: { _capability: string; _user_id: string }
