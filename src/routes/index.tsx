@@ -1009,6 +1009,7 @@ function RoleCard({
   cta,
   to,
   search,
+  params,
   tone,
 }: {
   icon: typeof HeartHandshake;
@@ -1017,12 +1018,14 @@ function RoleCard({
   cta: string;
   to: string;
   search?: Record<string, string>;
+  params?: Record<string, string>;
   tone: RoleTone;
 }) {
   return (
     <Link
       to={to}
       search={search as never}
+      params={params as never}
       aria-label={`${label}: ${cta}`}
       className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
