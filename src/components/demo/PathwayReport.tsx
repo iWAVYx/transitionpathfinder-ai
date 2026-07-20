@@ -17,6 +17,43 @@ const CATEGORY_LABEL: Record<PathwayOption["category"], string> = {
   advocacy: "Self-Advocacy",
 };
 
+/** Workstream 1.1 audiences the demo report can be framed for. */
+export type DemoReportAudience = "student" | "family" | "educator";
+
+/**
+ * Audience-tailored framing. Same underlying pathway data, different
+ * point-of-view intro. Copy stays second person ("your", "you") for the
+ * student view, and switches to "your student" / "this student" for the
+ * family and educator lenses.
+ */
+function audienceFrame(
+  audience: DemoReportAudience,
+  profile: DemoProfile,
+): { eyebrow: string; heading: string; body: string } {
+  const name = profile.shortName;
+  switch (audience) {
+    case "family":
+      return {
+        eyebrow: "For Family",
+        heading: `What this means for ${name}'s family`,
+        body: `A plain-language read on what the engine recommended for ${name}, what the next family conversation could be, and what to bring to the next planning meeting.`,
+      };
+    case "educator":
+      return {
+        eyebrow: "For Educator",
+        heading: `What this means for ${name}'s team`,
+        body: `The team-facing view: which supports are already working, where evidence is thin, and how the recommendations connect to ${name}'s current IEP goals.`,
+      };
+    case "student":
+    default:
+      return {
+        eyebrow: "For You",
+        heading: `Your Pathway, ${name}`,
+        body: `Written for you first. Every option below was filtered against your grade, your voice, and what you've said matters most right now.`,
+      };
+  }
+}
+
 /**
  * Age-aware Pathway Report renderer.
  *
@@ -24,16 +61,29 @@ const CATEGORY_LABEL: Record<PathwayOption["category"], string> = {
  * and lays out the seven required explanation sections + the filtered
  * pathway options. Every screen element is derived from the profile, so
  * switching students in the header immediately swaps the report.
+ *
+ * The optional `audience` prop (Workstream 1.1) frames the report from a
+ * chosen point of view. Pathway option cards are identical across
+ * audiences — only the intro framing changes.
  */
-export function PathwayReport({ profile }: { profile: DemoProfile }) {
+export function PathwayReport({
+  profile,
+  audience = "student",
+}: {
+  profile: DemoProfile;
+  audience?: DemoReportAudience;
+}) {
   const report = generatePathwayReport(profile);
+  const frame = audienceFrame(audience, profile);
   return (
     <section
-      aria-label={`Pathway report for ${profile.shortName}`}
+      aria-label={`Pathway report for ${profile.shortName} (${audience} view)`}
       data-demo-report-profile={profile.id}
+      data-demo-report-audience={audience}
       className="space-y-8"
     >
       <ReportHeader report={report} profile={profile} />
+      <AudienceFrame frame={frame} />
       <ReportBlocks blocks={report.blocks} />
       <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
       <OpportunityMatches compact limit={3} />
@@ -41,6 +91,26 @@ export function PathwayReport({ profile }: { profile: DemoProfile }) {
     </section>
   );
 }
+
+function AudienceFrame({
+  frame,
+}: {
+  frame: { eyebrow: string; heading: string; body: string };
+}) {
+  return (
+    <aside
+      className="rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-5"
+      aria-label="Audience framing"
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+        {frame.eyebrow}
+      </p>
+      <h2 className="mt-1 text-lg font-semibold text-foreground">{frame.heading}</h2>
+      <p className="mt-1 text-sm text-foreground/80">{frame.body}</p>
+    </aside>
+  );
+}
+
 
 function ReportHeader({
   report,
