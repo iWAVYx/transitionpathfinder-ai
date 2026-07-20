@@ -616,7 +616,7 @@ function ContactSection() {
                 defaultValue="general"
                 onValueChange={(v) => form.setValue("topic", v as ContactValues["topic"])}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="What is this about?">
                   <SelectValue placeholder="Pick the closest fit" />
                 </SelectTrigger>
                 <SelectContent>

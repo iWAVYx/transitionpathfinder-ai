@@ -22,7 +22,9 @@ export function SiteShell({
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <SiteHeader />
       <main
-        className="site-shell-main flex-1"
+        id="main-content"
+        tabIndex={-1}
+        className="site-shell-main flex-1 focus:outline-none"
         style={{ minHeight: "60vh" }}
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={testId ?? undefined}

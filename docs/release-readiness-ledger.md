@@ -41,3 +41,18 @@ Requirement → Evidence table. One row appended per workstream on completion.
     and every CTA target (`/login`, `/waitlist?role=<slug>`,
     `/partners`, `/get-started`) returned 200 with no dead-body
     markers. No cross-role redirect leak, no dead links.
+
+## Proof-4 — A11y manual pass ratification (2026-07-20)
+
+Ran WCAG 2.0/2.1/2.2 A + AA axe sweep against 16 live surfaces (public routes + get-started doors) on the running dev server. Findings and remediation:
+
+- **`button-name` (critical)** — Radix Select triggers on `/partners` (`PartnerApplyForm.tsx` — Organization Type, Serves IEP) and `/help` (contact topic) had no accessible name because `<Field>` uses a plain `<Label>` without `htmlFor` wiring. Added `aria-label` matching each field label to the `SelectTrigger`s. Verified: 0 `button-name` violations post-fix.
+- **`target-size` (WCAG 2.2 SC 2.5.8, serious)** — Home ScrollCanvas "Jump to …" dot stepper buttons (11–13 px) and mini-map pins (12 px) failed the 24×24 minimum. Wrapped the visual bar/dot in a `min-h-6 min-w-6` (respectively `h-6 w-6`) button with `aria-current="step"` and a `focus-visible` ring; visual size preserved via an inner `aria-hidden` span. Verified: 0 `target-size` violations on `/`.
+- **`target-size` on `/login`** — "Forgot Your Password?" inline link (15 px tall) enlarged to `min-h-11` inline-flex with visible underline.
+- **`link-in-text-block` (SC 1.4.1) on `/pricing`** — `hello@transitionforwardct.com` link relied on color only (`underline-offset-2 hover:underline`). Switched to always-underlined `underline underline-offset-2 font-medium`. Verified: rule clears.
+- **Skip-to-content (SC 2.4.1)** — no skip link was present on any route. Added a `sr-only focus:not-sr-only` "Skip to main content" anchor at the top of `RootComponent` targeting `#main-content`, and added `id="main-content" tabIndex={-1}` to the `<main>` in `SiteShell`.
+
+Residual axe findings (documented, not remediated in this slice):
+- `color-contrast` — `text-primary` on `bg-background` and animated `color-mix(…, transparent)` ScrollFill text on `/`, `/pricing`, `/help`. Token-level; changing `--primary` is a design decision outside this pass. Tracked in the manual-verification known-gaps table.
+
+Signed off `docs/a11y/manual-verification-2026-07.md`: automated tag set includes `wcag22a` + `wcag22aa`; manual pass performed 2026-07-20 (Lovable agent). Skip link + target-size fixes verified against the live preview post-edit.
