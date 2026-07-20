@@ -55,6 +55,14 @@ function GetStartedPage() {
               approved early-access cohort. Choose the path that matches
               where you are today.
             </p>
+            <Link
+              to="/"
+              className="mt-6 inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/70 px-4 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground"
+              data-testid="back-to-home"
+            >
+              <Home className="h-4 w-4" aria-hidden />
+              Return to Home
+            </Link>
           </header>
 
           <ul
