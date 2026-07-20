@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users, Languages, Smartphone, MessageSquare, Clock } from "lucide-react";
+import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users, Languages, Clock, User, Accessibility, Moon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ChannelsCard } from "@/components/settings/ChannelsCard";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -17,6 +20,15 @@ import {
   type NotificationPrefs,
 } from "@/lib/prefs.functions";
 import { getProfile, updateProfileLanguage, type Profile } from "@/lib/profile.functions";
+import { updateEditableProfile } from "@/lib/profile-editable.functions";
+import {
+  getUserPreferences,
+  updateUserPreferences,
+  updateQuietHours,
+  listSecurityEvents,
+  type UserPreferences,
+  type SecurityEvent,
+} from "@/lib/user-preferences.functions";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — TransitionForward" }] }),
