@@ -58,13 +58,14 @@ describe("pathway report depth contract", () => {
     const [sam, riley, jordan] = ["sam", "riley", "jordan"].map((id) =>
       generatePathwayReport(DEMO_PROFILES[id as keyof typeof DEMO_PROFILES]),
     );
-    const themeSet = (r: ReturnType<typeof generatePathwayReport>) =>
-      new Set(r.pathwayOptions.map((o) => o.themeTag));
-    const [s, r, j] = [themeSet(sam), themeSet(riley), themeSet(jordan)];
+    const idSet = (r: ReturnType<typeof generatePathwayReport>) =>
+      new Set(r.pathwayOptions.map((o) => o.id));
+    const [s, r, j] = [idSet(sam), idSet(riley), idSet(jordan)];
 
-    // No two profiles share any pathway themes.
+    // No two profiles share any pathway option (age bands are disjoint).
     for (const t of s) expect(r.has(t) || j.has(t)).toBe(false);
     for (const t of r) expect(s.has(t) || j.has(t)).toBe(false);
+
 
     // Alternatives and conflicts differ by age band.
     expect(sam.alternativePathways.map((a) => a.id)).not.toEqual(
