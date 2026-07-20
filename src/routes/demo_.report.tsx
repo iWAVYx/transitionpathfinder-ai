@@ -58,7 +58,8 @@ function DemoReportPage() {
           <StudentSwitcher />
         </div>
         <WorkspaceRolePerspective role={viewRole} stageId="roadmap" />
-        <PathwayReport profile={profile} />
+        <PathwayReport profile={profile} audience={toReportAudience(viewRole)} />
+
       </div>
     </SiteShell>
   );
