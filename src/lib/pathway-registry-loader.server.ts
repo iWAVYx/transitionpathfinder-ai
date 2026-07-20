@@ -23,7 +23,7 @@ import {
   type KnowledgeSourceRow,
   type ResolveInvocationResult,
   type RulesVersionRow,
-} from "./pathway-engine-invocation";
+} from "./pathway-engine-invocation.ts";
 
 /* ---------- minimal client contract (structural, not nominal) ---------- */
 
