@@ -13,7 +13,14 @@ import AxeBuilder from "@axe-core/playwright";
  * message so fixes can target the exact node/help URL.
  */
 
-const A11Y_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
+const A11Y_TAGS = [
+  "wcag2a",
+  "wcag2aa",
+  "wcag21a",
+  "wcag21aa",
+  "wcag22a",
+  "wcag22aa",
+];
 
 const VIEWPORTS = [
   { label: "mobile", width: 390, height: 844 },
