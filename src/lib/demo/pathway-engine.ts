@@ -36,13 +36,24 @@ export type ReportSection =
   | "why_it_fits"
   | "what_to_do_next"
   | "ahead_beside_behind"
-  | "when_to_revisit";
+  | "when_to_revisit"
+  | "conflicts"
+  | "alternative_pathways";
 
 export type ReportBlock = {
   section: ReportSection;
   heading: string;
   body: string;
   bullets?: string[];
+  /**
+   * When the engine has no supporting evidence for a section, it emits a
+   * structured "missing/uncertain" marker instead of filler prose. Renderers
+   * MUST show the marker verbatim — never hide the section.
+   */
+  missing?: {
+    reason: string;
+    needed: string[];
+  };
 };
 
 export type NextStep = {
@@ -51,6 +62,20 @@ export type NextStep = {
   detail: string;
   owner: "family" | "student" | "school_team" | "shared";
   timeframe: "this_month" | "this_semester" | "this_year";
+  /** Per-rec review-by horizon in months from generation. Required per spec. */
+  reviewByMonths: number;
+};
+
+export type AlternativePathway = {
+  id: string;
+  title: string;
+  whenToConsider: string;
+};
+
+export type PathwayConflict = {
+  id: string;
+  summary: string;
+  resolutionOwner: "family" | "student" | "school_team" | "shared";
 };
 
 export type GeneratedReport = {
@@ -60,11 +85,16 @@ export type GeneratedReport = {
   focus: string;
   horizonMonths: number;
   revisitCadenceMonths: number;
+  ageBand: "grade_7_8" | "grade_9_10" | "grade_11_12";
+  ctTransitionEligible: boolean;
   pathwayOptions: PathwayOption[];
   blocks: ReportBlock[];
   nextSteps: NextStep[];
+  alternativePathways: AlternativePathway[];
+  conflicts: PathwayConflict[];
   disallowedThemesApplied: string[];
 };
+
 
 // ---------------------------------------------------------------------------
 // Pathway catalog — every option tagged with theme + age band. The engine
