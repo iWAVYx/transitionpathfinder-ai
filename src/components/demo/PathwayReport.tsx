@@ -2,12 +2,28 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   generatePathwayReport,
+  type AlternativePathway,
+  type EnrichedNextStep,
   type GeneratedReport,
+  type PathwayConflict,
   type PathwayOption,
   type ReportBlock,
 } from "@/lib/demo/pathway-engine";
 import type { DemoProfile } from "@/lib/demo/demo-profiles";
 import { OpportunityMatches } from "@/components/demo/OpportunityMatches";
+
+const OWNER_LABEL: Record<EnrichedNextStep["owner"], string> = {
+  family: "Family",
+  student: "Student",
+  school_team: "School Team",
+  shared: "Shared",
+};
+
+const TIMEFRAME_LABEL: Record<EnrichedNextStep["timeframe"], string> = {
+  this_month: "This Month",
+  this_semester: "This Semester",
+  this_year: "This Year",
+};
 
 const CATEGORY_LABEL: Record<PathwayOption["category"], string> = {
   education: "Education",
