@@ -6593,6 +6593,36 @@ export type Database = {
         }
         Relationships: []
       }
+      student_workflow_drafts: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          return_to: string | null
+          task_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          return_to?: string | null
+          task_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          return_to?: string | null
+          task_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           age: number | null
