@@ -182,7 +182,10 @@ export function ReportView({
   demoStudentId?: import("@/lib/demo-data").DemoStudentId;
 }) {
 
-  const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "family");
+  // Workstream 1: default to Student View when the caller didn't specify an
+  // audience (rule 3). Explicit selection / authorized origin flow in via
+  // `initialAudience`. See src/lib/report-role-precedence.ts.
+  const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "student");
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
     setAudienceState(a);
     onAudienceChange?.(a);
