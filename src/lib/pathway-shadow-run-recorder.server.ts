@@ -49,7 +49,7 @@ export interface ShadowRunLogRow {
   knowledge_added: string[];
   knowledge_removed: string[];
   provenance_changed: string[];
-  diff: Record<string, unknown>;
+  diff: PathwayReportDiff;
   actor_id: string | null;
 }
 
