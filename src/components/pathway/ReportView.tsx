@@ -89,6 +89,8 @@ import {
   PublicationChecklist,
   PublicationSource,
 } from "@/components/publication/PublicationPage";
+import { resolveReportAudience } from "@/lib/report-role-precedence";
+
 
 
 type Audience = "student" | "family" | "educator";
@@ -182,10 +184,24 @@ export function ReportView({
   demoStudentId?: import("@/lib/demo-data").DemoStudentId;
 }) {
 
-  // Workstream 1: default to Student View when the caller didn't specify an
-  // audience (rule 3). Explicit selection / authorized origin flow in via
-  // `initialAudience`. See src/lib/report-role-precedence.ts.
-  const [audience, setAudienceState] = useState<Audience>(initialAudience ?? "student");
+  // Workstream 1 (verified): Pathway Report audience precedence.
+  // Order = 1) explicit ?view=/?audience= in URL, 2) authorized origin
+  // (initialAudience passed by caller — dashboard route, share token, etc.),
+  // 3) Student View fallback. Centralized in resolveReportAudience so every
+  // entry point (dashboard, share, demo) applies the same rules and invalid
+  // values fall through safely instead of leaking into state.
+  const initialResolved = useMemo(() => {
+    let urlAudience: Audience | null = null;
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get("view") ?? params.get("audience");
+      if (raw === "student" || raw === "family" || raw === "educator") {
+        urlAudience = raw;
+      }
+    }
+    return resolveReportAudience([urlAudience, initialAudience]);
+  }, [initialAudience]);
+  const [audience, setAudienceState] = useState<Audience>(initialResolved);
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
     setAudienceState(a);
     onAudienceChange?.(a);
@@ -195,6 +211,7 @@ export function ReportView({
       window.history.replaceState({}, "", url.toString());
     }
   };
+
   const [copied, setCopied] = useState(false);
   const [displayReport, setDisplayReport] = useState<PathwayReport>(report);
   const [translatedTo, setTranslatedTo] = useState<SupportedLanguage | null>(null);
@@ -343,12 +360,11 @@ export function ReportView({
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const v = params.get("view") ?? params.get("audience");
-    if (v === "student" || v === "family" || v === "educator") setAudienceState(v);
-  }, []);
+  // Audience initial value already resolved by resolveReportAudience above
+  // (URL param wins over initialAudience). No post-mount URL sync needed —
+  // the resolver reads window.location.search inside a useMemo before first
+  // render, so refresh preserves ?view=… without a second setState pass.
+
 
   const heading = useMemo(
     () =>
