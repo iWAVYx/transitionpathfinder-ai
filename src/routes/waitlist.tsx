@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
-import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -385,11 +385,6 @@ function WaitlistPage() {
               A real person on our Connecticut team reads every submission — usually within two school days.
             </p>
           </header>
-          {!done && !current && (
-            <div className="mx-auto mt-10 max-w-4xl">
-              <PublicJourneyStrip caption="Pick the door that fits you — every audience walks the same nine-stage journey." />
-            </div>
-          )}
 
 
           {!done && !current && (
