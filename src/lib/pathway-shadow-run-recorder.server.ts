@@ -15,6 +15,7 @@
  */
 import type { PreviewPathwayReportDiffResult } from "./pathway-report-diff.server.ts";
 import type { EngineChannel } from "./pathway-engine-invocation.ts";
+import type { PathwayReportDiff } from "./pathway-report-diff.ts";
 
 /* ---------- structural writer contract ---------- */
 
@@ -48,7 +49,7 @@ export interface ShadowRunLogRow {
   knowledge_added: string[];
   knowledge_removed: string[];
   provenance_changed: string[];
-  diff: unknown;
+  diff: PathwayReportDiff;
   actor_id: string | null;
 }
 
