@@ -256,7 +256,10 @@ function LoginPage({ search, redirect }: { search: LoginSearch; redirect: string
                   </p>
                   <SignInForm />
                   <p className="mt-4 text-center text-xs text-muted-foreground">
-                    <a href="/reset-password" className="font-medium text-primary underline-offset-4 hover:underline">
+                    <a
+                      href="/reset-password"
+                      className="inline-flex min-h-11 items-center justify-center px-2 py-2 font-medium text-primary underline underline-offset-4"
+                    >
                       Forgot Your Password?
                     </a>
                   </p>
