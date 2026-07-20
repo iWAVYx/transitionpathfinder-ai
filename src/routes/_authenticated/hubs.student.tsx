@@ -9,6 +9,7 @@ import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
+import { ResumeWhereYouLeftOff } from "@/components/student/ResumeWhereYouLeftOff";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
