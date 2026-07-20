@@ -55,6 +55,7 @@ function HubPage() {
           description="What needs your attention right now."
           gap="tight"
         >
+          <ResumeWhereYouLeftOff />
           <NextActionCardServer
             historyRoute="/student/history"
             suggestionLabel="Open Student Voice"
