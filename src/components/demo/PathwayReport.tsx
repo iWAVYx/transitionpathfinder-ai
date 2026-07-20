@@ -101,7 +101,10 @@ export function PathwayReport({
       <ReportHeader report={report} profile={profile} />
       <AudienceFrame frame={frame} />
       <ReportBlocks blocks={report.blocks} />
+      <NextStepsList steps={report.nextSteps} />
       <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
+      <AlternativePathways items={report.alternativePathways} />
+      <ConflictsList items={report.conflicts} shortName={profile.shortName} />
       <OpportunityMatches compact limit={3} />
       <RevisitFooter report={report} profile={profile} />
     </section>
