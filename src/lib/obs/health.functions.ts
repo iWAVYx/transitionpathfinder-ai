@@ -18,6 +18,8 @@ export type SloRow = {
   latency_p95_target: number;
 };
 
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+
 export type ObsEventRow = {
   id: string;
   ts: string;
@@ -30,8 +32,8 @@ export type ObsEventRow = {
   severity: string;
   status: string;
   duration_ms: number | null;
-  attributes: unknown;
-  error: unknown;
+  attributes: Json;
+  error: Json;
 };
 
 export type InfraHealth = {
