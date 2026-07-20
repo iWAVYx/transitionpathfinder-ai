@@ -98,11 +98,12 @@ export type GeneratedReport = {
   ctTransitionEligible: boolean;
   pathwayOptions: PathwayOption[];
   blocks: ReportBlock[];
-  nextSteps: NextStep[];
+  nextSteps: EnrichedNextStep[];
   alternativePathways: AlternativePathway[];
   conflicts: PathwayConflict[];
   disallowedThemesApplied: string[];
 };
+
 
 
 // ---------------------------------------------------------------------------
