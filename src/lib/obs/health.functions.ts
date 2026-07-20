@@ -30,8 +30,8 @@ export type ObsEventRow = {
   severity: string;
   status: string;
   duration_ms: number | null;
-  attributes: Record<string, unknown> | null;
-  error: { message?: string; name?: string; stack?: string } | null;
+  attributes: unknown;
+  error: unknown;
 };
 
 export type InfraHealth = {
