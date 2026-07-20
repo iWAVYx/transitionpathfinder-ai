@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
-import { PathwayReport } from "@/components/demo/PathwayReport";
+import { PathwayReport, type DemoReportAudience } from "@/components/demo/PathwayReport";
 import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { type DemoRoleId } from "@/lib/demo/role-previews";
@@ -22,6 +22,18 @@ export const Route = createFileRoute("/demo_/report")({
   }),
   component: DemoReportPage,
 });
+
+/**
+ * Map any DemoRoleId to the three audiences the Pathway Report supports.
+ * Roles without a bespoke report lens (school_admin, district_admin,
+ * partner, admin) fall back to the Educator frame — the closest existing
+ * professional point of view — instead of leaking through as `undefined`.
+ */
+function toReportAudience(role: DemoRoleId): DemoReportAudience {
+  if (role === "student" || role === "family" || role === "educator") return role;
+  return "educator";
+}
+
 
 function DemoReportPage() {
   const { profile } = useDemoStudent();
@@ -58,7 +70,8 @@ function DemoReportPage() {
           <StudentSwitcher />
         </div>
         <WorkspaceRolePerspective role={viewRole} stageId="roadmap" />
-        <PathwayReport profile={profile} />
+        <PathwayReport profile={profile} audience={toReportAudience(viewRole)} />
+
       </div>
     </SiteShell>
   );
