@@ -338,36 +338,43 @@ export const listOrgMembers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }): Promise<{ members: OrgMemberRow[] }> => {
-    const { data: rows, error } = await context.supabase
+    const { supabase } = context;
+    const { data: rows, error } = await supabase
       .from("organization_memberships")
-      .select(
-        "id, user_id, role_within_org, status, membership_status, created_at, profile:profiles(full_name, email)",
-      )
+      .select("id, user_id, role_within_org, status, membership_status, created_at")
       .eq("organization_id", data.org_id)
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) throw new Error(error.message);
-    const members: OrgMemberRow[] = (rows ?? []).map((row) => {
-      const r = row as {
-        id: string;
-        user_id: string;
-        role_within_org: string;
-        status: string;
-        membership_status: string;
-        created_at: string;
-        profile: { full_name: string | null; email: string | null } | null;
-      };
-      return {
-        id: r.id,
-        user_id: r.user_id,
-        role_within_org: r.role_within_org,
-        status: r.status,
-        membership_status: r.membership_status,
-        created_at: r.created_at,
-        full_name: r.profile?.full_name ?? null,
-        email: r.profile?.email ?? null,
-      };
-    });
+    const memRows = (rows ?? []) as Array<{
+      id: string;
+      user_id: string;
+      role_within_org: string;
+      status: string;
+      membership_status: string;
+      created_at: string;
+    }>;
+    const userIds = Array.from(new Set(memRows.map((m) => m.user_id)));
+    const profileMap = new Map<string, { full_name: string | null; email: string | null }>();
+    if (userIds.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds);
+      for (const p of (profs ?? []) as Array<{ id: string; full_name: string | null; email: string | null }>) {
+        profileMap.set(p.id, { full_name: p.full_name, email: p.email });
+      }
+    }
+    const members: OrgMemberRow[] = memRows.map((r) => ({
+      id: r.id,
+      user_id: r.user_id,
+      role_within_org: r.role_within_org,
+      status: r.status,
+      membership_status: r.membership_status,
+      created_at: r.created_at,
+      full_name: profileMap.get(r.user_id)?.full_name ?? null,
+      email: profileMap.get(r.user_id)?.email ?? null,
+    }));
     return { members };
   });
 

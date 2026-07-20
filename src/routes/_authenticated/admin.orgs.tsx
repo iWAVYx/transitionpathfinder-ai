@@ -55,7 +55,7 @@ export const Route = createFileRoute("/_authenticated/admin/orgs")({
   head: () => ({
     meta: [{ title: "Operator Console — TransitionForward" }],
   }),
-  errorComponent: dashboardErrorComponent("admin"),
+  errorComponent: dashboardErrorComponent("owner"),
   component: OperatorConsolePage,
 });
 
@@ -125,7 +125,7 @@ function OperatorConsolePage() {
     <SiteShell>
       <div className="mx-auto max-w-6xl px-4 py-8">
         <Breadcrumbs
-          items={[
+          trail={[
             { label: "Home", to: "/" },
             { label: "Operator Console" },
           ]}
