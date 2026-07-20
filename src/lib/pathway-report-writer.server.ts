@@ -186,3 +186,93 @@ export async function writePathwayReport(
     per_pillar: engine.per_pillar,
   };
 }
+
+/* ---------- Slice D9 — dry-run preview (server-only, DORMANT) ---------- */
+
+export interface PreviewPathwayReportInput {
+  /** Off-by-default. Flag-off = zero DB work, zero generator call. */
+  enabled: boolean;
+  reportId: string;
+  age_band: RecAgeBand;
+  pillars: PillarInput[];
+  promptVersion: string;
+  modelVersion: string;
+  channel?: EngineChannel;
+  maxKnowledgeRefs?: number;
+  registryClient: LoadInvocationInput["client"];
+  generate: RecommendationGenerator;
+}
+
+export type PreviewPathwayReportResult =
+  | { ok: true; status: "disabled"; reason: "flag_off" }
+  | {
+      ok: true;
+      status: "previewed";
+      reportId: string;
+      columns: ReturnType<typeof provenanceToReportColumns> & {
+        recommendations: RecommendationV1[];
+      };
+      knowledge_dropped: number;
+      per_pillar: Array<{
+        pillar: PillarInput["pillar"];
+        outcome: "refused" | "generated";
+        count: number;
+      }>;
+    }
+  | { ok: false; error_code: WriteErrorCode; message: string };
+
+/**
+ * Read-only cousin of `writePathwayReport`. Runs loader + engine and
+ * returns the batch + provenance columns the writer *would* stamp — but
+ * never touches `pathway_reports`. Intended for operator inspection
+ * ahead of flipping the shadow write flag.
+ */
+export async function previewPathwayReport(
+  input: PreviewPathwayReportInput,
+): Promise<PreviewPathwayReportResult> {
+  if (!input.enabled) {
+    return { ok: true, status: "disabled", reason: "flag_off" };
+  }
+
+  const loaded = await loadPathwayEngineInvocation({
+    client: input.registryClient,
+    promptVersion: input.promptVersion,
+    modelVersion: input.modelVersion,
+    channel: input.channel,
+    maxKnowledgeRefs: input.maxKnowledgeRefs,
+  });
+  if (!loaded.ok) {
+    return { ok: false, error_code: loaded.error_code, message: loaded.message };
+  }
+
+  const engine = await runPathwayEngineShadow({
+    enabled: true,
+    reportId: input.reportId,
+    age_band: input.age_band,
+    pillars: input.pillars,
+    provenance: loaded.provenance,
+    generate: input.generate,
+  });
+  if (!engine.ok) {
+    return { ok: false, error_code: engine.error_code, message: engine.message };
+  }
+  if (engine.status !== "produced") {
+    return {
+      ok: false,
+      error_code: "batch_invalid",
+      message: `unexpected engine status: ${engine.status}`,
+    };
+  }
+
+  return {
+    ok: true,
+    status: "previewed",
+    reportId: input.reportId,
+    columns: {
+      ...provenanceToReportColumns(loaded.provenance),
+      recommendations: engine.batch,
+    },
+    knowledge_dropped: loaded.knowledge_dropped,
+    per_pillar: engine.per_pillar,
+  };
+}
