@@ -36,13 +36,24 @@ export type ReportSection =
   | "why_it_fits"
   | "what_to_do_next"
   | "ahead_beside_behind"
-  | "when_to_revisit";
+  | "when_to_revisit"
+  | "conflicts"
+  | "alternative_pathways";
 
 export type ReportBlock = {
   section: ReportSection;
   heading: string;
   body: string;
   bullets?: string[];
+  /**
+   * When the engine has no supporting evidence for a section, it emits a
+   * structured "missing/uncertain" marker instead of filler prose. Renderers
+   * MUST show the marker verbatim — never hide the section.
+   */
+  missing?: {
+    reason: string;
+    needed: string[];
+  };
 };
 
 export type NextStep = {
@@ -51,6 +62,29 @@ export type NextStep = {
   detail: string;
   owner: "family" | "student" | "school_team" | "shared";
   timeframe: "this_month" | "this_semester" | "this_year";
+  /**
+   * Per-rec review-by horizon in months from generation. Optional in raw
+   * definitions — the engine backfills it from `timeframe` when absent
+   * so every emitted step ships with an explicit revisit date.
+   */
+  reviewByMonths?: number;
+};
+
+export type EnrichedNextStep = Omit<NextStep, "reviewByMonths"> & {
+  reviewByMonths: number;
+};
+
+
+export type AlternativePathway = {
+  id: string;
+  title: string;
+  whenToConsider: string;
+};
+
+export type PathwayConflict = {
+  id: string;
+  summary: string;
+  resolutionOwner: "family" | "student" | "school_team" | "shared";
 };
 
 export type GeneratedReport = {
@@ -60,11 +94,17 @@ export type GeneratedReport = {
   focus: string;
   horizonMonths: number;
   revisitCadenceMonths: number;
+  ageBand: "grade_7_8" | "grade_9_10" | "grade_11_12";
+  ctTransitionEligible: boolean;
   pathwayOptions: PathwayOption[];
   blocks: ReportBlock[];
-  nextSteps: NextStep[];
+  nextSteps: EnrichedNextStep[];
+  alternativePathways: AlternativePathway[];
+  conflicts: PathwayConflict[];
   disallowedThemesApplied: string[];
 };
+
+
 
 // ---------------------------------------------------------------------------
 // Pathway catalog — every option tagged with theme + age band. The engine
@@ -535,10 +575,62 @@ function ownerLabel(o: NextStep["owner"]): string {
         : "Shared";
 }
 
+function reviewByMonthsFor(timeframe: NextStep["timeframe"]): number {
+  return timeframe === "this_month" ? 1 : timeframe === "this_semester" ? 4 : 9;
+}
+
+function resolveAgeBand(profile: DemoProfile): GeneratedReport["ageBand"] {
+  // CT CSDE: transition services begin in the first IEP in effect when
+  // the student turns 14. Route by age first, grade as tiebreaker.
+  const { age, gradeNumber } = profile.demographics;
+  if (age >= 16 || gradeNumber >= 11) return "grade_11_12";
+  if (age >= 14 || gradeNumber >= 9) return "grade_9_10";
+  return "grade_7_8";
+}
+
+function deriveAlternatives(profile: DemoProfile): AlternativePathway[] {
+  const g = profile.demographics.gradeNumber;
+  if (g <= 8) {
+    return [
+      { id: "alt-stay-home-hs", title: "Stay at the assigned neighborhood high school with targeted supports", whenToConsider: "If tours reveal that a smaller in-district cohort with the right adult is a better fit than switching buildings." },
+    ];
+  }
+  if (g <= 10) {
+    return [
+      { id: "alt-ct-tech-hs", title: "Apply to a CT Technical High School program next admissions cycle", whenToConsider: "If the CTE explorations show a strong pull toward a specific trade cohort." },
+    ];
+  }
+  return [
+    { id: "alt-gap-year-wbl", title: "Structured gap year focused on paid work-based learning with agency support", whenToConsider: "If postsecondary program visits show timing or fit concerns and paid WBL momentum is strong." },
+    { id: "alt-part-time-cc", title: "Start community college part-time while continuing IEP transition supports until 22", whenToConsider: "If the family wants a lower-stakes on-ramp with continued case management." },
+  ];
+}
+
+function deriveConflicts(profile: DemoProfile): PathwayConflict[] {
+  // Only surface conflicts the demo evidence actually implies.
+  const g = profile.demographics.gradeNumber;
+  if (g >= 11) {
+    return [
+      {
+        id: "conf-agency-timing",
+        summary: "Family prefers to wait on the vocational rehab intake; team recommends starting now so supports are in place before rights transfer.",
+        resolutionOwner: "shared",
+      },
+    ];
+  }
+  return [];
+}
+
 export function generatePathwayReport(profile: DemoProfile): GeneratedReport {
   const pathwayOptions = selectPathwayOptions(profile);
   const blocks = buildBlocks(profile);
-  const nextSteps = deriveNextSteps(profile);
+  const rawSteps = deriveNextSteps(profile);
+  const nextSteps: EnrichedNextStep[] = rawSteps.map((s) => ({
+    ...s,
+    reviewByMonths: s.reviewByMonths ?? reviewByMonthsFor(s.timeframe),
+  }));
+  const ageBand = resolveAgeBand(profile);
+  const ctTransitionEligible = profile.demographics.age >= 14;
 
   return {
     profileId: profile.id,
@@ -547,12 +639,17 @@ export function generatePathwayReport(profile: DemoProfile): GeneratedReport {
     focus: profile.stage.focusHeadline,
     horizonMonths: profile.stage.horizonMonths,
     revisitCadenceMonths: profile.stage.revisitCadenceMonths,
+    ageBand,
+    ctTransitionEligible,
     pathwayOptions,
     blocks,
     nextSteps,
+    alternativePathways: deriveAlternatives(profile),
+    conflicts: deriveConflicts(profile),
     disallowedThemesApplied: profile.stage.disallowedThemes,
   };
 }
+
 
 // Exported for tests
 export const _internals = {
