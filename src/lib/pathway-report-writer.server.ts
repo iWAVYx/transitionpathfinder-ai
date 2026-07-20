@@ -22,7 +22,6 @@
 import {
   loadPathwayEngineInvocation,
   type LoadInvocationInput,
-  type LoadInvocationResult,
 } from "./pathway-registry-loader.server.ts";
 import {
   provenanceToReportColumns,
@@ -32,7 +31,6 @@ import {
   runPathwayEngineShadow,
   type PillarInput,
   type RecommendationGenerator,
-  type RunPathwayEngineResult,
 } from "./pathway-engine-shadow.ts";
 import type {
   RecAgeBand,
