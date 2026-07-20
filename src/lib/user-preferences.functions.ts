@@ -94,16 +94,17 @@ export const updateQuietHours = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 export type SecurityEvent = {
   id: string;
   event_type: string;
-  metadata: Record<string, unknown>;
+  metadata: Json;
   created_at: string;
 };
 
 export const listSecurityEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<SecurityEvent[]> => {
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("security_events" as never)
