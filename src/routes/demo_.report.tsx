@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
-import { PathwayReport } from "@/components/demo/PathwayReport";
+import { PathwayReport, type DemoReportAudience } from "@/components/demo/PathwayReport";
 import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { type DemoRoleId } from "@/lib/demo/role-previews";
