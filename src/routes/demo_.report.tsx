@@ -23,6 +23,18 @@ export const Route = createFileRoute("/demo_/report")({
   component: DemoReportPage,
 });
 
+/**
+ * Map any DemoRoleId to the three audiences the Pathway Report supports.
+ * Roles without a bespoke report lens (school_admin, district_admin,
+ * partner, admin) fall back to the Educator frame — the closest existing
+ * professional point of view — instead of leaking through as `undefined`.
+ */
+function toReportAudience(role: DemoRoleId): DemoReportAudience {
+  if (role === "student" || role === "family" || role === "educator") return role;
+  return "educator";
+}
+
+
 function DemoReportPage() {
   const { profile } = useDemoStudent();
   const navigate = useNavigate();
