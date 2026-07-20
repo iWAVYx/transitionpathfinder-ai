@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveReportAudience } from "./report-role-precedence";
+import { resolveReportAudience } from "@/lib/report-role-precedence";
 
 describe("resolveReportAudience (Workstream 1 precedence)", () => {
   it("returns the first valid candidate — URL wins over origin", () => {
