@@ -27,3 +27,17 @@ Requirement → Evidence table. One row appended per workstream on completion.
   Jordan 5 steps / 2 alts / 1 conflict surface; Riley and Sam each
   4 / 1 / 1. Confirms only the intro framing changes — the underlying
   evidence-derived depth data is audience-invariant.
+
+## Proof-3 — Route & entry-door live crawl (2026-07-20)
+
+- New spec `tests/e2e/role-doors-crawl.spec.ts` (signed-out) asserts
+  `/get-started` lists all six canonical doors and, for every door,
+  the headline renders and every declared CTA in
+  `src/lib/routing/role-doors.ts` (deduped by `to`+`search`) resolves
+  with status < 400 and no 404 / "not authorized" body text.
+- Live shell-Playwright dry-run against the running dev server:
+  - `/get-started` exposes exactly the six `/get-started/<slug>` links.
+  - Each door lands on its own path, renders its declared actions,
+    and every CTA target (`/login`, `/waitlist?role=<slug>`,
+    `/partners`, `/get-started`) returned 200 with no dead-body
+    markers. No cross-role redirect leak, no dead links.
