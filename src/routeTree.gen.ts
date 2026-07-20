@@ -49,6 +49,7 @@ import { Route as HubsSchoolDistrictRouteImport } from './routes/hubs.school-dis
 import { Route as HubsPartnerNetworkRouteImport } from './routes/hubs.partner-network'
 import { Route as HubsFamilyResourceRouteImport } from './routes/hubs.family-resource'
 import { Route as HubsBridgeforwardRouteImport } from './routes/hubs.bridgeforward'
+import { Route as GetStartedRoleRouteImport } from './routes/get-started.$role'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoVoiceRouteImport } from './routes/demo_.voice'
 import { Route as DemoStudentRouteImport } from './routes/demo_.student'
@@ -415,6 +416,11 @@ const HubsBridgeforwardRoute = HubsBridgeforwardRouteImport.update({
   id: '/hubs/bridgeforward',
   path: '/hubs/bridgeforward',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GetStartedRoleRoute = GetStartedRoleRouteImport.update({
+  id: '/$role',
+  path: '/$role',
+  getParentRoute: () => GetStartedRoute,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
@@ -1352,7 +1358,7 @@ export interface FileRoutesByFullPath {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
-  '/get-started': typeof GetStartedRoute
+  '/get-started': typeof GetStartedRouteWithChildren
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
@@ -1425,6 +1431,7 @@ export interface FileRoutesByFullPath {
   '/demo/student': typeof DemoStudentRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/get-started/$role': typeof GetStartedRoleRoute
   '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
   '/hubs/family-resource': typeof HubsFamilyResourceRoute
   '/hubs/partner-network': typeof HubsPartnerNetworkRoute
@@ -1558,7 +1565,7 @@ export interface FileRoutesByTo {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
-  '/get-started': typeof GetStartedRoute
+  '/get-started': typeof GetStartedRouteWithChildren
   '/help': typeof HelpRoute
   '/partner-directory': typeof PartnerDirectoryRoute
   '/partner-interest': typeof PartnerInterestRoute
@@ -1629,6 +1636,7 @@ export interface FileRoutesByTo {
   '/demo/student': typeof DemoStudentRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/get-started/$role': typeof GetStartedRoleRoute
   '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
   '/hubs/family-resource': typeof HubsFamilyResourceRoute
   '/hubs/partner-network': typeof HubsPartnerNetworkRoute
@@ -1764,7 +1772,7 @@ export interface FileRoutesById {
   '/educators': typeof EducatorsRoute
   '/families': typeof FamiliesRoute
   '/framework': typeof FrameworkRoute
-  '/get-started': typeof GetStartedRoute
+  '/get-started': typeof GetStartedRouteWithChildren
   '/help': typeof HelpRoute
   '/login': typeof LoginRouteWithChildren
   '/partner-directory': typeof PartnerDirectoryRoute
@@ -1837,6 +1845,7 @@ export interface FileRoutesById {
   '/demo_/student': typeof DemoStudentRoute
   '/demo_/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/get-started/$role': typeof GetStartedRoleRoute
   '/hubs/bridgeforward': typeof HubsBridgeforwardRoute
   '/hubs/family-resource': typeof HubsFamilyResourceRoute
   '/hubs/partner-network': typeof HubsPartnerNetworkRoute
@@ -2045,6 +2054,7 @@ export interface FileRouteTypes {
     | '/demo/student'
     | '/demo/voice'
     | '/email/unsubscribe'
+    | '/get-started/$role'
     | '/hubs/bridgeforward'
     | '/hubs/family-resource'
     | '/hubs/partner-network'
@@ -2249,6 +2259,7 @@ export interface FileRouteTypes {
     | '/demo/student'
     | '/demo/voice'
     | '/email/unsubscribe'
+    | '/get-started/$role'
     | '/hubs/bridgeforward'
     | '/hubs/family-resource'
     | '/hubs/partner-network'
@@ -2456,6 +2467,7 @@ export interface FileRouteTypes {
     | '/demo_/student'
     | '/demo_/voice'
     | '/email/unsubscribe'
+    | '/get-started/$role'
     | '/hubs/bridgeforward'
     | '/hubs/family-resource'
     | '/hubs/partner-network'
@@ -2591,7 +2603,7 @@ export interface RootRouteChildren {
   EducatorsRoute: typeof EducatorsRoute
   FamiliesRoute: typeof FamiliesRoute
   FrameworkRoute: typeof FrameworkRoute
-  GetStartedRoute: typeof GetStartedRoute
+  GetStartedRoute: typeof GetStartedRouteWithChildren
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRouteWithChildren
   PartnerDirectoryRoute: typeof PartnerDirectoryRoute
@@ -2933,6 +2945,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hubs/bridgeforward'
       preLoaderRoute: typeof HubsBridgeforwardRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/get-started/$role': {
+      id: '/get-started/$role'
+      path: '/$role'
+      fullPath: '/get-started/$role'
+      preLoaderRoute: typeof GetStartedRoleRouteImport
+      parentRoute: typeof GetStartedRoute
     }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
@@ -4471,6 +4490,18 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface GetStartedRouteChildren {
+  GetStartedRoleRoute: typeof GetStartedRoleRoute
+}
+
+const GetStartedRouteChildren: GetStartedRouteChildren = {
+  GetStartedRoleRoute: GetStartedRoleRoute,
+}
+
+const GetStartedRouteWithChildren = GetStartedRoute._addFileChildren(
+  GetStartedRouteChildren,
+)
+
 interface LoginRouteChildren {
   Login2faRoute: typeof Login2faRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -4506,7 +4537,7 @@ const rootRouteChildren: RootRouteChildren = {
   EducatorsRoute: EducatorsRoute,
   FamiliesRoute: FamiliesRoute,
   FrameworkRoute: FrameworkRoute,
-  GetStartedRoute: GetStartedRoute,
+  GetStartedRoute: GetStartedRouteWithChildren,
   HelpRoute: HelpRoute,
   LoginRoute: LoginRouteWithChildren,
   PartnerDirectoryRoute: PartnerDirectoryRoute,

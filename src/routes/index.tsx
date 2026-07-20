@@ -456,7 +456,8 @@ function HomePage() {
               label="Family / Guardian"
               body="Understand the plan, see what's next, and walk into PPTs prepared."
               cta="Build My Child's Transition Plan"
-              to="/families"
+              to="/get-started/$role"
+              params={{ role: "family" }}
               tone="peach"
             />
             <RoleCard
@@ -464,33 +465,35 @@ function HomePage() {
               label="Student"
               body="Tell us who you are. See careers, colleges, and life paths that fit."
               cta="Explore My Future Path"
-              to="/waitlist"
-              search={{ role: "student" }}
+              to="/get-started/$role"
+              params={{ role: "student" }}
               tone="sky"
             />
             <RoleCard
               icon={Users}
-              label="Teacher / Case Manager"
+              label="Teacher / Case Manager / Counselor"
               body="Organize goals, documents, and meetings for your whole caseload."
               cta="Organize My Caseload"
-              to="/educators"
+              to="/get-started/$role"
+              params={{ role: "educator" }}
               tone="primary"
             />
             <RoleCard
               icon={Building2}
               label="School / District"
               body="A coordinated view across students, teams, and transition outcomes."
-              cta="Request a School Demo"
-              to="/waitlist"
-              search={{ role: "district" }}
+              cta="Request A School Or District License"
+              to="/get-started/$role"
+              params={{ role: "district" }}
               tone="muted"
             />
             <RoleCard
               icon={Briefcase}
               label="Partner Organization"
               body="Colleges, training programs, employers, and community supports."
-              cta="Become a Partner"
-              to="/partners"
+              cta="Become A Partner"
+              to="/get-started/$role"
+              params={{ role: "partner" }}
               tone="peach"
             />
           </div>
@@ -1006,6 +1009,7 @@ function RoleCard({
   cta,
   to,
   search,
+  params,
   tone,
 }: {
   icon: typeof HeartHandshake;
@@ -1014,12 +1018,14 @@ function RoleCard({
   cta: string;
   to: string;
   search?: Record<string, string>;
+  params?: Record<string, string>;
   tone: RoleTone;
 }) {
   return (
     <Link
       to={to}
       search={search as never}
+      params={params as never}
       aria-label={`${label}: ${cta}`}
       className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
