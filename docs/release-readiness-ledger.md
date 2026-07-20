@@ -180,3 +180,33 @@ storageState matrix as documented per-proof; sandbox has
 `LOVABLE_BROWSER_AUTH_STATUS=signed_out` so they skip cleanly here.
 All seven proof slices closed with either passing local evidence or an
 explicit CI-gated handoff — release-readiness program complete.
+
+## Counselor UI Slice — Proof-7 UI closer (2026-07-20)
+
+- New server module `src/lib/counselor-notes.functions.ts` — two typed
+  `createServerFn` handlers under `requireSupabaseAuth`:
+  `listCounselorNotes` (SELECT scoped by
+  `permission_scope='counselor_scope'` + `source_kind='counselor_note'`)
+  and `createCounselorNote` (INSERT with
+  `contributor_id = context.userId`, `verification_state='human_confirmed'`,
+  Zod-validated 1–4000 char note + optional 0–120 char focus).
+- New `src/components/students/CounselorNotesPanel.tsx` — collapsible panel
+  with composer + list, mounted on the shared
+  `src/routes/_authenticated/students.$studentId.tsx` surface so both the
+  family/educator profile view and the educator student detail view get the
+  same surface (per user answer: both). Panel is discoverable to all
+  educators + platform admins; RLS enforces the read (peer educator sees
+  the empty state, contributor + admin see the row).
+- New `tests/e2e/counselor-notes-panel.signedin.spec.ts` drives the
+  three-actor matrix through the shipped UI: contributor writes + reads
+  back, peer educator sees `counselor-notes-empty`, platform admin sees
+  the note. Auto-skips without the storageState matrix
+  (`educator.json` / `educator-peer.json` / `platform-admin.json`) plus
+  the seeded `shared-student-id.txt` from `auth-roles.setup.ts`; runs in
+  CI where the matrix is minted.
+- Live shell-Playwright dry-run skipped: managed sandbox session is
+  `LOVABLE_BROWSER_AUTH_STATUS=signed_out`, so no bearer available to
+  drive three authenticated actors. Spec runs in CI.
+- **Closes** Proof-7's deferred UI-level Playwright ticket — a shipped
+  surface now renders `counselor_scope` evidence, so the RLS matrix is
+  exercised end-to-end from the browser.
