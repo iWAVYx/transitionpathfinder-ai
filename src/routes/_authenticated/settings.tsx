@@ -72,15 +72,107 @@ function SettingsPage() {
   const savePrefs = useServerFn(updateNotificationPrefs);
   const fetchProfile = useServerFn(getProfile);
   const saveLanguage = useServerFn(updateProfileLanguage);
+  const saveProfile = useServerFn(updateEditableProfile);
+  const fetchUserPrefs = useServerFn(getUserPreferences);
+  const saveUserPrefs = useServerFn(updateUserPreferences);
+  const saveQuietHours = useServerFn(updateQuietHours);
+  const fetchSecurityEvents = useServerFn(listSecurityEvents);
   const [prefs, setPrefs] = useState<NotificationPrefs | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userPrefs, setUserPrefs] = useState<UserPreferences | null>(null);
+  const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [saving, setSaving] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
   const [savingCadence, setSavingCadence] = useState(false);
+  const [profileDraft, setProfileDraft] = useState<{
+    first_name: string;
+    last_name: string;
+    preferred_name: string;
+    pronouns: string;
+    title: string;
+    bio: string;
+    phone: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchPrefs().then(setPrefs).catch(() => toast.error("Couldn't load preferences."));
-    fetchProfile().then(setProfile).catch(() => {});
-  }, [fetchPrefs, fetchProfile]);
+    fetchProfile()
+      .then((p) => {
+        setProfile(p);
+        setProfileDraft({
+          first_name: p.first_name ?? "",
+          last_name: p.last_name ?? "",
+          preferred_name: p.preferred_name ?? "",
+          pronouns: p.pronouns ?? "",
+          title: p.title ?? "",
+          bio: p.bio ?? "",
+          phone: p.phone ?? "",
+        });
+      })
+      .catch(() => {});
+    fetchUserPrefs().then(setUserPrefs).catch(() => {});
+    fetchSecurityEvents().then(setSecurityEvents).catch(() => {});
+  }, [fetchPrefs, fetchProfile, fetchUserPrefs, fetchSecurityEvents]);
+
+  async function submitProfile() {
+    if (!profileDraft) return;
+    setSavingProfile(true);
+    try {
+      await saveProfile({
+        data: {
+          first_name: profileDraft.first_name.trim() || undefined,
+          last_name: profileDraft.last_name.trim() || null,
+          preferred_name: profileDraft.preferred_name.trim() || null,
+          pronouns: profileDraft.pronouns.trim() || null,
+          title: profileDraft.title.trim() || null,
+          bio: profileDraft.bio.trim() || null,
+          phone: profileDraft.phone.trim() || null,
+        },
+      });
+      toast.success("Profile saved.");
+      const fresh = await fetchProfile();
+      setProfile(fresh);
+      const events = await fetchSecurityEvents();
+      setSecurityEvents(events);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Couldn't save profile.");
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  async function toggleAccessibility(
+    key: "reduced_motion" | "high_contrast" | "dyslexia_friendly",
+    value: boolean,
+  ) {
+    if (!userPrefs) return;
+    const prev = userPrefs;
+    setUserPrefs({ ...userPrefs, [key]: value });
+    try {
+      await saveUserPrefs({ data: { [key]: value } });
+    } catch {
+      toast.error("Couldn't save accessibility preference.");
+      setUserPrefs(prev);
+    }
+  }
+
+  async function submitQuietHours(start: string, end: string, tz: string) {
+    try {
+      await saveQuietHours({
+        data: {
+          quiet_hours_start: start || null,
+          quiet_hours_end: end || null,
+          quiet_hours_tz: tz || null,
+        },
+      });
+      toast.success("Quiet hours saved.");
+      const fresh = await fetchPrefs();
+      setPrefs(fresh);
+    } catch {
+      toast.error("Couldn't save quiet hours.");
+    }
+  }
+
 
   async function setCadence(value: "instant" | "daily" | "weekly") {
     if (!prefs || prefs.notification_cadence === value) return;
