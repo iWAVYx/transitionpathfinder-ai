@@ -227,7 +227,7 @@ function RecentErrorsTable({ windowHours }: { windowHours: number }) {
                     <td className="px-3 py-2 font-mono text-xs">{r.server_fn ?? "—"}</td>
                     <td className="px-3 py-2"><Badge variant="destructive">{r.severity}</Badge></td>
                     <td className="px-3 py-2 text-xs">{r.duration_ms ?? "—"}ms</td>
-                    <td className="px-3 py-2 text-xs max-w-[280px] truncate">{r.error?.message ?? "—"}</td>
+                    <td className="px-3 py-2 text-xs max-w-[280px] truncate">{(r.error as { message?: string } | null)?.message ?? "—"}</td>
                     <td className="px-3 py-2">
                       <CopyTraceBtn traceId={r.trace_id} />
                     </td>
@@ -236,10 +236,10 @@ function RecentErrorsTable({ windowHours }: { windowHours: number }) {
                     <tr key={`${r.id}-x`} className="border-t bg-muted/10">
                       <td colSpan={6} className="px-3 py-3">
                         <div className="text-xs space-y-2">
-                          {r.error?.stack && (
-                            <pre className="whitespace-pre-wrap rounded bg-slate-900 text-slate-100 p-2 overflow-x-auto text-[11px]">{r.error.stack}</pre>
+                          {(r.error as { stack?: string } | null)?.stack && (
+                            <pre className="whitespace-pre-wrap rounded bg-slate-900 text-slate-100 p-2 overflow-x-auto text-[11px]">{(r.error as { stack?: string }).stack}</pre>
                           )}
-                          {Object.keys(r.attributes ?? {}).length > 0 && (
+                          {r.attributes && typeof r.attributes === "object" && Object.keys(r.attributes as object).length > 0 && (
                             <pre className="whitespace-pre-wrap rounded bg-muted/40 p-2 text-[11px]">{JSON.stringify(r.attributes, null, 2)}</pre>
                           )}
                           <div className="text-muted-foreground">trace_id: <code>{r.trace_id}</code> · span_id: <code>{r.span_id}</code></div>
