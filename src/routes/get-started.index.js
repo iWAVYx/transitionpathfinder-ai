@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Home } from "lucide-react";
-
 import { SiteShell } from "@/components/site/SiteShell";
 import { ROLE_DOOR_SLUGS, ROLE_DOORS } from "@/lib/routing/role-doors";
-
 /**
  * /get-started — canonical role router.
  *
@@ -15,32 +13,28 @@ import { ROLE_DOOR_SLUGS, ROLE_DOORS } from "@/lib/routing/role-doors";
  * accounts are provisioned internally and are not shown here.
  */
 export const Route = createFileRoute("/get-started/")({
-  head: () => ({
-    meta: [
-      { title: "Get Started — TransitionForward" },
-      {
-        name: "description",
-        content:
-          "Six ways to get started with TransitionForward: student, family, educator, school, district, or community partner. Sign in, redeem an invitation or access code, or request access.",
-      },
-      { property: "og:title", content: "Get Started — TransitionForward" },
-      {
-        property: "og:description",
-        content:
-          "Choose your role: student, family, educator, school, district, or partner. Each door supports sign in, invitations, access codes, and access requests.",
-      },
-      { property: "og:url", content: "/get-started" },
-    ],
-    links: [{ rel: "canonical", href: "/get-started" }],
-  }),
-  component: GetStartedPage,
+    head: () => ({
+        meta: [
+            { title: "Get Started — TransitionForward" },
+            {
+                name: "description",
+                content: "Six ways to get started with TransitionForward: student, family, educator, school, district, or community partner. Sign in, redeem an invitation or access code, or request access.",
+            },
+            { property: "og:title", content: "Get Started — TransitionForward" },
+            {
+                property: "og:description",
+                content: "Choose your role: student, family, educator, school, district, or partner. Each door supports sign in, invitations, access codes, and access requests.",
+            },
+            { property: "og:url", content: "/get-started" },
+        ],
+        links: [{ rel: "canonical", href: "/get-started" }],
+    }),
+    component: GetStartedPage,
 });
-
 function GetStartedPage() {
-  return (
-    <SiteShell>
+    return (<SiteShell>
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
+        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60"/>
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <header className="text-center">
             <span className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
@@ -55,30 +49,17 @@ function GetStartedPage() {
               approved early-access cohort. Choose the path that matches
               where you are today.
             </p>
-            <Link
-              to="/"
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/70 px-4 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground"
-              data-testid="back-to-home"
-            >
-              <Home className="h-4 w-4" aria-hidden />
+            <Link to="/" className="mt-6 inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-background/70 px-4 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground" data-testid="back-to-home">
+              <Home className="h-4 w-4" aria-hidden/>
               Return to Home
             </Link>
           </header>
 
-          <ul
-            className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            aria-label="Choose your role"
-          >
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Choose your role">
             {ROLE_DOOR_SLUGS.map((slug) => {
-              const door = ROLE_DOORS[slug];
-              return (
-                <li key={slug}>
-                  <Link
-                    to="/get-started/$role"
-                    params={{ role: slug }}
-                    className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-                    data-testid={`get-started-door-${slug}`}
-                  >
+            const door = ROLE_DOORS[slug];
+            return (<li key={slug}>
+                  <Link to="/get-started/$role" params={{ role: slug }} className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift" data-testid={`get-started-door-${slug}`}>
                     <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                       {door.eyebrow}
                     </span>
@@ -90,12 +71,11 @@ function GetStartedPage() {
                     </p>
                     <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                       Open this door{" "}
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"/>
                     </span>
                   </Link>
-                </li>
-              );
-            })}
+                </li>);
+        })}
           </ul>
 
           <p className="mx-auto mt-10 max-w-xl text-center text-xs leading-relaxed text-muted-foreground">
@@ -104,6 +84,5 @@ function GetStartedPage() {
           </p>
         </div>
       </section>
-    </SiteShell>
-  );
+    </SiteShell>);
 }
