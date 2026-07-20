@@ -15,6 +15,9 @@ export type NotificationPrefs = {
   sms_enabled: boolean;
   sms_phone_e164: string | null;
   sms_verified_at: string | null;
+  quiet_hours_start: string | null;
+  quiet_hours_end: string | null;
+  quiet_hours_tz: string | null;
   updated_at: string;
 };
 

@@ -7,7 +7,17 @@ export type Profile = {
   full_name: string | null;
   first_name: string | null;
   last_name: string | null;
+  preferred_name: string | null;
+  pronouns: string | null;
+  title: string | null;
+  bio: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  time_zone: string;
+  communication_preference: "email" | "in_app" | "both";
+  profile_visibility: "team_only" | "org" | "private";
   primary_role: string | null;
+  organization_id: string | null;
   onboarding_completed: boolean;
   language: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +30,7 @@ export const getProfile = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, full_name, first_name, last_name, primary_role, onboarding_completed, language, onboarding_answers")
+      .select("id, full_name, first_name, last_name, preferred_name, pronouns, title, bio, phone, avatar_url, time_zone, communication_preference, profile_visibility, primary_role, organization_id, onboarding_completed, language, onboarding_answers")
       .eq("id", userId)
       .maybeSingle();
     if (error) {
@@ -32,7 +42,17 @@ export const getProfile = createServerFn({ method: "GET" })
       full_name: null,
       first_name: null,
       last_name: null,
+      preferred_name: null,
+      pronouns: null,
+      title: null,
+      bio: null,
+      phone: null,
+      avatar_url: null,
+      time_zone: "America/New_York",
+      communication_preference: "email",
+      profile_visibility: "team_only",
       primary_role: null,
+      organization_id: null,
       onboarding_completed: false,
       language: "en",
       onboarding_answers: {},

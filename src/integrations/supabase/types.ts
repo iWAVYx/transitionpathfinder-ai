@@ -3655,6 +3655,9 @@ export type Database = {
           email_weekly_digest: boolean
           in_app_enabled: boolean
           notification_cadence: string
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          quiet_hours_tz: string | null
           sms_enabled: boolean
           sms_phone_e164: string | null
           sms_verified_at: string | null
@@ -3668,6 +3671,9 @@ export type Database = {
           email_weekly_digest?: boolean
           in_app_enabled?: boolean
           notification_cadence?: string
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          quiet_hours_tz?: string | null
           sms_enabled?: boolean
           sms_phone_e164?: string | null
           sms_verified_at?: string | null
@@ -3681,6 +3687,9 @@ export type Database = {
           email_weekly_digest?: boolean
           in_app_enabled?: boolean
           notification_cadence?: string
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          quiet_hours_tz?: string | null
           sms_enabled?: boolean
           sms_phone_e164?: string | null
           sms_verified_at?: string | null
@@ -5503,6 +5512,8 @@ export type Database = {
         Row: {
           account_status: string
           avatar_url: string | null
+          bio: string | null
+          communication_preference: string
           created_at: string
           email: string | null
           first_name: string | null
@@ -5515,14 +5526,21 @@ export type Database = {
           onboarding_completed: boolean
           organization_id: string | null
           phone: string | null
+          preferred_name: string | null
           primary_role: string | null
           professional_focus: string | null
+          profile_visibility: string
+          pronouns: string | null
           selected_plan: string | null
+          time_zone: string
+          title: string | null
           updated_at: string
         }
         Insert: {
           account_status?: string
           avatar_url?: string | null
+          bio?: string | null
+          communication_preference?: string
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -5535,14 +5553,21 @@ export type Database = {
           onboarding_completed?: boolean
           organization_id?: string | null
           phone?: string | null
+          preferred_name?: string | null
           primary_role?: string | null
           professional_focus?: string | null
+          profile_visibility?: string
+          pronouns?: string | null
           selected_plan?: string | null
+          time_zone?: string
+          title?: string | null
           updated_at?: string
         }
         Update: {
           account_status?: string
           avatar_url?: string | null
+          bio?: string | null
+          communication_preference?: string
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -5555,9 +5580,14 @@ export type Database = {
           onboarding_completed?: boolean
           organization_id?: string | null
           phone?: string | null
+          preferred_name?: string | null
           primary_role?: string | null
           professional_focus?: string | null
+          profile_visibility?: string
+          pronouns?: string | null
           selected_plan?: string | null
+          time_zone?: string
+          title?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -5954,6 +5984,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip: unknown
+          metadata: Json
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip?: unknown
+          metadata?: Json
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip?: unknown
+          metadata?: Json
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       share_tokens: {
         Row: {
@@ -7182,6 +7242,39 @@ export type Database = {
           related_record_type?: string | null
           user_id?: string | null
           user_role?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          calendar_view: string
+          created_at: string
+          dyslexia_friendly: boolean
+          high_contrast: boolean
+          reading_level: string
+          reduced_motion: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calendar_view?: string
+          created_at?: string
+          dyslexia_friendly?: boolean
+          high_contrast?: boolean
+          reading_level?: string
+          reduced_motion?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calendar_view?: string
+          created_at?: string
+          dyslexia_friendly?: boolean
+          high_contrast?: boolean
+          reading_level?: string
+          reduced_motion?: boolean
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
