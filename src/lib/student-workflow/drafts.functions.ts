@@ -81,7 +81,7 @@ export const listStudentWorkflowDrafts = createServerFn({ method: "POST" })
       console.error("listStudentWorkflowDrafts failed", error);
       return { drafts: [] as StudentWorkflowDraft[] };
     }
-    return { drafts: (rows ?? []) as StudentWorkflowDraft[] };
+    return { drafts: (rows ?? []) as unknown as StudentWorkflowDraft[] };
   });
 
 export const saveStudentWorkflowDraft = createServerFn({ method: "POST" })
