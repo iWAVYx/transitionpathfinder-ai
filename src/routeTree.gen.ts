@@ -418,9 +418,9 @@ const HubsBridgeforwardRoute = HubsBridgeforwardRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GetStartedRoleRoute = GetStartedRoleRouteImport.update({
-  id: '/$role',
-  path: '/$role',
-  getParentRoute: () => GetStartedRoute,
+  id: '/get-started/$role',
+  path: '/get-started/$role',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
@@ -2643,6 +2643,7 @@ export interface RootRouteChildren {
   DemoStudentRoute: typeof DemoStudentRoute
   DemoVoiceRoute: typeof DemoVoiceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  GetStartedRoleRoute: typeof GetStartedRoleRoute
   HubsBridgeforwardRoute: typeof HubsBridgeforwardRoute
   HubsFamilyResourceRoute: typeof HubsFamilyResourceRoute
   HubsPartnerNetworkRoute: typeof HubsPartnerNetworkRoute
@@ -2948,10 +2949,10 @@ declare module '@tanstack/react-router' {
     }
     '/get-started/$role': {
       id: '/get-started/$role'
-      path: '/$role'
+      path: '/get-started/$role'
       fullPath: '/get-started/$role'
       preLoaderRoute: typeof GetStartedRoleRouteImport
-      parentRoute: typeof GetStartedRoute
+      parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
@@ -4565,6 +4566,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoStudentRoute: DemoStudentRoute,
   DemoVoiceRoute: DemoVoiceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  GetStartedRoleRoute: GetStartedRoleRoute,
   HubsBridgeforwardRoute: HubsBridgeforwardRoute,
   HubsFamilyResourceRoute: HubsFamilyResourceRoute,
   HubsPartnerNetworkRoute: HubsPartnerNetworkRoute,
@@ -4588,13 +4590,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
