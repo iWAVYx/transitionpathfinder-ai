@@ -89,6 +89,8 @@ import {
   PublicationChecklist,
   PublicationSource,
 } from "@/components/publication/PublicationPage";
+import { resolveReportAudience } from "@/lib/report-role-precedence";
+
 
 
 type Audience = "student" | "family" | "educator";
