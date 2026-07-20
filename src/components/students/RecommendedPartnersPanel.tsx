@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { confidenceBandLabel } from "@/lib/partner-match-explanation";
 import {
   matchPartnersForStudent,
   persistPartnerMatch,
@@ -56,6 +57,25 @@ function StatusBadge({ status }: { status: string }) {
     </Badge>
   );
 }
+
+function ConfidenceChip({ band }: { band: "low" | "medium" | "high" }) {
+  const tone =
+    band === "high"
+      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+      : band === "medium"
+        ? "bg-sky-100 text-sky-800 border-sky-200"
+        : "bg-muted text-muted-foreground border-border";
+  return (
+    <Badge
+      variant="outline"
+      className={`text-[10px] ${tone}`}
+      title={`Match confidence: ${band}`}
+    >
+      {confidenceBandLabel(band)}
+    </Badge>
+  );
+}
+
 
 export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
   const fetchMatches = useServerFn(matchPartnersForStudent);
@@ -149,21 +169,33 @@ export function RecommendedPartnersPanel({ studentId }: { studentId: string }) {
 
                   {m.reasons.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Why this is recommended
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1.5">
-                        {m.reasons.slice(0, 3).map((why, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
-                          >
-                            {why}
-                          </span>
-                        ))}
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Why this is recommended
+                        </p>
+                        <ConfidenceChip band={m.explanation.confidence} />
                       </div>
+                      <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[11px] text-foreground/85">
+                        {m.explanation.reasons.slice(0, 4).map((why, i) => (
+                          <li key={i}>{why}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
+
+                  {m.explanation.conflicts.length > 0 && (
+                    <div className="mt-2 rounded-md border border-amber-200 bg-amber-50/70 p-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-800">
+                        Verify before sharing
+                      </p>
+                      <ul className="mt-0.5 list-disc space-y-0.5 pl-4 text-[11px] text-amber-900">
+                        {m.explanation.conflicts.slice(0, 3).map((c, i) => (
+                          <li key={i}>{c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
 
                   <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
                     {m.connects_to_goal_area && (

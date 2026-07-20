@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ageFromDob, transitionBand } from "@/lib/transition-age";
+import {
+  buildMatchExplanation,
+  type PartnerMatchExplanation,
+} from "@/lib/partner-match-explanation";
+
 
 /**
  * Heuristic matching engine: scores published partner organizations against
@@ -37,6 +42,8 @@ export type PartnerMatch = {
   connects_to_support_need: string | null;
   audience: "student" | "family" | "team";
   discuss_at_next_meeting: boolean;
+  // Workstream B — validated, versioned explanation DTO.
+  explanation: PartnerMatchExplanation;
 };
 
 function tokens(s: string | null | undefined) {
@@ -276,6 +283,25 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
           ? "student"
           : "team";
 
+      // Detect an out-of-range age for the conflicts channel.
+      let ageOutOfRange: { studentAge: number | null; partnerRange: string | null } | null = null;
+      if (age && p.age_range) {
+        const rangeText: string = String(p.age_range);
+        const nums = rangeText.match(/\d+/g)?.map(Number) ?? [];
+        if (nums.length >= 2) {
+          const [lo, hi] = nums;
+          if (age < lo || age > hi) ageOutOfRange = { studentAge: age, partnerRange: rangeText };
+        }
+      }
+
+      const explanation = buildMatchExplanation({
+        rawScore: score,
+        reasons,
+        evidenceIds: [], // pathway evidence graph joins land here in a follow-up slice.
+        ageOutOfRange,
+        verificationStatus: p.verification_status,
+      });
+
       return {
         partner_id: p.id,
         organization_name: p.organization_name,
@@ -294,6 +320,7 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
         audience,
         // Worth surfacing at the next IEP/PPT for high-fit and adult-service partners
         discuss_at_next_meeting: score >= 18 || band === "age_16" || band === "age_17" || band === "age_18_plus" || band === "exit_year",
+        explanation,
       } satisfies PartnerMatch;
     });
 

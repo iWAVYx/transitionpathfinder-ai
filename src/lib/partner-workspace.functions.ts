@@ -3,6 +3,10 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAuthorized } from "./authz";
 import { requireFeatureEntitlement } from "./entitlement-guard";
+import { FREE_TIER_OPPORTUNITY_CAP } from "./partner-tier-config";
+
+export const TIER_CAP_REACHED = "TIER_CAP_REACHED";
+
 
 export type PartnerOrg = {
   id: string;
@@ -169,6 +173,35 @@ export const updateOpportunity = createServerFn({ method: "POST" })
       "Your partner tier doesn't allow editing opportunities.",
     );
     const { id, ...patch } = data;
+
+    // Workstream C — defense-in-depth: block free-tier partners from
+    // pushing a 4th opportunity into pending_review / approved.
+    if (patch.status === "pending_review" || patch.status === "approved") {
+      const { data: opp } = await supabase
+        .from("partner_opportunities")
+        .select("organization_id, status")
+        .eq("id", id)
+        .maybeSingle();
+      if (opp && opp.status !== patch.status) {
+        const { data: unlimited } = await supabase.rpc("partner_tier_allows", {
+          _user_id: userId,
+          _capability: "publish_unlimited_opportunities",
+        });
+        if (!unlimited) {
+          const { count } = await supabase
+            .from("partner_opportunities")
+            .select("id", { count: "exact", head: true })
+            .eq("organization_id", opp.organization_id)
+            .in("status", ["approved", "pending_review"]);
+          if ((count ?? 0) >= FREE_TIER_OPPORTUNITY_CAP) {
+            throw new Error(
+              `${TIER_CAP_REACHED}: Free tier is limited to ${FREE_TIER_OPPORTUNITY_CAP} published opportunities. Unpublish one or upgrade to publish more.`,
+            );
+          }
+        }
+      }
+    }
+
     const { error } = await supabase.from("partner_opportunities").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };

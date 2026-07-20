@@ -30,6 +30,11 @@ import {
   deleteOpportunity,
   type PartnerWorkspace,
 } from "@/lib/partner-workspace.functions";
+import {
+  getPartnerTierUsage,
+  type PartnerTierUsage,
+} from "@/lib/partner-tier-usage.functions";
+import { TierUsageMeter } from "@/components/partners/TierUsageMeter";
 import { opportunityStatusLabel } from "@/lib/opportunity-status";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -81,10 +86,12 @@ function PartnerOpportunitiesPage() {
   const navigate = Route.useNavigate();
 
   const loadWs = useServerFn(getPartnerWorkspace);
+  const loadUsage = useServerFn(getPartnerTierUsage);
   const updateOp = useServerFn(updateOpportunity);
   const deleteOp = useServerFn(deleteOpportunity);
 
   const [ws, setWs] = useState<PartnerWorkspace | null>(null);
+  const [usage, setUsage] = useState<PartnerTierUsage | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function reload() {
@@ -92,6 +99,16 @@ function PartnerOpportunitiesPage() {
     try {
       const w = await loadWs({ data: {} });
       setWs(w);
+      if (w.is_partner && w.selected_org) {
+        try {
+          const u = await loadUsage({ data: { organization_id: w.selected_org.id } });
+          setUsage(u);
+        } catch {
+          setUsage(null);
+        }
+      } else {
+        setUsage(null);
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not load opportunities.");
     } finally {
@@ -192,13 +209,19 @@ function PartnerOpportunitiesPage() {
             </Button>
           </div>
         ) : (
-          <Tabs
-            value={status}
-            onValueChange={(v) =>
-              navigate({ search: { status: v as StatusFilter } })
-            }
-            className="mt-6"
-          >
+          <>
+            {usage && (
+              <div className="mt-6" data-testid="partner-tier-meter">
+                <TierUsageMeter usage={usage} />
+              </div>
+            )}
+            <Tabs
+              value={status}
+              onValueChange={(v) =>
+                navigate({ search: { status: v as StatusFilter } })
+              }
+              className="mt-4"
+            >
             <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
               {TAB_ORDER.map((k) => (
                 <TabsTrigger key={k} value={k}>
@@ -256,14 +279,24 @@ function PartnerOpportunitiesPage() {
                             </a>
                           </Button>
                         )}
-                        {o.status === "draft" && (
-                          <Button
-                            size="sm"
-                            onClick={() => setStatus(o.id, "pending_review")}
-                          >
-                            <Send className="h-3.5 w-3.5" /> Submit for review
-                          </Button>
-                        )}
+                        {o.status === "draft" && (() => {
+                          const blocked = usage?.atCap ?? false;
+                          return (
+                            <Button
+                              size="sm"
+                              disabled={blocked}
+                              title={
+                                blocked
+                                  ? "Free-tier limit reached — unpublish another opportunity or upgrade."
+                                  : undefined
+                              }
+                              onClick={() => setStatus(o.id, "pending_review")}
+                              data-testid="opportunity-submit"
+                            >
+                              <Send className="h-3.5 w-3.5" /> Submit for review
+                            </Button>
+                          );
+                        })()}
                         {o.status === "approved" && (
                           <Button
                             size="sm"
@@ -295,7 +328,8 @@ function PartnerOpportunitiesPage() {
                 </ul>
               )}
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          </>
         )}
       </section>
     </SiteShell>
