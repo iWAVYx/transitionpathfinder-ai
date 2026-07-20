@@ -5414,6 +5414,7 @@ export type Database = {
           organization_id: string | null
           phone: string | null
           primary_role: string | null
+          professional_focus: string | null
           selected_plan: string | null
           updated_at: string
         }
@@ -5433,6 +5434,7 @@ export type Database = {
           organization_id?: string | null
           phone?: string | null
           primary_role?: string | null
+          professional_focus?: string | null
           selected_plan?: string | null
           updated_at?: string
         }
@@ -5452,6 +5454,7 @@ export type Database = {
           organization_id?: string | null
           phone?: string | null
           primary_role?: string | null
+          professional_focus?: string | null
           selected_plan?: string | null
           updated_at?: string
         }
