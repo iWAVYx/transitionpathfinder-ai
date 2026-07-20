@@ -14,6 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_code_redemptions: {
+        Row: {
+          code_id: string
+          id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "access_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      access_codes: {
+        Row: {
+          capacity: number | null
+          code_hash: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          org_id: string | null
+          revoked_at: string | null
+          role: string
+          scope: string
+          single_use: boolean
+          updated_at: string
+          uses: number
+        }
+        Insert: {
+          capacity?: number | null
+          code_hash: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          org_id?: string | null
+          revoked_at?: string | null
+          role: string
+          scope?: string
+          single_use?: boolean
+          updated_at?: string
+          uses?: number
+        }
+        Update: {
+          capacity?: number | null
+          code_hash?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          org_id?: string | null
+          revoked_at?: string | null
+          role?: string
+          scope?: string
+          single_use?: boolean
+          updated_at?: string
+          uses?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_codes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       access_entitlements: {
         Row: {
           created_at: string
@@ -2844,6 +2929,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_by: string | null
+          capacity: number | null
           created_at: string
           email: string
           expires_at: string
@@ -2854,14 +2940,17 @@ export type Database = {
           message: string | null
           organization_id: string | null
           revoked_at: string | null
+          single_use: boolean
           status: string
           student_profile_id: string | null
           token: string
           updated_at: string
+          uses: number
         }
         Insert: {
           accepted_at?: string | null
           accepted_by?: string | null
+          capacity?: number | null
           created_at?: string
           email: string
           expires_at?: string
@@ -2872,14 +2961,17 @@ export type Database = {
           message?: string | null
           organization_id?: string | null
           revoked_at?: string | null
+          single_use?: boolean
           status?: string
           student_profile_id?: string | null
           token?: string
           updated_at?: string
+          uses?: number
         }
         Update: {
           accepted_at?: string | null
           accepted_by?: string | null
+          capacity?: number | null
           created_at?: string
           email?: string
           expires_at?: string
@@ -2890,10 +2982,12 @@ export type Database = {
           message?: string | null
           organization_id?: string | null
           revoked_at?: string | null
+          single_use?: boolean
           status?: string
           student_profile_id?: string | null
           token?: string
           updated_at?: string
+          uses?: number
         }
         Relationships: [
           {
@@ -2953,6 +3047,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      license_lifecycle_events: {
+        Row: {
+          actor_id: string | null
+          event: string
+          id: string
+          license_id: string | null
+          occurred_at: string
+          org_id: string | null
+          payload: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          event: string
+          id?: string
+          license_id?: string | null
+          occurred_at?: string
+          org_id?: string | null
+          payload?: Json
+        }
+        Update: {
+          actor_id?: string | null
+          event?: string
+          id?: string
+          license_id?: string | null
+          occurred_at?: string
+          org_id?: string | null
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_lifecycle_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media_assets: {
         Row: {
@@ -3642,6 +3774,71 @@ export type Database = {
           resource_type?: string
         }
         Relationships: []
+      }
+      org_license_requests: {
+        Row: {
+          approved_org_id: string | null
+          contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          org_name: string
+          org_type: string
+          requester_user_id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          seat_count: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_org_id?: string | null
+          contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          org_name: string
+          org_type: string
+          requester_user_id: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          seat_count?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_org_id?: string | null
+          contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          org_name?: string
+          org_type?: string
+          requester_user_id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          seat_count?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_license_requests_approved_org_id_fkey"
+            columns: ["approved_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organization_memberships: {
         Row: {
