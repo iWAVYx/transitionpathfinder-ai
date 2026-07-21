@@ -13,6 +13,7 @@ import {
   Paperclip,
   Download,
   MessageSquare,
+  ListPlus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
