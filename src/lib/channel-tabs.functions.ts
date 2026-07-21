@@ -85,9 +85,9 @@ export const listMyMentions = createServerFn({ method: "GET" })
       author_id: r.author_id,
       author_name: nameMap.get(r.author_id) ?? "Member",
       mentioned_user_id: r.mentioned_user_id,
-      channel_title: (r.channels as any).title,
-      channel_kind: (r.channels as any).kind,
-      message_body: (r.channel_messages as any).body,
+      channel_title: pickNested<{ title: string; kind: string }>(r.channels)?.title ?? "Channel",
+      channel_kind: pickNested<{ title: string; kind: string }>(r.channels)?.kind ?? "channel",
+      message_body: pickNested<{ body: string }>(r.channel_messages)?.body ?? "",
       seen_at: r.seen_at,
       created_at: r.created_at,
     }));
