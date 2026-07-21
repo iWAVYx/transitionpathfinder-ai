@@ -1149,11 +1149,17 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                       </div>
                     )}
                   </div>
-                  {pinned.length > 0 && (
-                    <Badge variant="outline" className="shrink-0">
-                      <Pin className="h-3 w-3 mr-1" /> {pinned.length} pinned
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {pinned.length > 0 && (
+                      <Badge variant="outline">
+                        <Pin className="h-3 w-3 mr-1" /> {pinned.length} pinned
+                      </Badge>
+                    )}
+                    <ChannelMuteToggle
+                      channelId={active.id}
+                      muted={active.muted}
+                    />
+                  </div>
                 </div>
               </header>
 
