@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowRight, ArrowLeft } from "lucide-react";
+import { RouteErrorComponent } from "@/components/routing/RouteErrorComponent";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import {
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/get-started/$role")({
   },
   component: RoleDoorPage,
   notFoundComponent: RoleDoorNotFound,
+  errorComponent: RouteErrorComponent,
 });
 
 function RoleDoorPage() {
