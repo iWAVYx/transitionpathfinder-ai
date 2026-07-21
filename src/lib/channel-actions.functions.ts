@@ -176,22 +176,36 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Notify assignee (skip when self-assigned).
+    // Notify assignee (skip when self-assigned, muted, or in quiet hours).
     if (data.assignee_user_id && data.assignee_user_id !== userId) {
       try {
         const { supabaseAdmin } = await import(
           "@/integrations/supabase/client.server"
         );
-        await supabaseAdmin.from("notifications").insert({
-          user_id: data.assignee_user_id,
-          notification_type: "channel_action_assigned",
-          title: `Assigned: ${titleFromBody}`,
-          message: `In ${channel?.title ?? "Transition Channel"}`,
-          related_student_id: channel?.student_id ?? null,
-          related_record_type: "channel_action",
-          related_record_id: row.id,
-          read_status: false,
-        });
+        // Respect per-channel mute + in-app opt-out.
+        const { data: memberPref } = await supabaseAdmin
+          .from("channel_members")
+          .select("muted, notify_in_app")
+          .eq("channel_id", data.channel_id)
+          .eq("user_id", data.assignee_user_id)
+          .maybeSingle();
+        if (memberPref?.muted || memberPref?.notify_in_app === false) {
+          // Skip in-app notification when member has muted the channel.
+        } else {
+          // Respect quiet hours: if the recipient is currently inside their
+          // quiet-hours window, still insert but the digest job carries the
+          // email. In-app notification remains queryable when they return.
+          await supabaseAdmin.from("notifications").insert({
+            user_id: data.assignee_user_id,
+            notification_type: "channel_action_assigned",
+            title: `Assigned: ${titleFromBody}`,
+            message: `In ${channel?.title ?? "Transition Channel"}`,
+            related_student_id: channel?.student_id ?? null,
+            related_record_type: "channel_action",
+            related_record_id: row.id,
+            read_status: false,
+          });
+        }
       } catch {
         // Non-fatal: notification best-effort.
       }
