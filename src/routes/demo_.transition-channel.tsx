@@ -184,6 +184,15 @@ function DemoTransitionChannelPage() {
                 </span>
               )}
             </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowRecords((v) => !v)}>
+              <ListChecks className="h-4 w-4 mr-2" />
+              Records
+              {recordsCount > 0 && (
+                <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-[11px] font-semibold text-primary">
+                  {recordsCount}
+                </span>
+              )}
+            </Button>
             <Button variant="ghost" size="sm" onClick={resetDemoState} title="Reset demo state">
               <RefreshCw className="h-4 w-4" />
               <span className="sr-only">Reset demo state</span>
