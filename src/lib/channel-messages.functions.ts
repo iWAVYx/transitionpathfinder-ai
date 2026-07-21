@@ -347,7 +347,7 @@ export const registerAttachment = createServerFn({ method: "POST" })
   .inputValidator(
     (input: {
       channel_id: string;
-      message_id?: string | null;
+      message_id: string;
       storage_path: string;
       file_name: string;
       content_type?: string | null;
@@ -356,7 +356,7 @@ export const registerAttachment = createServerFn({ method: "POST" })
       z
         .object({
           channel_id: uuid,
-          message_id: uuid.optional().nullable(),
+          message_id: uuid,
           storage_path: z.string().min(1).max(1000),
           file_name: z.string().min(1).max(255),
           content_type: z.string().max(200).optional().nullable(),
@@ -377,7 +377,7 @@ export const registerAttachment = createServerFn({ method: "POST" })
       .from("channel_attachments")
       .insert({
         channel_id: data.channel_id,
-        message_id: data.message_id ?? null,
+        message_id: data.message_id,
         storage_path: data.storage_path,
         file_name: data.file_name,
         content_type: data.content_type ?? null,
