@@ -60,11 +60,13 @@ const KIND_META: Record<
 export function PromoteRecordDialog({
   message,
   channelId,
+  channelStudentId,
   onOpenChange,
   onPromoted,
 }: {
   message: ChannelMessage | null;
   channelId: string | null;
+  channelStudentId?: string | null;
   onOpenChange: (open: boolean) => void;
   onPromoted: () => void;
 }) {
@@ -75,6 +77,8 @@ export function PromoteRecordDialog({
   const [dueLocal, setDueLocal] = useState<string>("");
   const [assigneeId, setAssigneeId] = useState<string>("none");
   const [note, setNote] = useState("");
+  const [alsoActionItem, setAlsoActionItem] = useState(true);
+  const [alsoCalendar, setAlsoCalendar] = useState(false);
 
   const listAssigneesFn = useServerFn(listChannelAssigneeOptions);
   const assigneesQuery = useQuery({
@@ -96,11 +100,17 @@ export function PromoteRecordDialog({
           due_at: dueLocal ? new Date(dueLocal).toISOString() : null,
           assignee_user_id: assigneeId !== "none" ? assigneeId : null,
           resolution: note.trim() ? note.trim() : null,
+          create_action_item:
+            kind === "action" && !!channelStudentId && alsoActionItem,
+          create_calendar_event:
+            !!channelStudentId && !!dueLocal && alsoCalendar,
         },
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["channel-actions"] });
       qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+      qc.invalidateQueries({ queryKey: ["next-actions"] });
+      qc.invalidateQueries({ queryKey: ["calendar-events"] });
       onPromoted();
       onOpenChange(false);
       // Reset for next open.
@@ -109,6 +119,8 @@ export function PromoteRecordDialog({
       setAssigneeId("none");
       setNote("");
       setKind("action");
+      setAlsoActionItem(true);
+      setAlsoCalendar(false);
     },
   });
 
@@ -220,6 +232,47 @@ export function PromoteRecordDialog({
               className="resize-none"
             />
           </div>
+
+          {channelStudentId && (
+            <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Cross-Surface Sync
+              </p>
+              {kind === "action" && (
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={alsoActionItem}
+                    onChange={(e) => setAlsoActionItem(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    Also add to the student's Action Items
+                    <span className="block text-xs text-muted-foreground">
+                      Shows up on the student profile and Next Actions dashboard.
+                    </span>
+                  </span>
+                </label>
+              )}
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={alsoCalendar}
+                  onChange={(e) => setAlsoCalendar(e.target.checked)}
+                  disabled={!dueLocal}
+                  className="mt-0.5"
+                />
+                <span>
+                  Add to the Team Calendar
+                  <span className="block text-xs text-muted-foreground">
+                    {dueLocal
+                      ? "Uses the due date above; visible to the transition team."
+                      : "Set a due date to enable this."}
+                  </span>
+                </span>
+              </label>
+            </div>
+          )}
         </div>
 
         <DialogFooter>

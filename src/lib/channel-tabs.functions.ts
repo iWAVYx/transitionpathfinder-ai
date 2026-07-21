@@ -46,6 +46,9 @@ export type ChannelActionRecord = {
   resolution: string | null;
   created_at: string;
   resolved_at: string | null;
+  action_item_id: string | null;
+  calendar_event_id: string | null;
+  student_id: string | null;
 };
 
 /** Mentions where the caller is the target. */
@@ -131,7 +134,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
     let q = supabase
       .from("channel_actions")
       .select(
-        "id, channel_id, kind, status, priority, due_at, assignee_user_id, promoted_by, source_message_id, resolution, created_at, resolved_at, channels!inner(title, kind)",
+        "id, channel_id, kind, status, priority, due_at, assignee_user_id, promoted_by, source_message_id, resolution, created_at, resolved_at, target_id, metadata, channels!inner(title, kind, student_id)",
       )
       .eq("kind", data.kind)
       .order("created_at", { ascending: false })
@@ -162,24 +165,31 @@ export const listChannelActions = createServerFn({ method: "GET" })
       );
     }
 
-    const actions: ChannelActionRecord[] = (rows ?? []).map((r) => ({
-      id: r.id,
-      channel_id: r.channel_id,
-      channel_title: pickNested<{ title: string; kind: string }>(r.channels)?.title ?? "Channel",
-      channel_kind: pickNested<{ title: string; kind: string }>(r.channels)?.kind ?? "channel",
-      kind: r.kind,
-      status: r.status,
-      priority: r.priority,
-      due_at: r.due_at,
-      assignee_user_id: r.assignee_user_id,
-      assignee_name: r.assignee_user_id ? (nameMap.get(r.assignee_user_id) ?? "Member") : null,
-      promoted_by: r.promoted_by,
-      promoter_name: nameMap.get(r.promoted_by) ?? "Member",
-      source_message_id: r.source_message_id,
-      resolution: r.resolution,
-      created_at: r.created_at,
-      resolved_at: r.resolved_at,
-    }));
+    const actions: ChannelActionRecord[] = (rows ?? []).map((r) => {
+      const ch = pickNested<{ title: string; kind: string; student_id: string | null }>(r.channels);
+      const meta = (r.metadata as Record<string, string> | null) ?? {};
+      return {
+        id: r.id,
+        channel_id: r.channel_id,
+        channel_title: ch?.title ?? "Channel",
+        channel_kind: ch?.kind ?? "channel",
+        kind: r.kind,
+        status: r.status,
+        priority: r.priority,
+        due_at: r.due_at,
+        assignee_user_id: r.assignee_user_id,
+        assignee_name: r.assignee_user_id ? (nameMap.get(r.assignee_user_id) ?? "Member") : null,
+        promoted_by: r.promoted_by,
+        promoter_name: nameMap.get(r.promoted_by) ?? "Member",
+        source_message_id: r.source_message_id,
+        resolution: r.resolution,
+        created_at: r.created_at,
+        resolved_at: r.resolved_at,
+        action_item_id: (meta.action_item_id as string | undefined) ?? (r.target_id as string | null) ?? null,
+        calendar_event_id: (meta.calendar_event_id as string | undefined) ?? null,
+        student_id: ch?.student_id ?? null,
+      };
+    });
 
     return { actions };
   });
