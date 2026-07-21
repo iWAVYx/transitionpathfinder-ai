@@ -128,11 +128,11 @@ export const getChannelTileSummary = createServerFn({ method: "GET" })
       upcomingDeadlines = dd ?? 0;
     }
 
-    // Pending connection requests addressed to this user
+    // Pending connection requests visible to the caller (RLS scopes to
+    // requester + target-org admins).
     const { count: connectionRequests } = await supabase
       .from("channel_connection_requests")
       .select("id", { count: "exact", head: true })
-      .eq("to_user_id", userId)
       .eq("status", "pending");
 
     // Recent 3 (by last_message_at)
