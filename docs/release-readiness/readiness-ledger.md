@@ -110,7 +110,7 @@ Levels apply per row — an item can PASS for A and BLOCK for C.
 | S-03  | Backups, restore drill, incident response                                   | C     | BLOCKED | P0  | Not verifiable from code. Slice 11: still blocked on B-03 — requires founder + hosting vendor to execute a real restore drill and publish an incident-response runbook. | None | See `blockers.md` B-03 | Founder + Vendor | Post-drill sign-off |
 | S-04  | Email domain authentication (DKIM/SPF/DMARC)                                | A/B/C | BLOCKED | P1 | Not verifiable from code. Slice 11: still blocked on B-02 — DNS records must be published by the domain owner and then verified from outside the sandbox (e.g. `mxtoolbox`, Google Postmaster). | None | See `blockers.md` B-02 | Founder + Vendor | External DNS check |
 
-| S-05  | `client.server` never imported at module scope of client-reachable files    | B/C   | PASS    | P0  | `tests/unit/no-toplevel-admin-import.test.ts` enforces it                                                                               | None | Re-run in Slice 11 | Engineering | `bunx vitest run tests/unit/no-toplevel-admin-import.test.ts` |
+| S-05  | `client.server` never imported at module scope of client-reachable files    | B/C   | PASS    | P0  | `tests/unit/no-toplevel-admin-import.test.ts` enforces it. Slice 11 ✅ re-ran (1/1 pass, 45ms). | None | Keep in CI | Engineering | `bunx vitest run tests/unit/no-toplevel-admin-import.test.ts` |
 
 ## Go / No-Go recommendation (Slice 0 provisional — subject to Slice 1–11 verification)
 
