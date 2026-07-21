@@ -94,7 +94,17 @@ export const listMyMentions = createServerFn({ method: "GET" })
 export const listChannelActions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: { kind: "action" | "decision" | "question" | "feedback" | "meeting_item" | "opportunity_followup" | "referral_followup"; assignee_only?: boolean }) =>
+    (input: {
+      kind:
+        | "action"
+        | "decision"
+        | "question"
+        | "feedback"
+        | "meeting_item"
+        | "opportunity_followup"
+        | "referral_followup";
+      assignee_only?: boolean;
+    }) =>
       z
         .object({
           kind: z.enum([
@@ -157,7 +167,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
       priority: r.priority,
       due_at: r.due_at,
       assignee_user_id: r.assignee_user_id,
-      assignee_name: r.assignee_user_id ? nameMap.get(r.assignee_user_id) ?? "Member" : null,
+      assignee_name: r.assignee_user_id ? (nameMap.get(r.assignee_user_id) ?? "Member") : null,
       promoted_by: r.promoted_by,
       promoter_name: nameMap.get(r.promoted_by) ?? "Member",
       source_message_id: r.source_message_id,
@@ -174,9 +184,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
  */
 export const markMentionSeen = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { mention_id: string }) =>
-    z.object({ mention_id: uuid }).parse(input),
-  )
+  .inputValidator((input: { mention_id: string }) => z.object({ mention_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

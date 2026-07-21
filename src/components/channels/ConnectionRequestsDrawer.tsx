@@ -82,7 +82,12 @@ export function ConnectionRequestsDrawer({
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Connection requests">
+        <div
+          className="fixed inset-0 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Connection requests"
+        >
           <button
             type="button"
             aria-label="Close connection requests"
@@ -137,7 +142,9 @@ export function ConnectionRequestsDrawer({
                       </RequestCard>
                     ))}
                     {pendingIncoming.length === 0 && (
-                      <p className="text-sm text-muted-foreground">Nothing awaiting your response.</p>
+                      <p className="text-sm text-muted-foreground">
+                        Nothing awaiting your response.
+                      </p>
                     )}
                   </Section>
 

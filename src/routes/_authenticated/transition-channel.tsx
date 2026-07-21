@@ -42,7 +42,10 @@ import {
   type ChannelMessage,
 } from "@/lib/channels.functions";
 import { getMyRoles } from "@/lib/profile.functions";
-import { getChannelTileSummary, type ChannelTileSummary } from "@/lib/channel-tile-summary.functions";
+import {
+  getChannelTileSummary,
+  type ChannelTileSummary,
+} from "@/lib/channel-tile-summary.functions";
 import {
   listMyMentions,
   listChannelActions,
@@ -174,9 +177,7 @@ export const Route = createFileRoute("/_authenticated/transition-channel")({
       title="Transition Channel"
       backTo={{ to: "/dashboard", label: "Back to Dashboard" }}
     >
-      <div className="mx-auto max-w-2xl px-6 py-16 text-center">
-        Channel not found.
-      </div>
+      <div className="mx-auto max-w-2xl px-6 py-16 text-center">Channel not found.</div>
     </FeatureShell>
   ),
   component: TransitionChannelPage,
@@ -266,7 +267,7 @@ function TransitionChannelPage() {
         <TabsList className="w-full justify-start gap-1 overflow-x-auto rounded-xl bg-muted/50 p-1 sm:w-auto">
           {visibleTabs.map((tab) => {
             const meta = TAB_META[tab];
-            const count = meta.countKey ? summary?.[meta.countKey] ?? 0 : 0;
+            const count = meta.countKey ? (summary?.[meta.countKey] ?? 0) : 0;
             const Icon = meta.icon;
             return (
               <TabsTrigger
@@ -291,7 +292,12 @@ function TransitionChannelPage() {
         </TabsList>
 
         <div className="mt-4 rounded-xl border bg-card p-3 sm:p-4">
-          <FilterBar search={search} onChange={(patch) => navigate({ to: "/transition-channel", search: { ...search, ...patch } })} />
+          <FilterBar
+            search={search}
+            onChange={(patch) =>
+              navigate({ to: "/transition-channel", search: { ...search, ...patch } })
+            }
+          />
 
           <TabsContent value="inbox" className="mt-0 focus-visible:outline-none">
             <InboxTab search={search} />
@@ -458,7 +464,9 @@ function InboxTab({ search }: { search: FilterState }) {
     queryFn: () => listFn(),
   });
   const channels = (query.data?.channels ?? []).filter((c) => c.unread_count > 0);
-  return <ChannelListView channels={channels} loading={query.isLoading} empty="No unread messages." />;
+  return (
+    <ChannelListView channels={channels} loading={query.isLoading} empty="No unread messages." />
+  );
 }
 
 function ChannelsTab({ search }: { search: FilterState }) {
@@ -490,10 +498,7 @@ function MentionsTab() {
         <EmptyState icon={Bell} message="No mentions yet." />
       ) : (
         mentions.map((m) => (
-          <article
-            key={m.id}
-            className="rounded-lg border p-3 hover:bg-muted/40 transition"
-          >
+          <article key={m.id} className="rounded-lg border p-3 hover:bg-muted/40 transition">
             <div className="flex items-baseline justify-between gap-2">
               <p className="text-sm font-medium">
                 {m.author_name} mentioned you in {m.channel_title}
@@ -535,7 +540,8 @@ function ActionsTab({
   });
   const actions = query.data?.actions ?? [];
   const icon = kind === "action" ? ListTodo : kind === "decision" ? HelpCircle : Megaphone;
-  const label = kind === "action" ? "assigned action" : kind === "decision" ? "decision" : "feedback item";
+  const label =
+    kind === "action" ? "assigned action" : kind === "decision" ? "decision" : "feedback item";
 
   return (
     <div className="space-y-2">
@@ -556,7 +562,9 @@ function ActionCard({ action }: { action: ChannelActionRecord }) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={actionStatusVariant(action.status)}>{action.status.replace("_", " ")}</Badge>
+            <Badge variant={actionStatusVariant(action.status)}>
+              {action.status.replace("_", " ")}
+            </Badge>
             {action.priority && <Badge variant="outline">{action.priority}</Badge>}
             <span className="text-xs text-muted-foreground">in {action.channel_title}</span>
           </div>
@@ -610,8 +618,12 @@ function ConnectionsTab() {
   });
 
   const requests = query.data?.requests ?? [];
-  const pendingIncoming = requests.filter((r) => r.direction === "incoming" && r.status === "pending");
-  const pendingOutgoing = requests.filter((r) => r.direction === "outgoing" && r.status === "pending");
+  const pendingIncoming = requests.filter(
+    (r) => r.direction === "incoming" && r.status === "pending",
+  );
+  const pendingOutgoing = requests.filter(
+    (r) => r.direction === "outgoing" && r.status === "pending",
+  );
   const resolved = requests.filter((r) => r.status !== "pending").slice(0, 10);
 
   return (
@@ -666,7 +678,9 @@ function ConnectionsTab() {
             count={resolved.length}
             requests={resolved}
             actions={(r) => (
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">{r.status}</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {r.status}
+              </span>
             )}
           />
         </>
@@ -734,7 +748,9 @@ function ArchivedTab({ search }: { search: FilterState }) {
     queryFn: () => listFn(),
   });
   const channels = (query.data?.channels ?? []).filter((c) => !!c.archived_at);
-  return <ChannelListView channels={channels} loading={query.isLoading} empty="No archived channels." />;
+  return (
+    <ChannelListView channels={channels} loading={query.isLoading} empty="No archived channels." />
+  );
 }
 
 function ChannelListView({
@@ -759,9 +775,7 @@ function ChannelListView({
                 {labelForKind(c.kind)} · {formatWhen(c.last_message_at) || "No messages yet"}
               </p>
             </div>
-            {c.unread_count > 0 && (
-              <Badge className="shrink-0">{c.unread_count}</Badge>
-            )}
+            {c.unread_count > 0 && <Badge className="shrink-0">{c.unread_count}</Badge>}
           </div>
         </li>
       ))}
@@ -838,7 +852,12 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       .channel(`channel-messages-${activeId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "channel_messages", filter: `channel_id=eq.${activeId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "channel_messages",
+          filter: `channel_id=eq.${activeId}`,
+        },
         () => {
           qc.invalidateQueries({ queryKey: ["transition-channel-messages", activeId] });
           qc.invalidateQueries({ queryKey: ["transition-channels"] });
@@ -922,14 +941,18 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
             <header className="px-4 py-3 border-b">
               <div className="font-medium">{active.title}</div>
               {active.purpose && (
-                <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{active.purpose}</div>
+                <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                  {active.purpose}
+                </div>
               )}
             </header>
             <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {messagesQuery.isLoading ? (
                 <div className="text-sm text-muted-foreground">Loading messages…</div>
               ) : messages.length === 0 ? (
-                <div className="text-sm text-muted-foreground">Be the first to write in this channel.</div>
+                <div className="text-sm text-muted-foreground">
+                  Be the first to write in this channel.
+                </div>
               ) : (
                 messages.map((m) => <MessageRow key={m.id} m={m} />)
               )}
@@ -959,7 +982,10 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                 disabled={!!active.archived_at}
                 aria-label="Message"
               />
-              <Button type="submit" disabled={!draft.trim() || sendMutation.isPending || !!active.archived_at}>
+              <Button
+                type="submit"
+                disabled={!draft.trim() || sendMutation.isPending || !!active.archived_at}
+              >
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Send</span>
               </Button>
