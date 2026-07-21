@@ -236,12 +236,18 @@ export const setChannelRetention = createServerFn({ method: "POST" })
 
 export type ChannelExportBundle = {
   exported_at: string;
-  channel: Record<string, unknown>;
-  members: Array<Record<string, unknown>>;
-  messages: Array<Record<string, unknown>>;
-  actions: Array<Record<string, unknown>>;
-  audit_events: Array<Record<string, unknown>>;
-  attachments: Array<Record<string, unknown>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  channel: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  members: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  messages: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actions: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  audit_events: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attachments: Array<Record<string, any>>;
 };
 
 export const exportChannelBundle = createServerFn({ method: "POST" })
