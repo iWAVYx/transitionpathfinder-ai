@@ -1218,7 +1218,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       <PromoteRecordDialog
         message={promoteMessage}
         channelId={promoteMessage ? activeId : null}
-        onOpenChange={(open) => {
+        onOpenChange={(open: boolean) => {
           if (!open) setPromoteMessage(null);
         }}
         onPromoted={invalidateActive}
