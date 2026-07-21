@@ -165,8 +165,8 @@ export const listChannelActions = createServerFn({ method: "GET" })
     const actions: ChannelActionRecord[] = (rows ?? []).map((r) => ({
       id: r.id,
       channel_id: r.channel_id,
-      channel_title: (r.channels as any).title,
-      channel_kind: (r.channels as any).kind,
+      channel_title: pickNested<{ title: string; kind: string }>(r.channels)?.title ?? "Channel",
+      channel_kind: pickNested<{ title: string; kind: string }>(r.channels)?.kind ?? "channel",
       kind: r.kind,
       status: r.status,
       priority: r.priority,
