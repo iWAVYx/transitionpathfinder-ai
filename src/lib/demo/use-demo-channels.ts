@@ -201,6 +201,158 @@ export function useDemoChannels(role: DemoRoleId, contextId: string) {
     [role, contextId],
   );
 
+  const replyInThread = useCallback(
+    (channelId: string, parentId: string, body: string) => {
+      const trimmed = body.trim();
+      if (!trimmed) return;
+      update(role, contextId, (b) => ({
+        ...b,
+        channels: b.channels.map((c) =>
+          c.id !== channelId
+            ? c
+            : {
+                ...c,
+                messages: [
+                  ...c.messages,
+                  {
+                    id: `local-reply-${Date.now()}`,
+                    channelId,
+                    parentId,
+                    authorId: "u-you",
+                    authorName: "You (demo)",
+                    authorRole: "You",
+                    createdAt: new Date().toISOString(),
+                    body: trimmed,
+                  } satisfies DemoChannelMessage,
+                ],
+                lastActivityLabel: "just now",
+              },
+        ),
+      }));
+    },
+    [role, contextId],
+  );
+
+  const toggleBookmark = useCallback(
+    (channelId: string, messageId: string) => {
+      update(role, contextId, (b) => ({
+        ...b,
+        channels: b.channels.map((c) =>
+          c.id !== channelId
+            ? c
+            : {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === messageId ? { ...m, bookmarked: !m.bookmarked } : m,
+                ),
+              },
+        ),
+      }));
+    },
+    [role, contextId],
+  );
+
+  const editMessage = useCallback(
+    (channelId: string, messageId: string, body: string) => {
+      const trimmed = body.trim();
+      if (!trimmed) return;
+      update(role, contextId, (b) => ({
+        ...b,
+        channels: b.channels.map((c) =>
+          c.id !== channelId
+            ? c
+            : {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === messageId ? { ...m, body: trimmed, edited: true } : m,
+                ),
+              },
+        ),
+      }));
+    },
+    [role, contextId],
+  );
+
+  const deleteMessage = useCallback(
+    (channelId: string, messageId: string) => {
+      update(role, contextId, (b) => ({
+        ...b,
+        channels: b.channels.map((c) =>
+          c.id !== channelId
+            ? c
+            : {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === messageId
+                    ? { ...m, body: "This message was removed.", deleted: true, actionItem: undefined, record: undefined, attachment: undefined }
+                    : m,
+                ),
+              },
+        ),
+      }));
+    },
+    [role, contextId],
+  );
+
+  const promoteToRecord = useCallback(
+    (
+      channelId: string,
+      messageId: string,
+      record: Omit<DemoPromotedRecord, "id" | "status" | "integrations"> & {
+        integrations: DemoPromotedRecord["integrations"];
+      },
+    ) => {
+      update(role, contextId, (b) => ({
+        ...b,
+        channels: b.channels.map((c) =>
+          c.id !== channelId
+            ? c
+            : {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === messageId
+                    ? {
+                        ...m,
+                        record: {
+                          id: `rec-${Date.now()}`,
+                          status: "open",
+                          ...record,
+                          integrations: {
+                            notifiedAssignee: true,
+                            ...record.integrations,
+                          },
+                        },
+                      }
+                    : m,
+                ),
+              },
+        ),
+      }));
+    },
+    [role, contextId],
+  );
+
+  const setRecordStatus = useCallback(
+    (channelId: string, messageId: string, status: DemoPromotedRecord["status"]) => {
+      update(role, contextId, (b) => ({
+        ...b,
+        channels: b.channels.map((c) =>
+          c.id !== channelId
+            ? c
+            : {
+                ...c,
+                messages: c.messages.map((m) =>
+                  m.id === messageId && m.record
+                    ? { ...m, record: { ...m.record, status } }
+                    : m,
+                ),
+              },
+        ),
+      }));
+    },
+    [role, contextId],
+  );
+
   const resetDemoState = useCallback(() => {
     store.delete(keyOf(role, contextId));
     emit();
@@ -214,6 +366,12 @@ export function useDemoChannels(role: DemoRoleId, contextId: string) {
     addActionItem,
     setNotifyPref,
     respondToRequest,
+    replyInThread,
+    toggleBookmark,
+    editMessage,
+    deleteMessage,
+    promoteToRecord,
+    setRecordStatus,
     resetDemoState,
     relativeLabel,
   };
