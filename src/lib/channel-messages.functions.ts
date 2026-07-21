@@ -14,7 +14,7 @@ const uuid = z.string().uuid();
 
 export type ChannelAttachment = {
   id: string;
-  message_id: string | null;
+  message_id: string;
   channel_id: string;
   storage_path: string;
   file_name: string;
