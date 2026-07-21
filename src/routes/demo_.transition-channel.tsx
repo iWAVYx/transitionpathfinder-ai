@@ -97,6 +97,12 @@ function DemoTransitionChannelPage() {
     addActionItem,
     setNotifyPref,
     respondToRequest,
+    replyInThread,
+    toggleBookmark,
+    editMessage,
+    deleteMessage,
+    promoteToRecord,
+    setRecordStatus,
     resetDemoState,
     relativeLabel,
   } = useDemoChannels(role, contextId);
@@ -107,6 +113,11 @@ function DemoTransitionChannelPage() {
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState("");
   const [showRequests, setShowRequests] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyDraft, setReplyDraft] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+  const [showRecords, setShowRecords] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const active = useMemo(
