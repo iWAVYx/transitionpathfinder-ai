@@ -225,6 +225,28 @@ function DemoTransitionChannelPage() {
           />
         )}
 
+        {showRecords && (
+          <RecordsPanel
+            items={allRecords}
+            onStatus={(chId, mId, s) => setRecordStatus(chId, mId, s)}
+            onJump={(chId, mId) => {
+              setActiveId(chId);
+              navigate({
+                to: "/demo/transition-channel",
+                search: (prev: Record<string, unknown> | undefined) => ({
+                  ...(prev ?? {}),
+                  channel: chId,
+                }),
+                replace: false,
+              });
+              // Scroll to message after DOM updates
+              requestAnimationFrame(() => {
+                document.getElementById(`msg-${mId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+              });
+            }}
+          />
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-4 border rounded-lg overflow-hidden bg-card">
           <aside className="border-b md:border-b-0 md:border-r bg-muted/30 max-h-[70vh] overflow-y-auto">
             <div className="p-3 border-b bg-background/60">
