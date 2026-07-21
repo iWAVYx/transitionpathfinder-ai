@@ -828,6 +828,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [threadParentId, setThreadParentId] = useState<string | null>(null);
+  const [promoteMessage, setPromoteMessage] = useState<ChannelMessage | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
