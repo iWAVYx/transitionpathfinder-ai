@@ -73,7 +73,7 @@ export function ConnectionRequestsDrawer({
         aria-label="Open connection requests"
       >
         <Inbox className="h-4 w-4 mr-2" />
-        {triggerLabel ?? "Requests
+        {triggerLabel ?? "Requests"}
         {badge > 0 && (
           <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
             {badge}
