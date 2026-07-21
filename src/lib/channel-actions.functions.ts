@@ -257,11 +257,76 @@ export const updateChannelAction = createServerFn({ method: "POST" })
 
     if (Object.keys(patch).length === 0) return { ok: true };
 
+    // Read current row so we can detect assignee change + mirror status.
+    const { data: prev } = await supabase
+      .from("channel_actions")
+      .select(
+        "id, channel_id, assignee_user_id, target_id, metadata, resolution",
+      )
+      .eq("id", data.action_id)
+      .maybeSingle();
+
     const { error } = await supabase
       .from("channel_actions")
       .update(patch)
       .eq("id", data.action_id);
     if (error) throw new Error(error.message);
+
+    // Mirror status → linked action_items row.
+    const meta = (prev?.metadata as Record<string, string> | null) ?? {};
+    const linkedActionItemId =
+      (meta.action_item_id as string | undefined) ??
+      (prev?.target_id as string | undefined) ??
+      null;
+    if (linkedActionItemId && patch.status) {
+      const statusMap: Record<string, string> = {
+        open: "not_started",
+        in_progress: "in_progress",
+        resolved: "completed",
+        cancelled: "not_started",
+      };
+      const mapped = statusMap[patch.status];
+      if (mapped) {
+        await supabase
+          .from("action_items")
+          .update({ status: mapped })
+          .eq("id", linkedActionItemId);
+      }
+    }
+
+    // Notify newly assigned user.
+    const nextAssignee = data.assignee_user_id;
+    const prevAssignee = prev?.assignee_user_id ?? null;
+    if (
+      nextAssignee !== undefined &&
+      nextAssignee &&
+      nextAssignee !== prevAssignee &&
+      nextAssignee !== userId
+    ) {
+      try {
+        const { data: ch } = await supabase
+          .from("channels")
+          .select("title, student_id")
+          .eq("id", prev?.channel_id ?? "")
+          .maybeSingle();
+        const { supabaseAdmin } = await import(
+          "@/integrations/supabase/client.server"
+        );
+        await supabaseAdmin.from("notifications").insert({
+          user_id: nextAssignee,
+          notification_type: "channel_action_assigned",
+          title: "You were assigned an action",
+          message: `In ${ch?.title ?? "Transition Channel"}`,
+          related_student_id: ch?.student_id ?? null,
+          related_record_type: "channel_action",
+          related_record_id: data.action_id,
+          read_status: false,
+        });
+      } catch {
+        // Non-fatal.
+      }
+    }
+
     return { ok: true };
   });
 
