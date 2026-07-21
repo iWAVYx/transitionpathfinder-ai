@@ -17,6 +17,7 @@ import {
   type ChannelSummary,
   type ChannelMessage,
 } from "@/lib/channels.functions";
+import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
 
 export const Route = createFileRoute("/_authenticated/transition-channel")({
   head: () => ({ meta: [{ title: "Transition Channel — TransitionForward" }] }),
