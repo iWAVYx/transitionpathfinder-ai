@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, ShieldAlert, Trash2, Check, X, Gavel, Clock } from "lucide-react";
+import { Loader2, ShieldAlert, Trash2, Check, X, Gavel, Clock, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import {
   resolveChannelReport,
   removeChannelMessage,
   setChannelRetention,
+  exportChannelBundle,
   type ModerationReportRow,
 } from "@/lib/channel-moderation.functions";
 
@@ -26,6 +27,7 @@ export function ModerationTab() {
   const resolve = useServerFn(resolveChannelReport);
   const removeMsg = useServerFn(removeChannelMessage);
   const setRetention = useServerFn(setChannelRetention);
+  const exportBundle = useServerFn(exportChannelBundle);
 
   const [reports, setReports] = useState<ModerationReportRow[] | null>(null);
   const [status, setStatus] = useState<"open" | "resolved" | "dismissed" | "all">("open");
@@ -81,6 +83,26 @@ export function ModerationTab() {
       await refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed");
+    }
+  };
+
+  const handleExport = async (channelId: string) => {
+    try {
+      const bundle = await exportBundle({ data: { channel_id: channelId } });
+      const blob = new Blob([JSON.stringify(bundle, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `channel-${channelId}-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Export downloaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed");
     }
   };
 
@@ -216,6 +238,13 @@ export function ModerationTab() {
                   >
                     <Gavel className="mr-1 h-3.5 w-3.5" />
                     {r.legal_hold ? "Release hold" : "Legal hold"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExport(r.channel_id)}
+                  >
+                    <Download className="mr-1 h-3.5 w-3.5" /> Export
                   </Button>
                 </div>
               </div>
