@@ -52,6 +52,7 @@ import { Route as HubsBridgeforwardRouteImport } from './routes/hubs.bridgeforwa
 import { Route as GetStartedRoleRouteImport } from './routes/get-started.$role'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DemoVoiceRouteImport } from './routes/demo_.voice'
+import { Route as DemoTransitionChannelRouteImport } from './routes/demo_.transition-channel'
 import { Route as DemoStudentRouteImport } from './routes/demo_.student'
 import { Route as DemoSchoolAdminRouteImport } from './routes/demo_.school-admin'
 import { Route as DemoResourcesRouteImport } from './routes/demo_.resources'
@@ -434,6 +435,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
 const DemoVoiceRoute = DemoVoiceRouteImport.update({
   id: '/demo_/voice',
   path: '/demo/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoTransitionChannelRoute = DemoTransitionChannelRouteImport.update({
+  id: '/demo_/transition-channel',
+  path: '/demo/transition-channel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStudentRoute = DemoStudentRouteImport.update({
@@ -1456,6 +1462,7 @@ export interface FileRoutesByFullPath {
   '/demo/resources': typeof DemoResourcesRoute
   '/demo/school-admin': typeof DemoSchoolAdminRoute
   '/demo/student': typeof DemoStudentRoute
+  '/demo/transition-channel': typeof DemoTransitionChannelRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/get-started/$role': typeof GetStartedRoleRoute
@@ -1665,6 +1672,7 @@ export interface FileRoutesByTo {
   '/demo/resources': typeof DemoResourcesRoute
   '/demo/school-admin': typeof DemoSchoolAdminRoute
   '/demo/student': typeof DemoStudentRoute
+  '/demo/transition-channel': typeof DemoTransitionChannelRoute
   '/demo/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/get-started/$role': typeof GetStartedRoleRoute
@@ -1878,6 +1886,7 @@ export interface FileRoutesById {
   '/demo_/resources': typeof DemoResourcesRoute
   '/demo_/school-admin': typeof DemoSchoolAdminRoute
   '/demo_/student': typeof DemoStudentRoute
+  '/demo_/transition-channel': typeof DemoTransitionChannelRoute
   '/demo_/voice': typeof DemoVoiceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/get-started/$role': typeof GetStartedRoleRoute
@@ -2091,6 +2100,7 @@ export interface FileRouteTypes {
     | '/demo/resources'
     | '/demo/school-admin'
     | '/demo/student'
+    | '/demo/transition-channel'
     | '/demo/voice'
     | '/email/unsubscribe'
     | '/get-started/$role'
@@ -2300,6 +2310,7 @@ export interface FileRouteTypes {
     | '/demo/resources'
     | '/demo/school-admin'
     | '/demo/student'
+    | '/demo/transition-channel'
     | '/demo/voice'
     | '/email/unsubscribe'
     | '/get-started/$role'
@@ -2512,6 +2523,7 @@ export interface FileRouteTypes {
     | '/demo_/resources'
     | '/demo_/school-admin'
     | '/demo_/student'
+    | '/demo_/transition-channel'
     | '/demo_/voice'
     | '/email/unsubscribe'
     | '/get-started/$role'
@@ -2692,6 +2704,7 @@ export interface RootRouteChildren {
   DemoResourcesRoute: typeof DemoResourcesRoute
   DemoSchoolAdminRoute: typeof DemoSchoolAdminRoute
   DemoStudentRoute: typeof DemoStudentRoute
+  DemoTransitionChannelRoute: typeof DemoTransitionChannelRoute
   DemoVoiceRoute: typeof DemoVoiceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   GetStartedRoleRoute: typeof GetStartedRoleRoute
@@ -3019,6 +3032,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/voice'
       fullPath: '/demo/voice'
       preLoaderRoute: typeof DemoVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo_/transition-channel': {
+      id: '/demo_/transition-channel'
+      path: '/demo/transition-channel'
+      fullPath: '/demo/transition-channel'
+      preLoaderRoute: typeof DemoTransitionChannelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo_/student': {
@@ -4658,6 +4678,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoResourcesRoute: DemoResourcesRoute,
   DemoSchoolAdminRoute: DemoSchoolAdminRoute,
   DemoStudentRoute: DemoStudentRoute,
+  DemoTransitionChannelRoute: DemoTransitionChannelRoute,
   DemoVoiceRoute: DemoVoiceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   GetStartedRoleRoute: GetStartedRoleRoute,
@@ -4686,13 +4707,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

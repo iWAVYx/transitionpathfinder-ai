@@ -17,6 +17,7 @@ import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
+import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
 import {
   PartnerFeatureDrawer,
   type PartnerFeatureState,
@@ -186,6 +187,7 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
           />
         ))}
         <PartnerNetworkTile role="partner" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
+        <DemoTransitionChannelTile role="partner" contextId={planId} />
       </ToolPreviewGrid>
 
       <PartnerFeatureDrawer

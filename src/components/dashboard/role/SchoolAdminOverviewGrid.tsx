@@ -18,6 +18,7 @@ import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
+import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
 import {
   SchoolAdminFeatureDrawer,
   type SchoolAdminFeatureState,
@@ -202,6 +203,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
           />
         ))}
         <PartnerNetworkTile role="school_admin" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
+        <DemoTransitionChannelTile role="school-admin" contextId={schoolId} />
       </ToolPreviewGrid>
 
       <SchoolAdminFeatureDrawer
