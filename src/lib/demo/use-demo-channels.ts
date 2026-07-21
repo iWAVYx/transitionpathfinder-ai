@@ -13,6 +13,7 @@ import {
   type DemoChannelBundle,
   type DemoChannelMessage,
   type DemoConnectionRequest,
+  type DemoPromotedRecord,
   relativeLabel,
 } from "@/lib/demo/transition-channel-data";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
