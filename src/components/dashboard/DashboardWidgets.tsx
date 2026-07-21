@@ -15,6 +15,7 @@ import { listMyReports } from "@/lib/pathway.functions";
 import { summarizeGoalStatuses } from "@/lib/goal-statuses.functions";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
 
 type ReportRow = {
   id: string;
@@ -226,8 +227,13 @@ export function DashboardWidgets() {
           accent="sky"
         />
       </div>
+      {/* Transition Channel tile */}
+      <div className="mt-5">
+        <TransitionChannelTile />
+      </div>
 
       {/* Program pathways — only render when relevant to this user. */}
+
       {elig && ((elig.hasMiddleSchoolStudent && !elig.isPartner) || elig.isPartner) && (
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 auto-rows-fr">
           {elig.hasMiddleSchoolStudent && !elig.isPartner && (
