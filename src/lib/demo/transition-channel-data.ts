@@ -31,15 +31,35 @@ export type DemoChannelKind =
 export type DemoChannelMessage = {
   id: string;
   channelId: string;
+  parentId?: string; // slice C — threaded reply
   authorId: string;
   authorName: string;
   authorRole: string;
   createdAt: string; // ISO
   body: string;
   pinned?: boolean;
+  bookmarked?: boolean; // slice C — personal bookmark
+  edited?: boolean;
+  deleted?: boolean;
   actionItem?: { assignee: string; due?: string; done?: boolean };
   mentions?: string[];
   attachment?: { name: string; kind: "pdf" | "image" | "doc"; sizeKb: number };
+  record?: DemoPromotedRecord; // slice D + E — structured record + integrations
+};
+
+export type DemoPromotedRecord = {
+  id: string;
+  kind: "action" | "decision";
+  title: string;
+  assignee?: string;
+  due?: string;
+  priority: "low" | "medium" | "high";
+  status: "open" | "in_progress" | "done";
+  integrations: {
+    mirroredToActionItems?: boolean;
+    mirroredToCalendar?: boolean;
+    notifiedAssignee?: boolean;
+  };
 };
 
 export type DemoChannel = {
