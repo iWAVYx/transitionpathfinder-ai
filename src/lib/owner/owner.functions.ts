@@ -1529,8 +1529,10 @@ export const acceptAdminInvitation = createServerFn({ method: "POST" })
     z.object({ token: z.string().min(16).max(128) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
+    requireAal2(claims); // B-07: MFA-required to accept an admin_roles grant
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
     const { data: invite } = await supabaseAdmin
       .from("admin_invitations")
