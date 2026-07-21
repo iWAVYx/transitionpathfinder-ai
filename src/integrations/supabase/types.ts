@@ -8321,6 +8321,13 @@ export type Database = {
         Args: { _document_id: string; _user_id: string }
         Returns: boolean
       }
+      channel_retention_purge: {
+        Args: never
+        Returns: {
+          channel_id: string
+          purged: number
+        }[]
+      }
       claim_admin_if_unclaimed: { Args: never; Returns: boolean }
       collaborator_role_for: { Args: { _collab_id: string }; Returns: string }
       collaborator_student_for: {
