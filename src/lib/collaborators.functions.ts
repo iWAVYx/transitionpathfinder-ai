@@ -78,9 +78,9 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Resolve invitee by email via admin auth API (auth.users isn't exposed via PostgREST).
-    const invitedUserId = await findUserIdByEmail(data.email);
-
+    // Always create as pending with no pre-assigned user_id. The invitee must
+    // explicitly accept the invite via the self-service accept flow — an editor
+    // cannot silently grant instant access to another account.
     const { data: row, error } = await supabase
       .from("student_collaborators")
       .insert({
@@ -88,8 +88,8 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
         invited_email: data.email,
         invited_by: userId,
         role: data.role,
-        status: invitedUserId ? "accepted" : "pending",
-        user_id: invitedUserId,
+        status: "pending",
+        user_id: null,
       })
       .select("*")
       .single();
