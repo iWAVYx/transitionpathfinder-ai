@@ -14,6 +14,7 @@ import { render } from "@react-email/components";
 import { createClient } from "@supabase/supabase-js";
 import * as React from "react";
 import { TEMPLATES } from "@/lib/email-templates/registry";
+import { redactChannelPreviewForEmail } from "@/lib/channel-preview-redact";
 
 const DIGEST_TEMPLATE = "channel-activity-digest";
 const MAX_USERS_PER_TICK = 50;
@@ -278,7 +279,7 @@ async function buildDigestForUser(
       unread_count: unreadN,
       mentions: mentionsN,
       open_actions: openN,
-      latest_preview: latest?.body ? latest.body.slice(0, 140) : undefined,
+      latest_preview: redactChannelPreviewForEmail(latest?.body),
     });
   }
 
