@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { RouteErrorComponent } from "@/components/routing/RouteErrorComponent";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -320,6 +321,7 @@ export const Route = createFileRoute("/pathways/$pathwayId")({
       </div>
     </SiteShell>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 function PathwayFlow() {
