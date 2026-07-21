@@ -13,6 +13,7 @@ import {
   Paperclip,
   Download,
   MessageSquare,
+  ListPlus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ export type MessageItemProps = {
   attachments: ChannelAttachment[];
   replyCount?: number;
   onReply: (parent: ChannelMessage) => void;
+  onPromote?: (m: ChannelMessage) => void;
   onChanged: () => void;
   compact?: boolean;
 };
@@ -65,6 +67,7 @@ export function MessageItem({
   attachments,
   replyCount,
   onReply,
+  onPromote,
   onChanged,
   compact,
 }: MessageItemProps) {
@@ -212,7 +215,7 @@ export function MessageItem({
               <span className="sr-only">{m.pinned ? "Unpin" : "Pin"}</span>
             </Button>
           )}
-          {isAuthor && (
+          {(isAuthor || onPromote) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost" className="h-6 w-6" title="More">
@@ -221,17 +224,26 @@ export function MessageItem({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setEditing(true)}>
-                  <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => {
-                    if (confirm("Delete this message? This cannot be undone.")) delMut.mutate();
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                </DropdownMenuItem>
+                {onPromote && (
+                  <DropdownMenuItem onClick={() => onPromote(m)}>
+                    <ListPlus className="h-3.5 w-3.5 mr-2" /> Promote to record…
+                  </DropdownMenuItem>
+                )}
+                {isAuthor && (
+                  <DropdownMenuItem onClick={() => setEditing(true)}>
+                    <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+                  </DropdownMenuItem>
+                )}
+                {isAuthor && (
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => {
+                      if (confirm("Delete this message? This cannot be undone.")) delMut.mutate();
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

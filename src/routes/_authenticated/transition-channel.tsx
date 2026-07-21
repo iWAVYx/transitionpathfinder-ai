@@ -63,6 +63,13 @@ import {
 } from "@/lib/channel-messages.functions";
 import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
 import { ThreadPanel } from "@/components/channels/ThreadPanel";
+import { PromoteRecordDialog } from "@/components/channels/PromoteRecordDialog";
+import {
+  updateChannelAction,
+  listChannelAssigneeOptions,
+  ACTION_STATUSES,
+  type ActionStatus,
+} from "@/lib/channel-actions.functions";
 import {
   listMyConnectionRequests,
   respondToConnectionRequest,
@@ -567,6 +574,36 @@ function ActionsTab({
 }
 
 function ActionCard({ action }: { action: ChannelActionRecord }) {
+  const qc = useQueryClient();
+  const updateFn = useServerFn(updateChannelAction);
+  const listAssigneesFn = useServerFn(listChannelAssigneeOptions);
+
+  const [assignOpen, setAssignOpen] = useState(false);
+  const assigneesQuery = useQuery({
+    queryKey: ["channel-assignees", action.channel_id],
+    queryFn: () => listAssigneesFn({ data: { channel_id: action.channel_id } }),
+    enabled: assignOpen,
+  });
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["channel-actions"] });
+    qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+  };
+
+  const statusMut = useMutation({
+    mutationFn: (status: ActionStatus) =>
+      updateFn({ data: { action_id: action.id, status } }),
+    onSuccess: invalidate,
+  });
+  const assignMut = useMutation({
+    mutationFn: (assignee_user_id: string | null) =>
+      updateFn({ data: { action_id: action.id, assignee_user_id } }),
+    onSuccess: () => {
+      setAssignOpen(false);
+      invalidate();
+    },
+  });
+
   return (
     <article className="rounded-lg border p-3 hover:bg-muted/40 transition">
       <div className="flex items-start justify-between gap-2">
@@ -578,11 +615,50 @@ function ActionCard({ action }: { action: ChannelActionRecord }) {
             {action.priority && <Badge variant="outline">{action.priority}</Badge>}
             <span className="text-xs text-muted-foreground">in {action.channel_title}</span>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
+          {action.resolution && (
+            <p className="mt-2 text-sm">{action.resolution}</p>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">
             Promoted by {action.promoter_name}
-            {action.assignee_name ? ` · Assigned to ${action.assignee_name}` : null}
+            {action.assignee_name ? ` · Assigned to ${action.assignee_name}` : " · Unassigned"}
             {action.due_at ? ` · Due ${formatWhen(action.due_at)}` : null}
           </p>
+        </div>
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          <Select
+            value={action.status}
+            onValueChange={(v) => statusMut.mutate(v as ActionStatus)}
+            disabled={statusMut.isPending}
+          >
+            <SelectTrigger className="h-7 w-[130px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ACTION_STATUSES.map((s) => (
+                <SelectItem key={s} value={s} className="text-xs">
+                  {s.replace("_", " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={action.assignee_user_id ?? "none"}
+            onValueChange={(v) => assignMut.mutate(v === "none" ? null : v)}
+            onOpenChange={setAssignOpen}
+            disabled={assignMut.isPending}
+          >
+            <SelectTrigger className="h-7 w-[130px] text-xs">
+              <SelectValue placeholder="Assign…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none" className="text-xs">Unassigned</SelectItem>
+              {(assigneesQuery.data?.options ?? []).map((o) => (
+                <SelectItem key={o.user_id} value={o.user_id} className="text-xs">
+                  {o.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </article>
@@ -828,6 +904,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [threadParentId, setThreadParentId] = useState<string | null>(null);
+  const [promoteMessage, setPromoteMessage] = useState<ChannelMessage | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1100,6 +1177,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                       attachments={attachmentsByMessage.get(m.id) ?? []}
                       replyCount={replyCounts.get(m.id) ?? 0}
                       onReply={(parent) => setThreadParentId(parent.id)}
+                      onPromote={(msg) => setPromoteMessage(msg)}
                       onChanged={invalidateActive}
                     />
                   ))
@@ -1204,6 +1282,15 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
         bookmarkedIds={bookmarkedIds}
         onClose={() => setThreadParentId(null)}
         onChanged={invalidateActive}
+      />
+
+      <PromoteRecordDialog
+        message={promoteMessage}
+        channelId={promoteMessage ? activeId : null}
+        onOpenChange={(open: boolean) => {
+          if (!open) setPromoteMessage(null);
+        }}
+        onPromoted={invalidateActive}
       />
     </>
   );
