@@ -18,6 +18,9 @@ import {
   Users,
   Archive,
   Bell,
+  Pin,
+  Paperclip,
+  X as XIcon,
 } from "lucide-react";
 
 import { FeatureShell } from "@/components/feature/FeatureShell";
@@ -53,6 +56,13 @@ import {
   type ChannelMention,
   type ChannelActionRecord,
 } from "@/lib/channel-tabs.functions";
+import {
+  listPinnedMessages,
+  listChannelBookmarkIds,
+  registerAttachment,
+} from "@/lib/channel-messages.functions";
+import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
+import { ThreadPanel } from "@/components/channels/ThreadPanel";
 import {
   listMyConnectionRequests,
   respondToConnectionRequest,
@@ -797,6 +807,9 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   const msgsFn = useServerFn(listChannelMessages);
   const sendFn = useServerFn(sendChannelMessage);
   const readFn = useServerFn(markChannelRead);
+  const pinnedFn = useServerFn(listPinnedMessages);
+  const bookmarksFn = useServerFn(listChannelBookmarkIds);
+  const registerAttachmentFn = useServerFn(registerAttachment);
   const qc = useQueryClient();
 
   const channelsQuery = useQuery({
@@ -814,6 +827,12 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   }, [channelsQuery.data, search]);
 
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [threadParentId, setThreadParentId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
+  }, []);
 
   useEffect(() => {
     if (!activeId && channels.length > 0) setActiveId(channels[0].id);
@@ -823,6 +842,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     () => channels.find((c) => c.id === activeId) ?? null,
     [channels, activeId],
   );
+  const isAdmin = active?.member_role === "admin";
 
   const messagesQuery = useQuery({
     queryKey: ["transition-channel-messages", activeId],
@@ -830,21 +850,57 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     enabled: !!activeId,
   });
 
-  const messages = useMemo(() => messagesQuery.data?.messages ?? [], [messagesQuery.data]);
+  const allMessages = useMemo(
+    () => messagesQuery.data?.messages ?? [],
+    [messagesQuery.data],
+  );
+
+  // Split top-level messages from thread replies, and index reply counts.
+  const { topLevel, replyCounts } = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const m of allMessages) {
+      if (m.parent_id) counts.set(m.parent_id, (counts.get(m.parent_id) ?? 0) + 1);
+    }
+    return {
+      topLevel: allMessages.filter((m) => !m.parent_id),
+      replyCounts: counts,
+    };
+  }, [allMessages]);
+
+  const pinnedQuery = useQuery({
+    queryKey: ["channel-pinned", activeId],
+    queryFn: () => pinnedFn({ data: { channel_id: activeId! } }),
+    enabled: !!activeId,
+  });
+
+  const bookmarksQuery = useQuery({
+    queryKey: ["channel-bookmarks", activeId],
+    queryFn: () => bookmarksFn({ data: { channel_id: activeId! } }),
+    enabled: !!activeId,
+  });
+  const bookmarkedIds = useMemo(
+    () => new Set(bookmarksQuery.data?.message_ids ?? []),
+    [bookmarksQuery.data],
+  );
+
+  const topLevelIds = useMemo(() => topLevel.map((m) => m.id), [topLevel]);
+  const { byMessage: attachmentsByMessage, refetch: refetchAttachments } =
+    useMessageAttachments(topLevelIds);
+
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight });
-  }, [messages.length, activeId]);
+  }, [topLevel.length, activeId]);
 
   useEffect(() => {
-    if (!activeId || messages.length === 0) return;
-    const last = messages[messages.length - 1];
+    if (!activeId || allMessages.length === 0) return;
+    const last = allMessages[allMessages.length - 1];
     readFn({ data: { channel_id: activeId, last_read_message_id: last.id } }).then(() => {
       qc.invalidateQueries({ queryKey: ["transition-channels"] });
       qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
     });
-  }, [activeId, messages, readFn, qc]);
+  }, [activeId, allMessages, readFn, qc]);
 
   useEffect(() => {
     if (!activeId) return;
@@ -853,13 +909,14 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "channel_messages",
           filter: `channel_id=eq.${activeId}`,
         },
         () => {
           qc.invalidateQueries({ queryKey: ["transition-channel-messages", activeId] });
+          qc.invalidateQueries({ queryKey: ["channel-pinned", activeId] });
           qc.invalidateQueries({ queryKey: ["transition-channels"] });
           qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
         },
@@ -871,143 +928,287 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   }, [activeId, qc]);
 
   const [draft, setDraft] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const invalidateActive = () => {
+    qc.invalidateQueries({ queryKey: ["transition-channel-messages", activeId] });
+    qc.invalidateQueries({ queryKey: ["channel-pinned", activeId] });
+    qc.invalidateQueries({ queryKey: ["channel-bookmarks", activeId] });
+    qc.invalidateQueries({ queryKey: ["transition-channels"] });
+    qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+    refetchAttachments();
+  };
+
   const sendMutation = useMutation({
-    mutationFn: (body: string) =>
-      sendFn({
+    mutationFn: async (body: string) => {
+      const res = await sendFn({
         data: {
           channel_id: activeId!,
           body,
           client_dedupe_key: `${activeId}:${Date.now()}`,
         },
-      }),
+      });
+      if (pendingFile && activeId) {
+        setUploading(true);
+        try {
+          const cleanName = pendingFile.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
+          const path = `${activeId}/${res.message.id}/${crypto.randomUUID()}-${cleanName}`;
+          const up = await supabase.storage
+            .from("channel-attachments")
+            .upload(path, pendingFile, {
+              contentType: pendingFile.type || "application/octet-stream",
+              upsert: false,
+            });
+          if (up.error) throw new Error(up.error.message);
+          await registerAttachmentFn({
+            data: {
+              channel_id: activeId,
+              message_id: res.message.id,
+              storage_path: path,
+              file_name: pendingFile.name,
+              content_type: pendingFile.type || null,
+              size_bytes: pendingFile.size,
+            },
+          });
+        } finally {
+          setUploading(false);
+        }
+      }
+      return res;
+    },
     onSuccess: () => {
       setDraft("");
-      qc.invalidateQueries({ queryKey: ["transition-channel-messages", activeId] });
-      qc.invalidateQueries({ queryKey: ["transition-channels"] });
-      qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+      setPendingFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      invalidateActive();
     },
   });
 
+  const pinned = pinnedQuery.data?.pinned ?? [];
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-[280px_1fr]">
-      <aside className="max-h-[50vh] overflow-y-auto rounded-lg border bg-muted/30 md:max-h-[70vh]">
-        {channelsQuery.isLoading ? (
-          <div className="p-4 text-sm text-muted-foreground">Loading channels…</div>
-        ) : channels.length === 0 ? (
-          <div className="p-6 text-sm text-muted-foreground">
-            You don't have any channels matching your filters. Adjust filters or wait for your team,
-            family, or partner network channels to appear.
-          </div>
-        ) : (
-          <ul className="divide-y">
-            {channels.map((c) => (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  onClick={() => setActiveId(c.id)}
-                  className={`w-full text-left px-4 py-3 hover:bg-muted transition ${
-                    activeId === c.id ? "bg-muted" : ""
-                  }`}
-                  aria-current={activeId === c.id ? "true" : undefined}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate">{c.title}</span>
-                    {c.unread_count > 0 && (
-                      <span className="text-xs rounded-full bg-primary text-primary-foreground px-2 py-0.5">
-                        {c.unread_count}
-                      </span>
+    <>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[280px_1fr]">
+        <aside className="max-h-[50vh] overflow-y-auto rounded-lg border bg-muted/30 md:max-h-[70vh]">
+          {channelsQuery.isLoading ? (
+            <div className="p-4 text-sm text-muted-foreground">Loading channels…</div>
+          ) : channels.length === 0 ? (
+            <div className="p-6 text-sm text-muted-foreground">
+              You don't have any channels matching your filters. Adjust filters or wait for your
+              team, family, or partner network channels to appear.
+            </div>
+          ) : (
+            <ul className="divide-y">
+              {channels.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveId(c.id);
+                      setThreadParentId(null);
+                    }}
+                    className={`w-full text-left px-4 py-3 hover:bg-muted transition ${
+                      activeId === c.id ? "bg-muted" : ""
+                    }`}
+                    aria-current={activeId === c.id ? "true" : undefined}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium truncate">{c.title}</span>
+                      {c.unread_count > 0 && (
+                        <span className="text-xs rounded-full bg-primary text-primary-foreground px-2 py-0.5">
+                          {c.unread_count}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {labelForKind(c.kind)} · {formatWhen(c.last_message_at) || "No messages yet"}
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </aside>
+
+        <section className="flex flex-col min-h-[40vh] rounded-lg border md:min-h-[60vh]">
+          {!active ? (
+            <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
+              <div className="text-center">
+                <MessageSquare className="mx-auto h-8 w-8 mb-2 opacity-50" />
+                Select a channel to view its conversation.
+              </div>
+            </div>
+          ) : (
+            <>
+              <header className="px-4 py-3 border-b">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{active.title}</div>
+                    {active.purpose && (
+                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {active.purpose}
+                      </div>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {labelForKind(c.kind)} · {formatWhen(c.last_message_at) || "No messages yet"}
+                  {pinned.length > 0 && (
+                    <Badge variant="outline" className="shrink-0">
+                      <Pin className="h-3 w-3 mr-1" /> {pinned.length} pinned
+                    </Badge>
+                  )}
+                </div>
+              </header>
+
+              {pinned.length > 0 && (
+                <div className="border-b bg-muted/30 px-4 py-2 space-y-1 max-h-40 overflow-y-auto">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                    Pinned
+                  </p>
+                  {pinned.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setThreadParentId(p.id)}
+                      className="w-full text-left text-xs text-muted-foreground hover:text-foreground truncate"
+                      title={p.body}
+                    >
+                      <span className="font-medium text-foreground">
+                        {p.author_name ?? "Member"}:
+                      </span>{" "}
+                      {p.body}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+                {messagesQuery.isLoading ? (
+                  <div className="text-sm text-muted-foreground">Loading messages…</div>
+                ) : topLevel.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    Be the first to write in this channel.
                   </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </aside>
+                ) : (
+                  topLevel.map((m) => (
+                    <MessageItem
+                      key={m.id}
+                      m={m}
+                      currentUserId={currentUserId}
+                      isAdmin={isAdmin}
+                      bookmarked={bookmarkedIds.has(m.id)}
+                      attachments={attachmentsByMessage.get(m.id) ?? []}
+                      replyCount={replyCounts.get(m.id) ?? 0}
+                      onReply={(parent) => setThreadParentId(parent.id)}
+                      onChanged={invalidateActive}
+                    />
+                  ))
+                )}
+              </div>
 
-      <section className="flex flex-col min-h-[40vh] rounded-lg border md:min-h-[60vh]">
-        {!active ? (
-          <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-            <div className="text-center">
-              <MessageSquare className="mx-auto h-8 w-8 mb-2 opacity-50" />
-              Select a channel to view its conversation.
-            </div>
-          </div>
-        ) : (
-          <>
-            <header className="px-4 py-3 border-b">
-              <div className="font-medium">{active.title}</div>
-              {active.purpose && (
-                <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                  {active.purpose}
-                </div>
-              )}
-            </header>
-            <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-              {messagesQuery.isLoading ? (
-                <div className="text-sm text-muted-foreground">Loading messages…</div>
-              ) : messages.length === 0 ? (
-                <div className="text-sm text-muted-foreground">
-                  Be the first to write in this channel.
-                </div>
-              ) : (
-                messages.map((m) => <MessageRow key={m.id} m={m} />)
-              )}
-            </div>
-            <form
-              className="border-t p-3 flex gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const body = draft.trim();
-                if (!body || sendMutation.isPending) return;
-                sendMutation.mutate(body);
-              }}
-            >
-              <Textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="Write a message… (Enter to send, Shift+Enter for newline)"
-                rows={2}
-                className="resize-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    const body = draft.trim();
-                    if (body && !sendMutation.isPending) sendMutation.mutate(body);
-                  }
+              <form
+                className="border-t p-3 space-y-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const body = draft.trim();
+                  if (!body || sendMutation.isPending || uploading) return;
+                  sendMutation.mutate(body);
                 }}
-                disabled={!!active.archived_at}
-                aria-label="Message"
-              />
-              <Button
-                type="submit"
-                disabled={!draft.trim() || sendMutation.isPending || !!active.archived_at}
               >
-                <Send className="h-4 w-4" />
-                <span className="sr-only">Send</span>
-              </Button>
-            </form>
-          </>
-        )}
-      </section>
-    </div>
+                {pendingFile && (
+                  <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-2 py-1 text-xs">
+                    <Paperclip className="h-3 w-3" />
+                    <span className="truncate flex-1">{pendingFile.name}</span>
+                    <button
+                      type="button"
+                      className="rounded p-0.5 hover:bg-muted"
+                      onClick={() => {
+                        setPendingFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      aria-label="Remove attachment"
+                    >
+                      <XIcon className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] ?? null;
+                      if (f && f.size > 25 * 1024 * 1024) {
+                        alert("Attachments must be 25 MB or smaller.");
+                        e.target.value = "";
+                        return;
+                      }
+                      setPendingFile(f);
+                    }}
+                    aria-label="Attach a file"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={!!active.archived_at || uploading}
+                    title="Attach file"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    <span className="sr-only">Attach file</span>
+                  </Button>
+                  <Textarea
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    placeholder="Write a message… (Enter to send, Shift+Enter for newline)"
+                    rows={2}
+                    className="resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        const body = draft.trim();
+                        if (body && !sendMutation.isPending && !uploading) {
+                          sendMutation.mutate(body);
+                        }
+                      }
+                    }}
+                    disabled={!!active.archived_at}
+                    aria-label="Message"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={
+                      !draft.trim() ||
+                      sendMutation.isPending ||
+                      uploading ||
+                      !!active.archived_at
+                    }
+                  >
+                    <Send className="h-4 w-4" />
+                    <span className="sr-only">Send</span>
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
+        </section>
+      </div>
+
+      <ThreadPanel
+        parentId={threadParentId}
+        channelId={activeId}
+        currentUserId={currentUserId}
+        isAdmin={isAdmin}
+        bookmarkedIds={bookmarkedIds}
+        onClose={() => setThreadParentId(null)}
+        onChanged={invalidateActive}
+      />
+    </>
   );
 }
 
-function MessageRow({ m }: { m: ChannelMessage }) {
-  return (
-    <article className="text-sm">
-      <div className="flex items-baseline gap-2">
-        <span className="font-medium">{m.author_name ?? "Member"}</span>
-        <span className="text-xs text-muted-foreground">{formatWhen(m.created_at)}</span>
-      </div>
-      <p className="mt-0.5 whitespace-pre-wrap leading-relaxed">{m.body}</p>
-    </article>
-  );
-}
 
 function labelForKind(kind: string): string {
   switch (kind) {
