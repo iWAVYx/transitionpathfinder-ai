@@ -57,6 +57,13 @@ import {
   type ChannelActionRecord,
 } from "@/lib/channel-tabs.functions";
 import {
+  listPinnedMessages,
+  listChannelBookmarkIds,
+  registerAttachment,
+} from "@/lib/channel-messages.functions";
+import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
+import { ThreadPanel } from "@/components/channels/ThreadPanel";
+import {
   listMyConnectionRequests,
   respondToConnectionRequest,
   withdrawConnectionRequest,
