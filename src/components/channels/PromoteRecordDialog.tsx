@@ -60,11 +60,13 @@ const KIND_META: Record<
 export function PromoteRecordDialog({
   message,
   channelId,
+  channelStudentId,
   onOpenChange,
   onPromoted,
 }: {
   message: ChannelMessage | null;
   channelId: string | null;
+  channelStudentId?: string | null;
   onOpenChange: (open: boolean) => void;
   onPromoted: () => void;
 }) {
@@ -75,6 +77,8 @@ export function PromoteRecordDialog({
   const [dueLocal, setDueLocal] = useState<string>("");
   const [assigneeId, setAssigneeId] = useState<string>("none");
   const [note, setNote] = useState("");
+  const [alsoActionItem, setAlsoActionItem] = useState(true);
+  const [alsoCalendar, setAlsoCalendar] = useState(false);
 
   const listAssigneesFn = useServerFn(listChannelAssigneeOptions);
   const assigneesQuery = useQuery({
@@ -96,11 +100,17 @@ export function PromoteRecordDialog({
           due_at: dueLocal ? new Date(dueLocal).toISOString() : null,
           assignee_user_id: assigneeId !== "none" ? assigneeId : null,
           resolution: note.trim() ? note.trim() : null,
+          create_action_item:
+            kind === "action" && !!channelStudentId && alsoActionItem,
+          create_calendar_event:
+            !!channelStudentId && !!dueLocal && alsoCalendar,
         },
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["channel-actions"] });
       qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+      qc.invalidateQueries({ queryKey: ["next-actions"] });
+      qc.invalidateQueries({ queryKey: ["calendar-events"] });
       onPromoted();
       onOpenChange(false);
       // Reset for next open.
@@ -109,6 +119,8 @@ export function PromoteRecordDialog({
       setAssigneeId("none");
       setNote("");
       setKind("action");
+      setAlsoActionItem(true);
+      setAlsoCalendar(false);
     },
   });
 
