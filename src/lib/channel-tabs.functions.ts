@@ -10,6 +10,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const uuid = z.string().uuid();
 
+function pickNested<T>(value: unknown): T | undefined {
+  if (Array.isArray(value)) return value[0] as T;
+  return value as T;
+}
+
 export type ChannelMention = {
   id: string;
   channel_id: string;
