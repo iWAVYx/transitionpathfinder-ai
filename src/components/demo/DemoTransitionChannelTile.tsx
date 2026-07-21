@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { MessageSquare, ArrowRight, Eye, Bell, Pin, Users, Inbox } from "lucide-react";
+import { MessageSquare, ArrowRight, Eye, Bell, Users, Inbox } from "lucide-react";
 import { Pill } from "@/components/ui/pill";
 import {
   Sheet,
