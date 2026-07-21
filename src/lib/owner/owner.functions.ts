@@ -3,6 +3,7 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { getAppBaseUrl } from "@/lib/app-url.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAal2 } from "@/lib/auth/require-aal2";
 
 // ---------- Types & constants ----------
 
@@ -1328,7 +1329,8 @@ export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
+    requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
     await requirePlatformAdmin(supabase, userId);
 
     // If a profile already exists for that email AND already has the role, no-op.
@@ -1433,7 +1435,8 @@ export const ownerRevokeAdminInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
+    requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
     await requirePlatformAdmin(supabase, userId);
     const { error } = await supabase
       .from("admin_invitations")
@@ -1451,7 +1454,8 @@ export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
     z.object({ user_id: z.string().uuid(), role: z.enum(ADMIN_ROLES) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
+    requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
     await requirePlatformAdmin(supabase, userId);
     if (data.user_id === userId && data.role === "platform_owner") {
       // Prevent removing the last platform owner.
