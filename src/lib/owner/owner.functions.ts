@@ -1435,7 +1435,8 @@ export const ownerRevokeAdminInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
+    requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
     await requirePlatformAdmin(supabase, userId);
     const { error } = await supabase
       .from("admin_invitations")
