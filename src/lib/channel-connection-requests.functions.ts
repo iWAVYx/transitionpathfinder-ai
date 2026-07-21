@@ -149,7 +149,7 @@ export const respondToConnectionRequest = createServerFn({ method: "POST" })
     const { data: channel, error: cErr } = await supabase
       .from("channels")
       .insert({
-        kind: "partner",
+        kind: "partner_outreach",
         title,
         purpose: req.message.slice(0, 500),
         partner_organization_id: req.target_partner_organization_id,
@@ -161,11 +161,16 @@ export const respondToConnectionRequest = createServerFn({ method: "POST" })
     if (cErr) throw new Error(cErr.message);
 
     const memberRows = [
-      { channel_id: channel.id, user_id: userId, member_role: "admin", added_by: userId },
+      {
+        channel_id: channel.id,
+        user_id: userId,
+        member_role: "admin" as const,
+        added_by: userId,
+      },
       {
         channel_id: channel.id,
         user_id: req.requester_id,
-        member_role: "member",
+        member_role: "member" as const,
         added_by: userId,
       },
     ];
