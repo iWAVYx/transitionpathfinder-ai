@@ -136,9 +136,12 @@ function TransitionChannelPage() {
               Purpose-scoped conversations for the people supporting each transition. Every channel is access-controlled and audit-logged.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => channelsQuery.refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" /> Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <ConnectionRequestsDrawer onOpenChannel={(id) => setActiveId(id)} />
+            <Button variant="outline" size="sm" onClick={() => channelsQuery.refetch()}>
+              <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-4 border rounded-lg overflow-hidden bg-card">
