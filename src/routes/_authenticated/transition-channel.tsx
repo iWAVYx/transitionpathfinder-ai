@@ -86,13 +86,21 @@ const filterSchema = z.object({
 type TabId = z.infer<typeof tabSchema>;
 type FilterState = z.infer<typeof filterSchema>;
 
+type ChannelTileSummaryCountKey =
+  | "unreadChannels"
+  | "unreadMessages"
+  | "mentions"
+  | "assignedOpen"
+  | "decisionsPending"
+  | "connectionRequests";
+
 const TAB_META: Record<
   TabId,
   {
     label: string;
     icon: React.ElementType;
     roles: RoleAudience[];
-    countKey?: keyof ChannelTileSummary;
+    countKey?: ChannelTileSummaryCountKey;
   }
 > = {
   inbox: {
