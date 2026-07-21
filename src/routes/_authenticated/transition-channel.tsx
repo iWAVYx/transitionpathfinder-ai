@@ -18,6 +18,9 @@ import {
   Users,
   Archive,
   Bell,
+  Pin,
+  Paperclip,
+  X as XIcon,
 } from "lucide-react";
 
 import { FeatureShell } from "@/components/feature/FeatureShell";
