@@ -220,6 +220,11 @@ function OperatorConsolePage() {
                       <Activity className="mr-1.5 h-3.5 w-3.5" /> Health
                     </TabsTrigger>
                   )}
+                  {isPlatformAdmin && (
+                    <TabsTrigger value="moderation">
+                      <ShieldAlert className="mr-1.5 h-3.5 w-3.5" /> Moderation
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="codes">
