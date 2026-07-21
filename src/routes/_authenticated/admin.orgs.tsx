@@ -17,6 +17,7 @@ import {
   Activity,
 } from "lucide-react";
 import { HealthTab } from "@/components/admin/health/HealthTab";
+import { ModerationTab } from "@/components/admin/moderation/ModerationTab";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
