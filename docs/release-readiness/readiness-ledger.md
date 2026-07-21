@@ -76,7 +76,7 @@ Levels apply per row — an item can PASS for A and BLOCK for C.
 | ----- | --------------------------------------------------------------------------- | ----- | ------- | --- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------- | ------------ | ------ |
 | N-01  | Authenticated & permission-scoped                                           | B/C   | PASS    | P1  | `/partner-network` gated by `ROUTE_AUDIENCES`; partner-management surfaces gated to partner/admin                                       | None | None            | Engineering  | Slice 7 |
 | N-02  | Contact email admin-only                                                    | B/C   | PASS    | P0  | `get_partner_network_opportunity_contact_email` gated on `is_platform_admin`                                                            | None | None            | Engineering  | Slice 7 |
-| N-03  | Verified vs unverified partner distinction                                  | B/C   | MANUAL REVIEW | P2 | `partner_organizations` has verification fields; UI copy needs sweep to ensure no unverified org is implied to be an official partner | None | Slice 7: copy sweep | Engineering + Founder | Slice 7 |
+| N-03  | Verified vs unverified partner distinction                                  | B/C   | PASS    | P2  | Match cards + directory rows show explicit "Verified Partner" or "Community Listing — Not Yet Verified" chip (`PartnerNetworkPage.tsx`); public `/partner-directory` uses `statusLabel()` with distinct badges for verified/featured vs potential/needs_review | Slice 7: added unverified chip on match cards | None | Engineering | Slice 7 |
 
 ## 8. Routing & feature contracts
 

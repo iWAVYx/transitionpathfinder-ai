@@ -208,9 +208,13 @@ function MatchCard({ match }: { match: ReturnType<typeof matchOpportunitiesForPr
           <CalendarClock className="h-3.5 w-3.5" aria-hidden />
           {o.applicationWindow}
         </span>
-        {o.verified && (
+        {o.verified ? (
           <span className="inline-flex items-center gap-1 font-semibold text-primary">
-            <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Verified partner
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Verified Partner
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 font-semibold text-amber-800 dark:text-amber-200">
+            <AlertCircle className="h-3.5 w-3.5" aria-hidden /> Community Listing — Not Yet Verified
           </span>
         )}
       </div>
