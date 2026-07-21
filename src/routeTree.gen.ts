@@ -75,6 +75,7 @@ import { Route as DemoCalendarRouteImport } from './routes/demo_.calendar'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$token'
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
+import { Route as AuthenticatedTransitionChannelRouteImport } from './routes/_authenticated/transition-channel'
 import { Route as AuthenticatedTeacherPortalRouteImport } from './routes/_authenticated/teacher-portal'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authenticated/student-voice'
@@ -550,6 +551,12 @@ const AuthenticatedTrustRoute = AuthenticatedTrustRouteImport.update({
   path: '/trust',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedTransitionChannelRoute =
+  AuthenticatedTransitionChannelRouteImport.update({
+    id: '/transition-channel',
+    path: '/transition-channel',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedTeacherPortalRoute =
   AuthenticatedTeacherPortalRouteImport.update({
     id: '/teacher-portal',
@@ -1425,6 +1432,7 @@ export interface FileRoutesByFullPath {
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/teacher-portal': typeof AuthenticatedTeacherPortalRoute
+  '/transition-channel': typeof AuthenticatedTransitionChannelRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1633,6 +1641,7 @@ export interface FileRoutesByTo {
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/teacher-portal': typeof AuthenticatedTeacherPortalRoute
+  '/transition-channel': typeof AuthenticatedTransitionChannelRoute
   '/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -1845,6 +1854,7 @@ export interface FileRoutesById {
   '/_authenticated/student-voice': typeof AuthenticatedStudentVoiceRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/_authenticated/teacher-portal': typeof AuthenticatedTeacherPortalRoute
+  '/_authenticated/transition-channel': typeof AuthenticatedTransitionChannelRoute
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
   '/admin-invite/$token': typeof AdminInviteTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -2057,6 +2067,7 @@ export interface FileRouteTypes {
     | '/student-voice'
     | '/students'
     | '/teacher-portal'
+    | '/transition-channel'
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -2265,6 +2276,7 @@ export interface FileRouteTypes {
     | '/student-voice'
     | '/students'
     | '/teacher-portal'
+    | '/transition-channel'
     | '/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -2476,6 +2488,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student-voice'
     | '/_authenticated/students'
     | '/_authenticated/teacher-portal'
+    | '/_authenticated/transition-channel'
     | '/_authenticated/trust'
     | '/admin-invite/$token'
     | '/blog/$slug'
@@ -3167,6 +3180,13 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof AuthenticatedTrustRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/transition-channel': {
+      id: '/_authenticated/transition-channel'
+      path: '/transition-channel'
+      fullPath: '/transition-channel'
+      preLoaderRoute: typeof AuthenticatedTransitionChannelRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/teacher-portal': {
@@ -4389,6 +4409,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedTeacherPortalRoute: typeof AuthenticatedTeacherPortalRoute
+  AuthenticatedTransitionChannelRoute: typeof AuthenticatedTransitionChannelRoute
   AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
   AuthenticatedBridgeforwardExploreRoute: typeof AuthenticatedBridgeforwardExploreRoute
   AuthenticatedBridgeforwardFitFinderRoute: typeof AuthenticatedBridgeforwardFitFinderRoute
@@ -4476,6 +4497,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedTeacherPortalRoute: AuthenticatedTeacherPortalRoute,
+  AuthenticatedTransitionChannelRoute: AuthenticatedTransitionChannelRoute,
   AuthenticatedTrustRoute: AuthenticatedTrustRoute,
   AuthenticatedBridgeforwardExploreRoute:
     AuthenticatedBridgeforwardExploreRoute,
