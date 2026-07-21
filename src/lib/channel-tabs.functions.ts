@@ -134,7 +134,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
     let q = supabase
       .from("channel_actions")
       .select(
-        "id, channel_id, kind, status, priority, due_at, assignee_user_id, promoted_by, source_message_id, resolution, created_at, resolved_at, channels!inner(title, kind)",
+        "id, channel_id, kind, status, priority, due_at, assignee_user_id, promoted_by, source_message_id, resolution, created_at, resolved_at, target_id, metadata, channels!inner(title, kind, student_id)",
       )
       .eq("kind", data.kind)
       .order("created_at", { ascending: false })
