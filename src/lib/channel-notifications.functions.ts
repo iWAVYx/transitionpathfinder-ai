@@ -29,7 +29,11 @@ export const setChannelNotificationSettings = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, boolean> = {};
+    const patch: {
+      muted?: boolean;
+      notify_email?: boolean;
+      notify_in_app?: boolean;
+    } = {};
     if (data.muted !== undefined) patch.muted = data.muted;
     if (data.notify_email !== undefined) patch.notify_email = data.notify_email;
     if (data.notify_in_app !== undefined) patch.notify_in_app = data.notify_in_app;
