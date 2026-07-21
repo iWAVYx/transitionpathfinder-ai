@@ -67,7 +67,11 @@ export const setChannelDigestPrefs = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      channel_digest_frequency?: string;
+      channel_mentions_email?: boolean;
+      channel_assignments_email?: boolean;
+    } = {};
     if (data.channel_digest_frequency !== undefined)
       patch.channel_digest_frequency = data.channel_digest_frequency;
     if (data.channel_mentions_email !== undefined)
