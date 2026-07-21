@@ -231,3 +231,83 @@ export const setChannelRetention = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+// ---------------------------------------------------------------- export bundle
+
+export type ChannelExportBundle = {
+  exported_at: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  channel: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  members: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  messages: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actions: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  audit_events: Array<Record<string, any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attachments: Array<Record<string, any>>;
+};
+
+export const exportChannelBundle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ channel_id: z.string().uuid() }).parse(i),
+  )
+  .handler(async ({ data, context }): Promise<ChannelExportBundle> => {
+    await assertPlatformAdmin(context.supabase, context.userId);
+    const s = context.supabase;
+    const cid = data.channel_id;
+
+    const [ch, members, messages, actions, audit, attachments] = await Promise.all([
+      s.from("channels").select("*").eq("id", cid).maybeSingle(),
+      s.from("channel_members").select("*").eq("channel_id", cid),
+      s
+        .from("channel_messages")
+        .select("*")
+        .eq("channel_id", cid)
+        .order("created_at", { ascending: true }),
+      s
+        .from("channel_actions")
+        .select("*")
+        .eq("channel_id", cid)
+        .order("created_at", { ascending: true }),
+      s
+        .from("channel_audit_events")
+        .select("*")
+        .eq("channel_id", cid)
+        .order("created_at", { ascending: true }),
+      s.from("channel_attachments").select("*").eq("channel_id", cid),
+    ]);
+
+    for (const q of [ch, members, messages, actions, audit, attachments]) {
+      if (q.error) throw new Error(q.error.message);
+    }
+
+    await s.from("channel_audit_events").insert({
+      channel_id: cid,
+      event_type: "export_bundle_generated",
+      actor_id: context.userId,
+      metadata: {
+        message_count: (messages.data ?? []).length,
+        action_count: (actions.data ?? []).length,
+      },
+    });
+
+    return {
+      exported_at: new Date().toISOString(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      channel: (ch.data ?? {}) as Record<string, any>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      members: (members.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: (messages.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      actions: (actions.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      audit_events: (audit.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      attachments: (attachments.data ?? []) as Array<Record<string, any>>,
+    };
+  });
