@@ -231,3 +231,71 @@ export const setChannelRetention = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+// ---------------------------------------------------------------- export bundle
+
+export type ChannelExportBundle = {
+  exported_at: string;
+  channel: Record<string, unknown>;
+  members: Array<Record<string, unknown>>;
+  messages: Array<Record<string, unknown>>;
+  actions: Array<Record<string, unknown>>;
+  audit_events: Array<Record<string, unknown>>;
+  attachments: Array<Record<string, unknown>>;
+};
+
+export const exportChannelBundle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({ channel_id: z.string().uuid() }).parse(i),
+  )
+  .handler(async ({ data, context }): Promise<ChannelExportBundle> => {
+    await assertPlatformAdmin(context.supabase, context.userId);
+    const s = context.supabase;
+    const cid = data.channel_id;
+
+    const [ch, members, messages, actions, audit, attachments] = await Promise.all([
+      s.from("channels").select("*").eq("id", cid).maybeSingle(),
+      s.from("channel_members").select("*").eq("channel_id", cid),
+      s
+        .from("channel_messages")
+        .select("*")
+        .eq("channel_id", cid)
+        .order("created_at", { ascending: true }),
+      s
+        .from("channel_actions")
+        .select("*")
+        .eq("channel_id", cid)
+        .order("created_at", { ascending: true }),
+      s
+        .from("channel_audit_events")
+        .select("*")
+        .eq("channel_id", cid)
+        .order("created_at", { ascending: true }),
+      s.from("channel_attachments").select("*").eq("channel_id", cid),
+    ]);
+
+    for (const q of [ch, members, messages, actions, audit, attachments]) {
+      if (q.error) throw new Error(q.error.message);
+    }
+
+    await s.from("channel_audit_events").insert({
+      channel_id: cid,
+      event_type: "export_bundle_generated",
+      actor_id: context.userId,
+      metadata: {
+        message_count: (messages.data ?? []).length,
+        action_count: (actions.data ?? []).length,
+      },
+    });
+
+    return {
+      exported_at: new Date().toISOString(),
+      channel: (ch.data ?? {}) as Record<string, unknown>,
+      members: (members.data ?? []) as Array<Record<string, unknown>>,
+      messages: (messages.data ?? []) as Array<Record<string, unknown>>,
+      actions: (actions.data ?? []) as Array<Record<string, unknown>>,
+      audit_events: (audit.data ?? []) as Array<Record<string, unknown>>,
+      attachments: (attachments.data ?? []) as Array<Record<string, unknown>>,
+    };
+  });
