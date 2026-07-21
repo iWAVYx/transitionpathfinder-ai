@@ -1,16 +1,24 @@
-import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   Bell,
   BellOff,
+  Bookmark,
+  CalendarClock,
+  CheckCircle2,
+  ListChecks,
   MessageSquare,
+  Pencil,
   Pin,
   Plus,
   RefreshCw,
+  Reply,
   Search,
   Send,
   ShieldCheck,
+  Sparkles,
+  Trash2,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
