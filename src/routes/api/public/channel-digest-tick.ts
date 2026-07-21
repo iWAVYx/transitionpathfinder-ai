@@ -194,7 +194,7 @@ function isInQuietHours(p: {
 }
 
 async function buildDigestForUser(
-  admin: ReturnType<typeof createClient>,
+  admin: any,
   userId: string,
   origin: string,
 ): Promise<{
@@ -204,8 +204,7 @@ async function buildDigestForUser(
   channels: DigestChannel[];
 }> {
   const since = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
-  // Memberships where the user has notify_email + not muted + not left.
-  const { data: memberships } = await admin
+  const { data: memberships } = (await admin
     .from("channel_members")
     .select(
       "channel_id, notify_email, muted, left_at, channels!inner(id, title, last_message_at)",
@@ -215,7 +214,12 @@ async function buildDigestForUser(
     .eq("muted", false)
     .is("left_at", null)
     .order("joined_at", { ascending: false })
-    .limit(50);
+    .limit(50)) as {
+    data: Array<{
+      channel_id: string;
+      channels: { id: string; title: string; last_message_at: string | null } | Array<{ id: string; title: string; last_message_at: string | null }>;
+    }> | null;
+  };
 
   if (!memberships || memberships.length === 0) {
     return { totalUnread: 0, totalMentions: 0, totalOpenActions: 0, channels: [] };
@@ -227,10 +231,8 @@ async function buildDigestForUser(
   let totalOpenActions = 0;
 
   for (const m of memberships.slice(0, MAX_CHANNELS_PER_USER)) {
-    const channelId = m.channel_id as string;
-    const ch = pickNested<{ id: string; title: string; last_message_at: string | null }>(
-      (m as { channels: unknown }).channels,
-    );
+    const channelId = m.channel_id;
+    const ch = pickNested<{ id: string; title: string; last_message_at: string | null }>(m.channels);
     if (!ch) continue;
 
     const { count: unread } = await admin
@@ -253,17 +255,17 @@ async function buildDigestForUser(
       .eq("assignee_user_id", userId)
       .in("status", ["open", "in_progress"]);
 
-    const { data: latest } = await admin
+    const { data: latest } = (await admin
       .from("channel_messages")
       .select("body")
       .eq("channel_id", channelId)
       .order("created_at", { ascending: false })
       .limit(1)
-      .maybeSingle();
+      .maybeSingle()) as { data: { body: string | null } | null };
 
-    const unreadN = unread ?? 0;
-    const mentionsN = mentions ?? 0;
-    const openN = openActions ?? 0;
+    const unreadN = (unread as number | null) ?? 0;
+    const mentionsN = (mentions as number | null) ?? 0;
+    const openN = (openActions as number | null) ?? 0;
     if (unreadN === 0 && mentionsN === 0 && openN === 0) continue;
 
     totalUnread += unreadN;
@@ -276,9 +278,7 @@ async function buildDigestForUser(
       unread_count: unreadN,
       mentions: mentionsN,
       open_actions: openN,
-      latest_preview: latest?.body
-        ? (latest.body as string).slice(0, 140)
-        : undefined,
+      latest_preview: latest?.body ? latest.body.slice(0, 140) : undefined,
     });
   }
 
