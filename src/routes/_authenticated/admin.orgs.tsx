@@ -15,8 +15,10 @@ import {
   ShieldCheck,
   XCircle,
   Activity,
+  ShieldAlert,
 } from "lucide-react";
 import { HealthTab } from "@/components/admin/health/HealthTab";
+import { ModerationTab } from "@/components/admin/moderation/ModerationTab";
 import { toast } from "sonner";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -218,6 +220,11 @@ function OperatorConsolePage() {
                       <Activity className="mr-1.5 h-3.5 w-3.5" /> Health
                     </TabsTrigger>
                   )}
+                  {isPlatformAdmin && (
+                    <TabsTrigger value="moderation">
+                      <ShieldAlert className="mr-1.5 h-3.5 w-3.5" /> Moderation
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="codes">
@@ -237,6 +244,11 @@ function OperatorConsolePage() {
                 {isPlatformAdmin && (
                   <TabsContent value="health">
                     <HealthTab />
+                  </TabsContent>
+                )}
+                {isPlatformAdmin && (
+                  <TabsContent value="moderation">
+                    <ModerationTab />
                   </TabsContent>
                 )}
               </Tabs>
