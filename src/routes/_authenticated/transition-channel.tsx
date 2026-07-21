@@ -127,7 +127,7 @@ function TransitionChannelPage() {
   return (
     <SiteShell>
       <div className="mx-auto w-full max-w-6xl px-4 py-6 md:py-10">
-        <Breadcrumbs items={[{ label: "Transition Channel" }]} />
+        <Breadcrumbs trail={[{ label: "Transition Channel" }]} />
         <div className="mt-4 mb-6 flex items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold">Transition Channel</h1>
