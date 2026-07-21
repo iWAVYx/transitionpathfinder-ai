@@ -623,6 +623,26 @@ function ActionCard({ action }: { action: ChannelActionRecord }) {
             {action.assignee_name ? ` · Assigned to ${action.assignee_name}` : " · Unassigned"}
             {action.due_at ? ` · Due ${formatWhen(action.due_at)}` : null}
           </p>
+          {(action.action_item_id || action.calendar_event_id) && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {action.action_item_id && action.student_id && (
+                <a
+                  href={`/students/${action.student_id}`}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/10"
+                >
+                  <ListTodo className="h-3 w-3" /> In Student Actions
+                </a>
+              )}
+              {action.calendar_event_id && (
+                <a
+                  href="/calendar"
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/10"
+                >
+                  <Bell className="h-3 w-3" /> On Team Calendar
+                </a>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
           <Select
