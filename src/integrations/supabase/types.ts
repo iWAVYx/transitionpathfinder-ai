@@ -1340,32 +1340,59 @@ export type Database = {
       channel_actions: {
         Row: {
           action_kind: Database["public"]["Enums"]["channel_action_kind"]
+          assignee_user_id: string | null
           channel_id: string
           created_at: string
+          due_at: string | null
           id: string
+          kind: string
           message_id: string
           metadata: Json
+          priority: string | null
           promoted_by: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          source_message_id: string | null
+          status: string
           target_id: string | null
         }
         Insert: {
           action_kind: Database["public"]["Enums"]["channel_action_kind"]
+          assignee_user_id?: string | null
           channel_id: string
           created_at?: string
+          due_at?: string | null
           id?: string
+          kind?: string
           message_id: string
           metadata?: Json
+          priority?: string | null
           promoted_by: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          source_message_id?: string | null
+          status?: string
           target_id?: string | null
         }
         Update: {
           action_kind?: Database["public"]["Enums"]["channel_action_kind"]
+          assignee_user_id?: string | null
           channel_id?: string
           created_at?: string
+          due_at?: string | null
           id?: string
+          kind?: string
           message_id?: string
           metadata?: Json
+          priority?: string | null
           promoted_by?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          source_message_id?: string | null
+          status?: string
           target_id?: string | null
         }
         Relationships: [
@@ -1379,6 +1406,13 @@ export type Database = {
           {
             foreignKeyName: "channel_actions_message_id_fkey"
             columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_actions_source_message_id_fkey"
+            columns: ["source_message_id"]
             isOneToOne: false
             referencedRelation: "channel_messages"
             referencedColumns: ["id"]
@@ -1477,6 +1511,48 @@ export type Database = {
           },
         ]
       }
+      channel_bookmarks: {
+        Row: {
+          channel_id: string
+          created_at: string
+          id: string
+          message_id: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          id?: string
+          message_id: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          id?: string
+          message_id?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_bookmarks_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_bookmarks_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       channel_connection_requests: {
         Row: {
           created_at: string
@@ -1550,6 +1626,41 @@ export type Database = {
           },
         ]
       }
+      channel_member_prefs: {
+        Row: {
+          channel_id: string
+          id: string
+          muted: boolean
+          notify_level: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          id?: string
+          muted?: boolean
+          notify_level?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          id?: string
+          muted?: boolean
+          notify_level?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_member_prefs_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       channel_members: {
         Row: {
           added_by: string | null
@@ -1593,6 +1704,93 @@ export type Database = {
             columns: ["channel_id"]
             isOneToOne: false
             referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_mentions: {
+        Row: {
+          author_id: string
+          channel_id: string
+          created_at: string
+          id: string
+          mentioned_user_id: string
+          message_id: string
+          seen_at: string | null
+        }
+        Insert: {
+          author_id: string
+          channel_id: string
+          created_at?: string
+          id?: string
+          mentioned_user_id: string
+          message_id: string
+          seen_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          channel_id?: string
+          created_at?: string
+          id?: string
+          mentioned_user_id?: string
+          message_id?: string
+          seen_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_mentions_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_mentions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_message_edits: {
+        Row: {
+          channel_id: string
+          edited_at: string
+          editor_id: string
+          id: string
+          message_id: string
+          previous_body: string
+        }
+        Insert: {
+          channel_id: string
+          edited_at?: string
+          editor_id: string
+          id?: string
+          message_id: string
+          previous_body: string
+        }
+        Update: {
+          channel_id?: string
+          edited_at?: string
+          editor_id?: string
+          id?: string
+          message_id?: string
+          previous_body?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_message_edits_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_message_edits_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
             referencedColumns: ["id"]
           },
         ]
@@ -1644,7 +1842,10 @@ export type Database = {
           edited_at: string | null
           id: string
           parent_id: string | null
+          parent_message_id: string | null
           pinned: boolean
+          pinned_at: string | null
+          pinned_by: string | null
           updated_at: string
         }
         Insert: {
@@ -1657,7 +1858,10 @@ export type Database = {
           edited_at?: string | null
           id?: string
           parent_id?: string | null
+          parent_message_id?: string | null
           pinned?: boolean
+          pinned_at?: string | null
+          pinned_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -1670,7 +1874,10 @@ export type Database = {
           edited_at?: string | null
           id?: string
           parent_id?: string | null
+          parent_message_id?: string | null
           pinned?: boolean
+          pinned_at?: string | null
+          pinned_by?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1684,6 +1891,13 @@ export type Database = {
           {
             foreignKeyName: "channel_messages_parent_id_fkey"
             columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
             isOneToOne: false
             referencedRelation: "channel_messages"
             referencedColumns: ["id"]
