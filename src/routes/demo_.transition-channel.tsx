@@ -27,6 +27,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useDemoChannels } from "@/lib/demo/use-demo-channels";
+import type {
+  DemoChannel,
+  DemoChannelMessage,
+  DemoPromotedRecord,
+} from "@/lib/demo/transition-channel-data";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { DEMO_ROLES } from "@/lib/demo/role-previews";
 import { DEFAULT_DEMO_PROFILE_ID } from "@/lib/demo/demo-profiles";
