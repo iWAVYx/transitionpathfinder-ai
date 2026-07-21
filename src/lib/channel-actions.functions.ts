@@ -110,7 +110,15 @@ export const updateChannelAction = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      status?: ActionStatus;
+      priority?: ActionPriority | null;
+      due_at?: string | null;
+      assignee_user_id?: string | null;
+      resolution?: string | null;
+      resolved_at?: string | null;
+      resolved_by?: string | null;
+    } = {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.priority !== undefined) patch.priority = data.priority;
     if (data.due_at !== undefined) patch.due_at = data.due_at;
