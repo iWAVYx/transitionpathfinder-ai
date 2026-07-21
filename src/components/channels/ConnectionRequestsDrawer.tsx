@@ -21,7 +21,13 @@ function formatWhen(iso: string) {
   });
 }
 
-export function ConnectionRequestsDrawer({ onOpenChannel }: { onOpenChannel?: (channelId: string) => void }) {
+export function ConnectionRequestsDrawer({
+  onOpenChannel,
+  triggerLabel,
+}: {
+  onOpenChannel?: (channelId: string) => void;
+  triggerLabel?: string;
+}) {
   const listFn = useServerFn(listMyConnectionRequests);
   const respondFn = useServerFn(respondToConnectionRequest);
   const withdrawFn = useServerFn(withdrawConnectionRequest);
