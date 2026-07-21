@@ -12,7 +12,7 @@ this file has been simulated, worked around, or marked complete.
 | B-04 | Legal review of subprocessors + DPAs (Supabase, Lovable AI, Google) | B/C  | P1  | Founder + Legal              | Signed DPAs on file, subprocessor list published, FERPA directory-information posture documented.            |
 | B-05 | Formal WCAG 2.2 AA conformance claim (if desired for marketing)     | Public | P2 | Founder + Third-party audit | Third-party audit report. Automated axe passing is not sufficient — matches memory rule. |
 | B-06 | External APM / error monitoring (Sentry, Datadog, etc.)             | C     | P2  | Engineering + Founder        | Vendor selected, DSN configured server-only, redaction rules in place for PII.                               |
-| B-07 | MFA-required enforcement for `admin_roles`                          | C     | P1  | Engineering                  | Server-side check that any RPC gated on `is_platform_admin` also asserts `context.claims.aal === 'aal2'`, plus test coverage. |
+| ~~B-07~~ | ~~MFA-required enforcement for `admin_roles`~~ — **CLOSED 2026-07-21**: `acceptAdminInvitation` now calls `requireAal2`; grant/revoke/invite already gated (Slice 3). Regression locked by `tests/unit/admin-roles-mfa-gated.test.ts`. | C | P1 | Engineering | — |
 
 ## How to close a blocker
 
