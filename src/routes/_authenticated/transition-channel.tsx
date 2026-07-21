@@ -339,7 +339,9 @@ function tabLabelShort(tab: TabId): string {
 function ConnectionRequestsDrawerTrigger({ summary }: { summary?: ChannelTileSummary }) {
   return (
     <ConnectionRequestsDrawer
-      triggerLabel={summary && summary.connectionRequests > 0 ? `Requests (${summary.connectionRequests})` : "Requests"}
+      triggerLabel={
+        summary?.connectionRequests ? `Requests (${summary.connectionRequests})` : "Requests"
+      }
     />
   );
 }
