@@ -132,10 +132,11 @@ function TransitionChannelPreviewDrawer({
   onOpenChange: (open: boolean) => void;
   search: Record<string, string>;
 }) {
-  const { channels, connectionRequests, contextLabel } = useDemoChannels(role, contextId);
-  const active = channels.filter((c) => !c.archived_at);
+  const { bundle } = useDemoChannels(role, contextId);
+  const active = bundle.channels.filter((c) => !c.archived_at);
   const totalUnread = active.reduce((s, c) => s + (c.muted ? 0 : c.unread_count), 0);
-  const pending = connectionRequests.filter((r) => r.status === "pending").length;
+  const pending = bundle.connectionRequests.filter((r) => r.status === "pending").length;
+  const contextLabel = bundle.contextLabel;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
