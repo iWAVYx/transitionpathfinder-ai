@@ -233,7 +233,7 @@ function DemoTransitionChannelPage() {
                         setActiveId(c.id);
                         navigate({
                           to: "/demo/transition-channel",
-                          search: (prev) => ({ ...prev, channel: c.id }),
+                          search: (prev: Record<string, unknown> | undefined) => ({ ...(prev ?? {}), channel: c.id }),
                           replace: false,
                         });
                       }}
