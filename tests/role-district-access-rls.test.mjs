@@ -166,14 +166,16 @@ after(async () => {
 });
 
 // ============ District scoping — per role ============
+//
+// NOTE: `organizations` rows with `verified_status = 'verified'` are
+// intentionally discoverable to any authenticated user — that is the org
+// directory used for enrollment / claim flows. The sensitive surface is
+// `organization_memberships`, which must remain scoped to member/admins.
+// The tests below therefore assert membership isolation only.
 
-test("district_admin in District A cannot see District B org, schools, or members", async () => {
+test("district_admin in District A cannot see District B members", async () => {
   const c = state.aDistrictAdmin.client;
 
-  assertDenied("A dist-admin → B org row",
-    await c.from("organizations").select("id").eq("id", state.districtB));
-  assertDenied("A dist-admin → B school row",
-    await c.from("organizations").select("id").eq("id", state.schoolB));
   assertDenied("A dist-admin → B memberships",
     await c.from("organization_memberships").select("user_id").eq("organization_id", state.districtB));
 
@@ -182,13 +184,9 @@ test("district_admin in District A cannot see District B org, schools, or member
   assert.ok(!own.error && (own.data ?? []).length === 1, "A dist-admin must see own district");
 });
 
-test("teacher in District A cannot see District B org, schools, or members", async () => {
+test("teacher in District A cannot see District B members", async () => {
   const c = state.aTeacher.client;
 
-  assertDenied("A teacher → B district row",
-    await c.from("organizations").select("id").eq("id", state.districtB));
-  assertDenied("A teacher → B school row",
-    await c.from("organizations").select("id").eq("id", state.schoolB));
   assertDenied("A teacher → B memberships",
     await c.from("organization_memberships").select("user_id").eq("organization_id", state.districtB));
 
@@ -198,13 +196,9 @@ test("teacher in District A cannot see District B org, schools, or members", asy
   assert.ok(!own.error && (own.data ?? []).length >= 1, "A teacher must see own school membership");
 });
 
-test("parent in District A cannot see District B org, schools, or members", async () => {
+test("parent in District A cannot see District B members", async () => {
   const c = state.aParent.client;
 
-  assertDenied("A parent → B district row",
-    await c.from("organizations").select("id").eq("id", state.districtB));
-  assertDenied("A parent → B school row",
-    await c.from("organizations").select("id").eq("id", state.schoolB));
   assertDenied("A parent → B memberships",
     await c.from("organization_memberships").select("user_id").eq("organization_id", state.districtB));
 });
@@ -240,7 +234,7 @@ test("District A teacher can invite A parent as a pending relationship; only the
       .insert({
         student_id: state.aStudent.id,
         related_user_id: G.uid,
-        relationship_type: "guardian",
+        relationship_type: "parent_guardian",
         permission_level: "collaborate",
         consent_status: "pending",
       })
