@@ -246,6 +246,11 @@ function OperatorConsolePage() {
                     <HealthTab />
                   </TabsContent>
                 )}
+                {isPlatformAdmin && (
+                  <TabsContent value="moderation">
+                    <ModerationTab />
+                  </TabsContent>
+                )}
               </Tabs>
             )}
           </>
