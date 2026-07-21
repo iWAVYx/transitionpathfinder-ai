@@ -232,6 +232,47 @@ export function PromoteRecordDialog({
               className="resize-none"
             />
           </div>
+
+          {channelStudentId && (
+            <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Cross-Surface Sync
+              </p>
+              {kind === "action" && (
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={alsoActionItem}
+                    onChange={(e) => setAlsoActionItem(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    Also add to the student's Action Items
+                    <span className="block text-xs text-muted-foreground">
+                      Shows up on the student profile and Next Actions dashboard.
+                    </span>
+                  </span>
+                </label>
+              )}
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={alsoCalendar}
+                  onChange={(e) => setAlsoCalendar(e.target.checked)}
+                  disabled={!dueLocal}
+                  className="mt-0.5"
+                />
+                <span>
+                  Add to the Team Calendar
+                  <span className="block text-xs text-muted-foreground">
+                    {dueLocal
+                      ? "Uses the due date above; visible to the transition team."
+                      : "Set a due date to enable this."}
+                  </span>
+                </span>
+              </label>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
