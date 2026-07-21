@@ -15,6 +15,7 @@ import { listMyReports } from "@/lib/pathway.functions";
 import { summarizeGoalStatuses } from "@/lib/goal-statuses.functions";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
 
 type ReportRow = {
   id: string;
