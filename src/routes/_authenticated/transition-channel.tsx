@@ -830,10 +830,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     enabled: !!activeId,
   });
 
-  const messages = useMemo(
-    () => messagesQuery.data?.messages ?? [],
-    [messagesQuery.data],
-  );
+  const messages = useMemo(() => messagesQuery.data?.messages ?? [], [messagesQuery.data]);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
