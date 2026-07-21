@@ -46,6 +46,9 @@ export type ChannelActionRecord = {
   resolution: string | null;
   created_at: string;
   resolved_at: string | null;
+  action_item_id: string | null;
+  calendar_event_id: string | null;
+  student_id: string | null;
 };
 
 /** Mentions where the caller is the target. */
