@@ -15,7 +15,7 @@ import {
   ShieldCheck,
   XCircle,
   Activity,
-} from "lucide-react";
+  ShieldAlert,
 import { HealthTab } from "@/components/admin/health/HealthTab";
 import { ModerationTab } from "@/components/admin/moderation/ModerationTab";
 import { toast } from "sonner";
