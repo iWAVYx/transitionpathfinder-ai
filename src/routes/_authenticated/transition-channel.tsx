@@ -78,6 +78,7 @@ import {
 } from "@/lib/channel-connection-requests.functions";
 import { audiencesForRoles, fallbackPathFor, type RoleAudience } from "@/lib/role-policy";
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
+import { ChannelMuteToggle } from "@/components/channels/ChannelMuteToggle";
 
 const tabSchema = z.enum([
   "inbox",
