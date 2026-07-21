@@ -144,6 +144,16 @@ function DemoTransitionChannelPage() {
   const roleMeta = DEMO_ROLES[role];
   const backTo = ROLE_DEMO_PATH[role];
   const pendingRequests = bundle.connectionRequests.filter((r) => r.status === "incoming");
+  const allRecords = useMemo(
+    () =>
+      bundle.channels.flatMap((c) =>
+        c.messages
+          .filter((m) => m.record)
+          .map((m) => ({ channel: c, message: m, record: m.record! })),
+      ),
+    [bundle.channels],
+  );
+  const recordsCount = allRecords.length;
 
   return (
     <SiteShell>
