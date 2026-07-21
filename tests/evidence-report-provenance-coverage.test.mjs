@@ -103,7 +103,6 @@ test("report_provenance_coverage_v1 reflects owner edges and hides from others",
       to_type: "pathway_recommendation",
       to_id: report.id,
       relation: "supports",
-      weight: 1,
       created_by: user.id,
     };
     for (let i = 0; i < 2; i += 1) {
