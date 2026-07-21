@@ -63,6 +63,13 @@ import {
 } from "@/lib/channel-messages.functions";
 import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
 import { ThreadPanel } from "@/components/channels/ThreadPanel";
+import { PromoteRecordDialog } from "@/components/channels/PromoteRecordDialog";
+import {
+  updateChannelAction,
+  listChannelAssigneeOptions,
+  ACTION_STATUSES,
+  type ActionStatus,
+} from "@/lib/channel-actions.functions";
 import {
   listMyConnectionRequests,
   respondToConnectionRequest,
