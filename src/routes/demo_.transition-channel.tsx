@@ -553,3 +553,316 @@ function labelForKind(kind: string): string {
     default: return kind;
   }
 }
+
+type MessageBlockProps = {
+  message: DemoChannelMessage;
+  channelId: string;
+  replies: DemoChannelMessage[];
+  isReplying: boolean;
+  isEditing: boolean;
+  replyDraft: string;
+  editDraft: string;
+  onReplyStart: () => void;
+  onReplyChange: (v: string) => void;
+  onReplyCancel: () => void;
+  onReplySubmit: () => void;
+  onEditStart: () => void;
+  onEditChange: (v: string) => void;
+  onEditCancel: () => void;
+  onEditSubmit: () => void;
+  onTogglePin: () => void;
+  onToggleBookmark: () => void;
+  onDelete: () => void;
+  onPromote: () => void;
+  onRecordStatus: (s: DemoPromotedRecord["status"]) => void;
+  relativeLabel: (iso: string) => string;
+};
+
+function MessageBlock({
+  message: m,
+  channelId,
+  replies,
+  isReplying,
+  isEditing,
+  replyDraft,
+  editDraft,
+  onReplyStart,
+  onReplyChange,
+  onReplyCancel,
+  onReplySubmit,
+  onEditStart,
+  onEditChange,
+  onEditCancel,
+  onEditSubmit,
+  onTogglePin,
+  onToggleBookmark,
+  onDelete,
+  onPromote,
+  onRecordStatus,
+  relativeLabel,
+}: MessageBlockProps) {
+  const isMine = m.authorId === "u-you";
+  void channelId;
+  return (
+    <article id={`msg-${m.id}`} className="text-sm group">
+      <div className="flex items-baseline gap-2">
+        <span className="font-medium">{m.authorName}</span>
+        <span className="text-[11px] text-muted-foreground">{m.authorRole}</span>
+        <span className="text-[11px] text-muted-foreground">·</span>
+        <time className="text-[11px] text-muted-foreground" dateTime={m.createdAt}>
+          {relativeLabel(m.createdAt)}
+        </time>
+        {m.edited && <span className="text-[10px] text-muted-foreground">(edited)</span>}
+        {!m.deleted && (
+          <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition">
+            <IconAction label={m.bookmarked ? "Unbookmark" : "Bookmark"} onClick={onToggleBookmark}>
+              <Bookmark className={`h-3.5 w-3.5 ${m.bookmarked ? "fill-current text-primary" : ""}`} />
+            </IconAction>
+            <IconAction label={m.pinned ? "Unpin" : "Pin"} onClick={onTogglePin}>
+              <Pin className={`h-3.5 w-3.5 ${m.pinned ? "fill-current text-primary" : ""}`} />
+            </IconAction>
+            <IconAction label="Reply in thread" onClick={onReplyStart}>
+              <Reply className="h-3.5 w-3.5" />
+            </IconAction>
+            {!m.record && (
+              <IconAction label="Promote to record" onClick={onPromote}>
+                <Sparkles className="h-3.5 w-3.5" />
+              </IconAction>
+            )}
+            {isMine && (
+              <>
+                <IconAction label="Edit" onClick={onEditStart}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </IconAction>
+                <IconAction label="Remove" onClick={onDelete}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </IconAction>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {isEditing ? (
+        <div className="mt-1 space-y-1">
+          <textarea
+            value={editDraft}
+            onChange={(e) => onEditChange(e.target.value)}
+            className="w-full rounded-md border bg-background px-2 py-1 text-sm"
+            rows={2}
+            aria-label="Edit message"
+          />
+          <div className="flex gap-2">
+            <Button size="sm" onClick={onEditSubmit}>Save</Button>
+            <Button size="sm" variant="ghost" onClick={onEditCancel}>Cancel</Button>
+          </div>
+        </div>
+      ) : (
+        <p className={`mt-0.5 whitespace-pre-wrap leading-relaxed ${m.deleted ? "italic text-muted-foreground" : ""}`}>
+          {m.body}
+        </p>
+      )}
+
+      {m.attachment && !m.deleted && (
+        <div className="mt-1 inline-flex items-center gap-2 rounded-md border bg-muted/40 px-2 py-1 text-[12px]">
+          <span aria-hidden>📎</span>
+          <span className="font-medium">{m.attachment.name}</span>
+          <span className="text-muted-foreground uppercase text-[10px]">
+            {m.attachment.kind} · {m.attachment.sizeKb} KB
+          </span>
+          <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">preview</span>
+        </div>
+      )}
+
+      {m.actionItem && !m.record && !m.deleted && (
+        <div className="mt-1 inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2 py-1 text-[12px]">
+          <span className="font-semibold text-primary">Action:</span>
+          <span>Assigned to {m.actionItem.assignee}</span>
+          {m.actionItem.due && (
+            <span className="text-muted-foreground">· due {m.actionItem.due}</span>
+          )}
+        </div>
+      )}
+
+      {m.record && !m.deleted && (
+        <RecordChip record={m.record} onStatus={onRecordStatus} />
+      )}
+
+      {isReplying && (
+        <div className="mt-2 ml-4 border-l-2 border-primary/30 pl-3 space-y-1">
+          <textarea
+            value={replyDraft}
+            onChange={(e) => onReplyChange(e.target.value)}
+            placeholder="Reply in thread…"
+            className="w-full rounded-md border bg-background px-2 py-1 text-sm"
+            rows={2}
+            aria-label="Thread reply"
+          />
+          <div className="flex gap-2">
+            <Button size="sm" onClick={onReplySubmit} disabled={!replyDraft.trim()}>Post reply</Button>
+            <Button size="sm" variant="ghost" onClick={onReplyCancel}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {replies.length > 0 && (
+        <div className="mt-2 ml-4 border-l-2 border-border pl-3 space-y-2">
+          {replies.map((r) => (
+            <div key={r.id} className="text-sm">
+              <div className="flex items-baseline gap-2">
+                <span className="font-medium">{r.authorName}</span>
+                <span className="text-[11px] text-muted-foreground">{r.authorRole}</span>
+                <time className="text-[11px] text-muted-foreground" dateTime={r.createdAt}>
+                  · {relativeLabel(r.createdAt)}
+                </time>
+              </div>
+              <p className="mt-0.5 whitespace-pre-wrap leading-relaxed">{r.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </article>
+  );
+}
+
+function IconAction({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      className="inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition"
+    >
+      {children}
+    </button>
+  );
+}
+
+function RecordChip({
+  record,
+  onStatus,
+}: {
+  record: DemoPromotedRecord;
+  onStatus: (s: DemoPromotedRecord["status"]) => void;
+}) {
+  const priorityColor =
+    record.priority === "high"
+      ? "border-destructive/40 bg-destructive/5 text-destructive"
+      : record.priority === "medium"
+        ? "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-400"
+        : "border-primary/30 bg-primary/5 text-primary";
+  const next: DemoPromotedRecord["status"] =
+    record.status === "open" ? "in_progress" : record.status === "in_progress" ? "done" : "open";
+  return (
+    <div className={`mt-2 rounded-md border px-3 py-2 text-[12px] ${priorityColor}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-semibold uppercase tracking-wide">{record.kind}</span>
+        <span className="font-medium text-foreground">{record.title}</span>
+        {record.assignee && (
+          <span className="text-muted-foreground">· {record.assignee}</span>
+        )}
+        {record.due && (
+          <span className="text-muted-foreground">· due {record.due}</span>
+        )}
+        <span className="ml-auto inline-flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onStatus(next)}
+            className="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-background text-foreground hover:border-primary/50"
+          >
+            {record.status.replace("_", " ")}
+          </button>
+        </span>
+      </div>
+      <div className="mt-1 flex flex-wrap gap-1.5 text-[10px]">
+        {record.integrations.mirroredToActionItems && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-background/70 border px-1.5 py-0.5">
+            <ListChecks className="h-3 w-3" /> Action item synced
+          </span>
+        )}
+        {record.integrations.mirroredToCalendar && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-background/70 border px-1.5 py-0.5">
+            <CalendarClock className="h-3 w-3" /> On team calendar
+          </span>
+        )}
+        {record.integrations.notifiedAssignee && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-background/70 border px-1.5 py-0.5">
+            <Bell className="h-3 w-3" /> Assignee notified
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RecordsPanel({
+  items,
+  onStatus,
+  onJump,
+}: {
+  items: { channel: DemoChannel; message: DemoChannelMessage; record: DemoPromotedRecord }[];
+  onStatus: (channelId: string, messageId: string, s: DemoPromotedRecord["status"]) => void;
+  onJump: (channelId: string, messageId: string) => void;
+}) {
+  return (
+    <div className="mb-4 rounded-lg border bg-card p-4">
+      <h2 className="font-semibold mb-2 flex items-center gap-2">
+        <ListChecks className="h-4 w-4 text-primary" /> Structured Records
+      </h2>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Promote any message with <Sparkles className="inline h-3 w-3" /> to create a tracked action or decision — synced to action items, the team calendar, and the assignee.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {items.map(({ channel, message, record }) => (
+            <li
+              key={record.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/20 px-3 py-2 text-sm"
+            >
+              <div className="min-w-0">
+                <div className="font-medium truncate">{record.title}</div>
+                <div className="text-xs text-muted-foreground">
+                  {channel.title} · {record.assignee ?? "unassigned"}
+                  {record.due ? ` · due ${record.due}` : ""}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onStatus(
+                      channel.id,
+                      message.id,
+                      record.status === "done"
+                        ? "open"
+                        : record.status === "open"
+                          ? "in_progress"
+                          : "done",
+                    )
+                  }
+                  className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase hover:border-primary/50"
+                >
+                  {record.status === "done" && <CheckCircle2 className="h-3 w-3 text-primary" />}
+                  {record.status.replace("_", " ")}
+                </button>
+                <Button size="sm" variant="ghost" onClick={() => onJump(channel.id, message.id)}>
+                  Open
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
