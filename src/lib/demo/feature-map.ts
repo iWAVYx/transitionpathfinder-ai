@@ -465,6 +465,28 @@ export const DEMO_FEATURE_MAP = {
     nextAction: "TransitionForward team replies within 2 business days",
     status: "live",
   },
+  /* ---------- Transition Channel (demo preview of signed-in feature) ---------- */
+  "channel.tile": {
+    element: "Transition Channel dashboard tile",
+    product: "Transition Channel — dashboard tile",
+    livesAt: "/transition-channel (signed-in)",
+    roles: ["student", "parent", "educator", "school", "district", "partner"],
+    dataSource: "channels + channel_members + channel_messages",
+    nextAction: "Open the channel to reply, pin, or accept a connection request",
+    status: "live",
+    notes: "Demo tile reads role- and context-scoped fictional bundle; no live query.",
+  },
+  "channel.page": {
+    element: "Transition Channel preview page",
+    product: "Transition Channel — full conversation view",
+    livesAt: "/transition-channel (signed-in)",
+    roles: ["student", "parent", "educator", "school", "district", "partner"],
+    dataSource: "channels + channel_messages + channel_connection_requests",
+    nextAction: "Sign in to send real replies, pin messages, and accept requests",
+    status: "live",
+    notes:
+      "Every action (send, pin, mark read, add action item, accept/decline request, change notifications) mutates isolated in-memory demo state. No live realtime, mutation, or notification is triggered.",
+  },
 } as const satisfies Record<string, DemoFeatureEntry>;
 
 export type DemoElementId = keyof typeof DEMO_FEATURE_MAP;
