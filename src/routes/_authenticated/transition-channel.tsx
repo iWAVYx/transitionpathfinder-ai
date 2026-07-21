@@ -1287,6 +1287,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       <PromoteRecordDialog
         message={promoteMessage}
         channelId={promoteMessage ? activeId : null}
+        channelStudentId={active?.student_id ?? null}
         onOpenChange={(open: boolean) => {
           if (!open) setPromoteMessage(null);
         }}
