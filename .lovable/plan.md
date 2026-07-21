@@ -1,82 +1,67 @@
-# Transition Channel Feature-Parity & Depth Pass
+# Transition Channel Slices B–H — Confirmed Ship Order
 
-This is a multi-week program spanning backend schema, server functions, RLS, realtime, UI shells, demo mirroring, notifications, accessibility, and a full regression matrix. To ship it responsibly (and to avoid a mega-PR that breaks the dashboards you already have), I want to split it into sequenced, independently shippable slices and confirm scope before I start.
+Slice A is complete. The remaining slices build on each other and on the Slice A schema (threading, actions, mentions, bookmarks, mutes, edits). Recommended order preserves backend→frontend dependency, keeps demo mirroring after the signed-in source of truth, and defers the full regression pass until the feature is complete.
 
-## What's already in place (source of truth)
+## Ship order
 
-- Tables: `channels`, `channel_members`, `channel_messages`, `channel_connection_requests`, `channel_reports`, `channel_audit_events`, `channel_attachments`, `channel_message_reads`, `channel_actions`.
-- Server fns: `listMyChannels`, `listChannelMessages`, `sendChannelMessage`, `markChannelRead`, connection-request fns, moderation fns.
-- Route: `/_authenticated/transition-channel` (two-pane, realtime).
-- Dashboard tile: `TransitionChannelTile` (live) + `DemoTransitionChannelTile` (demo, with preview drawer).
-- Demo data: `transition-channel-data.ts` + `use-demo-channels.ts`.
-- Moderation tab in `/admin/orgs`.
+1. **Slice B — Feature page shell + tabs + filters**
+   - Why first: every subsequent slice (messages, records, brief, notifications) needs a stable container with tabs, URL-persisted filters, and back-to-dashboard routing.
+2. **Slice C — Message capabilities**
+   - Depends on: Slice B shell (tabs + filter pane + pagination UI).
+   - Includes: threads/replies, mentions, pin, bookmark, edit + history, delete/withdraw, attachments, search, pagination, draft persistence, per-channel mute.
+3. **Slice D — Structured records + convert-from-message + integrations**
+   - Depends on: Slice C message model (especially threads, edits, and per-message actions) and Slice A `channel_actions` table.
+   - Includes: converting messages to Action/Decision/Question/Feedback/Meeting Item/Opportunity or Referral follow-up; provenance links to Calendar, Next Actions, Meeting Prep, Opportunity, Referral, Workspace, Pathway Evidence.
+4. **Slice E — Transition Channel Brief**
+   - Depends on: Slice C (messages + search) and Slice D (structured records/decisions/actions).
+   - Includes: on-demand, member-scoped summary of recent updates, open decisions, assigned actions, and deadlines with links back to sources.
+5. **Slice F — Notifications**
+   - Depends on: Slice C (mentions/replies) and Slice D (assignments/deadlines).
+   - Includes: in-app + email digests, quiet hours, per-channel mute, mention/reply/assignment/deadline events; safe email subjects.
+6. **Slice G — Demo mirror parity**
+   - Depends on: signed-in B, C, D, E implementation. Demo mirrors the same structure using in-memory fictional data.
+   - Includes: role/context-reactive bundles, full-page tabs, structured records, brief, connection actions, preview drawer.
+7. **Slice H — Tests + a11y + regression**
+   - Depends on: all signed-in and demo slices.
+   - Includes: feature-contract matrix, RLS adversarial tests, a11y checks, regression suites.
 
-## What's missing vs. the spec
+## Slice B acceptance criteria
 
-Signed-in:
-1. Role-appropriate tile depth (mentions, assigned actions, pending decisions, deadlines) — today only unread + last activity.
-2. Feature-page tabs: Inbox, My Channels, Mentions, Assigned To Me, Decisions, Feedback, Connections, Archived — with role-filtered visibility + persisted filters.
-3. Structured records from messages: Action Item, Decision, Question, Feedback, Meeting Item, Opportunity/Referral follow-up. (`channel_actions` exists; other kinds + convert-message UI do not.)
-4. Message-level: threads/replies, mentions w/ member scope, pin, bookmark, edit history, delete/withdraw rules, attachments upload+preview, search, per-channel mute, notification prefs, draft persistence, pagination.
-5. Communication→action integration (calendar, next actions, meeting prep, opportunity, referral, workspace, evidence) with provenance.
-6. Transition Channel Brief (on-demand, member-scoped, non-auto-published).
-7. Notifications: in-app + email, digests, quiet hours, per-channel mute, mention/reply/assignment/deadline events; safe subjects.
-8. `Back To Dashboard` that returns to the role's canonical dashboard + preserves filter/channel state.
+### Schema / data already available from Slice A
+- `channel_messages.parent_message_id`, `edited_at`, `deleted_at`, `pinned_at`
+- `channel_message_edits`, `channel_bookmarks`, `channel_mentions`, `channel_member_prefs`
+- `channel_actions` with `kind`, `due_at`, `priority`, `status`, `assignee_user_id`, `source_message_id`
 
-Demo mirror:
-9. Role/context-reactive demo bundles (Jordan/Riley/Sam, School, District, Partner plan) driving preview + full page from the same records.
-10. Demo full-page parity: tabs, structured records, brief, connection actions — all isolated in-memory.
+### What Slice B will build
 
-Cross-cutting:
-11. Feature-contract tests, RLS adversarial tests, a11y checks, regression suites.
+1. **Feature-page shell refactor**
+   - Refactor `/_authenticated/transition-channel` to use the same shared feature-page shell as other mature features (to be identified from the codebase; likely `FeatureShell`/`WorkspaceShell` pattern).
+   - Keep the existing two-pane layout as the "My Channels" tab content, not the entire page.
 
-## Proposed sequencing (each slice ships independently)
+2. **Role-filtered tabs**
+   - Tabs: **Inbox**, **My Channels**, **Mentions**, **Assigned To Me**, **Decisions**, **Feedback**, **Connections**, **Archived**.
+   - Visibility is role-filtered: not every role sees every tab. Show only tabs that are relevant to the user's relationship to the data (e.g., a student may not see "Connections"; a partner sees different defaults than a district admin).
 
-**Slice A — Data model + role-aware tile depth** (signed-in)
-- Migrations: add `channel_messages.parent_message_id`, `edited_at`, `deleted_at`, `pinned_at`; add `channel_message_edits` (history); add `channel_bookmarks`; extend `channel_actions` with `kind` (`action|decision|question|feedback|meeting_item|opportunity_followup|referral_followup`), `due_at`, `priority`, `status`, `assignee_user_id`, `source_message_id`; add `channel_mentions`; add `channel_member_prefs` (mute, notify level). All with GRANTs + RLS scoped by `is_channel_member`/`is_channel_admin`.
-- Server fn: `getChannelTileSummary` returning role-shaped counts (unread, mentions, assigned actions, decisions pending, deadlines, connection requests).
-- Update `TransitionChannelTile` to render role-appropriate stats using that summary.
+3. **URL-persisted filters**
+   - Filter dimensions: unread, student, type, org, opportunity, assignee, due, status, archived.
+   - Filters are persisted in the URL query string so refresh and back-to-dashboard return the same view state.
 
-**Slice B — Feature page shell + tabs + filters** (signed-in)
-- Refactor `/_authenticated/transition-channel` onto the shared feature-page shell used by other mature features (identify which — likely `FeatureShell`/`WorkspaceShell`).
-- Tabs by role: Inbox / My Channels / Mentions / Assigned / Decisions / Feedback / Connections / Archived.
-- URL-persisted filters (unread, student, type, org, opportunity, assignee, due, status, archived); Back-to-dashboard button routed to role's canonical dashboard.
+4. **Back-to-dashboard button**
+   - Adds a "Back to Dashboard" button that routes to the role's canonical dashboard.
+   - Preserves the current filter/channel state in the URL so returning to the feature page later restores the same view.
 
-**Slice C — Message capabilities**
-- Threads/replies, mentions (member-scoped autocomplete), pin, bookmark, edit + history, delete/withdraw, attachments (Supabase Storage bucket w/ RLS + signed URLs + preview), search, pagination, draft persistence, per-channel mute.
+5. **No new dashboard tiles, no demo changes**
+   - Exactly one Transition Channel tile remains per applicable role dashboard.
+   - No demo changes in Slice B; demo mirror is Slice G.
 
-**Slice D — Structured records + convert-from-message + integrations**
-- UI + server fns to convert a message into Action / Decision / Question / Feedback / Meeting Item / Opportunity or Referral follow-up.
-- Links to Calendar, Next Actions, Meeting Prep, Opportunity, Referral, Workspace, Pathway Evidence — with provenance (source msg, channel, actor, date, scope). Never auto-classify.
+### Out of scope for Slice B
+- Message threads, mentions, attachments, search, pagination, edit/delete, structured records, brief, notifications, demo parity, or tests. Those come in later slices.
 
-**Slice E — Transition Channel Brief**
-- On-demand, member-scoped summary of recent updates / decisions / open questions / assigned actions / deadlines with links back to sources. Never auto-published to Pathway Report.
+### Approval needed
+- Confirm this order and the Slice B acceptance criteria above.
+- Resolve the three open questions that affect later slices, but not Slice B directly:
+  1. **Attachments** — reuse `student-documents` bucket with a `channels/` prefix, or create a dedicated `channel-attachments` bucket? (Slice C)
+  2. **Convert-to-evidence** — does message→evidence require a specialist review step, or is any authorized channel member sufficient? (Slice D)
+  3. **Email** — use the existing `enqueue_email` / `notification_prefs` pipeline for digests and quiet hours, or defer email until in-app notifications are landed? (Slice F)
 
-**Slice F — Notifications**
-- Wire to `notification_prefs`: in-app + email digests, quiet hours, per-channel mute, mention/reply/assignment/deadline events. Safe email subjects.
-
-**Slice G — Demo mirror parity**
-- Extend `transition-channel-data.ts` + `use-demo-channels.ts` with structured records, mentions, assigned items, decisions, brief. Rebuild `/demo/transition-channel` on the same feature-page shell as signed-in, driven by role + context (student/school/district/plan). Preview drawer + full page share bundle.
-
-**Slice H — Tests + a11y + regression**
-- Feature-contract matrix entry for Transition Channel across every applicable role.
-- RLS adversarial suite (cross-student/school/district, partner→student DM, manipulated IDs, attachment URL reuse, removed member).
-- A11y: keyboard, SR announcements, focus mgmt, non-color indicators, reduced motion.
-- Extend existing regression suites; run full dashboard/role-access/security/a11y/demo-navigation matrix.
-
-## Non-goals (unchanged per spec)
-
-- No new dashboard tiles beyond the one Transition Channel tile per applicable role.
-- No dashboard rearrangement.
-- No Platform Owner dashboard — moderation stays in Admin Hub.
-- No auto-classification of messages into evidence/records/calendar.
-- No demo writes hitting live tables.
-
-## Questions before I start Slice A
-
-1. **Ship order** — start with Slice A (data model + role-aware tile), then B (feature-page tabs), then C (messages), or a different order?
-2. **Attachments** — reuse `student-documents` bucket with a `channels/` prefix + new policies, or provision a dedicated `channel-attachments` bucket?
-3. **Convert-to-evidence** — must the message→evidence link require a specialist review step (matching the specialist-reviewed pattern already used elsewhere), or is any authorized channel member sufficient?
-4. **Email** — use the existing `enqueue_email` / `notification_prefs` pipeline for digests + quiet hours, or defer email until after in-app notifications land?
-
-Once you confirm, I'll open Slice A as a single migration + tile-summary server fn + tile update, and we iterate slice-by-slice with review between each.
+Once you confirm the order, I will open Slice B with the shell refactor and tabs.

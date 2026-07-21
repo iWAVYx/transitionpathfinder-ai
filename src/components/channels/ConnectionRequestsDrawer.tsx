@@ -21,7 +21,13 @@ function formatWhen(iso: string) {
   });
 }
 
-export function ConnectionRequestsDrawer({ onOpenChannel }: { onOpenChannel?: (channelId: string) => void }) {
+export function ConnectionRequestsDrawer({
+  onOpenChannel,
+  triggerLabel,
+}: {
+  onOpenChannel?: (channelId: string) => void;
+  triggerLabel?: string;
+}) {
   const listFn = useServerFn(listMyConnectionRequests);
   const respondFn = useServerFn(respondToConnectionRequest);
   const withdrawFn = useServerFn(withdrawConnectionRequest);
@@ -67,7 +73,7 @@ export function ConnectionRequestsDrawer({ onOpenChannel }: { onOpenChannel?: (c
         aria-label="Open connection requests"
       >
         <Inbox className="h-4 w-4 mr-2" />
-        Requests
+        {triggerLabel ?? "Requests"}
         {badge > 0 && (
           <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
             {badge}
@@ -76,7 +82,12 @@ export function ConnectionRequestsDrawer({ onOpenChannel }: { onOpenChannel?: (c
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Connection requests">
+        <div
+          className="fixed inset-0 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Connection requests"
+        >
           <button
             type="button"
             aria-label="Close connection requests"
@@ -131,7 +142,9 @@ export function ConnectionRequestsDrawer({ onOpenChannel }: { onOpenChannel?: (c
                       </RequestCard>
                     ))}
                     {pendingIncoming.length === 0 && (
-                      <p className="text-sm text-muted-foreground">Nothing awaiting your response.</p>
+                      <p className="text-sm text-muted-foreground">
+                        Nothing awaiting your response.
+                      </p>
                     )}
                   </Section>
 
