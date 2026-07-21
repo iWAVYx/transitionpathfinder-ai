@@ -1100,6 +1100,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                       attachments={attachmentsByMessage.get(m.id) ?? []}
                       replyCount={replyCounts.get(m.id) ?? 0}
                       onReply={(parent) => setThreadParentId(parent.id)}
+                      onPromote={(msg) => setPromoteMessage(msg)}
                       onChanged={invalidateActive}
                     />
                   ))
