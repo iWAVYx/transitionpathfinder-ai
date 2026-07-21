@@ -54,6 +54,7 @@ export type MessageItemProps = {
   attachments: ChannelAttachment[];
   replyCount?: number;
   onReply: (parent: ChannelMessage) => void;
+  onPromote?: (m: ChannelMessage) => void;
   onChanged: () => void;
   compact?: boolean;
 };
@@ -66,6 +67,7 @@ export function MessageItem({
   attachments,
   replyCount,
   onReply,
+  onPromote,
   onChanged,
   compact,
 }: MessageItemProps) {
