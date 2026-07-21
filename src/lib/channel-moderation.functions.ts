@@ -211,7 +211,7 @@ export const setChannelRetention = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertPlatformAdmin(context.supabase, context.userId);
 
-    const patch: Record<string, unknown> = {};
+    const patch: { legal_hold?: boolean; retention_days?: number } = {};
     if (typeof data.legal_hold === "boolean") patch.legal_hold = data.legal_hold;
     if (typeof data.retention_days === "number") patch.retention_days = data.retention_days;
     if (Object.keys(patch).length === 0) return { ok: true };
