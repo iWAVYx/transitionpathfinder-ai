@@ -240,7 +240,7 @@ test("District A teacher can invite A parent as a pending relationship; only the
       .insert({
         student_id: state.aStudent.id,
         related_user_id: G.uid,
-        relationship_type: "guardian",
+        relationship_type: "parent_guardian",
         permission_level: "collaborate",
         consent_status: "pending",
       })
