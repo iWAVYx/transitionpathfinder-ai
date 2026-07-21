@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ChannelsCard } from "@/components/settings/ChannelsCard";
+import { ChannelDigestCard } from "@/components/settings/ChannelDigestCard";
 import { useAuth } from "@/hooks/use-auth";
 import {
   getNotificationPrefs,
@@ -492,6 +493,11 @@ function SettingsPage() {
           onTogglePref={(key, v) => toggle(key, v)}
           saving={saving}
         />
+
+        {/* Transition Channel digest & breakthroughs */}
+        <ChannelDigestCard />
+
+
 
 
         {/* Cadence (scaffold) */}
