@@ -1337,6 +1337,486 @@ export type Database = {
           },
         ]
       }
+      channel_actions: {
+        Row: {
+          action_kind: Database["public"]["Enums"]["channel_action_kind"]
+          channel_id: string
+          created_at: string
+          id: string
+          message_id: string
+          metadata: Json
+          promoted_by: string
+          target_id: string | null
+        }
+        Insert: {
+          action_kind: Database["public"]["Enums"]["channel_action_kind"]
+          channel_id: string
+          created_at?: string
+          id?: string
+          message_id: string
+          metadata?: Json
+          promoted_by: string
+          target_id?: string | null
+        }
+        Update: {
+          action_kind?: Database["public"]["Enums"]["channel_action_kind"]
+          channel_id?: string
+          created_at?: string
+          id?: string
+          message_id?: string
+          metadata?: Json
+          promoted_by?: string
+          target_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_actions_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_actions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_attachments: {
+        Row: {
+          channel_id: string
+          content_type: string | null
+          created_at: string
+          file_name: string
+          id: string
+          message_id: string
+          scan_status: string
+          size_bytes: number | null
+          storage_path: string
+          uploaded_by: string
+        }
+        Insert: {
+          channel_id: string
+          content_type?: string | null
+          created_at?: string
+          file_name: string
+          id?: string
+          message_id: string
+          scan_status?: string
+          size_bytes?: number | null
+          storage_path: string
+          uploaded_by: string
+        }
+        Update: {
+          channel_id?: string
+          content_type?: string | null
+          created_at?: string
+          file_name?: string
+          id?: string
+          message_id?: string
+          scan_status?: string
+          size_bytes?: number | null
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_attachments_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_audit_events: {
+        Row: {
+          actor_id: string | null
+          channel_id: string
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          channel_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          channel_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_audit_events_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_connection_requests: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          message: string
+          proposed_next_step: string | null
+          purpose_category: string
+          requester_id: string
+          requester_organization_id: string | null
+          responded_at: string | null
+          responded_by: string | null
+          resulting_channel_id: string | null
+          status: Database["public"]["Enums"]["connection_request_status"]
+          target_partner_organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          message: string
+          proposed_next_step?: string | null
+          purpose_category: string
+          requester_id: string
+          requester_organization_id?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          resulting_channel_id?: string | null
+          status?: Database["public"]["Enums"]["connection_request_status"]
+          target_partner_organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          message?: string
+          proposed_next_step?: string | null
+          purpose_category?: string
+          requester_id?: string
+          requester_organization_id?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          resulting_channel_id?: string | null
+          status?: Database["public"]["Enums"]["connection_request_status"]
+          target_partner_organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_connection_requests_requester_organization_id_fkey"
+            columns: ["requester_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_connection_requests_resulting_channel_id_fkey"
+            columns: ["resulting_channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_connection_requests_target_partner_organization_id_fkey"
+            columns: ["target_partner_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_members: {
+        Row: {
+          added_by: string | null
+          channel_id: string
+          id: string
+          joined_at: string
+          left_at: string | null
+          member_role: Database["public"]["Enums"]["channel_member_role"]
+          muted: boolean
+          notify_email: boolean
+          notify_in_app: boolean
+          user_id: string
+        }
+        Insert: {
+          added_by?: string | null
+          channel_id: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          member_role?: Database["public"]["Enums"]["channel_member_role"]
+          muted?: boolean
+          notify_email?: boolean
+          notify_in_app?: boolean
+          user_id: string
+        }
+        Update: {
+          added_by?: string | null
+          channel_id?: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          member_role?: Database["public"]["Enums"]["channel_member_role"]
+          muted?: boolean
+          notify_email?: boolean
+          notify_in_app?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_members_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_message_reads: {
+        Row: {
+          channel_id: string
+          last_read_at: string
+          last_read_message_id: string | null
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          last_read_at?: string
+          last_read_message_id?: string | null
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          last_read_at?: string
+          last_read_message_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_message_reads_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_message_reads_last_read_message_id_fkey"
+            columns: ["last_read_message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_messages: {
+        Row: {
+          author_id: string
+          body: string
+          channel_id: string
+          client_dedupe_key: string | null
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          id: string
+          parent_id: string | null
+          pinned: boolean
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          channel_id: string
+          client_dedupe_key?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          parent_id?: string | null
+          pinned?: boolean
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          channel_id?: string
+          client_dedupe_key?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          parent_id?: string | null
+          pinned?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_reports: {
+        Row: {
+          channel_id: string
+          created_at: string
+          details: string | null
+          id: string
+          message_id: string | null
+          reason: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          message_id?: string | null
+          reason: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          message_id?: string | null
+          reason?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_reports_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_reports_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channels: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          kind: Database["public"]["Enums"]["channel_kind"]
+          last_message_at: string | null
+          legal_hold: boolean
+          organization_id: string | null
+          partner_organization_id: string | null
+          purpose: string | null
+          retention_days: number
+          student_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: Database["public"]["Enums"]["channel_kind"]
+          last_message_at?: string | null
+          legal_hold?: boolean
+          organization_id?: string | null
+          partner_organization_id?: string | null
+          purpose?: string | null
+          retention_days?: number
+          student_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["channel_kind"]
+          last_message_at?: string | null
+          legal_hold?: boolean
+          organization_id?: string | null
+          partner_organization_id?: string | null
+          purpose?: string | null
+          retention_days?: number
+          student_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channels_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channels_partner_organization_id_fkey"
+            columns: ["partner_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channels_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_notes: {
         Row: {
           content: string
@@ -7701,6 +8181,14 @@ export type Database = {
         Returns: boolean
       }
       is_admin_hub_member: { Args: { _user_id: string }; Returns: boolean }
+      is_channel_admin: {
+        Args: { _channel_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_channel_member: {
+        Args: { _channel_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_org_admin: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -7808,6 +8296,30 @@ export type Database = {
         | "verified"
         | "outdated"
         | "archived"
+      channel_action_kind:
+        | "next_action"
+        | "calendar_event"
+        | "meeting_agenda_item"
+        | "opportunity_follow_up"
+        | "referral_task"
+        | "feedback_record"
+        | "evidence_candidate"
+      channel_kind:
+        | "student_transition"
+        | "student_family"
+        | "school_team"
+        | "district_implementation"
+        | "partner_relationship"
+        | "partner_outreach"
+        | "partner_internal"
+        | "platform_support"
+      channel_member_role: "owner" | "admin" | "member" | "observer"
+      connection_request_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "withdrawn"
+        | "expired"
       ct_program_category:
         | "stem"
         | "arts"
@@ -8100,6 +8612,33 @@ export const Constants = {
         "verified",
         "outdated",
         "archived",
+      ],
+      channel_action_kind: [
+        "next_action",
+        "calendar_event",
+        "meeting_agenda_item",
+        "opportunity_follow_up",
+        "referral_task",
+        "feedback_record",
+        "evidence_candidate",
+      ],
+      channel_kind: [
+        "student_transition",
+        "student_family",
+        "school_team",
+        "district_implementation",
+        "partner_relationship",
+        "partner_outreach",
+        "partner_internal",
+        "platform_support",
+      ],
+      channel_member_role: ["owner", "admin", "member", "observer"],
+      connection_request_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "withdrawn",
+        "expired",
       ],
       ct_program_category: [
         "stem",
