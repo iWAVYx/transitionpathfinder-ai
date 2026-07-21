@@ -192,17 +192,16 @@ function TransitionChannelPreviewDrawer({
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      {c.pinned && <Pin className="h-3 w-3 text-primary" aria-hidden />}
                       <p className="truncate text-sm font-medium">{c.title}</p>
                     </div>
                     <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
                       <Users className="h-3 w-3" aria-hidden />
-                      {c.member_count} member{c.member_count === 1 ? "" : "s"}
+                      {c.members.length} member{c.members.length === 1 ? "" : "s"}
                     </p>
                   </div>
-                  {!c.muted && c.unread_count > 0 && (
+                  {!c.muted && c.unread > 0 && (
                     <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
-                      {c.unread_count}
+                      {c.unread}
                     </span>
                   )}
                 </li>
