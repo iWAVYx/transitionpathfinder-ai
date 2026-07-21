@@ -4343,11 +4343,15 @@ export type Database = {
       }
       notification_prefs: {
         Row: {
+          channel_assignments_email: boolean
+          channel_digest_frequency: string
+          channel_mentions_email: boolean
           email_collab_invites: boolean
           email_goal_reminders: boolean
           email_report_ready: boolean
           email_weekly_digest: boolean
           in_app_enabled: boolean
+          last_channel_digest_at: string | null
           notification_cadence: string
           quiet_hours_end: string | null
           quiet_hours_start: string | null
@@ -4359,11 +4363,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          channel_assignments_email?: boolean
+          channel_digest_frequency?: string
+          channel_mentions_email?: boolean
           email_collab_invites?: boolean
           email_goal_reminders?: boolean
           email_report_ready?: boolean
           email_weekly_digest?: boolean
           in_app_enabled?: boolean
+          last_channel_digest_at?: string | null
           notification_cadence?: string
           quiet_hours_end?: string | null
           quiet_hours_start?: string | null
@@ -4375,11 +4383,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          channel_assignments_email?: boolean
+          channel_digest_frequency?: string
+          channel_mentions_email?: boolean
           email_collab_invites?: boolean
           email_goal_reminders?: boolean
           email_report_ready?: boolean
           email_weekly_digest?: boolean
           in_app_enabled?: boolean
+          last_channel_digest_at?: string | null
           notification_cadence?: string
           quiet_hours_end?: string | null
           quiet_hours_start?: string | null
@@ -8479,6 +8491,7 @@ export type Database = {
         Args: { _feature: string; _user_id: string }
         Returns: boolean
       }
+      user_in_quiet_hours: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       admin_role:

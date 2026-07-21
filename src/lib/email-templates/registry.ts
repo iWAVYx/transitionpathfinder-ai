@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import { template as adminInvitationTemplate } from './admin-invitation'
 import { template as collaboratorInvitationTemplate } from './collaborator-invitation'
+import { template as channelActivityDigestTemplate } from './channel-activity-digest'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -14,4 +15,5 @@ export interface TemplateEntry {
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'admin-invitation': adminInvitationTemplate,
   'collaborator-invitation': collaboratorInvitationTemplate,
+  'channel-activity-digest': channelActivityDigestTemplate,
 }

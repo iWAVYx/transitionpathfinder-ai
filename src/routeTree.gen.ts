@@ -112,6 +112,7 @@ import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace.$stage'
+import { Route as ApiPublicChannelDigestTickRouteImport } from './routes/api/public/channel-digest-tick'
 import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authenticated/workspace.$stage'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedStudentHistoryRouteImport } from './routes/_authenticated/student.history'
@@ -747,6 +748,12 @@ const DemoWorkspaceStageRoute = DemoWorkspaceStageRouteImport.update({
   path: '/demo/workspace/$stage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicChannelDigestTickRoute =
+  ApiPublicChannelDigestTickRouteImport.update({
+    id: '/api/public/channel-digest-tick',
+    path: '/api/public/channel-digest-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedWorkspaceStageRoute =
   AuthenticatedWorkspaceStageRouteImport.update({
     id: '/workspace/$stage',
@@ -1577,6 +1584,7 @@ export interface FileRoutesByFullPath {
   '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/api/public/channel-digest-tick': typeof ApiPublicChannelDigestTickRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
@@ -1787,6 +1795,7 @@ export interface FileRoutesByTo {
   '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/api/public/channel-digest-tick': typeof ApiPublicChannelDigestTickRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
@@ -2001,6 +2010,7 @@ export interface FileRoutesById {
   '/_authenticated/student/history': typeof AuthenticatedStudentHistoryRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/_authenticated/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/api/public/channel-digest-tick': typeof ApiPublicChannelDigestTickRoute
   '/demo_/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
@@ -2215,6 +2225,7 @@ export interface FileRouteTypes {
     | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
+    | '/api/public/channel-digest-tick'
     | '/demo/workspace/$stage'
     | '/lovable/email/suppression'
     | '/owner/'
@@ -2425,6 +2436,7 @@ export interface FileRouteTypes {
     | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
+    | '/api/public/channel-digest-tick'
     | '/demo/workspace/$stage'
     | '/lovable/email/suppression'
     | '/owner'
@@ -2638,6 +2650,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student/history'
     | '/_authenticated/students/$studentId'
     | '/_authenticated/workspace/$stage'
+    | '/api/public/channel-digest-tick'
     | '/demo_/workspace/$stage'
     | '/lovable/email/suppression'
     | '/_authenticated/owner/'
@@ -2718,6 +2731,7 @@ export interface RootRouteChildren {
   ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
   ShareTokenRoute: typeof ShareTokenRoute
   GetStartedIndexRoute: typeof GetStartedIndexRoute
+  ApiPublicChannelDigestTickRoute: typeof ApiPublicChannelDigestTickRoute
   DemoWorkspaceStageRoute: typeof DemoWorkspaceStageRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   DemoWorkspaceIndexRoute: typeof DemoWorkspaceIndexRoute
@@ -3452,6 +3466,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/workspace/$stage'
       fullPath: '/demo/workspace/$stage'
       preLoaderRoute: typeof DemoWorkspaceStageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/channel-digest-tick': {
+      id: '/api/public/channel-digest-tick'
+      path: '/api/public/channel-digest-tick'
+      fullPath: '/api/public/channel-digest-tick'
+      preLoaderRoute: typeof ApiPublicChannelDigestTickRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/workspace/$stage': {
@@ -4692,6 +4713,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
   ShareTokenRoute: ShareTokenRoute,
   GetStartedIndexRoute: GetStartedIndexRoute,
+  ApiPublicChannelDigestTickRoute: ApiPublicChannelDigestTickRoute,
   DemoWorkspaceStageRoute: DemoWorkspaceStageRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   DemoWorkspaceIndexRoute: DemoWorkspaceIndexRoute,
