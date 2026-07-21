@@ -278,7 +278,7 @@ async function buildDigestForUser(
       unread_count: unreadN,
       mentions: mentionsN,
       open_actions: openN,
-      latest_preview: latest?.body ? latest.body.slice(0, 140) : undefined,
+      latest_preview: redactChannelPreviewForEmail(latest?.body),
     });
   }
 
