@@ -297,11 +297,17 @@ export const exportChannelBundle = createServerFn({ method: "POST" })
 
     return {
       exported_at: new Date().toISOString(),
-      channel: (ch.data ?? {}) as Record<string, unknown>,
-      members: (members.data ?? []) as Array<Record<string, unknown>>,
-      messages: (messages.data ?? []) as Array<Record<string, unknown>>,
-      actions: (actions.data ?? []) as Array<Record<string, unknown>>,
-      audit_events: (audit.data ?? []) as Array<Record<string, unknown>>,
-      attachments: (attachments.data ?? []) as Array<Record<string, unknown>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      channel: (ch.data ?? {}) as Record<string, any>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      members: (members.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: (messages.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      actions: (actions.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      audit_events: (audit.data ?? []) as Array<Record<string, any>>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      attachments: (attachments.data ?? []) as Array<Record<string, any>>,
     };
   });
