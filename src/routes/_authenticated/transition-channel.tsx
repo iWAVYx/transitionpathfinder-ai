@@ -1207,6 +1207,15 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
         onClose={() => setThreadParentId(null)}
         onChanged={invalidateActive}
       />
+
+      <PromoteRecordDialog
+        message={promoteMessage}
+        channelId={promoteMessage ? activeId : null}
+        onOpenChange={(open) => {
+          if (!open) setPromoteMessage(null);
+        }}
+        onPromoted={invalidateActive}
+      />
     </>
   );
 }
