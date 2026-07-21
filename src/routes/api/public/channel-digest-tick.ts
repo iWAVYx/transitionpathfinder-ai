@@ -14,6 +14,7 @@ import { render } from "@react-email/components";
 import { createClient } from "@supabase/supabase-js";
 import * as React from "react";
 import { TEMPLATES } from "@/lib/email-templates/registry";
+import { redactChannelPreviewForEmail } from "@/lib/channel-preview-redact";
 
 const DIGEST_TEMPLATE = "channel-activity-digest";
 const MAX_USERS_PER_TICK = 50;
