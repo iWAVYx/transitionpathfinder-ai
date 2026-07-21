@@ -59,15 +59,26 @@ test("report_provenance_coverage_v1 reflects owner edges and hides from others",
     .single();
   assert.ok(!eErr, `evidence_item seed failed: ${eErr?.message}`);
 
-  const { data: report, error: rErr } = await owner
-    .from("pathway_reports")
+  const { data: intake, error: iErr } = await owner
+    .from("student_intakes")
     .insert({
       user_id: user.id,
       student_id: student.id,
       submitter_role: "family",
       student_first_name: "CoverageB8",
-      inputs_json: {},
-      report_json: { summary: "coverage" },
+    })
+    .select("id")
+    .single();
+  assert.ok(!iErr, `student_intake seed failed: ${iErr?.message}`);
+
+  const { data: report, error: rErr } = await owner
+    .from("pathway_reports")
+    .insert({
+      user_id: user.id,
+      student_id: student.id,
+      intake_id: intake.id,
+      model: "test-fixture",
+      content: { summary: "coverage" },
     })
     .select("id")
     .single();
@@ -92,7 +103,6 @@ test("report_provenance_coverage_v1 reflects owner edges and hides from others",
       to_type: "pathway_recommendation",
       to_id: report.id,
       relation: "supports",
-      weight: 1,
       created_by: user.id,
     };
     for (let i = 0; i < 2; i += 1) {
