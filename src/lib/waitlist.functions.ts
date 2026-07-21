@@ -194,9 +194,17 @@ export const submitWaitlist = createServerFn({ method: "POST" })
     });
 
     if (error) {
+      // Duplicate active submission — waitlist_active_email_uidx. Treat as
+      // idempotent success so the user sees the same confirmation state and
+      // we don't leak whether the address was previously submitted.
+      const code = (error as { code?: string }).code;
+      if (code === "23505") {
+        return { ok: true, routing_category, status, deduped: true };
+      }
       console.error("waitlist insert failed", error);
       throw new Error("Could not save your submission. Please try again.");
     }
 
-    return { ok: true, routing_category, status };
+    return { ok: true, routing_category, status, deduped: false };
   });
+
