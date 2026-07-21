@@ -2,6 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { setupQueryPersistence } from "./pwa/query-persistence";
+import { RouteErrorComponent } from "./components/routing/RouteErrorComponent";
 
 export const getRouter = () => {
   const queryClient = new QueryClient({
@@ -22,6 +23,10 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    // Knowledge: router config MUST set defaultErrorComponent so every
+    // loader without an explicit errorComponent still lands on a
+    // recoverable UI (Try Again + Return Home).
+    defaultErrorComponent: RouteErrorComponent,
   });
 
   return router;

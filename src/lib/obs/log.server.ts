@@ -4,6 +4,7 @@
  */
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { redactObsAttributes, redactObsError } from "./redact.server";
 
 export type ObsSeverity = "debug" | "info" | "warn" | "error" | "fatal";
 export type ObsStatus = "ok" | "error" | "timeout" | "rejected";
@@ -40,8 +41,11 @@ async function flushNow(): Promise<void> {
     severity: r.severity,
     status: r.status,
     duration_ms: r.duration_ms ?? null,
-    attributes: (r.attributes ?? {}) as unknown as any,
-    error: (r.error ?? null) as unknown as any,
+    // L-03: attributes and error strings are redacted before persistence
+    // so arbitrary Error messages / free-form attrs can't leak PII into
+    // obs_events (surfaced in the Health tab + alert queries).
+    attributes: redactObsAttributes(r.attributes) as unknown as any,
+    error: redactObsError(r.error) as unknown as any,
   }));
   try {
     const { error } = await (supabaseAdmin.from("obs_events") as any).insert(rows);

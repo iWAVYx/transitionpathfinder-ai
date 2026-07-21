@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { RouteErrorComponent } from "@/components/routing/RouteErrorComponent";
 import { DemoFeatureShell } from "@/components/demo/DemoFeatureShell";
 import { StudentVoiceModule } from "@/components/dashboard/student-voice/StudentVoiceModule";
 import { IepTranslatorCard } from "@/components/dashboard/IepTranslatorCard";
@@ -90,6 +91,7 @@ export const Route = createFileRoute("/demo_/feature/$role/$slug")({
       </p>
     </div>
   ),
+  errorComponent: RouteErrorComponent,
 });
 
 function DemoFeaturePage() {
