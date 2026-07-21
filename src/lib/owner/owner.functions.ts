@@ -1453,7 +1453,8 @@ export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
     z.object({ user_id: z.string().uuid(), role: z.enum(ADMIN_ROLES) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
+    requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
     await requirePlatformAdmin(supabase, userId);
     if (data.user_id === userId && data.role === "platform_owner") {
       // Prevent removing the last platform owner.
