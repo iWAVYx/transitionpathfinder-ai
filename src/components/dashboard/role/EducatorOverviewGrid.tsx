@@ -18,6 +18,7 @@ import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
+import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
 import {
   EducatorFeatureDrawer,
   type EducatorFeatureState,
@@ -167,6 +168,7 @@ const TILES: Tile[] = [
 export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
   const [openFeature, setOpenFeature] = useState<EducatorFeatureId | null>(null);
   const [state, setState] = useState<EducatorFeatureState>("ready");
+  const { profileId } = useDemoStudent();
 
   const activeTile = TILES.find((t) => t.featureId === openFeature);
 
@@ -189,6 +191,7 @@ export function EducatorOverviewGrid({ isSample = false }: { isSample?: boolean 
           />
         ))}
         <PartnerNetworkTile role="educator" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
+        <DemoTransitionChannelTile role="educator" contextId={profileId} />
       </ToolPreviewGrid>
 
 
