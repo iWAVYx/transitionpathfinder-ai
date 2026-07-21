@@ -366,46 +366,72 @@ function DemoTransitionChannelPage() {
                   {active.messages.length === 0 ? (
                     <div className="text-sm text-muted-foreground">No messages yet.</div>
                   ) : (
-                    active.messages.map((m) => (
-                      <article key={m.id} className="text-sm group">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-medium">{m.authorName}</span>
-                          <span className="text-[11px] text-muted-foreground">{m.authorRole}</span>
-                          <span className="text-[11px] text-muted-foreground">·</span>
-                          <time className="text-[11px] text-muted-foreground" dateTime={m.createdAt}>
-                            {relativeLabel(m.createdAt)}
-                          </time>
-                          <button
-                            type="button"
-                            className="ml-auto opacity-0 group-hover:opacity-100 transition text-[11px] text-muted-foreground hover:text-primary inline-flex items-center gap-1"
-                            onClick={() => togglePin(active.id, m.id)}
-                          >
-                            <Pin className={`h-3 w-3 ${m.pinned ? "fill-current text-primary" : ""}`} />
-                            {m.pinned ? "Unpin" : "Pin"}
-                          </button>
-                        </div>
-                        <p className="mt-0.5 whitespace-pre-wrap leading-relaxed">{m.body}</p>
-                        {m.attachment && (
-                          <div className="mt-1 inline-flex items-center gap-2 rounded-md border bg-muted/40 px-2 py-1 text-[12px]">
-                            <span aria-hidden>📎</span>
-                            <span className="font-medium">{m.attachment.name}</span>
-                            <span className="text-muted-foreground uppercase text-[10px]">
-                              {m.attachment.kind} · {m.attachment.sizeKb} KB
-                            </span>
-                            <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">preview</span>
-                          </div>
-                        )}
-                        {m.actionItem && (
-                          <div className="mt-1 inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-2 py-1 text-[12px]">
-                            <span className="font-semibold text-primary">Action:</span>
-                            <span>Assigned to {m.actionItem.assignee}</span>
-                            {m.actionItem.due && (
-                              <span className="text-muted-foreground">· due {m.actionItem.due}</span>
-                            )}
-                          </div>
-                        )}
-                      </article>
-                    ))
+                    active.messages
+                      .filter((m) => !m.parentId)
+                      .map((m) => (
+                        <MessageBlock
+                          key={m.id}
+                          message={m}
+                          channelId={active.id}
+                          replies={active.messages.filter((r) => r.parentId === m.id)}
+                          isReplying={replyingTo === m.id}
+                          isEditing={editingId === m.id}
+                          replyDraft={replyDraft}
+                          editDraft={editDraft}
+                          onReplyStart={() => {
+                            setReplyingTo(m.id);
+                            setReplyDraft("");
+                          }}
+                          onReplyChange={setReplyDraft}
+                          onReplyCancel={() => setReplyingTo(null)}
+                          onReplySubmit={() => {
+                            replyInThread(active.id, m.id, replyDraft);
+                            setReplyingTo(null);
+                            setReplyDraft("");
+                          }}
+                          onEditStart={() => {
+                            setEditingId(m.id);
+                            setEditDraft(m.body);
+                          }}
+                          onEditChange={setEditDraft}
+                          onEditCancel={() => setEditingId(null)}
+                          onEditSubmit={() => {
+                            editMessage(active.id, m.id, editDraft);
+                            setEditingId(null);
+                          }}
+                          onTogglePin={() => togglePin(active.id, m.id)}
+                          onToggleBookmark={() => toggleBookmark(active.id, m.id)}
+                          onDelete={() => {
+                            if (confirm("Remove this message from the demo?")) {
+                              deleteMessage(active.id, m.id);
+                            }
+                          }}
+                          onPromote={() => {
+                            const title = window.prompt("Record title?", m.body.slice(0, 80));
+                            if (!title) return;
+                            const assignee =
+                              window.prompt("Assignee (name or 'You')?", "You") ?? "You";
+                            const due = window.prompt("Due (e.g. 'Fri' or leave blank)?", "") ?? "";
+                            const priority = (window.prompt("Priority: low / medium / high", "medium") ?? "medium")
+                              .toLowerCase() as "low" | "medium" | "high";
+                            promoteToRecord(active.id, m.id, {
+                              kind: "action",
+                              title,
+                              assignee,
+                              due: due || undefined,
+                              priority: (["low", "medium", "high"] as const).includes(priority)
+                                ? priority
+                                : "medium",
+                              integrations: {
+                                mirroredToActionItems: true,
+                                mirroredToCalendar: Boolean(due),
+                              },
+                            });
+                          }}
+                          onRecordStatus={(s) => setRecordStatus(active.id, m.id, s)}
+                          relativeLabel={relativeLabel}
+                        />
+                      ))
                   )}
                 </div>
 
