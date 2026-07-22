@@ -104,8 +104,8 @@ const tiers: Tier[] = [
       monthly: "$499",
       yearly: "$2,999",
       note: {
-        monthly: "Per month · annual commitment",
-        yearly: "Per year · full school access · best value",
+        monthly: "Per Month · Annual Commitment",
+        yearly: "Per Year · Full School Access · Best Value",
       },
     },
     description:
@@ -120,7 +120,7 @@ const tiers: Tier[] = [
     price: {
       monthly: "Quote",
       yearly: "Quote",
-      note: { monthly: "Tiered by schools, staff, or students", yearly: "Tiered by schools, staff, or students" },
+      note: { monthly: "Tiered by Schools, Staff, or Students", yearly: "Tiered by Schools, Staff, or Students" },
     },
     description:
       "Multi-school access with district reporting, implementation support, and connected family and educator invites.",
@@ -134,7 +134,7 @@ const tiers: Tier[] = [
     price: {
       monthly: "Free",
       yearly: "Free",
-      note: { monthly: "Basic listing free", yearly: "Basic listing free" },
+      note: { monthly: "Basic Listing Free", yearly: "Basic Listing Free" },
     },
     description:
       "Colleges, employers, training programs, and community organizations — list opportunities and reach the students who fit.",
