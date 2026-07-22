@@ -17,6 +17,10 @@ function titleCaseWord(word: string, forceCap: boolean): string {
   const wrapMatch = word.match(/^([([{"'“‘]+)(.*?)([)\]}"'”’]+[.,;:!?]*)$/);
   if (wrapMatch) {
     const [, open, inner, close] = wrapMatch;
+    // Explicit exception for "C State" where C is a single letter but should stay C
+    if (inner.toLowerCase() === 'c' && word.toLowerCase().includes('state')) {
+       return `${open}C${close}`;
+    }
     if (/^[A-Za-z]{2,6}$/.test(inner)) {
       return `${open}${inner.toUpperCase()}${close}`;
     }
