@@ -881,7 +881,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     id: "ct-8",
-    title: "Connecticut Community Colleges (CT State)",
+    title: "Connecticut Community Colleges (C State)",
     description: "All twelve campuses now unified — programs, disability services, and admissions in one place.",
     format: "agency",
     audiences: ["student", "family"],
