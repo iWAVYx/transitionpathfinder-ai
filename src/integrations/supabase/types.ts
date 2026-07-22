@@ -8489,6 +8489,7 @@ export type Database = {
           report_id: string
         }[]
       }
+      safe_channel_id_from_path: { Args: { _path: string }; Returns: string }
       storage_can_read_student_doc: {
         Args: { _path: string; _user_id: string }
         Returns: boolean
