@@ -70,8 +70,8 @@ const tiers: Tier[] = [
       monthly: "$19.99",
       yearly: "$99",
       note: {
-        monthly: "Per month · per family",
-        yearly: "Per year · per family · best value",
+        monthly: "Per Month · Per Family",
+        yearly: "Per Year · Per Family · Best Value",
       },
     },
     description:
@@ -87,8 +87,8 @@ const tiers: Tier[] = [
       monthly: "$29.99",
       yearly: "$199",
       note: {
-        monthly: "Per month · per caseload",
-        yearly: "Per year · per caseload · best value",
+        monthly: "Per Month · Per Caseload",
+        yearly: "Per Year · Per Caseload · Best Value",
       },
     },
     description:
