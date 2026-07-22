@@ -70,8 +70,8 @@ const tiers: Tier[] = [
       monthly: "$19.99",
       yearly: "$99",
       note: {
-        monthly: "Per month · per family",
-        yearly: "Per year · per family · best value",
+        monthly: "Per Month · Per Family",
+        yearly: "Per Year · Per Family · Best Value",
       },
     },
     description:
@@ -87,8 +87,8 @@ const tiers: Tier[] = [
       monthly: "$29.99",
       yearly: "$199",
       note: {
-        monthly: "Per month · per caseload",
-        yearly: "Per year · per caseload · best value",
+        monthly: "Per Month · Per Caseload",
+        yearly: "Per Year · Per Caseload · Best Value",
       },
     },
     description:
@@ -104,8 +104,8 @@ const tiers: Tier[] = [
       monthly: "$499",
       yearly: "$2,999",
       note: {
-        monthly: "Per month · annual commitment",
-        yearly: "Per year · full school access · best value",
+        monthly: "Per Month · Annual Commitment",
+        yearly: "Per Year · Full School Access · Best Value",
       },
     },
     description:
@@ -120,7 +120,7 @@ const tiers: Tier[] = [
     price: {
       monthly: "Quote",
       yearly: "Quote",
-      note: { monthly: "Tiered by schools, staff, or students", yearly: "Tiered by schools, staff, or students" },
+      note: { monthly: "Tiered by Schools, Staff, or Students", yearly: "Tiered by Schools, Staff, or Students" },
     },
     description:
       "Multi-school access with district reporting, implementation support, and connected family and educator invites.",
@@ -134,7 +134,7 @@ const tiers: Tier[] = [
     price: {
       monthly: "Free",
       yearly: "Free",
-      note: { monthly: "Basic listing free", yearly: "Basic listing free" },
+      note: { monthly: "Basic Listing Free", yearly: "Basic Listing Free" },
     },
     description:
       "Colleges, employers, training programs, and community organizations — list opportunities and reach the students who fit.",
@@ -225,7 +225,7 @@ function PricingPage() {
 
                 <div className="mt-5 flex flex-col items-center text-center sm:items-start sm:text-left">
                   <p className="font-display text-3xl tracking-tight">{tier.price[billing]}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{toTitleCase(tier.price.note[billing])}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{tier.price.note[billing]}</p>
 
                   <p className="mt-3 text-sm leading-relaxed text-foreground/85">
                     {tier.description}
