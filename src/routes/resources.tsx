@@ -1068,7 +1068,7 @@ function BrowseTab(props: {
           <div key={fmt}>
             <div className="mb-5 flex items-baseline justify-between">
               <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-                {FORMAT_META[fmt].label}s
+                {FORMAT_META[fmt].label === "Agency" ? "Agencies" : `${FORMAT_META[fmt].label}s`}
               </h2>
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 {grouped[fmt]?.length} resources
