@@ -301,7 +301,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       return { ...row, review_status: "rejected", archived_at: new Date().toISOString() } as DocumentRow;
     }
 
-    // Sniff passed — record breadcrumb before enqueuing extract.
+    // Sniff passed — record breadcrumb before running the AV scan.
     await recordPipelineRun({
       document_id: row.id,
       student_id: data.student_id,
@@ -315,7 +315,209 @@ export const registerDocument = createServerFn({ method: "POST" })
       },
     });
 
-    // Enqueue an AI document summary job (best-effort; don't fail upload if it errors).
+    // ── OPSWAT MetaDefender Cloud AV scan ─────────────────────────────
+    // Bytes are quarantined (scan_status = 'pending' via default) until we
+    // receive a "clean" verdict. Everything else fails closed: no AI job
+    // is enqueued and the file is either hard-deleted (infected) or held
+    // in quarantine (failed/timeout/indeterminate).
+    const { scanUploadedDocument } = await import("./document-av-scan.server");
+    const scanStartedAt = new Date().toISOString();
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: data.student_id,
+      correlation_id: correlationId,
+      stage: "av_scan",
+      status: "running",
+      started_at: scanStartedAt,
+      payload: { engine: "opswat_metadefender_cloud", samplesharing: 0, privateProcessing: 1 },
+    });
+    const scanResult = await scanUploadedDocument({
+      storage_path: data.storage_path,
+      declared_mime: data.mime_type ?? null,
+      declared_size: data.size_bytes ?? null,
+    });
+    const scanFinishedAt = new Date().toISOString();
+    const scanLatencyMs = Date.parse(scanFinishedAt) - Date.parse(scanStartedAt);
+    const { supabaseAdmin: adminForScan } = await import("@/integrations/supabase/client.server");
+
+    if (!scanResult.ok) {
+      // ── Not clean: fail closed. ───────────────────────────────────
+      const isInfected = scanResult.code === "infected";
+      const now = new Date().toISOString();
+
+      if (isInfected) {
+        // Infected → remove the object from storage entirely.
+        try {
+          await adminForScan.storage.from("student-documents").remove([data.storage_path]);
+        } catch (rmErr) {
+          console.error("av_scan: failed to purge infected object", rmErr);
+        }
+      }
+
+      await adminForScan
+        .from("documents")
+        .update({
+          scan_status: isInfected ? "deleted" : "failed",
+          scan_verdict: {
+            code: scanResult.code,
+            scan_all_result_i: scanResult.scan_all_result_i ?? null,
+            scan_all_result_a: scanResult.scan_all_result_a ?? null,
+            threats: scanResult.threats,
+            error_message: scanResult.error_message,
+          },
+          scan_data_id: scanResult.data_id,
+          scanned_at: now,
+          review_status: "rejected",
+          archived_at: now,
+          archived_by: userId,
+          archive_reason: `auto-quarantined by av_scan: ${scanResult.code}`,
+          ...(isInfected ? { deleted_at: now, deleted_by: userId, delete_reason: "av_scan_infected" } : {}),
+        })
+        .eq("id", row.id);
+
+      // Pipeline breadcrumbs
+      await recordPipelineRun({
+        document_id: row.id,
+        student_id: data.student_id,
+        correlation_id: correlationId,
+        stage: "av_scan",
+        status: "quarantined",
+        started_at: scanStartedAt,
+        finished_at: scanFinishedAt,
+        latency_ms: scanLatencyMs,
+        error_code: scanResult.code,
+        error_message: scanResult.error_message,
+        payload: {
+          data_id: scanResult.data_id,
+          scan_all_result_i: scanResult.scan_all_result_i ?? null,
+          threat_count: scanResult.threats.length,
+        },
+      });
+      await recordPipelineRun({
+        document_id: row.id,
+        student_id: data.student_id,
+        correlation_id: correlationId,
+        stage: "extract",
+        status: "skipped",
+        error_code: "av_scan_" + scanResult.code,
+        payload: { reason: `blocked_by_av_scan:${scanResult.code}` },
+      });
+
+      // Audit + access-log breadcrumbs. Access log's action column has a
+      // narrow CHECK constraint (view_metadata|download|preview|summarize|
+      // archive|restore|hard_delete|admin_override|upload) so scan-specific
+      // events go through audit_log where the shape is richer.
+      const baseMeta = {
+        title: data.title,
+        doc_type: data.doc_type,
+        scan_code: scanResult.code,
+        scan_data_id: scanResult.data_id,
+        scan_all_result_i: scanResult.scan_all_result_i ?? null,
+        threats: scanResult.threats,
+        uploader_role: uploaderRole,
+      };
+
+      if (isInfected) {
+        await supabase.from("audit_log").insert([
+          {
+            actor_id: userId,
+            action: "document.scan.infected",
+            entity_type: "document",
+            entity_id: row.id,
+            student_id: data.student_id,
+            metadata: baseMeta,
+          },
+          {
+            actor_id: userId,
+            action: "document.scan.deleted",
+            entity_type: "document",
+            entity_id: row.id,
+            student_id: data.student_id,
+            metadata: { ...baseMeta, storage_path_removed: true },
+          },
+        ]);
+      } else {
+        await supabase.from("audit_log").insert([
+          {
+            actor_id: userId,
+            action:
+              scanResult.code === "failed" || scanResult.code === "timeout"
+                ? "document.scan.failed"
+                : "document.scan.quarantined",
+            entity_type: "document",
+            entity_id: row.id,
+            student_id: data.student_id,
+            metadata: { ...baseMeta, error_message: scanResult.error_message },
+          },
+          {
+            actor_id: userId,
+            action: "document.scan.quarantined",
+            entity_type: "document",
+            entity_id: row.id,
+            student_id: data.student_id,
+            metadata: baseMeta,
+          },
+        ]);
+      }
+
+      return {
+        ...row,
+        scan_status: isInfected ? "deleted" : "failed",
+        review_status: "rejected",
+        archived_at: now,
+        ...(isInfected ? { deleted_at: now } : {}),
+      } as DocumentRow;
+    }
+
+    // ── Clean verdict: mark the row clean and proceed to AI extract. ─
+    await adminForScan
+      .from("documents")
+      .update({
+        scan_status: "clean",
+        scan_verdict: {
+          code: "clean",
+          scan_all_result_i: scanResult.scan_all_result_i,
+          scan_all_result_a: scanResult.scan_all_result_a,
+          total_avs: scanResult.total_avs ?? null,
+          total_detected_avs: scanResult.total_detected_avs ?? 0,
+        },
+        scan_data_id: scanResult.data_id,
+        scanned_at: scanFinishedAt,
+      })
+      .eq("id", row.id);
+
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: data.student_id,
+      correlation_id: correlationId,
+      stage: "av_scan",
+      status: "succeeded",
+      started_at: scanStartedAt,
+      finished_at: scanFinishedAt,
+      latency_ms: scanLatencyMs,
+      payload: {
+        data_id: scanResult.data_id,
+        scan_all_result_i: scanResult.scan_all_result_i,
+        total_avs: scanResult.total_avs ?? null,
+      },
+    });
+
+    await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.scan.clean",
+      entity_type: "document",
+      entity_id: row.id,
+      student_id: data.student_id,
+      metadata: {
+        title: data.title,
+        doc_type: data.doc_type,
+        scan_data_id: scanResult.data_id,
+        scan_all_result_i: scanResult.scan_all_result_i,
+        total_avs: scanResult.total_avs ?? null,
+      },
+    });
+
+    // Only now — after a clean verdict — do we hand the file to AI.
     const { error: jobErr } = await supabase.from("ai_jobs").insert({
       student_id: data.student_id,
       triggered_by_user_id: userId,
@@ -342,6 +544,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       error_message: jobErr?.message ?? null,
       payload: { job_type: "document_summary" },
     });
+
 
 
     // Audit log (best-effort)
