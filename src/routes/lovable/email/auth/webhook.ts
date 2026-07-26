@@ -32,10 +32,10 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "TransitionForward"
-const SENDER_DOMAIN = "notify.transitionforwardct.com"
+const SENDER_DOMAIN = "updates.transitionforwardct.com"
 const ROOT_DOMAIN = "transitionforwardct.com"
 // Keep visible From on the verified sending subdomain so DKIM/DMARC align.
-const FROM_DOMAIN = "notify.transitionforwardct.com"
+const FROM_DOMAIN = "updates.transitionforwardct.com"
 const FROM_LOCAL = "hello"
 
 function redactEmail(email: string | null | undefined): string {
