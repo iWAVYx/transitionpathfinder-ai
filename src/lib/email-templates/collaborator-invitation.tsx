@@ -29,7 +29,8 @@ const CollaboratorInvitationEmail = ({
 }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>{inviterName} invited you to collaborate on {studentName}</Preview>
+    {/* Preview intentionally omits student and inviter names — inbox/lock-screen previews must not leak PII. */}
+    <Preview>You have a new collaboration invitation on {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>You've been invited to collaborate</Heading>
@@ -58,8 +59,9 @@ export default CollaboratorInvitationEmail
 
 export const template = {
   component: CollaboratorInvitationEmail,
+  // Subject intentionally omits inviter and student names to avoid leaking PII in inbox lists.
   subject: (data: Record<string, any>) =>
-    `${data?.inviterName ?? 'Someone'} invited you to collaborate on ${data?.studentName ?? 'a student'}`,
+    `You've been invited to collaborate on ${data?.siteName ?? 'TransitionForward'}`,
   displayName: 'Collaborator Invitation',
   previewData: {
     inviterName: 'Jordan Rivera',
