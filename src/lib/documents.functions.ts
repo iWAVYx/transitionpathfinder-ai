@@ -1264,4 +1264,237 @@ export const markDocumentReviewed = createServerFn({ method: "POST" })
     return row as DocumentMetaRow;
   });
 
+/**
+ * Re-run the OPSWAT MetaDefender scan on a document whose previous scan
+ * ended in `failed` / `timeout` / other indeterminate state. Fails closed:
+ * a non-clean verdict leaves the row quarantined and never enqueues an AI
+ * job. Rows whose bytes were already purged (`scan_status = 'deleted'`,
+ * i.e. previously infected) cannot be retried.
+ */
+export const rescanDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: row, error: readErr } = await supabase
+      .from("documents")
+      .select("id, student_id, title, doc_type, storage_path, mime_type, size_bytes, scan_status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readErr || !row) throw new Error("Document not found or access denied.");
+
+    await assertAuthorized(
+      { supabase, userId, action: "edit", resourceType: "student", resourceId: row.student_id },
+      "You don't have permission to rescan this document.",
+    );
+
+    if (row.scan_status === "clean") {
+      throw new Error("This document already passed the scan; nothing to retry.");
+    }
+    if (row.scan_status === "deleted") {
+      throw new Error("This file was removed after a previous infection and cannot be rescanned.");
+    }
+    if (!row.storage_path) {
+      throw new Error("This document has no file attached to rescan.");
+    }
+
+    const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { scanUploadedDocument } = await import("./document-av-scan.server");
+
+    const correlationId = newCorrelationId();
+    const startedAt = new Date().toISOString();
+
+    await supabaseAdmin
+      .from("documents")
+      .update({ scan_status: "pending" })
+      .eq("id", row.id);
+
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: row.student_id,
+      correlation_id: correlationId,
+      stage: "av_scan",
+      status: "running",
+      started_at: startedAt,
+      payload: { engine: "opswat_metadefender_cloud", samplesharing: 0, privateProcessing: 1, retry: true },
+    });
+
+    const scanResult = await scanUploadedDocument({
+      storage_path: row.storage_path,
+      declared_mime: row.mime_type ?? null,
+      declared_size: row.size_bytes ?? null,
+    });
+    const finishedAt = new Date().toISOString();
+    const latencyMs = Date.parse(finishedAt) - Date.parse(startedAt);
+
+    if (!scanResult.ok) {
+      const isInfected = scanResult.code === "infected";
+      if (isInfected) {
+        try {
+          await supabaseAdmin.storage.from("student-documents").remove([row.storage_path]);
+        } catch (rmErr) {
+          console.error("rescanDocument: failed to purge infected object", rmErr);
+        }
+      }
+
+      await supabaseAdmin
+        .from("documents")
+        .update({
+          scan_status: isInfected ? "deleted" : "failed",
+          scan_verdict: {
+            code: scanResult.code,
+            scan_all_result_i: scanResult.scan_all_result_i ?? null,
+            scan_all_result_a: scanResult.scan_all_result_a ?? null,
+            threats: scanResult.threats,
+            error_message: scanResult.error_message,
+            retry: true,
+          },
+          scan_data_id: scanResult.data_id,
+          scanned_at: finishedAt,
+          review_status: "rejected",
+          archived_at: finishedAt,
+          archived_by: userId,
+          archive_reason: `auto-quarantined by av_scan retry: ${scanResult.code}`,
+          ...(isInfected
+            ? { deleted_at: finishedAt, deleted_by: userId, delete_reason: "av_scan_infected" }
+            : {}),
+        })
+        .eq("id", row.id);
+
+      await recordPipelineRun({
+        document_id: row.id,
+        student_id: row.student_id,
+        correlation_id: correlationId,
+        stage: "av_scan",
+        status: "quarantined",
+        started_at: startedAt,
+        finished_at: finishedAt,
+        latency_ms: latencyMs,
+        error_code: scanResult.code,
+        error_message: scanResult.error_message,
+        payload: {
+          retry: true,
+          data_id: scanResult.data_id,
+          scan_all_result_i: scanResult.scan_all_result_i ?? null,
+          threat_count: scanResult.threats.length,
+        },
+      });
+
+      const meta = {
+        title: row.title,
+        doc_type: row.doc_type,
+        scan_code: scanResult.code,
+        scan_data_id: scanResult.data_id,
+        scan_all_result_i: scanResult.scan_all_result_i ?? null,
+        threats: scanResult.threats,
+        retry: true,
+      };
+      if (isInfected) {
+        await supabase.from("audit_log").insert([
+          { actor_id: userId, action: "document.scan.infected", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: meta },
+          { actor_id: userId, action: "document.scan.deleted", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: { ...meta, storage_path_removed: true } },
+        ]);
+      } else {
+        await supabase.from("audit_log").insert([
+          {
+            actor_id: userId,
+            action:
+              scanResult.code === "failed" || scanResult.code === "timeout"
+                ? "document.scan.failed"
+                : "document.scan.quarantined",
+            entity_type: "document",
+            entity_id: row.id,
+            student_id: row.student_id,
+            metadata: { ...meta, error_message: scanResult.error_message },
+          },
+        ]);
+      }
+
+      return {
+        ok: false as const,
+        code: scanResult.code,
+        error_message: scanResult.error_message,
+      };
+    }
+
+    await supabaseAdmin
+      .from("documents")
+      .update({
+        scan_status: "clean",
+        scan_verdict: {
+          code: "clean",
+          scan_all_result_i: scanResult.scan_all_result_i,
+          scan_all_result_a: scanResult.scan_all_result_a,
+          total_avs: scanResult.total_avs ?? null,
+          total_detected_avs: scanResult.total_detected_avs ?? 0,
+          retry: true,
+        },
+        scan_data_id: scanResult.data_id,
+        scanned_at: finishedAt,
+        review_status: "pending_review",
+        archived_at: null,
+        archived_by: null,
+        archive_reason: null,
+      })
+      .eq("id", row.id);
+
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: row.student_id,
+      correlation_id: correlationId,
+      stage: "av_scan",
+      status: "succeeded",
+      started_at: startedAt,
+      finished_at: finishedAt,
+      latency_ms: latencyMs,
+      payload: { retry: true, data_id: scanResult.data_id, scan_all_result_i: scanResult.scan_all_result_i },
+    });
+
+    await supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "document.scan.clean",
+      entity_type: "document",
+      entity_id: row.id,
+      student_id: row.student_id,
+      metadata: {
+        title: row.title,
+        doc_type: row.doc_type,
+        scan_data_id: scanResult.data_id,
+        scan_all_result_i: scanResult.scan_all_result_i,
+        retry: true,
+      },
+    });
+
+    const { error: jobErr } = await supabase.from("ai_jobs").insert({
+      student_id: row.student_id,
+      triggered_by_user_id: userId,
+      job_type: "document_summary",
+      status: "queued",
+      input_source: {
+        document_id: row.id,
+        title: row.title,
+        doc_type: row.doc_type,
+        storage_path: row.storage_path,
+      },
+    });
+    if (jobErr) console.error("rescanDocument: ai_jobs enqueue failed", jobErr);
+
+    await recordPipelineRun({
+      document_id: row.id,
+      student_id: row.student_id,
+      correlation_id: correlationId,
+      stage: "extract",
+      status: jobErr ? "failed" : "pending",
+      error_code: jobErr ? "ai_jobs_enqueue_failed" : null,
+      error_message: jobErr?.message ?? null,
+      payload: { job_type: "document_summary", retry: true },
+    });
+
+    return { ok: true as const, code: "clean" as const };
+  });
+
+
+
 
