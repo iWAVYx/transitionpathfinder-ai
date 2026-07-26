@@ -2717,6 +2717,10 @@ export type Database = {
           review_status: string
           reviewed_at: string | null
           reviewed_by: string | null
+          scan_data_id: string | null
+          scan_status: string
+          scan_verdict: Json | null
+          scanned_at: string | null
           school_year: string | null
           size_bytes: number | null
           source: string | null
@@ -2759,6 +2763,10 @@ export type Database = {
           review_status?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          scan_data_id?: string | null
+          scan_status?: string
+          scan_verdict?: Json | null
+          scanned_at?: string | null
           school_year?: string | null
           size_bytes?: number | null
           source?: string | null
@@ -2801,6 +2809,10 @@ export type Database = {
           review_status?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
+          scan_data_id?: string | null
+          scan_status?: string
+          scan_verdict?: Json | null
+          scanned_at?: string | null
           school_year?: string | null
           size_bytes?: number | null
           source?: string | null
