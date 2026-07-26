@@ -8,11 +8,11 @@ import { TEMPLATES } from '@/lib/email-templates/registry'
 const SITE_NAME = "TransitionForward"
 // SENDER_DOMAIN is the verified sender subdomain FQDN delegated to Lovable's nameservers.
 // This MUST match the subdomain shown as Verified in Cloud → Emails. NEVER use the root domain.
-const SENDER_DOMAIN = "notify.transitionforwardct.com"
+const SENDER_DOMAIN = "updates.transitionforwardct.com"
 // FROM_DOMAIN is the domain shown in the From: header. Kept aligned with SENDER_DOMAIN
 // so DKIM/DMARC alignment holds for the visible From address.
-const FROM_DOMAIN = "notify.transitionforwardct.com"
-// Local part of the visible From address (e.g. hello@notify.transitionforwardct.com).
+const FROM_DOMAIN = "updates.transitionforwardct.com"
+// Local part of the visible From address (e.g. hello@updates.transitionforwardct.com).
 const FROM_LOCAL = "hello"
 
 function redactEmail(email: string | null | undefined): string {
