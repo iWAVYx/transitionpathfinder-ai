@@ -239,11 +239,29 @@ function DocumentsHubPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <VisibilityBadge visibility="team" />
                     <PermissionLabel can={["view", "comment"]} />
                     <StatusBadge status={d.review_status} />
-                    {d.review_status === "uploaded" || d.review_status === "linked" ? (
+                    <ScanStatusBadge scan={d.scan_status} />
+                    {(d.scan_status === "failed" || d.scan_status === "pending") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!!rescanning[d.id] || d.scan_status === "pending"}
+                        onClick={() => handleRescan(d.id)}
+                      >
+                        <RefreshCw
+                          className={`mr-1.5 h-3.5 w-3.5 ${rescanning[d.id] ? "animate-spin" : ""}`}
+                        />
+                        {rescanning[d.id] ? "Rescanning…" : "Retry scan"}
+                      </Button>
+                    )}
+                    {d.scan_status === "deleted" ? (
+                      <span className="text-xs text-muted-foreground">
+                        File removed — upload again to retry.
+                      </span>
+                    ) : d.review_status === "uploaded" || d.review_status === "linked" ? (
                       <Button asChild size="sm" variant="outline">
                         <Link
                           to="/students/$studentId"
@@ -263,6 +281,7 @@ function DocumentsHubPage() {
                       </Button>
                     )}
                   </div>
+
                 </li>
               ))}
             </ul>
