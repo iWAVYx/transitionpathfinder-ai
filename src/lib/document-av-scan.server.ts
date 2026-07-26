@@ -117,7 +117,7 @@ async function submitFile(
         privateprocessing: "1",
         "content-type": "application/octet-stream",
       },
-      body: bytes,
+      body: bytes as unknown as BodyInit,
     },
     UPLOAD_TIMEOUT_MS,
   );
