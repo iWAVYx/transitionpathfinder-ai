@@ -31,8 +31,10 @@ export type CrossDocumentRow = {
   size_bytes: number | null;
   has_summary: boolean;
   review_status: DocumentReviewStatus;
+  scan_status: string | null;
   created_at: string;
 };
+
 
 export const listAllDocuments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
