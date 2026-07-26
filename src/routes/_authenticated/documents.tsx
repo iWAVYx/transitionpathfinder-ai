@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   UploadCloud,
   Eye,
+  ShieldAlert,
+  RefreshCw,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -17,6 +19,7 @@ import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState"
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
@@ -26,6 +29,8 @@ import {
   type CrossDocumentRow,
   type DocumentReviewStatus,
 } from "@/lib/cross-docs.functions";
+import { rescanDocument } from "@/lib/documents.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/documents")({
