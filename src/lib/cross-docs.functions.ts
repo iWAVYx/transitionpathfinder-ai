@@ -43,7 +43,7 @@ export const listAllDocuments = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("documents")
       .select(
-        "id, student_id, doc_type, title, mime_type, size_bytes, parsed_summary, created_at, students(first_name)",
+        "id, student_id, doc_type, title, mime_type, size_bytes, parsed_summary, scan_status, created_at, students(first_name)",
       )
       .order("created_at", { ascending: false })
       .limit(200);
@@ -61,9 +61,11 @@ export const listAllDocuments = createServerFn({ method: "GET" })
       mime_type: string | null;
       size_bytes: number | null;
       parsed_summary: unknown;
+      scan_status: string | null;
       created_at: string;
       students: { first_name: string } | null;
     };
+
 
     const rows = (data ?? []) as unknown as Row[];
     const ids = rows.map((r) => r.id);
