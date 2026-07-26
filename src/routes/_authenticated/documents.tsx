@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   UploadCloud,
   Eye,
+  ShieldAlert,
+  RefreshCw,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -17,6 +19,7 @@ import { IllustratedEmptyState } from "@/components/empty/IllustratedEmptyState"
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
@@ -26,6 +29,8 @@ import {
   type CrossDocumentRow,
   type DocumentReviewStatus,
 } from "@/lib/cross-docs.functions";
+import { rescanDocument } from "@/lib/documents.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/documents")({
@@ -71,15 +76,48 @@ const STATUS_META: Record<
 
 function DocumentsHubPage() {
   const fetchAll = useServerFn(listAllDocuments);
+  const rescan = useServerFn(rescanDocument);
   const [rows, setRows] = useState<CrossDocumentRow[] | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [q, setQ] = useState("");
+  const [rescanning, setRescanning] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
+  const reload = () => {
     fetchAll()
       .then((r) => setRows(r.documents))
       .catch(() => setRows([]));
+  };
+
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchAll]);
+
+  const handleRescan = async (id: string) => {
+    setRescanning((s) => ({ ...s, [id]: true }));
+    try {
+      const res = await rescan({ data: { id } });
+      if (res.ok) {
+        toast.success("Scan clean — sending to AI for review.");
+      } else {
+        toast.error(
+          res.code === "infected"
+            ? "Threat detected. File removed from storage."
+            : `Rescan still ${res.code}. File remains quarantined.`,
+        );
+      }
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not rescan document.");
+    } finally {
+      setRescanning((s) => {
+        const next = { ...s };
+        delete next[id];
+        return next;
+      });
+    }
+  };
+
 
   const filtered = useMemo(() => {
     if (!rows) return [];
@@ -201,11 +239,29 @@ function DocumentsHubPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <VisibilityBadge visibility="team" />
                     <PermissionLabel can={["view", "comment"]} />
                     <StatusBadge status={d.review_status} />
-                    {d.review_status === "uploaded" || d.review_status === "linked" ? (
+                    <ScanStatusBadge scan={d.scan_status} />
+                    {(d.scan_status === "failed" || d.scan_status === "pending") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!!rescanning[d.id] || d.scan_status === "pending"}
+                        onClick={() => handleRescan(d.id)}
+                      >
+                        <RefreshCw
+                          className={`mr-1.5 h-3.5 w-3.5 ${rescanning[d.id] ? "animate-spin" : ""}`}
+                        />
+                        {rescanning[d.id] ? "Rescanning…" : "Retry scan"}
+                      </Button>
+                    )}
+                    {d.scan_status === "deleted" ? (
+                      <span className="text-xs text-muted-foreground">
+                        File removed — upload again to retry.
+                      </span>
+                    ) : d.review_status === "uploaded" || d.review_status === "linked" ? (
                       <Button asChild size="sm" variant="outline">
                         <Link
                           to="/students/$studentId"
@@ -225,6 +281,7 @@ function DocumentsHubPage() {
                       </Button>
                     )}
                   </div>
+
                 </li>
               ))}
             </ul>
@@ -280,6 +337,34 @@ function StatusBadge({ status }: { status: DocumentReviewStatus }) {
     </span>
   );
 }
+
+function ScanStatusBadge({ scan }: { scan: string | null }) {
+  if (!scan || scan === "clean") return null;
+  const meta: Record<string, { label: string; tone: string }> = {
+    pending: { label: "Scanning…", tone: "bg-muted text-muted-foreground" },
+    failed: {
+      label: "Scan failed",
+      tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
+    },
+    deleted: {
+      label: "Infected — removed",
+      tone: "bg-destructive/10 text-destructive",
+    },
+  };
+  const m = meta[scan] ?? {
+    label: `Scan ${scan}`,
+    tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
+  };
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${m.tone}`}
+    >
+      <ShieldAlert className="h-3 w-3" /> {m.label}
+    </span>
+  );
+}
+
+
 
 function EmptyState() {
   return (
