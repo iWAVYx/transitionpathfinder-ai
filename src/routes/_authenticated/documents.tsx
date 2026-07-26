@@ -338,6 +338,34 @@ function StatusBadge({ status }: { status: DocumentReviewStatus }) {
   );
 }
 
+function ScanStatusBadge({ scan }: { scan: string | null }) {
+  if (!scan || scan === "clean") return null;
+  const meta: Record<string, { label: string; tone: string }> = {
+    pending: { label: "Scanning…", tone: "bg-muted text-muted-foreground" },
+    failed: {
+      label: "Scan failed",
+      tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
+    },
+    deleted: {
+      label: "Infected — removed",
+      tone: "bg-destructive/10 text-destructive",
+    },
+  };
+  const m = meta[scan] ?? {
+    label: `Scan ${scan}`,
+    tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
+  };
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${m.tone}`}
+    >
+      <ShieldAlert className="h-3 w-3" /> {m.label}
+    </span>
+  );
+}
+
+
+
 function EmptyState() {
   return (
     <div className="p-6">
