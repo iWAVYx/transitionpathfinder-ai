@@ -76,15 +76,48 @@ const STATUS_META: Record<
 
 function DocumentsHubPage() {
   const fetchAll = useServerFn(listAllDocuments);
+  const rescan = useServerFn(rescanDocument);
   const [rows, setRows] = useState<CrossDocumentRow[] | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [q, setQ] = useState("");
+  const [rescanning, setRescanning] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
+  const reload = () => {
     fetchAll()
       .then((r) => setRows(r.documents))
       .catch(() => setRows([]));
+  };
+
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchAll]);
+
+  const handleRescan = async (id: string) => {
+    setRescanning((s) => ({ ...s, [id]: true }));
+    try {
+      const res = await rescan({ data: { id } });
+      if (res.ok) {
+        toast.success("Scan clean — sending to AI for review.");
+      } else {
+        toast.error(
+          res.code === "infected"
+            ? "Threat detected. File removed from storage."
+            : `Rescan still ${res.code}. File remains quarantined.`,
+        );
+      }
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not rescan document.");
+    } finally {
+      setRescanning((s) => {
+        const next = { ...s };
+        delete next[id];
+        return next;
+      });
+    }
+  };
+
 
   const filtered = useMemo(() => {
     if (!rows) return [];
