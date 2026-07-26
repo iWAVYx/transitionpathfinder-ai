@@ -110,8 +110,10 @@ export const listAllDocuments = createServerFn({ method: "GET" })
         size_bytes: r.size_bytes,
         has_summary: review_status === "linked",
         review_status,
+        scan_status: r.scan_status,
         created_at: r.created_at,
       };
+
     });
 
     return { documents };
