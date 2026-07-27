@@ -6616,6 +6616,13 @@ export type Database = {
             referencedRelation: "resource_sources"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "resources_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "resource_sources_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rights_transfer_status: {
@@ -8264,6 +8271,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      resource_sources_public: {
+        Row: {
+          audience_focus: string[] | null
+          description: string | null
+          id: string | null
+          last_reviewed_at: string | null
+          location_scope: string | null
+          organization_name: string | null
+          review_status: string | null
+          source_name: string | null
+          source_type: string | null
+          source_url: string | null
+          topic_focus: string[] | null
+        }
+        Insert: {
+          audience_focus?: string[] | null
+          description?: string | null
+          id?: string | null
+          last_reviewed_at?: string | null
+          location_scope?: string | null
+          organization_name?: string | null
+          review_status?: string | null
+          source_name?: string | null
+          source_type?: string | null
+          source_url?: string | null
+          topic_focus?: string[] | null
+        }
+        Update: {
+          audience_focus?: string[] | null
+          description?: string | null
+          id?: string | null
+          last_reviewed_at?: string | null
+          location_scope?: string | null
+          organization_name?: string | null
+          review_status?: string | null
+          source_name?: string | null
+          source_type?: string | null
+          source_url?: string | null
+          topic_focus?: string[] | null
+        }
+        Relationships: []
       }
       student_evidence_v1: {
         Row: {
