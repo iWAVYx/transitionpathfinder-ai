@@ -92,12 +92,11 @@ export type ResourceSourcePublic = {
 export const listSourceLibraries = createServerFn({ method: "GET" })
   .handler(async () => {
     const client = getPublic();
-    const { data: sources, error } = await client
-      .from("resource_sources")
+    const { data: sources, error } = await (client as any)
+      .from("resource_sources_public")
       .select(
         "id,source_name,source_url,organization_name,description,source_type,audience_focus,topic_focus,location_scope,review_status,last_reviewed_at",
       )
-      .neq("review_status", "archived")
       .order("review_status", { ascending: true })
       .order("source_name", { ascending: true });
     if (error || !sources) return { sources: [] as ResourceSourcePublic[] };
