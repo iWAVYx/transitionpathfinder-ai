@@ -70,7 +70,11 @@ describe("redactSentryEvent", () => {
       server_name: "worker-3",
       request: {
         url: "https://app/students/3f2504e0-4f89-11d3-9a0c-0305e82c3301?tok=1",
-        headers: { Authorization: "Bearer abc", Cookie: "sb=1", "Content-Type": "application/json" },
+        headers: {
+          Authorization: "Bearer abc",
+          Cookie: "sb=1",
+          "Content-Type": "application/json",
+        },
         cookies: { sb: "1" },
         data: { iepContent: "full report text" },
         query_string: "tok=1",
@@ -115,13 +119,20 @@ describe("redactSentryEvent", () => {
           {
             value: "failed for parent@example.com on Jordan IEP.pdf",
             stacktrace: {
-              frames: [{ filename: "/app/students/3f2504e0-4f89-11d3-9a0c-0305e82c3301.js", vars: { iep: "secret" } }],
+              frames: [
+                {
+                  filename: "/app/students/3f2504e0-4f89-11d3-9a0c-0305e82c3301.js",
+                  vars: { iep: "secret" },
+                },
+              ],
             },
           },
         ],
       },
     } as Record<string, unknown>) as unknown as {
-      exception: { values: Array<{ value: string; stacktrace: { frames: Array<Record<string, unknown>> } }> };
+      exception: {
+        values: Array<{ value: string; stacktrace: { frames: Array<Record<string, unknown>> } }>;
+      };
     };
 
     const v = out.exception.values[0];
