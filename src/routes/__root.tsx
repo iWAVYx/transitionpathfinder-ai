@@ -240,7 +240,11 @@ function RootComponent() {
 
   useEffect(() => {
     void import("@/lib/dev/hmr-diagnostics").then((m) => m.installHmrDiagnostics());
+    // Single Sentry init for the whole app. Picks staging/production DSN
+    // from window.location.hostname; inert until a DSN is configured.
+    void import("@/lib/sentry/init.client").then((m) => m.initSentry());
     registerServiceWorker();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       router.invalidate();
       queryClient.invalidateQueries();
