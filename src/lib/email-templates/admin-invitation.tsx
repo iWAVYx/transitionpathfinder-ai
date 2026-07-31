@@ -10,6 +10,7 @@ import {
   Section,
   Text,
 } from '@react-email/components'
+import { EmailLegalFooter } from './legal-footer'
 import type { TemplateEntry } from './registry'
 
 interface Props {
@@ -57,6 +58,7 @@ const AdminInvitationEmail = ({
           You'll need to sign in with the email address this invitation was sent to.
           If you weren't expecting this, you can safely ignore this email.
         </Text>
+        <EmailLegalFooter />
       </Container>
     </Body>
   </Html>

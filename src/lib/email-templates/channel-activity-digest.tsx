@@ -10,6 +10,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { EmailLegalFooter } from "./legal-footer";
 import type { TemplateEntry } from "./registry";
 
 interface ChannelRow {
@@ -99,6 +100,7 @@ const Email = ({
           {" · "}
           Change digest frequency in Settings → Notifications.
         </Text>
+        <EmailLegalFooter />
       </Container>
     </Body>
   </Html>

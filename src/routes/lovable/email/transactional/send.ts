@@ -2,6 +2,7 @@ import * as React from 'react'
 import { render } from '@react-email/components'
 import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
+import { SUPPORT_EMAIL } from '@/lib/contact'
 import { TEMPLATES } from '@/lib/email-templates/registry'
 
 // Configuration baked in at scaffold time
@@ -16,7 +17,7 @@ const FROM_DOMAIN = "updates.transitionforwardct.com"
 const FROM_LOCAL = "hello"
 // Replies to transactional mail go to the human-monitored support inbox on the
 // root domain, not the send-only delegated subdomain.
-const REPLY_TO = "support@transitionforwardct.com"
+const REPLY_TO = SUPPORT_EMAIL
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'

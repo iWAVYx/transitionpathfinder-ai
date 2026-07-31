@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { SUPPORT_EMAIL, mailtoHref } from "@/lib/contact";
 import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users, Languages, Clock, User, Accessibility, Moon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -642,8 +643,8 @@ function SettingsPage() {
                 <p className="font-medium">Export everything</p>
                 <p className="text-xs text-muted-foreground">
                   Want a copy of every report, goal, and document? Email{" "}
-                  <a className="underline" href="mailto:support@transitionforwardct.com">
-                    support@transitionforwardct.com
+                  <a className="underline" href={mailtoHref("support")}>
+                    {SUPPORT_EMAIL}
                   </a>{" "}
                   and we'll send a full export within 7 days.
                 </p>

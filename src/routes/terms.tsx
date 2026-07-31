@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FileText, ShieldCheck, AlertTriangle, Scale } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import { LEGAL_ATTRIBUTION, LEGAL_ENTITY_NAME } from "@/lib/contact";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -42,6 +43,10 @@ function TermsPage() {
         </header>
 
         <Section icon={FileText} title="What TransitionForward is">
+          <p>
+            {LEGAL_ATTRIBUTION} Where these terms say "we" or "us," they mean{" "}
+            {LEGAL_ENTITY_NAME}, the company that operates the service.
+          </p>
           <p>
             TransitionForward is software that helps families and education teams capture
             IEP goals, action items, voice, partner connections, and a unified pathway
