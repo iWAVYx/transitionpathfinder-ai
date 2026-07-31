@@ -10,6 +10,7 @@ import {
   Section,
   Text,
 } from '@react-email/components'
+import { EmailLegalFooter } from './legal-footer'
 import type { TemplateEntry } from './registry'
 
 interface Props {
@@ -50,6 +51,7 @@ const CollaboratorInvitationEmail = ({
         <Text style={footer}>
           If you weren't expecting this, you can safely ignore this email.
         </Text>
+        <EmailLegalFooter />
       </Container>
     </Body>
   </Html>
