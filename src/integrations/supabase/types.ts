@@ -394,27 +394,39 @@ export type Database = {
       admin_doc_access_grants: {
         Row: {
           actor_id: string
+          case_reference: string | null
           created_at: string
           document_id: string
           expires_at: string
           id: string
           reason: string
+          revoked_at: string | null
+          revoked_by: string | null
+          scope: string
         }
         Insert: {
           actor_id: string
+          case_reference?: string | null
           created_at?: string
           document_id: string
           expires_at?: string
           id?: string
           reason: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope?: string
         }
         Update: {
           actor_id?: string
+          case_reference?: string | null
           created_at?: string
           document_id?: string
           expires_at?: string
           id?: string
           reason?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope?: string
         }
         Relationships: [
           {

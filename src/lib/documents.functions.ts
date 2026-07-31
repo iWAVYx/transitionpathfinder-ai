@@ -824,6 +824,10 @@ export const requestAdminDocAccess = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({
     document_id: z.string().uuid(),
     reason: z.string().trim().min(8, "Please describe why this access is needed.").max(500),
+    scope: z
+      .enum(["single_document", "compliance_audit", "support_ticket", "data_request"])
+      .default("single_document"),
+    case_reference: z.string().trim().max(120).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -834,8 +838,11 @@ export const requestAdminDocAccess = createServerFn({ method: "POST" })
       actor_id: userId,
       document_id: data.document_id,
       reason: data.reason,
+      scope: data.scope,
+      case_reference: data.case_reference ?? null,
     });
     if (grantErr) throw new Error("Could not record override grant.");
+
 
     // Now that the grant exists, RLS lets us load metadata + mint a URL.
     const { data: doc } = await supabase
