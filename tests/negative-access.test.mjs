@@ -139,21 +139,33 @@ for (const [table, payload] of WRITE_TARGETS) {
 }
 
 test("anon cannot escalate a role via UPDATE on user_roles", async () => {
-  const { status } = await rest("user_roles?role=eq.parent", {
+  // PostgREST answers 204 when RLS filters every candidate row, so assert on
+  // the returned representation: it must be empty, i.e. nothing was mutated.
+  const { status, body } = await rest("user_roles?role=eq.parent", {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
+    headers: { "Content-Type": "application/json", Prefer: "return=representation" },
     body: JSON.stringify({ role: "admin" }),
   });
-  assert.ok(status >= 400, `anon UPDATE user_roles unexpectedly succeeded (${status})`);
+  if (status < 400) {
+    assert.ok(
+      Array.isArray(body) && body.length === 0,
+      `anon UPDATE user_roles mutated ${body?.length} row(s)`,
+    );
+  }
 });
 
 test("anon cannot delete audit rows (append-only guarantee)", async () => {
   for (const table of ["security_events", "audit_log", "channel_audit_events"]) {
-    const { status } = await rest(`${table}?id=not.is.null`, {
+    const { status, body } = await rest(`${table}?id=not.is.null`, {
       method: "DELETE",
-      headers: { Prefer: "return=minimal" },
+      headers: { Prefer: "return=representation" },
     });
-    assert.ok(status >= 400, `anon DELETE on ${table} unexpectedly succeeded (${status})`);
+    if (status < 400) {
+      assert.ok(
+        Array.isArray(body) && body.length === 0,
+        `anon DELETE on ${table} removed ${body?.length} row(s)`,
+      );
+    }
   }
 });
 
