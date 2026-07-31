@@ -120,10 +120,9 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       if (data.organizationId) metadata["organizationId"] = data.organizationId;
       metadata["managed_payments"] = "true";
 
-      const session = await stripe.checkout.sessions.create({
-        line_items: [
-          { price: stripePrice.id, quantity: data.quantity || 1 },
-        ],
+      // `managed_payments` is a preview-API field not yet in the SDK types.
+      const sessionParams = {
+        line_items: [{ price: stripePrice.id, quantity: data.quantity || 1 }],
         mode: isRecurring ? "subscription" : "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
@@ -133,7 +132,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         ...(isRecurring
           ? { subscription_data: { metadata } }
           : { payment_intent_data: { description: productDescription } }),
-      } as Stripe.Checkout.SessionCreateParams);
+      } as unknown as Stripe.Checkout.SessionCreateParams;
+
+      const session = await stripe.checkout.sessions.create(sessionParams);
+
 
       return { clientSecret: session.client_secret ?? "" };
     } catch (error) {
