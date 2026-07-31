@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { LEGAL_ATTRIBUTION, PRIVACY_EMAIL } from "@/lib/contact";
 import {
   ShieldCheck,
   Lock,
@@ -113,6 +114,9 @@ function PrivacyPage() {
             of every promise we make — and the small-print version is the same, just longer.
           </p>
           <p className="mt-4 text-xs text-muted-foreground">
+            {LEGAL_ATTRIBUTION} Privacy requests reach a person at {PRIVACY_EMAIL}.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
             Last updated for the 2026 pilot. We'll date and post any material change here before
             it takes effect.
           </p>

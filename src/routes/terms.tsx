@@ -43,6 +43,10 @@ function TermsPage() {
 
         <Section icon={FileText} title="What TransitionForward is">
           <p>
+            {LEGAL_ATTRIBUTION} Where these terms say "we" or "us," they mean{" "}
+            {LEGAL_ENTITY_NAME}, the company that operates the service.
+          </p>
+          <p>
             TransitionForward is software that helps families and education teams capture
             IEP goals, action items, voice, partner connections, and a unified pathway
             report. It is <strong>not</strong> a school district's official system of
