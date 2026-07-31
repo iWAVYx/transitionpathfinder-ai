@@ -1,0 +1,225 @@
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PaymentTestModeBanner } from "@/components/billing/PaymentTestModeBanner";
+import { StripeEmbeddedCheckout } from "@/components/billing/StripeEmbeddedCheckout";
+import {
+  createPortalSession,
+  getMyBilling,
+  type BillingSummaryRow,
+} from "@/lib/billing/billing.functions";
+import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
+
+interface PlanOption {
+  priceId: string;
+  name: string;
+  cadence: string;
+  amount: string;
+  blurb: string;
+}
+
+const PLANS: PlanOption[] = [
+  {
+    priceId: "tf_school_monthly",
+    name: "School Plan",
+    cadence: "Per Month",
+    amount: "$499",
+    blurb: "Full school access for a transition team, with onboarding support.",
+  },
+  {
+    priceId: "tf_school_yearly",
+    name: "School Plan",
+    cadence: "Per Year",
+    amount: "$2,999",
+    blurb: "Annual school access — best value for a full-year rollout.",
+  },
+  {
+    priceId: "tf_educator_monthly",
+    name: "Educator & Case Manager",
+    cadence: "Per Month",
+    amount: "$29.99",
+    blurb: "Caseload tools, PPT prep, and goal tracking for one caseload.",
+  },
+  {
+    priceId: "tf_partner_premium_monthly",
+    name: "Partner Premium",
+    cadence: "Per Month",
+    amount: "$99",
+    blurb: "Unlimited opportunity listings, analytics, and featured placement.",
+  },
+];
+
+function statusTone(status: string): "default" | "secondary" | "destructive" {
+  if (status === "active" || status === "trialing") return "default";
+  if (status === "past_due" || status === "unpaid") return "destructive";
+  return "secondary";
+}
+
+/**
+ * Org-scoped billing. Billing attaches to the organization, never to a
+ * user role — only org admins reach this panel (the console already gates
+ * on is_org_admin) and Stripe's webhook-confirmed state controls access.
+ */
+export function BillingPanel({ orgId }: { orgId: string }) {
+  const qc = useQueryClient();
+  const configured = isPaymentsConfigured();
+  const fetchBilling = useServerFn(getMyBilling);
+  const openPortal = useServerFn(createPortalSession);
+  const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+
+  const billing = useQuery({
+    queryKey: ["billing", orgId],
+    enabled: configured,
+    queryFn: () => fetchBilling({ data: { environment: getStripeEnvironment() } }),
+  });
+
+  const portal = useMutation({
+    mutationFn: () =>
+      openPortal({
+        data: {
+          organizationId: orgId,
+          returnUrl: window.location.href,
+          environment: getStripeEnvironment(),
+        },
+      }),
+    onSuccess: (res) => {
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      window.open(res.url, "_blank", "noopener,noreferrer");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (!configured) {
+    return <PaymentTestModeBanner />;
+  }
+
+  const rows: BillingSummaryRow[] = (billing.data ?? []).filter(
+    (r) => r.organization_id === orgId,
+  );
+
+  return (
+    <div className="space-y-4">
+      <PaymentTestModeBanner />
+
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-base">Current Subscription</CardTitle>
+            <CardDescription>
+              Billing belongs to this organization. Seats and access follow the
+              confirmed payment state.
+            </CardDescription>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={portal.isPending || rows.length === 0}
+            onClick={() => portal.mutate()}
+          >
+            {portal.isPending ? (
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            Manage billing
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {billing.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading billing…</p>
+          ) : rows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No subscription yet for this organization. Choose a plan below to
+              start checkout.
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {rows.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm"
+                >
+                  <span className="font-medium">{r.price_id ?? "Plan"}</span>
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <Badge variant={statusTone(r.status)}>{r.status}</Badge>
+                    {r.quantity > 1 && <span>{r.quantity} seats</span>}
+                    {r.current_period_end && (
+                      <span>
+                        {r.cancel_at_period_end ? "Ends" : "Renews"}{" "}
+                        {new Date(r.current_period_end).toLocaleDateString()}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {PLANS.map((plan) => (
+          <Card key={plan.priceId}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{plan.name}</CardTitle>
+              <CardDescription>
+                <span className="font-display text-xl text-foreground">
+                  {plan.amount}
+                </span>{" "}
+                · {plan.cadence}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">{plan.blurb}</p>
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={() => setCheckoutPrice(plan.priceId)}
+              >
+                <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Start checkout
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Dialog
+        open={checkoutPrice !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCheckoutPrice(null);
+            qc.invalidateQueries({ queryKey: ["billing", orgId] });
+          }
+        }}
+      >
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Checkout</DialogTitle>
+          </DialogHeader>
+          {checkoutPrice && (
+            <StripeEmbeddedCheckout
+              priceId={checkoutPrice}
+              organizationId={orgId}
+              returnUrl={`${window.location.origin}/admin/orgs?checkout=complete`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
