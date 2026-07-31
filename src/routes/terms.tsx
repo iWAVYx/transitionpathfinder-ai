@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FileText, ShieldCheck, AlertTriangle, Scale } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import { LEGAL_ATTRIBUTION, LEGAL_ENTITY_NAME } from "@/lib/contact";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
