@@ -55,6 +55,8 @@ export const OWNER_NAV: NavItem[] = [
   // 2. Access & Accounts
   { to: "/owner/users", label: "Manage users", icon: UserCog, group: "Access & Accounts" },
   { to: "/owner/admins", label: "Admin team", icon: Users, group: "Access & Accounts" },
+  { to: "/owner/support-access", label: "Exceptional access log", icon: Shield, group: "Access & Accounts" },
+
   { to: "/owner/waitlist", label: "Review waitlist", icon: ClipboardList, group: "Access & Accounts" },
   { to: "/owner/contacts", label: "Contact requests", icon: Mail, group: "Access & Accounts" },
 
