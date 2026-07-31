@@ -141,6 +141,7 @@ import { Route as AuthenticatedOwnerUsersRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOwnerTestingScriptsRouteImport } from './routes/_authenticated/owner.testing-scripts'
 import { Route as AuthenticatedOwnerTestingRouteImport } from './routes/_authenticated/owner.testing'
 import { Route as AuthenticatedOwnerTestimonialsRouteImport } from './routes/_authenticated/owner.testimonials'
+import { Route as AuthenticatedOwnerSupportAccessRouteImport } from './routes/_authenticated/owner.support-access'
 import { Route as AuthenticatedOwnerSettingsRouteImport } from './routes/_authenticated/owner.settings'
 import { Route as AuthenticatedOwnerRoleAuditRouteImport } from './routes/_authenticated/owner.role-audit'
 import { Route as AuthenticatedOwnerResourcesRouteImport } from './routes/_authenticated/owner.resources'
@@ -921,6 +922,12 @@ const AuthenticatedOwnerTestimonialsRoute =
     path: '/testimonials',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerSupportAccessRoute =
+  AuthenticatedOwnerSupportAccessRouteImport.update({
+    id: '/support-access',
+    path: '/support-access',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerSettingsRoute =
   AuthenticatedOwnerSettingsRouteImport.update({
     id: '/settings',
@@ -1564,6 +1571,7 @@ export interface FileRoutesByFullPath {
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/role-audit': typeof AuthenticatedOwnerRoleAuditRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/owner/support-access': typeof AuthenticatedOwnerSupportAccessRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/testing': typeof AuthenticatedOwnerTestingRoute
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
@@ -1776,6 +1784,7 @@ export interface FileRoutesByTo {
   '/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/owner/role-audit': typeof AuthenticatedOwnerRoleAuditRoute
   '/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/owner/support-access': typeof AuthenticatedOwnerSupportAccessRoute
   '/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/owner/testing': typeof AuthenticatedOwnerTestingRoute
   '/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
@@ -1992,6 +2001,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/resources': typeof AuthenticatedOwnerResourcesRoute
   '/_authenticated/owner/role-audit': typeof AuthenticatedOwnerRoleAuditRoute
   '/_authenticated/owner/settings': typeof AuthenticatedOwnerSettingsRoute
+  '/_authenticated/owner/support-access': typeof AuthenticatedOwnerSupportAccessRoute
   '/_authenticated/owner/testimonials': typeof AuthenticatedOwnerTestimonialsRoute
   '/_authenticated/owner/testing': typeof AuthenticatedOwnerTestingRoute
   '/_authenticated/owner/testing-scripts': typeof AuthenticatedOwnerTestingScriptsRoute
@@ -2208,6 +2218,7 @@ export interface FileRouteTypes {
     | '/owner/resources'
     | '/owner/role-audit'
     | '/owner/settings'
+    | '/owner/support-access'
     | '/owner/testimonials'
     | '/owner/testing'
     | '/owner/testing-scripts'
@@ -2420,6 +2431,7 @@ export interface FileRouteTypes {
     | '/owner/resources'
     | '/owner/role-audit'
     | '/owner/settings'
+    | '/owner/support-access'
     | '/owner/testimonials'
     | '/owner/testing'
     | '/owner/testing-scripts'
@@ -2635,6 +2647,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/resources'
     | '/_authenticated/owner/role-audit'
     | '/_authenticated/owner/settings'
+    | '/_authenticated/owner/support-access'
     | '/_authenticated/owner/testimonials'
     | '/_authenticated/owner/testing'
     | '/_authenticated/owner/testing-scripts'
@@ -3684,6 +3697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerTestimonialsRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/support-access': {
+      id: '/_authenticated/owner/support-access'
+      path: '/support-access'
+      fullPath: '/owner/support-access'
+      preLoaderRoute: typeof AuthenticatedOwnerSupportAccessRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/settings': {
       id: '/_authenticated/owner/settings'
       path: '/settings'
@@ -4341,6 +4361,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerResourcesRoute: typeof AuthenticatedOwnerResourcesRoute
   AuthenticatedOwnerRoleAuditRoute: typeof AuthenticatedOwnerRoleAuditRoute
   AuthenticatedOwnerSettingsRoute: typeof AuthenticatedOwnerSettingsRoute
+  AuthenticatedOwnerSupportAccessRoute: typeof AuthenticatedOwnerSupportAccessRoute
   AuthenticatedOwnerTestimonialsRoute: typeof AuthenticatedOwnerTestimonialsRoute
   AuthenticatedOwnerTestingRoute: typeof AuthenticatedOwnerTestingRoute
   AuthenticatedOwnerTestingScriptsRoute: typeof AuthenticatedOwnerTestingScriptsRoute
@@ -4393,6 +4414,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerResourcesRoute: AuthenticatedOwnerResourcesRoute,
   AuthenticatedOwnerRoleAuditRoute: AuthenticatedOwnerRoleAuditRoute,
   AuthenticatedOwnerSettingsRoute: AuthenticatedOwnerSettingsRoute,
+  AuthenticatedOwnerSupportAccessRoute: AuthenticatedOwnerSupportAccessRoute,
   AuthenticatedOwnerTestimonialsRoute: AuthenticatedOwnerTestimonialsRoute,
   AuthenticatedOwnerTestingRoute: AuthenticatedOwnerTestingRoute,
   AuthenticatedOwnerTestingScriptsRoute: AuthenticatedOwnerTestingScriptsRoute,
