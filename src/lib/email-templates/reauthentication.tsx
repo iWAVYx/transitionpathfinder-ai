@@ -9,6 +9,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { EmailLegalFooter } from './legal-footer'
 
 interface ReauthenticationEmailProps {
   token: string
@@ -27,6 +28,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
           This code will expire shortly. If you didn't request this, you can
           safely ignore this email.
         </Text>
+        <EmailLegalFooter />
       </Container>
     </Body>
   </Html>

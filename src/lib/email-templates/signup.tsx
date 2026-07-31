@@ -11,6 +11,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { EmailLegalFooter } from './legal-footer'
 
 interface SignupEmailProps {
   siteName: string
@@ -51,6 +52,7 @@ export const SignupEmail = ({
         <Text style={footer}>
           If you didn't create an account, you can safely ignore this email.
         </Text>
+        <EmailLegalFooter />
       </Container>
     </Body>
   </Html>
