@@ -14,6 +14,7 @@ import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SALES_EMAIL, mailtoHref } from "@/lib/contact";
 import { toTitleCase } from "@/lib/title-case";
 import { cn } from "@/lib/utils";
 
@@ -267,7 +268,7 @@ function PricingPage() {
                 We will never let cost block a family from the core planning tools their
                 student needs to leave high school with a real plan. Families included through a licensed school or district access TransitionForward at no extra cost. If cost is
                 a barrier — for a family, a teacher, or a small program —
-                email <a className="font-medium text-primary underline underline-offset-2" href="mailto:sales@transitionforwardct.com">sales@transitionforwardct.com</a>.
+                email <a className="font-medium text-primary underline underline-offset-2" href={mailtoHref("sales")}>{SALES_EMAIL}</a>.
               </p>
             </div>
           </div>

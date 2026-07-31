@@ -16,7 +16,7 @@ const FROM_DOMAIN = "updates.transitionforwardct.com"
 const FROM_LOCAL = "hello"
 // Replies to transactional mail go to the human-monitored support inbox on the
 // root domain, not the send-only delegated subdomain.
-const REPLY_TO = "support@transitionforwardct.com"
+const REPLY_TO = SUPPORT_EMAIL
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'

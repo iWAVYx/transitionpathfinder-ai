@@ -37,7 +37,7 @@ const ROOT_DOMAIN = "transitionforwardct.com"
 // Keep visible From on the verified sending subdomain so DKIM/DMARC align.
 const FROM_DOMAIN = "updates.transitionforwardct.com"
 // Replies to auth mail reach the monitored support inbox.
-const REPLY_TO = "support@transitionforwardct.com"
+const REPLY_TO = SUPPORT_EMAIL
 const FROM_LOCAL = "hello"
 
 function redactEmail(email: string | null | undefined): string {

@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
+import { LEGAL_ATTRIBUTION, legalCopyright } from "@/lib/contact";
+
 const productLinks = [
   { to: "/platform", label: "The Platform" },
   { to: "/demo", label: "See the Demo" },
@@ -87,7 +89,9 @@ export function SiteFooter() {
 
       <div className="border-t border-border/60 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:px-6 lg:px-8">
-          <p>© {new Date().getFullYear()} TransitionForward. Made with care in Connecticut.</p>
+          <p>
+            {legalCopyright()} · {LEGAL_ATTRIBUTION} Made with care in Connecticut.
+          </p>
           <p className="italic">
             <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
             <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
