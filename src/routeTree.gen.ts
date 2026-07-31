@@ -219,6 +219,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as DemoFeatureRoleSlugRouteImport } from './routes/demo_.feature.$role.$slug'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksObsEventsPurgeRouteImport } from './routes/api/public/hooks/obs-events-purge'
 import { Route as ApiPublicHooksObsAlertCheckRouteImport } from './routes/api/public/hooks/obs-alert-check'
 import { Route as AuthenticatedFamilyResourcesRecommendedRouteImport } from './routes/_authenticated/family.resources.recommended'
@@ -1377,6 +1378,12 @@ const DemoFeatureRoleSlugRoute = DemoFeatureRoleSlugRouteImport.update({
   path: '/demo/feature/$role/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksObsEventsPurgeRoute =
   ApiPublicHooksObsEventsPurgeRouteImport.update({
     id: '/api/public/hooks/obs-events-purge',
@@ -1610,6 +1617,7 @@ export interface FileRoutesByFullPath {
   '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
   '/api/public/hooks/obs-alert-check': typeof ApiPublicHooksObsAlertCheckRoute
   '/api/public/hooks/obs-events-purge': typeof ApiPublicHooksObsEventsPurgeRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/demo/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1823,6 +1831,7 @@ export interface FileRoutesByTo {
   '/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
   '/api/public/hooks/obs-alert-check': typeof ApiPublicHooksObsAlertCheckRoute
   '/api/public/hooks/obs-events-purge': typeof ApiPublicHooksObsEventsPurgeRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/demo/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -2040,6 +2049,7 @@ export interface FileRoutesById {
   '/_authenticated/family/resources/recommended': typeof AuthenticatedFamilyResourcesRecommendedRoute
   '/api/public/hooks/obs-alert-check': typeof ApiPublicHooksObsAlertCheckRoute
   '/api/public/hooks/obs-events-purge': typeof ApiPublicHooksObsEventsPurgeRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/demo_/feature/$role/$slug': typeof DemoFeatureRoleSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -2257,6 +2267,7 @@ export interface FileRouteTypes {
     | '/family/resources/recommended'
     | '/api/public/hooks/obs-alert-check'
     | '/api/public/hooks/obs-events-purge'
+    | '/api/public/payments/webhook'
     | '/demo/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -2470,6 +2481,7 @@ export interface FileRouteTypes {
     | '/family/resources/recommended'
     | '/api/public/hooks/obs-alert-check'
     | '/api/public/hooks/obs-events-purge'
+    | '/api/public/payments/webhook'
     | '/demo/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -2686,6 +2698,7 @@ export interface FileRouteTypes {
     | '/_authenticated/family/resources/recommended'
     | '/api/public/hooks/obs-alert-check'
     | '/api/public/hooks/obs-events-purge'
+    | '/api/public/payments/webhook'
     | '/demo_/feature/$role/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -2763,6 +2776,7 @@ export interface RootRouteChildren {
   DemoWorkspaceIndexRoute: typeof DemoWorkspaceIndexRoute
   ApiPublicHooksObsAlertCheckRoute: typeof ApiPublicHooksObsAlertCheckRoute
   ApiPublicHooksObsEventsPurgeRoute: typeof ApiPublicHooksObsEventsPurgeRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   DemoFeatureRoleSlugRoute: typeof DemoFeatureRoleSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -4243,6 +4257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoFeatureRoleSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/obs-events-purge': {
       id: '/api/public/hooks/obs-events-purge'
       path: '/api/public/hooks/obs-events-purge'
@@ -4763,6 +4784,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoWorkspaceIndexRoute: DemoWorkspaceIndexRoute,
   ApiPublicHooksObsAlertCheckRoute: ApiPublicHooksObsAlertCheckRoute,
   ApiPublicHooksObsEventsPurgeRoute: ApiPublicHooksObsEventsPurgeRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   DemoFeatureRoleSlugRoute: DemoFeatureRoleSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
