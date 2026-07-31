@@ -34,7 +34,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       returnUrl: string;
       environment: StripeEnv;
     }) => {
-      if (!ID_RE.test(data.priceId)) throw new Error("Invalid priceId");
+      if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) {
+        throw new Error("Invalid priceId");
+      }
+
       if (data.quantity != null && (data.quantity < 1 || data.quantity > 1000)) {
         throw new Error("Invalid quantity");
       }
