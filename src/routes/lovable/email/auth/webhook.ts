@@ -36,6 +36,8 @@ const SENDER_DOMAIN = "updates.transitionforwardct.com"
 const ROOT_DOMAIN = "transitionforwardct.com"
 // Keep visible From on the verified sending subdomain so DKIM/DMARC align.
 const FROM_DOMAIN = "updates.transitionforwardct.com"
+// Replies to auth mail reach the monitored support inbox.
+const REPLY_TO = "support@transitionforwardct.com"
 const FROM_LOCAL = "hello"
 
 function redactEmail(email: string | null | undefined): string {
@@ -181,6 +183,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
             to: payload.data.email,
             from: `${SITE_NAME} <${FROM_LOCAL}@${FROM_DOMAIN}>`,
             sender_domain: SENDER_DOMAIN,
+            reply_to: REPLY_TO,
             subject: EMAIL_SUBJECTS[emailType] || 'Notification',
             html,
             text,

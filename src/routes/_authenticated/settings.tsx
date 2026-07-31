@@ -642,8 +642,8 @@ function SettingsPage() {
                 <p className="font-medium">Export everything</p>
                 <p className="text-xs text-muted-foreground">
                   Want a copy of every report, goal, and document? Email{" "}
-                  <a className="underline" href="mailto:hello@transitionforwardct.com">
-                    hello@transitionforwardct.com
+                  <a className="underline" href="mailto:support@transitionforwardct.com">
+                    support@transitionforwardct.com
                   </a>{" "}
                   and we'll send a full export within 7 days.
                 </p>
