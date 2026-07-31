@@ -16,7 +16,10 @@ import {
   XCircle,
   Activity,
   ShieldAlert,
+  CreditCard,
 } from "lucide-react";
+import { BillingPanel } from "@/components/admin/BillingPanel";
+
 import { HealthTab } from "@/components/admin/health/HealthTab";
 import { ModerationTab } from "@/components/admin/moderation/ModerationTab";
 import { toast } from "sonner";
@@ -210,6 +213,10 @@ function OperatorConsolePage() {
                   <TabsTrigger value="members">
                     <Users className="mr-1.5 h-3.5 w-3.5" /> Members & Seats
                   </TabsTrigger>
+                  <TabsTrigger value="billing">
+                    <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Billing
+                  </TabsTrigger>
+
                   {isPlatformAdmin && (
                     <TabsTrigger value="requests">
                       <Inbox className="mr-1.5 h-3.5 w-3.5" /> License Requests
@@ -236,6 +243,10 @@ function OperatorConsolePage() {
                 <TabsContent value="members">
                   <MembersPanel orgId={selectedOrg.id} />
                 </TabsContent>
+                <TabsContent value="billing">
+                  <BillingPanel orgId={selectedOrg.id} />
+                </TabsContent>
+
                 {isPlatformAdmin && (
                   <TabsContent value="requests">
                     <LicenseRequestsPanel />

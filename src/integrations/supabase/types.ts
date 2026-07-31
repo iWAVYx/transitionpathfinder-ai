@@ -6182,6 +6182,27 @@ export type Database = {
           },
         ]
       }
+      processed_payment_events: {
+        Row: {
+          environment: string
+          event_id: string
+          event_type: string
+          processed_at: string
+        }
+        Insert: {
+          environment?: string
+          event_id: string
+          event_type: string
+          processed_at?: string
+        }
+        Update: {
+          environment?: string
+          event_id?: string
+          event_type?: string
+          processed_at?: string
+        }
+        Relationships: []
+      }
       product_issues: {
         Row: {
           admin_notes: string | null
@@ -7625,6 +7646,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "students_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          organization_id: string | null
+          price_id: string | null
+          product_id: string | null
+          quantity: number
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          organization_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          status?: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          organization_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
+          quantity?: number
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
