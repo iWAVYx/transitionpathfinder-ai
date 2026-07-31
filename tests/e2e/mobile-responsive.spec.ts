@@ -14,6 +14,7 @@ import { test, expect } from "@playwright/test";
  */
 
 const VIEWPORTS = [
+  { label: "small-android", width: 320, height: 640 },
   { label: "iphone-se", width: 375, height: 667 },
   { label: "iphone-plus", width: 414, height: 896 },
   { label: "ipad", width: 768, height: 1024 },
@@ -31,6 +32,11 @@ const ROUTES = [
   "/partner-directory",
   "/help",
   "/login",
+  "/platform",
+  "/blog",
+  "/get-started",
+  "/demo",
+  "/demo/transition-channel",
 ];
 
 for (const vp of VIEWPORTS) {
