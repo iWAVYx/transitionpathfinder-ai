@@ -16,7 +16,10 @@ import {
   XCircle,
   Activity,
   ShieldAlert,
+  CreditCard,
 } from "lucide-react";
+import { BillingPanel } from "@/components/admin/BillingPanel";
+
 import { HealthTab } from "@/components/admin/health/HealthTab";
 import { ModerationTab } from "@/components/admin/moderation/ModerationTab";
 import { toast } from "sonner";
