@@ -19,7 +19,7 @@ export function SiteShell({
   const testId = dashboardTestId ?? dashboardTestIdForPath(location.pathname);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+    <div className="flex min-h-dvh flex-col overflow-x-clip bg-background text-foreground">
       <SiteHeader />
       <main
         id="main-content"

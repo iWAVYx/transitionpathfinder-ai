@@ -183,10 +183,10 @@ function DemoTransitionChannelPage() {
               action is isolated — nothing is sent, saved to the real database, or delivered.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
             <Link
               to={backTo}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary"
             >
               <ArrowLeft className="h-4 w-4" /> Back to Dashboard
             </Link>
