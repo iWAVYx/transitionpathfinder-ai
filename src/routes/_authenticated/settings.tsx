@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { SUPPORT_EMAIL, mailtoHref } from "@/lib/contact";
 import { Bell, Shield, Mail, KeyRound, Download, Trash2, Users, Languages, Clock, User, Accessibility, Moon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
