@@ -210,6 +210,10 @@ function OperatorConsolePage() {
                   <TabsTrigger value="members">
                     <Users className="mr-1.5 h-3.5 w-3.5" /> Members & Seats
                   </TabsTrigger>
+                  <TabsTrigger value="billing">
+                    <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Billing
+                  </TabsTrigger>
+
                   {isPlatformAdmin && (
                     <TabsTrigger value="requests">
                       <Inbox className="mr-1.5 h-3.5 w-3.5" /> License Requests
