@@ -17,8 +17,10 @@ export type SentryEnvironment = "production" | "staging";
  * Client Keys (DSN). They look like:
  *   https://<publicKey>@o<orgId>.ingest.us.sentry.io/<projectId>
  */
-export const SENTRY_DSN_PRODUCTION = "";
-export const SENTRY_DSN_STAGING = "";
+export const SENTRY_DSN_PRODUCTION =
+  "https://658e3929fc14f35f8ec663e471a78d15@o4511808437223425.ingest.us.sentry.io/4511810778038272";
+export const SENTRY_DSN_STAGING =
+  "https://4869709386a8b9a9800ea84ce8a1845a@o4511808437223425.ingest.us.sentry.io/4511810780921857";
 
 /** Hostnames that are allowed to report into the production Sentry project. */
 const PRODUCTION_HOSTS = new Set(["transitionforwardct.com", "www.transitionforwardct.com"]);
