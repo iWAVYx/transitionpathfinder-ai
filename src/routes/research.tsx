@@ -28,7 +28,7 @@ export const Route = createFileRoute("/research")({
           "An interactive evidence journey — the data, voices, and findings that shaped TransitionForward, mapped directly to the platform we built.",
       },
       { property: "og:title", content: "The research behind TransitionForward" },
-      { property: "og:image", content: researchHero },
+      { property: "og:image", content: photos.research },
       { property: "og:url", content: "/research" },
     ],
     links: [{ rel: "canonical", href: "/research" }],
@@ -58,7 +58,7 @@ function ResearchHero() {
   return (
     <section ref={ref} className="relative isolate -mt-px h-[65svh] min-h-[480px] overflow-hidden">
       <motion.div style={{ scale, y }} className="absolute inset-0 -z-20">
-        <img src={researchHero} alt="Research papers, notebook, and a chart on a desk" className="h-full w-full object-cover" />
+        <img src={photos.research} alt="Research papers, notebook, and a chart on a desk" className="h-full w-full object-cover" />
       </motion.div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/90 to-background/30" />
       <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
