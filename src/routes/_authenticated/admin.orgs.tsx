@@ -243,6 +243,10 @@ function OperatorConsolePage() {
                 <TabsContent value="members">
                   <MembersPanel orgId={selectedOrg.id} />
                 </TabsContent>
+                <TabsContent value="billing">
+                  <BillingPanel orgId={selectedOrg.id} />
+                </TabsContent>
+
                 {isPlatformAdmin && (
                   <TabsContent value="requests">
                     <LicenseRequestsPanel />
