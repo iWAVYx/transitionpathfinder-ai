@@ -1,80 +1,98 @@
-# TransitionForward Signed-In Beta Readiness Pass
+# TransitionForward Hardening, Operations, Billing & Responsive Program
 
-This is a large verification + remediation program. Below is the sequenced plan, scoped to preserve the existing UI, routes, and dashboard layouts. Each slice ends with concrete evidence (commands run, output captured, defects logged, fixes committed) written into `docs/release-readiness/beta-signin-acceptance.md`.
+Six phases, executed and verified one at a time. Desktop UI, dashboard structure, Transition Workspace, feature routes, and existing capabilities are preserved unless a phase explicitly requires change.
 
-## Slice 1 — Inventory & Configuration Audit (read-only)
-- Enumerate current auth config via Supabase Management API (`configure_auth` state, Site URL, redirect allowlist, rate limits, CAPTCHA, custom SMTP status).
-- Confirm Lovable Emails vs Resend/SMTP: this project uses Lovable-managed email on `updates.transitionforwardct.com`. Document that "Supabase custom SMTP" is not applicable — the auth hook routes through `/lovable/email/auth/webhook`.
-- Enumerate published routes, RLS coverage (`supabase--linter`), storage buckets, edge functions.
-- Deliverable: `docs/release-readiness/beta-signin-acceptance.md` §1 with findings and any required *external* actions listed as a checklist for the user (dashboard path + setting + expected value + verification step).
+---
 
-## Slice 2 — Sentry Integration
-- Add `@sentry/react` (frontend) and `@sentry/node` compatible init for TanStack server functions/routes.
-- Two envs via `VITE_SENTRY_DSN_STAGING` / `VITE_SENTRY_DSN_PROD` + `SENTRY_DSN_*` server; environment derived from `import.meta.env.MODE` / hostname.
-- Config: `sendDefaultPii: false`, `replaysSessionSampleRate: 0`, `replaysOnErrorSampleRate: 0`, `integrations` exclude Replay.
-- Add `beforeSend`/`beforeSendTransaction` redactor: strips `email`, `full_name`, `student_id`, `document_id`, `title`, `content`, `message`, `token`, `authorization`, `body`, and any key matching `/name|email|student|doc|report|token|body|content|message/i`. URL paths with UUIDs replaced by `:id`.
-- Instrument `src/lib/obs/instrument.server.ts` to also emit Sentry captures for `status !== 'ok'` in auth, uploads, email queue, pathway engine, and server routes.
-- Alerts: document the exact Sentry project alert rules (auth failures >5/5m, upload errors >3/5m, email queue DLQ >0, pathway engine errors >1/5m, edge/server route 5xx >5/5m) in the acceptance doc as external setup.
-- Unit tests for the redactor: `tests/unit/sentry-redact.test.ts` — asserts email/name/UUID/token stripping.
+## Phase 1 — Owner Admin Hub
 
-## Slice 3 — RLS, Storage, Tenant Isolation Audit
-- Run `supabase--linter` and capture full output.
-- Cross-check every public-schema table for RLS enabled + policies; verify no broad `TO anon` on PII.
-- Storage: confirm `student-documents` and `channel-attachments` are private and policies gate by `storage_can_read_student_doc` / `is_channel_member`.
-- Run existing RLS test suites: `bun run test:rls` (or equivalent — see `package.json`). Capture pass/fail per test.
-- Fix any P0/P1 policy gaps by migration; never loosen policies to satisfy tests.
+Rebuild `/owner/*` into a single professional content & operations console (not developer tooling).
 
-## Slice 4 — Malware Scan Lifecycle Verification
-- Read `src/lib/document-av-scan.server.ts` + `documents.functions.ts` and confirm: pending files are not downloadable, not passed to the extract pipeline, not returned by any listing marked accessible, and hard-deleted on infected.
-- Add missing tests to `tests/unit/document-av-scan.test.ts` covering: clean → AI enqueued; infected → row deleted; timeout → `scan_status='failed'`, no AI, no download; API unavailable (no key) → fail closed.
-- Add server-side guard in signed-URL issuance & the downloader so a row with `scan_status != 'clean'` returns 403.
+Managed entities: partners, opportunities, resources, blog posts, organizations, schools, districts, waitlist, beta cohorts, users, invitations, licenses, email templates, billing accounts, support requests, data requests, system health.
 
-## Slice 5 — Role Matrix & Collaboration Flows
-- For each of the 7 roles (`student, parent, educator, case_manager/counselor, school_admin, district_admin, partner`) run the existing signed-in Playwright suites: `tests/e2e/release-readiness/*.signedin.spec.ts`, `role-access-rules.signedin.spec.ts`, `role-leak-nav.signedin.spec.ts`, `dashboard-regression.signedin.spec.ts`, `owner-hub-subnav-permissions.signedin.spec.ts`.
-- Any `test.skip` due to missing storageState is a hard fail — the run must re-seed roles via `scripts/seed-roles.mjs` first.
-- Cross-role collaboration: seed a district→school→educator→student→parent→partner chain and walk invite → accept → shared channel message → shared document view → partner opportunity match → revoke → verify immediate access loss.
-- Record every route × role result in the acceptance matrix in the doc.
+Shared "management view" pattern for each entity:
+- Search, filter, sort, pagination
+- Full validated forms + preview
+- Draft / publish / schedule / unpublish / archive / restore / soft delete
+- Version history, duplicate detection, content owner, last-reviewed date
+- Safe bulk actions (publish, archive, tag)
+- Audit record on every mutation
 
-## Slice 6 — Boundary & Direct-URL Tests
-- Run existing boundary suites (`cross-district-rls`, `district-school-hijack-rls`, `role-district-access-rls`, `iep-signed-url-*`, `student-relationships-consent-rls`, `collaboration-notes-edit-rls`, `role-revocation-propagation`).
-- Add missing tests where a boundary is exercised only via UI: direct `/students/:otherId`, direct signed-URL reuse after revocation, direct partner-manage POST from a family role, direct Transition Channel message POST to a channel the user was removed from.
+Plus a **Content Health** view: expired opportunities, stale resources, broken links, missing accessibility info, incomplete partner profiles, duplicates, publication failures, awaiting review.
 
-## Slice 7 — Full Verification Run
-- Commands, in order, with captured output stored under `docs/release-readiness/logs/`:
-  - `bun run lint`
-  - `bun run typecheck` (tsgo)
-  - `bun run test` (unit + node integration)
-  - `bun run test:e2e:signedin` (or existing script)
-  - `bun run build`
-  - `bunx playwright test tests/e2e/dashboard-regression.signedin.spec.ts tests/e2e/role-access-rules.signedin.spec.ts tests/e2e/release-readiness`
-- Any failure = P0 and gets a fix in Slice 8.
+Student IEP content stays out of routine owner reach. Exceptional access requires reason + scope + expiry and writes an immutable audit event (extends the existing `admin_doc_access_grants` mechanism).
 
-## Slice 8 — Defect Remediation
-- Fix every P0/P1 uncovered without altering established UI or route structure.
-- Log each fix as `- [P0/P1] <symptom> → <root cause> → <fix commit summary>` in the acceptance doc.
+Deliverable: a table mapping each admin action to the exact public/signed-in surface it changes, verified by round-trip test.
 
-## Slice 9 — Final Acceptance Doc
-`docs/release-readiness/beta-signin-acceptance.md` sections:
-1. Commands executed & result summary
-2. Route × role matrix (dashboard tile / preview / dedicated page / persistence / permissions / loading / empty / error / mobile / tablet / desktop / back nav)
-3. Defects fixed
-4. Remaining external actions (DNS, Sentry alert rules, Supabase Site URL, CAPTCHA, Legal review, etc.) with exact click-paths
-5. Security Advisor status (`supabase--linter` snapshot)
-6. RLS & storage policy status
-7. Email delivery evidence (test send message IDs, `email_send_log` rows)
-8. Sentry sanitization evidence (redactor tests + sample scrubbed event JSON)
-9. Malware quarantine evidence (test outputs)
-10. Go / No-Go recommendation
+---
 
-## Ground rules
-- No UI redesign, no route renames, no new dashboard tiles.
-- Never weaken RLS to make a test pass.
-- Every external action goes into the acceptance doc — I do not silently mark them done.
-- If any required role, boundary, email, upload, or recovery workflow is unverified, the final recommendation is **No-Go** with the specific gap named.
+## Phase 2 — Legal Identity & Communications
 
-## Confirmation needed before I start
-This is a multi-hour, multi-turn program that will touch many files and run the full test suite. Two quick confirmations:
-1. **Sentry DSNs** — do you already have staging + prod Sentry projects, or should I stand up the code paths behind env vars and list "create Sentry projects + paste DSNs" as an external action?
-2. **Test execution scope** — run the full Playwright signed-in matrix in-loop (slow, ~15–30 min per pass), or start with unit + RLS + one representative signed-in suite and expand once green?
+- Product brand stays **TransitionForward**; legal entity **Transition Forward LLC** appears in footer, Terms, Privacy, consent language, invoices, receipts, checkout, contracts, formal emails. Wording: "TransitionForward is a service of Transition Forward LLC." No DBA claim.
+- Extend `src/lib/contact.ts` to the full address set: support, sales, admin, billing, privacy, security — and route every existing usage through it.
+- Role-specific templates: waitlist confirmation, beta invitation, account invitation, verification, welcome, onboarding reminders, license assignment, report readiness, meeting reminders, opportunity matches, partner submissions, subscription events, payment failures, support requests, security notices.
+- Hard rule enforced by test: no student records, disability info, IEP/Pathway content, or sensitive identifiers in any subject or body. Sensitive detail lives behind authentication.
+- Transactional sends stay separate from marketing consent/unsubscribe state.
 
-Reply with answers (or "go with defaults": env-var stubs + staged test execution) and I'll begin Slice 1.
+---
+
+## Phase 3 — Mobile & Tablet Quality
+
+Audit at 320, 360, 390, 430, 768, 820, 1024 px (plus landscape) across public, demo, feature, auth, Admin Hub routes and all seven signed-in role experiences.
+
+Fix: horizontal overflow, clipping, crowded controls, uneven spacing, detached labels, dead space, obstructive sticky elements, misalignment.
+
+Centering is selective — page titles, compact intros, empty states, primary CTAs. Body copy, forms, operational data, reports, and dashboard content stay left-aligned.
+
+Standards applied: consistent responsive page padding, section spacing, readable measure, stable grids, 44px targets, sensible button stacking, responsive tables, accessible modals, wrapping role/profile selectors.
+
+Screenshot verification required for demo dashboards, Transition Workspace, Pathway Report, Admin Hub, navigation, signed-in feature pages.
+
+---
+
+## Phase 4 — Billing & Licensing (Stripe test mode)
+
+Billing attaches to organizations, never to user roles.
+
+New canonical tables with constraints + RLS: `billing_accounts`, `plans`, `subscriptions`, `entitlements` (reconciled with existing `access_entitlements`), `license_pools`, `license_allocations`, `invoices`, `processed_webhook_events`.
+
+Supported models: district contracts/invoices/PO/ACH with allocated seats; district-sponsored school access; student/family/educator/counselor access via org entitlements; partner free & premium; owner-approved pilot/manual access; individual plans later without restructuring.
+
+Permissions: district admins manage district billing + allocation; school admins manage allocated access only (no district payment methods unless authorized); partners manage their own org subscription; students/parents/educators get no billing controls.
+
+Stripe Checkout / hosted invoices / Customer Portal. Stripe is the payment authority — webhook-confirmed state controls access. Signature verification, stored processed event IDs, duplicate and out-of-order handling, and trialing / active / past_due / canceled / paused / grace-period behavior. No card data touched. Server-only secrets.
+
+---
+
+## Phase 5 — Pathway Engine Hardening
+
+No identifiable student records in prompts, logs, eval datasets, or training systems.
+
+Versioned pipeline: malware scan → classification → OCR/parsing → structured extraction → confidence scoring → conflict detection → evidence map → recommendation generation → rule validation → human review → canonical Pathway Report.
+
+BridgeForward (6–8) differentiated from TransitionForward (9–12). One canonical report with student, family, educator lenses.
+
+Every important recommendation carries: supporting input, why it matters, confidence / missing information, responsible participant, next action, timeframe, measurable progress evidence. Adds scenario comparison, unresolved-question detection, meeting-ready summaries, progress updates, report change history.
+
+Curated and versioned CT + federal sources. Synthetic eval cases across grade bands, disability profiles, incomplete records, conflicting inputs, bias, unsupported claims, unsafe advice, hallucination. Model / prompt / rule-set / knowledge-base versions recorded without sensitive content.
+
+---
+
+## Phase 6 — Verification
+
+Suites: unit, build, lint, accessibility, mobile screenshots, dashboard setup, dashboard regression, role access, billing, webhook, RLS, email, Admin Hub CRUD, Pathway Engine evaluation. No weakening, hiding, or role skipping.
+
+Final report: completed changes; routes and roles tested; admin action→product mapping; responsive screenshots; billing lifecycle evidence; email delivery evidence; engine evaluation results; external configuration still required; P0/P1 blockers; beta go/no-go.
+
+---
+
+## Technical notes
+
+- Backend work uses migrations with GRANT + RLS per table; Stripe webhooks land on a TanStack server route under `src/routes/api/public/` with signature verification inside the handler.
+- Stripe secret key stored as a Cloud secret; only the publishable key reaches the browser.
+- Existing `access_entitlements`, `organization_memberships`, `access_codes`, and `org_license_requests` are reconciled into the new billing model rather than duplicated.
+- Admin Hub reuses existing `admin_roles` / `is_platform_admin` gating and the current audit tables.
+
+## Sequencing
+
+Phases run in order (1 → 6), each verified before the next begins. Phase 4 requires enabling payments, which needs your confirmation before I start it.
