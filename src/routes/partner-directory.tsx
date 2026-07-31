@@ -328,9 +328,11 @@ function PartnerCard({ p }: { p: Partner }) {
   const status = statusLabel(p.verification_status);
   return (
     <Card className="flex flex-col gap-3 p-5">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-medium leading-snug">{p.organization_name}</h3>
-        <Badge className={`${status.tone} hover:${status.tone} shrink-0 text-[10px]`}>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <h3 className="min-w-0 font-medium leading-snug">{p.organization_name}</h3>
+        <Badge
+          className={`${status.tone} hover:${status.tone} max-w-full whitespace-normal text-left text-[10px] sm:shrink-0`}
+        >
           {status.label}
         </Badge>
       </div>

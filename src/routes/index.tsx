@@ -311,7 +311,7 @@ function HomePage() {
       </section>
 
       {/* PROBLEM — split panel: photo + statement */}
-      <section className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      <section className="relative overflow-x-clip mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <ShapeScroll
           className="absolute -right-10 top-10 -z-10 hidden h-72 w-72 text-amber-300/20 lg:block"
           spin={140}
@@ -408,7 +408,7 @@ function HomePage() {
       </section>
 
       {/* TEXT SCROLL FILL — mission line, sleeker with floating decor */}
-      <section className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      <section className="relative overflow-x-clip mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <CompassRose className="absolute -left-6 top-4 hidden h-24 w-24 text-primary/25 lg:block" />
         <Starburst className="absolute -right-6 top-6 hidden h-20 w-20 text-secondary-foreground/30 lg:block" />
         <Parallax speed={0.2} className="absolute right-10 -top-2 hidden h-12 w-16 text-primary/60 md:block">
