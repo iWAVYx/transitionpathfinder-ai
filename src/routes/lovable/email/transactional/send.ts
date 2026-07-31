@@ -14,6 +14,9 @@ const SENDER_DOMAIN = "updates.transitionforwardct.com"
 const FROM_DOMAIN = "updates.transitionforwardct.com"
 // Local part of the visible From address (e.g. hello@updates.transitionforwardct.com).
 const FROM_LOCAL = "hello"
+// Replies to transactional mail go to the human-monitored support inbox on the
+// root domain, not the send-only delegated subdomain.
+const REPLY_TO = "support@transitionforwardct.com"
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'
@@ -301,6 +304,7 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
             to: effectiveRecipient,
             from: `${SITE_NAME} <${FROM_LOCAL}@${FROM_DOMAIN}>`,
             sender_domain: SENDER_DOMAIN,
+            reply_to: REPLY_TO,
             subject: resolvedSubject,
             html,
             text: plainText,
