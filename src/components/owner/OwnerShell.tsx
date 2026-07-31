@@ -72,6 +72,8 @@ export const OWNER_NAV: NavItem[] = [
   { to: "/owner/resource-sources", label: "Resource sources", icon: BookOpen, group: "Content & Resources" },
   { to: "/owner/bridgeforward-sources", label: "BridgeForward sources", icon: BookOpen, group: "Content & Resources" },
   { to: "/owner/resource-review", label: "Resource review queue", icon: ClipboardCheck, group: "Content & Resources" },
+  { to: "/owner/content-health", label: "Content health", icon: ClipboardCheck, group: "Content & Resources" },
+
   { to: "/owner/import-audit", label: "Import history", icon: History, group: "Content & Resources" },
 
   // 6. Partners & Opportunities

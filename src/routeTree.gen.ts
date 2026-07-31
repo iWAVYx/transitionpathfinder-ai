@@ -167,6 +167,7 @@ import { Route as AuthenticatedOwnerFaqsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedOwnerEmailsRouteImport } from './routes/_authenticated/owner.emails'
 import { Route as AuthenticatedOwnerDocumentPipelineRouteImport } from './routes/_authenticated/owner.document-pipeline'
 import { Route as AuthenticatedOwnerDemoRouteImport } from './routes/_authenticated/owner.demo'
+import { Route as AuthenticatedOwnerContentHealthRouteImport } from './routes/_authenticated/owner.content-health'
 import { Route as AuthenticatedOwnerContentRouteImport } from './routes/_authenticated/owner.content'
 import { Route as AuthenticatedOwnerContactsRouteImport } from './routes/_authenticated/owner.contacts'
 import { Route as AuthenticatedOwnerBroadcastsRouteImport } from './routes/_authenticated/owner.broadcasts'
@@ -1072,6 +1073,12 @@ const AuthenticatedOwnerDemoRoute = AuthenticatedOwnerDemoRouteImport.update({
   path: '/demo',
   getParentRoute: () => AuthenticatedOwnerRoute,
 } as any)
+const AuthenticatedOwnerContentHealthRoute =
+  AuthenticatedOwnerContentHealthRouteImport.update({
+    id: '/content-health',
+    path: '/content-health',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerContentRoute =
   AuthenticatedOwnerContentRouteImport.update({
     id: '/content',
@@ -1530,6 +1537,7 @@ export interface FileRoutesByFullPath {
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/content-health': typeof AuthenticatedOwnerContentHealthRoute
   '/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/owner/document-pipeline': typeof AuthenticatedOwnerDocumentPipelineRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
@@ -1741,6 +1749,7 @@ export interface FileRoutesByTo {
   '/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/owner/content-health': typeof AuthenticatedOwnerContentHealthRoute
   '/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/owner/document-pipeline': typeof AuthenticatedOwnerDocumentPipelineRoute
   '/owner/emails': typeof AuthenticatedOwnerEmailsRoute
@@ -1956,6 +1965,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/broadcasts': typeof AuthenticatedOwnerBroadcastsRoute
   '/_authenticated/owner/contacts': typeof AuthenticatedOwnerContactsRoute
   '/_authenticated/owner/content': typeof AuthenticatedOwnerContentRoute
+  '/_authenticated/owner/content-health': typeof AuthenticatedOwnerContentHealthRoute
   '/_authenticated/owner/demo': typeof AuthenticatedOwnerDemoRoute
   '/_authenticated/owner/document-pipeline': typeof AuthenticatedOwnerDocumentPipelineRoute
   '/_authenticated/owner/emails': typeof AuthenticatedOwnerEmailsRoute
@@ -2171,6 +2181,7 @@ export interface FileRouteTypes {
     | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
+    | '/owner/content-health'
     | '/owner/demo'
     | '/owner/document-pipeline'
     | '/owner/emails'
@@ -2382,6 +2393,7 @@ export interface FileRouteTypes {
     | '/owner/broadcasts'
     | '/owner/contacts'
     | '/owner/content'
+    | '/owner/content-health'
     | '/owner/demo'
     | '/owner/document-pipeline'
     | '/owner/emails'
@@ -2596,6 +2608,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/broadcasts'
     | '/_authenticated/owner/contacts'
     | '/_authenticated/owner/content'
+    | '/_authenticated/owner/content-health'
     | '/_authenticated/owner/demo'
     | '/_authenticated/owner/document-pipeline'
     | '/_authenticated/owner/emails'
@@ -3853,6 +3866,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerDemoRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/content-health': {
+      id: '/_authenticated/owner/content-health'
+      path: '/content-health'
+      fullPath: '/owner/content-health'
+      preLoaderRoute: typeof AuthenticatedOwnerContentHealthRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/content': {
       id: '/_authenticated/owner/content'
       path: '/content'
@@ -4294,6 +4314,7 @@ interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerBroadcastsRoute: typeof AuthenticatedOwnerBroadcastsRoute
   AuthenticatedOwnerContactsRoute: typeof AuthenticatedOwnerContactsRoute
   AuthenticatedOwnerContentRoute: typeof AuthenticatedOwnerContentRoute
+  AuthenticatedOwnerContentHealthRoute: typeof AuthenticatedOwnerContentHealthRoute
   AuthenticatedOwnerDemoRoute: typeof AuthenticatedOwnerDemoRoute
   AuthenticatedOwnerDocumentPipelineRoute: typeof AuthenticatedOwnerDocumentPipelineRoute
   AuthenticatedOwnerEmailsRoute: typeof AuthenticatedOwnerEmailsRoute
@@ -4339,6 +4360,7 @@ const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerBroadcastsRoute: AuthenticatedOwnerBroadcastsRoute,
   AuthenticatedOwnerContactsRoute: AuthenticatedOwnerContactsRoute,
   AuthenticatedOwnerContentRoute: AuthenticatedOwnerContentRoute,
+  AuthenticatedOwnerContentHealthRoute: AuthenticatedOwnerContentHealthRoute,
   AuthenticatedOwnerDemoRoute: AuthenticatedOwnerDemoRoute,
   AuthenticatedOwnerDocumentPipelineRoute:
     AuthenticatedOwnerDocumentPipelineRoute,
@@ -4729,13 +4751,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
