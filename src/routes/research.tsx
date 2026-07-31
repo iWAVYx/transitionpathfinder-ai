@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { photos } from "@/lib/photos";
-const researchHero = photos.research;
+
 
 export const Route = createFileRoute("/research")({
   head: () => ({
