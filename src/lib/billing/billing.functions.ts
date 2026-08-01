@@ -14,6 +14,7 @@ import {
 } from "@/lib/stripe.server";
 import type Stripe from "stripe";
 import { resolveOrCreateCustomer } from "@/lib/billing/billing.server";
+import { TRIAL_PERIOD_DAYS } from "@/lib/billing/plans";
 
 type CheckoutResult = { clientSecret: string } | { error: string };
 type PortalResult = { url: string } | { error: string };
@@ -97,7 +98,14 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         metadata,
         managed_payments: { enabled: true },
         ...(isRecurring
-          ? { subscription_data: { metadata } }
+          ? {
+              subscription_data: {
+                metadata,
+                // 30-day free trial; the card is collected up front and the
+                // first charge lands when the trial ends.
+                trial_period_days: TRIAL_PERIOD_DAYS,
+              },
+            }
           : { payment_intent_data: { description: productDescription } }),
       } as unknown as Stripe.Checkout.SessionCreateParams;
 
@@ -185,3 +193,94 @@ export const getMyBilling = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     return (rows ?? []) as BillingSummaryRow[];
   });
+
+export interface PersonalBillingSummary {
+  /** The caller's own (non-organization) subscription, if any. */
+  subscription: BillingSummaryRow | null;
+  /** The webhook-confirmed personal entitlement backing that subscription. */
+  entitlement: {
+    plan_type: string;
+    status: string;
+    ends_at: string | null;
+  } | null;
+  /** True while Stripe is retrying a failed renewal charge. */
+  dunning: boolean;
+}
+
+/**
+ * Personal (non-org) billing state for the signed-in user. Drives the
+ * Settings → Billing tab and in-app upgrade prompts.
+ */
+export const getMyPersonalBilling = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { environment: StripeEnv }) => data)
+  .handler(async ({ data, context }): Promise<PersonalBillingSummary> => {
+    const { supabase, userId } = context;
+
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select(
+        "id, status, price_id, quantity, organization_id, current_period_end, cancel_at_period_end",
+      )
+      .eq("environment", data.environment)
+      .eq("user_id", userId)
+      .is("organization_id", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const { data: ent } = await supabase
+      .from("access_entitlements")
+      .select("plan_type, status, ends_at")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const row = (sub ?? null) as BillingSummaryRow | null;
+    return {
+      subscription: row,
+      entitlement: ent ?? null,
+      dunning: row?.status === "past_due" || row?.status === "unpaid",
+    };
+  });
+
+/**
+ * Reads a completed checkout session so the return page can confirm the
+ * purchase without waiting on webhook propagation.
+ */
+export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { sessionId: string; environment: StripeEnv }) => {
+    if (!/^cs_[a-zA-Z0-9_]+$/.test(data.sessionId)) {
+      throw new Error("Invalid session id");
+    }
+    return data;
+  })
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<
+      { status: string; paymentStatus: string; planName: string | null } | { error: string }
+    > => {
+      try {
+        const stripe = createStripeClient(data.environment);
+        const session = await stripe.checkout.sessions.retrieve(data.sessionId, {
+          expand: ["line_items"],
+        });
+        // Only the buyer may read their own session.
+        if (session.metadata?.["userId"] !== context.userId) {
+          return { error: "This checkout does not belong to your account." };
+        }
+        return {
+          status: session.status ?? "unknown",
+          paymentStatus: session.payment_status ?? "unknown",
+          planName: session.line_items?.data?.[0]?.description ?? null,
+        };
+      } catch (err) {
+        return { error: getStripeErrorMessage(err) };
+      }
+    },
+  );
+

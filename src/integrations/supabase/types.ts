@@ -111,11 +111,13 @@ export type Database = {
           max_staff: number | null
           max_students: number | null
           notes: string | null
-          organization_id: string
+          organization_id: string | null
           plan_type: string
+          source: string | null
           starts_at: string
           status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -128,11 +130,13 @@ export type Database = {
           max_staff?: number | null
           max_students?: number | null
           notes?: string | null
-          organization_id: string
+          organization_id?: string | null
           plan_type: string
+          source?: string | null
           starts_at?: string
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -145,11 +149,13 @@ export type Database = {
           max_staff?: number | null
           max_students?: number | null
           notes?: string | null
-          organization_id?: string
+          organization_id?: string | null
           plan_type?: string
+          source?: string | null
           starts_at?: string
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {

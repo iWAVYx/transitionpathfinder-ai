@@ -207,6 +207,7 @@ import { Route as AuthenticatedDistrictProgressRouteImport } from './routes/_aut
 import { Route as AuthenticatedDistrictOverviewRouteImport } from './routes/_authenticated/district.overview'
 import { Route as AuthenticatedDistrictImplementationRouteImport } from './routes/_authenticated/district.implementation'
 import { Route as AuthenticatedDistrictHistoryRouteImport } from './routes/_authenticated/district.history'
+import { Route as AuthenticatedCheckoutReturnRouteImport } from './routes/_authenticated/checkout.return'
 import { Route as AuthenticatedBridgeforwardVoiceRouteImport } from './routes/_authenticated/bridgeforward.voice'
 import { Route as AuthenticatedBridgeforwardSnapshotRouteImport } from './routes/_authenticated/bridgeforward.snapshot'
 import { Route as AuthenticatedBridgeforwardIntakeRouteImport } from './routes/_authenticated/bridgeforward.intake'
@@ -1310,6 +1311,12 @@ const AuthenticatedDistrictHistoryRoute =
     path: '/district/history',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCheckoutReturnRoute =
+  AuthenticatedCheckoutReturnRouteImport.update({
+    id: '/checkout/return',
+    path: '/checkout/return',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBridgeforwardVoiceRoute =
   AuthenticatedBridgeforwardVoiceRouteImport.update({
     id: '/bridgeforward/voice',
@@ -1513,6 +1520,7 @@ export interface FileRoutesByFullPath {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/checkout/return': typeof AuthenticatedCheckoutReturnRoute
   '/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
@@ -1727,6 +1735,7 @@ export interface FileRoutesByTo {
   '/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/checkout/return': typeof AuthenticatedCheckoutReturnRoute
   '/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/district/overview': typeof AuthenticatedDistrictOverviewRoute
@@ -1945,6 +1954,7 @@ export interface FileRoutesById {
   '/_authenticated/bridgeforward/intake': typeof AuthenticatedBridgeforwardIntakeRoute
   '/_authenticated/bridgeforward/snapshot': typeof AuthenticatedBridgeforwardSnapshotRoute
   '/_authenticated/bridgeforward/voice': typeof AuthenticatedBridgeforwardVoiceRoute
+  '/_authenticated/checkout/return': typeof AuthenticatedCheckoutReturnRoute
   '/_authenticated/district/history': typeof AuthenticatedDistrictHistoryRoute
   '/_authenticated/district/implementation': typeof AuthenticatedDistrictImplementationRoute
   '/_authenticated/district/overview': typeof AuthenticatedDistrictOverviewRoute
@@ -2163,6 +2173,7 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/checkout/return'
     | '/district/history'
     | '/district/implementation'
     | '/district/overview'
@@ -2377,6 +2388,7 @@ export interface FileRouteTypes {
     | '/bridgeforward/intake'
     | '/bridgeforward/snapshot'
     | '/bridgeforward/voice'
+    | '/checkout/return'
     | '/district/history'
     | '/district/implementation'
     | '/district/overview'
@@ -2594,6 +2606,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bridgeforward/intake'
     | '/_authenticated/bridgeforward/snapshot'
     | '/_authenticated/bridgeforward/voice'
+    | '/_authenticated/checkout/return'
     | '/_authenticated/district/history'
     | '/_authenticated/district/implementation'
     | '/_authenticated/district/overview'
@@ -4173,6 +4186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDistrictHistoryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/checkout/return': {
+      id: '/_authenticated/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof AuthenticatedCheckoutReturnRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/bridgeforward/voice': {
       id: '/_authenticated/bridgeforward/voice'
       path: '/bridgeforward/voice'
@@ -4522,6 +4542,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBridgeforwardIntakeRoute: typeof AuthenticatedBridgeforwardIntakeRoute
   AuthenticatedBridgeforwardSnapshotRoute: typeof AuthenticatedBridgeforwardSnapshotRoute
   AuthenticatedBridgeforwardVoiceRoute: typeof AuthenticatedBridgeforwardVoiceRoute
+  AuthenticatedCheckoutReturnRoute: typeof AuthenticatedCheckoutReturnRoute
   AuthenticatedDistrictHistoryRoute: typeof AuthenticatedDistrictHistoryRoute
   AuthenticatedDistrictImplementationRoute: typeof AuthenticatedDistrictImplementationRoute
   AuthenticatedDistrictOverviewRoute: typeof AuthenticatedDistrictOverviewRoute
@@ -4613,6 +4634,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBridgeforwardSnapshotRoute:
     AuthenticatedBridgeforwardSnapshotRoute,
   AuthenticatedBridgeforwardVoiceRoute: AuthenticatedBridgeforwardVoiceRoute,
+  AuthenticatedCheckoutReturnRoute: AuthenticatedCheckoutReturnRoute,
   AuthenticatedDistrictHistoryRoute: AuthenticatedDistrictHistoryRoute,
   AuthenticatedDistrictImplementationRoute:
     AuthenticatedDistrictImplementationRoute,
@@ -4795,13 +4817,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

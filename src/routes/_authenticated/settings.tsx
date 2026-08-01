@@ -8,6 +8,7 @@ import { Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { PersonalBillingPanel } from "@/components/billing/PersonalBillingPanel";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -250,6 +251,13 @@ function SettingsPage() {
             </div>
           </dl>
         </div>
+
+        {/* Billing */}
+        <div id="billing" className="mt-6 scroll-mt-24">
+          <PersonalBillingPanel />
+        </div>
+
+
 
         {/* Profile */}
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">

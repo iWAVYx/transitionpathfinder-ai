@@ -21,13 +21,58 @@ function getSupabase(): SupabaseClient {
 
 const ACTIVE_STATUSES = new Set(["active", "trialing", "past_due"]);
 
-function planTypeFor(priceId: string | null): string {
-  if (!priceId) return "standard";
-  if (priceId.startsWith("tf_partner_premium")) return "partner_premium";
-  if (priceId.startsWith("tf_school")) return "school";
-  if (priceId.startsWith("tf_educator")) return "educator";
-  if (priceId.startsWith("tf_family")) return "family";
-  return "standard";
+/**
+ * Maps a human-readable price lookup key to the entitlement plan vocabulary
+ * enforced by `access_entitlements_plan_check`, plus the grants it unlocks.
+ */
+interface PlanShape {
+  planType: string;
+  family: boolean;
+  student: boolean;
+  partner: boolean;
+}
+
+function planShapeFor(priceId: string | null): PlanShape | null {
+  if (!priceId) return null;
+  if (priceId.startsWith("tf_partner_premium"))
+    return {
+      planType: "partner_featured",
+      family: false,
+      student: false,
+      partner: true,
+    };
+  if (priceId.startsWith("tf_school"))
+    return {
+      planType: "school_plan",
+      family: true,
+      student: true,
+      partner: false,
+    };
+  if (priceId.startsWith("tf_educator"))
+    return {
+      planType: "educator_individual",
+      family: false,
+      student: true,
+      partner: false,
+    };
+  if (priceId.startsWith("tf_family"))
+    return {
+      planType: "family_early_access",
+      family: true,
+      student: true,
+      partner: false,
+    };
+  return null;
+}
+
+/**
+ * `past_due` intentionally keeps access: Stripe is still retrying, and the
+ * app surfaces a dunning banner instead of revoking mid-cycle.
+ */
+function entitlementStatusFor(stripeStatus: string): string {
+  if (stripeStatus === "trialing") return "trial";
+  if (ACTIVE_STATUSES.has(stripeStatus)) return "active";
+  return "canceled";
 }
 
 function isoFromUnix(seconds: number | null | undefined): string | null {
@@ -39,29 +84,51 @@ async function reconcileEntitlement(
   priceId: string | null,
   env: StripeEnv,
 ) {
-  const orgId = subscription.metadata?.organizationId;
-  if (!orgId) return;
+  const orgId = subscription.metadata?.organizationId ?? null;
+  const userId = subscription.metadata?.userId ?? null;
+  // Exactly one subject — org billing wins when both are stamped.
+  const subject = orgId
+    ? { organization_id: orgId, user_id: null }
+    : userId
+      ? { organization_id: null, user_id: userId }
+      : null;
+  if (!subject) return;
 
-  const planType = planTypeFor(priceId);
-  const active = ACTIVE_STATUSES.has(subscription.status);
+  const shape = planShapeFor(priceId);
+  if (!shape) {
+    console.error("Payment webhook: unmapped price for entitlement:", priceId);
+    return;
+  }
+
   const item = subscription.items?.data?.[0];
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase()
+  const { error } = await getSupabase()
     .from("access_entitlements")
     .upsert(
       {
-        organization_id: orgId,
-        plan_type: planType,
-        status: active ? "active" : "canceled",
-        grants_family_access: planType === "family" || planType === "school",
-        grants_student_access: planType === "family" || planType === "school",
-        grants_partner_access: planType === "partner_premium",
+        ...subject,
+        plan_type: shape.planType,
+        status: entitlementStatusFor(subscription.status),
+        grants_family_access: shape.family,
+        grants_student_access: shape.student,
+        grants_partner_access: shape.partner,
+        // Cancel-at-period-end: access runs out when the paid period does.
         ends_at: isoFromUnix(periodEnd),
         source: `stripe:${env}`,
+        updated_at: new Date().toISOString(),
       },
-      { onConflict: "organization_id,plan_type" },
+      {
+        onConflict: orgId
+          ? "organization_id,plan_type"
+          : "user_id,plan_type",
+      },
     );
+
+  if (error) {
+    console.error("Payment webhook: entitlement reconcile failed:", error);
+    throw new Error("Entitlement reconcile failed");
+  }
 }
 
 async function upsertSubscription(subscription: any, env: StripeEnv) {
@@ -77,7 +144,7 @@ async function upsertSubscription(subscription: any, env: StripeEnv) {
     item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase()
+  const { error: subError } = await getSupabase()
     .from("subscriptions")
     .upsert(
       {
@@ -100,6 +167,13 @@ async function upsertSubscription(subscription: any, env: StripeEnv) {
       },
       { onConflict: "stripe_subscription_id" },
     );
+
+  // Throwing returns a non-200 so Stripe retries rather than silently
+  // leaving a paid customer without access.
+  if (subError) {
+    console.error("Payment webhook: subscription upsert failed:", subError);
+    throw new Error("Subscription upsert failed");
+  }
 
   await reconcileEntitlement(subscription, priceId, env);
 }
@@ -128,25 +202,38 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     if (error) return; // duplicate delivery
   }
 
-  switch (event.type) {
-    case "customer.subscription.created":
-    case "customer.subscription.updated":
-    case "customer.subscription.paused":
-    case "customer.subscription.resumed":
-      await upsertSubscription(event.data.object, env);
-      break;
-    case "customer.subscription.deleted":
-      await markCanceled(event.data.object, env);
-      break;
-    case "checkout.session.completed":
-    case "checkout.session.async_payment_succeeded":
-    case "checkout.session.async_payment_failed":
-    case "invoice.paid":
-    case "invoice.payment_failed":
-      // Subscription state is driven by customer.subscription.* events.
-      break;
-    default:
-      console.log("Unhandled payment event:", event.type);
+  try {
+    switch (event.type) {
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+      case "customer.subscription.paused":
+      case "customer.subscription.resumed":
+        await upsertSubscription(event.data.object, env);
+        break;
+      case "customer.subscription.deleted":
+        await markCanceled(event.data.object, env);
+        break;
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded":
+      case "checkout.session.async_payment_failed":
+      case "invoice.paid":
+      case "invoice.payment_failed":
+        // Subscription state is driven by customer.subscription.* events.
+        break;
+      default:
+        console.log("Unhandled payment event:", event.type);
+    }
+  } catch (err) {
+    // Release the idempotency claim so Stripe's retry can reprocess this
+    // event instead of hitting the duplicate short-circuit above.
+    if (event.id) {
+      await getSupabase()
+        .from("processed_payment_events")
+        .delete()
+        .eq("event_id", event.id)
+        .eq("environment", env);
+    }
+    throw err;
   }
 }
 

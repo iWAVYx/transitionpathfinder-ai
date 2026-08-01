@@ -14,6 +14,16 @@ import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { StripeEmbeddedCheckout } from "@/components/billing/StripeEmbeddedCheckout";
+import { useAuth } from "@/hooks/use-auth";
+import { PLANS, TRIAL_PERIOD_DAYS } from "@/lib/billing/plans";
+import { isPaymentsConfigured } from "@/lib/stripe";
 import { SALES_EMAIL, mailtoHref } from "@/lib/contact";
 import { toTitleCase } from "@/lib/title-case";
 import { cn } from "@/lib/utils";
@@ -60,6 +70,11 @@ interface Tier {
   description: string;
   highlights: string[];
   cta: { label: string; to: CtaTo; search?: Record<string, string> };
+  /**
+   * Self-serve plans: signed-in visitors check out here instead of being
+   * sent to the waitlist.
+   */
+  checkoutPriceIds?: Record<BillingPeriod, string>;
   icon: typeof HeartHandshake;
 }
 
@@ -79,6 +94,10 @@ const tiers: Tier[] = [
       "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
     highlights: ["Pathway Report", "Meeting prep", "Family dashboard"],
     cta: { label: "Request family access", to: "/waitlist", search: { audience: "family" } },
+    checkoutPriceIds: {
+      monthly: PLANS.family.monthlyPriceId,
+      yearly: PLANS.family.yearlyPriceId,
+    },
     icon: HeartHandshake,
   },
   {
@@ -96,6 +115,10 @@ const tiers: Tier[] = [
       "For individual educators and case managers supporting a transition caseload — without waiting for a school or district plan.",
     highlights: ["Caseload tools", "PPT prep", "Goal tracker"],
     cta: { label: "Request educator access", to: "/waitlist", search: { audience: "educator" } },
+    checkoutPriceIds: {
+      monthly: PLANS.educator.monthlyPriceId,
+      yearly: PLANS.educator.yearlyPriceId,
+    },
     icon: GraduationCap,
   },
   {
@@ -186,6 +209,10 @@ function BillingToggle({
 
 function PricingPage() {
   const [billing, setBilling] = useState<BillingPeriod>("monthly");
+  const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+  const { user } = useAuth();
+  // Signed-in visitors buy in place; everyone else keeps the waitlist path.
+  const canCheckout = Boolean(user) && isPaymentsConfigured();
 
   return (
     <SiteShell>
@@ -245,11 +272,30 @@ function PricingPage() {
                 </div>
 
                 <div className="mt-auto pt-6">
-                  <Button asChild className="w-full" variant="outline">
-                    <Link to={tier.cta.to} search={tier.cta.search as never}>
-                      {toTitleCase(tier.cta.label)} <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  {canCheckout && tier.checkoutPriceIds ? (
+                    <>
+                      <Button
+                        className="w-full"
+                        onClick={() =>
+                          setCheckoutPrice(tier.checkoutPriceIds![billing])
+                        }
+                      >
+                        {toTitleCase(
+                          `Start ${TRIAL_PERIOD_DAYS}-day free trial`,
+                        )}{" "}
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <p className="mt-2 text-center text-xs text-muted-foreground">
+                        Cancel any time before the trial ends.
+                      </p>
+                    </>
+                  ) : (
+                    <Button asChild className="w-full" variant="outline">
+                      <Link to={tier.cta.to} search={tier.cta.search as never}>
+                        {toTitleCase(tier.cta.label)} <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             );
@@ -274,6 +320,25 @@ function PricingPage() {
           </div>
         </div>
       </section>
+
+      <Dialog
+        open={checkoutPrice !== null}
+        onOpenChange={(open) => {
+          if (!open) setCheckoutPrice(null);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Start Your Free Trial</DialogTitle>
+          </DialogHeader>
+          {checkoutPrice ? (
+            <StripeEmbeddedCheckout
+              priceId={checkoutPrice}
+              returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </SiteShell>
   );
 }
