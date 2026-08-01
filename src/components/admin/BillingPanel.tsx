@@ -150,25 +150,28 @@ export function BillingPanel({ orgId }: { orgId: string }) {
           ) : (
             <ul className="divide-y">
               {rows.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm"
-                >
-                  <span className="font-medium">{r.price_id ?? "Plan"}</span>
-                  <span className="flex items-center gap-2 text-muted-foreground">
-                    <Badge variant={statusTone(r.status)}>{r.status}</Badge>
-                    {r.quantity > 1 && <span>{r.quantity} seats</span>}
-                    {r.current_period_end && (
-                      <span>
-                        {r.cancel_at_period_end ? "Ends" : "Renews"}{" "}
-                        {new Date(r.current_period_end).toLocaleDateString()}
-                      </span>
-                    )}
-                  </span>
+                <li key={r.id} className="space-y-2 py-3 text-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium">{r.price_id ?? "Plan"}</span>
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      <Badge variant={statusTone(r.status)}>{r.status}</Badge>
+                      {r.quantity > 1 && <span>{r.quantity} seats</span>}
+                      {r.current_period_end && (
+                        <span>
+                          {r.cancel_at_period_end ? "Ends" : "Renews"}{" "}
+                          {new Date(r.current_period_end).toLocaleDateString()}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  {isSeatBasedPrice(r.price_id) && (
+                    <SeatEditor orgId={orgId} row={r} />
+                  )}
                 </li>
               ))}
             </ul>
           )}
+
         </CardContent>
       </Card>
 
