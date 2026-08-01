@@ -19,7 +19,9 @@ import {
   CreditCard,
 } from "lucide-react";
 import { BillingPanel } from "@/components/admin/BillingPanel";
+import { GovernancePanel } from "@/components/admin/GovernancePanel";
 import { LicensePanel } from "@/components/admin/LicensePanel";
+
 
 
 import { HealthTab } from "@/components/admin/health/HealthTab";
