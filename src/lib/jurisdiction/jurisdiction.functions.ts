@@ -92,7 +92,7 @@ export const getJurisdictionPack = createServerFn({ method: "GET" })
       },
       privacyRequirements: (version.privacy_requirements ?? {}) as Record<
         string,
-        unknown
+        string | number | boolean | null
       >,
       agencies: (agencies ?? []) as unknown as JurisdictionAgency[],
       sources: (sources ?? []) as unknown as JurisdictionSource[],

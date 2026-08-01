@@ -58,7 +58,7 @@ export interface JurisdictionPack {
   terminology: JurisdictionTerminology;
   planningRules: JurisdictionPlanningRules;
   roleLabels: Record<string, string>;
-  privacyRequirements: Record<string, unknown>;
+  privacyRequirements: Record<string, string | number | boolean | null>;
   agencies: JurisdictionAgency[];
   sources: JurisdictionSource[];
 }
