@@ -84,6 +84,10 @@ const tiers: Tier[] = [
       "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
     highlights: ["Pathway Report", "Meeting prep", "Family dashboard"],
     cta: { label: "Request family access", to: "/waitlist", search: { audience: "family" } },
+    checkoutPriceIds: {
+      monthly: PLANS.family.monthlyPriceId,
+      yearly: PLANS.family.yearlyPriceId,
+    },
     icon: HeartHandshake,
   },
   {
