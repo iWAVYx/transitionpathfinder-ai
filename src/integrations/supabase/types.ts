@@ -8168,10 +8168,13 @@ export type Database = {
       students: {
         Row: {
           age: number | null
+          coverage_state: string
+          coverage_state_changed_at: string | null
           created_at: string
           current_transition_status: string | null
           date_of_birth: string | null
           expected_graduation_year: number | null
+          export_window_ends_at: string | null
           family_priorities: string | null
           first_name: string
           grade_band: string | null
@@ -8201,10 +8204,13 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          coverage_state?: string
+          coverage_state_changed_at?: string | null
           created_at?: string
           current_transition_status?: string | null
           date_of_birth?: string | null
           expected_graduation_year?: number | null
+          export_window_ends_at?: string | null
           family_priorities?: string | null
           first_name: string
           grade_band?: string | null
@@ -8234,10 +8240,13 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          coverage_state?: string
+          coverage_state_changed_at?: string | null
           created_at?: string
           current_transition_status?: string | null
           date_of_birth?: string | null
           expected_graduation_year?: number | null
+          export_window_ends_at?: string | null
           family_priorities?: string | null
           first_name?: string
           grade_band?: string | null
@@ -9387,6 +9396,20 @@ export type Database = {
         Returns: boolean
       }
       safe_channel_id_from_path: { Args: { _path: string }; Returns: string }
+      set_student_coverage_state: {
+        Args: {
+          _export_window_days?: number
+          _reason: string
+          _state: string
+          _student_id: string
+          _to_organization_id?: string
+        }
+        Returns: {
+          coverage_state: string
+          export_window_ends_at: string
+          released_allocations: number
+        }[]
+      }
       sponsoring_org_for: {
         Args: { _license_type: string; _org_id: string }
         Returns: string
