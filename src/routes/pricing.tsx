@@ -60,6 +60,11 @@ interface Tier {
   description: string;
   highlights: string[];
   cta: { label: string; to: CtaTo; search?: Record<string, string> };
+  /**
+   * Self-serve plans: signed-in visitors check out here instead of being
+   * sent to the waitlist.
+   */
+  checkoutPriceIds?: Record<BillingPeriod, string>;
   icon: typeof HeartHandshake;
 }
 
