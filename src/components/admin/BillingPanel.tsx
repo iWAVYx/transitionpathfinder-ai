@@ -15,12 +15,102 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PaymentTestModeBanner } from "@/components/billing/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/billing/StripeEmbeddedCheckout";
+import { Input } from "@/components/ui/input";
 import {
   createPortalSession,
   getMyBilling,
+  updateSubscriptionSeats,
   type BillingSummaryRow,
 } from "@/lib/billing/billing.functions";
+import { MAX_SEATS, isSeatBasedPrice } from "@/lib/billing/plans";
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
+
+/**
+ * Seat control for a seat-based (School Plan) subscription. Changing the
+ * count updates Stripe with prorations; the webhook then confirms the row.
+ */
+function SeatEditor({ orgId, row }: { orgId: string; row: BillingSummaryRow }) {
+  const qc = useQueryClient();
+  const updateSeats = useServerFn(updateSubscriptionSeats);
+  const [seats, setSeats] = useState<number>(row.quantity || 1);
+
+  const save = useMutation({
+    mutationFn: () =>
+      updateSeats({
+        data: {
+          organizationId: orgId,
+          subscriptionId: row.id,
+          quantity: seats,
+          environment: getStripeEnvironment(),
+        },
+      }),
+    onSuccess: (res) => {
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(`Seats updated to ${res.quantity}.`);
+      qc.invalidateQueries({ queryKey: ["billing", orgId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const clamp = (n: number) => Math.min(MAX_SEATS, Math.max(1, n));
+  const dirty = seats !== row.quantity;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs text-muted-foreground">Seats</span>
+      <div className="flex items-center gap-1">
+        <Button
+          size="icon"
+          variant="outline"
+          className="h-8 w-8"
+          aria-label="Decrease seats"
+          disabled={save.isPending || seats <= 1}
+          onClick={() => setSeats((s) => clamp(s - 1))}
+        >
+          <Minus className="h-3.5 w-3.5" />
+        </Button>
+        <Input
+          className="h-8 w-16 text-center"
+          inputMode="numeric"
+          aria-label="Seat count"
+          value={seats}
+          onChange={(e) => {
+            const n = Number.parseInt(e.target.value, 10);
+            setSeats(Number.isNaN(n) ? 1 : clamp(n));
+          }}
+        />
+        <Button
+          size="icon"
+          variant="outline"
+          className="h-8 w-8"
+          aria-label="Increase seats"
+          disabled={save.isPending || seats >= MAX_SEATS}
+          onClick={() => setSeats((s) => clamp(s + 1))}
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+      <Button
+        size="sm"
+        variant={dirty ? "default" : "outline"}
+        disabled={!dirty || save.isPending}
+        onClick={() => save.mutate()}
+      >
+        {save.isPending && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+        Update seats
+      </Button>
+      {dirty && (
+        <span className="text-xs text-muted-foreground">
+          Billed with prorations on the current period.
+        </span>
+      )}
+    </div>
+  );
+}
+
 
 interface PlanOption {
   priceId: string;
