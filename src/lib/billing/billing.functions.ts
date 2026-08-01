@@ -282,7 +282,7 @@ export const getMyBilling = createServerFn({ method: "GET" })
     const { data: rows } = await context.supabase
       .from("subscriptions")
       .select(
-        "id, status, price_id, quantity, organization_id, current_period_end, cancel_at_period_end",
+        "id, status, price_id, quantity, organization_id, current_period_end, cancel_at_period_end, stripe_subscription_id",
       )
       .eq("environment", data.environment)
       .order("created_at", { ascending: false });
@@ -315,7 +315,7 @@ export const getMyPersonalBilling = createServerFn({ method: "GET" })
     const { data: sub } = await supabase
       .from("subscriptions")
       .select(
-        "id, status, price_id, quantity, organization_id, current_period_end, cancel_at_period_end",
+        "id, status, price_id, quantity, organization_id, current_period_end, cancel_at_period_end, stripe_subscription_id",
       )
       .eq("environment", data.environment)
       .eq("user_id", userId)
