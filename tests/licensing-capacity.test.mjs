@@ -187,3 +187,44 @@ test("cross-organization isolation", { skip: SKIP }, async () => {
   const { data, error } = await reserve(state.orgB, `iso.${STAMP}@qa.test`);
   assert.ok(error || !data, "org B has no pool to allocate from");
 });
+
+test(
+  "ending an organization membership releases sponsored capacity",
+  { skip: SKIP },
+  async () => {
+    const { data: allocId } = await reserve(
+      state.orgA,
+      `member.${STAMP}@qa.test`,
+    );
+    // Simulate acceptance: the license is now held by the admin user.
+    await admin
+      .from("license_allocations")
+      .update({
+        state: "active",
+        beneficiary_user_id: state.userId,
+        activated_at: new Date().toISOString(),
+      })
+      .eq("id", allocId);
+
+    await admin
+      .from("organization_memberships")
+      .update({ membership_status: "inactive", status: "inactive" })
+      .eq("organization_id", state.orgA)
+      .eq("user_id", state.userId);
+
+    const { data: row } = await admin
+      .from("license_allocations")
+      .select("state, revoked_reason")
+      .eq("id", allocId)
+      .single();
+    assert.equal(row.state, "revoked");
+    assert.match(row.revoked_reason ?? "", /membership ended/i);
+
+    // Restore the membership so later runs of this file are unaffected.
+    await admin
+      .from("organization_memberships")
+      .update({ membership_status: "active", status: "active" })
+      .eq("organization_id", state.orgA)
+      .eq("user_id", state.userId);
+  },
+);
