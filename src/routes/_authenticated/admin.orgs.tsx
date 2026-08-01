@@ -221,6 +221,10 @@ function OperatorConsolePage() {
                   <TabsTrigger value="billing">
                     <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Billing
                   </TabsTrigger>
+                  <TabsTrigger value="governance">
+                    <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> Governance
+                  </TabsTrigger>
+
 
 
                   {isPlatformAdmin && (
