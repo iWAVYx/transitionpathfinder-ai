@@ -144,7 +144,7 @@ async function upsertSubscription(subscription: any, env: StripeEnv) {
     item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase()
+  const { error: subError } = await getSupabase()
     .from("subscriptions")
     .upsert(
       {
@@ -167,6 +167,13 @@ async function upsertSubscription(subscription: any, env: StripeEnv) {
       },
       { onConflict: "stripe_subscription_id" },
     );
+
+  // Throwing returns a non-200 so Stripe retries rather than silently
+  // leaving a paid customer without access.
+  if (subError) {
+    console.error("Payment webhook: subscription upsert failed:", subError);
+    throw new Error("Subscription upsert failed");
+  }
 
   await reconcileEntitlement(subscription, priceId, env);
 }
