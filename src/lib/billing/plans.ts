@@ -80,6 +80,24 @@ function capacity(
 }
 
 export const PLANS: Record<PlanKey, PlanDefinition> = {
+  pathway_snapshot: {
+    key: "pathway_snapshot",
+    name: "Pathway Snapshot",
+    blurb:
+      "A one-time pathway report for one student. Point in time, with no ongoing updates or collaboration.",
+    personal: true,
+    orgKind: null,
+    monthlyPriceId: null,
+    yearlyPriceId: null,
+    oneTimePriceId: "tf_snapshot_once",
+    monthlyAmount: null,
+    yearlyAmount: "$79",
+    termMonths: null,
+    autoConvert: false,
+    salesAssisted: false,
+    isAddon: false,
+    capacity: capacity(1, 0, 0),
+  },
   individual_pathway: {
     key: "individual_pathway",
     name: "Individual Pathway",
