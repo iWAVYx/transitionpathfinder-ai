@@ -320,6 +320,25 @@ function PricingPage() {
           </div>
         </div>
       </section>
+
+      <Dialog
+        open={checkoutPrice !== null}
+        onOpenChange={(open) => {
+          if (!open) setCheckoutPrice(null);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Start Your Free Trial</DialogTitle>
+          </DialogHeader>
+          {checkoutPrice ? (
+            <StripeEmbeddedCheckout
+              priceId={checkoutPrice}
+              returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </SiteShell>
   );
 }
