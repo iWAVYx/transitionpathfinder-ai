@@ -97,7 +97,14 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         metadata,
         managed_payments: { enabled: true },
         ...(isRecurring
-          ? { subscription_data: { metadata } }
+          ? {
+              subscription_data: {
+                metadata,
+                // 30-day free trial; the card is collected up front and the
+                // first charge lands when the trial ends.
+                trial_period_days: TRIAL_PERIOD_DAYS,
+              },
+            }
           : { payment_intent_data: { description: productDescription } }),
       } as unknown as Stripe.Checkout.SessionCreateParams;
 
