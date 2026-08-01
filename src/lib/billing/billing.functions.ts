@@ -177,7 +177,98 @@ export interface BillingSummaryRow {
   organization_id: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
+  stripe_subscription_id: string;
 }
+
+type SeatUpdateResult =
+  | { quantity: number }
+  | { error: string };
+
+/**
+ * Changes the seat count on an org's seat-based subscription. Only org
+ * admins may call it, and seats can never drop below the number of active
+ * members already occupying them.
+ */
+export const updateSubscriptionSeats = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      organizationId: string;
+      subscriptionId: string;
+      quantity: number;
+      environment: StripeEnv;
+    }) => {
+      if (!Number.isInteger(data.quantity)) throw new Error("Invalid quantity");
+      if (data.quantity < 1 || data.quantity > MAX_SEATS) {
+        throw new Error(`Seats must be between 1 and ${MAX_SEATS}`);
+      }
+      return data;
+    },
+  )
+  .handler(async ({ data, context }): Promise<SeatUpdateResult> => {
+    const { supabase, userId } = context;
+
+    const { data: isAdmin, error: adminError } = await supabase.rpc(
+      "is_org_admin",
+      { _user_id: userId, _org_id: data.organizationId },
+    );
+    if (adminError || !isAdmin) {
+      return { error: "You do not manage billing for this organization." };
+    }
+
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("stripe_subscription_id, price_id, quantity, status")
+      .eq("id", data.subscriptionId)
+      .eq("organization_id", data.organizationId)
+      .eq("environment", data.environment)
+      .maybeSingle();
+
+    if (!sub?.stripe_subscription_id) {
+      return { error: "No subscription found for this organization." };
+    }
+    if (!isSeatBasedPrice(sub.price_id)) {
+      return { error: "This plan is not billed by the seat." };
+    }
+
+    const { count } = await supabase
+      .from("organization_memberships")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", data.organizationId)
+      .eq("membership_status", "active");
+
+    const used = count ?? 0;
+    if (data.quantity < used) {
+      return {
+        error: `${used} members are active. Remove members before lowering seats to ${data.quantity}.`,
+      };
+    }
+
+    try {
+      const stripe = createStripeClient(data.environment);
+      const subscription = await stripe.subscriptions.retrieve(
+        sub.stripe_subscription_id,
+      );
+      const item = subscription.items.data[0];
+      if (!item) return { error: "Subscription has no billable item." };
+
+      await stripe.subscriptions.update(sub.stripe_subscription_id, {
+        items: [{ id: item.id, quantity: data.quantity }],
+        proration_behavior: "create_prorations",
+      });
+
+      // Optimistic local write; the webhook remains the source of truth.
+      await supabase
+        .from("subscriptions")
+        .update({ quantity: data.quantity })
+        .eq("id", data.subscriptionId);
+
+      return { quantity: data.quantity };
+    } catch (err) {
+      return { error: getStripeErrorMessage(err) };
+    }
+  });
+
 
 /** Subscriptions visible to the caller (own + orgs they belong to). */
 export const getMyBilling = createServerFn({ method: "GET" })
