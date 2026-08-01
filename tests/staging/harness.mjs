@@ -135,17 +135,35 @@ export function userClient() {
   });
 }
 
-/** Minimal Stripe REST call against the sandbox key (no SDK, no gateway). */
+/** True for Lovable connector-gateway connection identifiers. */
+export function isGatewayKey(key) {
+  return typeof key === "string" && key.startsWith("mk_");
+}
+
+const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
+
+/**
+ * Minimal Stripe REST call. Uses the raw Stripe API for `sk_test_` keys and
+ * the Lovable connector gateway for `mk_` connection identifiers.
+ */
 export async function stripeGet(path, params = {}) {
+  assertStagingSafe();
   const query = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (Array.isArray(v)) v.forEach((item) => query.append(`${k}[]`, item));
     else if (v !== undefined && v !== null) query.set(k, String(v));
   }
   const suffix = query.toString() ? `?${query}` : "";
-  const res = await fetch(`https://api.stripe.com/v1/${path}${suffix}`, {
-    headers: { Authorization: `Bearer ${STAGING.stripeKey}` },
-  });
+  const gateway = isGatewayKey(STAGING.stripeKey);
+  const base = gateway ? `${GATEWAY_STRIPE_BASE}/v1` : "https://api.stripe.com/v1";
+  const headers = gateway
+    ? {
+        "X-Connection-Api-Key": STAGING.stripeKey,
+        "Lovable-API-Key": process.env.LOVABLE_API_KEY,
+      }
+    : { Authorization: `Bearer ${STAGING.stripeKey}` };
+
+  const res = await fetch(`${base}/${path}${suffix}`, { headers });
   if (!res.ok) {
     throw new Error(`Stripe GET ${path} failed: ${res.status} ${await res.text()}`);
   }
