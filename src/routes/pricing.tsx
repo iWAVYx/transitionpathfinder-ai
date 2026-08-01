@@ -209,6 +209,10 @@ function BillingToggle({
 
 function PricingPage() {
   const [billing, setBilling] = useState<BillingPeriod>("monthly");
+  const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+  const { user } = useAuth();
+  // Signed-in visitors buy in place; everyone else keeps the waitlist path.
+  const canCheckout = Boolean(user) && isPaymentsConfigured();
 
   return (
     <SiteShell>
