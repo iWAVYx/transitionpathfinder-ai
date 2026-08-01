@@ -22,21 +22,6 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
   auth: { persistSession: false },
 });
 
-/** Runs raw SQL through a temporary service-role query helper. */
-async function sql(query) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/exec_sql_readonly`, {
-    method: "POST",
-    headers: {
-      apikey: SERVICE_ROLE,
-      Authorization: `Bearer ${SERVICE_ROLE}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
-
 test("Connecticut is the only active jurisdiction", async () => {
   const { data, error } = await db
     .from("jurisdictions")
