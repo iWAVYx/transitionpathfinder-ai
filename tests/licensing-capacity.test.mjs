@@ -192,10 +192,12 @@ test(
   "ending an organization membership releases sponsored capacity",
   { skip: SKIP },
   async () => {
-    const { data: allocId } = await reserve(
+    const { data: allocId, error: reserveError } = await reserve(
       state.orgA,
       `member.${STAMP}@qa.test`,
     );
+    assert.equal(reserveError, null);
+    assert.ok(allocId, "a license must be available for this case");
     // Simulate acceptance: the license is now held by the admin user.
     await admin
       .from("license_allocations")
