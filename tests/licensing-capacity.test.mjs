@@ -216,11 +216,11 @@ test(
 
     const { data: row } = await admin
       .from("license_allocations")
-      .select("state, revoked_reason")
+      .select("state, notes")
       .eq("id", allocId)
       .single();
     assert.equal(row.state, "revoked");
-    assert.match(row.revoked_reason ?? "", /membership ended/i);
+    assert.match(row.notes ?? "", /membership ended/i);
 
     // Restore the membership so later runs of this file are unaffected.
     await admin
