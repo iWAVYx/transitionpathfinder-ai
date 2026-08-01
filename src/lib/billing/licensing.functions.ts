@@ -385,19 +385,52 @@ export const bulkInviteSponsored = createServerFn({ method: "POST" })
     },
   );
 
-/** Revokes a live license; capacity returns to the pool immediately. */
+/**
+ * Revokes a live license; capacity returns to the pool immediately.
+ * A written reason is required and is kept in the immutable entitlement
+ * audit trail alongside the before/after state.
+ */
 export const revokeAllocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { allocationId: string; reason?: string }) => {
+  .inputValidator((data: { allocationId: string; reason: string }) => {
     if (!UUID_RE.test(data.allocationId)) throw new Error("Invalid allocation");
-    return data;
+    const reason = (data.reason ?? "").trim();
+    if (reason.length < 10) {
+      throw new Error("Give a reason of at least 10 characters for this change.");
+    }
+    return { allocationId: data.allocationId, reason };
   })
   .handler(async ({ data, context }): Promise<{ ok: boolean } | { error: string }> => {
-    const { data: ok, error } = await context.supabase.rpc(
-      "revoke_license_allocation",
-      { _allocation_id: data.allocationId, _reason: data.reason ?? undefined },
-    );
+    const { supabase } = context;
+
+    const { data: before } = await supabase
+      .from("license_allocations")
+      .select(
+        "id, license_type, state, beneficiary_email, beneficiary_user_id, sponsor_organization_id, pool_id",
+      )
+      .eq("id", data.allocationId)
+      .maybeSingle();
+
+    const { data: ok, error } = await supabase.rpc("revoke_license_allocation", {
+      _allocation_id: data.allocationId,
+      _reason: data.reason,
+    });
     if (error) return { error: error.message };
+
+    if (before) {
+      await supabase.rpc("record_entitlement_audit", {
+        _event: "license_revoked",
+        _reason: data.reason,
+        _organization_id: before.sponsor_organization_id ?? undefined,
+        _subject_user_id: before.beneficiary_user_id ?? undefined,
+        _license_type: before.license_type,
+        _allocation_id: before.id,
+        _pool_id: before.pool_id ?? undefined,
+        _before: before,
+        _after: { state: "revoked" },
+      });
+    }
+
     return { ok: ok === true };
   });
 
@@ -405,8 +438,16 @@ export const revokeAllocation = createServerFn({ method: "POST" })
 export const transferAllocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { allocationId: string; toEmail?: string; toStudentId?: string }) => {
+    (data: {
+      allocationId: string;
+      toEmail?: string;
+      toStudentId?: string;
+      reason: string;
+    }) => {
       if (!UUID_RE.test(data.allocationId)) throw new Error("Invalid allocation");
+      if ((data.reason ?? "").trim().length < 10) {
+        throw new Error("Give a reason of at least 10 characters for this change.");
+      }
       if (data.toEmail && !EMAIL_RE.test(data.toEmail)) {
         throw new Error("Enter a valid email address.");
       }
@@ -421,7 +462,16 @@ export const transferAllocation = createServerFn({ method: "POST" })
   )
   .handler(
     async ({ data, context }): Promise<{ allocationId: string } | { error: string }> => {
-      const { data: newId, error } = await context.supabase.rpc(
+      const { supabase } = context;
+      const { data: before } = await supabase
+        .from("license_allocations")
+        .select(
+          "id, license_type, state, beneficiary_email, beneficiary_user_id, student_id, sponsor_organization_id, pool_id",
+        )
+        .eq("id", data.allocationId)
+        .maybeSingle();
+
+      const { data: newId, error } = await supabase.rpc(
         "transfer_license_allocation",
         {
           _allocation_id: data.allocationId,
@@ -431,6 +481,25 @@ export const transferAllocation = createServerFn({ method: "POST" })
         },
       );
       if (error) return { error: error.message };
+
+      if (before) {
+        await supabase.rpc("record_entitlement_audit", {
+          _event: "license_transferred",
+          _reason: data.reason.trim(),
+          _organization_id: before.sponsor_organization_id ?? undefined,
+          _subject_user_id: before.beneficiary_user_id ?? undefined,
+          _license_type: before.license_type,
+          _allocation_id: before.id,
+          _pool_id: before.pool_id ?? undefined,
+          _before: before,
+          _after: {
+            allocation_id: newId,
+            to_email: data.toEmail?.toLowerCase() ?? null,
+            to_student_id: data.toStudentId ?? null,
+          },
+        });
+      }
+
       return { allocationId: newId as string };
     },
   );
