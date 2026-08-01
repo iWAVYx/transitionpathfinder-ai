@@ -160,6 +160,90 @@ const PLANS: PlanOption[] = (
 });
 
 
+/**
+ * Districts rarely pay by card. This raises a Stripe invoice against the
+ * organization's own customer with net terms; access still waits for the
+ * `invoice.paid` webhook, so an unpaid PO grants nothing.
+ */
+function InvoiceRequestCard({ orgId }: { orgId: string }) {
+  const requestInvoice = useServerFn(requestDistrictInvoice);
+  const [priceId, setPriceId] = useState(PLANS[0]?.priceId ?? "");
+  const [poRef, setPoRef] = useState("");
+  const [email, setEmail] = useState("");
+
+  const send = useMutation({
+    mutationFn: () =>
+      requestInvoice({
+        data: {
+          organizationId: orgId,
+          priceId,
+          purchaseOrderRef: poRef || undefined,
+          billingEmail: email || undefined,
+          environment: getStripeEnvironment(),
+        },
+      }),
+    onSuccess: (res) => {
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Invoice sent. Access activates once payment clears.");
+      if (res.invoiceUrl) window.open(res.invoiceUrl, "_blank", "noopener,noreferrer");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">Pay by Invoice or Purchase Order</CardTitle>
+        <CardDescription>
+          For districts on net-30 terms. We email an invoice payable by ACH or
+          check; licenses activate after the payment clears.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-2 sm:grid-cols-2">
+        <select
+          className="h-9 rounded-md border bg-background px-2 text-sm"
+          aria-label="Plan to invoice"
+          value={priceId}
+          onChange={(e) => setPriceId(e.target.value)}
+        >
+          {PLANS.map((p) => (
+            <option key={p.priceId} value={p.priceId}>
+              {p.name} — {p.amount} {p.cadence}
+            </option>
+          ))}
+        </select>
+        <Input
+          className="h-9"
+          placeholder="Billing email"
+          aria-label="Billing email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          className="h-9"
+          placeholder="Purchase order reference (optional)"
+          aria-label="Purchase order reference"
+          value={poRef}
+          onChange={(e) => setPoRef(e.target.value)}
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={send.isPending || !priceId}
+          onClick={() => send.mutate()}
+        >
+          {send.isPending && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+          <FileText className="mr-1.5 h-3.5 w-3.5" /> Send Invoice
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 function statusTone(status: string): "default" | "secondary" | "destructive" {
   if (status === "active" || status === "trialing") return "default";
   if (status === "past_due" || status === "unpaid") return "destructive";
