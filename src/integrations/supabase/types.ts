@@ -3040,6 +3040,59 @@ export type Database = {
         }
         Relationships: []
       }
+      entitlement_audit_events: {
+        Row: {
+          actor_id: string | null
+          after_state: Json | null
+          allocation_id: string | null
+          before_state: Json | null
+          created_at: string
+          event: string
+          id: string
+          license_type: string | null
+          organization_id: string | null
+          pool_id: string | null
+          reason: string
+          subject_user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          after_state?: Json | null
+          allocation_id?: string | null
+          before_state?: Json | null
+          created_at?: string
+          event: string
+          id?: string
+          license_type?: string | null
+          organization_id?: string | null
+          pool_id?: string | null
+          reason: string
+          subject_user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          after_state?: Json | null
+          allocation_id?: string | null
+          before_state?: Json | null
+          created_at?: string
+          event?: string
+          id?: string
+          license_type?: string | null
+          organization_id?: string | null
+          pool_id?: string | null
+          reason?: string
+          subject_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entitlement_audit_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evidence_edges: {
         Row: {
           created_at: string
@@ -3779,6 +3832,231 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      jurisdiction_agencies: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          name: string
+          phone: string | null
+          sort_order: number
+          url: string | null
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          name: string
+          phone?: string | null
+          sort_order?: number
+          url?: string | null
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          phone?: string | null
+          sort_order?: number
+          url?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jurisdiction_agencies_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "jurisdiction_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jurisdiction_resource_packs: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          slug: string
+          summary: string | null
+          title: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          slug: string
+          summary?: string | null
+          title: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          slug?: string
+          summary?: string | null
+          title?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jurisdiction_resource_packs_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "jurisdiction_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jurisdiction_sources: {
+        Row: {
+          created_at: string
+          id: string
+          last_verified_at: string | null
+          official: boolean
+          publisher: string | null
+          review_due: string | null
+          title: string
+          url: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_verified_at?: string | null
+          official?: boolean
+          publisher?: string | null
+          review_due?: string | null
+          title: string
+          url: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_verified_at?: string | null
+          official?: boolean
+          publisher?: string | null
+          review_due?: string | null
+          title?: string
+          url?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jurisdiction_sources_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "jurisdiction_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jurisdiction_versions: {
+        Row: {
+          created_at: string
+          effective_from: string
+          id: string
+          jurisdiction_code: string
+          notes: string | null
+          planning_rules: Json
+          privacy_requirements: Json
+          published_by: string | null
+          review_due: string | null
+          role_labels: Json
+          status: string
+          superseded_by: string | null
+          terminology: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          effective_from?: string
+          id?: string
+          jurisdiction_code: string
+          notes?: string | null
+          planning_rules?: Json
+          privacy_requirements?: Json
+          published_by?: string | null
+          review_due?: string | null
+          role_labels?: Json
+          status?: string
+          superseded_by?: string | null
+          terminology?: Json
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          effective_from?: string
+          id?: string
+          jurisdiction_code?: string
+          notes?: string | null
+          planning_rules?: Json
+          privacy_requirements?: Json
+          published_by?: string | null
+          review_due?: string | null
+          role_labels?: Json
+          status?: string
+          superseded_by?: string | null
+          terminology?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jurisdiction_versions_jurisdiction_code_fkey"
+            columns: ["jurisdiction_code"]
+            isOneToOne: false
+            referencedRelation: "jurisdictions"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "jurisdiction_versions_superseded_by_fkey"
+            columns: ["superseded_by"]
+            isOneToOne: false
+            referencedRelation: "jurisdiction_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jurisdictions: {
+        Row: {
+          code: string
+          country: string
+          created_at: string
+          is_default: boolean
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          country?: string
+          created_at?: string
+          is_default?: boolean
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          country?: string
+          created_at?: string
+          is_default?: boolean
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       launch_checklist_items: {
         Row: {
@@ -8835,6 +9113,32 @@ export type Database = {
         Args: { _allocation_id: string; _user_id: string }
         Returns: boolean
       }
+      active_jurisdiction_version: {
+        Args: { _code?: string }
+        Returns: {
+          created_at: string
+          effective_from: string
+          id: string
+          jurisdiction_code: string
+          notes: string | null
+          planning_rules: Json
+          privacy_requirements: Json
+          published_by: string | null
+          review_due: string | null
+          role_labels: Json
+          status: string
+          superseded_by: string | null
+          terminology: Json
+          updated_at: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "jurisdiction_versions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       audience_for_role: { Args: { _role: string }; Returns: string }
       authorize: {
         Args: {
@@ -9028,6 +9332,20 @@ export type Database = {
           read_ct: number
         }[]
       }
+      record_entitlement_audit: {
+        Args: {
+          _after?: Json
+          _allocation_id?: string
+          _before?: Json
+          _event: string
+          _license_type?: string
+          _organization_id?: string
+          _pool_id?: string
+          _reason: string
+          _subject_user_id?: string
+        }
+        Returns: string
+      }
       redeem_access_code: { Args: { _code: string }; Returns: Json }
       release_expired_license_allocations: { Args: never; Returns: number }
       release_expired_license_reservations: { Args: never; Returns: number }
@@ -9069,6 +9387,10 @@ export type Database = {
         Returns: boolean
       }
       safe_channel_id_from_path: { Args: { _path: string }; Returns: string }
+      sponsoring_org_for: {
+        Args: { _license_type: string; _org_id: string }
+        Returns: string
+      }
       storage_can_read_student_doc: {
         Args: { _path: string; _user_id: string }
         Returns: boolean
