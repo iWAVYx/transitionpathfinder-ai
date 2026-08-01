@@ -21,7 +21,9 @@ import {
   CreditCard,
 } from "lucide-react";
 import { BillingPanel } from "@/components/admin/BillingPanel";
+import { CoveragePanel } from "@/components/admin/CoveragePanel";
 import { GovernancePanel } from "@/components/admin/GovernancePanel";
+
 import { LicensePanel } from "@/components/admin/LicensePanel";
 
 
