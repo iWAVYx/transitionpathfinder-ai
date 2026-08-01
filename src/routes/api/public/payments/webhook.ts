@@ -21,13 +21,58 @@ function getSupabase(): SupabaseClient {
 
 const ACTIVE_STATUSES = new Set(["active", "trialing", "past_due"]);
 
-function planTypeFor(priceId: string | null): string {
-  if (!priceId) return "standard";
-  if (priceId.startsWith("tf_partner_premium")) return "partner_premium";
-  if (priceId.startsWith("tf_school")) return "school";
-  if (priceId.startsWith("tf_educator")) return "educator";
-  if (priceId.startsWith("tf_family")) return "family";
-  return "standard";
+/**
+ * Maps a human-readable price lookup key to the entitlement plan vocabulary
+ * enforced by `access_entitlements_plan_check`, plus the grants it unlocks.
+ */
+interface PlanShape {
+  planType: string;
+  family: boolean;
+  student: boolean;
+  partner: boolean;
+}
+
+function planShapeFor(priceId: string | null): PlanShape | null {
+  if (!priceId) return null;
+  if (priceId.startsWith("tf_partner_premium"))
+    return {
+      planType: "partner_featured",
+      family: false,
+      student: false,
+      partner: true,
+    };
+  if (priceId.startsWith("tf_school"))
+    return {
+      planType: "school_plan",
+      family: true,
+      student: true,
+      partner: false,
+    };
+  if (priceId.startsWith("tf_educator"))
+    return {
+      planType: "educator_individual",
+      family: false,
+      student: true,
+      partner: false,
+    };
+  if (priceId.startsWith("tf_family"))
+    return {
+      planType: "family_early_access",
+      family: true,
+      student: true,
+      partner: false,
+    };
+  return null;
+}
+
+/**
+ * `past_due` intentionally keeps access: Stripe is still retrying, and the
+ * app surfaces a dunning banner instead of revoking mid-cycle.
+ */
+function entitlementStatusFor(stripeStatus: string): string {
+  if (stripeStatus === "trialing") return "trial";
+  if (ACTIVE_STATUSES.has(stripeStatus)) return "active";
+  return "canceled";
 }
 
 function isoFromUnix(seconds: number | null | undefined): string | null {
@@ -39,29 +84,51 @@ async function reconcileEntitlement(
   priceId: string | null,
   env: StripeEnv,
 ) {
-  const orgId = subscription.metadata?.organizationId;
-  if (!orgId) return;
+  const orgId = subscription.metadata?.organizationId ?? null;
+  const userId = subscription.metadata?.userId ?? null;
+  // Exactly one subject — org billing wins when both are stamped.
+  const subject = orgId
+    ? { organization_id: orgId, user_id: null }
+    : userId
+      ? { organization_id: null, user_id: userId }
+      : null;
+  if (!subject) return;
 
-  const planType = planTypeFor(priceId);
-  const active = ACTIVE_STATUSES.has(subscription.status);
+  const shape = planShapeFor(priceId);
+  if (!shape) {
+    console.error("Payment webhook: unmapped price for entitlement:", priceId);
+    return;
+  }
+
   const item = subscription.items?.data?.[0];
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase()
+  const { error } = await getSupabase()
     .from("access_entitlements")
     .upsert(
       {
-        organization_id: orgId,
-        plan_type: planType,
-        status: active ? "active" : "canceled",
-        grants_family_access: planType === "family" || planType === "school",
-        grants_student_access: planType === "family" || planType === "school",
-        grants_partner_access: planType === "partner_premium",
+        ...subject,
+        plan_type: shape.planType,
+        status: entitlementStatusFor(subscription.status),
+        grants_family_access: shape.family,
+        grants_student_access: shape.student,
+        grants_partner_access: shape.partner,
+        // Cancel-at-period-end: access runs out when the paid period does.
         ends_at: isoFromUnix(periodEnd),
         source: `stripe:${env}`,
+        updated_at: new Date().toISOString(),
       },
-      { onConflict: "organization_id,plan_type" },
+      {
+        onConflict: orgId
+          ? "organization_id,plan_type"
+          : "user_id,plan_type",
+      },
     );
+
+  if (error) {
+    console.error("Payment webhook: entitlement reconcile failed:", error);
+    throw new Error("Entitlement reconcile failed");
+  }
 }
 
 async function upsertSubscription(subscription: any, env: StripeEnv) {
