@@ -764,6 +764,53 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_accounts: {
+        Row: {
+          billing_email: string | null
+          collection_method: string
+          created_at: string
+          environment: string
+          id: string
+          organization_id: string | null
+          purchase_order_ref: string | null
+          stripe_customer_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          billing_email?: string | null
+          collection_method?: string
+          created_at?: string
+          environment?: string
+          id?: string
+          organization_id?: string | null
+          purchase_order_ref?: string | null
+          stripe_customer_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          billing_email?: string | null
+          collection_method?: string
+          created_at?: string
+          environment?: string
+          id?: string
+          organization_id?: string | null
+          purchase_order_ref?: string | null
+          stripe_customer_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_accounts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -3661,6 +3708,7 @@ export type Database = {
           invitation_type: string
           invited_by_user_id: string
           invited_role: string
+          license_type: string | null
           message: string | null
           organization_id: string | null
           revoked_at: string | null
@@ -3682,6 +3730,7 @@ export type Database = {
           invitation_type: string
           invited_by_user_id: string
           invited_role: string
+          license_type?: string | null
           message?: string | null
           organization_id?: string | null
           revoked_at?: string | null
@@ -3703,6 +3752,7 @@ export type Database = {
           invitation_type?: string
           invited_by_user_id?: string
           invited_role?: string
+          license_type?: string | null
           message?: string | null
           organization_id?: string | null
           revoked_at?: string | null
@@ -3772,6 +3822,117 @@ export type Database = {
         }
         Relationships: []
       }
+      license_allocations: {
+        Row: {
+          activated_at: string | null
+          beneficiary_email: string | null
+          beneficiary_user_id: string | null
+          created_at: string
+          created_by: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          invitation_id: string | null
+          invitation_source: string | null
+          license_type: string
+          notes: string | null
+          pool_id: string
+          reserved_until: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          sponsor_organization_id: string | null
+          sponsor_user_id: string | null
+          state: string
+          student_id: string | null
+          transferred_to: string | null
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          beneficiary_email?: string | null
+          beneficiary_user_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          invitation_id?: string | null
+          invitation_source?: string | null
+          license_type: string
+          notes?: string | null
+          pool_id: string
+          reserved_until?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          sponsor_organization_id?: string | null
+          sponsor_user_id?: string | null
+          state?: string
+          student_id?: string | null
+          transferred_to?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          beneficiary_email?: string | null
+          beneficiary_user_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          invitation_id?: string | null
+          invitation_source?: string | null
+          license_type?: string
+          notes?: string | null
+          pool_id?: string
+          reserved_until?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          sponsor_organization_id?: string | null
+          sponsor_user_id?: string | null
+          state?: string
+          student_id?: string | null
+          transferred_to?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_allocations_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_allocations_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "license_pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_allocations_sponsor_organization_id_fkey"
+            columns: ["sponsor_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_allocations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_allocations_transferred_to_fkey"
+            columns: ["transferred_to"]
+            isOneToOne: false
+            referencedRelation: "license_allocations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       license_lifecycle_events: {
         Row: {
           actor_id: string | null
@@ -3806,6 +3967,79 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      license_pools: {
+        Row: {
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          id: string
+          license_type: string
+          notes: string | null
+          organization_id: string | null
+          plan_code: string | null
+          purchased: number
+          source: string
+          status: string
+          subscription_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          license_type: string
+          notes?: string | null
+          organization_id?: string | null
+          plan_code?: string | null
+          purchased?: number
+          source?: string
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          license_type?: string
+          notes?: string | null
+          organization_id?: string | null
+          plan_code?: string | null
+          purchased?: number
+          source?: string
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_pools_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_pools_plan_code_fkey"
+            columns: ["plan_code"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "license_pools_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -6128,6 +6362,110 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_capacities: {
+        Row: {
+          admin_seats: number
+          created_at: string
+          family_accounts_per_pathway: number
+          max_schools: number | null
+          pathway_licenses: number
+          plan_code: string
+          staff_seats: number
+          updated_at: string
+        }
+        Insert: {
+          admin_seats?: number
+          created_at?: string
+          family_accounts_per_pathway?: number
+          max_schools?: number | null
+          pathway_licenses?: number
+          plan_code: string
+          staff_seats?: number
+          updated_at?: string
+        }
+        Update: {
+          admin_seats?: number
+          created_at?: string
+          family_accounts_per_pathway?: number
+          max_schools?: number | null
+          pathway_licenses?: number
+          plan_code?: string
+          staff_seats?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_capacities_plan_code_fkey"
+            columns: ["plan_code"]
+            isOneToOne: true
+            referencedRelation: "plans"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          active: boolean
+          auto_convert: boolean
+          billing_scope: string
+          code: string
+          created_at: string
+          description: string | null
+          entitlement_plan_type: string | null
+          is_addon: boolean
+          monthly_price_id: string | null
+          name: string
+          one_time_price_id: string | null
+          org_kind: string | null
+          sales_assisted: boolean
+          sort_order: number
+          stripe_product_id: string | null
+          term_months: number | null
+          updated_at: string
+          yearly_price_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          auto_convert?: boolean
+          billing_scope: string
+          code: string
+          created_at?: string
+          description?: string | null
+          entitlement_plan_type?: string | null
+          is_addon?: boolean
+          monthly_price_id?: string | null
+          name: string
+          one_time_price_id?: string | null
+          org_kind?: string | null
+          sales_assisted?: boolean
+          sort_order?: number
+          stripe_product_id?: string | null
+          term_months?: number | null
+          updated_at?: string
+          yearly_price_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          auto_convert?: boolean
+          billing_scope?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          entitlement_plan_type?: string | null
+          is_addon?: boolean
+          monthly_price_id?: string | null
+          name?: string
+          one_time_price_id?: string | null
+          org_kind?: string | null
+          sales_assisted?: boolean
+          sort_order?: number
+          stripe_product_id?: string | null
+          term_months?: number | null
+          updated_at?: string
+          yearly_price_id?: string | null
+        }
+        Relationships: []
+      }
       ppt_meeting_preps: {
         Row: {
           agenda: Json
@@ -7661,13 +7999,19 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          billing_account_id: string | null
           cancel_at_period_end: boolean
+          collection_method: string
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
           environment: string
+          grace_until: string | null
           id: string
+          last_invoice_at: string | null
+          last_invoice_status: string | null
           organization_id: string | null
+          plan_code: string | null
           price_id: string | null
           product_id: string | null
           quantity: number
@@ -7678,13 +8022,19 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          billing_account_id?: string | null
           cancel_at_period_end?: boolean
+          collection_method?: string
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
           environment?: string
+          grace_until?: string | null
           id?: string
+          last_invoice_at?: string | null
+          last_invoice_status?: string | null
           organization_id?: string | null
+          plan_code?: string | null
           price_id?: string | null
           product_id?: string | null
           quantity?: number
@@ -7695,13 +8045,19 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          billing_account_id?: string | null
           cancel_at_period_end?: boolean
+          collection_method?: string
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
           environment?: string
+          grace_until?: string | null
           id?: string
+          last_invoice_at?: string | null
+          last_invoice_status?: string | null
           organization_id?: string | null
+          plan_code?: string | null
           price_id?: string | null
           product_id?: string | null
           quantity?: number
@@ -7713,11 +8069,25 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "subscriptions_billing_account_id_fkey"
+            columns: ["billing_account_id"]
+            isOneToOne: false
+            referencedRelation: "billing_accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "subscriptions_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_code_fkey"
+            columns: ["plan_code"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -8461,6 +8831,10 @@ export type Database = {
           invitation_type: string
         }[]
       }
+      activate_license_allocation: {
+        Args: { _allocation_id: string; _user_id: string }
+        Returns: boolean
+      }
       audience_for_role: { Args: { _role: string }; Returns: string }
       authorize: {
         Args: {
@@ -8575,6 +8949,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_sponsored_license: {
+        Args: { _license_type?: string; _user_id: string }
+        Returns: boolean
+      }
       is_admin_hub_member: { Args: { _user_id: string }; Returns: boolean }
       is_channel_admin: {
         Args: { _channel_id: string; _user_id: string }
@@ -8594,6 +8972,15 @@ export type Database = {
       }
       is_partner_only: { Args: { _user_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      license_capacity: {
+        Args: { _license_type: string; _org_id: string }
+        Returns: {
+          active: number
+          available: number
+          purchased: number
+          reserved: number
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -8618,6 +9005,17 @@ export type Database = {
           total_count: number
         }[]
       }
+      org_capacity_summary: {
+        Args: { _org_id: string }
+        Returns: {
+          active: number
+          available: number
+          license_type: string
+          purchased: number
+          reserved: number
+          utilization: number
+        }[]
+      }
       partner_tier_allows: {
         Args: { _capability: string; _user_id: string }
         Returns: boolean
@@ -8631,6 +9029,21 @@ export type Database = {
         }[]
       }
       redeem_access_code: { Args: { _code: string }; Returns: Json }
+      release_expired_license_allocations: { Args: never; Returns: number }
+      release_expired_license_reservations: { Args: never; Returns: number }
+      reserve_license_allocation: {
+        Args: {
+          _beneficiary_email?: string
+          _beneficiary_user_id?: string
+          _invitation_id?: string
+          _invitation_source?: string
+          _license_type: string
+          _org_id: string
+          _reserved_until?: string
+          _student_id?: string
+        }
+        Returns: string
+      }
       resolve_admin_invitation: {
         Args: { _token: string }
         Returns: {
@@ -8651,12 +9064,29 @@ export type Database = {
           report_id: string
         }[]
       }
+      revoke_license_allocation: {
+        Args: { _allocation_id: string; _reason?: string }
+        Returns: boolean
+      }
       safe_channel_id_from_path: { Args: { _path: string }; Returns: string }
       storage_can_read_student_doc: {
         Args: { _path: string; _user_id: string }
         Returns: boolean
       }
+      student_pathway_licensed: {
+        Args: { _student_id: string }
+        Returns: boolean
+      }
       track_share_view: { Args: { _token: string }; Returns: undefined }
+      transfer_license_allocation: {
+        Args: {
+          _allocation_id: string
+          _to_email?: string
+          _to_student_id?: string
+          _to_user_id?: string
+        }
+        Returns: string
+      }
       user_has_feature: {
         Args: { _feature: string; _user_id: string }
         Returns: boolean

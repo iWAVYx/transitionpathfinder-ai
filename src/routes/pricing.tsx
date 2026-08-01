@@ -81,43 +81,43 @@ interface Tier {
 const tiers: Tier[] = [
   {
     id: "family",
-    name: "Students & Families",
+    name: "Individual Pathway",
     price: {
-      monthly: "$19.99",
-      yearly: "$99",
+      monthly: "$19",
+      yearly: "$190",
       note: {
-        monthly: "Per Month · Per Family",
-        yearly: "Per Year · Per Family · Best Value",
+        monthly: "Per Month · One Student Pathway",
+        yearly: "Per Year · One Student Pathway · Best Value",
       },
     },
     description:
-      "Personalized Pathway Report, resource recommendations, meeting prep, and a calendar — built for parents, guardians, and students.",
-    highlights: ["Pathway Report", "Meeting prep", "Family dashboard"],
+      "One student pathway with up to three connected family accounts — Pathway Report, resource recommendations, meeting prep, and a shared calendar.",
+    highlights: ["One student pathway", "Up to 3 family accounts", "Meeting prep"],
     cta: { label: "Request family access", to: "/waitlist", search: { audience: "family" } },
     checkoutPriceIds: {
-      monthly: PLANS.family.monthlyPriceId,
-      yearly: PLANS.family.yearlyPriceId,
+      monthly: PLANS.individual_pathway.monthlyPriceId!,
+      yearly: PLANS.individual_pathway.yearlyPriceId!,
     },
     icon: HeartHandshake,
   },
   {
     id: "educator",
-    name: "Educators & Case Managers",
+    name: "Educator Solo",
     price: {
-      monthly: "$29.99",
-      yearly: "$199",
+      monthly: "$39",
+      yearly: "$390",
       note: {
-        monthly: "Per Month · Per Caseload",
-        yearly: "Per Year · Per Caseload · Best Value",
+        monthly: "Per Month · Up To Five Pathways",
+        yearly: "Per Year · Up To Five Pathways · Best Value",
       },
     },
     description:
-      "For individual educators and case managers supporting a transition caseload — without waiting for a school or district plan.",
-    highlights: ["Caseload tools", "PPT prep", "Goal tracker"],
+      "For an individual educator or case manager supporting a small caseload — up to five independent student pathways, without waiting for a school plan.",
+    highlights: ["Up to 5 student pathways", "PPT prep", "Goal tracker"],
     cta: { label: "Request educator access", to: "/waitlist", search: { audience: "educator" } },
     checkoutPriceIds: {
-      monthly: PLANS.educator.monthlyPriceId,
-      yearly: PLANS.educator.yearlyPriceId,
+      monthly: PLANS.educator_solo.monthlyPriceId!,
+      yearly: PLANS.educator_solo.yearlyPriceId!,
     },
     icon: GraduationCap,
   },
@@ -125,16 +125,16 @@ const tiers: Tier[] = [
     id: "school",
     name: "Schools",
     price: {
-      monthly: "$499",
-      yearly: "$2,999",
+      monthly: "$4,800",
+      yearly: "$4,800",
       note: {
-        monthly: "Per Month · Annual Commitment",
-        yearly: "Per Year · Full School Access · Best Value",
+        monthly: "School Core · Per Year",
+        yearly: "School Core · 30 Pathways, 8 Staff Seats, 2 Admins",
       },
     },
     description:
-      "A single school running TransitionForward across its transition team — with onboarding and pilot reporting included.",
-    highlights: ["Staff access", "Student profiles", "School admin dashboard"],
+      "A single school running TransitionForward across its transition team. School Plus adds 50 pathways, 15 staff seats, and 3 administrators for $6,500 per year.",
+    highlights: ["30 student pathways", "8 staff seats", "2 school administrators"],
     cta: { label: "Apply for a school pilot", to: "/waitlist", search: { audience: "school" } },
     icon: School,
   },
@@ -142,13 +142,16 @@ const tiers: Tier[] = [
     id: "district",
     name: "Districts",
     price: {
-      monthly: "Quote",
-      yearly: "Quote",
-      note: { monthly: "Tiered by Schools, Staff, or Students", yearly: "Tiered by Schools, Staff, or Students" },
+      monthly: "$18,000",
+      yearly: "$18,000",
+      note: {
+        monthly: "District Starter · Per Year",
+        yearly: "District Starter · 3 Schools, 150 Pathways, 35 Staff Seats",
+      },
     },
     description:
-      "Multi-school access with district reporting, implementation support, and connected family and educator invites.",
-    highlights: ["Multi-school rollout", "District reporting", "Implementation package"],
+      "Multi-school access with district reporting and implementation support. District Growth covers 8 schools, 400 pathways, and 90 staff seats for $32,000 per year; Enterprise is a custom contract.",
+    highlights: ["Up to 3 schools", "150 student pathways", "Invoice or purchase order"],
     cta: { label: "Request a district quote", to: "/contact" },
     icon: Landmark,
   },
@@ -167,6 +170,7 @@ const tiers: Tier[] = [
     icon: Briefcase,
   },
 ];
+
 
 function BillingToggle({
   value,

@@ -2,7 +2,13 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { AlertTriangle, CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CreditCard,
+  ExternalLink,
+  Loader2,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -24,6 +30,7 @@ import {
   createPortalSession,
   getMyPersonalBilling,
 } from "@/lib/billing/billing.functions";
+import { getMySponsorship } from "@/lib/billing/licensing.functions";
 import {
   PLANS,
   TRIAL_PERIOD_DAYS,
@@ -34,21 +41,23 @@ import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
 
 const PERSONAL_OPTIONS = [
   {
-    priceId: PLANS.family.monthlyPriceId,
-    name: "Family",
-    amount: "$19.99",
-    cadence: "Per Month · Per Family",
+    priceId: PLANS.individual_pathway.monthlyPriceId,
+    name: PLANS.individual_pathway.name,
+    amount: PLANS.individual_pathway.monthlyAmount,
+    cadence: "Per Month · One Student Pathway",
     blurb:
-      "Pathway reports, document summaries, and meeting prep for your student.",
+      "One student pathway with up to three connected family accounts — reports, document summaries, and meeting prep.",
   },
   {
-    priceId: PLANS.educator.monthlyPriceId,
-    name: "Educator & Case Manager",
-    amount: "$29.99",
-    cadence: "Per Month · Per Caseload",
-    blurb: "Caseload tools, PPT prep, and goal tracking for one caseload.",
+    priceId: PLANS.educator_solo.monthlyPriceId,
+    name: PLANS.educator_solo.name,
+    amount: PLANS.educator_solo.monthlyAmount,
+    cadence: "Per Month · Up To Five Pathways",
+    blurb:
+      "One educator with up to five independent student pathways, PPT prep, and goal tracking.",
   },
 ];
+
 
 function statusTone(status: string): "default" | "secondary" | "destructive" {
   if (status === "active" || status === "trialing") return "default";
@@ -75,6 +84,15 @@ export function PersonalBillingPanel() {
   const fetchBilling = useServerFn(getMyPersonalBilling);
   const openPortal = useServerFn(createPortalSession);
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+
+  const fetchSponsorship = useServerFn(getMySponsorship);
+
+  const sponsorship = useQuery({
+    queryKey: ["my-sponsorship"],
+    enabled: configured,
+    queryFn: () =>
+      fetchSponsorship({ data: { environment: getStripeEnvironment() } }),
+  });
 
   const billing = useQuery({
     queryKey: ["personal-billing"],
@@ -110,6 +128,39 @@ export function PersonalBillingPanel() {
     <div className="space-y-4">
       <PaymentTestModeBanner />
 
+      {sponsorship.data?.sponsored ? (
+        <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <div className="space-y-2">
+            <p>
+              Your access is sponsored by{" "}
+              <span className="font-medium">
+                {sponsorship.data.organizationName ?? "your organization"}
+              </span>
+              . You keep this account and everything in it — there is nothing to
+              pay while the sponsorship is active.
+            </p>
+            {sponsorship.data.duplicatePersonalSubscription && (
+              <div className="space-y-2">
+                <p className="text-muted-foreground">
+                  You are also paying personally for the same coverage. Cancel
+                  the personal renewal so you are not charged twice — your
+                  access continues through the sponsorship.
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={portal.isPending}
+                  onClick={() => portal.mutate()}
+                >
+                  Cancel personal renewal
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
+
       {billing.data?.dunning ? (
         <div
           role="alert"
@@ -122,6 +173,7 @@ export function PersonalBillingPanel() {
           </p>
         </div>
       ) : null}
+
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

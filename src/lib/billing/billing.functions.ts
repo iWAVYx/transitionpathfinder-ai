@@ -13,7 +13,11 @@ import {
   getStripeErrorMessage,
 } from "@/lib/stripe.server";
 import type Stripe from "stripe";
-import { resolveOrCreateCustomer } from "@/lib/billing/billing.server";
+import {
+  resolveOrCreateCustomer,
+  resolveOrCreateOrgCustomer,
+} from "@/lib/billing/billing.server";
+
 import {
   MAX_SEATS,
   TRIAL_PERIOD_DAYS,
@@ -73,10 +77,27 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       if (!stripePrice) return { error: "Plan not found" };
       const isRecurring = stripePrice.type === "recurring";
 
-      const customerId = await resolveOrCreateCustomer(stripe, {
-        email: user?.email ?? undefined,
-        userId,
-      });
+      // One Stripe Customer per paying subject: a school or district never
+      // shares a customer with the administrator who bought the plan.
+      let customerId: string;
+      if (data.organizationId) {
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("name")
+          .eq("id", data.organizationId)
+          .maybeSingle();
+        customerId = await resolveOrCreateOrgCustomer(stripe, {
+          organizationId: data.organizationId,
+          name: org?.name ?? "Organization",
+          email: user?.email ?? undefined,
+        });
+      } else {
+        customerId = await resolveOrCreateCustomer(stripe, {
+          email: user?.email ?? undefined,
+          userId,
+        });
+      }
+
 
       let productDescription: string | undefined;
       if (!isRecurring) {
@@ -379,3 +400,102 @@ export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
     },
   );
 
+
+/**
+ * District purchasing runs on invoices, not cards. This raises a Stripe
+ * invoice against the organization's own customer with `send_invoice`
+ * collection (ACH / check / purchase order), records the PO reference, and
+ * leaves activation to the `invoice.paid` webhook — never to this call.
+ */
+export const requestDistrictInvoice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      organizationId: string;
+      priceId: string;
+      purchaseOrderRef?: string;
+      billingEmail?: string;
+      daysUntilDue?: number;
+      environment: StripeEnv;
+    }) => {
+      if (!data.organizationId) throw new Error("Invalid organization");
+      if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid price");
+      if (data.purchaseOrderRef && data.purchaseOrderRef.length > 120) {
+        throw new Error("Purchase order reference is too long.");
+      }
+      if (
+        data.daysUntilDue != null &&
+        (data.daysUntilDue < 1 || data.daysUntilDue > 120)
+      ) {
+        throw new Error("Payment terms must be between 1 and 120 days.");
+      }
+      return data;
+    },
+  )
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{ invoiceUrl: string | null; invoiceId: string } | { error: string }> => {
+      const { supabase, userId } = context;
+
+      const { data: isAdmin } = await supabase.rpc("is_org_admin", {
+        _user_id: userId,
+        _org_id: data.organizationId,
+      });
+      if (!isAdmin) {
+        return { error: "You do not manage billing for this organization." };
+      }
+
+      try {
+        const stripe = createStripeClient(data.environment);
+        const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
+        const stripePrice = prices.data[0];
+        if (!stripePrice) return { error: "Plan not found" };
+
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("name")
+          .eq("id", data.organizationId)
+          .maybeSingle();
+
+        const customerId = await resolveOrCreateOrgCustomer(stripe, {
+          organizationId: data.organizationId,
+          name: org?.name ?? "Organization",
+          email: data.billingEmail,
+          collectionMethod: "send_invoice",
+        });
+
+        const invoice = await stripe.invoices.create({
+          customer: customerId,
+          collection_method: "send_invoice",
+          days_until_due: data.daysUntilDue ?? 30,
+          auto_advance: true,
+          metadata: {
+            organizationId: data.organizationId,
+            userId,
+            ...(data.purchaseOrderRef
+              ? { purchaseOrderRef: data.purchaseOrderRef }
+              : {}),
+          },
+        });
+
+        await stripe.invoiceItems.create({
+          customer: customerId,
+          invoice: invoice.id,
+          pricing: { price: stripePrice.id },
+          quantity: 1,
+        });
+
+        const finalized = await stripe.invoices.finalizeInvoice(invoice.id!);
+        await stripe.invoices.sendInvoice(invoice.id!);
+
+        return {
+          invoiceId: invoice.id!,
+          invoiceUrl: finalized.hosted_invoice_url ?? null,
+        };
+      } catch (error) {
+        return { error: getStripeErrorMessage(error) };
+      }
+    },
+  );

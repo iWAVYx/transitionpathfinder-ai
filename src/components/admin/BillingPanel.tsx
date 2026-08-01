@@ -2,7 +2,14 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CreditCard, ExternalLink, Loader2, Minus, Plus } from "lucide-react";
+import {
+  CreditCard,
+  ExternalLink,
+  FileText,
+  Loader2,
+  Minus,
+  Plus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,10 +26,16 @@ import { Input } from "@/components/ui/input";
 import {
   createPortalSession,
   getMyBilling,
+  requestDistrictInvoice,
   updateSubscriptionSeats,
   type BillingSummaryRow,
 } from "@/lib/billing/billing.functions";
-import { MAX_SEATS, isSeatBasedPrice } from "@/lib/billing/plans";
+import {
+  MAX_SEATS,
+  PLANS as CATALOG,
+  isSeatBasedPrice,
+} from "@/lib/billing/plans";
+
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
 
 /**
@@ -49,7 +62,7 @@ function SeatEditor({ orgId, row }: { orgId: string; row: BillingSummaryRow }) {
         toast.error(res.error);
         return;
       }
-      toast.success(`Seats updated to ${res.quantity}.`);
+      toast.success(`Capacity updated to ${res.quantity} packs.`);
       qc.invalidateQueries({ queryKey: ["billing", orgId] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -60,13 +73,13 @@ function SeatEditor({ orgId, row }: { orgId: string; row: BillingSummaryRow }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs text-muted-foreground">Seats</span>
+      <span className="text-xs text-muted-foreground">Packs</span>
       <div className="flex items-center gap-1">
         <Button
           size="icon"
           variant="outline"
           className="h-8 w-8"
-          aria-label="Decrease seats"
+          aria-label="Decrease packs"
           disabled={save.isPending || seats <= 1}
           onClick={() => setSeats((s) => clamp(s - 1))}
         >
@@ -75,7 +88,7 @@ function SeatEditor({ orgId, row }: { orgId: string; row: BillingSummaryRow }) {
         <Input
           className="h-8 w-16 text-center"
           inputMode="numeric"
-          aria-label="Seat count"
+          aria-label="Pack count"
           value={seats}
           onChange={(e) => {
             const n = Number.parseInt(e.target.value, 10);
@@ -86,7 +99,7 @@ function SeatEditor({ orgId, row }: { orgId: string; row: BillingSummaryRow }) {
           size="icon"
           variant="outline"
           className="h-8 w-8"
-          aria-label="Increase seats"
+          aria-label="Increase packs"
           disabled={save.isPending || seats >= MAX_SEATS}
           onClick={() => setSeats((s) => clamp(s + 1))}
         >
@@ -100,7 +113,7 @@ function SeatEditor({ orgId, row }: { orgId: string; row: BillingSummaryRow }) {
         onClick={() => save.mutate()}
       >
         {save.isPending && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
-        Update seats
+        Update packs
       </Button>
       {dirty && (
         <span className="text-xs text-muted-foreground">
@@ -120,36 +133,124 @@ interface PlanOption {
   blurb: string;
 }
 
-const PLANS: PlanOption[] = [
-  {
-    priceId: "tf_school_monthly",
-    name: "School Plan",
-    cadence: "Per Month",
-    amount: "$499",
-    blurb: "Full school access for a transition team, with onboarding support.",
-  },
-  {
-    priceId: "tf_school_yearly",
-    name: "School Plan",
-    cadence: "Per Year",
-    amount: "$2,999",
-    blurb: "Annual school access — best value for a full-year rollout.",
-  },
-  {
-    priceId: "tf_educator_monthly",
-    name: "Educator & Case Manager",
-    cadence: "Per Month",
-    amount: "$29.99",
-    blurb: "Caseload tools, PPT prep, and goal tracking for one caseload.",
-  },
-  {
-    priceId: "tf_partner_premium_monthly",
-    name: "Partner Premium",
-    cadence: "Per Month",
-    amount: "$99",
-    blurb: "Unlimited opportunity listings, analytics, and featured placement.",
-  },
-];
+/**
+ * Organization-purchasable catalog, derived from the shared plan definitions
+ * so console pricing can never drift from the Stripe lookup keys.
+ */
+const PLANS: PlanOption[] = (
+  [
+    "school_core",
+    "school_plus",
+    "founding_pilot",
+    "district_starter",
+    "district_growth",
+    "student_addon",
+    "staff_addon",
+    "partner_premium",
+  ] as const
+).flatMap((key) => {
+  const plan = CATALOG[key];
+  const priceId = plan.yearlyPriceId ?? plan.oneTimePriceId ?? plan.monthlyPriceId;
+  if (!priceId) return [];
+  return [
+    {
+      priceId,
+      name: plan.name,
+      cadence: plan.oneTimePriceId
+        ? `One Time · ${plan.termMonths} Months`
+        : plan.yearlyPriceId
+          ? "Per Year"
+          : "Per Month",
+      amount: plan.yearlyAmount ?? plan.monthlyAmount ?? "",
+      blurb: plan.blurb,
+    },
+  ];
+});
+
+
+/**
+ * Districts rarely pay by card. This raises a Stripe invoice against the
+ * organization's own customer with net terms; access still waits for the
+ * `invoice.paid` webhook, so an unpaid PO grants nothing.
+ */
+function InvoiceRequestCard({ orgId }: { orgId: string }) {
+  const requestInvoice = useServerFn(requestDistrictInvoice);
+  const [priceId, setPriceId] = useState(PLANS[0]?.priceId ?? "");
+  const [poRef, setPoRef] = useState("");
+  const [email, setEmail] = useState("");
+
+  const send = useMutation({
+    mutationFn: () =>
+      requestInvoice({
+        data: {
+          organizationId: orgId,
+          priceId,
+          purchaseOrderRef: poRef || undefined,
+          billingEmail: email || undefined,
+          environment: getStripeEnvironment(),
+        },
+      }),
+    onSuccess: (res) => {
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Invoice sent. Access activates once payment clears.");
+      if (res.invoiceUrl) window.open(res.invoiceUrl, "_blank", "noopener,noreferrer");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">Pay by Invoice or Purchase Order</CardTitle>
+        <CardDescription>
+          For districts on net-30 terms. We email an invoice payable by ACH or
+          check; licenses activate after the payment clears.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-2 sm:grid-cols-2">
+        <select
+          className="h-9 rounded-md border bg-background px-2 text-sm"
+          aria-label="Plan to invoice"
+          value={priceId}
+          onChange={(e) => setPriceId(e.target.value)}
+        >
+          {PLANS.map((p) => (
+            <option key={p.priceId} value={p.priceId}>
+              {p.name} — {p.amount} {p.cadence}
+            </option>
+          ))}
+        </select>
+        <Input
+          className="h-9"
+          placeholder="Billing email"
+          aria-label="Billing email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          className="h-9"
+          placeholder="Purchase order reference (optional)"
+          aria-label="Purchase order reference"
+          value={poRef}
+          onChange={(e) => setPoRef(e.target.value)}
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={send.isPending || !priceId}
+          onClick={() => send.mutate()}
+        >
+          {send.isPending && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+          <FileText className="mr-1.5 h-3.5 w-3.5" /> Send Invoice
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function statusTone(status: string): "default" | "secondary" | "destructive" {
   if (status === "active" || status === "trialing") return "default";
@@ -290,6 +391,9 @@ export function BillingPanel({ orgId }: { orgId: string }) {
           </Card>
         ))}
       </div>
+
+      <InvoiceRequestCard orgId={orgId} />
+
 
       <Dialog
         open={checkoutPrice !== null}
