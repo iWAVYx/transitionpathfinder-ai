@@ -94,18 +94,43 @@ export function GovernancePanel({ orgId }: { orgId: string }) {
               deleted.
             </CardDescription>
           </div>
-          <Select value={windowDays} onValueChange={setWindowDays}>
-            <SelectTrigger className="w-full sm:w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {WINDOWS.map((w) => (
-                <SelectItem key={w.value} value={w.value}>
-                  {w.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Select value={eventFilter} onValueChange={setEventFilter}>
+              <SelectTrigger className="w-full sm:w-52">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_EVENTS}>All Event Types</SelectItem>
+                {(data?.byEvent ?? []).map((row) => (
+                  <SelectItem key={row.event} value={row.event}>
+                    {labelForAuditEvent(row.event)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={windowDays} onValueChange={setWindowDays}>
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {WINDOWS.map((w) => (
+                  <SelectItem key={w.value} value={w.value}>
+                    {w.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
+              disabled={visibleEvents.length === 0}
+              onClick={downloadCsv}
+            >
+              <Download className="mr-2 h-4 w-4" /> Export CSV
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
@@ -126,8 +151,13 @@ export function GovernancePanel({ orgId }: { orgId: string }) {
                   </Badge>
                 ))}
               </div>
+              {visibleEvents.length === 0 ? (
+                <p className="py-6 text-sm text-muted-foreground">
+                  No records of this type in the selected window.
+                </p>
+              ) : (
               <ul className="divide-y rounded-lg border">
-                {data.events.map((row) => (
+                {visibleEvents.map((row) => (
                   <li key={row.id} className="space-y-1.5 p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <FileClock className="h-3.5 w-3.5 text-muted-foreground" />
@@ -147,6 +177,10 @@ export function GovernancePanel({ orgId }: { orgId: string }) {
                   </li>
                 ))}
               </ul>
+              )}
+            </>
+          )}
+
             </>
           )}
         </CardContent>
