@@ -256,9 +256,13 @@ function OperatorConsolePage() {
                 <TabsContent value="licenses">
                   <LicensePanel orgId={selectedOrg.id} />
                 </TabsContent>
+                <TabsContent value="billing">
+                  <BillingPanel orgId={selectedOrg.id} />
+                </TabsContent>
                 <TabsContent value="governance">
                   <GovernancePanel orgId={selectedOrg.id} />
                 </TabsContent>
+
 
 
 
