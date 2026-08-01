@@ -210,7 +210,7 @@ test(
 
     await admin
       .from("organization_memberships")
-      .update({ membership_status: "inactive", status: "inactive" })
+      .update({ membership_status: "removed", status: "suspended" })
       .eq("organization_id", state.orgA)
       .eq("user_id", state.userId);
 
