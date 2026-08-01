@@ -74,11 +74,28 @@ export function assertStagingSafe() {
     key.startsWith("sk_test_") ||
     key.startsWith("rk_test_") ||
     key.startsWith("sk_sandbox_");
-  if (!isTestKey) {
+  // Lovable payments issues gateway *connection identifiers* (mk_…) rather
+  // than raw Stripe secret keys. Those are only usable through the connector
+  // gateway, and the sandbox/live split is decided by which connection is
+  // used — so mode is asserted live in preflight via `livemode`.
+  if (!isTestKey && !isGatewayKey(key)) {
     throw new Error(
       "REFUSING TO RUN: STAGING_STRIPE_API_KEY is not a sandbox/test key. " +
-        "Expected an sk_test_ / rk_test_ / sk_sandbox_ prefix.",
+        "Expected an sk_test_ / rk_test_ / sk_sandbox_ prefix, or a Lovable " +
+        "gateway connection key (mk_…).",
     );
+  }
+  if (isGatewayKey(key)) {
+    if (key === process.env.STRIPE_LIVE_API_KEY) {
+      throw new Error(
+        "REFUSING TO RUN: STAGING_STRIPE_API_KEY is the live payments connection.",
+      );
+    }
+    if (!process.env.LOVABLE_API_KEY) {
+      throw new Error(
+        "STAGING_STRIPE_API_KEY is a gateway connection key but LOVABLE_API_KEY is not set.",
+      );
+    }
   }
 
   // Never allow production credentials to leak in as fallbacks.
@@ -118,17 +135,35 @@ export function userClient() {
   });
 }
 
-/** Minimal Stripe REST call against the sandbox key (no SDK, no gateway). */
+/** True for Lovable connector-gateway connection identifiers. */
+export function isGatewayKey(key) {
+  return typeof key === "string" && key.startsWith("mk_");
+}
+
+const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
+
+/**
+ * Minimal Stripe REST call. Uses the raw Stripe API for `sk_test_` keys and
+ * the Lovable connector gateway for `mk_` connection identifiers.
+ */
 export async function stripeGet(path, params = {}) {
+  assertStagingSafe();
   const query = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (Array.isArray(v)) v.forEach((item) => query.append(`${k}[]`, item));
     else if (v !== undefined && v !== null) query.set(k, String(v));
   }
   const suffix = query.toString() ? `?${query}` : "";
-  const res = await fetch(`https://api.stripe.com/v1/${path}${suffix}`, {
-    headers: { Authorization: `Bearer ${STAGING.stripeKey}` },
-  });
+  const gateway = isGatewayKey(STAGING.stripeKey);
+  const base = gateway ? `${GATEWAY_STRIPE_BASE}/v1` : "https://api.stripe.com/v1";
+  const headers = gateway
+    ? {
+        "X-Connection-Api-Key": STAGING.stripeKey,
+        "Lovable-API-Key": process.env.LOVABLE_API_KEY,
+      }
+    : { Authorization: `Bearer ${STAGING.stripeKey}` };
+
+  const res = await fetch(`${base}/${path}${suffix}`, { headers });
   if (!res.ok) {
     throw new Error(`Stripe GET ${path} failed: ${res.status} ${await res.text()}`);
   }
