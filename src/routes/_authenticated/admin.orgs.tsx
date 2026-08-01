@@ -12,14 +12,18 @@ import {
   Check,
   Trash2,
   Plus,
+  GraduationCap,
   ShieldCheck,
+
   XCircle,
   Activity,
   ShieldAlert,
   CreditCard,
 } from "lucide-react";
 import { BillingPanel } from "@/components/admin/BillingPanel";
+import { CoveragePanel } from "@/components/admin/CoveragePanel";
 import { GovernancePanel } from "@/components/admin/GovernancePanel";
+
 import { LicensePanel } from "@/components/admin/LicensePanel";
 
 
@@ -223,9 +227,13 @@ function OperatorConsolePage() {
                   <TabsTrigger value="billing">
                     <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Billing
                   </TabsTrigger>
+                  <TabsTrigger value="coverage">
+                    <GraduationCap className="mr-1.5 h-3.5 w-3.5" /> Coverage
+                  </TabsTrigger>
                   <TabsTrigger value="governance">
                     <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> Governance
                   </TabsTrigger>
+
 
 
 
@@ -261,7 +269,11 @@ function OperatorConsolePage() {
                 <TabsContent value="billing">
                   <BillingPanel orgId={selectedOrg.id} />
                 </TabsContent>
+                <TabsContent value="coverage">
+                  <CoveragePanel orgId={selectedOrg.id} />
+                </TabsContent>
                 <TabsContent value="governance">
+
                   <GovernancePanel orgId={selectedOrg.id} />
                 </TabsContent>
 
