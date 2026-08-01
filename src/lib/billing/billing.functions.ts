@@ -483,7 +483,7 @@ export const requestDistrictInvoice = createServerFn({ method: "POST" })
         await stripe.invoiceItems.create({
           customer: customerId,
           invoice: invoice.id,
-          price: stripePrice.id,
+          pricing: { price: stripePrice.id },
           quantity: 1,
         });
 
