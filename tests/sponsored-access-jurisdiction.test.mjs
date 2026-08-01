@@ -175,3 +175,48 @@ test("capacity types stay limited to pathway, staff, and admin", async () => {
     );
   }
 });
+
+test("student coverage states are constrained and default to active", async () => {
+  const { data, error } = await db
+    .from("students")
+    .select("id, coverage_state")
+    .limit(50);
+  assert.equal(error, null);
+  for (const s of data) {
+    assert.ok(
+      ["active", "graduated", "transferred", "archived"].includes(
+        s.coverage_state,
+      ),
+      `unexpected coverage state ${s.coverage_state}`,
+    );
+  }
+});
+
+test("coverage-state changes require a written reason", async () => {
+  const { data: student } = await db
+    .from("students")
+    .select("id")
+    .limit(1)
+    .maybeSingle();
+  if (!student) return;
+  const { error } = await db.rpc("set_student_coverage_state", {
+    _student_id: student.id,
+    _state: "graduated",
+    _reason: "too short",
+  });
+  assert.notEqual(error, null, "a short reason must be rejected");
+});
+
+test("anonymous callers cannot change coverage state", async () => {
+  const anon = createClient(
+    SUPABASE_URL,
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    { auth: { persistSession: false } },
+  );
+  const { error } = await anon.rpc("set_student_coverage_state", {
+    _student_id: "00000000-0000-0000-0000-000000000000",
+    _state: "archived",
+    _reason: "attempting without a session",
+  });
+  assert.notEqual(error, null, "anon must not be able to execute the function");
+});

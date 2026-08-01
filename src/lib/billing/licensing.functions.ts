@@ -573,3 +573,79 @@ export const getMySponsorship = createServerFn({ method: "GET" })
       personalSubscriptionId: personal?.id ?? null,
     };
   });
+
+/* ---------- student coverage continuity ---------- */
+
+export type CoverageState = "active" | "graduated" | "transferred" | "archived";
+
+export interface CoverageStateResult {
+  coverageState: CoverageState;
+  exportWindowEndsAt: string | null;
+  releasedAllocations: number;
+}
+
+/**
+ * Moves a student between coverage states. Graduation and archival release
+ * the sponsored pathway license back to the school or district and open a
+ * time-boxed export window; a transfer re-points the student at the
+ * receiving school without disturbing their records. Every change requires
+ * a written reason and lands in the immutable entitlement audit trail.
+ */
+export const setStudentCoverageState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      studentId: string;
+      state: CoverageState;
+      reason: string;
+      exportWindowDays?: number;
+      toOrganizationId?: string;
+    }) => {
+      if (!UUID_RE.test(data.studentId)) throw new Error("Invalid student");
+      const states: CoverageState[] = [
+        "active",
+        "graduated",
+        "transferred",
+        "archived",
+      ];
+      if (!states.includes(data.state)) throw new Error("Invalid coverage state");
+      const reason = (data.reason ?? "").trim();
+      if (reason.length < 10) {
+        throw new Error("Give a reason of at least 10 characters for this change.");
+      }
+      if (data.toOrganizationId && !UUID_RE.test(data.toOrganizationId)) {
+        throw new Error("Invalid receiving organization");
+      }
+      if (data.state === "transferred" && !data.toOrganizationId) {
+        throw new Error("Choose the school the student is transferring to.");
+      }
+      const days = data.exportWindowDays ?? 180;
+      if (!Number.isFinite(days) || days < 30 || days > 730) {
+        throw new Error("Export window must be between 30 and 730 days.");
+      }
+      return { ...data, reason, exportWindowDays: Math.round(days) };
+    },
+  )
+  .handler(
+    async ({ data, context }): Promise<CoverageStateResult | { error: string }> => {
+      const { supabase } = context;
+      const { data: rows, error } = await supabase.rpc(
+        "set_student_coverage_state",
+        {
+          _student_id: data.studentId,
+          _state: data.state,
+          _reason: data.reason,
+          _export_window_days: data.exportWindowDays,
+          _to_organization_id: data.toOrganizationId ?? undefined,
+        },
+      );
+      if (error) return { error: error.message };
+
+      const row = Array.isArray(rows) ? rows[0] : rows;
+      return {
+        coverageState: (row?.coverage_state ?? data.state) as CoverageState,
+        exportWindowEndsAt: (row?.export_window_ends_at as string | null) ?? null,
+        releasedAllocations: (row?.released_allocations as number | null) ?? 0,
+      };
+    },
+  );
