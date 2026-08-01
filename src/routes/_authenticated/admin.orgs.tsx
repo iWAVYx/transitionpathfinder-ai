@@ -19,6 +19,8 @@ import {
   CreditCard,
 } from "lucide-react";
 import { BillingPanel } from "@/components/admin/BillingPanel";
+import { LicensePanel } from "@/components/admin/LicensePanel";
+
 
 import { HealthTab } from "@/components/admin/health/HealthTab";
 import { ModerationTab } from "@/components/admin/moderation/ModerationTab";
@@ -213,9 +215,13 @@ function OperatorConsolePage() {
                   <TabsTrigger value="members">
                     <Users className="mr-1.5 h-3.5 w-3.5" /> Members & Seats
                   </TabsTrigger>
+                  <TabsTrigger value="licenses">
+                    <KeyRound className="mr-1.5 h-3.5 w-3.5" /> Licenses
+                  </TabsTrigger>
                   <TabsTrigger value="billing">
                     <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Billing
                   </TabsTrigger>
+
 
                   {isPlatformAdmin && (
                     <TabsTrigger value="requests">
@@ -243,9 +249,13 @@ function OperatorConsolePage() {
                 <TabsContent value="members">
                   <MembersPanel orgId={selectedOrg.id} />
                 </TabsContent>
+                <TabsContent value="licenses">
+                  <LicensePanel orgId={selectedOrg.id} />
+                </TabsContent>
                 <TabsContent value="billing">
                   <BillingPanel orgId={selectedOrg.id} />
                 </TabsContent>
+
 
                 {isPlatformAdmin && (
                   <TabsContent value="requests">

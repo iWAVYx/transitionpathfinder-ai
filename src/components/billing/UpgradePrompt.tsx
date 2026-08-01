@@ -14,7 +14,7 @@ import { useEntitlement } from "@/hooks/use-entitlement";
 
 interface UpgradePromptProps {
   /** Which personal plan unlocks this feature. */
-  plan?: Extract<PlanKey, "family" | "educator">;
+  plan?: Extract<PlanKey, "individual_pathway" | "educator_solo">;
   /** Name of the gated feature, used in the prompt copy. */
   feature: string;
   className?: string;
@@ -22,10 +22,11 @@ interface UpgradePromptProps {
 
 /**
  * Inline upsell shown where an unentitled user hits a paid feature.
- * Renders nothing once the user already has active access.
+ * Renders nothing once the user already has active access — including
+ * access sponsored by a school or district.
  */
 export function UpgradePrompt({
-  plan = "family",
+  plan = "individual_pathway",
   feature,
   className,
 }: UpgradePromptProps) {
@@ -35,6 +36,7 @@ export function UpgradePrompt({
   if (loading || isActive || !isPaymentsConfigured()) return null;
 
   const definition = PLANS[plan];
+
 
   return (
     <div
@@ -62,7 +64,7 @@ export function UpgradePrompt({
             <DialogTitle>Start Your {definition.name} Trial</DialogTitle>
           </DialogHeader>
           <StripeEmbeddedCheckout
-            priceId={definition.monthlyPriceId}
+            priceId={definition.monthlyPriceId ?? definition.yearlyPriceId ?? ""}
             returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
           />
         </DialogContent>

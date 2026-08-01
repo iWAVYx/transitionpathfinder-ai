@@ -13,7 +13,11 @@ import {
   getStripeErrorMessage,
 } from "@/lib/stripe.server";
 import type Stripe from "stripe";
-import { resolveOrCreateCustomer } from "@/lib/billing/billing.server";
+import {
+  resolveOrCreateCustomer,
+  resolveOrCreateOrgCustomer,
+} from "@/lib/billing/billing.server";
+
 import {
   MAX_SEATS,
   TRIAL_PERIOD_DAYS,
@@ -73,10 +77,27 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       if (!stripePrice) return { error: "Plan not found" };
       const isRecurring = stripePrice.type === "recurring";
 
-      const customerId = await resolveOrCreateCustomer(stripe, {
-        email: user?.email ?? undefined,
-        userId,
-      });
+      // One Stripe Customer per paying subject: a school or district never
+      // shares a customer with the administrator who bought the plan.
+      let customerId: string;
+      if (data.organizationId) {
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("name")
+          .eq("id", data.organizationId)
+          .maybeSingle();
+        customerId = await resolveOrCreateOrgCustomer(stripe, {
+          organizationId: data.organizationId,
+          name: org?.name ?? "Organization",
+          email: user?.email ?? undefined,
+        });
+      } else {
+        customerId = await resolveOrCreateCustomer(stripe, {
+          email: user?.email ?? undefined,
+          userId,
+        });
+      }
+
 
       let productDescription: string | undefined;
       if (!isRecurring) {
