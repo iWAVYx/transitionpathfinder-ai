@@ -12,7 +12,9 @@ import {
   Check,
   Trash2,
   Plus,
+  GraduationCap,
   ShieldCheck,
+
   XCircle,
   Activity,
   ShieldAlert,
