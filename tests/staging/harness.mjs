@@ -74,11 +74,28 @@ export function assertStagingSafe() {
     key.startsWith("sk_test_") ||
     key.startsWith("rk_test_") ||
     key.startsWith("sk_sandbox_");
-  if (!isTestKey) {
+  // Lovable payments issues gateway *connection identifiers* (mk_…) rather
+  // than raw Stripe secret keys. Those are only usable through the connector
+  // gateway, and the sandbox/live split is decided by which connection is
+  // used — so mode is asserted live in preflight via `livemode`.
+  if (!isTestKey && !isGatewayKey(key)) {
     throw new Error(
       "REFUSING TO RUN: STAGING_STRIPE_API_KEY is not a sandbox/test key. " +
-        "Expected an sk_test_ / rk_test_ / sk_sandbox_ prefix.",
+        "Expected an sk_test_ / rk_test_ / sk_sandbox_ prefix, or a Lovable " +
+        "gateway connection key (mk_…).",
     );
+  }
+  if (isGatewayKey(key)) {
+    if (key === process.env.STRIPE_LIVE_API_KEY) {
+      throw new Error(
+        "REFUSING TO RUN: STAGING_STRIPE_API_KEY is the live payments connection.",
+      );
+    }
+    if (!process.env.LOVABLE_API_KEY) {
+      throw new Error(
+        "STAGING_STRIPE_API_KEY is a gateway connection key but LOVABLE_API_KEY is not set.",
+      );
+    }
   }
 
   // Never allow production credentials to leak in as fallbacks.
