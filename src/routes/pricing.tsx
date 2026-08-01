@@ -14,6 +14,16 @@ import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { StripeEmbeddedCheckout } from "@/components/billing/StripeEmbeddedCheckout";
+import { useAuth } from "@/hooks/use-auth";
+import { PLANS, TRIAL_PERIOD_DAYS } from "@/lib/billing/plans";
+import { isPaymentsConfigured } from "@/lib/stripe";
 import { SALES_EMAIL, mailtoHref } from "@/lib/contact";
 import { toTitleCase } from "@/lib/title-case";
 import { cn } from "@/lib/utils";
