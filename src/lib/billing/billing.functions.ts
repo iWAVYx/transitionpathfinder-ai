@@ -14,7 +14,11 @@ import {
 } from "@/lib/stripe.server";
 import type Stripe from "stripe";
 import { resolveOrCreateCustomer } from "@/lib/billing/billing.server";
-import { TRIAL_PERIOD_DAYS } from "@/lib/billing/plans";
+import {
+  MAX_SEATS,
+  TRIAL_PERIOD_DAYS,
+  isSeatBasedPrice,
+} from "@/lib/billing/plans";
 
 type CheckoutResult = { clientSecret: string } | { error: string };
 type PortalResult = { url: string } | { error: string };
