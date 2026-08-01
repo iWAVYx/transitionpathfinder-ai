@@ -251,6 +251,13 @@ function SettingsPage() {
           </dl>
         </div>
 
+        {/* Billing */}
+        <div id="billing" className="mt-6 scroll-mt-24">
+          <PersonalBillingPanel />
+        </div>
+
+
+
         {/* Profile */}
         <div className="mt-6 rounded-2xl border bg-card p-6 shadow-soft">
           <div className="flex items-center gap-2">
