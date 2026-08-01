@@ -54,6 +54,20 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
   },
 };
 
+/** Plans billed per seat — admins can adjust the quantity after purchase. */
+export const SEAT_BASED_PRICE_IDS: readonly string[] = [
+  PLANS.school.monthlyPriceId,
+  PLANS.school.yearlyPriceId,
+];
+
+/** Upper bound offered in the seat editor (matches the Stripe price max). */
+export const MAX_SEATS = 100;
+
+/** True when a price id is sold by the seat. */
+export function isSeatBasedPrice(priceId: string | null): boolean {
+  return priceId != null && SEAT_BASED_PRICE_IDS.includes(priceId);
+}
+
 /** Resolves a price lookup key back to its plan definition. */
 export function planForPriceId(priceId: string | null): PlanDefinition | null {
   if (!priceId) return null;
