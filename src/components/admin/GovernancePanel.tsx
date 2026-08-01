@@ -22,6 +22,10 @@ import {
   getGovernanceAudit,
   labelForAuditEvent,
 } from "@/lib/billing/governance.functions";
+import {
+  auditCsvFilename,
+  toAuditCsv,
+} from "@/lib/billing/governance-export";
 
 const WINDOWS = [
   { value: "30", label: "Last 30 days" },
@@ -29,6 +33,8 @@ const WINDOWS = [
   { value: "180", label: "Last 180 days" },
   { value: "365", label: "Last 12 months" },
 ];
+
+const ALL_EVENTS = "all";
 
 function formatWhen(iso: string): string {
   const d = new Date(iso);
@@ -43,6 +49,7 @@ function formatWhen(iso: string): string {
 
 export function GovernancePanel({ orgId }: { orgId: string }) {
   const [windowDays, setWindowDays] = useState("180");
+  const [eventFilter, setEventFilter] = useState(ALL_EVENTS);
   const fetchAudit = useServerFn(getGovernanceAudit);
 
   const { data, isLoading } = useQuery({
@@ -52,6 +59,26 @@ export function GovernancePanel({ orgId }: { orgId: string }) {
         data: { organizationId: orgId, windowDays: Number(windowDays) },
       }),
   });
+
+  const visibleEvents = useMemo(() => {
+    const rows = data?.events ?? [];
+    return eventFilter === ALL_EVENTS
+      ? rows
+      : rows.filter((row) => row.event === eventFilter);
+  }, [data, eventFilter]);
+
+  function downloadCsv() {
+    const csv = toAuditCsv(visibleEvents, labelForAuditEvent);
+    const url = URL.createObjectURL(
+      new Blob([csv], { type: "text/csv;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = auditCsvFilename(orgId, Number(windowDays));
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
 
   return (
     <div className="space-y-4">
