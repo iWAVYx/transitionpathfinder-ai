@@ -105,6 +105,10 @@ const tiers: Tier[] = [
       "For individual educators and case managers supporting a transition caseload — without waiting for a school or district plan.",
     highlights: ["Caseload tools", "PPT prep", "Goal tracker"],
     cta: { label: "Request educator access", to: "/waitlist", search: { audience: "educator" } },
+    checkoutPriceIds: {
+      monthly: PLANS.educator.monthlyPriceId,
+      yearly: PLANS.educator.yearlyPriceId,
+    },
     icon: GraduationCap,
   },
   {
