@@ -268,11 +268,30 @@ function PricingPage() {
                 </div>
 
                 <div className="mt-auto pt-6">
-                  <Button asChild className="w-full" variant="outline">
-                    <Link to={tier.cta.to} search={tier.cta.search as never}>
-                      {toTitleCase(tier.cta.label)} <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  {canCheckout && tier.checkoutPriceIds ? (
+                    <>
+                      <Button
+                        className="w-full"
+                        onClick={() =>
+                          setCheckoutPrice(tier.checkoutPriceIds![billing])
+                        }
+                      >
+                        {toTitleCase(
+                          `Start ${TRIAL_PERIOD_DAYS}-day free trial`,
+                        )}{" "}
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <p className="mt-2 text-center text-xs text-muted-foreground">
+                        Cancel any time before the trial ends.
+                      </p>
+                    </>
+                  ) : (
+                    <Button asChild className="w-full" variant="outline">
+                      <Link to={tier.cta.to} search={tier.cta.search as never}>
+                        {toTitleCase(tier.cta.label)} <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             );
