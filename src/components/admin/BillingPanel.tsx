@@ -300,6 +300,9 @@ export function BillingPanel({ orgId }: { orgId: string }) {
         ))}
       </div>
 
+      <InvoiceRequestCard orgId={orgId} />
+
+
       <Dialog
         open={checkoutPrice !== null}
         onOpenChange={(open) => {
