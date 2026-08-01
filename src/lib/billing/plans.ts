@@ -14,6 +14,7 @@ export const TRIAL_PERIOD_DAYS = 30;
 export type LicenseType = "pathway" | "staff" | "admin";
 
 export type PlanKey =
+  | "pathway_snapshot"
   | "individual_pathway"
   | "educator_solo"
   | "school_core"
