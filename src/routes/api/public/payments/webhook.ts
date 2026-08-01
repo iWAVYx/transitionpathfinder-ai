@@ -202,25 +202,38 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     if (error) return; // duplicate delivery
   }
 
-  switch (event.type) {
-    case "customer.subscription.created":
-    case "customer.subscription.updated":
-    case "customer.subscription.paused":
-    case "customer.subscription.resumed":
-      await upsertSubscription(event.data.object, env);
-      break;
-    case "customer.subscription.deleted":
-      await markCanceled(event.data.object, env);
-      break;
-    case "checkout.session.completed":
-    case "checkout.session.async_payment_succeeded":
-    case "checkout.session.async_payment_failed":
-    case "invoice.paid":
-    case "invoice.payment_failed":
-      // Subscription state is driven by customer.subscription.* events.
-      break;
-    default:
-      console.log("Unhandled payment event:", event.type);
+  try {
+    switch (event.type) {
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+      case "customer.subscription.paused":
+      case "customer.subscription.resumed":
+        await upsertSubscription(event.data.object, env);
+        break;
+      case "customer.subscription.deleted":
+        await markCanceled(event.data.object, env);
+        break;
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded":
+      case "checkout.session.async_payment_failed":
+      case "invoice.paid":
+      case "invoice.payment_failed":
+        // Subscription state is driven by customer.subscription.* events.
+        break;
+      default:
+        console.log("Unhandled payment event:", event.type);
+    }
+  } catch (err) {
+    // Release the idempotency claim so Stripe's retry can reprocess this
+    // event instead of hitting the duplicate short-circuit above.
+    if (event.id) {
+      await getSupabase()
+        .from("processed_payment_events")
+        .delete()
+        .eq("event_id", event.id)
+        .eq("environment", env);
+    }
+    throw err;
   }
 }
 
