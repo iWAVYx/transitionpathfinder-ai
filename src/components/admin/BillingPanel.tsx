@@ -2,7 +2,14 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CreditCard, ExternalLink, Loader2, Minus, Plus } from "lucide-react";
+import {
+  CreditCard,
+  ExternalLink,
+  FileText,
+  Loader2,
+  Minus,
+  Plus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import {
   createPortalSession,
   getMyBilling,
+  requestDistrictInvoice,
   updateSubscriptionSeats,
   type BillingSummaryRow,
 } from "@/lib/billing/billing.functions";
