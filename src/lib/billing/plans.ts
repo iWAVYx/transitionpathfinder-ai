@@ -14,6 +14,7 @@ export const TRIAL_PERIOD_DAYS = 30;
 export type LicenseType = "pathway" | "staff" | "admin";
 
 export type PlanKey =
+  | "pathway_snapshot"
   | "individual_pathway"
   | "educator_solo"
   | "school_core"
@@ -79,6 +80,24 @@ function capacity(
 }
 
 export const PLANS: Record<PlanKey, PlanDefinition> = {
+  pathway_snapshot: {
+    key: "pathway_snapshot",
+    name: "Pathway Snapshot",
+    blurb:
+      "A one-time pathway report for one student. Point in time, with no ongoing updates or collaboration.",
+    personal: true,
+    orgKind: null,
+    monthlyPriceId: null,
+    yearlyPriceId: null,
+    oneTimePriceId: "tf_snapshot_once",
+    monthlyAmount: null,
+    yearlyAmount: "$79",
+    termMonths: null,
+    autoConvert: false,
+    salesAssisted: false,
+    isAddon: false,
+    capacity: capacity(1, 0, 0),
+  },
   individual_pathway: {
     key: "individual_pathway",
     name: "Individual Pathway",
@@ -367,5 +386,37 @@ export function licenseTypeLabel(type: LicenseType): string {
       return "Staff seats";
     case "admin":
       return "Administrator seats";
+  }
+}
+
+/**
+ * True when the plan is a one-time purchase that buys a point-in-time
+ * report only. Snapshot buyers keep the report they paid for; ongoing
+ * monitoring, updates, and collaboration require a membership.
+ */
+export function isSnapshotPlan(key: PlanKey | null | undefined): boolean {
+  return key === "pathway_snapshot";
+}
+
+/**
+ * Entitlement plan type stored on `access_entitlements` for a catalog plan.
+ * Snapshot is deliberately distinct so gating can grant the report without
+ * the continuing-access features.
+ */
+export function entitlementPlanTypeFor(key: PlanKey): string | null {
+  switch (key) {
+    case "pathway_snapshot":
+      return "pathway_snapshot";
+    case "individual_pathway":
+      return "family_early_access";
+    case "educator_solo":
+      return "educator_individual";
+    case "partner_premium":
+      return "partner_featured";
+    case "student_addon":
+    case "staff_addon":
+      return null;
+    default:
+      return "school_plan";
   }
 }

@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -136,6 +144,8 @@ export function LicensePanel({ orgId }: { orgId: string }) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("student");
   const [csv, setCsv] = useState("");
+  const [revokeTarget, setRevokeTarget] = useState<string | null>(null);
+  const [revokeReason, setRevokeReason] = useState("");
 
   const overview = useQuery({
     queryKey: ["licenses", orgId],
@@ -184,7 +194,7 @@ export function LicensePanel({ orgId }: { orgId: string }) {
     mutationFn: async (args:
       | { kind: "resend"; invitationId: string }
       | { kind: "cancel"; invitationId: string }
-      | { kind: "revoke"; allocationId: string }) => {
+      | { kind: "revoke"; allocationId: string; reason: string }) => {
       if (args.kind === "resend") {
         return resend({ data: { invitationId: args.invitationId } });
       }
@@ -192,7 +202,7 @@ export function LicensePanel({ orgId }: { orgId: string }) {
         return cancel({ data: { invitationId: args.invitationId } });
       }
       return revoke({
-        data: { allocationId: args.allocationId, reason: "Revoked by administrator" },
+        data: { allocationId: args.allocationId, reason: args.reason },
       });
     },
     onSuccess: (res) => {
@@ -201,6 +211,8 @@ export function LicensePanel({ orgId }: { orgId: string }) {
         return;
       }
       toast.success("License updated.");
+      setRevokeTarget(null);
+      setRevokeReason("");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -376,9 +388,10 @@ export function LicensePanel({ orgId }: { orgId: string }) {
                         size="sm"
                         variant="ghost"
                         disabled={rowAction.isPending}
-                        onClick={() =>
-                          rowAction.mutate({ kind: "revoke", allocationId: a.id })
-                        }
+                        onClick={() => {
+                          setRevokeReason("");
+                          setRevokeTarget(a.id);
+                        }}
                       >
                         <UserMinus className="mr-1.5 h-3.5 w-3.5" /> Revoke
                       </Button>
@@ -390,6 +403,51 @@ export function LicensePanel({ orgId }: { orgId: string }) {
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={revokeTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRevokeTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Revoke This License</DialogTitle>
+            <DialogDescription>
+              The seat returns to your pool right away. Manual capacity changes
+              are recorded permanently, so a written reason is required.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={revokeReason}
+            onChange={(e) => setRevokeReason(e.target.value)}
+            placeholder="Why is this license being revoked? (at least 10 characters)"
+            rows={3}
+          />
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setRevokeTarget(null)}
+              disabled={rowAction.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={rowAction.isPending || revokeReason.trim().length < 10}
+              onClick={() =>
+                revokeTarget &&
+                rowAction.mutate({
+                  kind: "revoke",
+                  allocationId: revokeTarget,
+                  reason: revokeReason.trim(),
+                })
+              }
+            >
+              Revoke License
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
