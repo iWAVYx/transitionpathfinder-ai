@@ -181,8 +181,6 @@ export function GovernancePanel({ orgId }: { orgId: string }) {
             </>
           )}
 
-            </>
-          )}
         </CardContent>
       </Card>
     </div>
