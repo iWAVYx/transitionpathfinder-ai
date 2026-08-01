@@ -388,3 +388,35 @@ export function licenseTypeLabel(type: LicenseType): string {
       return "Administrator seats";
   }
 }
+
+/**
+ * True when the plan is a one-time purchase that buys a point-in-time
+ * report only. Snapshot buyers keep the report they paid for; ongoing
+ * monitoring, updates, and collaboration require a membership.
+ */
+export function isSnapshotPlan(key: PlanKey | null | undefined): boolean {
+  return key === "pathway_snapshot";
+}
+
+/**
+ * Entitlement plan type stored on `access_entitlements` for a catalog plan.
+ * Snapshot is deliberately distinct so gating can grant the report without
+ * the continuing-access features.
+ */
+export function entitlementPlanTypeFor(key: PlanKey): string | null {
+  switch (key) {
+    case "pathway_snapshot":
+      return "pathway_snapshot";
+    case "individual_pathway":
+      return "family_early_access";
+    case "educator_solo":
+      return "educator_individual";
+    case "partner_premium":
+      return "partner_featured";
+    case "student_addon":
+    case "staff_addon":
+      return null;
+    default:
+      return "school_plan";
+  }
+}
