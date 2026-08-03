@@ -256,9 +256,11 @@ BEGIN
     INSERT INTO public.student_relationships
       (student_id, related_user_id, relationship_type, permission_level, consent_status)
     VALUES (v_inv.student_profile_id, v_uid, v_type, v_perm, 'approved')
+    -- Accepting only records consent. Scope (relationship_type,
+    -- permission_level) is never widened by the invitee's own acceptance —
+    -- that is what enforce_student_relationships_self_approve protects.
     ON CONFLICT ON CONSTRAINT student_relationships_unique DO UPDATE
-      SET consent_status = 'approved',
-          permission_level = EXCLUDED.permission_level;
+      SET consent_status = 'approved';
   END IF;
 
   SELECT a.id INTO v_alloc
