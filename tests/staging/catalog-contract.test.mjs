@@ -47,20 +47,16 @@ test("plan_capacities covers every non-addon plan the app sells", { skip: SKIP }
   const admin = adminClient();
   const { data: rows, error } = await admin
     .from("plan_capacities")
-    .select("plan_key, license_type, included");
+    .select("plan_code, pathway_licenses, staff_seats, admin_seats");
   assert.equal(error, null);
 
-  const byPlan = new Map();
-  for (const row of rows ?? []) {
-    if (!byPlan.has(row.plan_key)) byPlan.set(row.plan_key, new Set());
-    byPlan.get(row.plan_key).add(row.license_type);
-  }
+  const byPlan = new Map((rows ?? []).map((row) => [row.plan_code, row]));
 
   for (const plan of ["school_core", "school_plus", "district_starter"]) {
-    const types = byPlan.get(plan);
-    assert.ok(types, `plan_capacities is missing ${plan}`);
+    const row = byPlan.get(plan);
+    assert.ok(row, `plan_capacities is missing ${plan}`);
     assert.ok(
-      types.has("pathway"),
+      row.pathway_licenses > 0,
       `${plan} must define pathway license capacity`,
     );
   }
@@ -70,11 +66,13 @@ test("capacity numbers are non-negative integers", { skip: SKIP }, async () => {
   const admin = adminClient();
   const { data: rows } = await admin
     .from("plan_capacities")
-    .select("plan_key, license_type, included");
+    .select("plan_code, pathway_licenses, staff_seats, admin_seats");
   for (const row of rows ?? []) {
-    assert.ok(
-      Number.isInteger(row.included) && row.included >= 0,
-      `${row.plan_key}/${row.license_type} has invalid capacity ${row.included}`,
-    );
+    for (const field of ["pathway_licenses", "staff_seats", "admin_seats"]) {
+      assert.ok(
+        Number.isInteger(row[field]) && row[field] >= 0,
+        `${row.plan_code}.${field} has invalid capacity ${row[field]}`,
+      );
+    }
   }
 });
