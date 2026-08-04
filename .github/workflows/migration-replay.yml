@@ -1,0 +1,120 @@
+name: Migration Replay (disposable Postgres)
+
+# Replays every canonical migration in supabase/migrations against a fresh,
+# disposable Postgres instance. Runs as the superuser of a throwaway database,
+# which removes the local root-user limitation that forced three
+# realtime.messages policy statements to be skipped during the staging replay.
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/**"
+      - ".github/workflows/migration-replay.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap Supabase-like roles and schemas
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          do $$ begin
+            if not exists (select 1 from pg_roles where rolname='anon') then create role anon nologin noinherit; end if;
+            if not exists (select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin noinherit; end if;
+            if not exists (select 1 from pg_roles where rolname='service_role') then create role service_role nologin noinherit bypassrls; end if;
+            if not exists (select 1 from pg_roles where rolname='authenticator') then create role authenticator login noinherit; end if;
+            if not exists (select 1 from pg_roles where rolname='supabase_admin') then create role supabase_admin login superuser; end if;
+            if not exists (select 1 from pg_roles where rolname='supabase_auth_admin') then create role supabase_auth_admin login noinherit createrole; end if;
+          end $$;
+          create schema if not exists auth authorization supabase_auth_admin;
+          create schema if not exists storage;
+          create schema if not exists realtime;
+          create schema if not exists extensions;
+          create extension if not exists "uuid-ossp" with schema extensions;
+          create extension if not exists pgcrypto with schema extensions;
+          create extension if not exists pg_trgm;
+          -- minimal auth surface the app migrations reference
+          create table if not exists auth.users (
+            id uuid primary key default gen_random_uuid(),
+            email text,
+            raw_user_meta_data jsonb default '{}'::jsonb,
+            created_at timestamptz default now()
+          );
+          create or replace function auth.uid() returns uuid language sql stable
+            as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+          create or replace function auth.role() returns text language sql stable
+            as $$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), current_user) $$;
+          create or replace function auth.jwt() returns jsonb language sql stable
+            as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
+          -- realtime.messages target used by a few policy statements
+          create table if not exists realtime.messages (
+            id bigserial primary key,
+            topic text,
+            extension text,
+            payload jsonb,
+            inserted_at timestamptz default now()
+          );
+          alter table realtime.messages enable row level security;
+          SQL
+
+      - name: Replay all canonical migrations in order
+        run: |
+          set -euo pipefail
+          count=0
+          for f in $(ls supabase/migrations/*.sql | sort); do
+            echo "::group::$f"
+            psql -v ON_ERROR_STOP=1 -f "$f"
+            echo "::endgroup::"
+            count=$((count+1))
+          done
+          echo "replayed $count migrations"
+          test "$count" -ge 173
+
+      - name: Assert realtime.messages policies applied (no silent drift)
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc \
+            "select count(*) from pg_policies where schemaname='realtime' and tablename='messages';" \
+            | tee /tmp/realtime_policies.txt
+          test "$(cat /tmp/realtime_policies.txt)" -ge 1
+
+      - name: Grant hygiene — anon must not reach licensing or audit tables
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select bool_and(not has_table_privilege('anon', t, 'SELECT'))
+            from unnest(array[
+              'public.license_allocations',
+              'public.entitlement_audit_events'
+            ]) t;" | grep -qx t
+
+      - name: Upload replay log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-replay-log
+          path: /tmp/realtime_policies.txt
+          if-no-files-found: ignore
