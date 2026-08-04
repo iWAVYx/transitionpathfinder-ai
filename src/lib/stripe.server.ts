@@ -1,4 +1,12 @@
 import Stripe from 'stripe';
+import {
+  type StripeEnv,
+  classifyStripeKey,
+  resolveServerStripeEnv,
+  assertRequestedStripeEnv,
+  stripeEnvForAppEnv,
+  webhookEnvAllowed,
+} from '@/lib/billing/stripe-env';
 
 const getEnv = (key: string): string => {
   const value = process.env[key];
@@ -6,7 +14,14 @@ const getEnv = (key: string): string => {
   return value;
 };
 
-export type StripeEnv = 'sandbox' | 'live';
+export type { StripeEnv };
+export {
+  classifyStripeKey,
+  resolveServerStripeEnv,
+  assertRequestedStripeEnv,
+  stripeEnvForAppEnv,
+  webhookEnvAllowed,
+};
 
 const GATEWAY_STRIPE_BASE = 'https://connector-gateway.lovable.dev/stripe';
 
@@ -16,13 +31,45 @@ export function getConnectionApiKey(env: StripeEnv): string {
     : getEnv('STRIPE_LIVE_API_KEY');
 }
 
-/** Routes api.stripe.com requests through the Lovable connector gateway. */
+const API_VERSION = '2026-03-25.dahlia' as const;
+
+/**
+ * Builds a Stripe client for the requested environment.
+ *
+ * - `mk_…` connection identifiers keep the Lovable connector gateway path
+ *   (and require LOVABLE_API_KEY).
+ * - `sk_test_` / `rk_test_` raw keys talk to api.stripe.com directly, with no
+ *   gateway and no LOVABLE_API_KEY — this is what the isolated staging Worker
+ *   uses.
+ * - Live keys in a sandbox context, and unrecognized formats, fail closed.
+ *
+ * Credential values are never logged.
+ */
 export function createStripeClient(env: StripeEnv): Stripe {
   const connectionApiKey = getConnectionApiKey(env);
+  const kind = classifyStripeKey(connectionApiKey);
+
+  if (kind === 'unknown') {
+    throw new Error(
+      `Stripe credential for ${env} is not a recognized key format.`,
+    );
+  }
+  if (kind === 'direct_live' && env === 'sandbox') {
+    throw new Error('Refusing to use a live Stripe key in the sandbox environment.');
+  }
+  if (kind === 'direct_test' && env === 'live') {
+    throw new Error('Refusing to use a test Stripe key in the live environment.');
+  }
+
+  if (kind !== 'gateway') {
+    // Raw Stripe secret/restricted key — normal client, no gateway proxy.
+    return new Stripe(connectionApiKey, { apiVersion: API_VERSION });
+  }
+
   const lovableApiKey = getEnv('LOVABLE_API_KEY');
 
   return new Stripe(connectionApiKey, {
-    apiVersion: '2026-03-25.dahlia',
+    apiVersion: API_VERSION,
     httpClient: Stripe.createFetchHttpClient((input, init) => {
       const stripeUrl = input instanceof Request ? input.url : input.toString();
       const gatewayUrl = stripeUrl.replace('https://api.stripe.com', GATEWAY_STRIPE_BASE);
@@ -41,6 +88,7 @@ export function createStripeClient(env: StripeEnv): Stripe {
     }),
   });
 }
+
 
 export function getStripeErrorMessage(error: unknown): string {
   if (error && typeof error === 'object') {

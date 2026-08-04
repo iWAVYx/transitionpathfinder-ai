@@ -1,59 +1,88 @@
 /**
- * Non-sensitive environment identity health check.
+ * Non-sensitive deployment identity health check.
  *
  * Returns only: app environment, deployment hostname, Supabase project ref,
- * Stripe livemode, git commit SHA, and whether the staging isolation guard
- * passes. It never returns keys, secrets, database URLs, or webhook secrets.
+ * Stripe mode, git commit SHA, and the isolation verdict. It never returns
+ * keys, secrets, database URLs, or webhook secrets.
+ *
+ * On a staging deployment (staging hostname, or APP_ENV/VITE_APP_ENV claiming
+ * staging) the strict identity guard runs and any missing, unknown, or
+ * production-connected value returns 503.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import {
   PRODUCTION_PROJECT_REF,
   PRODUCTION_HOSTNAMES,
+  STAGING_PROJECT_REF,
+  evaluateStagingIdentity,
+  isStagingHostname,
   projectRefFrom,
-  assertStagingIsolation,
+  stripeModeFromToken,
 } from "@/lib/env-identity";
 
-function stripeLivemode(): boolean | null {
-  const token = process.env['VITE_PAYMENTS_CLIENT_TOKEN'] ?? process.env['PAYMENTS_CLIENT_TOKEN'];
-  if (typeof token !== "string") return null;
-  if (token.startsWith("pk_live_")) return true;
-  if (token.startsWith("pk_test_")) return false;
-  return null;
-}
+/** Production-only variables that must not exist in the staging Worker. */
+const FORBIDDEN_IN_STAGING = [
+  "STRIPE_LIVE_API_KEY",
+  "PAYMENTS_LIVE_WEBHOOK_SECRET",
+];
 
 export const Route = createFileRoute("/api/public/env-health")({
   server: {
     handlers: {
       GET: async ({ request }) => {
         const hostname = new URL(request.url).hostname;
-        const app_env = process.env['APP_ENV'] ?? process.env['VITE_APP_ENV'] ?? "production";
-        const supabase_project_ref = projectRefFrom(process.env['SUPABASE_URL']);
-        const stripe_livemode = stripeLivemode();
+        const app_env = process.env["APP_ENV"] ?? null;
+        const vite_app_env = process.env["VITE_APP_ENV"] ?? null;
+        const supabase_project_ref = projectRefFrom(process.env["SUPABASE_URL"]);
+        const stripe_mode = stripeModeFromToken(
+          process.env["VITE_PAYMENTS_CLIENT_TOKEN"] ??
+            process.env["PAYMENTS_CLIENT_TOKEN"] ??
+            process.env["STRIPE_SANDBOX_API_KEY"],
+        );
         const git_commit_sha =
-          process.env['GIT_COMMIT_SHA'] ?? process.env['CF_PAGES_COMMIT_SHA'] ?? "unknown";
+          process.env["GIT_COMMIT_SHA"] ??
+          process.env["CF_VERSION_METADATA_ID"] ??
+          process.env["CF_PAGES_COMMIT_SHA"] ??
+          "unknown";
 
-        let isolation: { ok: boolean; error?: string } = { ok: true };
-        if (app_env === "staging") {
-          try {
-            assertStagingIsolation({
-              appEnv: app_env,
-              hostname,
-              supabaseProjectRef: supabase_project_ref,
-              stripeLivemode: stripe_livemode,
-            });
-          } catch (e) {
-            isolation = { ok: false, error: (e as Error).message };
-          }
+        // Any deployment that either claims staging or is served from a
+        // staging hostname must satisfy the strict identity check.
+        const stagingTarget =
+          isStagingHostname(hostname) ||
+          app_env === "staging" ||
+          vite_app_env === "staging" ||
+          supabase_project_ref === STAGING_PROJECT_REF;
+
+        let isolation: { ok: boolean; errors: string[] } = {
+          ok: true,
+          errors: [],
+        };
+
+        if (stagingTarget) {
+          isolation = evaluateStagingIdentity({
+            appEnv: app_env,
+            viteAppEnv: vite_app_env,
+            hostname,
+            supabaseProjectRef: supabase_project_ref,
+            stripeMode: stripe_mode,
+            productionSecretsPresent: FORBIDDEN_IN_STAGING.filter(
+              (name) => !!process.env[name],
+            ),
+          });
         }
 
         return Response.json(
           {
-            app_env,
+            app_env: app_env ?? "unknown",
+            vite_app_env: vite_app_env ?? "unknown",
             hostname,
             supabase_project_ref,
             is_production_project: supabase_project_ref === PRODUCTION_PROJECT_REF,
             is_production_hostname: PRODUCTION_HOSTNAMES.includes(hostname),
-            stripe_livemode,
+            is_staging_target: stagingTarget,
+            stripe_mode,
+            stripe_livemode:
+              stripe_mode === "unknown" ? null : stripe_mode === "live",
             git_commit_sha,
             isolation,
           },

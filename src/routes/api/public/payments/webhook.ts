@@ -13,6 +13,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { type StripeEnv, verifyWebhook } from "@/lib/stripe.server";
+import {
+  resolveServerStripeEnv,
+  webhookEnvAllowed,
+} from "@/lib/billing/stripe-env";
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase(): SupabaseClient {
@@ -384,12 +388,23 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
     handlers: {
       POST: async ({ request }) => {
         const rawEnv = new URL(request.url).searchParams.get("env");
-        if (rawEnv !== "sandbox" && rawEnv !== "live") {
-          console.error("Payment webhook: invalid env parameter:", rawEnv);
-          return Response.json({ received: true, ignored: "invalid env" });
+
+        // The deployment owns the environment: staging processes sandbox
+        // events only, production live events only. Mismatches are rejected
+        // before signature verification or any database access.
+        let serverEnv: StripeEnv;
+        try {
+          serverEnv = resolveServerStripeEnv();
+        } catch {
+          console.error("Payment webhook: deployment environment unresolved");
+          return new Response("Environment not configured", { status: 400 });
+        }
+        if (!webhookEnvAllowed(rawEnv, serverEnv)) {
+          console.error("Payment webhook: env mismatch for this deployment");
+          return new Response("Environment mismatch", { status: 400 });
         }
         try {
-          await handleWebhook(request, rawEnv);
+          await handleWebhook(request, serverEnv);
           return Response.json({ received: true });
         } catch (e) {
           console.error("Payment webhook error:", e);

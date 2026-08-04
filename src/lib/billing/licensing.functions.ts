@@ -7,6 +7,7 @@
  * inviting at the same instant cannot over-allocate.
  */
 import { createServerFn } from "@tanstack/react-start";
+import { assertRequestedStripeEnv } from "@/lib/billing/stripe-env";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseInviteCsv } from "@/lib/billing/billing.server";
 
@@ -520,7 +521,10 @@ export interface SponsorshipInfo {
  */
 export const getMySponsorship = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { environment: "sandbox" | "live" }) => data)
+  .inputValidator((data: { environment?: "sandbox" | "live" }) => ({
+    ...data,
+    environment: assertRequestedStripeEnv(data.environment),
+  }))
   .handler(async ({ data, context }): Promise<SponsorshipInfo> => {
     const { supabase, userId } = context;
 

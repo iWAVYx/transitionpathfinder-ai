@@ -1,0 +1,78 @@
+name: deploy-staging
+
+# Manual only. This workflow can never target production: it deploys the
+# transitionforward-staging Worker with APP_ENV=staging and verifies the
+# deployment identity guard before it is considered successful.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "staging" to confirm'
+        required: true
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      APP_ENV: staging
+      VITE_APP_ENV: staging
+      VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_PAYMENTS_CLIENT_TOKEN: ${{ secrets.STAGING_PAYMENTS_CLIENT_TOKEN }}
+    steps:
+      - name: Confirm staging intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "staging" ]; then
+            echo "Confirmation text did not match 'staging'." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Guard tests (deployment identity + Stripe environment)
+        run: bunx vitest run tests/unit/env-identity-staging.test.ts tests/unit/stripe-env-resolver.test.ts
+
+      - name: Refuse live Stripe credentials
+        env:
+          STAGING_STRIPE_KEY: ${{ secrets.STAGING_STRIPE_SANDBOX_API_KEY }}
+        run: |
+          case "$STAGING_STRIPE_KEY" in
+            sk_live_*|rk_live_*)
+              echo "A live Stripe key is configured for staging. Aborting." >&2
+              exit 1;;
+            "")
+              echo "STAGING_STRIPE_SANDBOX_API_KEY is not set." >&2
+              exit 1;;
+          esac
+
+      - run: bun run build
+
+      - name: Deploy staging Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --config wrangler.staging.toml
+
+      - name: Verify deployment identity
+        env:
+          STAGING_HEALTH_URL: ${{ secrets.STAGING_HEALTH_URL }}
+        run: |
+          echo "Checking deployment identity..."
+          status=$(curl -s -o /tmp/health.json -w '%{http_code}' "$STAGING_HEALTH_URL")
+          cat /tmp/health.json
+          if [ "$status" != "200" ]; then
+            echo "env-health returned $status — staging isolation failed." >&2
+            exit 1
+          fi
