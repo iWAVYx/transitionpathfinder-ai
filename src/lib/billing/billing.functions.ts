@@ -9,6 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   type StripeEnv,
+  assertRequestedStripeEnv,
   createStripeClient,
   getStripeErrorMessage,
 } from "@/lib/stripe.server";
@@ -41,7 +42,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       quantity?: number;
       organizationId?: string;
       returnUrl: string;
-      environment: StripeEnv;
+      environment?: StripeEnv;
     }) => {
       if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) {
         throw new Error("Invalid priceId");
@@ -50,7 +51,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       if (data.quantity != null && (data.quantity < 1 || data.quantity > 1000)) {
         throw new Error("Invalid quantity");
       }
-      return data;
+      return { ...data, environment: assertRequestedStripeEnv(data.environment) };
     },
   )
   .handler(async ({ data, context }): Promise<CheckoutResult> => {
@@ -150,8 +151,8 @@ export const createPortalSession = createServerFn({ method: "POST" })
     (data: {
       returnUrl?: string;
       organizationId?: string;
-      environment: StripeEnv;
-    }) => data,
+      environment?: StripeEnv;
+    }) => ({ ...data, environment: assertRequestedStripeEnv(data.environment) }),
   )
   .handler(async ({ data, context }): Promise<PortalResult> => {
     const { supabase, userId } = context;
@@ -221,13 +222,13 @@ export const updateSubscriptionSeats = createServerFn({ method: "POST" })
       organizationId: string;
       subscriptionId: string;
       quantity: number;
-      environment: StripeEnv;
+      environment?: StripeEnv;
     }) => {
       if (!Number.isInteger(data.quantity)) throw new Error("Invalid quantity");
       if (data.quantity < 1 || data.quantity > MAX_SEATS) {
         throw new Error(`Seats must be between 1 and ${MAX_SEATS}`);
       }
-      return data;
+      return { ...data, environment: assertRequestedStripeEnv(data.environment) };
     },
   )
   .handler(async ({ data, context }): Promise<SeatUpdateResult> => {
@@ -298,7 +299,11 @@ export const updateSubscriptionSeats = createServerFn({ method: "POST" })
 /** Subscriptions visible to the caller (own + orgs they belong to). */
 export const getMyBilling = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { environment: StripeEnv }) => data)
+  .inputValidator((data: { environment?: StripeEnv }) => ({
+    ...data,
+    // The deployment decides sandbox vs live; a client value must match.
+    environment: assertRequestedStripeEnv(data.environment),
+  }))
   .handler(async ({ data, context }): Promise<BillingSummaryRow[]> => {
     const { data: rows } = await context.supabase
       .from("subscriptions")
@@ -329,7 +334,11 @@ export interface PersonalBillingSummary {
  */
 export const getMyPersonalBilling = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { environment: StripeEnv }) => data)
+  .inputValidator((data: { environment?: StripeEnv }) => ({
+    ...data,
+    // The deployment decides sandbox vs live; a client value must match.
+    environment: assertRequestedStripeEnv(data.environment),
+  }))
   .handler(async ({ data, context }): Promise<PersonalBillingSummary> => {
     const { supabase, userId } = context;
 
@@ -367,11 +376,11 @@ export const getMyPersonalBilling = createServerFn({ method: "GET" })
  */
 export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { sessionId: string; environment: StripeEnv }) => {
+  .inputValidator((data: { sessionId: string; environment?: StripeEnv }) => {
     if (!/^cs_[a-zA-Z0-9_]+$/.test(data.sessionId)) {
       throw new Error("Invalid session id");
     }
-    return data;
+    return { ...data, environment: assertRequestedStripeEnv(data.environment) };
   })
   .handler(
     async ({
@@ -416,7 +425,7 @@ export const requestDistrictInvoice = createServerFn({ method: "POST" })
       purchaseOrderRef?: string;
       billingEmail?: string;
       daysUntilDue?: number;
-      environment: StripeEnv;
+      environment?: StripeEnv;
     }) => {
       if (!data.organizationId) throw new Error("Invalid organization");
       if (!/^[a-zA-Z0-9_-]+$/.test(data.priceId)) throw new Error("Invalid price");
@@ -429,7 +438,7 @@ export const requestDistrictInvoice = createServerFn({ method: "POST" })
       ) {
         throw new Error("Payment terms must be between 1 and 120 days.");
       }
-      return data;
+      return { ...data, environment: assertRequestedStripeEnv(data.environment) };
     },
   )
   .handler(
