@@ -1,0 +1,35 @@
+# Isolated staging deployment — Cloudflare Worker
+#
+# This config is NEVER used for production. It exists so the staging build runs
+# on its own hostname, its own Supabase project, and Stripe sandbox only.
+#
+# Secrets are set with `wrangler secret put --config wrangler.staging.toml`
+# (see docs/ci/staging-deployment.md). Never add secret values to this file.
+
+name = "transitionforward-staging"
+main = "dist/server/index.mjs"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[assets]
+directory = "dist/client"
+binding = "ASSETS"
+
+[vars]
+APP_ENV = "staging"
+VITE_APP_ENV = "staging"
+
+[observability]
+enabled = true
+
+# Required secrets (set via `wrangler secret put`):
+#   SUPABASE_URL                    https://qgrertkqbwanerqqemph.supabase.co
+#   SUPABASE_PUBLISHABLE_KEY        staging anon/publishable key
+#   SUPABASE_SERVICE_ROLE_KEY       staging service role key
+#   STRIPE_SANDBOX_API_KEY          sk_test_… (direct Stripe test key)
+#   PAYMENTS_SANDBOX_WEBHOOK_SECRET whsec_… from the staging webhook endpoint
+#
+# Forbidden in staging (the /api/public/env-health guard fails the deployment
+# if any are present): STRIPE_LIVE_API_KEY, PAYMENTS_LIVE_WEBHOOK_SECRET,
+# and any production Supabase credential.
