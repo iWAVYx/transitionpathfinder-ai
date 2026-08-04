@@ -87,7 +87,7 @@ async function main() {
     if (!member) {
       const { error } = await admin
         .from("organization_memberships")
-        .insert({ user_id: ids[key], organization_id: orgId, role });
+        .insert({ user_id: ids[key], organization_id: orgId, role_within_org: role });
       if (error) console.warn("membership", key, error.message);
     }
   }
