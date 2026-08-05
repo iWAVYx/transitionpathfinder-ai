@@ -7,10 +7,20 @@
 # (see docs/ci/staging-deployment.md). Never add secret values to this file.
 
 name = "transitionforward-staging"
+# Build output contract: `bun run build` (Vite + Nitro) emits the server entry
+# at dist/server/index.mjs and the static assets at dist/client. The deploy
+# workflow asserts both exist before wrangler is invoked.
 main = "dist/server/index.mjs"
 compatibility_date = "2026-01-01"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
+
+# Nitro pre-bundles the Worker; wrangler must not re-bundle the emitted chunks.
+no_bundle = true
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.mjs", "**/*.js"]
 
 [assets]
 directory = "dist/client"
