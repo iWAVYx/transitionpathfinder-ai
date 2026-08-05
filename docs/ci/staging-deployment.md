@@ -48,7 +48,9 @@ The browser can no longer choose the billing environment.
 
 ```bash
 bun install
-bun run build                       # emits dist/server + dist/client
+bun run build                       # emits dist/server/index.mjs + dist/client
+test -f dist/server/index.mjs && test -d dist/client
+bunx wrangler deploy --dry-run --config wrangler.staging.toml   # wrangler 4 (local devDependency)
 bunx wrangler deploy --config wrangler.staging.toml
 ```
 
