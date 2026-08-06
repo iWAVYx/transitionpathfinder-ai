@@ -1,42 +1,140 @@
-- name: Verify deployment identity
-  env:
-    STAGING_HEALTH_URL: ${{ secrets.STAGING_HEALTH_URL }}
-  run: |
-    echo "Checking deployment identity..."
+name: Deploy Staging
 
-    if [ -z "$STAGING_HEALTH_URL" ]; then
-      echo "STAGING_HEALTH_URL is not configured." >&2
-      exit 1
-    fi
+# Manual only. This workflow can never target production: it deploys the
+# transitionforward-staging Worker with APP_ENV=staging and verifies the
+# deployment identity guard before it is considered successful.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "staging" to confirm'
+        required: true
 
-    for attempt in 1 2 3 4 5 6; do
-      echo "Health check attempt $attempt of 6..."
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
 
-      if status=$(curl \
-        --silent \
-        --show-error \
-        --location \
-        --connect-timeout 10 \
-        --max-time 30 \
-        --output /tmp/health.json \
-        --write-out '%{http_code}' \
-        "$STAGING_HEALTH_URL"); then
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      APP_ENV: staging
+      VITE_APP_ENV: staging
+      VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_PAYMENTS_CLIENT_TOKEN: ${{ secrets.STAGING_PAYMENTS_CLIENT_TOKEN }}
+    steps:
+      - name: Confirm staging intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "staging" ]; then
+            echo "Confirmation text did not match 'staging'." >&2
+            exit 1
+          fi
 
-        cat /tmp/health.json
+      - uses: actions/checkout@v5
 
-        if [ "$status" = "200" ]; then
-          echo "Staging isolation verified."
-          exit 0
-        fi
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-        echo "env-health returned HTTP $status." >&2
-      else
-        curl_exit=$?
-        echo "curl failed with exit code $curl_exit." >&2
-      fi
+      - run: bun install --frozen-lockfile
 
-      sleep 10
-    done
+      - name: Guard tests (deployment identity + Stripe environment)
+        run: bunx vitest run tests/unit/env-identity-staging.test.ts tests/unit/stripe-env-resolver.test.ts
 
-    echo "Staging health verification failed after 6 attempts." >&2
-    exit 1
+      - name: Refuse live Stripe credentials
+        env:
+          STAGING_STRIPE_KEY: ${{ secrets.STAGING_STRIPE_SANDBOX_API_KEY }}
+        run: |
+          case "$STAGING_STRIPE_KEY" in
+            sk_live_*|rk_live_*)
+              echo "A live Stripe key is configured for staging. Aborting." >&2
+              exit 1;;
+            "")
+              echo "STAGING_STRIPE_SANDBOX_API_KEY is not set." >&2
+              exit 1;;
+          esac
+
+      - run: bun run build
+
+      - name: Verify build output contract
+        run: |
+          entry=""
+          assets=""
+          if [ -f dist/server/index.mjs ] && [ -d dist/client ]; then
+            entry="dist/server/index.mjs"; assets="dist/client"
+          elif [ -f .output/server/index.mjs ] && [ -d .output/public ]; then
+            entry=".output/server/index.mjs"; assets=".output/public"
+          fi
+
+          if [ -z "$entry" ]; then
+            echo "Expected server entry + client assets were not produced by 'bun run build'." >&2
+            echo "--- repo root ---" >&2; ls -1 . >&2
+            echo "--- dist ---" >&2; ls -1 dist 2>&1 >&2 || true
+            echo "--- dist/server ---" >&2; ls -1 dist/server 2>&1 >&2 || true
+            echo "--- .output ---" >&2; ls -1 .output 2>&1 >&2 || true
+            exit 1
+          fi
+
+          echo "Build output: entry=$entry assets=$assets"
+
+          # Keep the wrangler config aligned with whatever layout the build emitted.
+          if [ "$entry" != "dist/server/index.mjs" ]; then
+            sed -i "s#^main = .*#main = \"$entry\"#" wrangler.staging.toml
+            sed -i "s#^directory = .*#directory = \"$assets\"#" wrangler.staging.toml
+          fi
+
+          grep -E '^(main|directory) =' wrangler.staging.toml
+
+      - name: Wrangler dry run (staging config)
+        run: bunx wrangler deploy --dry-run --config wrangler.staging.toml
+
+      - name: Deploy staging Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx wrangler deploy --config wrangler.staging.toml
+
+      - name: Verify deployment identity
+        env:
+          STAGING_HEALTH_URL: ${{ secrets.STAGING_HEALTH_URL }}
+        run: |
+          echo "Checking deployment identity..."
+
+          if [ -z "$STAGING_HEALTH_URL" ]; then
+            echo "STAGING_HEALTH_URL is not configured." >&2
+            exit 1
+          fi
+
+          for attempt in 1 2 3 4 5 6; do
+            echo "Health check attempt $attempt of 6..."
+
+            if status=$(curl \
+              --silent \
+              --show-error \
+              --location \
+              --connect-timeout 10 \
+              --max-time 30 \
+              --output /tmp/health.json \
+              --write-out '%{http_code}' \
+              "$STAGING_HEALTH_URL"); then
+
+              cat /tmp/health.json
+
+              if [ "$status" = "200" ]; then
+                echo "Staging isolation verified."
+                exit 0
+              fi
+
+              echo "env-health returned HTTP $status." >&2
+            else
+              curl_exit=$?
+              echo "curl failed with exit code $curl_exit." >&2
+            fi
+
+            sleep 10
+          done
+
+          echo "Staging health verification failed after 6 attempts." >&2
+          exit 1
