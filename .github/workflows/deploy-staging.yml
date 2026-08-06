@@ -98,7 +98,9 @@ jobs:
 
       - name: Verify deployment identity
         env:
-          STAGING_HEALTH_URL: ${{ secrets.STAGING_HEALTH_URL }}
+          # Bot Fight Mode challenges non-browser traffic on the custom zone.
+          # The workers.dev hostname reaches the same isolated staging Worker directly.
+          STAGING_HEALTH_URL: https://transitionforward-staging.caysi101.workers.dev/api/public/env-health
         run: |
           echo "Checking deployment identity..."
 
