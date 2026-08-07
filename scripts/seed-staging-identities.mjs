@@ -80,21 +80,34 @@ async function main() {
     name: "Staging High School", type: "school", state: "CT",
     status: "active", verified_status: "verified", parent_organization_id: districtId,
   });
+  const partnerOrgId = await ensureOrg({
+    name: "Staging Career Network", type: "partner", state: "CT",
+    status: "active", verified_status: "verified",
+  });
 
   for (const [key, orgId, role] of [
     ["district_admin", districtId, "district_admin"],
     ["school_admin", schoolId, "school_admin"],
     ["educator", schoolId, "educator"],
+    ["partner", partnerOrgId, "admin"],
   ]) {
-    const { data: member } = await admin
+    const { data: member, error: memberReadError } = await admin
       .from("organization_memberships").select("id")
       .eq("user_id", ids[key]).eq("organization_id", orgId).maybeSingle();
-    if (!member) {
-      const { error } = await admin
-        .from("organization_memberships")
-        .insert({ user_id: ids[key], organization_id: orgId, role_within_org: role });
-      if (error) console.warn("membership", key, error.message);
+    if (memberReadError) {
+      throw new Error(`membership lookup ${key}: ${memberReadError.message}`);
     }
+
+    const membership = {
+      user_id: ids[key],
+      organization_id: orgId,
+      role_within_org: role,
+      status: "active",
+    };
+    const { error } = member
+      ? await admin.from("organization_memberships").update(membership).eq("id", member.id)
+      : await admin.from("organization_memberships").insert(membership);
+    if (error) throw new Error(`membership ${key}: ${error.message}`);
   }
 
   for (const identity of IDENTITIES) {
@@ -109,7 +122,9 @@ async function main() {
           ? districtId
           : ["school_admin", "educator"].includes(identity.key)
             ? schoolId
-            : null,
+            : identity.key === "partner"
+              ? partnerOrgId
+              : null,
     });
     for (const role of identity.roles) {
       const { data: existingRole } = await admin
@@ -171,9 +186,16 @@ async function main() {
 
   const district = { id: districtId };
   const school = { id: schoolId };
+  const partner = { id: partnerOrgId };
   const student = { id: studentId };
 
-  console.log(JSON.stringify({ ids, district: district?.id, school: school?.id, student: student?.id }, null, 2));
+  console.log(JSON.stringify({
+    ids,
+    district: district.id,
+    school: school.id,
+    partner: partner.id,
+    student: student.id,
+  }, null, 2));
 }
 
 main().catch((e) => {
