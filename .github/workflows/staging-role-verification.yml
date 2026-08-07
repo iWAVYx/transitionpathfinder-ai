@@ -24,6 +24,9 @@ jobs:
       LIVE_VERIFICATION: "true"
       REQUIRE_ALL_ROLES: "true"
       ALLOW_STAGING_OWNER_WITHOUT_TOTP: "true"
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
       E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
       E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
       E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
@@ -95,6 +98,18 @@ jobs:
           }
           console.log("Staging deployment identity verified.");
           NODE
+
+      - name: Reconcile Synthetic Staging Identities
+        run: |
+          if [ -z "$STAGING_SUPABASE_URL" ]; then
+            echo "::error::STAGING_SUPABASE_URL is missing from the GitHub staging environment."
+            exit 1
+          fi
+          if [ -z "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::STAGING_SUPABASE_SERVICE_ROLE_KEY is missing from the GitHub staging environment."
+            exit 1
+          fi
+          node scripts/seed-staging-identities.mjs
 
       - name: E2E Base URL Reachability Preflight
         run: node tests/e2e/scripts/check-base-url.mjs
