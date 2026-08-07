@@ -7,6 +7,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 const PRODUCTION_PROJECT_REF = "lrqcntqyekucamifpffs";
+const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph";
 const url = process.env.STAGING_SUPABASE_URL;
 const serviceKey = process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY;
 const password = process.env.STAGING_E2E_PASSWORD ?? "Staging-E2E-Passw0rd!";
@@ -18,6 +19,10 @@ if (!url || !serviceKey) {
 if (url.includes(PRODUCTION_PROJECT_REF)) {
   console.error("REFUSING: target is the production Supabase project");
   process.exit(2);
+}
+if (!url.includes(STAGING_PROJECT_REF)) {
+  console.error(`REFUSING: target is not the approved staging project (${STAGING_PROJECT_REF})`);
+  process.exit(3);
 }
 
 const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
@@ -117,6 +122,29 @@ async function main() {
       }
     }
   }
+
+  // The Admin Hub authorizes against admin_roles, not the generic admin app role.
+  // Reconcile this on every staging seed so an existing synthetic owner cannot drift.
+  const { error: ownerAdminRoleError } = await admin.from("admin_roles").upsert(
+    { user_id: ids.owner, role: "platform_owner" },
+    { onConflict: "user_id,role" },
+  );
+  if (ownerAdminRoleError) {
+    throw new Error(`owner platform role: ${ownerAdminRoleError.message}`);
+  }
+
+  const { data: ownerAdminRole, error: ownerAdminRoleReadError } = await admin
+    .from("admin_roles")
+    .select("role")
+    .eq("user_id", ids.owner)
+    .eq("role", "platform_owner")
+    .maybeSingle();
+  if (ownerAdminRoleReadError || !ownerAdminRole) {
+    throw new Error(
+      `owner platform role verification failed: ${ownerAdminRoleReadError?.message ?? "row missing"}`,
+    );
+  }
+  console.log("admin role: owner platform_owner");
 
   // One synthetic student owned by the parent, linked to the student account.
   let studentId;
