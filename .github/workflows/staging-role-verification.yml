@@ -131,6 +131,5 @@ jobs:
           path: |
             playwright-report/
             test-results/
-            tests/e2e/.auth/
           retention-days: 14
           if-no-files-found: warn
