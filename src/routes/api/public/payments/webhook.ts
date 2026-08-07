@@ -17,6 +17,7 @@ import {
   resolveServerStripeEnv,
   webhookEnvAllowed,
 } from "@/lib/billing/stripe-env";
+import { subscriptionIdFromInvoice } from "@/lib/billing/stripe-event-fields";
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase(): SupabaseClient {
@@ -317,11 +318,10 @@ async function markCanceled(subscription: any, env: StripeEnv) {
  * follow the `customer.subscription.*` events Stripe sends alongside them.
  */
 async function recordInvoiceOutcome(invoice: any, env: StripeEnv, paid: boolean) {
-  const subscriptionId =
-    typeof invoice.subscription === "string"
-      ? invoice.subscription
-      : (invoice.subscription?.id ?? null);
-  if (!subscriptionId) return;
+  const subscriptionId = subscriptionIdFromInvoice(invoice);
+  if (!subscriptionId) {
+    throw new Error("Invoice event is missing its subscription reference");
+  }
 
   await getSupabase()
     .from("subscriptions")
@@ -342,7 +342,10 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     const { error } = await getSupabase()
       .from("processed_payment_events")
       .insert({ event_id: event.id, event_type: event.type, environment: env });
-    if (error) return; // duplicate delivery
+    if (error?.code === "23505") return; // duplicate delivery
+    if (error) {
+      throw new Error("Could not claim payment event for idempotent processing");
+    }
   }
 
   try {
