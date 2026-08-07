@@ -688,6 +688,10 @@ for (const role of ROLES) {
             `URL after password login=${page.url()} totp-code-count=${totpCount}`,
         );
         const onTwoFa = page.url().includes("/login/2fa");
+        const stagingOwnerWithoutTotp =
+          process.env.ALLOW_STAGING_OWNER_WITHOUT_TOTP === "true" &&
+          email === "e2e.owner@staging.transitionforwardct.test" &&
+          new URL(page.url()).hostname === "transitionforward-staging.caysi101.workers.dev";
         if (ownerTotpConfigured) {
           expect(onTwoFa, "owner with E2E_OWNER_TOTP_SECRET should route to /login/2fa after password login").toBe(true);
           expect(new URL(page.url()).searchParams.get("redirect")).toBe("/admin");
@@ -698,6 +702,13 @@ for (const role of ROLES) {
           await expect(page.getByTestId("login-password")).toHaveCount(0);
           await expect(page.locator("#signin-email")).toHaveCount(0);
           await expect(page.locator("#signin-password")).toHaveCount(0);
+        } else if (stagingOwnerWithoutTotp) {
+          expect(onTwoFa, "synthetic staging owner is not enrolled in MFA").toBe(false);
+          expect(normalizePath(new URL(page.url()).pathname)).toBe("/admin");
+          console.log(
+            "[auth-setup owner] synthetic staging-only owner MFA exception active; " +
+              "production owner verification remains strict",
+          );
         } else {
           await dumpDiagnostics("owner-totp-secret-missing");
           throw new Error("E2E_OWNER_TOTP_SECRET is required for strict owner 2FA setup.");
