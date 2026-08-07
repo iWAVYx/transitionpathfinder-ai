@@ -74,9 +74,21 @@ for (const role of ROLES) {
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible({ timeout: 20_000 });
 
-      const hrefs = await collectInternalTileHrefs(page);
-      expect(hrefs.length, `no tiles found in <main> for ${role.key}`).toBeGreaterThan(0);
+      // The role test id is present on the dashboard's intentional loading
+      // shell. Poll for navigable content so we test the completed dashboard,
+      // not the brief async state while roles and workspace data resolve.
+      await expect
+        .poll(
+          async () => (await collectInternalTileHrefs(page)).length,
+          {
+            message: `no navigable dashboard tiles loaded in <main> for ${role.key}`,
+            timeout: 20_000,
+            intervals: [250, 500, 1_000],
+          },
+        )
+        .toBeGreaterThan(0);
 
+      const hrefs = await collectInternalTileHrefs(page);
       const failures: string[] = [];
 
       for (const href of hrefs) {
