@@ -23,6 +23,7 @@ jobs:
       PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
       LIVE_VERIFICATION: "true"
       REQUIRE_ALL_ROLES: "true"
+      ALLOW_STAGING_OWNER_WITHOUT_TOTP: "true"
       E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
       E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
       E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
