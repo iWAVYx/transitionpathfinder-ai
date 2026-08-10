@@ -93,7 +93,7 @@ jobs:
             count=$((count+1))
           done
           echo "replayed $count migrations"
-          test "$count" -ge 173
+          test "$count" -ge 175
 
       - name: Assert realtime.messages policies applied (no silent drift)
         run: |
@@ -102,13 +102,24 @@ jobs:
             | tee /tmp/realtime_policies.txt
           test "$(cat /tmp/realtime_policies.txt)" -ge 1
 
-      - name: Grant hygiene — anon must not reach licensing or audit tables
+      - name: Grant hygiene — anon must not reach licensing or billing tables
         run: |
           psql -v ON_ERROR_STOP=1 -tAc "
-            select bool_and(not has_table_privilege('anon', t, 'SELECT'))
+            select bool_and(
+              not has_table_privilege('anon', t, 'SELECT')
+              and not has_table_privilege('anon', t, 'INSERT')
+              and not has_table_privilege('anon', t, 'UPDATE')
+              and not has_table_privilege('anon', t, 'DELETE')
+              and not has_table_privilege('anon', t, 'TRUNCATE')
+              and not has_table_privilege('anon', t, 'REFERENCES')
+              and not has_table_privilege('anon', t, 'TRIGGER')
+            )
             from unnest(array[
               'public.license_allocations',
-              'public.entitlement_audit_events'
+              'public.entitlement_audit_events',
+              'public.billing_accounts',
+              'public.subscriptions',
+              'public.processed_payment_events'
             ]) t;" | grep -qx t
 
       - name: Upload replay log
