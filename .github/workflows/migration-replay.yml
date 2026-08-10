@@ -22,12 +22,13 @@ jobs:
       postgres:
         image: supabase/postgres:15.8.1.020
         env:
+          POSTGRES_USER: supabase_admin
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
+          --health-cmd "pg_isready -U supabase_admin"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
@@ -42,7 +43,7 @@ jobs:
 
       - name: Bootstrap Supabase-like roles and schemas
         run: |
-          psql -v ON_ERROR_STOP=1 <<'SQL'
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
           do $$ begin
             if not exists (select 1 from pg_roles where rolname='anon') then create role anon nologin noinherit; end if;
             if not exists (select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin noinherit; end if;
@@ -55,6 +56,15 @@ jobs:
           create schema if not exists storage;
           create schema if not exists realtime;
           create schema if not exists extensions;
+          -- The database image supplies Storage-managed tables, but not the
+          -- complete Storage API schema that hosted projects receive. Add only
+          -- the managed column our migrations consume and delegate policy DDL
+          -- to the same restricted postgres role used for migration replay.
+          alter table storage.buckets
+            add column if not exists public boolean not null default false;
+          alter table storage.buckets owner to postgres;
+          alter table storage.objects owner to postgres;
+          grant usage, create on schema storage to postgres;
           create extension if not exists "uuid-ossp" with schema extensions;
           create extension if not exists pgcrypto with schema extensions;
           create extension if not exists pg_trgm;
@@ -71,7 +81,8 @@ jobs:
             as $$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), current_user) $$;
           create or replace function auth.jwt() returns jsonb language sql stable
             as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
-          -- realtime.messages target used by a few policy statements
+          -- Bootstrap through the image's real administrative connection. The
+          -- postgres role remains non-superuser, matching hosted Supabase.
           create table if not exists realtime.messages (
             id bigserial primary key,
             topic text,
@@ -79,7 +90,13 @@ jobs:
             payload jsonb,
             inserted_at timestamptz default now()
           );
+          create or replace function realtime.topic() returns text
+            language sql stable
+            as $$ select nullif(current_setting('realtime.topic', true), '') $$;
           alter table realtime.messages enable row level security;
+          alter table realtime.messages owner to postgres;
+          alter function realtime.topic() owner to postgres;
+          grant usage, create on schema realtime to postgres;
           SQL
 
       - name: Replay all canonical migrations in order
@@ -93,7 +110,7 @@ jobs:
             count=$((count+1))
           done
           echo "replayed $count migrations"
-          test "$count" -ge 173
+          test "$count" -ge 175
 
       - name: Assert realtime.messages policies applied (no silent drift)
         run: |
@@ -102,13 +119,24 @@ jobs:
             | tee /tmp/realtime_policies.txt
           test "$(cat /tmp/realtime_policies.txt)" -ge 1
 
-      - name: Grant hygiene — anon must not reach licensing or audit tables
+      - name: Grant hygiene — anon must not reach licensing or billing tables
         run: |
           psql -v ON_ERROR_STOP=1 -tAc "
-            select bool_and(not has_table_privilege('anon', t, 'SELECT'))
+            select bool_and(
+              not has_table_privilege('anon', t, 'SELECT')
+              and not has_table_privilege('anon', t, 'INSERT')
+              and not has_table_privilege('anon', t, 'UPDATE')
+              and not has_table_privilege('anon', t, 'DELETE')
+              and not has_table_privilege('anon', t, 'TRUNCATE')
+              and not has_table_privilege('anon', t, 'REFERENCES')
+              and not has_table_privilege('anon', t, 'TRIGGER')
+            )
             from unnest(array[
               'public.license_allocations',
-              'public.entitlement_audit_events'
+              'public.entitlement_audit_events',
+              'public.billing_accounts',
+              'public.subscriptions',
+              'public.processed_payment_events'
             ]) t;" | grep -qx t
 
       - name: Upload replay log

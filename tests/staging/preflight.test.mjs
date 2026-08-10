@@ -15,6 +15,15 @@ import {
   stripeGet,
 } from "./harness.mjs";
 
+const REQUIRED_WEBHOOK_EVENTS = [
+  "checkout.session.completed",
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "invoice.paid",
+  "invoice.payment_failed",
+];
+
 test("staging target is not the production project", { skip: SKIP }, () => {
   assertStagingSafe();
   const ref = projectRefFrom(STAGING.supabaseUrl);
@@ -58,20 +67,27 @@ test("staging database is not carrying production volume", { skip: SKIP }, async
 
 test("discovery report", { skip: SKIP }, async () => {
   const admin = adminClient();
-  const { data: capacities } = await admin
+  const { data: capacities, error: capacityError } = await admin
     .from("plan_capacities")
-    .select("plan_key, license_type, included")
-    .order("plan_key");
+    .select(
+      "plan_code, pathway_licenses, staff_seats, admin_seats, max_schools, family_accounts_per_pathway",
+    )
+    .order("plan_code");
+  assert.equal(capacityError, null, capacityError?.message);
+  assert.ok(capacities?.length, "staging plan capacities must not be empty");
   const prices = await stripeGet("prices", { limit: 100, active: true });
   const endpoints = await stripeGet("webhook_endpoints", { limit: 10 });
 
   console.log("\n=== staging discovery ===");
   console.log("supabase ref:", projectRefFrom(STAGING.supabaseUrl));
   console.log("stripe mode: sandbox");
-  console.log("plan_capacities rows:", capacities?.length ?? 0);
+  console.log("plan capacities:", JSON.stringify(capacities));
   console.log(
     "stripe lookup keys:",
-    prices.data.map((p) => p.lookup_key ?? p.id).sort().join(", "),
+    prices.data
+      .map((p) => p.lookup_key ?? p.id)
+      .sort()
+      .join(", "),
   );
   for (const ep of endpoints.data) {
     console.log("webhook:", ep.url, "->", ep.enabled_events.join(", "));
@@ -79,3 +95,22 @@ test("discovery report", { skip: SKIP }, async () => {
   console.log("=========================\n");
   assert.ok(true);
 });
+
+test(
+  "Stripe sandbox has the isolated staging webhook destination",
+  { skip: SKIP || !STAGING.baseUrl },
+  async () => {
+    const expectedUrl = `${STAGING.baseUrl.replace(/\/$/, "")}/api/public/payments/webhook?env=sandbox`;
+    const endpoints = await stripeGet("webhook_endpoints", { limit: 100 });
+    const endpoint = endpoints.data.find((row) => row.url === expectedUrl);
+
+    assert.ok(endpoint, `missing Stripe webhook destination: ${expectedUrl}`);
+    assert.notEqual(endpoint.status, "disabled", "staging webhook is disabled");
+
+    const enabled = new Set(endpoint.enabled_events ?? []);
+    const missing = enabled.has("*")
+      ? []
+      : REQUIRED_WEBHOOK_EVENTS.filter((event) => !enabled.has(event));
+    assert.deepEqual(missing, [], `staging webhook is missing events: ${missing.join(", ")}`);
+  },
+);
