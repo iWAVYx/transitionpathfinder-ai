@@ -7,7 +7,7 @@
 --   CREATE EXTENSION IF NOT EXISTS pgtap;
 
 BEGIN;
-SELECT plan(14);
+SELECT plan(20);
 
 -- Refuse to run against the production project.
 SELECT is(
@@ -65,6 +65,85 @@ SELECT ok(
 SELECT ok(
   NOT has_table_privilege('anon', 'public.entitlement_audit_events', 'SELECT'),
   'anon cannot read the audit trail'
+);
+
+-- Payment authority tables are server-written and never reachable by anon.
+SELECT ok(
+  NOT (
+    has_table_privilege('anon', 'public.billing_accounts', 'SELECT') OR
+    has_table_privilege('anon', 'public.billing_accounts', 'INSERT') OR
+    has_table_privilege('anon', 'public.billing_accounts', 'UPDATE') OR
+    has_table_privilege('anon', 'public.billing_accounts', 'DELETE') OR
+    has_table_privilege('anon', 'public.billing_accounts', 'TRUNCATE') OR
+    has_table_privilege('anon', 'public.billing_accounts', 'REFERENCES') OR
+    has_table_privilege('anon', 'public.billing_accounts', 'TRIGGER')
+  ),
+  'anon has no privileges on billing_accounts'
+);
+SELECT ok(
+  NOT (
+    has_table_privilege('anon', 'public.subscriptions', 'SELECT') OR
+    has_table_privilege('anon', 'public.subscriptions', 'INSERT') OR
+    has_table_privilege('anon', 'public.subscriptions', 'UPDATE') OR
+    has_table_privilege('anon', 'public.subscriptions', 'DELETE') OR
+    has_table_privilege('anon', 'public.subscriptions', 'TRUNCATE') OR
+    has_table_privilege('anon', 'public.subscriptions', 'REFERENCES') OR
+    has_table_privilege('anon', 'public.subscriptions', 'TRIGGER')
+  ),
+  'anon has no privileges on subscriptions'
+);
+SELECT ok(
+  NOT (
+    has_table_privilege('anon', 'public.processed_payment_events', 'SELECT') OR
+    has_table_privilege('anon', 'public.processed_payment_events', 'INSERT') OR
+    has_table_privilege('anon', 'public.processed_payment_events', 'UPDATE') OR
+    has_table_privilege('anon', 'public.processed_payment_events', 'DELETE') OR
+    has_table_privilege('anon', 'public.processed_payment_events', 'TRUNCATE') OR
+    has_table_privilege('anon', 'public.processed_payment_events', 'REFERENCES') OR
+    has_table_privilege('anon', 'public.processed_payment_events', 'TRIGGER')
+  ),
+  'anon has no privileges on processed_payment_events'
+);
+
+SELECT ok(
+  (SELECT bool_and(
+    has_table_privilege('authenticated', table_name, 'SELECT') AND
+    NOT has_table_privilege('authenticated', table_name, 'INSERT') AND
+    NOT has_table_privilege('authenticated', table_name, 'UPDATE') AND
+    NOT has_table_privilege('authenticated', table_name, 'DELETE') AND
+    NOT has_table_privilege('authenticated', table_name, 'TRUNCATE')
+  ) FROM unnest(ARRAY[
+    'public.billing_accounts',
+    'public.subscriptions'
+  ]) AS table_name),
+  'authenticated has read-only customer billing grants'
+);
+
+SELECT ok(
+  NOT (
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'SELECT') OR
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'INSERT') OR
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'UPDATE') OR
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'DELETE') OR
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'TRUNCATE') OR
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'REFERENCES') OR
+    has_table_privilege('authenticated', 'public.processed_payment_events', 'TRIGGER')
+  ),
+  'processed payment event ledger is service-only'
+);
+
+SELECT ok(
+  (SELECT bool_and(
+    has_table_privilege('service_role', table_name, 'SELECT') AND
+    has_table_privilege('service_role', table_name, 'INSERT') AND
+    has_table_privilege('service_role', table_name, 'UPDATE') AND
+    has_table_privilege('service_role', table_name, 'DELETE')
+  ) FROM unnest(ARRAY[
+    'public.billing_accounts',
+    'public.subscriptions',
+    'public.processed_payment_events'
+  ]) AS table_name),
+  'service_role retains webhook billing privileges'
 );
 
 SELECT * FROM finish();
