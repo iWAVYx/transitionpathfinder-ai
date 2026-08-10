@@ -29,12 +29,24 @@ jobs:
           node-version: "20"
       - name: Install @supabase/supabase-js
         run: npm install --no-save @supabase/supabase-js@^2
+      - name: Check live permission-test credentials
+        id: live-credentials
+        run: |
+          if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Live permission regression skipped because Supabase credentials are not available to this run."
+          fi
       - name: Student-relationships consent RLS regression
+        if: steps.live-credentials.outputs.ready == 'true'
         run: node --test tests/student-relationships-consent-rls.test.mjs
       - name: District-school hijack RLS regression
+        if: steps.live-credentials.outputs.ready == 'true'
         run: node --test tests/district-school-hijack-rls.test.mjs
       - name: Cross-role district scoping + approval flow regression
+        if: steps.live-credentials.outputs.ready == 'true'
         run: node --test tests/role-district-access-rls.test.mjs
       - name: Cross-district invite + relationship creation regression
+        if: steps.live-credentials.outputs.ready == 'true'
         run: node --test tests/cross-district-invite-rls.test.mjs
-
