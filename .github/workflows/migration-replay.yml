@@ -56,6 +56,15 @@ jobs:
           create schema if not exists storage;
           create schema if not exists realtime;
           create schema if not exists extensions;
+          -- The database image supplies Storage-managed tables, but not the
+          -- complete Storage API schema that hosted projects receive. Add only
+          -- the managed column our migrations consume and delegate policy DDL
+          -- to the same restricted postgres role used for migration replay.
+          alter table storage.buckets
+            add column if not exists public boolean not null default false;
+          alter table storage.buckets owner to postgres;
+          alter table storage.objects owner to postgres;
+          grant usage, create on schema storage to postgres;
           create extension if not exists "uuid-ossp" with schema extensions;
           create extension if not exists pgcrypto with schema extensions;
           create extension if not exists pg_trgm;
