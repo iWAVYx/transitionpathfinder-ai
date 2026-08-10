@@ -17,22 +17,24 @@ import {
   evaluateStagingIdentity,
   isStagingHostname,
   projectRefFrom,
+  resolveDeploymentEnvLabels,
   stripeModeFromToken,
 } from "@/lib/env-identity";
 
 /** Production-only variables that must not exist in the staging Worker. */
-const FORBIDDEN_IN_STAGING = [
-  "STRIPE_LIVE_API_KEY",
-  "PAYMENTS_LIVE_WEBHOOK_SECRET",
-];
+const FORBIDDEN_IN_STAGING = ["STRIPE_LIVE_API_KEY", "PAYMENTS_LIVE_WEBHOOK_SECRET"];
 
 export const Route = createFileRoute("/api/public/env-health")({
   server: {
     handlers: {
       GET: async ({ request }) => {
         const hostname = new URL(request.url).hostname;
-        const app_env = process.env["APP_ENV"] ?? null;
-        const vite_app_env = process.env["VITE_APP_ENV"] ?? null;
+        const { appEnv: app_env, viteAppEnv: vite_app_env } = resolveDeploymentEnvLabels({
+          runtimeAppEnv: process.env["APP_ENV"],
+          runtimeViteAppEnv: process.env["VITE_APP_ENV"],
+          buildAppEnv: import.meta.env["APP_ENV"] as string | undefined,
+          buildViteAppEnv: import.meta.env["VITE_APP_ENV"] as string | undefined,
+        });
         const supabase_project_ref = projectRefFrom(process.env["SUPABASE_URL"]);
         const stripe_mode = stripeModeFromToken(
           process.env["VITE_PAYMENTS_CLIENT_TOKEN"] ??
@@ -65,9 +67,7 @@ export const Route = createFileRoute("/api/public/env-health")({
             hostname,
             supabaseProjectRef: supabase_project_ref,
             stripeMode: stripe_mode,
-            productionSecretsPresent: FORBIDDEN_IN_STAGING.filter(
-              (name) => !!process.env[name],
-            ),
+            productionSecretsPresent: FORBIDDEN_IN_STAGING.filter((name) => !!process.env[name]),
           });
         }
 
@@ -81,8 +81,7 @@ export const Route = createFileRoute("/api/public/env-health")({
             is_production_hostname: PRODUCTION_HOSTNAMES.includes(hostname),
             is_staging_target: stagingTarget,
             stripe_mode,
-            stripe_livemode:
-              stripe_mode === "unknown" ? null : stripe_mode === "live",
+            stripe_livemode: stripe_mode === "unknown" ? null : stripe_mode === "live",
             git_commit_sha,
             isolation,
           },

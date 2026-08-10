@@ -7,6 +7,8 @@
  * The client never decides sandbox vs live: the deployment's APP_ENV does.
  */
 
+import { resolveDeploymentEnvLabels } from "@/lib/env-identity";
+
 export type StripeEnv = "sandbox" | "live";
 
 export type StripeKeyKind = "gateway" | "direct_test" | "direct_live" | "unknown";
@@ -25,9 +27,13 @@ export function stripeEnvForAppEnv(appEnv: string | undefined | null): StripeEnv
 
 /** Resolves the Stripe environment from the running deployment's APP_ENV. */
 export function resolveServerStripeEnv(): StripeEnv {
-  return stripeEnvForAppEnv(
-    process.env["APP_ENV"] ?? process.env["VITE_APP_ENV"] ?? null,
-  );
+  const { appEnv, viteAppEnv } = resolveDeploymentEnvLabels({
+    runtimeAppEnv: process.env["APP_ENV"],
+    runtimeViteAppEnv: process.env["VITE_APP_ENV"],
+    buildAppEnv: import.meta.env["APP_ENV"] as string | undefined,
+    buildViteAppEnv: import.meta.env["VITE_APP_ENV"] as string | undefined,
+  });
+  return stripeEnvForAppEnv(appEnv ?? viteAppEnv);
 }
 
 /**

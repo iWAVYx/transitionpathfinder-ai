@@ -5,6 +5,7 @@ import {
   evaluateStagingIdentity,
   isStagingHostname,
   projectRefFrom,
+  resolveDeploymentEnvLabels,
   stripeModeFromToken,
 } from "@/lib/env-identity";
 
@@ -58,6 +59,26 @@ describe("staging deployment identity", () => {
     expect(evaluateStagingIdentity({ ...OK, viteAppEnv: undefined }).ok).toBe(false);
   });
 
+  it("uses build labels only when runtime bindings are unavailable", () => {
+    expect(
+      resolveDeploymentEnvLabels({
+        runtimeAppEnv: undefined,
+        runtimeViteAppEnv: undefined,
+        buildAppEnv: "staging",
+        buildViteAppEnv: "staging",
+      }),
+    ).toEqual({ appEnv: "staging", viteAppEnv: "staging" });
+
+    expect(
+      resolveDeploymentEnvLabels({
+        runtimeAppEnv: "production",
+        runtimeViteAppEnv: "production",
+        buildAppEnv: "staging",
+        buildViteAppEnv: "staging",
+      }),
+    ).toEqual({ appEnv: "production", viteAppEnv: "production" });
+  });
+
   it("fails on a production hostname", () => {
     const v = evaluateStagingIdentity({
       ...OK,
@@ -88,9 +109,7 @@ describe("staging deployment identity", () => {
   });
 
   it("parses project refs and Stripe token modes", () => {
-    expect(projectRefFrom("https://qgrertkqbwanerqqemph.supabase.co")).toBe(
-      STAGING_PROJECT_REF,
-    );
+    expect(projectRefFrom("https://qgrertkqbwanerqqemph.supabase.co")).toBe(STAGING_PROJECT_REF);
     expect(projectRefFrom(undefined)).toBe("unknown");
     expect(stripeModeFromToken("pk_test_123")).toBe("sandbox");
     expect(stripeModeFromToken("sk_live_123")).toBe("live");

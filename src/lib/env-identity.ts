@@ -17,9 +17,7 @@ export const PRODUCTION_HOSTNAMES = [
 
 /** Only these hostnames may serve the staging deployment. */
 export const STAGING_HOSTNAMES = ["e2e.transitionforwardct.com"];
-const STAGING_HOSTNAME_PATTERNS = [
-  /^transitionforward-staging\.[a-z0-9-]+\.workers\.dev$/i,
-];
+const STAGING_HOSTNAME_PATTERNS = [/^transitionforward-staging\.[a-z0-9-]+\.workers\.dev$/i];
 
 export function isStagingHostname(hostname: string): boolean {
   return (
@@ -69,6 +67,24 @@ export interface StagingIdentityInput {
   productionSecretsPresent?: string[];
 }
 
+export interface DeploymentEnvSources {
+  runtimeAppEnv?: string | null;
+  runtimeViteAppEnv?: string | null;
+  buildAppEnv?: string | null;
+  buildViteAppEnv?: string | null;
+}
+
+/** Runtime bindings win; build labels cover runtimes that do not populate process.env. */
+export function resolveDeploymentEnvLabels(input: DeploymentEnvSources): {
+  appEnv: string | null;
+  viteAppEnv: string | null;
+} {
+  return {
+    appEnv: input.runtimeAppEnv ?? input.buildAppEnv ?? null,
+    viteAppEnv: input.runtimeViteAppEnv ?? input.buildViteAppEnv ?? null,
+  };
+}
+
 export interface IdentityVerdict {
   ok: boolean;
   errors: string[];
@@ -80,15 +96,11 @@ export interface IdentityVerdict {
  * Every value must be present and exactly what staging requires. Missing,
  * unknown, or production-connected values fail; there is no permissive path.
  */
-export function evaluateStagingIdentity(
-  input: StagingIdentityInput,
-): IdentityVerdict {
+export function evaluateStagingIdentity(input: StagingIdentityInput): IdentityVerdict {
   const errors: string[] = [];
 
   if (input.appEnv !== "staging") {
-    errors.push(
-      `APP_ENV must be "staging" (got ${JSON.stringify(input.appEnv ?? null)}).`,
-    );
+    errors.push(`APP_ENV must be "staging" (got ${JSON.stringify(input.appEnv ?? null)}).`);
   }
   if (input.viteAppEnv !== "staging") {
     errors.push(
@@ -102,9 +114,7 @@ export function evaluateStagingIdentity(
   } else if (ref === PRODUCTION_PROJECT_REF) {
     errors.push("Supabase project ref points at the production project.");
   } else if (ref !== STAGING_PROJECT_REF) {
-    errors.push(
-      `Supabase project ref must be ${STAGING_PROJECT_REF} (got ${ref}).`,
-    );
+    errors.push(`Supabase project ref must be ${STAGING_PROJECT_REF} (got ${ref}).`);
   }
 
   if (input.stripeMode == null || input.stripeMode === "unknown") {
@@ -132,8 +142,6 @@ export function evaluateStagingIdentity(
 export function assertStagingIsolation(input: StagingIdentityInput): void {
   const verdict = evaluateStagingIdentity(input);
   if (!verdict.ok) {
-    throw new Error(
-      `Staging isolation check failed: ${verdict.errors.join(" ")}`,
-    );
+    throw new Error(`Staging isolation check failed: ${verdict.errors.join(" ")}`);
   }
 }
