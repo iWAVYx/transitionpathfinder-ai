@@ -1,0 +1,192 @@
+name: Staging Billing Verification
+
+# Manual-only, fail-closed billing and sponsored-access acceptance against the
+# isolated staging Worker and Supabase project. No production fallback exists.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "staging-billing" to run billing acceptance'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-billing-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-staging-billing:
+    name: Verify Staging Billing and Licensing
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 30
+    env:
+      REQUIRE_STAGING_TESTS: "true"
+      STAGING_EXPECTED_PROJECT_REF: qgrertkqbwanerqqemph
+      STAGING_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
+      STAGING_STRIPE_API_KEY: ${{ secrets.STAGING_STRIPE_API_KEY || secrets.STAGING_STRIPE_SANDBOX_API_KEY }}
+      STAGING_STRIPE_WEBHOOK_SECRET: ${{ secrets.STAGING_STRIPE_WEBHOOK_SECRET }}
+
+    steps:
+      - name: Confirm staging billing intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "staging-billing" ]; then
+            echo "::error::Confirmation text did not match 'staging-billing'."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Require every isolated staging credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          required=(
+            STAGING_SUPABASE_URL
+            STAGING_SUPABASE_PUBLISHABLE_KEY
+            STAGING_SUPABASE_SERVICE_ROLE_KEY
+            STAGING_DB_URL
+            STAGING_STRIPE_API_KEY
+            STAGING_STRIPE_WEBHOOK_SECRET
+          )
+          for name in "${required[@]}"; do
+            if [ -n "${!name:-}" ]; then
+              echo "✓ $name configured"
+            else
+              echo "::error::$name is missing from the GitHub staging environment"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then exit 1; fi
+          case "$STAGING_STRIPE_API_KEY" in
+            sk_test_*|rk_test_*|sk_sandbox_*) ;;
+            *) echo "::error::STAGING_STRIPE_API_KEY is not a sandbox key"; exit 1 ;;
+          esac
+          case "$STAGING_STRIPE_WEBHOOK_SECRET" in
+            whsec_*) ;;
+            *) echo "::error::STAGING_STRIPE_WEBHOOK_SECRET is not a webhook signing secret"; exit 1 ;;
+          esac
+
+      - name: Verify isolated deployment identity
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.STAGING_BASE_URL;
+          const response = await fetch(`${base}/api/public/env-health`);
+          const text = await response.text();
+          if (!response.ok) {
+            throw new Error(`env-health returned ${response.status}: ${text.slice(0, 500)}`);
+          }
+          const health = JSON.parse(text);
+          const errors = [];
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.supabase_project_ref !== process.env.STAGING_EXPECTED_PROJECT_REF) {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) {
+            errors.push(`is_production_project=${health.is_production_project}`);
+          }
+          if (health.stripe_mode !== "sandbox") errors.push(`stripe_mode=${health.stripe_mode}`);
+          if (health.stripe_livemode !== false) {
+            errors.push(`stripe_livemode=${health.stripe_livemode}`);
+          }
+          if (health.isolation?.ok !== true) {
+            errors.push(`isolation=${JSON.stringify(health.isolation)}`);
+          }
+          console.log(JSON.stringify(health, null, 2));
+          if (errors.length) {
+            throw new Error(`Staging isolation failed: ${errors.join(", ")}`);
+          }
+          NODE
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+
+      - name: Require billing grant hardening on staging
+        run: |
+          hardened=$(psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 -Atc \
+            "with privileges(privilege) as (
+               values ('SELECT'),('INSERT'),('UPDATE'),('DELETE'),('TRUNCATE'),('REFERENCES'),('TRIGGER')
+             )
+             select
+               not exists (
+                 select 1
+                 from unnest(array['billing_accounts','subscriptions','processed_payment_events']) as t(table_name)
+                 cross join privileges p
+                 where has_table_privilege('anon', format('public.%I', table_name), p.privilege)
+               )
+               and not exists (
+                 select 1
+                 from unnest(array['billing_accounts','subscriptions']) as t(table_name)
+                 cross join privileges p
+                 where has_table_privilege('authenticated', format('public.%I', table_name), p.privilege)
+                       is distinct from (p.privilege = 'SELECT')
+               )
+               and not exists (
+                 select 1 from privileges p
+                 where has_table_privilege('authenticated', 'public.processed_payment_events', p.privilege)
+               )
+               and not exists (
+                 select 1
+                 from unnest(array['billing_accounts','subscriptions','processed_payment_events']) as t(table_name)
+                 cross join privileges p
+                 where not has_table_privilege('service_role', format('public.%I', table_name), p.privilege)
+               );")
+          if [ "$hardened" != "t" ]; then
+            echo "::error::Staging billing-table grants do not match the least-privilege contract."
+            exit 1
+          fi
+
+      - name: Staging safety and catalog preflight
+        run: |
+          set -o pipefail
+          mkdir -p test-results/staging-billing
+          node --test tests/staging/preflight.test.mjs \
+            2>&1 | tee test-results/staging-billing/01-preflight.txt
+          node --test tests/staging/catalog-contract.test.mjs \
+            2>&1 | tee test-results/staging-billing/02-catalog.txt
+
+      - name: Capacity, sponsorship, and audit enforcement
+        run: |
+          set -o pipefail
+          node --test tests/staging/capacity-enforcement.test.mjs \
+            2>&1 | tee test-results/staging-billing/03-capacity.txt
+
+      - name: Signed webhook lifecycle and idempotency
+        run: |
+          set -o pipefail
+          node --test tests/staging/webhook-acceptance.test.mjs \
+            2>&1 | tee test-results/staging-billing/04-webhook.txt
+
+      - name: Database billing invariants
+        run: |
+          set -o pipefail
+          psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
+            -f tests/staging/pgtap/billing_capacity.sql \
+            2>&1 | tee test-results/staging-billing/05-pgtap.txt
+
+      - name: Upload staging billing evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-billing-verification-${{ github.run_id }}
+          path: test-results/staging-billing/
+          retention-days: 14
+          if-no-files-found: warn
