@@ -15,6 +15,7 @@ const appBuildSha =
   "dev";
 
 const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString();
+const appEnv = process.env.APP_ENV ?? "";
 
 export default defineConfig({
   tanstackStart: {
@@ -24,6 +25,7 @@ export default defineConfig({
   },
   vite: {
     define: {
+      "import.meta.env.APP_ENV": JSON.stringify(appEnv),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
