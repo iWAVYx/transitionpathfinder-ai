@@ -2,13 +2,7 @@
 // Used by SiteHeader (to hide nav) and RoleGuard (to redirect deep-links).
 
 export type RoleAudience =
-  | "student"
-  | "family"
-  | "educator"
-  | "school_admin"
-  | "district_admin"
-  | "admin"
-  | "partner";
+  "student" | "family" | "educator" | "school_admin" | "district_admin" | "admin" | "partner";
 
 export function audiencesForRoles(roles: string[]): Set<RoleAudience> {
   const out = new Set<RoleAudience>();
@@ -60,6 +54,8 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/pathway/family": ["family", "educator", "admin"],
   "/family/priorities": ["family", "educator", "admin"],
   "/family/action-items": ["family", "educator", "admin"],
+  "/family/invites": ["family", "admin"],
+  "/family/resources/recommended": ["family", "admin"],
   "/family/consent": ["family", "admin"],
   "/family/history": ["family", "admin"],
   "/student/history": ["student", "admin"],
@@ -70,10 +66,20 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/educator/readiness-gaps": ["educator", "admin"],
   "/educator/notes": ["educator", "admin"],
   "/educator/action-items": ["educator", "admin"],
+  "/educator/document-review": ["educator", "admin"],
+  "/educator/pending-input": ["educator", "admin"],
   "/ppt-prep": ["family", "educator", "admin"],
   "/meetings": ["family", "educator", "admin"],
   "/calendar": ["family", "educator", "student", "admin"],
-  "/partner-network": ["student", "family", "educator", "school_admin", "district_admin", "partner", "admin"],
+  "/partner-network": [
+    "student",
+    "family",
+    "educator",
+    "school_admin",
+    "district_admin",
+    "partner",
+    "admin",
+  ],
 
   "/meeting-templates": ["educator", "admin"],
   "/insights": ["educator", "school_admin", "district_admin", "admin"],
@@ -88,7 +94,6 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/partners-manage/deadlines": ["partner", "admin"],
   "/partners-manage/resources": ["partner", "admin"],
 
-
   "/school/overview": ["school_admin", "admin"],
   "/school/team": ["school_admin", "admin"],
   "/school/reports": ["school_admin", "admin"],
@@ -97,7 +102,6 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/school/planning-status": ["school_admin", "admin"],
   "/school/readiness-trends": ["school_admin", "admin"],
   "/school/resource-usage": ["school_admin", "admin"],
-
 
   // District-level workspace — separate from school and from Platform Admin.
   "/district/overview": ["district_admin", "admin"],
@@ -108,7 +112,6 @@ export const ROUTE_AUDIENCES: Record<string, RoleAudience[]> = {
   "/district/implementation": ["district_admin", "admin"],
   "/district/service-gaps": ["district_admin", "admin"],
   "/district/readiness-trends": ["district_admin", "admin"],
-
 
   // Student/family workspace utilities — partner workspace excluded.
   "/feed": ["family", "educator", "student", "admin"],
@@ -183,4 +186,3 @@ export function labelForAudiences(audiences: RoleAudience[]): string {
   if (labels.length === 2) return `${labels[0]} and ${labels[1]} accounts`;
   return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]} accounts`;
 }
-
