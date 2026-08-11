@@ -7,7 +7,7 @@ function source(path: string): string {
 }
 
 const migration = source(
-  "supabase/migrations/20260811181552_student_self_ownership_and_invitation_linking.sql",
+  "supabase/migrations/20260811203727_student_self_ownership_and_invitation_linking.sql",
 );
 const settings = source("src/routes/_authenticated/settings.tsx");
 const activationPanel = source(
