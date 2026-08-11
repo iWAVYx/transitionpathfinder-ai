@@ -29,9 +29,17 @@ jobs:
       STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
       STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
       STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
-      STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
+      STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
       STAGING_STRIPE_API_KEY: ${{ secrets.STAGING_STRIPE_API_KEY || secrets.STAGING_STRIPE_SANDBOX_API_KEY }}
       STAGING_STRIPE_WEBHOOK_SECRET: ${{ secrets.STAGING_STRIPE_WEBHOOK_SECRET }}
+      # Build the staging connection from audited fields. Keeping the password
+      # separate avoids URI-encoding and accidental project-routing mistakes.
+      PGHOST: aws-0-ca-central-1.pooler.supabase.com
+      PGPORT: "5432"
+      PGDATABASE: postgres
+      PGUSER: postgres.qgrertkqbwanerqqemph
+      PGPASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      PGSSLMODE: require
 
     steps:
       - name: Confirm staging billing intent
@@ -56,7 +64,7 @@ jobs:
             STAGING_SUPABASE_URL
             STAGING_SUPABASE_PUBLISHABLE_KEY
             STAGING_SUPABASE_SERVICE_ROLE_KEY
-            STAGING_DB_URL
+            STAGING_DB_PASSWORD
             STAGING_STRIPE_API_KEY
             STAGING_STRIPE_WEBHOOK_SECRET
           )
@@ -119,9 +127,29 @@ jobs:
             sudo apt-get install -y postgresql-client
           fi
 
+      - name: Verify exact staging database identity
+        run: |
+          set -euo pipefail
+          expected_user="postgres.${STAGING_EXPECTED_PROJECT_REF}"
+          if [ "$PGUSER" != "$expected_user" ]; then
+            echo "::error::Staging database user does not match the approved project ref."
+            exit 1
+          fi
+          if [ "$PGHOST" != "aws-0-ca-central-1.pooler.supabase.com" ] || [ "$PGDATABASE" != "postgres" ]; then
+            echo "::error::Staging database host or database name is not approved."
+            exit 1
+          fi
+          identity=$(psql -X -v ON_ERROR_STOP=1 -Atc \
+            "select current_database() || '|' || current_user;")
+          if [ "$identity" != "postgres|postgres" ]; then
+            echo "::error::Connected database identity was unexpected: $identity"
+            exit 1
+          fi
+          echo "Connected to the approved staging database as postgres."
+
       - name: Require billing grant hardening on staging
         run: |
-          hardened=$(psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 -Atc \
+          hardened=$(psql -X -v ON_ERROR_STOP=1 -Atc \
             "with privileges(privilege) as (
                values ('SELECT'),('INSERT'),('UPDATE'),('DELETE'),('TRUNCATE'),('REFERENCES'),('TRIGGER')
              )
@@ -178,7 +206,7 @@ jobs:
       - name: Database billing invariants
         run: |
           set -o pipefail
-          psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
+          psql -X -v ON_ERROR_STOP=1 \
             -f tests/staging/pgtap/billing_capacity.sql \
             2>&1 | tee test-results/staging-billing/05-pgtap.txt
 

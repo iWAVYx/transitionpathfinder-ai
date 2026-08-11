@@ -17,8 +17,9 @@
  *   STAGING_BASE_URL
  *   STAGING_STRIPE_WEBHOOK_SECRET
  *
- * Required for pgTAP and direct grant checks:
- *   STAGING_DB_URL
+ * The GitHub workflow runs pgTAP and direct grant checks through fixed PGHOST,
+ * PGUSER, PGDATABASE, and PGPORT values plus STAGING_DB_PASSWORD. The test
+ * harness itself never needs or parses a database connection URL.
  *
  * Hard safety rails — the harness throws, it does not skip, when:
  *   * the Supabase URL resolves to the production project ref, or
@@ -39,7 +40,6 @@ export const STAGING = {
   stripeKey: process.env.STAGING_STRIPE_API_KEY,
   webhookSecret: process.env.STAGING_STRIPE_WEBHOOK_SECRET,
   baseUrl: process.env.STAGING_BASE_URL ?? null,
-  dbUrl: process.env.STAGING_DB_URL ?? null,
   expectedProjectRef: process.env.STAGING_EXPECTED_PROJECT_REF ?? APPROVED_STAGING_PROJECT_REF,
 };
 
