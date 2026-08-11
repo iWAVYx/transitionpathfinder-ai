@@ -1457,12 +1457,14 @@ export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
     const { supabase, userId, claims } = context;
     requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
     await requirePlatformAdmin(supabase, userId);
-    if (data.user_id === userId && data.role === "platform_owner") {
-      // Prevent removing the last platform owner.
-      const { count } = await supabase
+    if (data.role === "platform_owner") {
+      // Prevent anyone from removing the last platform owner, including when
+      // the target is a different user from the actor.
+      const { count, error: countError } = await supabase
         .from("admin_roles")
         .select("id", { count: "exact", head: true })
         .eq("role", "platform_owner");
+      if (countError) throw new Error("Could not verify platform-owner coverage.");
       if ((count ?? 0) <= 1) throw new Error("Cannot remove the last platform owner.");
     }
     const { error } = await supabase

@@ -34,13 +34,14 @@ import { getMySponsorship } from "@/lib/billing/licensing.functions";
 import {
   PLANS,
   TRIAL_PERIOD_DAYS,
+  personalPlanKeysForRole,
   planForPriceId,
   subscriptionStatusLabel,
 } from "@/lib/billing/plans";
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
 
-const PERSONAL_OPTIONS = [
-  {
+const PERSONAL_OPTIONS = {
+  individual_pathway: {
     priceId: PLANS.individual_pathway.monthlyPriceId,
     name: PLANS.individual_pathway.name,
     amount: PLANS.individual_pathway.monthlyAmount,
@@ -48,7 +49,7 @@ const PERSONAL_OPTIONS = [
     blurb:
       "One student pathway with up to three connected family accounts — reports, document summaries, and meeting prep.",
   },
-  {
+  educator_solo: {
     priceId: PLANS.educator_solo.monthlyPriceId,
     name: PLANS.educator_solo.name,
     amount: PLANS.educator_solo.monthlyAmount,
@@ -56,7 +57,7 @@ const PERSONAL_OPTIONS = [
     blurb:
       "One educator with up to five independent student pathways, PPT prep, and goal tracking.",
   },
-];
+} as const;
 
 
 function statusTone(status: string): "default" | "secondary" | "destructive" {
@@ -78,7 +79,11 @@ function formatDate(iso: string | null): string {
  * Personal billing for an individual subscriber (Family / Educator).
  * Organization billing lives in the operator console instead.
  */
-export function PersonalBillingPanel() {
+export function PersonalBillingPanel({
+  primaryRole,
+}: {
+  primaryRole: string | null;
+}) {
   const qc = useQueryClient();
   const configured = isPaymentsConfigured();
   const fetchBilling = useServerFn(getMyPersonalBilling);
@@ -123,24 +128,31 @@ export function PersonalBillingPanel() {
 
   const sub = billing.data?.subscription ?? null;
   const plan = planForPriceId(sub?.price_id ?? null);
+  const eligibleOptions = personalPlanKeysForRole(primaryRole).flatMap((key) => {
+    if (key !== "individual_pathway" && key !== "educator_solo") return [];
+    const option = PERSONAL_OPTIONS[key];
+    return option.priceId ? [{ ...option, priceId: option.priceId }] : [];
+  });
+  const sponsorshipDetails = sponsorship.data;
+  const sponsored = sponsorshipDetails?.sponsored === true;
 
   return (
     <div className="space-y-4">
       <PaymentTestModeBanner />
 
-      {sponsorship.data?.sponsored ? (
+      {sponsored ? (
         <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
           <div className="space-y-2">
             <p>
               Your access is sponsored by{" "}
               <span className="font-medium">
-                {sponsorship.data.organizationName ?? "your organization"}
+                {sponsorshipDetails?.organizationName ?? "your organization"}
               </span>
               . You keep this account and everything in it — there is nothing to
               pay while the sponsorship is active.
             </p>
-            {sponsorship.data.duplicatePersonalSubscription && (
+            {sponsorshipDetails?.duplicatePersonalSubscription && (
               <div className="space-y-2">
                 <p className="text-muted-foreground">
                   You are also paying personally for the same coverage. Cancel
@@ -221,14 +233,19 @@ export function PersonalBillingPanel() {
                     : `Renews on ${formatDate(sub.current_period_end)}.`}
               </p>
             </div>
-          ) : (
+          ) : sponsored ? (
+            <p className="text-sm text-muted-foreground">
+              Your active school or district license covers this account. No
+              personal subscription is needed.
+            </p>
+          ) : eligibleOptions.length > 0 ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 You are on free access. Start a {TRIAL_PERIOD_DAYS}-day free
                 trial — cancel any time before it ends and you are not charged.
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
-                {PERSONAL_OPTIONS.map((option) => (
+                {eligibleOptions.map((option) => (
                   <div
                     key={option.priceId}
                     className="flex flex-col gap-2 rounded-lg border p-4"
@@ -252,6 +269,11 @@ export function PersonalBillingPanel() {
                 ))}
               </div>
             </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Billing for this role is managed through its school, district,
+              or partner organization rather than as a personal subscription.
+            </p>
           )}
         </CardContent>
       </Card>

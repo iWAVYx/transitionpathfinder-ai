@@ -83,6 +83,7 @@ import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authent
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedRedeemAccessRouteImport } from './routes/_authenticated/redeem-access'
 import { Route as AuthenticatedPptPrepRouteImport } from './routes/_authenticated/ppt-prep'
 import { Route as AuthenticatedPathwayRouteImport } from './routes/_authenticated/pathway'
 import { Route as AuthenticatedPartnersManageRouteImport } from './routes/_authenticated/partners-manage'
@@ -601,6 +602,12 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedRedeemAccessRoute =
+  AuthenticatedRedeemAccessRouteImport.update({
+    id: '/redeem-access',
+    path: '/redeem-access',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPptPrepRoute = AuthenticatedPptPrepRouteImport.update({
   id: '/ppt-prep',
   path: '/ppt-prep',
@@ -1473,6 +1480,7 @@ export interface FileRoutesByFullPath {
   '/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/pathway': typeof AuthenticatedPathwayRouteWithChildren
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
+  '/redeem-access': typeof AuthenticatedRedeemAccessRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -1689,6 +1697,7 @@ export interface FileRoutesByTo {
   '/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/pathway': typeof AuthenticatedPathwayRouteWithChildren
   '/ppt-prep': typeof AuthenticatedPptPrepRoute
+  '/redeem-access': typeof AuthenticatedRedeemAccessRoute
   '/reports': typeof AuthenticatedReportsRouteWithChildren
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -1909,6 +1918,7 @@ export interface FileRoutesById {
   '/_authenticated/partners-manage': typeof AuthenticatedPartnersManageRoute
   '/_authenticated/pathway': typeof AuthenticatedPathwayRouteWithChildren
   '/_authenticated/ppt-prep': typeof AuthenticatedPptPrepRoute
+  '/_authenticated/redeem-access': typeof AuthenticatedRedeemAccessRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRouteWithChildren
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -2129,6 +2139,7 @@ export interface FileRouteTypes {
     | '/partners-manage'
     | '/pathway'
     | '/ppt-prep'
+    | '/redeem-access'
     | '/reports'
     | '/security'
     | '/settings'
@@ -2345,6 +2356,7 @@ export interface FileRouteTypes {
     | '/partners-manage'
     | '/pathway'
     | '/ppt-prep'
+    | '/redeem-access'
     | '/reports'
     | '/security'
     | '/settings'
@@ -2564,6 +2576,7 @@ export interface FileRouteTypes {
     | '/_authenticated/partners-manage'
     | '/_authenticated/pathway'
     | '/_authenticated/ppt-prep'
+    | '/_authenticated/redeem-access'
     | '/_authenticated/reports'
     | '/_authenticated/security'
     | '/_authenticated/settings'
@@ -3329,6 +3342,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/redeem-access': {
+      id: '/_authenticated/redeem-access'
+      path: '/redeem-access'
+      fullPath: '/redeem-access'
+      preLoaderRoute: typeof AuthenticatedRedeemAccessRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/ppt-prep': {
@@ -4549,6 +4569,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPartnersManageRoute: typeof AuthenticatedPartnersManageRoute
   AuthenticatedPathwayRoute: typeof AuthenticatedPathwayRouteWithChildren
   AuthenticatedPptPrepRoute: typeof AuthenticatedPptPrepRoute
+  AuthenticatedRedeemAccessRoute: typeof AuthenticatedRedeemAccessRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRouteWithChildren
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -4638,6 +4659,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPartnersManageRoute: AuthenticatedPartnersManageRoute,
   AuthenticatedPathwayRoute: AuthenticatedPathwayRouteWithChildren,
   AuthenticatedPptPrepRoute: AuthenticatedPptPrepRoute,
+  AuthenticatedRedeemAccessRoute: AuthenticatedRedeemAccessRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRouteWithChildren,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,

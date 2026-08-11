@@ -89,6 +89,8 @@ async function main() {
     ["district_admin", districtId, "district_admin"],
     ["school_admin", schoolId, "school_admin"],
     ["educator", schoolId, "educator"],
+    ["student", schoolId, "student"],
+    ["parent", schoolId, "parent"],
     ["partner", partnerOrgId, "admin"],
   ]) {
     const { data: member, error: memberReadError } = await admin
@@ -103,6 +105,7 @@ async function main() {
       organization_id: orgId,
       role_within_org: role,
       status: "active",
+      membership_status: "active",
     };
     const { error } = member
       ? await admin.from("organization_memberships").update(membership).eq("id", member.id)
@@ -120,7 +123,7 @@ async function main() {
       organization_id:
         identity.key === "district_admin"
           ? districtId
-          : ["school_admin", "educator"].includes(identity.key)
+          : ["school_admin", "educator", "student", "parent"].includes(identity.key)
             ? schoolId
             : identity.key === "partner"
               ? partnerOrgId
@@ -168,6 +171,11 @@ async function main() {
     .eq("owner_id", ids.parent).eq("first_name", "Robin").maybeSingle();
   if (existingStudent) {
     studentId = existingStudent.id;
+    const { error } = await admin.from("students").update({
+      student_user_id: ids.student,
+      organization_id: schoolId,
+    }).eq("id", studentId);
+    if (error) throw new Error(`student link: ${error.message}`);
   } else {
     const { data, error } = await admin.from("students").insert({
       owner_id: ids.parent,
@@ -183,6 +191,105 @@ async function main() {
     if (error) throw new Error(`student: ${error.message}`);
     studentId = data.id;
   }
+
+  // A realistic staging umbrella license. The district entitlement powers the
+  // existing feature gates; the three pools and four allocations prove the
+  // market-release seat model without copying any production data.
+  const { error: entitlementError } = await admin.from("access_entitlements").upsert({
+    organization_id: districtId,
+    user_id: null,
+    plan_type: "district_pilot",
+    status: "pilot",
+    grants_family_access: true,
+    grants_student_access: true,
+    grants_partner_access: false,
+    starts_at: new Date().toISOString(),
+    ends_at: new Date(Date.now() + 365 * 86_400_000).toISOString(),
+    source: "synthetic-staging-seed",
+  }, { onConflict: "organization_id,user_id,plan_type" });
+  if (entitlementError) throw new Error(`district entitlement: ${entitlementError.message}`);
+
+  async function ensurePool(licenseType, purchased) {
+    const note = `Synthetic staging ${licenseType} pool`;
+    const { data: found, error: findError } = await admin
+      .from("license_pools")
+      .select("id")
+      .eq("organization_id", districtId)
+      .eq("license_type", licenseType)
+      .eq("source", "pilot")
+      .eq("notes", note)
+      .maybeSingle();
+    if (findError) throw new Error(`pool lookup ${licenseType}: ${findError.message}`);
+    const row = {
+      organization_id: districtId,
+      user_id: null,
+      license_type: licenseType,
+      source: "pilot",
+      plan_code: "district_starter",
+      purchased,
+      status: "active",
+      effective_to: null,
+      notes: note,
+    };
+    if (found) {
+      const { error } = await admin.from("license_pools").update(row).eq("id", found.id);
+      if (error) throw new Error(`pool update ${licenseType}: ${error.message}`);
+      return found.id;
+    }
+    const { data, error } = await admin.from("license_pools").insert(row).select("id").single();
+    if (error) throw new Error(`pool insert ${licenseType}: ${error.message}`);
+    return data.id;
+  }
+
+  const pools = {
+    pathway: await ensurePool("pathway", 150),
+    staff: await ensurePool("staff", 35),
+    admin: await ensurePool("admin", 5),
+  };
+
+  async function ensureAllocation({ licenseType, beneficiaryUserId, studentId: allocationStudentId = null }) {
+    let query = admin
+      .from("license_allocations")
+      .select("id")
+      .eq("sponsor_organization_id", districtId)
+      .eq("license_type", licenseType)
+      .in("state", ["reserved", "active"]);
+    query = allocationStudentId
+      ? query.eq("student_id", allocationStudentId)
+      : query.eq("beneficiary_user_id", beneficiaryUserId);
+    const { data: found, error: findError } = await query.maybeSingle();
+    if (findError) throw new Error(`allocation lookup ${licenseType}: ${findError.message}`);
+    const row = {
+      pool_id: pools[licenseType],
+      sponsor_organization_id: districtId,
+      sponsor_user_id: ids.owner,
+      license_type: licenseType,
+      state: "active",
+      beneficiary_user_id: beneficiaryUserId,
+      student_id: allocationStudentId,
+      invitation_source: "synthetic_staging_seed",
+      reserved_until: null,
+      activated_at: new Date().toISOString(),
+      created_by: ids.owner,
+      notes: "Synthetic staging license allocation",
+    };
+    if (found) {
+      const { error } = await admin.from("license_allocations").update(row).eq("id", found.id);
+      if (error) throw new Error(`allocation update ${licenseType}: ${error.message}`);
+      return;
+    }
+    const { error } = await admin.from("license_allocations").insert(row);
+    if (error) throw new Error(`allocation insert ${licenseType}: ${error.message}`);
+  }
+
+  await ensureAllocation({
+    licenseType: "pathway",
+    beneficiaryUserId: ids.student,
+    studentId,
+  });
+  await ensureAllocation({ licenseType: "staff", beneficiaryUserId: ids.educator });
+  await ensureAllocation({ licenseType: "admin", beneficiaryUserId: ids.school_admin });
+  await ensureAllocation({ licenseType: "admin", beneficiaryUserId: ids.district_admin });
 
   const district = { id: districtId };
   const school = { id: schoolId };

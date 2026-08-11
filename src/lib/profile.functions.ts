@@ -130,6 +130,20 @@ export const completeOnboarding = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { data: activatedLicenseRole, error: licenseRoleError } =
+      await supabase.rpc("my_activated_license_role");
+    if (licenseRoleError) {
+      console.error("completeOnboarding license-role check failed", licenseRoleError);
+      throw new Error("Could not verify your activated license. Please try again.");
+    }
+    if (
+      activatedLicenseRole &&
+      activatedLicenseRole !== data.primary_role
+    ) {
+      throw new Error(
+        `This account activated a ${activatedLicenseRole.replaceAll("_", " ")} license. Finish setup with that account type.`,
+      );
+    }
     const full_name = [data.first_name, data.last_name].filter(Boolean).join(" ").trim() || null;
     const { error } = await supabase
       .from("profiles")

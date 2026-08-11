@@ -17,6 +17,7 @@ const StudentInput = z.object({
 export type Student = {
   id: string;
   owner_id: string;
+  student_user_id: string | null;
   first_name: string;
   last_name: string | null;
   grade_band: string | null;
@@ -27,6 +28,24 @@ export type Student = {
   created_at: string;
   updated_at: string;
 };
+
+/**
+ * Creates or repairs the student profile represented by the signed-in
+ * student account. The database function is transactional and idempotent, so
+ * onboarding retries and dashboard recovery cannot create duplicate plans.
+ */
+export const ensureOwnStudentProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: row, error } = await context.supabase.rpc(
+      "ensure_student_self_profile" as never,
+    );
+    if (error || !row) {
+      console.error("ensureOwnStudentProfile failed", error);
+      throw new Error("Could not connect your student profile.");
+    }
+    return row as unknown as Student;
+  });
 
 export const listStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -83,6 +102,27 @@ export const createStudent = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => StudentInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("primary_role, email, organization_id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    // A student account represents itself. Reuse the canonical self-profile
+    // instead of allowing the account to create a second student or requiring
+    // it to be invited as a collaborator on its own plan.
+    if (profile?.primary_role === "student") {
+      const { data: ownStudent, error: ownStudentError } = await supabase.rpc(
+        "ensure_student_self_profile" as never,
+      );
+      if (ownStudentError || !ownStudent) {
+        console.error("createStudent self-profile failed", ownStudentError);
+        throw new Error("Could not create your student profile.");
+      }
+      return ownStudent as unknown as Student;
+    }
+
     const { data: row, error } = await supabase
       .from("students")
       .insert({
@@ -93,6 +133,7 @@ export const createStudent = createServerFn({ method: "POST" })
         school: data.school ?? null,
         date_of_birth: data.date_of_birth ?? null,
         notes: data.notes ?? null,
+        organization_id: profile?.organization_id ?? null,
       })
       .select("*")
       .single();
@@ -102,16 +143,21 @@ export const createStudent = createServerFn({ method: "POST" })
     }
 
     // Auto-record the creator's relationship to this student based on their role.
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("primary_role, email, organization_id")
-      .eq("id", userId)
-      .maybeSingle();
     const role = profile?.primary_role ?? "parent";
     const email = profile?.email ?? "";
 
-    const guardianRoles = new Set(["parent", "guardian", "student"]);
+    const guardianRoles = new Set(["parent", "guardian"]);
     const teamRoles = new Set(["educator", "teacher", "case_manager", "administrator", "school_admin", "admin"]);
+
+    if (guardianRoles.has(role)) {
+      const { error: licenseError } = await supabase.rpc(
+        "attach_my_pathway_license_to_student" as never,
+        { _student_id: row.id } as never,
+      );
+      if (licenseError) {
+        console.error("createStudent: sponsored pathway attachment failed", licenseError);
+      }
+    }
 
     try {
       if (guardianRoles.has(role)) {

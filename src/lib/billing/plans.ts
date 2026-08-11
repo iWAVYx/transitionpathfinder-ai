@@ -311,6 +311,96 @@ export function planForPriceId(priceId: string | null): PlanDefinition | null {
   return key ? PLANS[key] : null;
 }
 
+/** Roles that can purchase a subscription for their own account. */
+const FAMILY_BILLING_ROLES = new Set([
+  "student",
+  "parent",
+  "guardian",
+  "family",
+]);
+const EDUCATOR_BILLING_ROLES = new Set([
+  "educator",
+  "teacher",
+  "case_manager",
+  "counselor",
+]);
+
+/** The only personal plan(s) a signed-in role is allowed to purchase. */
+export function personalPlanKeysForRole(
+  role: string | null | undefined,
+): PlanKey[] {
+  const normalized = role?.trim().toLowerCase() ?? "";
+  if (FAMILY_BILLING_ROLES.has(normalized)) return ["individual_pathway"];
+  if (EDUCATOR_BILLING_ROLES.has(normalized)) return ["educator_solo"];
+  return [];
+}
+
+export function canRolePurchasePersonalPlan(
+  role: string | null | undefined,
+  planKey: PlanKey,
+): boolean {
+  return personalPlanKeysForRole(role).includes(planKey);
+}
+
+export type BillableOrganizationKind = "school" | "district" | "partner";
+
+export function normalizeOrganizationKind(
+  type: string | null | undefined,
+): BillableOrganizationKind | null {
+  if (type === "school") return "school";
+  if (type === "district") return "district";
+  if (type === "partner" || type === "partner_organization") return "partner";
+  return null;
+}
+
+/** Base plans and add-ons visible to each kind of organization. */
+export function organizationPlanKeysForType(
+  type: string | null | undefined,
+): PlanKey[] {
+  switch (normalizeOrganizationKind(type)) {
+    case "school":
+      return [
+        "school_core",
+        "school_plus",
+        "founding_pilot",
+        "student_addon",
+        "staff_addon",
+      ];
+    case "district":
+      return [
+        "district_starter",
+        "district_growth",
+        "district_enterprise",
+        "student_addon",
+        "staff_addon",
+      ];
+    case "partner":
+      return ["partner_premium"];
+    default:
+      return [];
+  }
+}
+
+export function canOrganizationPurchasePlan(
+  type: string | null | undefined,
+  planKey: PlanKey,
+): boolean {
+  return organizationPlanKeysForType(type).includes(planKey);
+}
+
+/** Pricing-card id for a signed-in role; null means billing is admin-only. */
+export function pricingTierIdForRole(
+  role: string | null | undefined,
+): "family" | "educator" | "school" | "district" | "partner" | null {
+  const normalized = role?.trim().toLowerCase() ?? "";
+  if (FAMILY_BILLING_ROLES.has(normalized)) return "family";
+  if (EDUCATOR_BILLING_ROLES.has(normalized)) return "educator";
+  if (normalized === "school_admin") return "school";
+  if (normalized === "district_admin") return "district";
+  if (normalized === "partner") return "partner";
+  return null;
+}
+
 /**
  * Add-on packs are the only prices sold by quantity — an admin buys N packs.
  * Base school and district plans carry fixed capacity instead.

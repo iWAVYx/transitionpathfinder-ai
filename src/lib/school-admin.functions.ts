@@ -214,16 +214,75 @@ export const updateMembershipStatus = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const adminRoles = ["admin", "owner", "school_admin"];
+    const { data: target, error: targetError } = await supabase
+      .from("organization_memberships")
+      .select("id, organization_id, user_id, role_within_org, status")
+      .eq("id", data.membership_id)
+      .maybeSingle();
+    if (targetError || !target) throw new Error("Membership not found.");
+
+    const { data: callerAdmin, error: callerError } = await supabase
+      .from("organization_memberships")
+      .select("id")
+      .eq("organization_id", target.organization_id)
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .in("role_within_org", adminRoles)
+      .maybeSingle();
+    if (callerError || !callerAdmin) {
+      throw new Error("You are not authorized to manage this school team.");
+    }
+
     const patch: { status?: string; role_within_org?: string } = {};
     if (data.status) patch.status = data.status;
     if (data.role_within_org) patch.role_within_org = data.role_within_org;
     if (Object.keys(patch).length === 0) return { ok: true };
+
+    const targetIsActiveAdmin =
+      target.status === "active" && adminRoles.includes(target.role_within_org);
+    const resultingStatus = data.status ?? target.status;
+    const resultingRole = data.role_within_org ?? target.role_within_org;
+    const targetRemainsActiveAdmin =
+      resultingStatus === "active" && adminRoles.includes(resultingRole);
+
+    if (targetIsActiveAdmin && !targetRemainsActiveAdmin) {
+      const { count, error: countError } = await supabase
+        .from("organization_memberships")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", target.organization_id)
+        .eq("status", "active")
+        .in("role_within_org", adminRoles);
+      if (countError) throw new Error("Could not verify administrator coverage.");
+      if ((count ?? 0) <= 1) {
+        throw new Error(
+          "Cannot remove or demote the last active school administrator. Add another administrator first.",
+        );
+      }
+    }
+
     const { error } = await supabase
       .from("organization_memberships")
       .update(patch)
-      .eq("id", data.membership_id);
+      .eq("id", data.membership_id)
+      .eq("organization_id", target.organization_id);
     if (error) throw new Error("Could not update membership.");
+
+    void supabase.from("audit_log").insert({
+      actor_id: userId,
+      action: "school.membership_updated",
+      entity_type: "organization_membership",
+      entity_id: data.membership_id,
+      metadata: {
+        organization_id: target.organization_id,
+        affected_user_id: target.user_id,
+        previous_role: target.role_within_org,
+        next_role: resultingRole,
+        previous_status: target.status,
+        next_status: resultingStatus,
+      },
+    });
     return { ok: true };
   });
 

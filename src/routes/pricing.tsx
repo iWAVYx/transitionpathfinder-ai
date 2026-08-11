@@ -8,7 +8,8 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 
 import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -22,7 +23,12 @@ import {
 } from "@/components/ui/dialog";
 import { StripeEmbeddedCheckout } from "@/components/billing/StripeEmbeddedCheckout";
 import { useAuth } from "@/hooks/use-auth";
-import { PLANS, TRIAL_PERIOD_DAYS } from "@/lib/billing/plans";
+import {
+  PLANS,
+  TRIAL_PERIOD_DAYS,
+  pricingTierIdForRole,
+} from "@/lib/billing/plans";
+import { getProfile } from "@/lib/profile.functions";
 import { isPaymentsConfigured } from "@/lib/stripe";
 import { SALES_EMAIL, mailtoHref } from "@/lib/contact";
 import { toTitleCase } from "@/lib/title-case";
@@ -214,9 +220,46 @@ function BillingToggle({
 function PricingPage() {
   const [billing, setBilling] = useState<BillingPeriod>("monthly");
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const loadProfile = useServerFn(getProfile);
+  const [primaryRole, setPrimaryRole] = useState<string | null>(null);
+  const [roleResolved, setRoleResolved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) {
+      setPrimaryRole(null);
+      setRoleResolved(true);
+      return () => {
+        cancelled = true;
+      };
+    }
+    setRoleResolved(false);
+    loadProfile()
+      .then((profile) => {
+        if (!cancelled) setPrimaryRole(profile.primary_role);
+      })
+      .catch(() => {
+        if (!cancelled) setPrimaryRole(null);
+      })
+      .finally(() => {
+        if (!cancelled) setRoleResolved(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadProfile, user]);
+
   // Signed-in visitors buy in place; everyone else keeps the waitlist path.
   const canCheckout = Boolean(user) && isPaymentsConfigured();
+  const signedInTierId = pricingTierIdForRole(primaryRole);
+  const visibleTiers = authLoading
+    ? []
+    : user
+      ? roleResolved
+        ? tiers.filter((tier) => tier.id === signedInTierId)
+        : []
+      : tiers;
 
   return (
     <SiteShell>
@@ -241,7 +284,7 @@ function PricingPage() {
       {/* Tiers */}
       <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
         <CardGrid columns={3} centerOddLast>
-          {tiers.map((tier) => {
+          {visibleTiers.map((tier) => {
             const Icon = tier.icon;
             return (
               <div
@@ -276,7 +319,13 @@ function PricingPage() {
                 </div>
 
                 <div className="mt-auto pt-6">
-                  {canCheckout && tier.checkoutPriceIds ? (
+                  {user && ["school", "district", "partner"].includes(tier.id) ? (
+                    <Button asChild className="w-full" variant="outline">
+                      <Link to="/admin/orgs">
+                        {toTitleCase("Manage organization billing")} <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ) : canCheckout && tier.checkoutPriceIds ? (
                     <>
                       <Button
                         className="w-full"
@@ -305,6 +354,12 @@ function PricingPage() {
             );
           })}
         </CardGrid>
+
+        {user && roleResolved && visibleTiers.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            Subscription purchasing is not available for this account role.
+          </p>
+        ) : null}
 
         {/* Promise */}
         <div className="mt-10 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8">

@@ -26,7 +26,11 @@ import {
   getProfile,
   saveOnboardingProgress,
 } from "@/lib/profile.functions";
-import { createStudent } from "@/lib/students.functions";
+import {
+  createStudent,
+  ensureOwnStudentProfile,
+} from "@/lib/students.functions";
+import { getMyActivatedLicenseRole } from "@/lib/access-codes.functions";
 import { SchoolPicker } from "@/components/forms/SchoolPicker";
 import { fallbackPathFor } from "@/lib/role-policy";
 import {
@@ -78,13 +82,17 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 function OnboardingPage() {
   const navigate = useNavigate();
   const loadProfile = useServerFn(getProfile);
+  const loadActivatedLicenseRole = useServerFn(getMyActivatedLicenseRole);
   // (loadStudents was used to gate returning users; we now route purely on role.)
   const saveProfile = useServerFn(completeOnboarding);
   const saveProgress = useServerFn(saveOnboardingProgress);
   const addStudent = useServerFn(createStudent);
+  const ensureStudentProfile = useServerFn(ensureOwnStudentProfile);
 
   const [idx, setIdx] = useState(0);
   const [role, setRole] = useState<RoleId | null>(null);
+  const [activatedLicenseRole, setActivatedLicenseRole] =
+    useState<RoleId | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [answers, setAnswers] = useState<AnswerMap>({});
@@ -100,8 +108,17 @@ function OnboardingPage() {
     let cancelled = false;
     (async () => {
       try {
-        const p = await loadProfile();
+        const [p, licensedRole] = await Promise.all([
+          loadProfile(),
+          loadActivatedLicenseRole(),
+        ]);
         if (cancelled) return;
+        const validLicensedRole = ROLE_OPTIONS.some(
+          (option) => option.id === licensedRole,
+        )
+          ? (licensedRole as RoleId)
+          : null;
+        setActivatedLicenseRole(validLicensedRole);
         if (p.onboarding_completed) {
           const pr = (p.primary_role as RoleId | null) ?? null;
           if (pr) {
@@ -116,7 +133,7 @@ function OnboardingPage() {
             return;
           }
         }
-        setRole((p.primary_role as RoleId | null) ?? null);
+        setRole(validLicensedRole ?? (p.primary_role as RoleId | null) ?? null);
         setFirstName(p.first_name ?? "");
         setLastName(p.last_name ?? "");
         const saved = (p.onboarding_answers ?? {}) as AnswerMap;
@@ -130,7 +147,7 @@ function OnboardingPage() {
     return () => {
       cancelled = true;
     };
-  }, [loadProfile, navigate]);
+  }, [loadActivatedLicenseRole, loadProfile, navigate]);
 
   // Parents and educators add a student record in onboarding. A "student" role
   // user IS the student, so we auto-create their record from their profile name
@@ -223,6 +240,10 @@ function OnboardingPage() {
   async function handleFinish(e: FormEvent) {
     e.preventDefault();
     if (!role || !firstName.trim()) return;
+    if (activatedLicenseRole && role !== activatedLicenseRole) {
+      toast.error("Finish setup with the account type assigned by your license.");
+      return;
+    }
     if (needsStudent && !studentFirst.trim()) return;
     setSubmitting(true);
     try {
@@ -242,7 +263,7 @@ function OnboardingPage() {
       // 2) Create the linked student record BEFORE marking onboarding complete.
       //    If this fails, the user stays here with onboarding_completed=false so
       //    a refresh resumes the wizard instead of stranding them on /dashboard
-      //    with no student. Self-student (student role) stays best-effort.
+      //    with no student.
       if (needsStudent) {
         await addStudent({
           data: {
@@ -253,17 +274,9 @@ function OnboardingPage() {
           },
         });
       } else if (role === "student") {
-        try {
-          await addStudent({
-            data: {
-              first_name: firstName.trim(),
-              last_name: lastName.trim() || undefined,
-            },
-          });
-        } catch (selfErr) {
-          // Non-fatal — student can still be invited later by a guardian/case manager.
-          console.error("onboarding: self-student create failed", selfErr);
-        }
+        // Student accounts are the subject of their own plan. This creates or
+        // repairs that direct identity link; no self-collaborator is involved.
+        await ensureStudentProfile();
       }
 
       // 3) Now flip onboarding_completed and assign user_roles.
@@ -337,16 +350,30 @@ function OnboardingPage() {
               <Header
                 eyebrow="Welcome"
                 title="Which best describes you?"
-                body="This shapes the kinds of guidance and resources we surface."
+                body={
+                  activatedLicenseRole
+                    ? "Your school or district license has already assigned this account type."
+                    : "This shapes the kinds of guidance and resources we surface."
+                }
               />
+              {activatedLicenseRole ? (
+                <p className="border-l-2 border-primary pl-3 text-sm text-muted-foreground">
+                  The assigned account type cannot be changed here because it
+                  controls the seat and permissions connected to your license.
+                </p>
+              ) : null}
               <div className="grid gap-3 sm:grid-cols-2">
                 {ROLE_OPTIONS.map(({ id, label, note, icon: Icon }) => {
                   const active = role === id;
+                  const locked =
+                    activatedLicenseRole !== null && id !== activatedLicenseRole;
                   return (
                     <button
                       type="button"
                       key={id}
+                      disabled={locked}
                       onClick={() => {
+                        if (locked) return;
                         setRole(id);
                         // Reset answers when role changes since the question set is different.
                         if (role !== id) setAnswers({});
@@ -356,6 +383,7 @@ function OnboardingPage() {
                         active
                           ? "border-primary bg-primary/5"
                           : "hover:border-primary/40",
+                        locked && "cursor-not-allowed opacity-45",
                       )}
                     >
                       <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />

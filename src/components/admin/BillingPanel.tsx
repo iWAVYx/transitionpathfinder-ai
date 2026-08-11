@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -34,6 +34,8 @@ import {
   MAX_SEATS,
   PLANS as CATALOG,
   isSeatBasedPrice,
+  normalizeOrganizationKind,
+  organizationPlanKeysForType,
 } from "@/lib/billing/plans";
 
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
@@ -137,35 +139,26 @@ interface PlanOption {
  * Organization-purchasable catalog, derived from the shared plan definitions
  * so console pricing can never drift from the Stripe lookup keys.
  */
-const PLANS: PlanOption[] = (
-  [
-    "school_core",
-    "school_plus",
-    "founding_pilot",
-    "district_starter",
-    "district_growth",
-    "student_addon",
-    "staff_addon",
-    "partner_premium",
-  ] as const
-).flatMap((key) => {
-  const plan = CATALOG[key];
-  const priceId = plan.yearlyPriceId ?? plan.oneTimePriceId ?? plan.monthlyPriceId;
-  if (!priceId) return [];
-  return [
-    {
-      priceId,
-      name: plan.name,
-      cadence: plan.oneTimePriceId
-        ? `One Time · ${plan.termMonths} Months`
-        : plan.yearlyPriceId
-          ? "Per Year"
-          : "Per Month",
-      amount: plan.yearlyAmount ?? plan.monthlyAmount ?? "",
-      blurb: plan.blurb,
-    },
-  ];
-});
+function planOptionsForOrganization(orgType: string): PlanOption[] {
+  return organizationPlanKeysForType(orgType).flatMap((key) => {
+    const plan = CATALOG[key];
+    const priceId = plan.yearlyPriceId ?? plan.oneTimePriceId ?? plan.monthlyPriceId;
+    if (!priceId) return [];
+    return [
+      {
+        priceId,
+        name: plan.name,
+        cadence: plan.oneTimePriceId
+          ? `One Time · ${plan.termMonths} Months`
+          : plan.yearlyPriceId
+            ? "Per Year"
+            : "Per Month",
+        amount: plan.yearlyAmount ?? plan.monthlyAmount ?? "",
+        blurb: plan.blurb,
+      },
+    ];
+  });
+}
 
 
 /**
@@ -173,11 +166,21 @@ const PLANS: PlanOption[] = (
  * organization's own customer with net terms; access still waits for the
  * `invoice.paid` webhook, so an unpaid PO grants nothing.
  */
-function InvoiceRequestCard({ orgId }: { orgId: string }) {
+function InvoiceRequestCard({
+  orgId,
+  plans,
+}: {
+  orgId: string;
+  plans: PlanOption[];
+}) {
   const requestInvoice = useServerFn(requestDistrictInvoice);
-  const [priceId, setPriceId] = useState(PLANS[0]?.priceId ?? "");
+  const [priceId, setPriceId] = useState(plans[0]?.priceId ?? "");
   const [poRef, setPoRef] = useState("");
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    setPriceId(plans[0]?.priceId ?? "");
+  }, [plans]);
 
   const send = useMutation({
     mutationFn: () =>
@@ -217,7 +220,7 @@ function InvoiceRequestCard({ orgId }: { orgId: string }) {
           value={priceId}
           onChange={(e) => setPriceId(e.target.value)}
         >
-          {PLANS.map((p) => (
+          {plans.map((p) => (
             <option key={p.priceId} value={p.priceId}>
               {p.name} — {p.amount} {p.cadence}
             </option>
@@ -263,12 +266,19 @@ function statusTone(status: string): "default" | "secondary" | "destructive" {
  * user role — only org admins reach this panel (the console already gates
  * on is_org_admin) and Stripe's webhook-confirmed state controls access.
  */
-export function BillingPanel({ orgId }: { orgId: string }) {
+export function BillingPanel({
+  orgId,
+  orgType,
+}: {
+  orgId: string;
+  orgType: string;
+}) {
   const qc = useQueryClient();
   const configured = isPaymentsConfigured();
   const fetchBilling = useServerFn(getMyBilling);
   const openPortal = useServerFn(createPortalSession);
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+  const plans = useMemo(() => planOptionsForOrganization(orgType), [orgType]);
 
   const billing = useQuery({
     queryKey: ["billing", orgId],
@@ -367,7 +377,7 @@ export function BillingPanel({ orgId }: { orgId: string }) {
       </Card>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {PLANS.map((plan) => (
+        {plans.map((plan) => (
           <Card key={plan.priceId}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">{plan.name}</CardTitle>
@@ -392,7 +402,20 @@ export function BillingPanel({ orgId }: { orgId: string }) {
         ))}
       </div>
 
-      <InvoiceRequestCard orgId={orgId} />
+      {normalizeOrganizationKind(orgType) === "district" ? (
+        <InvoiceRequestCard
+          orgId={orgId}
+          plans={plans.filter((option) => {
+            const plan = Object.values(CATALOG).find(
+              (candidate) =>
+                candidate.yearlyPriceId === option.priceId ||
+                candidate.oneTimePriceId === option.priceId ||
+                candidate.monthlyPriceId === option.priceId,
+            );
+            return plan?.orgKind === "district" && !plan.isAddon;
+          })}
+        />
+      ) : null}
 
 
       <Dialog

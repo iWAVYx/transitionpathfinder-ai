@@ -9,6 +9,7 @@ import { Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { PersonalBillingPanel } from "@/components/billing/PersonalBillingPanel";
+import { LicenseActivationPanel } from "@/components/settings/LicenseActivationPanel";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -252,9 +253,20 @@ function SettingsPage() {
           </dl>
         </div>
 
+        {/* Sponsored license */}
+        <div id="license" className="mt-6 scroll-mt-24">
+          <LicenseActivationPanel primaryRole={profile?.primary_role} />
+        </div>
+
         {/* Billing */}
         <div id="billing" className="mt-6 scroll-mt-24">
-          <PersonalBillingPanel />
+          {profile ? (
+            <PersonalBillingPanel primaryRole={profile.primary_role} />
+          ) : (
+            <div className="rounded-lg border bg-card p-6 text-sm text-muted-foreground">
+              Loading billing options for your account role…
+            </div>
+          )}
         </div>
 
 

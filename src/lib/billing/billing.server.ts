@@ -110,8 +110,6 @@ export interface CsvParseResult {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const ROLE_TO_LICENSE: Record<string, "pathway" | "staff" | "admin"> = {
   student: "pathway",
-  parent: "pathway",
-  guardian: "pathway",
   educator: "staff",
   teacher: "staff",
   case_manager: "staff",
@@ -165,7 +163,10 @@ export function parseInviteCsv(text: string, maxRows = 500): CsvParseResult {
     if (!licenseType) {
       errors.push({
         lineNumber,
-        message: `"${parts[1] ?? ""}" is not a role we can invite. Use student, parent, educator, case_manager, counselor, school_admin, or district_admin.`,
+        message:
+          role === "parent" || role === "guardian"
+            ? "Invite family members from the student's plan; they share that pathway license and do not use another seat."
+            : `"${parts[1] ?? ""}" is not a role we can allocate. Use student, educator, case_manager, counselor, school_admin, or district_admin.`,
       });
       continue;
     }

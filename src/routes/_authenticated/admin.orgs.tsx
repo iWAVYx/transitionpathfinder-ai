@@ -40,6 +40,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -51,6 +61,7 @@ import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFa
 import {
   listAdminOrgs,
   listOrgAccessCodes,
+  listLicenseAccessCodeOptions,
   mintOrgAccessCode,
   revokeOrgAccessCode,
   listOrgInvitations,
@@ -60,6 +71,7 @@ import {
   listLicenseRequests,
   updateLicenseRequest,
   type AdminOrg,
+  type AccessCodeAdminOption,
   type OrgAccessCodeRow,
   type OrgInvitationRow,
   type OrgMemberRow,
@@ -77,12 +89,39 @@ export const Route = createFileRoute("/_authenticated/admin/orgs")({
 const ROLE_OPTIONS = [
   { value: "educator", label: "Educator" },
   { value: "case_manager", label: "Case Manager" },
+  { value: "counselor", label: "Counselor" },
   { value: "school_admin", label: "School Admin" },
   { value: "district_admin", label: "District Admin" },
   { value: "parent", label: "Parent / Guardian" },
   { value: "student", label: "Student" },
   { value: "partner", label: "Partner" },
 ] as const;
+
+const ACCESS_CODE_ROLES = ROLE_OPTIONS.filter(
+  (role) => role.value !== "partner",
+);
+
+function licenseTypeForRole(
+  role: string,
+): AccessCodeAdminOption["license_type"] | null {
+  if (role === "student" || role === "parent") return "pathway";
+  if (["educator", "case_manager", "counselor"].includes(role)) return "staff";
+  if (role === "school_admin" || role === "district_admin") return "admin";
+  return null;
+}
+
+function accessCodeRolesForTarget(targetType: string | undefined) {
+  return ACCESS_CODE_ROLES.filter((role) => {
+    if (role.value === "district_admin") return targetType === "district";
+    if (role.value === "school_admin") return targetType === "school";
+    return targetType === "school" || targetType === "district";
+  });
+}
+
+function roleDisplayName(role: string): string {
+  return ROLE_OPTIONS.find((option) => option.value === role)?.label ??
+    role.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 function invitationTypeForOrg(orgType: string): "join_school" | "join_district" | "join_partner_org" {
   if (orgType === "district") return "join_district";
@@ -255,7 +294,7 @@ function OperatorConsolePage() {
                 </TabsList>
 
                 <TabsContent value="codes">
-                  <AccessCodesPanel orgId={selectedOrg.id} />
+                  <AccessCodesPanel org={selectedOrg} />
                 </TabsContent>
                 <TabsContent value="invites">
                   <InvitationsPanel org={selectedOrg} />
@@ -264,10 +303,16 @@ function OperatorConsolePage() {
                   <MembersPanel orgId={selectedOrg.id} />
                 </TabsContent>
                 <TabsContent value="licenses">
-                  <LicensePanel orgId={selectedOrg.id} />
+                  <LicensePanel
+                    orgId={selectedOrg.id}
+                    orgType={selectedOrg.type}
+                  />
                 </TabsContent>
                 <TabsContent value="billing">
-                  <BillingPanel orgId={selectedOrg.id} />
+                  <BillingPanel
+                    orgId={selectedOrg.id}
+                    orgType={selectedOrg.type}
+                  />
                 </TabsContent>
                 <TabsContent value="coverage">
                   <CoveragePanel orgId={selectedOrg.id} />
@@ -307,81 +352,206 @@ function OperatorConsolePage() {
 
 // ---------- Access Codes ----------
 
-function AccessCodesPanel({ orgId }: { orgId: string }) {
+function AccessCodesPanel({ org }: { org: AdminOrg }) {
   const list = useServerFn(listOrgAccessCodes);
+  const listOptions = useServerFn(listLicenseAccessCodeOptions);
   const mint = useServerFn(mintOrgAccessCode);
   const revoke = useServerFn(revokeOrgAccessCode);
 
   const [codes, setCodes] = useState<OrgAccessCodeRow[] | null>(null);
+  const [options, setOptions] = useState<AccessCodeAdminOption[] | null>(null);
+  const [targetOrgId, setTargetOrgId] = useState(org.id);
   const [role, setRole] = useState("educator");
-  const [capacity, setCapacity] = useState("");
-  const [singleUse, setSingleUse] = useState(false);
+  const [label, setLabel] = useState("");
+  const [capacity, setCapacity] = useState("1");
+  const [singleUse, setSingleUse] = useState(true);
   const [expiresInDays, setExpiresInDays] = useState("30");
   const [busy, setBusy] = useState(false);
+  const [revokeBusy, setRevokeBusy] = useState(false);
+  const [confirmCreateOpen, setConfirmCreateOpen] = useState(false);
+  const [pendingIssue, setPendingIssue] = useState<{
+    targetOrgId: string;
+    targetName: string;
+    role: string;
+    label: string;
+    capacity: number;
+    singleUse: boolean;
+    expiresInDays: number;
+  } | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<OrgAccessCodeRow | null>(null);
   const [freshCode, setFreshCode] = useState<{ id: string; code: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const reload = useCallback(() => {
     setCodes(null);
-    list({ data: { org_id: orgId } })
-      .then((r) => setCodes(r.codes))
-      .catch(() => setCodes([]));
-  }, [list, orgId]);
+    setOptions(null);
+    Promise.all([
+      list({ data: { org_id: org.id } }),
+      listOptions({ data: { org_id: org.id } }),
+    ])
+      .then(([codeResult, optionResult]) => {
+        setCodes(codeResult.codes);
+        setOptions(optionResult.options);
+      })
+      .catch(() => {
+        setCodes([]);
+        setOptions([]);
+      });
+  }, [list, listOptions, org.id]);
   useEffect(reload, [reload]);
+
+  const targets = useMemo(() => {
+    const seen = new Set<string>();
+    return (options ?? []).filter((option) => {
+      if (seen.has(option.target_organization_id)) return false;
+      seen.add(option.target_organization_id);
+      return true;
+    });
+  }, [options]);
+
+  useEffect(() => {
+    if (targets.length === 0) return;
+    if (!targets.some((target) => target.target_organization_id === targetOrgId)) {
+      setTargetOrgId(targets[0].target_organization_id);
+    }
+  }, [targetOrgId, targets]);
+
+  const selectedTarget = targets.find(
+    (target) => target.target_organization_id === targetOrgId,
+  );
+  const availableRoles = useMemo(
+    () => accessCodeRolesForTarget(selectedTarget?.target_organization_type),
+    [selectedTarget?.target_organization_type],
+  );
+
+  useEffect(() => {
+    if (availableRoles.length === 0) return;
+    if (!availableRoles.some((option) => option.value === role)) {
+      setRole(availableRoles[0].value);
+    }
+  }, [availableRoles, role]);
+
+  const licenseType = licenseTypeForRole(role);
+  const isAdminCodeRole = role === "school_admin" || role === "district_admin";
+
+  useEffect(() => {
+    if (!isAdminCodeRole) return;
+    setSingleUse(true);
+    setCapacity("1");
+    setExpiresInDays("7");
+  }, [isAdminCodeRole]);
+
+  const capacityRow = options?.find(
+    (option) =>
+      option.target_organization_id === targetOrgId &&
+      option.license_type === licenseType,
+  );
+  const requestedSeats = singleUse || isAdminCodeRole ? 1 : Number(capacity);
+  const expiryDays = Number(expiresInDays);
+  const expiryLimit = isAdminCodeRole ? 7 : 365;
+  const expiryIsValid =
+    Number.isInteger(expiryDays) && expiryDays >= 1 && expiryDays <= expiryLimit;
+  const capacityIsValid =
+    Number.isInteger(requestedSeats) &&
+    requestedSeats >= 1 &&
+    requestedSeats <= (capacityRow?.available ?? 0) &&
+    expiryIsValid;
 
   async function onMint(e: React.FormEvent) {
     e.preventDefault();
+    if (!capacityIsValid || !targetOrgId || !label.trim()) {
+      toast.error("Choose an active license group with enough available seats.");
+      return;
+    }
+    setPendingIssue({
+      targetOrgId,
+      targetName: selectedTarget?.target_organization_name ?? org.name,
+      role,
+      label: label.trim(),
+      capacity: requestedSeats,
+      singleUse: singleUse || isAdminCodeRole,
+      expiresInDays: expiryDays,
+    });
+    setConfirmCreateOpen(true);
+  }
+
+  async function confirmMint() {
+    const issue = pendingIssue;
+    if (!issue) return;
+    setConfirmCreateOpen(false);
     setBusy(true);
     try {
       const r = await mint({
         data: {
-          org_id: orgId,
-          role: role as "educator",
-          capacity: capacity ? Number(capacity) : undefined,
-          single_use: singleUse,
-          expires_in_days: expiresInDays ? Number(expiresInDays) : undefined,
+          org_id: org.id,
+          target_organization_id: issue.targetOrgId,
+          role: issue.role as "educator",
+          label: issue.label,
+          capacity: issue.capacity,
+          single_use: issue.singleUse,
+          expires_in_days: issue.expiresInDays,
         },
       });
       setFreshCode({ id: r.row.id, code: r.code });
-      toast.success("Access code created — copy it now, it won't be shown again.");
+      setLabel("");
+      toast.success(
+        `${issue.capacity} seat${issue.capacity === 1 ? "" : "s"} reserved. Copy the code now; it will not be shown again.`,
+      );
       reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not mint code.");
     } finally {
       setBusy(false);
+      setPendingIssue(null);
     }
   }
 
-  async function onRevoke(id: string) {
-    if (!confirm("Revoke this access code? People who haven't redeemed it yet will be blocked.")) return;
+  async function confirmRevoke() {
+    const target = revokeTarget;
+    if (!target) return;
+    setRevokeBusy(true);
     try {
-      await revoke({ data: { id } });
-      toast.success("Access code revoked.");
+      const result = await revoke({
+        data: {
+          id: target.id,
+          reason: `License activation code "${target.label ?? "Legacy Code"}" revoked through seat management`,
+        },
+      });
+      toast.success(
+        `License code revoked. ${result.released_seats} unclaimed seat${result.released_seats === 1 ? "" : "s"} returned.`,
+      );
+      setRevokeTarget(null);
       reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Revoke failed.");
+    } finally {
+      setRevokeBusy(false);
     }
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-          Active Codes
+          License Activation Codes
         </h2>
         {codes === null ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground py-8">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
         ) : codes.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8">No access codes yet — mint one on the right.</p>
+          <p className="text-sm text-muted-foreground py-8">
+            No license codes yet. Create one to reserve seats for account activation.
+          </p>
         ) : (
           <div className="overflow-x-auto rounded-lg border">
             <table className="w-full text-sm">
               <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
+                  <th className="px-3 py-2">Label</th>
                   <th className="px-3 py-2">Role</th>
-                  <th className="px-3 py-2">Usage</th>
+                  <th className="px-3 py-2">Organization</th>
+                  <th className="px-3 py-2">Seats</th>
                   <th className="px-3 py-2">Expires</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2" />
@@ -397,11 +567,19 @@ function AccessCodesPanel({ orgId }: { orgId: string }) {
                   const showFresh = freshCode?.id === c.id;
                   return (
                     <tr key={c.id} className="border-t">
-                      <td className="px-3 py-2 font-medium">{c.role}</td>
+                      <td className="px-3 py-2 font-medium">
+                        {c.label ?? "Legacy Code"}
+                      </td>
+                      <td className="px-3 py-2">{roleDisplayName(c.role)}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {c.target_organization_name ?? org.name}
+                      </td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {c.uses}
                         {c.capacity != null ? ` / ${c.capacity}` : ""}
-                        {c.single_use ? " · single-use" : ""}
+                        {c.capacity != null && !c.revoked_at
+                          ? ` · ${Math.max(c.capacity - c.uses, 0)} unclaimed`
+                          : ""}
                       </td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "Never"}
@@ -426,7 +604,9 @@ function AccessCodesPanel({ orgId }: { orgId: string }) {
                             variant="ghost"
                             size="sm"
                             className="ml-2 h-7 px-2 text-destructive"
-                            onClick={() => onRevoke(c.id)}
+                            onClick={() => setRevokeTarget(c)}
+                            aria-label={`Revoke ${c.label ?? "license code"}`}
+                            title="Revoke License Code"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -441,33 +621,76 @@ function AccessCodesPanel({ orgId }: { orgId: string }) {
         )}
       </div>
 
-      <form onSubmit={onMint} className="rounded-lg border bg-muted/20 p-4 h-fit">
+      <form onSubmit={onMint} className="h-fit rounded-lg border bg-muted/20 p-4">
         <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Plus className="h-4 w-4" /> Mint Access Code
+          <Plus className="h-4 w-4" /> Create License Code
         </h2>
+        {options === null ? (
+          <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading Capacity…
+          </div>
+        ) : targets.length === 0 ? (
+          <p className="py-4 text-sm text-muted-foreground">
+            License activation codes require an active school or district license pool.
+          </p>
+        ) : (
         <div className="space-y-3">
           <div>
-            <Label htmlFor="ac-role" className="text-xs">Role granted</Label>
+            <Label htmlFor="ac-label" className="text-xs">Code Label</Label>
+            <Input
+              id="ac-label"
+              value={label}
+              onChange={(event) => setLabel(event.target.value)}
+              placeholder="Fall Student Cohort"
+              maxLength={100}
+              required
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="ac-target" className="text-xs">Account Organization</Label>
+            <Select value={targetOrgId} onValueChange={setTargetOrgId}>
+              <SelectTrigger id="ac-target" className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {targets.map((target) => (
+                  <SelectItem
+                    key={target.target_organization_id}
+                    value={target.target_organization_id}
+                  >
+                    {target.target_organization_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="ac-role" className="text-xs">Account Type</Label>
             <Select value={role} onValueChange={setRole}>
               <SelectTrigger id="ac-role" className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {ROLE_OPTIONS.map((r) => (
+                {availableRoles.map((r) => (
                   <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="ac-cap" className="text-xs">Max redemptions (optional)</Label>
+            <Label htmlFor="ac-cap" className="text-xs">Seats To Reserve</Label>
             <Input
               id="ac-cap"
               type="number"
               min="1"
-              placeholder="Unlimited"
+              max={Math.max(capacityRow?.available ?? 1, 1)}
               value={capacity}
               onChange={(e) => setCapacity(e.target.value)}
+              disabled={singleUse || isAdminCodeRole}
               className="mt-1"
             />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {capacityRow
+                ? `${capacityRow.available} ${capacityRow.license_type} seat${capacityRow.available === 1 ? "" : "s"} available of ${capacityRow.purchased}.`
+                : "No matching license capacity is available."}
+            </p>
           </div>
           <div>
             <Label htmlFor="ac-exp" className="text-xs">Expires in (days)</Label>
@@ -475,7 +698,7 @@ function AccessCodesPanel({ orgId }: { orgId: string }) {
               id="ac-exp"
               type="number"
               min="1"
-              max="365"
+              max={expiryLimit}
               placeholder="Never"
               value={expiresInDays}
               onChange={(e) => setExpiresInDays(e.target.value)}
@@ -487,17 +710,109 @@ function AccessCodesPanel({ orgId }: { orgId: string }) {
               type="checkbox"
               checked={singleUse}
               onChange={(e) => setSingleUse(e.target.checked)}
+              disabled={isAdminCodeRole}
             />
-            Single-use (one person only)
+            {isAdminCodeRole ? "Required: One Administrator Only" : "One Person Only"}
           </label>
-          <Button type="submit" disabled={busy} className="w-full">
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Mint Code"}
+          <Button
+            type="submit"
+            disabled={busy || !capacityIsValid || !label.trim()}
+            className="w-full"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create And Reserve"}
           </Button>
           <p className="text-[11px] text-muted-foreground">
-            The plaintext code appears once, next to the new row. We only store its hash.
+            Creating the code immediately reserves these seats. The code appears
+            once; TransitionForward stores only its secure hash.
+            {isAdminCodeRole &&
+              " Administrator codes are always single-use and expire within seven days."}
           </p>
         </div>
+        )}
       </form>
+
+      <AlertDialog open={confirmCreateOpen} onOpenChange={setConfirmCreateOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Seat Reservation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Review the access and capacity impact before creating this license code.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {pendingIssue && (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 border-y py-4 text-sm">
+              <dt className="text-muted-foreground">Label</dt>
+              <dd className="text-right font-medium">{pendingIssue.label}</dd>
+              <dt className="text-muted-foreground">Organization</dt>
+              <dd className="text-right font-medium">{pendingIssue.targetName}</dd>
+              <dt className="text-muted-foreground">Account Type</dt>
+              <dd className="text-right font-medium">{roleDisplayName(pendingIssue.role)}</dd>
+              <dt className="text-muted-foreground">Seats Reserved Now</dt>
+              <dd className="text-right font-medium">{pendingIssue.capacity}</dd>
+              <dt className="text-muted-foreground">Expires In</dt>
+              <dd className="text-right font-medium">{pendingIssue.expiresInDays} days</dd>
+            </dl>
+          )}
+          <p className="text-sm text-muted-foreground">
+            This immediately removes the selected seats from available capacity.
+            {pendingIssue?.role === "school_admin" ||
+            pendingIssue?.role === "district_admin"
+              ? " The code grants administrative access to one person."
+              : " The seats return automatically if the code expires unused."}
+          </p>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmMint} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reserve And Create Code"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={revokeTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !revokeBusy) setRevokeTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Revoke License Code?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This code will stop working immediately. Review who is affected before continuing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {revokeTarget && (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 border-y py-4 text-sm">
+              <dt className="text-muted-foreground">Code</dt>
+              <dd className="text-right font-medium">{revokeTarget.label ?? "Legacy Code"}</dd>
+              <dt className="text-muted-foreground">Activated Accounts</dt>
+              <dd className="text-right font-medium">{revokeTarget.uses}</dd>
+              <dt className="text-muted-foreground">Seats Returned</dt>
+              <dd className="text-right font-medium">
+                {revokeTarget.capacity == null
+                  ? "Any unclaimed seats"
+                  : Math.max(revokeTarget.capacity - revokeTarget.uses, 0)}
+              </dd>
+            </dl>
+          )}
+          <p className="text-sm text-muted-foreground">
+            Accounts that already activated it will keep their current access. Only
+            unclaimed reserved seats return to the license pool. This cannot be undone;
+            a new code must be created later if needed.
+          </p>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={revokeBusy}>Keep Code Active</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRevoke}
+              disabled={revokeBusy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {revokeBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Revoke Code"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
