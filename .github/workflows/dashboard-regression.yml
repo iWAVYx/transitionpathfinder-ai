@@ -41,39 +41,33 @@ jobs:
       - name: Vitest — dashboard static regression
         run: bun run test:unit
 
-  # Browser regression + role-leak + role-access across 7 roles. Each role
-  # auto-skips when its storageState is missing. Browser CI uses the direct
-  # staging Worker hostname so Cloudflare Bot Fight Mode on the custom zone
-  # stays fully enabled.
+  # Browser regression + role-leak + role-access across all 7 roles. These
+  # checks target the isolated staging Worker, so they use only synthetic
+  # staging identities and never mix in production E2E credentials.
   e2e:
     runs-on: ubuntu-latest
     needs: unit
+    environment: staging
     env:
       PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
       E2E_EXPECTED_BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      E2E_STUDENT_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
-      E2E_STUDENT_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
-      E2E_STUDENT_TOTP_SECRET: ${{ secrets.E2E_STUDENT_TOTP_SECRET }}
-      E2E_PARENT_EMAIL: ${{ secrets.E2E_PARENT_EMAIL }}
-      E2E_PARENT_PASSWORD: ${{ secrets.E2E_PARENT_PASSWORD }}
-      E2E_PARENT_TOTP_SECRET: ${{ secrets.E2E_PARENT_TOTP_SECRET }}
-      E2E_EDUCATOR_EMAIL: ${{ secrets.E2E_EDUCATOR_EMAIL }}
-      E2E_EDUCATOR_PASSWORD: ${{ secrets.E2E_EDUCATOR_PASSWORD }}
-      E2E_EDUCATOR_TOTP_SECRET: ${{ secrets.E2E_EDUCATOR_TOTP_SECRET }}
-      E2E_SCHOOL_ADMIN_EMAIL: ${{ secrets.E2E_SCHOOL_ADMIN_EMAIL }}
-      E2E_SCHOOL_ADMIN_PASSWORD: ${{ secrets.E2E_SCHOOL_ADMIN_PASSWORD }}
-      E2E_SCHOOL_ADMIN_TOTP_SECRET: ${{ secrets.E2E_SCHOOL_ADMIN_TOTP_SECRET }}
-      E2E_DISTRICT_ADMIN_EMAIL: ${{ secrets.E2E_DISTRICT_ADMIN_EMAIL }}
-      E2E_DISTRICT_ADMIN_PASSWORD: ${{ secrets.E2E_DISTRICT_ADMIN_PASSWORD }}
-      E2E_DISTRICT_ADMIN_TOTP_SECRET: ${{ secrets.E2E_DISTRICT_ADMIN_TOTP_SECRET }}
-      E2E_PARTNER_EMAIL: ${{ secrets.E2E_PARTNER_EMAIL }}
-      E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
-      E2E_PARTNER_TOTP_SECRET: ${{ secrets.E2E_PARTNER_TOTP_SECRET }}
-      E2E_OWNER_EMAIL: ${{ secrets.E2E_OWNER_EMAIL }}
-      E2E_OWNER_PASSWORD: ${{ secrets.E2E_OWNER_PASSWORD }}
-      E2E_OWNER_TOTP_SECRET: ${{ secrets.E2E_OWNER_TOTP_SECRET }}
-      LIVE_VERIFICATION: ${{ github.event.inputs.live }}
-      REQUIRE_ALL_ROLES: ${{ github.event.inputs.require_all_roles }}
+      LIVE_VERIFICATION: "true"
+      REQUIRE_ALL_ROLES: "true"
+      ALLOW_STAGING_OWNER_WITHOUT_TOTP: "true"
+      E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
+      E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
+      E2E_PARENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_EDUCATOR_EMAIL: e2e.educator@staging.transitionforwardct.test
+      E2E_EDUCATOR_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_SCHOOL_ADMIN_EMAIL: e2e.schooladmin@staging.transitionforwardct.test
+      E2E_SCHOOL_ADMIN_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_DISTRICT_ADMIN_EMAIL: e2e.districtadmin@staging.transitionforwardct.test
+      E2E_DISTRICT_ADMIN_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARTNER_EMAIL: e2e.partner@staging.transitionforwardct.test
+      E2E_PARTNER_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_OWNER_EMAIL: e2e.owner@staging.transitionforwardct.test
+      E2E_OWNER_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -82,24 +76,55 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Install Playwright browsers
         run: bun run playwright:install
+      - name: Require isolated staging password
+        run: |
+          if [ -z "$E2E_STUDENT_PASSWORD" ]; then
+            echo "::error::STAGING_E2E_PASSWORD is missing from the GitHub staging environment."
+            exit 1
+          fi
+          echo "Synthetic staging credentials are configured."
       - name: Role credential readiness check
         run: node tests/e2e/scripts/check-role-creds.mjs
       - name: E2E base URL reachability preflight
-        if: ${{ env.PLAYWRIGHT_BASE_URL != '' }}
         run: node tests/e2e/scripts/check-base-url.mjs
-      - name: Per-role auth setup (skips roles without credentials)
+      - name: Verify staging deployment identity
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.PLAYWRIGHT_BASE_URL;
+          const response = await fetch(`${base}/api/public/env-health`);
+          const body = await response.text();
+          if (!response.ok) {
+            throw new Error(`env-health returned ${response.status}: ${body.slice(0, 500)}`);
+          }
+          const health = JSON.parse(body);
+          const errors = [];
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.supabase_project_ref !== "qgrertkqbwanerqqemph") {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) {
+            errors.push(`is_production_project=${health.is_production_project}`);
+          }
+          if (health.isolation?.ok !== true) {
+            errors.push(`isolation=${JSON.stringify(health.isolation)}`);
+          }
+          if (errors.length) {
+            throw new Error(`Staging isolation check failed: ${errors.join(", ")}`);
+          }
+          console.log("Staging deployment identity verified.");
+          NODE
+      - name: Per-role auth setup
         run: |
           echo "Expected deployed build SHA: $E2E_EXPECTED_BUILD_SHA"
           GITHUB_SHA="$E2E_EXPECTED_BUILD_SHA" bunx playwright test --project=dashboard-setup
-      - name: Verify storage states match configured roles (live only)
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.live == 'true' }}
+      - name: Verify all seven storage states
         env:
           CHECK_STORAGE_STATES: "1"
         run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Dashboard regression
-        run: bunx playwright test --project=dashboard-regression
+        run: bunx playwright test --project=dashboard-regression --no-deps
       - name: Role-leak nav + access-rule guard
-        run: bunx playwright test --project=role-access
+        run: bunx playwright test --project=role-access --no-deps
       - uses: actions/upload-artifact@v4
         if: always()
         with:
