@@ -2,12 +2,12 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 /**
- * Accessibility audit for the demo Pathway Report page.
+ * Accessibility audit for the current public demo Pathway Report.
  *
- * Runs axe-core (WCAG 2.1 A + AA + best-practice) against the whole
- * report page across mobile, tablet, and desktop viewports, and exercises
- * the key keyboard flows (outline sidebar combobox, audience tabs,
- * collapsible report sections) to ensure they stay compliant in CI.
+ * The demo report is now a static, age-aware report surface rather than the
+ * older ReportView outline/collapsible reader. These checks intentionally
+ * validate the current contract: clean axe results, unique page landmarks,
+ * accessible role tabs, and accessible demo-student switching.
  */
 
 const REPORT_URL = "/demo/report";
@@ -28,8 +28,9 @@ const A11Y_TAGS = [
 
 async function gotoReport(page: Page) {
   await page.goto(REPORT_URL, { waitUntil: "networkidle" });
-  // Main report heading should be present before we audit.
-  await page.getByRole("main").waitFor();
+  await expect(page.getByRole("main")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator("[data-demo-report-profile]")).toBeVisible();
 }
 
 function formatViolations(
@@ -74,127 +75,80 @@ for (const vp of VIEWPORTS) {
   });
 }
 
-test.describe("report a11y — key flow checks @ desktop", () => {
+test.describe("report a11y — current interaction contract", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("outline sidebar exposes combobox/listbox semantics and live status", async ({
-    page,
-  }) => {
+  test("role lens exposes accessible tab semantics", async ({ page }) => {
     await gotoReport(page);
 
-    const outline = page.getByRole("complementary", { name: /outline/i });
-    await expect(outline).toBeVisible();
-
-    const search = outline.getByRole("combobox", { name: /search outline/i });
-    await expect(search).toBeVisible();
-    await expect(search).toHaveAttribute("aria-expanded", "true");
-    await expect(search).toHaveAttribute("aria-controls", "report-outline-list");
-
-    const listbox = page.locator("#report-outline-list");
-    await expect(listbox).toHaveAttribute("role", "listbox");
-
-    // Keyboard reachable + typing updates the live region.
-    await search.focus();
-    await page.keyboard.type("career");
-    const status = page.locator("#report-outline-status");
-    await expect(status).toHaveAttribute("aria-live", /polite|assertive/);
-    await expect(status).not.toBeEmpty();
-
-    // ArrowDown moves active option without losing focus on the input.
-    await page.keyboard.press("ArrowDown");
-    await expect(search).toBeFocused();
-    const activeId = await search.getAttribute("aria-activedescendant");
-    expect(activeId, "ArrowDown should set aria-activedescendant").toBeTruthy();
-
-    // Escape clears the query.
-    await page.keyboard.press("Escape");
-    await expect(search).toHaveValue("");
-  });
-
-  test("audience tabs expose tab/tablist semantics", async ({ page }) => {
-    await gotoReport(page);
-    const tablist = page.getByRole("tablist").first();
+    const tablist = page.getByRole("tablist", { name: /demo role view/i });
     await expect(tablist).toBeVisible();
+
     const tabs = tablist.getByRole("tab");
     expect(await tabs.count()).toBeGreaterThan(1);
+
+    const selected = tabs.filter({ has: page.locator('[aria-selected="true"]') });
+    expect(await selected.count()).toBeLessThanOrEqual(1);
+
     for (let i = 0; i < (await tabs.count()); i++) {
       const tab = tabs.nth(i);
-      const name = (await tab.getAttribute("aria-label")) || (await tab.innerText());
-      expect(name?.trim(), `tab #${i} has accessible name`).toBeTruthy();
-      expect(await tab.getAttribute("aria-selected")).toMatch(/true|false/);
+      await expect(tab).toHaveAttribute("aria-selected", /true|false/);
+      expect((await tab.innerText()).trim()).toBeTruthy();
     }
   });
 
-  test("collapsible report sections toggle aria-expanded", async ({ page }) => {
+  test("demo student switcher exposes listbox and option semantics", async ({ page }) => {
     await gotoReport(page);
-    // First section toggle button (rendered by ReportView block headers).
-    const toggles = page.locator('button[aria-expanded][aria-controls]');
-    const count = await toggles.count();
-    expect(count, "report has collapsible section toggles").toBeGreaterThan(0);
 
-    const first = toggles.first();
-    const initial = await first.getAttribute("aria-expanded");
-    await first.scrollIntoViewIfNeeded();
-    await first.click();
-    const next = await first.getAttribute("aria-expanded");
-    expect(next).not.toBe(initial);
+    const switcher = page.getByRole("button", { name: /demo student:/i });
+    await expect(switcher).toBeVisible();
+    await expect(switcher).toHaveAttribute("aria-haspopup", "listbox");
+    await expect(switcher).toHaveAttribute("aria-expanded", "false");
+
+    await switcher.click();
+    await expect(switcher).toHaveAttribute("aria-expanded", "true");
+
+    const listbox = page.getByRole("listbox", { name: /select a demo student/i });
+    await expect(listbox).toBeVisible();
+    const options = listbox.getByRole("option");
+    expect(await options.count()).toBeGreaterThan(1);
+
+    for (let i = 0; i < (await options.count()); i++) {
+      await expect(options.nth(i)).toHaveAttribute("aria-selected", /true|false/);
+    }
+
+    await page.keyboard.press("Escape");
+    await expect(listbox).toHaveCount(0);
+    await expect(switcher).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test("report framing uses non-nested note semantics", async ({ page }) => {
+    await gotoReport(page);
+
+    await expect(
+      page.getByRole("note", { name: /audience framing/i }),
+    ).toBeVisible();
+    await expect(page.getByRole("main")).toHaveCount(1);
+    await expect(page.locator("main aside")).toHaveCount(0);
   });
 });
 
-/**
- * Mobile + tablet flows. The outline sidebar is desktop-only by design
- * (`hidden lg:block`), so we don't check it here — instead we verify the
- * audience tabs, collapsible sections, and primary landmarks stay usable
- * and accessible on small screens.
- */
-const SMALL_VIEWPORTS = [
-  { label: "mobile", width: 390, height: 844 },
-  { label: "tablet", width: 768, height: 1024 },
-];
-
-for (const vp of SMALL_VIEWPORTS) {
-  test.describe(`report a11y — key flows @ ${vp.label}`, () => {
+for (const vp of VIEWPORTS) {
+  test.describe(`report landmarks @ ${vp.label}`, () => {
     test.use({ viewport: { width: vp.width, height: vp.height } });
 
-    test("desktop-only outline is hidden, primary landmarks unique", async ({
-      page,
-    }) => {
+    test("main report landmarks stay unique and labelled", async ({ page }) => {
       await gotoReport(page);
 
-      // The fixed outline nav must not render on small screens.
-      const outline = page.getByRole("complementary", { name: /outline/i });
-      await expect(outline).toHaveCount(0);
-
-      // Header + demo step nav stay distinguishable via aria-label.
-      await expect(page.getByRole("navigation", { name: /primary/i })).toBeVisible();
-      await expect(
-        page.getByRole("navigation", { name: /demo walkthrough steps/i }),
-      ).toBeVisible();
-      await expect(page.getByRole("main")).toBeVisible();
-    });
-
-    test("audience tabs and collapsible sections work via keyboard", async ({
-      page,
-    }) => {
-      await gotoReport(page);
-
-      const tabs = page.getByRole("tablist").first().getByRole("tab");
-      expect(await tabs.count()).toBeGreaterThan(1);
-      const first = tabs.first();
-      await first.scrollIntoViewIfNeeded();
-      await first.focus();
-      await page.keyboard.press("ArrowRight");
-      const focused = await page.evaluate(() =>
-        document.activeElement?.getAttribute("role"),
+      await expect(page.getByRole("main")).toHaveCount(1);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      await expect(page.locator("[data-demo-report-profile]")).toHaveAttribute(
+        "aria-label",
+        /pathway report/i,
       );
-      expect(focused).toBe("tab");
-
-      const toggle = page.locator('button[aria-expanded][aria-controls]').first();
-      await toggle.scrollIntoViewIfNeeded();
-      const initial = await toggle.getAttribute("aria-expanded");
-      await toggle.click();
-      const next = await toggle.getAttribute("aria-expanded");
-      expect(next).not.toBe(initial);
+      await expect(
+        page.getByRole("tablist", { name: /demo role view/i }),
+      ).toBeVisible();
     });
   });
 }
