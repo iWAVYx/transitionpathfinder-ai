@@ -7,6 +7,9 @@
 --   CREATE EXTENSION IF NOT EXISTS pgtap;
 
 BEGIN;
+-- Supabase installs pgTAP in `extensions`. Keep function resolution explicit so
+-- this suite works for restricted verifier roles without altering role defaults.
+SET LOCAL search_path = extensions, public, pg_catalog;
 SELECT plan(20);
 
 -- Refuse to run against the production project.
