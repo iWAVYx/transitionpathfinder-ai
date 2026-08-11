@@ -29,7 +29,7 @@ jobs:
       STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
       STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
       STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
-      STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      STAGING_DB_VERIFIER_PASSWORD: ${{ secrets.STAGING_DB_VERIFIER_PASSWORD }}
       STAGING_STRIPE_API_KEY: ${{ secrets.STAGING_STRIPE_API_KEY || secrets.STAGING_STRIPE_SANDBOX_API_KEY }}
       STAGING_STRIPE_WEBHOOK_SECRET: ${{ secrets.STAGING_STRIPE_WEBHOOK_SECRET }}
       # Build the staging connection from audited fields. Keeping the password
@@ -37,8 +37,8 @@ jobs:
       PGHOST: aws-0-ca-central-1.pooler.supabase.com
       PGPORT: "5432"
       PGDATABASE: postgres
-      PGUSER: postgres.qgrertkqbwanerqqemph
-      PGPASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      PGUSER: staging_billing_verifier.qgrertkqbwanerqqemph
+      PGPASSWORD: ${{ secrets.STAGING_DB_VERIFIER_PASSWORD }}
       PGSSLMODE: require
 
     steps:
@@ -64,7 +64,7 @@ jobs:
             STAGING_SUPABASE_URL
             STAGING_SUPABASE_PUBLISHABLE_KEY
             STAGING_SUPABASE_SERVICE_ROLE_KEY
-            STAGING_DB_PASSWORD
+            STAGING_DB_VERIFIER_PASSWORD
             STAGING_STRIPE_API_KEY
             STAGING_STRIPE_WEBHOOK_SECRET
           )
@@ -130,7 +130,7 @@ jobs:
       - name: Verify exact staging database identity
         run: |
           set -euo pipefail
-          expected_user="postgres.${STAGING_EXPECTED_PROJECT_REF}"
+          expected_user="staging_billing_verifier.${STAGING_EXPECTED_PROJECT_REF}"
           if [ "$PGUSER" != "$expected_user" ]; then
             echo "::error::Staging database user does not match the approved project ref."
             exit 1
@@ -141,11 +141,11 @@ jobs:
           fi
           identity=$(psql -X -v ON_ERROR_STOP=1 -Atc \
             "select current_database() || '|' || current_user;")
-          if [ "$identity" != "postgres|postgres" ]; then
+          if [ "$identity" != "postgres|staging_billing_verifier" ]; then
             echo "::error::Connected database identity was unexpected: $identity"
             exit 1
           fi
-          echo "Connected to the approved staging database as postgres."
+          echo "Connected to the approved staging database as the restricted billing verifier."
 
       - name: Require billing grant hardening on staging
         run: |

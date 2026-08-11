@@ -5,11 +5,14 @@ const workflow = readFileSync(".github/workflows/staging-billing-verification.ym
 
 describe("staging billing workflow database isolation", () => {
   it("constructs the connection from fixed staging fields and a raw password", () => {
-    expect(workflow).toContain("STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}");
+    expect(workflow).toContain(
+      "STAGING_DB_VERIFIER_PASSWORD: ${{ secrets.STAGING_DB_VERIFIER_PASSWORD }}",
+    );
     expect(workflow).toContain("PGHOST: aws-0-ca-central-1.pooler.supabase.com");
-    expect(workflow).toContain("PGUSER: postgres.qgrertkqbwanerqqemph");
+    expect(workflow).toContain("PGUSER: staging_billing_verifier.qgrertkqbwanerqqemph");
     expect(workflow).toContain("PGSSLMODE: require");
     expect(workflow).not.toContain("STAGING_DB_URL");
+    expect(workflow).not.toContain("PGUSER: postgres.qgrertkqbwanerqqemph");
   });
 
   it("verifies database identity before running billing assertions", () => {

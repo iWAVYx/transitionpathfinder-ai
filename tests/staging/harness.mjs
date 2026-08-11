@@ -18,8 +18,8 @@
  *   STAGING_STRIPE_WEBHOOK_SECRET
  *
  * The GitHub workflow runs pgTAP and direct grant checks through fixed PGHOST,
- * PGUSER, PGDATABASE, and PGPORT values plus STAGING_DB_PASSWORD. The test
- * harness itself never needs or parses a database connection URL.
+ * PGUSER, PGDATABASE, and PGPORT values plus a dedicated verifier password.
+ * The test harness itself never needs or parses a database connection URL.
  *
  * Hard safety rails — the harness throws, it does not skip, when:
  *   * the Supabase URL resolves to the production project ref, or
