@@ -2,70 +2,84 @@
 
 ## Why this exists
 
-Production (`https://transitionforwardct.com`) is protected by Cloudflare's
-"Just a moment..." browser challenge. Headless Playwright in GitHub Actions
-cannot solve the challenge, so every role auth-setup test fails before it
-can even reach the `/login` form. The fix is **not** to bypass Cloudflare
-on production — it is to run E2E against a dedicated subdomain that serves
-the same app but is exempt from the challenge.
+Production (`https://transitionforwardct.com`) and the custom staging zone can
+be protected by Cloudflare browser challenges. Headless Playwright in GitHub
+Actions must not weaken or bypass those protections just to run CI.
 
-## Recommended setup
+TransitionForward therefore runs browser E2E against the isolated staging
+Worker directly:
 
-Pick one of:
-
-- `https://e2e.transitionforwardct.com`
-- `https://staging.transitionforwardct.com`
-
-### DNS + Cloudflare
-
-1. Add a DNS record for the chosen subdomain that points at the same
-   Lovable-published origin as production (CNAME to the published
-   `*.lovable.app` URL, or an A record per Lovable's custom-domain
-   instructions).
-2. In Cloudflare, for the **subdomain only**:
-   - Disable "Under Attack Mode" / Bot Fight Mode for the hostname.
-   - Add a WAF custom rule: `http.host eq "e2e.transitionforwardct.com"` →
-     **Skip → All remaining custom rules, Managed Rules, Bot Fight Mode,
-     Super Bot Fight Mode**.
-   - Keep TLS on. Do not disable Cloudflare entirely — just the challenge.
-3. Leave production (`transitionforwardct.com`, `www.transitionforwardct.com`)
-   fully protected. The subdomain rule must not match the apex host.
-
-### Connect the subdomain to Lovable
-
-Follow **Project Settings → Domains → Connect Domain** for the new
-subdomain. Once it shows **Active**, browse to
-`https://e2e.transitionforwardct.com/login` from an incognito window and
-confirm the sign-in form renders without an interstitial.
-
-### GitHub Actions secret
-
-Update `E2E_BASE_URL` (the secret consumed by `PLAYWRIGHT_BASE_URL` in
-`.github/workflows/dashboard-regression.yml` and `role-guard-qa.yml`) to
-the new URL:
-
-```
-E2E_BASE_URL = https://e2e.transitionforwardct.com
+```text
+https://transitionforward-staging.caysi101.workers.dev
 ```
 
-No other secret changes. Seeded role accounts
-(`E2E_<ROLE>_EMAIL` / `_PASSWORD` / `_TOTP_SECRET`) stay as-is.
+This is the same Worker deployed by `.github/workflows/deploy-staging.yml`.
+It is staging-only, uses the staging Supabase project and sandbox billing
+configuration, and does not route browser CI through the production zone.
 
-## Preflight guards already in the repo
+## Canonical browser-test URL
 
-- `tests/e2e/scripts/check-role-creds.mjs` fails the workflow when
-  `E2E_BASE_URL` points at the production apex (no `e2e.` / `staging.`
-  prefix) in live mode (exit code 4).
-- `tests/e2e/auth-roles.setup.ts` detects the Cloudflare challenge body
-  (`/just a moment/i`, `cf-chl-`, HTTP 403) before attempting to fill the
-  login form and throws a remediation error with the exact subdomain
-  guidance — so the report no longer just says "selector not found".
+`dashboard-regression.yml` and `role-guard-qa.yml` set:
+
+```text
+PLAYWRIGHT_BASE_URL=https://transitionforward-staging.caysi101.workers.dev
+```
+
+The URL is public routing information, not a credential, so it is kept in the
+workflow rather than stored as a secret. Role usernames, passwords, and TOTP
+secrets remain GitHub Actions secrets.
+
+Do not point these workflows at:
+
+- `https://transitionforwardct.com`
+- `https://www.transitionforwardct.com`
+- a custom hostname that returns Cloudflare's `Just a moment...` challenge
+
+The custom `e2e.transitionforwardct.com` hostname may still be useful for
+human staging review, but automated browser verification should prefer the
+direct Worker endpoint.
+
+## Cloudflare note
+
+Do not rely on a WAF Skip rule to bypass ordinary Cloudflare Bot Fight Mode.
+Bot Fight Mode is not a skippable WAF phase. Keep the public zone protected
+and route CI to the isolated `workers.dev` staging endpoint instead.
+
+If the account later uses Super Bot Fight Mode or a different Cloudflare
+security configuration, review the current Cloudflare documentation before
+changing the CI route. Do not create a production bypass header or public WAF
+exception merely to make Playwright pass.
+
+## Preflight guards in the repo
+
+- `tests/e2e/scripts/check-role-creds.mjs` reports which of the seven seeded
+  role accounts are configured without printing credential values.
+- `tests/e2e/scripts/check-base-url.mjs` verifies HTTPS, DNS, root and `/login`
+  reachability, and fails if it sees a Cloudflare challenge.
+- `tests/e2e/auth-roles.setup.ts` verifies that the deployed app exposes the
+  current dashboard test-id contract and, when a build SHA is available, that
+  the deployed build matches the commit under test.
+
+That final deployment-parity check is intentional: if a PR changes the app
+but the staging Worker still serves an older commit, browser CI should fail
+with a clear request to deploy the exact PR commit to staging. It must not
+silently test old code and report success.
 
 ## Test accounts
 
-Use only the seeded E2E accounts already provisioned in the database.
-Never commit credentials to the repo; all values come from GitHub Actions
-secrets.
+Use only the seeded E2E accounts provisioned in the staging database. Never
+commit credentials to the repository. These remain GitHub Actions secrets:
+
+- `E2E_STUDENT_EMAIL` / `E2E_STUDENT_PASSWORD`
+- `E2E_PARENT_EMAIL` / `E2E_PARENT_PASSWORD`
+- `E2E_EDUCATOR_EMAIL` / `E2E_EDUCATOR_PASSWORD`
+- `E2E_SCHOOL_ADMIN_EMAIL` / `E2E_SCHOOL_ADMIN_PASSWORD`
+- `E2E_DISTRICT_ADMIN_EMAIL` / `E2E_DISTRICT_ADMIN_PASSWORD`
+- `E2E_PARTNER_EMAIL` / `E2E_PARTNER_PASSWORD`
+- `E2E_OWNER_EMAIL` / `E2E_OWNER_PASSWORD` / `E2E_OWNER_TOTP_SECRET`
+
+Other role TOTP secrets may also be configured when those accounts require
+2FA.
 
 ## Login selectors (stable contract)
 
@@ -78,12 +92,12 @@ The login route exposes:
 
 Keep these stable; the auth setup relies on them.
 
-## Fallback (only if a subdomain is impossible)
+## Expected workflow sequence
 
-If ops cannot create a staging subdomain, the alternative is a Cloudflare
-WAF rule that lets a specific request header bypass the challenge — for
-example, require `X-E2E-Bypass: <secret>` and store the secret as
-`E2E_CF_BYPASS_HEADER` / `E2E_CF_BYPASS_TOKEN` in GitHub Actions. Playwright
-would then attach the header via `extraHTTPHeaders` in `playwright.config.ts`.
-Treat this only as a last resort: any leak of the header value re-opens the
-production challenge bypass to the public internet.
+1. Static/unit/security checks run against the PR code.
+2. Browser CI preflights the direct staging Worker endpoint.
+3. Auth setup checks deployment parity before signing in all configured roles.
+4. If staging is behind the PR, stop and deploy the exact PR commit to staging.
+5. Re-run Dashboard regression and Role-guard QA against that exact staging
+   deployment.
+6. Keep production promotion blocked until staging evidence is reviewed.
