@@ -86,9 +86,7 @@ test.describe("report a11y — current interaction contract", () => {
 
     const tabs = tablist.getByRole("tab");
     expect(await tabs.count()).toBeGreaterThan(1);
-
-    const selected = tabs.filter({ has: page.locator('[aria-selected="true"]') });
-    expect(await selected.count()).toBeLessThanOrEqual(1);
+    await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1);
 
     for (let i = 0; i < (await tabs.count()); i++) {
       const tab = tabs.nth(i);
