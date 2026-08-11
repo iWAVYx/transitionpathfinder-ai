@@ -15,7 +15,7 @@ production project ref or the Stripe key is a live key.
 | `STAGING_STRIPE_API_KEY`            | Stripe **sandbox** key (`sk_test_…`)                  |
 | `STAGING_STRIPE_WEBHOOK_SECRET`     | Signing secret for the isolated staging destination   |
 | `STAGING_BASE_URL`                  | Staging Worker URL used for signed webhook acceptance |
-| `STAGING_DB_URL`                    | Direct Postgres URL for the pgTAP and grant checks    |
+| `STAGING_DB_VERIFIER_PASSWORD`      | Password for the staging-only read verifier role      |
 
 With none of these set, local runs skip safely. The GitHub workflow sets
 `REQUIRE_STAGING_TESTS=true`, so a missing staging variable fails instead of
@@ -42,7 +42,7 @@ Either way the app code is untouched — only the environment differs.
 node --test tests/staging/preflight.test.mjs
 
 # 2. Catalog contract — app price ids vs the Stripe sandbox catalog.
-node --test tests/staging/catalog-contract.test.mjs
+node --experimental-strip-types --test tests/staging/catalog-contract.test.mjs
 
 # 3. Capacity, sponsorship, and audit-trail enforcement.
 node --test tests/staging/capacity-enforcement.test.mjs
@@ -51,8 +51,8 @@ node --test tests/staging/capacity-enforcement.test.mjs
 #    idempotency, and cleanup.
 node --test tests/staging/webhook-acceptance.test.mjs
 
-# 5. Database invariants (optional, needs pgtap on staging).
-psql "$STAGING_DB_URL" -f tests/staging/pgtap/billing_capacity.sql
+# 5. Database invariants (optional, needs pgtap plus the verifier PG* variables).
+psql -X -v ON_ERROR_STOP=1 -f tests/staging/pgtap/billing_capacity.sql
 ```
 
 Or all of the Node tests at once:
@@ -75,6 +75,19 @@ In **Actions → Staging Billing Verification → Run workflow**, enter
 live Stripe key, incorrect webhook secret, or unapplied migration fails before
 any fixture write.
 
+If the catalog check reports missing `tf_*` lookup keys, run the separate
+**Provision Staging Stripe Catalog** workflow once. Enter
+`provision-staging-catalog`. It previews the exact products and prices, creates
+only missing sandbox objects, refuses incompatible existing prices, and then
+proves a second run has no work left. Re-run **Staging Billing Verification**
+after the provisioning workflow is green.
+
+The provisioning workflow needs a raw sandbox secret key. A restricted
+`rk_test_…` key is preferred when it has **read access to Balance** and
+**read/write access to Products and Prices**. The key stays in the GitHub
+`staging` environment; never place it in source code, a workflow file, or a
+browser-facing `VITE_*` variable.
+
 ## Fixture hygiene
 
 Every fixture is namespaced `qa_billing_<timestamp>` (`FIXTURE_TAG`) and
@@ -84,7 +97,8 @@ is the behaviour the suite asserts.
 
 ## What is deliberately not covered here
 
-- No writes to Stripe. Catalog checks are read-only; signed synthetic events
+- The verification workflow never writes to Stripe. The separate manual
+  provisioning workflow is the only catalog writer; signed synthetic events
   exercise the deployed webhook without creating Stripe customers or charges.
 - No production webhook replay. The lifecycle test signs fixtures with the
   isolated staging destination secret and hard-refuses the production host and

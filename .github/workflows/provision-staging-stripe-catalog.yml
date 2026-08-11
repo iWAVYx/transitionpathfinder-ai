@@ -1,0 +1,67 @@
+name: Provision Staging Stripe Catalog
+
+# Manual-only writer for the isolated Stripe sandbox. The normal staging
+# billing verification remains read-only.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "provision-staging-catalog" to create missing sandbox products and prices'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provision-staging-stripe-catalog
+  cancel-in-progress: false
+
+jobs:
+  provision-catalog:
+    name: Provision Sandbox Products and Prices
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 15
+    env:
+      STAGING_STRIPE_API_KEY: ${{ secrets.STAGING_STRIPE_API_KEY || secrets.STAGING_STRIPE_SANDBOX_API_KEY }}
+
+    steps:
+      - name: Confirm sandbox catalog intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "provision-staging-catalog" ]; then
+            echo "::error::Confirmation text did not match 'provision-staging-catalog'."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Require a raw Stripe sandbox key
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${STAGING_STRIPE_API_KEY:-}" in
+            sk_test_*|rk_test_*|sk_sandbox_*) ;;
+            *)
+              echo "::error::A raw Stripe sandbox key is required in the GitHub staging environment."
+              exit 1
+              ;;
+          esac
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Verify catalog manifest
+        run: bunx vitest run tests/unit/stripe-catalog.test.ts tests/unit/staging-stripe-catalog-workflow.test.ts
+
+      - name: Preview sandbox changes
+        run: bun scripts/provision-staging-stripe-catalog.ts --dry-run
+
+      - name: Apply missing sandbox products and prices
+        run: bun scripts/provision-staging-stripe-catalog.ts --apply
+
+      - name: Prove the catalog is now idempotent
+        run: bun scripts/provision-staging-stripe-catalog.ts --dry-run
