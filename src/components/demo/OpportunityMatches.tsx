@@ -11,7 +11,7 @@ const BAND_LABEL: Record<OpportunityMatch["band"], string> = {
 };
 
 const BAND_STYLES: Record<OpportunityMatch["band"], string> = {
-  strong: "bg-primary/10 text-primary border-primary/30",
+  strong: "bg-primary/10 text-foreground border-primary/40",
   worth_exploring: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
   stretch: "bg-muted text-muted-foreground border-border",
   filtered_out: "bg-destructive/5 text-destructive border-destructive/30",
