@@ -1,7 +1,7 @@
 -- pgTAP: billing / licensing invariants.
 --
 -- Run against a STAGING database only:
---   psql "$STAGING_DB_URL" -f tests/staging/pgtap/billing_capacity.sql
+--   PGHOST=... PGUSER=... PGPASSWORD=... psql -f tests/staging/pgtap/billing_capacity.sql
 --
 -- Requires the pgtap extension:
 --   CREATE EXTENSION IF NOT EXISTS pgtap;
