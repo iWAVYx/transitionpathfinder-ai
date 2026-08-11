@@ -82,6 +82,8 @@ jobs:
         run: bunx playwright install --with-deps chromium
       - name: Role credential readiness check
         run: node tests/e2e/scripts/check-role-creds.mjs
+      - name: E2E base URL reachability preflight
+        run: node tests/e2e/scripts/check-base-url.mjs
       - name: Per-role auth setup (skips roles without credentials)
         run: bunx playwright test --project=dashboard-setup
       - name: Verify storage states match configured roles (live only)
