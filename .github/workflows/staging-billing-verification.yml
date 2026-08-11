@@ -188,7 +188,7 @@ jobs:
           mkdir -p test-results/staging-billing
           node --test tests/staging/preflight.test.mjs \
             2>&1 | tee test-results/staging-billing/01-preflight.txt
-          node --test tests/staging/catalog-contract.test.mjs \
+          node --experimental-strip-types --test tests/staging/catalog-contract.test.mjs \
             2>&1 | tee test-results/staging-billing/02-catalog.txt
 
       - name: Capacity, sponsorship, and audit enforcement

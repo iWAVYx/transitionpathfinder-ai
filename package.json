@@ -17,7 +17,7 @@
     "pretest:e2e": "node scripts/ensure-playwright-chromium.mjs",
     "test:e2e": "playwright test",
     "test:unit": "vitest run",
-    "test:staging": "node --test tests/staging/*.test.mjs",
+    "test:staging": "node --experimental-strip-types --test tests/staging/*.test.mjs",
     "pretest:dashboards": "node scripts/ensure-playwright-chromium.mjs",
     "test:dashboards": "vitest run && playwright test --project=dashboard-setup --project=dashboard-regression"
   },
