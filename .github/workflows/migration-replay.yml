@@ -139,6 +139,34 @@ jobs:
               'public.processed_payment_events'
             ]) t;" | grep -qx t
 
+      - name: Webhook conflict targets are PostgREST-inferable
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select count(*) = 3
+            from pg_index i
+            join pg_class c on c.oid = i.indexrelid
+            join pg_namespace n on n.oid = c.relnamespace
+            where n.nspname = 'public'
+              and c.relname in (
+                'billing_accounts_subject_environment_uidx',
+                'access_entitlements_subject_plan_uidx',
+                'license_pools_subscription_type_uidx'
+              )
+              and i.indisunique
+              and i.indpred is null;" | grep -qx t
+
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select count(*) = 2
+            from pg_index i
+            join pg_class c on c.oid = i.indexrelid
+            join pg_namespace n on n.oid = c.relnamespace
+            where n.nspname = 'public'
+              and c.relname in (
+                'billing_accounts_subject_environment_uidx',
+                'access_entitlements_subject_plan_uidx'
+              )
+              and i.indnullsnotdistinct;" | grep -qx t
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4

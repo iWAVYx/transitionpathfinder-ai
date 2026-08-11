@@ -62,7 +62,7 @@ async function resolvePlan(
   priceId: string | null,
 ): Promise<{ plan: PlanRow; capacity: CapacityRow } | null> {
   if (!priceId) return null;
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from("plans")
     .select(
       "code, billing_scope, is_addon, entitlement_plan_type, plan_capacities(pathway_licenses, staff_seats, admin_seats)",
@@ -72,6 +72,10 @@ async function resolvePlan(
     )
     .limit(1)
     .maybeSingle();
+  if (error) {
+    console.error("Payment webhook: plan lookup failed:", error);
+    throw new Error("Plan lookup failed");
+  }
   if (!data) return null;
   const capacityRel = (data as Record<string, unknown>)["plan_capacities"];
   const capacity = (Array.isArray(capacityRel) ? capacityRel[0] : capacityRel) as
@@ -89,9 +93,11 @@ async function upsertBillingAccount(
   customerId: string | null,
   env: StripeEnv,
   collectionMethod: string,
-): Promise<string | null> {
-  if (!customerId) return null;
-  const { data } = await getSupabase()
+): Promise<string> {
+  if (!customerId) {
+    throw new Error("Subscription is missing its Stripe customer");
+  }
+  const { data, error } = await getSupabase()
     .from("billing_accounts")
     .upsert(
       {
@@ -105,14 +111,16 @@ async function upsertBillingAccount(
         updated_at: new Date().toISOString(),
       },
       {
-        onConflict: subject.organization_id
-          ? "organization_id,environment"
-          : "user_id,environment",
+        onConflict: "user_id,organization_id,environment",
       },
     )
     .select("id")
     .maybeSingle();
-  return data?.id ?? null;
+  if (error || !data) {
+    console.error("Payment webhook: billing account upsert failed:", error);
+    throw new Error("Billing account upsert failed");
+  }
+  return data.id as string;
 }
 
 /**
@@ -176,7 +184,6 @@ async function reconcileEntitlement(args: {
   const planType = args.plan.entitlement_plan_type;
   if (!planType) return;
 
-  const org = args.subject.organization_id;
   const { error } = await getSupabase()
     .from("access_entitlements")
     .upsert(
@@ -191,7 +198,7 @@ async function reconcileEntitlement(args: {
         source: `stripe:${args.env}`,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: org ? "organization_id,plan_type" : "user_id,plan_type" },
+      { onConflict: "organization_id,user_id,plan_type" },
     );
   if (error) {
     console.error("Payment webhook: entitlement reconcile failed:", error);
