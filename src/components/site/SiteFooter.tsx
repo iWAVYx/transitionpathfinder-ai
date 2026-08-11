@@ -67,7 +67,7 @@ export function SiteFooter() {
             From IEP Plans to Real-Life Pathways. One platform for the students,
             families, and educators walking the long road of transition together.
           </p>
-          <p className="mt-4 max-w-md text-xs leading-relaxed text-muted-foreground/80">
+          <p className="mt-4 max-w-md text-xs leading-relaxed text-muted-foreground">
             A pilot program — not a school district's system of record. Your
             child's information stays yours, scoped to your account, and is
             never shared, sold, or used to train any outside model.
