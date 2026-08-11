@@ -51,9 +51,11 @@ console.log("=========================");
 // subdomain) sits behind Cloudflare's challenge and will block headless
 // Playwright. CI must point at an exempt staging hostname.
 const baseUrl = process.env.PLAYWRIGHT_BASE_URL ?? process.env.E2E_BASE_URL ?? "";
+let baseHost = "";
 if (baseUrl) {
   try {
     const host = new URL(baseUrl).hostname;
+    baseHost = host;
     const isProdRoot =
       /(^|\.)transitionforwardct\.com$/i.test(host) && !/^(e2e|staging)\./i.test(host);
     console.log(`  base URL: ${baseUrl}`);
@@ -82,16 +84,23 @@ for (const m of missing) {
 }
 
 // Explicit owner 2FA flag so CI logs show which auth path the owner setup
-// will follow without ever exposing the secret value.
+// will follow without ever exposing the secret value. The only permitted
+// no-TOTP path is the synthetic owner on the isolated staging Worker; this
+// mirrors auth-roles.setup.ts and keeps production owner verification strict.
 const ownerTotpConfigured = Boolean(process.env.E2E_OWNER_TOTP_SECRET && process.env.E2E_OWNER_TOTP_SECRET.trim());
+const stagingOwnerWithoutTotp =
+  process.env.ALLOW_STAGING_OWNER_WITHOUT_TOTP === "true" &&
+  process.env.E2E_OWNER_EMAIL === "e2e.owner@staging.transitionforwardct.test" &&
+  baseHost === "transitionforward-staging.caysi101.workers.dev";
 console.log(`\nOWNER_TOTP_CONFIGURED=${ownerTotpConfigured}`);
-if (!ownerTotpConfigured) {
+if (!ownerTotpConfigured && stagingOwnerWithoutTotp) {
+  console.log("OWNER_TOTP_STAGING_EXCEPTION=true (synthetic staging owner only)");
+} else if (!ownerTotpConfigured) {
   console.error("::error::E2E_OWNER_TOTP_SECRET is required for the strict owner 2FA dashboard setup path.");
   if (process.env.LIVE_VERIFICATION === "1" || process.env.LIVE_VERIFICATION === "true" || process.env.REQUIRE_ALL_ROLES === "1" || process.env.REQUIRE_ALL_ROLES === "true") {
     process.exit(5);
   }
 }
-
 
 let stateFiles = [];
 if (existsSync(AUTH_DIR)) {
