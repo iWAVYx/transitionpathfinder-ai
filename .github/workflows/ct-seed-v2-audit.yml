@@ -5,8 +5,12 @@ on:
     paths:
       - "src/lib/import-audit.functions.ts"
       - "src/routes/_authenticated/owner.import-audit.tsx"
+      - "scripts/repair-ct-seed-v2-staging.mjs"
       - "tests/ct-seed-v2-audit.test.mjs"
+      - "tests/ct-seed-v2-repair.test.mjs"
+      - "package.json"
       - ".github/workflows/ct-seed-v2-audit.yml"
+      - ".github/workflows/ct-seed-v2-staging-repair.yml"
   push:
     branches: [main]
 
@@ -41,7 +45,9 @@ jobs:
       - name: Run credential-free CT seed v2 audit
         env:
           REQUIRE_LIVE_CT_SEED_AUDIT: "false"
-        run: bun run test:ct-seed-v2
+        run: |
+          bun run test:ct-seed-v2-repair
+          bun run test:ct-seed-v2
 
   live-staging-audit:
     name: CT Seed v2 Live Staging Audit
